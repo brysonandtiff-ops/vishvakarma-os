@@ -234,8 +234,11 @@
 .architect-tool-button.active {
   color: hsl(var(--ws-active));
   background-color: hsl(var(--ws-active-bg));
-  border-color: hsl(var(--ws-active) / 0.5);
-  box-shadow: 0 0 0 2px hsl(var(--ws-active-ring));
+  border-color: hsl(var(--ws-active) / 0.6);
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active-ring)),
+    0 0 8px hsl(var(--ws-active) / 0.25),
+    inset 0 1px 0 hsl(var(--ws-active) / 0.15);
 }
 
 .high-contrast .architect-tool-button.active {
@@ -283,10 +286,11 @@
   align-items: center;
   gap: 4px;
   height: 100%;
-  padding: 0 10px;
-  font-size: 12px;
+  padding: 0 11px;
+  font-size: 12.5px;
   font-weight: 500;
-  color: hsl(var(--ws-text-dim));
+  letter-spacing: 0.01em;
+  color: hsl(var(--ws-text));
   background: transparent;
   border: none;
   cursor: pointer;
@@ -296,7 +300,7 @@
 }
 
 .ws-menu-item:hover {
-  color: hsl(var(--ws-text));
+  color: hsl(0 0% 100%);
   background: hsl(var(--ws-hover));
 }
 

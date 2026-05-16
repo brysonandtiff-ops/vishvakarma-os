@@ -130,20 +130,25 @@ export default function RegistryPage() {
                       const cfg = getTypeConfig(entry.type);
                       const Icon = cfg.icon;
                       return (
-                        <Card key={entry.id} className="h-full flex flex-col border-border shadow-sm transition-shadow hover:shadow-md">
+                        <Card key={entry.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5">
                           <CardHeader className="pb-2">
                             <div className="flex items-start justify-between gap-2">
-                              <div className="flex min-w-0 flex-1 items-center gap-2">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
-                                  <Icon className="h-4 w-4 text-muted-foreground" />
+                              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                                {/* Type-coloured icon badge */}
+                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${cfg.className}`}>
+                                  <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0">
                                   <CardTitle className="truncate text-sm text-balance">{entry.name}</CardTitle>
-                                  <CardDescription className="mt-0.5 text-xs capitalize">{entry.type}</CardDescription>
+                                  <CardDescription className="mt-0.5 font-mono text-[10px]">
+                                    {entry.id.slice(0, 12)}…
+                                  </CardDescription>
                                 </div>
                               </div>
-                              <div className="flex shrink-0 flex-col items-end gap-1">
-                                <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold ${cfg.className}`}>
+                              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                                {/* Prominent type badge */}
+                                <span className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-bold tracking-wide ${cfg.className}`}>
+                                  <Icon className="h-2.5 w-2.5" />
                                   {cfg.label}
                                 </span>
                                 <Badge
@@ -160,8 +165,13 @@ export default function RegistryPage() {
                               {entry.description || 'No description provided'}
                             </p>
                             {entry.metadata && Object.keys(entry.metadata).length > 0 && (
-                              <div className="mb-3 rounded-md bg-muted/50 p-2">
-                                <pre className="text-xs text-muted-foreground">
+                              <div className="mb-3 overflow-hidden rounded-lg border border-border bg-muted/50">
+                                <div className="border-b border-border bg-muted/80 px-2 py-1">
+                                  <span className="font-mono text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Metadata
+                                  </span>
+                                </div>
+                                <pre className="max-h-24 overflow-y-auto p-2 text-xs text-muted-foreground">
                                   {JSON.stringify(entry.metadata, null, 2)}
                                 </pre>
                               </div>

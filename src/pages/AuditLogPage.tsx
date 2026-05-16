@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight } from 'lucide-react';
+import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedPayloads, setExpandedPayloads] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,15 @@ export default function AuditLogPage() {
       setLoading(false);
     }
   };
+
+  function togglePayload(id: string) {
+    setExpandedPayloads((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const getEntityConfig = (entityType: string) => {
     switch (entityType) {
@@ -169,10 +179,24 @@ export default function AuditLogPage() {
                               )}
 
                               {log.details && Object.keys(log.details).length > 0 && (
-                                <div className="mt-2 rounded-lg bg-muted/40 p-2">
-                                  <pre className="text-xs text-muted-foreground overflow-x-auto">
-                                    {JSON.stringify(log.details, null, 2)}
-                                  </pre>
+                                <div className="mt-2">
+                                  <button
+                                    onClick={() => togglePayload(log.id)}
+                                    className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                                    aria-expanded={expandedPayloads.has(log.id)}
+                                  >
+                                    {expandedPayloads.has(log.id)
+                                      ? <ChevronDown className="h-3 w-3" />
+                                      : <ChevronRight className="h-3 w-3" />}
+                                    View payload ({Object.keys(log.details).length} field{Object.keys(log.details).length !== 1 ? 's' : ''})
+                                  </button>
+                                  {expandedPayloads.has(log.id) && (
+                                    <div className="mt-1.5 rounded-lg border border-border bg-muted/40 p-2">
+                                      <pre className="max-h-48 overflow-y-auto text-xs text-muted-foreground">
+                                        {JSON.stringify(log.details, null, 2)}
+                                      </pre>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>

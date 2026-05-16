@@ -6,7 +6,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import type { Wall, Opening, LightingConfig } from '@/types';
 import * as THREE from 'three';
-import { Box, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
@@ -217,35 +217,105 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
   const webgl = detectWebGL();
   if (!webgl.supported) {
     return (
-      <div className="h-full w-full bg-muted">
-        <Viewport3DFallback reason={webgl.reason ?? 'WebGL is not supported.'} />
+      <div className="flex h-full w-full flex-col">
+        <Viewport3DHeader wallCount={0} />
+        <div className="flex-1 bg-muted">
+          <Viewport3DFallback reason={webgl.reason ?? 'WebGL is not supported.'} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full w-full bg-muted">
-      <WebGLErrorBoundary
-        fallback={
-          <Viewport3DFallback reason="WebGL context creation failed (BindToCurrentSequence). The 3D renderer could not initialise." />
-        }
+    <div className="flex h-full w-full flex-col">
+      <Viewport3DHeader wallCount={walls.length} />
+      <div className="relative flex-1">
+        <WebGLErrorBoundary
+          fallback={
+            <Viewport3DFallback reason="WebGL context creation failed (BindToCurrentSequence). The 3D renderer could not initialise." />
+          }
+        >
+          <Canvas shadows style={{ width: '100%', height: '100%' }}>
+            <PerspectiveCamera makeDefault position={[8, 6, 8]} />
+            <OrbitControls enableDamping dampingFactor={0.05} />
+
+            <Lighting lighting={lighting} />
+
+            <Floor />
+
+            {walls.map((wall) => (
+              <WallMesh key={wall.id} wall={wall} openings={openings} />
+            ))}
+
+            {/* @ts-expect-error - React Three Fiber JSX types */}
+            <gridHelper args={[20, 20, '#0066CC', '#cccccc']} />
+          </Canvas>
+        </WebGLErrorBoundary>
+
+        {/* Orbit hint overlay */}
+        <div
+          className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md px-2 py-1"
+          style={{ background: 'hsl(var(--ws-toolbar) / 0.85)', border: '1px solid hsl(var(--ws-border))' }}
+        >
+          <RotateCcw className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-text-faint))' }} />
+          <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.04em' }}>
+            Drag to orbit · Scroll to zoom
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Premium 3D Viewport Header ──────────────────────────────────────────────
+function Viewport3DHeader({ wallCount }: { wallCount: number }) {
+  return (
+    <div
+      className="flex h-7 shrink-0 items-center gap-2 px-3"
+      style={{
+        background: 'linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(220 20% 12%) 100%)',
+        borderBottom: '1px solid hsl(var(--ws-border))',
+      }}
+    >
+      {/* Icon + label */}
+      <div className="flex items-center gap-1.5">
+        <Box className="h-3 w-3" style={{ color: 'hsl(var(--ws-active))' }} />
+        <span
+          style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'hsl(var(--ws-text))',
+          }}
+        >
+          3D View
+        </span>
+      </div>
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* Wall count badge */}
+      <div
+        className="flex items-center gap-1 rounded px-1.5 py-0.5"
+        style={{ background: 'hsl(var(--ws-active-bg))', border: '1px solid hsl(var(--ws-active) / 0.3)' }}
       >
-        <Canvas shadows>
-          <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-          <OrbitControls enableDamping dampingFactor={0.05} />
+        <Layers className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-active))' }} />
+        <span style={{ fontSize: '9px', color: 'hsl(var(--ws-active))', fontFamily: 'monospace' }}>
+          {wallCount} wall{wallCount !== 1 ? 's' : ''}
+        </span>
+      </div>
 
-          <Lighting lighting={lighting} />
-
-          <Floor />
-
-          {walls.map((wall) => (
-            <WallMesh key={wall.id} wall={wall} openings={openings} />
-          ))}
-
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-          <gridHelper args={[20, 20, '#0066CC', '#cccccc']} />
-        </Canvas>
-      </WebGLErrorBoundary>
+      {/* Engine badge */}
+      <div
+        className="rounded px-1.5 py-0.5"
+        style={{ background: 'hsl(var(--ws-border-subtle))', border: '1px solid hsl(var(--ws-border))' }}
+      >
+        <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.06em' }}>
+          WebGL · R3F
+        </span>
+      </div>
     </div>
   );
 }
