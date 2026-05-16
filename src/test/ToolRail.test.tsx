@@ -38,7 +38,7 @@ describe('ToolRail', () => {
     it('should render separator between tools and view controls', () => {
       const { container } = render(<ToolRail {...defaultProps} />);
       
-      const separator = container.querySelector('.bg-wood-light');
+      const separator = container.querySelector('[data-testid="tool-separator"]');
       expect(separator).toBeInTheDocument();
     });
   });

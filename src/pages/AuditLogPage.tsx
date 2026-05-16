@@ -1,17 +1,19 @@
 // Audit Log Page - System audit trail with timeline display
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw } from 'lucide-react';
+import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
-import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadLogs();
@@ -110,6 +112,15 @@ export default function AuditLogPage() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   System activity will appear here as you interact with Vishvakarma.OS
                 </p>
+                <div className="mt-5 flex flex-col items-center gap-2">
+                  <Button size="sm" className="gap-2" onClick={() => navigate('/')}>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                    Open the Editor
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground/60">
+                    Create a project, add walls, or submit a change request to seed the log
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-8">

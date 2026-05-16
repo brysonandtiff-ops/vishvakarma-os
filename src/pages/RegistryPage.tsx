@@ -111,11 +111,18 @@ export default function RegistryPage() {
                         ? 'Register your first component or feature to begin tracking'
                         : `No ${selectedType}s registered yet`}
                     </p>
-                    {selectedType === 'all' && (
-                      <div className="mt-4">
+                    <div className="mt-5 flex flex-col items-center gap-2">
+                      {selectedType === 'all' ? (
                         <NewRegistryDialog onEntryCreated={loadEntries} />
-                      </div>
-                    )}
+                      ) : (
+                        <>
+                          <NewRegistryDialog onEntryCreated={loadEntries} />
+                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => setSelectedType('all')}>
+                            View all entries
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

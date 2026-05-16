@@ -61,7 +61,7 @@ export default function ToolRail({
                 <button
                   className={`architect-tool-button ${isActive ? 'active' : ''}`}
                   onClick={() => onToolChange(tool.id)}
-                  aria-label={`${tool.label} (${tool.shortcut})`}
+                  aria-label={tool.label}
                   aria-pressed={isActive}
                 >
                   <Icon className="h-[18px] w-[18px]" />
@@ -79,7 +79,7 @@ export default function ToolRail({
           );
         })}
 
-        <Separator className="my-2 w-8 bg-sidebar-border" />
+        <Separator className="my-2 w-8 bg-sidebar-border" data-testid="tool-separator" />
 
         {/* Section label */}
         <p className="mb-1 text-[8px] font-semibold uppercase tracking-widest text-sidebar-foreground/30">

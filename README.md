@@ -1,230 +1,422 @@
-# Vishvakarma.OS v1.0.0
+# Vishvakarma.OS
 
-**An iPad-first, browser-native architectural blueprint and live 3D studio with strict governance framework.**
+**An iPad-first, browser-native architectural blueprint editor and live 3D studio — with a strict governance operating system built in.**
 
-[![Tests](https://img.shields.io/badge/tests-357%20passing-brightgreen)]()
-[![Lint](https://img.shields.io/badge/lint-clean-brightgreen)]()
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)]()
-[![Status](https://img.shields.io/badge/status-production%20ready-success)]()
-
----
-
-## Overview
-
-Vishvakarma.OS provides a unified workspace for 2D blueprint editing with real-time 3D visualization, material application, and solar lighting simulation. Built with strict governance framework ensuring quality, auditability, and collaborative workflows.
-
-### Key Features
-
-- **2D Blueprint Editor**: Grid system, wall drawing, door/window placement
-- **Live 3D Visualization**: Real-time extrusion and rendering
-- **Materials System**: Paint, wood, concrete presets
-- **Solar Lighting**: Time-of-day simulation
-- **Project Management**: Save/load JSON manifests
-- **Governance Framework**: Spec Center, Registry, Change Requests, Release Center
-- **Version Control**: Undo/redo with full history
-- **Collaboration**: Real-time multi-user editing
-- **Accessibility**: WCAG AA compliant
+[![Lint](https://img.shields.io/badge/lint-0%20errors%20·%20127%20files-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-382%20%2F%20382%20passing-brightgreen)]()
+[![Build](https://img.shields.io/badge/build-dist%2F%20confirmed-brightgreen)]()
+[![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Supabase-informational)]()
+[![WebGL](https://img.shields.io/badge/WebGL-error%20bounded-brightgreen)]()
+[![UI](https://img.shields.io/badge/UI-premium%20dark%20glass-blueviolet)]()
 
 ---
 
-## Quick Start
+## What is Vishvakarma.OS?
 
-### Installation
+Vishvakarma.OS is a browser-native architectural design tool that combines a **2D blueprint canvas** with a **live 3D model chamber**, wrapped in a governance operating system that enforces spec compliance, change control, audit logging, and release gating.
 
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Run tests
-npm run test
-
-# Run lint
-npm run lint
-
-# Build for production
-npm run build
-```
-
-### Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-### Platform
-
-- iPad-first design
-- Touch-optimized interface
-- Apple Pencil support
-- Minimum screen: 768px width
+It is designed as a professional architectural OS — not just a drawing app. Every modification flows through a governed change-request pipeline. Every release is blocked unless all gates pass. Every system action is logged in an immutable audit trail.
 
 ---
 
-## Project Stats
+## Current Build State
 
-### Test Coverage
+> This section reflects the **live verified state** as of the last commit. All three pipeline stages have been confirmed with real terminal output.
+
+### Verified Pipeline ✅
+
+| Stage | Command | Result |
+|---|---|---|
+| **Lint** | `npm run lint` | ✅ 127 files · 0 errors · Biome + tsgo + ast-grep |
+| **Tests** | `npm run test` | ✅ 18 test files · **382 / 382 passing** · 0 failures · ~26 s |
+| **Build** | `npm run build` | ✅ `dist/` created · 2467 modules · 2.3 s · index.html + JS + CSS |
+| **Verify** | `npm run verify` | ✅ lint → test → build all exit 0 |
+
 ```
-Total Tests:        357
-Passing:            357 (100%)
-Duration:           ~39 seconds
+# Terminal evidence — npm run verify
+Checked 127 files in 1919ms. No fixes applied.         ← lint
+
+Test Files  18 passed (18)                             ← tests
+     Tests  382 passed (382)
+  Duration  26.40s
+
+dist/index.html                     2.96 kB            ← build
+dist/assets/index-DlyCKhKK.css     75.12 kB
+dist/assets/index-B76kAsh9.js   1,512.57 kB
+✓ built in 2.29s
 ```
 
-### Code Quality
-```
-Lint Status:        ✅ Clean
-TypeScript:         Strict mode enabled
-Files Checked:      123
-Errors:             0
-```
+### Verified Working ✅
 
-### Performance
+| Component | Status | Evidence |
+|---|---|---|
+| **Lint pipeline** | ✅ Verified | `npm run lint` — 127 files, 0 errors (Biome + `tsgo` + ast-grep) |
+| **Test suite** | ✅ Verified | `npm run test` — 382/382 passing across 18 files, 0 failures |
+| **Production build** | ✅ Verified | `npm run build` → `dist/` with 1.5 MB JS + 75 KB CSS, Vite exit 0 |
+| **2D Blueprint Editor** | ✅ Built | `BlueprintCanvas.tsx` (21 KB) — grid, wall drawing, door/window placement, snap-to-grid, undo/redo, export/import JSON, sample project load |
+| **3D Viewport** | ✅ Built | `Viewport3D.tsx` (9 KB) — React Three Fiber Canvas, wall extrusion, opening markers, orbit controls, solar lighting. **WebGL error boundary** prevents crash on context failure |
+| **ToolRail** | ✅ Built + Tested | `ToolRail.tsx` (5 KB) — 5 tools (Select/Wall/Door/Window/Measure), keyboard shortcuts, active state glow, touch-optimized. All 27 ToolRail tests pass. |
+| **Properties Panel** | ✅ Built | `PropertiesPanel.tsx` (8 KB) — wall height/thickness/material, opening sill height, live measurements |
+| **Solar Timeline** | ✅ Built | `SolarTimeline.tsx` (4 KB) — sun azimuth/elevation sliders, intensity control |
+| **Material Picker** | ✅ Built | `MaterialPicker.tsx` (2 KB) — paint, wood, concrete presets |
+| **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
+| **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
+| **All 6 Routes** | ✅ Built | `/`, `/spec-center`, `/registry`, `/change-requests`, `/releases`, `/audit` — all pages render without error |
+| **Spec Center** | ✅ Built | `SpecCenterPage.tsx` (10 KB) — locked spec cards, SHA-256 hash display, stats row |
+| **Registry** | ✅ Built | `RegistryPage.tsx` (12 KB) — entry cards with type icons, grid layout, improved empty state with "view all" action |
+| **Change Requests** | ✅ Built | `ChangeRequestsPage.tsx` (15 KB) — priority badges, status workflow, tab counts, improved empty states with CTAs |
+| **Releases** | ✅ Built | `ReleasesPage.tsx` — live verification health banner (lint/test/build status), gate progress, stop-ship list, build status hero |
+| **Audit Log** | ✅ Built | `AuditLogPage.tsx` (8 KB) — timeline layout, date grouping, action badges, empty state with editor CTA |
+| **Core Modules** | ✅ Built | 12 modules — canvas engine, governance lock, version control, export/import, format validator, theme manager, accessibility layer, collaboration engine, element lock, multi-user governance |
+| **Design System** | ✅ Built | `index.css` (288 lines) — dark/light mode tokens, glass panels, glow effects, elevation system, semantic colours |
+| **Supabase Layer** | ✅ Built | `src/db/api.ts` — CRUD wrappers for all tables |
+| **Onboarding** | ✅ Built | First-run panel on empty editor canvas with sample project CTA and new project CTA |
+| **Save Mode Badge** | ✅ Built | Supabase / Local mode pill shown in editor toolbar |
+| **2D→3D Sync Indicator** | ✅ Built | Pulse indicator in editor toolbar fires when walls/openings change |
+
+### Known Limitations ⚠️
+
+| Area | Status | Notes |
+|---|---|---|
+| **Supabase persistence** | ⚠️ Config-dependent | Requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. App works in local-only mode without them — save/load is unavailable but all editing features function. |
+| **Real-time collaboration** | ⚠️ Stubbed | `collaborationEngine.ts` and `multiUserGovernance.ts` exist and are unit-tested, but depend on Supabase Realtime which requires a live connection. |
+| **Bundle size** | ⚠️ Large | 1.5 MB JS chunk — Three.js and React Three Fiber are the main contributors. Code-splitting is a future optimisation. |
+
+### File Inventory
+
 ```
-Large Blueprint (500 walls):
-  Export:           < 1 second
-  Import:           < 2 seconds
-  
-Extra Large (1000 elements):
-  Round-trip:       < 5 seconds
-  Memory Leak:      < 10MB increase
+127  TypeScript / TSX source files
+  1  Global CSS file (index.css)
+ 18  Test files (18 passed / 382 tests passing)
+  7  Editor components
+  7  Page components (6 routes + NotFound)
+ 12  Core modules
+  1  Supabase API layer
+  1  Route manifest
 ```
 
 ---
 
-## Project Info
+## Core Features
 
-## Project Directory
+### Blueprint Editor
+- Interactive 2D canvas with snap-to-grid and configurable grid size
+- **Tools**: Select · Wall · Door · Window · Measure (keyboard shortcuts: V / W / D / N / M)
+- Wall properties: length, height, thickness, material
+- Door and window openings with sill height control
+- Undo / redo with full history stack
+- Save and load projects via Supabase persistence
+- Export project as JSON · Import from JSON file
+- Load sample project for instant onboarding
 
-```
-├── README.md # Documentation
-├── components.json # Component library configuration
-├── index.html # Entry file
-├── package.json # Package management
-├── postcss.config.js # PostCSS configuration
-├── public # Static resources directory
-│   ├── favicon.png # Icon
-│   └── images # Image resources
-├── docs # Documentation directory
-│   ├── STEP1_COMPLETE.md # Foundation & Canvas Engine
-│   ├── STEP2_COMPLETE.md # 3D Visualization
-│   ├── STEP3_COMPLETE.md # Materials & Lighting
-│   ├── STEP4_COMPLETE.md # Project Management
-│   ├── STEP5_COMPLETE.md # Governance Framework
-│   ├── STEP6_COMPLETE.md # Audit System
-│   ├── STEP7_COMPLETE.md # Version Control
-│   ├── STEP8_COMPLETE.md # UI/UX Polish
-│   ├── STEP9_COMPLETE.md # Theming & Accessibility
-│   ├── STEP10_COMPLETE.md # Final QA & Release Prep
-│   └── RELEASE_v1.0.0.md # Release Summary
-├── src # Source code directory
-│   ├── App.tsx # Entry file
-│   ├── components # Components directory
-│   ├── context # Context directory
-│   ├── hooks # Common hooks directory
-│   ├── index.css # Global styles
-│   ├── layout # Layout directory
-│   ├── lib # Utility library directory
-│   ├── main.tsx # Entry file
-│   ├── modules # Core modules directory
-│   │   ├── canvasEngine.ts # 2D/3D canvas management
-│   │   ├── governanceLock.ts # Audit & validation
-│   │   ├── versionControlHooks.ts # Undo/redo system
-│   │   ├── export.ts # Project export
-│   │   ├── import.ts # Project import
-│   │   ├── themeManager.ts # Theme management
-│   │   ├── accessibilityLayer.ts # WCAG compliance
-│   │   ├── collaborationEngine.ts # Real-time sync
-│   │   ├── elementLock.ts # Concurrent edit prevention
-│   │   └── multiUserGovernance.ts # Conflict resolution
-│   ├── routes.tsx # Routing configuration
-│   ├── pages # Pages directory
-│   ├── test # Test directory
-│   │   ├── automatedTestSuite.test.ts # Integration tests
-│   │   └── stressTest.test.ts # Stress tests
-│   ├── types # Type definitions directory
-├── tsconfig.app.json # TypeScript frontend configuration file
-├── tsconfig.json # TypeScript configuration file
-├── tsconfig.node.json # TypeScript Node.js configuration file
-└── vite.config.ts # Vite configuration file
-```
+### 3D Model Chamber
+- Live React Three Fiber viewport — updates as you draw in 2D
+- OrbitControls for pan, orbit, zoom
+- Directional sun lighting with azimuth and elevation control (solar timeline)
+- Material presets: paint, wood, concrete
+- **WebGL error boundary**: two-layer defence (pre-flight capability check + React error boundary) — if WebGL is unavailable the app continues running with a graceful fallback panel; no blank page, no crash
 
-## Documentation
+### Governance OS
 
-### Development Steps
-- [STEP 1: Foundation & Canvas Engine](docs/STEP1_COMPLETE.md)
-- [STEP 2: 3D Visualization](docs/STEP2_COMPLETE.md)
-- [STEP 3: Materials & Lighting](docs/STEP3_COMPLETE.md)
-- [STEP 4: Project Management](docs/STEP4_COMPLETE.md)
-- [STEP 5: Governance Framework](docs/STEP5_COMPLETE.md)
-- [STEP 6: Audit System](docs/STEP6_COMPLETE.md)
-- [STEP 7: Version Control](docs/STEP7_COMPLETE.md)
-- [STEP 8: UI/UX Polish](docs/STEP8_COMPLETE.md)
-- [STEP 9: Theming & Accessibility](docs/STEP9_COMPLETE.md)
-- [STEP 10: Final QA & Release Prep](docs/STEP10_COMPLETE.md)
+| Module | Path | Purpose |
+|---|---|---|
+| Spec Center | `/spec-center` | Locked specifications with SHA-256 hash verification |
+| Registry | `/registry` | Component, feature and tool registry |
+| Change Requests | `/change-requests` | Structured change workflow — pending → approved → implemented |
+| Release Center | `/releases` | Multi-gate release pipeline with stop-ship enforcement |
+| Audit Log | `/audit` | Immutable chronological event timeline |
 
-### Release Documentation
-- [Release Summary v1.0.0](docs/RELEASE_v1.0.0.md)
+---
+
+## Application Routes
+
+| Route | Page | Description |
+|---|---|---|
+| `/` | Blueprint Editor | Main 2D + 3D workspace |
+| `/spec-center` | Spec Center | Locked governing specifications |
+| `/registry` | Registry Center | Component and feature inventory |
+| `/change-requests` | Change Requests | Governed change workflow |
+| `/releases` | Release Center | Gate-checked release pipeline |
+| `/audit` | Audit Log | Full system event timeline |
+
+---
 
 ## Tech Stack
 
-**Frontend**: React 18, TypeScript, Vite  
-**UI**: shadcn/ui, Tailwind CSS  
-**3D**: Three.js, React Three Fiber  
-**Testing**: Vitest  
-**State**: Project Manifest (JSON)
+| Layer | Technology |
+|---|---|
+| Framework | React 18 + TypeScript (strict) |
+| Build | Vite (rolldown-vite) |
+| UI Components | shadcn/ui + Radix UI |
+| Styling | Tailwind CSS v3 + CSS custom properties |
+| 3D Engine | Three.js + React Three Fiber + Drei |
+| Backend / DB | Supabase (PostgreSQL + Auth + Storage) |
+| Forms | React Hook Form + Zod |
+| Routing | React Router v7 |
+| Notifications | Sonner |
+| Icons | Lucide React |
+| Linting | Biome + TypeScript native (`tsgo`) |
+| Testing | Vitest + Testing Library |
+| Animation | Motion (Framer Motion) |
 
-## Development Guidelines
+---
 
-### How to edit code locally?
+## Design System
 
-You can choose [VSCode](https://code.visualstudio.com/Download) or any IDE you prefer. The only requirement is to have Node.js and npm installed.
+Vishvakarma.OS uses a **premium dark glass architectural command center** visual language:
 
-### Environment Requirements
+- **Dark mode**: deep graphite background (`#0d0f12`) with electric cyan primary accent
+- **Light mode**: blueprint drafting table — warm white with slate blue accents
+- **Glass panels**: `backdrop-blur` frosted surface cards
+- **Elevation system**: 4 levels — surface → raised → overlay → glow
+- **Typography**: clean technical UI, `text-balance` on all headings
+- **Touch targets**: minimum 44×44 px (iPad-first)
+- **Scrollbar**: thin custom scrollbar in both webkit and Firefox
+- **Semantic tokens only** — no raw Tailwind colour classes in components
 
-```
-# Node.js ≥ 20
-# npm ≥ 10
-Example:
-# node -v   # v20.18.3
-# npm -v    # 10.8.2
-```
+---
 
-### Installing Node.js on Windows
-
-```
-# Step 1: Visit the Node.js official website: https://nodejs.org/, click download. The website will automatically suggest a suitable version (32-bit or 64-bit) for your system.
-# Step 2: Run the installer: Double-click the downloaded installer to run it.
-# Step 3: Complete the installation: Follow the installation wizard to complete the process.
-# Step 4: Verify installation: Open Command Prompt (cmd) or your IDE terminal, and type `node -v` and `npm -v` to check if Node.js and npm are installed correctly.
-```
-
-### Installing Node.js on macOS
-
-```
-# Step 1: Using Homebrew (Recommended method): Open Terminal. Type the command `brew install node` and press Enter. If Homebrew is not installed, you need to install it first by running the following command in Terminal:
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-Alternatively, use the official installer: Visit the Node.js official website. Download the macOS .pkg installer. Open the downloaded .pkg file and follow the prompts to complete the installation.
-# Step 2: Verify installation: Open Command Prompt (cmd) or your IDE terminal, and type `node -v` and `npm -v` to check if Node.js and npm are installed correctly.
-```
-
-### After installation, follow these steps:
+## Project Structure
 
 ```
-# Step 1: Download the code package
-# Step 2: Extract the code package
-# Step 3: Open the code package with your IDE and navigate into the code directory
-# Step 4: In the IDE terminal, run the command to install dependencies: npm i
-# Step 5: In the IDE terminal, run the command to start the development server: npm run dev -- --host 127.0.0.1
-# Step 6: if step 5 failed, try this command to start the development server: npx vite --host 127.0.0.1
+├── src/
+│   ├── components/
+│   │   ├── editor/
+│   │   │   ├── BlueprintCanvas.tsx     # 2D drawing canvas
+│   │   │   ├── Viewport3D.tsx          # Three.js 3D viewport (WebGL error boundary)
+│   │   │   ├── ToolRail.tsx            # Drawing tool dock
+│   │   │   ├── PropertiesPanel.tsx     # Wall / opening inspector
+│   │   │   ├── MaterialPicker.tsx      # Material preset selector
+│   │   │   ├── SolarTimeline.tsx       # Sun position controller
+│   │   │   └── KeyboardShortcuts.tsx   # Shortcut reference dialog
+│   │   ├── layouts/
+│   │   │   └── AppLayout.tsx           # Sidebar + mobile sheet navigation
+│   │   └── ui/                         # shadcn/ui primitives (do not modify)
+│   ├── pages/
+│   │   ├── EditorPage.tsx              # Blueprint editor workspace
+│   │   ├── SpecCenterPage.tsx          # Governance specs
+│   │   ├── RegistryPage.tsx            # Component registry
+│   │   ├── ChangeRequestsPage.tsx      # Change request workflow
+│   │   ├── ReleasesPage.tsx            # Release gate dashboard
+│   │   └── AuditLogPage.tsx            # Event audit timeline
+│   ├── db/
+│   │   └── api.ts                      # Supabase CRUD layer
+│   ├── modules/                        # Core business modules
+│   ├── governance/                     # Governance lock + validation
+│   ├── hooks/                          # Custom React hooks
+│   ├── types/                          # TypeScript type definitions
+│   ├── routes.tsx                      # Centralised route manifest
+│   ├── App.tsx                         # Root app + router
+│   └── index.css                       # Design tokens + global styles
+├── supabase/
+│   └── migrations/                     # Database schema migrations
+├── docs/                               # Extended documentation
+│   ├── SPEC.md                         # Blueprint editor specification (locked)
+│   ├── GOVERNANCE_QUICKSTART.md        # Governance system guide
+│   ├── RELEASE_v1.0.0.md               # v1.0.0 release notes
+│   ├── REGISTRY.md                     # Registry documentation
+│   └── prd.md                          # Product requirements document
+├── scripts/
+│   ├── verify-gates.cjs                # Release gate verification
+│   ├── verify-all.js                   # Full system verification
+│   └── enforce-build.js                # Build enforcement script
+├── public/
+│   └── samples/                        # Sample project JSON files
+├── tailwind.config.js                  # Tailwind + design token config
+├── biome.json                          # Biome linter config
+└── vitest.config.ts                    # Test runner config
 ```
 
-### How to develop backend services?
+---
 
-Configure environment variables and install relevant dependencies.If you need to use a database, please use the official version of Supabase.
+## Local Development
+
+### Requirements
+
+- **Node.js** ≥ 20
+- **npm** ≥ 10 or **pnpm** ≥ 9
+
+### Setup
+
+```bash
+# 1. Install dependencies
+npm install
+# or
+pnpm install
+
+# 2. Copy environment variables
+cp .env.example .env
+# Fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+
+# 3. Start the development server
+npm run dev
+
+# 4. Run the full verification pipeline (lint → test → build)
+npm run verify
+
+# Or run stages individually
+npm run lint
+npm run test
+npm run build
+npm run preview   # serve the production build locally
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+These are required for project save/load, change requests, registry, releases, and audit log. The app functions in a degraded (local-only) mode without them.
+
+---
+
+## Supabase Backend
+
+Vishvakarma.OS uses Supabase for all persistent storage:
+
+| Table | Purpose |
+|---|---|
+| `projects` | Blueprint project metadata |
+| `specs` | Locked governance specifications |
+| `registry_entries` | Component and feature registry |
+| `change_requests` | Change request workflow records |
+| `releases` | Release version records |
+| `audit_logs` | Immutable system event log |
+
+All schema is managed via migrations in `supabase/migrations/`.
+
+---
+
+## Scripts & Quality
+
+```bash
+npm run dev          # Vite dev server on 127.0.0.1
+npm run build        # Production build → dist/
+npm run preview      # Serve dist/ locally on :4173
+npm run test         # Vitest run — 382 tests across 18 files
+npm run test:coverage  # Vitest with v8 coverage report
+npm run lint         # tsgo + Biome + ast-grep
+npm run verify       # lint && test && build (full pipeline)
+```
+
+```
+# Latest npm run verify output:
+Checked 127 files in 1919ms. No fixes applied.   ← lint ✅
+
+Test Files  18 passed (18)                        ← tests ✅
+     Tests  382 passed (382)
+
+dist/index.html                     2.96 kB       ← build ✅
+dist/assets/index-DlyCKhKK.css     75.12 kB
+dist/assets/index-B76kAsh9.js   1,512.57 kB
+✓ built in 2.29s
+```
+
+The linter enforces:
+- TypeScript strict mode — no implicit `any`, no unused variables
+- No undeclared dependencies (Biome `noUndeclaredDependencies`)
+- Structural rules via ast-grep patterns
+- Semantic design tokens only — no raw colour utility classes in component files
+
+---
+
+## WebGL & 3D Resilience
+
+The 3D viewport uses a two-layer WebGL failure defence:
+
+1. **Pre-flight check** (`detectWebGL()`) — probes for `webgl2`, `webgl`, and `experimental-webgl` context support before mounting the Three.js Canvas at all
+2. **React Error Boundary** (`WebGLErrorBoundary`) — catches any exception thrown during or after Canvas mount, including the `BindToCurrentSequence` failure reported on some headless / sandboxed environments
+
+If either layer triggers, a graceful fallback panel is displayed and the rest of the application — including the full 2D blueprint editor — continues running normally.
+
+---
+
+## Governance Model
+
+Vishvakarma.OS enforces a **no-drift governance model**:
+
+- All UI elements must be declared in the spec before implementation
+- Changes to locked specs require an approved Change Request
+- Release gates must all pass (or be explicitly waived with documented reason)
+- Every system action is written to the audit log
+- Stop-ship violations block the release pipeline
+
+See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the full governance workflow.
+
+---
+
+## Browser Support
+
+| Browser | Minimum Version |
+|---|---|
+| Chrome / Edge | 90+ |
+| Firefox | 88+ |
+| Safari | 14+ |
+
+**WebGL 2** is preferred for full 3D rendering. WebGL 1 is accepted as a fallback. If neither is available the app degrades gracefully to 2D-only mode.
+
+---
+
+## Platform
+
+- **iPad-first** — all touch targets ≥ 44×44 px
+- **Desktop** — full sidebar navigation, hover states, keyboard shortcuts
+- **Mobile** — hamburger menu + Sheet drawer, responsive canvas
+- Minimum viewport: 375 px width
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [`docs/SPEC.md`](docs/SPEC.md) | Blueprint editor governing specification (locked) |
+| [`docs/prd.md`](docs/prd.md) | Full product requirements document |
+| [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance system quick-start guide |
+| [`docs/GOVERNANCE_IMPLEMENTATION.md`](docs/GOVERNANCE_IMPLEMENTATION.md) | Governance architecture deep-dive |
+| [`docs/RELEASE_v1.0.0.md`](docs/RELEASE_v1.0.0.md) | v1.0.0 release notes and evidence pack |
+| [`docs/REGISTRY.md`](docs/REGISTRY.md) | Registry documentation |
+| [`docs/RELEASE.md`](docs/RELEASE.md) | Release process documentation |
+| [`tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md`](tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md) | Complete build document |
+
+---
+
+## Changelog — Recent Updates
+
+### Current (latest commit)
+
+**Verification restored — full pipeline now proven:**
+- **`npm run verify` exits 0** — lint → 382/382 tests → production build all pass in one command
+- **`package.json` scripts restored** — `dev`, `build`, `preview`, `test`, `test:coverage`, `verify` all wired with real commands (removed echo/warning placeholders)
+- **All 382 tests passing** — fixed 12 failing ToolRail tests (aria-label format and separator query mismatch from UI upgrade); 18/18 test files now green
+- **Production build confirmed** — `dist/` with 2467 modules, 1.5 MB JS, 75 KB CSS, 2.3 s build time
+- **First-run onboarding panel** — shown on empty editor canvas with step-by-step guide, "Load Sample Project" CTA, and "Create New Project" CTA
+- **Save mode badge** — Supabase Connected / Local Mode pill shown in editor toolbar
+- **2D→3D sync indicator** — pulse + spin icon fires in toolbar whenever walls or openings change
+- **Live verification health banner** — top of ReleasesPage shows lint / test / build status with real pass counts from the verified pipeline run
+- **Improved empty states** — Registry, Change Requests, and Audit Log all have action buttons (create, view all, navigate to editor)
+- **Fixed hardcoded colours** — ReleasesPage `bg-green-600`, `bg-red-600`, `bg-amber-500` replaced with semantic tokens (`text-success`, `text-destructive`, `text-warning`)
+
+### Previous
+
+- **WebGL error boundary** — two-layer defence (pre-flight check + React class boundary) prevents app crash on `BindToCurrentSequence` or any other WebGL context failure; full 2D editor remains operational
+- **UI upgrade** — premium dark glass architectural command center design system across all pages and components
+- **AppLayout** — refactored sidebar with grouped navigation sections (Editor / Governance / System), active state indicators, governance status footer
+- **ToolRail** — labeled tool sections (Tools / View), semantic token class names, keyboard shortcut `<kbd>` chips in tooltips, `aria-pressed` on all toggle buttons
+- **EditorPage** — compact top toolbar, 2D Blueprint / 3D Preview pane header labels, "Model Chamber" subtitle in 3D pane, proper `overflow-hidden` layout
+- **SpecCenterPage** — featured governing spec card with SHA-256 hash block, required sections grid, stats row (Total / Locked / Approved / Draft)
+- **ChangeRequestsPage** — priority badges with icons (critical / high / medium / low), status counts on tab triggers
+- **RegistryPage** — type-specific icon badges (Component · Feature · Tool), grid card layout with `h-full flex flex-col`
+- **ReleasesPage** — build status hero card with gate progress bar, stop-ship violation list
+- **AuditLogPage** — date-grouped timeline layout with vertical connector line, entity-coloured icon dots, event action badges
+- **CSS design tokens** — `--cyan`, `--shadow-sm/md/lg`, `--shadow-glow`, `.glass-panel`, `.glow-ring`, `.gradient-text`, `.status-dot`, `.card-elevated` utilities added to `index.css`
+
+---
 
 ## Learn More
 
-You can also check the help documentation: Download and Building the app（ [https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)）to learn more detailed content.
+Miaoda help documentation: [Download and Building the App](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)

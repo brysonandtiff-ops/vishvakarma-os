@@ -1,13 +1,18 @@
 // Main Blueprint Editor Page with Architect's Table theme
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Save, FolderOpen, FileDown, Plus, Info, Package, Undo2, Redo2 } from 'lucide-react';
+import {
+  Save, FolderOpen, FileDown, Plus, Info, Package, Undo2, Redo2,
+  Database, Wifi, WifiOff, ArrowRight, Layers, Pencil, Move3d,
+  Zap, RefreshCw,
+} from 'lucide-react';
 import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import AppLayout from '@/components/layouts/AppLayout';
 import ToolRail from '@/components/editor/ToolRail';
@@ -27,6 +32,127 @@ import type {
 } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
+// Supabase connected check
+function useSupabaseStatus() {
+  const [connected, setConnected] = useState<boolean | null>(null);
+  useEffect(() => {
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    setConnected(Boolean(url && key && url !== 'undefined' && key !== 'undefined'));
+  }, []);
+  return connected;
+}
+
+// Sync pulse indicator — shows when walls count changes (2D→3D sync event)
+function SyncIndicator({ wallCount, openingCount }: { wallCount: number; openingCount: number }) {
+  const [syncing, setSyncing] = useState(false);
+  const prevRef = useRef(wallCount + openingCount);
+
+  useEffect(() => {
+    const current = wallCount + openingCount;
+    if (current !== prevRef.current) {
+      prevRef.current = current;
+      setSyncing(true);
+      const t = setTimeout(() => setSyncing(false), 900);
+      return () => clearTimeout(t);
+    }
+  }, [wallCount, openingCount]);
+
+  return (
+    <div className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1">
+      <span className="font-mono text-[10px] text-muted-foreground">2D</span>
+      <ArrowRight className="h-3 w-3 text-muted-foreground/40" />
+      <span className="font-mono text-[10px] text-muted-foreground">3D</span>
+      <span
+        className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+          syncing ? 'bg-primary' : 'bg-muted-foreground/30'
+        }`}
+      />
+      {syncing && (
+        <RefreshCw className="h-3 w-3 animate-spin text-primary" />
+      )}
+    </div>
+  );
+}
+
+// Save mode badge
+function SaveModeBadge({ connected, projectName }: { connected: boolean | null; projectName?: string }) {
+  if (connected === null) return null;
+  return (
+    <div className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1">
+      {connected ? (
+        <>
+          <Wifi className="h-3 w-3 text-success" />
+          <span className="font-mono text-[10px] font-medium text-success">Supabase</span>
+        </>
+      ) : (
+        <>
+          <WifiOff className="h-3 w-3 text-muted-foreground/60" />
+          <span className="font-mono text-[10px] text-muted-foreground">Local mode</span>
+        </>
+      )}
+      {projectName && (
+        <span className="max-w-[80px] truncate font-mono text-[10px] text-muted-foreground/60">
+          · {projectName}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// First-run onboarding panel shown when the canvas is empty and no project is loaded
+function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => void; onNewProject: () => void }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+      <div className="pointer-events-auto w-full max-w-sm rounded-2xl border border-border bg-card shadow-lg">
+        {/* Header */}
+        <div className="border-b border-border px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+              <Layers className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">Welcome to Vishvakarma.OS</p>
+              <p className="text-xs text-muted-foreground">Your architectural OS</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="space-y-px px-6 py-4">
+          {[
+            { icon: Move3d, label: 'Draw walls on the 2D canvas', sub: 'Use the Wall tool or press W' },
+            { icon: Pencil, label: 'Place doors and windows', sub: 'Press D for door, N for window' },
+            { icon: Zap, label: 'Watch the 3D model update live', sub: 'Model chamber syncs in real-time' },
+          ].map(({ icon: Icon, label, sub }) => (
+            <div key={label} className="flex items-start gap-3 rounded-lg px-2 py-2.5">
+              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted">
+                <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-foreground">{label}</p>
+                <p className="text-[11px] text-muted-foreground">{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col gap-2 border-t border-border px-6 py-4">
+          <Button size="sm" className="w-full gap-2" onClick={onLoadSample}>
+            <Package className="h-3.5 w-3.5" />
+            Load Sample Project
+          </Button>
+          <Button variant="outline" size="sm" className="w-full gap-2" onClick={onNewProject}>
+            <Plus className="h-3.5 w-3.5" />
+            Create New Project
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Spec hash for Blueprint Editor v1.0.0
 const SPEC_HASH = 'e8f4a2b9...d1e3f5';
 const SPEC_VERSION = '1.0.0';
@@ -44,6 +170,9 @@ export default function EditorPage() {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+
+  const supabaseConnected = useSupabaseStatus();
 
   // Project manifest state
   const [walls, setWalls] = useState<Wall[]>([]);
@@ -54,6 +183,10 @@ export default function EditorPage() {
     timeOfDay: 12,
     intensity: 1,
   });
+
+  // Derived state
+  const isEmpty = walls.length === 0 && openings.length === 0;
+  const showOnboarding = isEmpty && !currentProject;
 
   // Undo/Redo state
   const [history, setHistory] = useState<{ walls: Wall[]; openings: Opening[] }[]>([]);
@@ -298,6 +431,16 @@ export default function EditorPage() {
                 </p>
               )}
             </div>
+            {/* Status pills */}
+            <div className="hidden items-center gap-2 md:flex">
+              {show3DView && (
+                <SyncIndicator wallCount={walls.length} openingCount={openings.length} />
+              )}
+              <SaveModeBadge
+                connected={supabaseConnected}
+                projectName={currentProject?.name}
+              />
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1">
@@ -333,7 +476,11 @@ export default function EditorPage() {
               <Package className="mr-1.5 h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sample</span>
             </Button>
-            <NewProjectDialog onProjectCreated={loadProjects} />
+            <NewProjectDialog
+              open={newProjectOpen}
+              onOpenChange={setNewProjectOpen}
+              onProjectCreated={loadProjects}
+            />
             <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 touch-target">
@@ -424,7 +571,7 @@ export default function EditorPage() {
                   {walls.length} walls · {openings.length} openings
                 </span>
               </div>
-              <div className="flex-1 overflow-auto p-3">
+              <div className="relative flex-1 overflow-auto p-3">
                 <BlueprintCanvas
                   walls={walls}
                   openings={openings}
@@ -438,6 +585,12 @@ export default function EditorPage() {
                   selectedWallId={selectedWallId}
                   unitSystem={unitSystem}
                 />
+                {showOnboarding && (
+                  <OnboardingPanel
+                    onLoadSample={loadSampleProject}
+                    onNewProject={() => setNewProjectOpen(true)}
+                  />
+                )}
               </div>
             </div>
 
@@ -482,8 +635,15 @@ export default function EditorPage() {
   );
 }
 
-function NewProjectDialog({ onProjectCreated }: { onProjectCreated: () => void }) {
-  const [open, setOpen] = useState(false);
+function NewProjectDialog({
+  open,
+  onOpenChange,
+  onProjectCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onProjectCreated: () => void;
+}) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -518,7 +678,7 @@ function NewProjectDialog({ onProjectCreated }: { onProjectCreated: () => void }
     try {
       await createProject(name, description || undefined, initialManifest);
       toast.success('Project created successfully');
-      setOpen(false);
+      onOpenChange(false);
       setName('');
       setDescription('');
       onProjectCreated();
@@ -529,7 +689,7 @@ function NewProjectDialog({ onProjectCreated }: { onProjectCreated: () => void }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant="default" size="sm" className="touch-target">
           <Plus className="mr-2 h-4 w-4" />

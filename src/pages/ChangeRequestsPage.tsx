@@ -165,11 +165,18 @@ export default function ChangeRequestsPage() {
                         ? 'Submit a change request to propose any modification'
                         : `No ${selectedStatus} requests at this time`}
                     </p>
-                    {selectedStatus === 'all' && (
-                      <div className="mt-4">
+                    <div className="mt-5 flex flex-col items-center gap-2">
+                      {selectedStatus === 'all' ? (
                         <NewChangeRequestDialog onRequestCreated={loadRequests} />
-                      </div>
-                    )}
+                      ) : (
+                        <>
+                          <NewChangeRequestDialog onRequestCreated={loadRequests} />
+                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => setSelectedStatus('all')}>
+                            View all requests
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
