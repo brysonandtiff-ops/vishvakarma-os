@@ -67,26 +67,26 @@ export default function AuditLogPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background">
         {/* Header */}
-        <div className="shrink-0 border-b border-border bg-card px-6 py-5">
+        <div className="gov-page-header shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-foreground text-balance">Audit Log</h1>
+              <h1 className="text-lg font-bold text-foreground text-balance">Audit Log</h1>
               <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
                 Immutable chronological record of all system events
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={loadLogs} className="shrink-0 touch-target" disabled={loading}>
-              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <Button variant="outline" size="sm" onClick={loadLogs} className="shrink-0" disabled={loading}>
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
 
           {/* Stats */}
           <div className="mt-4 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-              <span className="text-base font-bold text-foreground">{logs.length}</span>
+            <div className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
+              <span className="text-base font-bold tabular-nums text-foreground">{logs.length}</span>
               <span className="text-xs text-muted-foreground">Total Events</span>
             </div>
             {(['project', 'spec', 'registry', 'change_request', 'release'] as const).map(entity => {
@@ -94,8 +94,8 @@ export default function AuditLogPage() {
               if (count === 0) return null;
               const cfg = getEntityConfig(entity);
               return (
-                <div key={entity} className={`flex items-center gap-2 rounded-lg border bg-background px-3 py-2 ${cfg.borderColor}`}>
-                  <span className={`text-base font-bold ${cfg.color.split(' ')[1]}`}>{count}</span>
+                <div key={entity} className={`flex items-baseline gap-1.5 rounded border bg-card px-3 py-1.5 shadow-sm ${cfg.borderColor}`}>
+                  <span className={`text-base font-bold tabular-nums ${cfg.color.split(' ')[1]}`}>{count}</span>
                   <span className="text-xs capitalize text-muted-foreground">{entity.replace('_', ' ')}</span>
                 </div>
               );

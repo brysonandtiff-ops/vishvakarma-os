@@ -110,12 +110,12 @@ export default function ChangeRequestsPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background">
         {/* Header */}
-        <div className="shrink-0 border-b border-border bg-card px-6 py-5">
+        <div className="gov-page-header shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-foreground text-balance">Change Requests</h1>
+              <h1 className="text-lg font-bold text-foreground text-balance">Change Requests</h1>
               <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
                 Structured change management — no ad-hoc modifications
               </p>
@@ -126,13 +126,13 @@ export default function ChangeRequestsPage() {
           {/* Stats */}
           <div className="mt-4 flex flex-wrap gap-3">
             {([
-              { label: 'Pending', count: statusCounts.pending, color: 'text-warning' },
-              { label: 'Approved', count: statusCounts.approved, color: 'text-success' },
+              { label: 'Pending',     count: statusCounts.pending,     color: 'text-warning' },
+              { label: 'Approved',    count: statusCounts.approved,    color: 'text-success' },
               { label: 'Implemented', count: statusCounts.implemented, color: 'text-primary' },
-              { label: 'Rejected', count: statusCounts.rejected, color: 'text-destructive' },
+              { label: 'Rejected',    count: statusCounts.rejected,    color: 'text-destructive' },
             ] as const).map(stat => (
-              <div key={stat.label} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                <span className={`text-base font-bold ${stat.color}`}>{stat.count}</span>
+              <div key={stat.label} className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
+                <span className={`text-base font-bold tabular-nums ${stat.color}`}>{stat.count}</span>
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
             ))}

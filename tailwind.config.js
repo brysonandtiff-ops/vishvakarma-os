@@ -71,6 +71,22 @@ export default {
                   DEFAULT: 'hsl(var(--cyan))',
                   foreground: 'hsl(var(--cyan-foreground))',
                 },
+                /* Workstation always-dark surface tokens */
+                ws: {
+                  canvas:  'hsl(var(--ws-canvas))',
+                  toolbar: 'hsl(var(--ws-toolbar))',
+                  sidebar: 'hsl(var(--ws-sidebar))',
+                  menubar: 'hsl(var(--ws-menubar))',
+                  statusbar: 'hsl(var(--ws-statusbar))',
+                  border:  'hsl(var(--ws-border))',
+                  'border-subtle': 'hsl(var(--ws-border-subtle))',
+                  text:    'hsl(var(--ws-text))',
+                  'text-dim':   'hsl(var(--ws-text-dim))',
+                  'text-faint': 'hsl(var(--ws-text-faint))',
+                  hover:   'hsl(var(--ws-hover))',
+                  active:  'hsl(var(--ws-active))',
+                  'active-bg': 'hsl(var(--ws-active-bg))',
+                },
                 sidebar: {
                     DEFAULT: 'hsl(var(--sidebar-background))',
                     background: 'hsl(var(--sidebar-background))',

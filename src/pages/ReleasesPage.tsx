@@ -175,19 +175,19 @@ export default function ReleasesPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background">
         {/* Header */}
-        <div className="shrink-0 border-b border-border bg-card px-6 py-5">
+        <div className="gov-page-header shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-foreground text-balance">Release Center</h1>
+              <h1 className="text-lg font-bold text-foreground text-balance">Release Center</h1>
               <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
                 Release gates, version control, and evidence packs
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <div
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                className={`flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-semibold ${
                   buildStatus === 'GREEN'
                     ? 'border-success/30 bg-success/10 text-success'
                     : buildStatus === 'YELLOW'
@@ -195,12 +195,12 @@ export default function ReleasesPage() {
                     : 'border-destructive/30 bg-destructive/10 text-destructive'
                 }`}
               >
-                <span className={`h-2 w-2 rounded-full ${
+                <span className={`h-1.5 w-1.5 rounded-full ${
                   buildStatus === 'GREEN' ? 'bg-success' : buildStatus === 'YELLOW' ? 'bg-warning' : 'bg-destructive'
                 }`} />
                 Build: {buildStatus}
               </div>
-              <Button variant="outline" size="sm" className="touch-target">
+              <Button variant="outline" size="sm">
                 Generate Evidence Pack
               </Button>
             </div>

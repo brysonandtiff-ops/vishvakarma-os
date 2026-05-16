@@ -56,12 +56,12 @@ export default function RegistryPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background">
         {/* Header */}
-        <div className="shrink-0 border-b border-border bg-card px-6 py-5">
+        <div className="gov-page-header shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-foreground text-balance">Registry Center</h1>
+              <h1 className="text-lg font-bold text-foreground text-balance">Registry Center</h1>
               <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
                 Component and feature registry — track every system element
               </p>
@@ -72,13 +72,13 @@ export default function RegistryPage() {
           {/* Stats */}
           <div className="mt-4 flex flex-wrap gap-3">
             {([
-              { label: 'Total', count: entries.length, color: 'text-foreground' },
-              { label: 'Components', count: typeCounts.component, color: 'text-primary' },
-              { label: 'Features', count: typeCounts.feature, color: 'text-success' },
-              { label: 'Tools', count: typeCounts.tool, color: 'text-warning' },
+              { label: 'Total',      count: entries.length,           color: 'text-foreground' },
+              { label: 'Components', count: typeCounts.component,     color: 'text-primary' },
+              { label: 'Features',   count: typeCounts.feature,       color: 'text-success' },
+              { label: 'Tools',      count: typeCounts.tool,          color: 'text-warning' },
             ] as const).map(stat => (
-              <div key={stat.label} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                <span className={`text-base font-bold ${stat.color}`}>{stat.count}</span>
+              <div key={stat.label} className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
+                <span className={`text-base font-bold tabular-nums ${stat.color}`}>{stat.count}</span>
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
             ))}

@@ -60,32 +60,32 @@ export default function SpecCenterPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background">
         {/* Header */}
-        <div className="shrink-0 border-b border-border bg-card px-6 py-5">
+        <div className="gov-page-header shrink-0">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-xl font-bold text-foreground text-balance">Spec Center</h1>
+              <h1 className="text-lg font-bold text-foreground text-balance">Spec Center</h1>
               <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
                 Centralized specification management with governance enforcement
               </p>
             </div>
-            <Button variant="outline" size="sm" className="shrink-0 touch-target">
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm" variant="outline" className="shrink-0">
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               New Spec
             </Button>
           </div>
 
           {/* Stats row */}
-          <div className="mt-4 flex flex-wrap gap-4">
+          <div className="mt-4 flex flex-wrap gap-3">
             {[
-              { label: 'Total Specs', value: specs.length + 1, color: 'text-foreground' },
-              { label: 'Locked', value: 1, color: 'text-primary' },
-              { label: 'Approved', value: specs.filter(s => s.status === 'approved').length, color: 'text-success' },
-              { label: 'Draft', value: specs.filter(s => s.status === 'draft').length, color: 'text-warning' },
+              { label: 'Total',    value: specs.length + 1, cls: 'text-foreground' },
+              { label: 'Locked',   value: 1,                cls: 'text-primary' },
+              { label: 'Approved', value: specs.filter(s => s.status === 'approved').length, cls: 'text-success' },
+              { label: 'Draft',    value: specs.filter(s => s.status === 'draft').length,    cls: 'text-warning' },
             ].map(stat => (
-              <div key={stat.label} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                <span className={`text-lg font-bold ${stat.color}`}>{stat.value}</span>
+              <div key={stat.label} className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
+                <span className={`text-base font-bold tabular-nums ${stat.cls}`}>{stat.value}</span>
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
             ))}

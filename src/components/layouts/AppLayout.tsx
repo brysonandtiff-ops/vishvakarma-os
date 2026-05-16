@@ -1,8 +1,8 @@
-// Main application layout with sidebar navigation
+// Main application layout with sidebar navigation — professional workstation style
 import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   PenTool,
   FileText,
@@ -11,7 +11,7 @@ import {
   Package,
   History,
   Menu,
-  Cpu,
+  Layers,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
@@ -20,123 +20,145 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const editorNav = [
-  { name: 'Blueprint Editor', path: '/', icon: PenTool },
+const allNav = [
+  { name: 'Blueprint Editor', path: '/', icon: PenTool, group: 'EDITOR' },
+  { name: 'Spec Center',      path: '/spec-center',      icon: FileText,       group: 'GOVERNANCE' },
+  { name: 'Registry',         path: '/registry',         icon: Database,       group: 'GOVERNANCE' },
+  { name: 'Change Requests',  path: '/change-requests',  icon: GitPullRequest, group: 'GOVERNANCE' },
+  { name: 'Release Center',   path: '/releases',         icon: Package,        group: 'GOVERNANCE' },
+  { name: 'Audit Log',        path: '/audit',            icon: History,        group: 'SYSTEM' },
 ];
 
-const governanceNav = [
-  { name: 'Spec Center', path: '/spec-center', icon: FileText },
-  { name: 'Registry', path: '/registry', icon: Database },
-  { name: 'Change Requests', path: '/change-requests', icon: GitPullRequest },
-  { name: 'Release Center', path: '/releases', icon: Package },
-];
-
-const systemNav = [
-  { name: 'Audit Log', path: '/audit', icon: History },
-];
-
-function NavSection({
-  label,
-  items,
-  currentPath,
-  onNavigate,
+function NavItem({
+  item,
+  isActive,
+  collapsed,
+  onClick,
 }: {
-  label: string;
-  items: { name: string; path: string; icon: React.ElementType }[];
-  currentPath: string;
-  onNavigate?: () => void;
+  item: typeof allNav[0];
+  isActive: boolean;
+  collapsed: boolean;
+  onClick?: () => void;
 }) {
-  return (
-    <div className="mb-2">
-      <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
-        {label}
-      </p>
-      {items.map((item) => {
-        const isActive = currentPath === item.path;
-        const Icon = item.icon;
-        return (
-          <Link key={item.path} to={item.path} onClick={onNavigate}>
-            <div
-              className={`group flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-                  : 'text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground'
-              }`}
-            >
-              <Icon
-                className={`h-4 w-4 shrink-0 transition-colors ${
-                  isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'
-                }`}
-              />
-              <span className="min-w-0 truncate">{item.name}</span>
-              {isActive && (
-                <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-sidebar-primary-foreground/60" />
-              )}
-            </div>
-          </Link>
-        );
-      })}
-    </div>
+  const Icon = item.icon;
+  const content = (
+    <Link to={item.path} onClick={onClick}>
+      <div
+        className={`
+          group flex h-9 items-center rounded-md transition-all duration-100
+          ${collapsed ? 'w-9 justify-center mx-auto' : 'gap-2.5 px-2.5'}
+          ${isActive
+            ? 'bg-ws-active-bg text-ws-active border border-ws-active/30'
+            : 'text-ws-text-dim hover:bg-ws-hover hover:text-ws-text border border-transparent'}
+        `}
+      >
+        <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`} />
+        {!collapsed && (
+          <span className="min-w-0 truncate text-xs font-medium">{item.name}</span>
+        )}
+        {!collapsed && isActive && (
+          <span className="ml-auto h-1 w-1 shrink-0 rounded-full bg-ws-active" />
+        )}
+      </div>
+    </Link>
   );
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={6} className="text-xs">
+          {item.name}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return content;
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({
+  collapsed = false,
+  onNavigate,
+}: {
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
   const location = useLocation();
+  const groups = ['EDITOR', 'GOVERNANCE', 'SYSTEM'] as const;
+  const groupLabels: Record<string, string> = {
+    EDITOR: 'Editor',
+    GOVERNANCE: 'Governance',
+    SYSTEM: 'System',
+  };
 
   return (
-    <div className="flex h-full flex-col bg-sidebar">
-      {/* Brand Header */}
-      <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary shadow-sm">
-          <Cpu className="h-5 w-5 text-sidebar-primary-foreground" />
-        </div>
-        <div className="min-w-0">
-          <h1 className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
-            Vishvakarma.OS
-          </h1>
-          <div className="flex items-center gap-1.5">
-            <Badge
-              variant="outline"
-              className="h-4 border-sidebar-primary/40 px-1.5 text-[9px] text-sidebar-primary"
-            >
-              v1.0.0
-            </Badge>
+    <TooltipProvider delayDuration={500}>
+      <div className="flex h-full flex-col bg-ws-sidebar">
+        {/* Brand */}
+        <div
+          className={`flex shrink-0 items-center border-b border-ws-border ${
+            collapsed ? 'h-12 justify-center' : 'h-12 gap-2.5 px-3'
+          }`}
+        >
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-ws-active-bg">
+            <Layers className="h-4 w-4 text-ws-active" />
           </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold tracking-tight text-ws-text">
+                Vishvakarma.OS
+              </p>
+              <p className="font-technical text-[9px] text-ws-text-faint">v1.0.0</p>
+            </div>
+          )}
+        </div>
+
+        {/* Nav */}
+        <ScrollArea className="flex-1">
+          <nav className={`py-2 ${collapsed ? 'px-1.5 space-y-0.5' : 'px-2 space-y-3'}`}>
+            {groups.map((group) => {
+              const items = allNav.filter((n) => n.group === group);
+              return (
+                <div key={group} className={collapsed ? 'space-y-0.5' : 'space-y-0.5'}>
+                  {!collapsed && (
+                    <p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
+                      {groupLabels[group]}
+                    </p>
+                  )}
+                  {collapsed && group !== 'EDITOR' && (
+                    <div className="my-1 h-px bg-ws-border" />
+                  )}
+                  {items.map((item) => (
+                    <NavItem
+                      key={item.path}
+                      item={item}
+                      isActive={location.pathname === item.path}
+                      collapsed={collapsed}
+                      onClick={onNavigate}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+          </nav>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-2'}`}>
+          {collapsed ? (
+            <div className="flex h-7 w-7 mx-auto items-center justify-center">
+              <div className="h-2 w-2 rounded-full bg-success" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-success" />
+              <p className="text-[10px] text-ws-text-faint">Governance active</p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Navigation */}
-      <ScrollArea className="flex-1 px-2 py-3">
-        <nav className="space-y-3">
-          <NavSection
-            label="Editor"
-            items={editorNav}
-            currentPath={location.pathname}
-            onNavigate={onNavigate}
-          />
-          <NavSection
-            label="Governance"
-            items={governanceNav}
-            currentPath={location.pathname}
-            onNavigate={onNavigate}
-          />
-          <NavSection
-            label="System"
-            items={systemNav}
-            currentPath={location.pathname}
-            onNavigate={onNavigate}
-          />
-        </nav>
-      </ScrollArea>
-
-      {/* Footer */}
-      <div className="border-t border-sidebar-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="status-dot bg-success" />
-          <p className="text-[11px] text-sidebar-foreground/50">Governance active</p>
-        </div>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 }
 
@@ -145,9 +167,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex min-h-screen w-full">
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border lg:block">
-        <SidebarContent />
+      {/* Desktop Sidebar — collapsed icon rail (48px) */}
+      <aside className="hidden w-12 shrink-0 border-r border-ws-border lg:block">
+        <SidebarContent collapsed />
       </aside>
 
       {/* Mobile Menu */}
@@ -156,13 +178,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed left-4 top-4 z-40 h-10 w-10 rounded-lg border border-border bg-card shadow-sm lg:hidden"
+            className="fixed left-2 top-2 z-40 h-8 w-8 rounded border border-ws-border bg-ws-toolbar text-ws-text hover:bg-ws-hover lg:hidden"
             aria-label="Open navigation"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-60 p-0 bg-sidebar">
+        <SheetContent side="left" className="w-52 p-0 border-r-0">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
