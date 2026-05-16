@@ -1,3 +1,4 @@
+/* @refresh reset */
 // Main Blueprint Editor Page — Professional Workstation Layout
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -461,6 +462,99 @@ function ModeSidebar({
 
 // ── Spec hash ────────────────────────────────────────────────────────────────
 const SPEC_VERSION = '1.0.0';
+
+
+// ── New Project dialog ────────────────────────────────────────────────────────
+function NewProjectDialog({
+  open,
+  onOpenChange,
+  onProjectCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onProjectCreated: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleCreate = async () => {
+    if (!name.trim()) { toast.error('Project name is required'); return; }
+
+    const initialManifest: ProjectManifest = {
+      version: '1.0.0',
+      name,
+      description,
+      walls: [],
+      openings: [],
+      materials: [],
+      floorMaterial: 'material-concrete',
+      lighting: { sunAzimuth: 180, sunElevation: 45, timeOfDay: 12, intensity: 1 },
+      gridSize: 20,
+      snapToGrid: true,
+      metadata: {
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+      },
+    };
+
+    try {
+      await createProject(name, description || undefined, initialManifest);
+      toast.success('Project created');
+      onOpenChange(false);
+      setName('');
+      setDescription('');
+      onProjectCreated();
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      toast.error('Failed to create project');
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 gap-1.5 rounded px-2 text-[11px] font-medium text-ws-text-dim hover:bg-ws-hover hover:text-ws-text"
+        >
+          <Plus className="h-3 w-3" />
+          New
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[calc(100%-2rem)] md:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create New Project</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Project Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="My Blueprint Project"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional project description"
+              rows={3}
+            />
+          </div>
+          <Button onClick={handleCreate} className="w-full">
+            Create Project
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // EDITOR PAGE
@@ -942,96 +1036,5 @@ export default function EditorPage() {
         />
       </div>
     </AppLayout>
-  );
-}
-
-// ── New Project dialog ────────────────────────────────────────────────────────
-function NewProjectDialog({
-  open,
-  onOpenChange,
-  onProjectCreated,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onProjectCreated: () => void;
-}) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-
-  const handleCreate = async () => {
-    if (!name.trim()) { toast.error('Project name is required'); return; }
-
-    const initialManifest: ProjectManifest = {
-      version: '1.0.0',
-      name,
-      description,
-      walls: [],
-      openings: [],
-      materials: [],
-      floorMaterial: 'material-concrete',
-      lighting: { sunAzimuth: 180, sunElevation: 45, timeOfDay: 12, intensity: 1 },
-      gridSize: 20,
-      snapToGrid: true,
-      metadata: {
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-      },
-    };
-
-    try {
-      await createProject(name, description || undefined, initialManifest);
-      toast.success('Project created');
-      onOpenChange(false);
-      setName('');
-      setDescription('');
-      onProjectCreated();
-    } catch (error) {
-      console.error('Failed to create project:', error);
-      toast.error('Failed to create project');
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 gap-1.5 rounded px-2 text-[11px] font-medium text-ws-text-dim hover:bg-ws-hover hover:text-ws-text"
-        >
-          <Plus className="h-3 w-3" />
-          New
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-[calc(100%-2rem)] md:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Project Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="My Blueprint Project"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional project description"
-              rows={3}
-            />
-          </div>
-          <Button onClick={handleCreate} className="w-full">
-            Create Project
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
