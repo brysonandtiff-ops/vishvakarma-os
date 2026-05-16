@@ -22,6 +22,8 @@ import {
   Database, Wifi, WifiOff, ArrowRight, Layers, Pencil, Move3d,
   Zap, RefreshCw, Map, Box, Palette, Settings, ChevronDown,
   MousePointer2, Info,
+  LayoutGrid, Magnet, ZoomIn, ZoomOut, Maximize2,
+  PenLine, DoorOpen, AppWindow, Ruler,
 } from 'lucide-react';
 import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import AppLayout from '@/components/layouts/AppLayout';
@@ -269,6 +271,9 @@ type MenuBarProps = {
   openings: Opening[];
   lighting: LightingConfig;
   snapEnabled: boolean;
+  gridVisible: boolean;
+  show3DView: boolean;
+  currentTool: ToolType;
   historyIndex: number;
   historyLength: number;
   onUndo: () => void;
@@ -278,12 +283,18 @@ type MenuBarProps = {
   onSave: () => void;
   onExport: () => void;
   onLoadSample: () => void;
+  onToggle3D: () => void;
+  onToggleGrid: () => void;
+  onToggleSnap: () => void;
+  onSelectTool: (tool: ToolType) => void;
   supabaseConnected: boolean | null;
 };
 
 function MenuBar({
   projectName, hasProject, historyIndex, historyLength,
   onUndo, onRedo, onNew, onLoad, onSave, onExport, onLoadSample,
+  snapEnabled, gridVisible, show3DView, currentTool,
+  onToggle3D, onToggleGrid, onToggleSnap, onSelectTool,
   supabaseConnected,
 }: MenuBarProps) {
   return (
@@ -309,24 +320,24 @@ function MenuBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-52">
           <DropdownMenuItem onClick={onNew}>
-            <Plus className="mr-2 h-3.5 w-3.5" />New Project
+            <Plus className="mr-2 h-3.5 w-3.5" />新建项目
             <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onLoad}>
-            <FolderOpen className="mr-2 h-3.5 w-3.5" />Open Project
+            <FolderOpen className="mr-2 h-3.5 w-3.5" />打开项目
             <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onLoadSample}>
-            <Package className="mr-2 h-3.5 w-3.5" />Load Sample
+            <Package className="mr-2 h-3.5 w-3.5" />加载示例
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onSave} disabled={!hasProject}>
-            <Save className="mr-2 h-3.5 w-3.5" />Save
+            <Save className="mr-2 h-3.5 w-3.5" />保存
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onExport}>
-            <FileDown className="mr-2 h-3.5 w-3.5" />Export JSON
+            <FileDown className="mr-2 h-3.5 w-3.5" />导出 JSON
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -338,14 +349,107 @@ function MenuBar({
             Edit <ChevronDown className="h-2.5 w-2.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-44">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem onClick={onUndo} disabled={historyIndex <= 0}>
-            <Undo2 className="mr-2 h-3.5 w-3.5" />Undo
+            <Undo2 className="mr-2 h-3.5 w-3.5" />撤销
             <DropdownMenuShortcut>⌘Z</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onRedo} disabled={historyIndex >= historyLength - 1}>
-            <Redo2 className="mr-2 h-3.5 w-3.5" />Redo
+            <Redo2 className="mr-2 h-3.5 w-3.5" />重做
             <DropdownMenuShortcut>⌘⇧Z</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* View menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="ws-menu-item">
+            View <ChevronDown className="h-2.5 w-2.5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuItem onClick={onToggle3D}>
+            <Box className="mr-2 h-3.5 w-3.5" />
+            {show3DView ? '隐藏 3D 视图' : '显示 3D 视图'}
+            <DropdownMenuShortcut>3</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={onToggleGrid}>
+            <LayoutGrid className="mr-2 h-3.5 w-3.5" />
+            {gridVisible ? '隐藏网格' : '显示网格'}
+            <DropdownMenuShortcut>G</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onToggleSnap}>
+            <Magnet className="mr-2 h-3.5 w-3.5" />
+            {snapEnabled ? '关闭吸附' : '开启吸附'}
+            <DropdownMenuShortcut>⇧S</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem disabled>
+            <ZoomIn className="mr-2 h-3.5 w-3.5" />放大
+            <DropdownMenuShortcut>⌘+</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            <ZoomOut className="mr-2 h-3.5 w-3.5" />缩小
+            <DropdownMenuShortcut>⌘-</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            <Maximize2 className="mr-2 h-3.5 w-3.5" />适应窗口
+            <DropdownMenuShortcut>⌘0</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Tools menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="ws-menu-item">
+            Tools <ChevronDown className="h-2.5 w-2.5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuItem onClick={() => onSelectTool('select')}>
+            <MousePointer2
+              className="mr-2 h-3.5 w-3.5"
+              style={{ color: currentTool === 'select' ? 'hsl(var(--ws-active))' : undefined }}
+            />
+            选择工具
+            <DropdownMenuShortcut>V</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onSelectTool('wall')}>
+            <PenLine
+              className="mr-2 h-3.5 w-3.5"
+              style={{ color: currentTool === 'wall' ? 'hsl(var(--ws-active))' : undefined }}
+            />
+            绘制墙体
+            <DropdownMenuShortcut>W</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSelectTool('door')}>
+            <DoorOpen
+              className="mr-2 h-3.5 w-3.5"
+              style={{ color: currentTool === 'door' ? 'hsl(var(--ws-active))' : undefined }}
+            />
+            放置门
+            <DropdownMenuShortcut>D</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSelectTool('window')}>
+            <AppWindow
+              className="mr-2 h-3.5 w-3.5"
+              style={{ color: currentTool === 'window' ? 'hsl(var(--ws-active))' : undefined }}
+            />
+            放置窗户
+            <DropdownMenuShortcut>N</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onSelectTool('measure')}>
+            <Ruler
+              className="mr-2 h-3.5 w-3.5"
+              style={{ color: currentTool === 'measure' ? 'hsl(var(--ws-active))' : undefined }}
+            />
+            测量工具
+            <DropdownMenuShortcut>M</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -357,9 +461,9 @@ function MenuBar({
             Help <ChevronDown className="h-2.5 w-2.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-44">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem>
-            <Info className="mr-2 h-3.5 w-3.5" />Keyboard Shortcuts
+            <Info className="mr-2 h-3.5 w-3.5" />键盘快捷键
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
@@ -778,6 +882,9 @@ export default function EditorPage() {
           openings={openings}
           lighting={lighting}
           snapEnabled={snapEnabled}
+          gridVisible={gridVisible}
+          show3DView={show3DView}
+          currentTool={currentTool}
           historyIndex={historyIndex}
           historyLength={history.length}
           onUndo={undo}
@@ -787,6 +894,10 @@ export default function EditorPage() {
           onSave={handleSaveProject}
           onExport={handleExportJSON}
           onLoadSample={loadSampleProject}
+          onToggle3D={() => { setShow3DView((v) => !v); }}
+          onToggleGrid={() => setGridVisible((v) => !v)}
+          onToggleSnap={() => setSnapEnabled((v) => !v)}
+          onSelectTool={setCurrentTool}
           supabaseConnected={supabaseConnected}
         />
 
