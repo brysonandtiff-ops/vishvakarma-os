@@ -1,0 +1,197 @@
+// Core type definitions for Vishvakarma.OS
+
+// ============================================================================
+// PROJECT MANIFEST TYPES
+// ============================================================================
+
+export interface Point2D {
+  x: number;
+  y: number;
+}
+
+export interface Wall {
+  id: string;
+  start: Point2D;
+  end: Point2D;
+  thickness: number;
+  height: number;
+  material: string;
+}
+
+export interface Opening {
+  id: string;
+  type: 'door' | 'window';
+  wallId: string;
+  position: number; // Position along wall (0-1)
+  width: number;
+  height: number;
+  sillHeight?: number; // For windows
+}
+
+export interface Material {
+  id: string;
+  name: string;
+  type: 'paint' | 'wood' | 'concrete';
+  color: string;
+  roughness: number;
+  metalness?: number;
+}
+
+export interface LightingConfig {
+  sunAzimuth: number; // 0-360 degrees
+  sunElevation: number; // 0-90 degrees
+  timeOfDay: number; // 0-24 hours
+  intensity: number; // 0-1
+}
+
+export interface ProjectManifest {
+  version: string;
+  name: string;
+  description?: string;
+  walls: Wall[];
+  openings: Opening[];
+  materials: Material[];
+  floorMaterial: string;
+  lighting: LightingConfig;
+  gridSize: number;
+  snapToGrid: boolean;
+  metadata: {
+    created: string;
+    modified: string;
+    author?: string;
+  };
+}
+
+// ============================================================================
+// DATABASE TYPES
+// ============================================================================
+
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  manifest: ProjectManifest;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Spec {
+  id: string;
+  name: string; // Changed from title to name for consistency
+  category: string;
+  content: string;
+  version: string;
+  status: 'draft' | 'approved' | 'deprecated' | 'locked'; // Added 'locked' status
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RegistryEntry {
+  id: string;
+  name: string;
+  type: 'component' | 'feature' | 'tool';
+  description?: string;
+  metadata?: Record<string, unknown>;
+  status: 'active' | 'deprecated';
+  created_at: string;
+}
+
+export interface ChangeRequest {
+  id: string;
+  title: string;
+  description: string;
+  type: 'feature' | 'bugfix' | 'enhancement';
+  status: 'pending' | 'approved' | 'rejected' | 'implemented';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  requester?: string;
+  reviewer?: string;
+  created_at: string;
+  reviewed_at?: string;
+  implemented_at?: string;
+}
+
+export interface Release {
+  id: string;
+  version: string;
+  title: string;
+  description?: string;
+  change_requests: string[];
+  status: 'planned' | 'in_progress' | 'released';
+  evidence_pack?: Record<string, unknown>;
+  released_at?: string;
+  created_at: string;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  entity_type: 'project' | 'spec' | 'registry' | 'change_request' | 'release';
+  entity_id?: string;
+  details?: Record<string, unknown>;
+  timestamp: string;
+}
+
+export interface RouteManifestEntry {
+  id: string;
+  path: string;
+  name: string;
+  component: string;
+  category: 'editor' | 'governance' | 'system';
+  visible: boolean;
+  order_index: number;
+  created_at: string;
+}
+
+// ============================================================================
+// EDITOR STATE TYPES
+// ============================================================================
+
+export type ToolType = 'select' | 'wall' | 'door' | 'window' | 'measure';
+
+export interface EditorState {
+  currentTool: ToolType;
+  selectedWallId?: string;
+  selectedOpeningId?: string;
+  isDrawing: boolean;
+  show3DView: boolean;
+  gridVisible: boolean;
+  snapEnabled: boolean;
+}
+
+export interface ViewportCamera {
+  position: [number, number, number];
+  target: [number, number, number];
+  zoom: number;
+}
+
+// ============================================================================
+// FORM TYPES
+// ============================================================================
+
+export interface ProjectFormData {
+  name: string;
+  description?: string;
+}
+
+export interface SpecFormData {
+  title: string;
+  category: string;
+  content: string;
+  version: string;
+  status: 'draft' | 'approved' | 'deprecated';
+}
+
+export interface ChangeRequestFormData {
+  title: string;
+  description: string;
+  type: 'feature' | 'bugfix' | 'enhancement';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  requester?: string;
+}
+
+export interface ReleaseFormData {
+  version: string;
+  title: string;
+  description?: string;
+  change_requests: string[];
+}

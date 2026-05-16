@@ -1,0 +1,300 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    /* === LIGHT MODE — Blueprint Drafting Table === */
+    --background: 220 20% 97%;
+    --foreground: 218 30% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 30% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 30% 12%;
+    /* Blueprint Blue Primary */
+    --primary: 210 95% 42%;
+    --primary-foreground: 0 0% 100%;
+    /* Technical Slate Secondary */
+    --secondary: 215 15% 92%;
+    --secondary-foreground: 218 30% 20%;
+    /* Muted paper tones */
+    --muted: 220 18% 93%;
+    --muted-foreground: 215 16% 46%;
+    /* Brass/amber accent — low saturation */
+    --accent: 40 30% 92%;
+    --accent-foreground: 218 30% 18%;
+    --destructive: 0 80% 56%;
+    --destructive-foreground: 0 0% 100%;
+    /* Clean borders */
+    --border: 215 18% 86%;
+    --input: 215 18% 86%;
+    --ring: 210 95% 42%;
+    /* Chart Colors */
+    --chart-1: 210 95% 42%;
+    --chart-2: 38 92% 58%;
+    --chart-3: 142 70% 40%;
+    --chart-4: 0 75% 56%;
+    --chart-5: 270 60% 54%;
+    /* Sidebar - Clean Light */
+    --sidebar-background: 220 25% 98%;
+    --sidebar-foreground: 218 30% 12%;
+    --sidebar-primary: 210 95% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 18% 93%;
+    --sidebar-accent-foreground: 218 30% 20%;
+    --sidebar-border: 215 18% 88%;
+    --sidebar-ring: 210 95% 42%;
+    /* Status */
+    --success: 142 70% 36%;
+    --warning: 38 92% 50%;
+    --info: 210 95% 42%;
+    /* Cyan glow for premium highlights */
+    --cyan: 192 100% 45%;
+    --cyan-foreground: 218 30% 6%;
+    /* Elevation shadows */
+    --shadow-sm: 0 1px 3px 0 hsl(215 25% 12% / 0.08), 0 1px 2px -1px hsl(215 25% 12% / 0.06);
+    --shadow-md: 0 4px 12px -2px hsl(215 25% 12% / 0.10), 0 2px 6px -2px hsl(215 25% 12% / 0.06);
+    --shadow-lg: 0 10px 24px -4px hsl(215 25% 12% / 0.12), 0 4px 10px -4px hsl(215 25% 12% / 0.07);
+    --shadow-glow: 0 0 0 3px hsl(210 95% 42% / 0.18);
+  }
+
+  .dark {
+    /* === DARK MODE — Graphite Command Center === */
+    --background: 218 28% 8%;
+    --foreground: 210 30% 94%;
+    --card: 218 26% 11%;
+    --card-foreground: 210 30% 94%;
+    --popover: 218 26% 13%;
+    --popover-foreground: 210 30% 94%;
+    /* Electric Cyan Primary in dark */
+    --primary: 192 100% 48%;
+    --primary-foreground: 218 28% 6%;
+    /* Slate secondary */
+    --secondary: 218 22% 18%;
+    --secondary-foreground: 210 30% 88%;
+    /* Deep muted */
+    --muted: 218 22% 14%;
+    --muted-foreground: 215 16% 58%;
+    /* Dark accent — near-neutral deep */
+    --accent: 218 22% 16%;
+    --accent-foreground: 210 30% 90%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 210 30% 94%;
+    /* Graphite borders */
+    --border: 218 22% 20%;
+    --input: 218 22% 18%;
+    --ring: 192 100% 48%;
+    /* Chart Colors Dark */
+    --chart-1: 192 100% 50%;
+    --chart-2: 38 92% 58%;
+    --chart-3: 142 70% 44%;
+    --chart-4: 0 70% 58%;
+    --chart-5: 270 60% 62%;
+    /* Sidebar — deeper graphite rail */
+    --sidebar-background: 218 30% 6%;
+    --sidebar-foreground: 210 30% 90%;
+    --sidebar-primary: 192 100% 48%;
+    --sidebar-primary-foreground: 218 30% 6%;
+    --sidebar-accent: 218 26% 14%;
+    --sidebar-accent-foreground: 210 30% 90%;
+    --sidebar-border: 218 22% 16%;
+    --sidebar-ring: 192 100% 48%;
+    /* Status */
+    --success: 142 70% 44%;
+    --warning: 38 92% 58%;
+    --info: 192 100% 48%;
+    /* Cyan glow */
+    --cyan: 192 100% 48%;
+    --cyan-foreground: 218 30% 6%;
+    /* Elevation shadows (stronger in dark) */
+    --shadow-sm: 0 1px 3px 0 hsl(218 30% 4% / 0.40), 0 1px 2px -1px hsl(218 30% 4% / 0.30);
+    --shadow-md: 0 4px 12px -2px hsl(218 30% 4% / 0.50), 0 2px 6px -2px hsl(218 30% 4% / 0.35);
+    --shadow-lg: 0 10px 24px -4px hsl(218 30% 4% / 0.60), 0 4px 10px -4px hsl(218 30% 4% / 0.40);
+    --shadow-glow: 0 0 0 3px hsl(192 100% 48% / 0.22);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Gradient text utility */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyan, var(--primary))));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Touch target utilities for iPad */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Precision cursor for drawing tools */
+  .cursor-crosshair-precise {
+    cursor: crosshair;
+  }
+
+  /* Technical font for measurements */
+  .font-technical {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* Glass panel effect */
+  .glass-panel {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.6);
+  }
+
+  /* Elevated card */
+  .card-elevated {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Glow ring on focus/active */
+  .glow-ring {
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Status dot */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+}
+
+/* === Blueprint Canvas === */
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.6) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.blueprint-grid-major {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px),
+    linear-gradient(to right, hsl(var(--primary) / 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--primary) / 0.15) 1px, transparent 1px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+}
+
+/* === Tool Dock (premium graphite/glass rail) === */
+.architect-tool-dock {
+  background: hsl(var(--sidebar-background));
+  border-right: 1px solid hsl(var(--sidebar-border));
+  box-shadow: 2px 0 12px hsl(218 30% 4% / 0.15);
+}
+
+/* Tool button */
+.architect-tool-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: hsl(var(--sidebar-foreground) / 0.65);
+  background-color: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.architect-tool-button:hover {
+  color: hsl(var(--sidebar-foreground));
+  background-color: hsl(var(--sidebar-accent));
+  border-color: hsl(var(--sidebar-border));
+}
+
+.architect-tool-button:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.architect-tool-button.active {
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.7);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.20), 0 2px 6px hsl(218 30% 4% / 0.25);
+}
+
+/* High contrast mode */
+.high-contrast .architect-tool-button.active {
+  outline: 2px solid currentColor;
+}
+
+/* Measurement text */
+.architect-measurement {
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--foreground) / 0.75);
+}
+
+/* Canvas surface */
+.architect-canvas {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+}
+
+.dark .architect-canvas {
+  background-color: hsl(218 28% 10%);
+  border-color: hsl(var(--border));
+}
+
+/* High contrast */
+.high-contrast .architect-canvas {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+}
+
+.high-contrast .architect-measurement {
+  font-size: 13px;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* === Governance page status colors === */
+.gate-pass   { color: hsl(var(--success)); }
+.gate-warn   { color: hsl(var(--warning)); }
+.gate-fail   { color: hsl(var(--destructive)); }
+.gate-pending { color: hsl(var(--muted-foreground)); }
