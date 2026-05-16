@@ -320,24 +320,24 @@ function MenuBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-52">
           <DropdownMenuItem onClick={onNew}>
-            <Plus className="mr-2 h-3.5 w-3.5" />新建项目
+            <Plus className="mr-2 h-3.5 w-3.5" />New Project
             <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onLoad}>
-            <FolderOpen className="mr-2 h-3.5 w-3.5" />打开项目
+            <FolderOpen className="mr-2 h-3.5 w-3.5" />Open Project
             <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onLoadSample}>
-            <Package className="mr-2 h-3.5 w-3.5" />加载示例
+            <Package className="mr-2 h-3.5 w-3.5" />Load Sample
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onSave} disabled={!hasProject}>
-            <Save className="mr-2 h-3.5 w-3.5" />保存
+            <Save className="mr-2 h-3.5 w-3.5" />Save
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onExport}>
-            <FileDown className="mr-2 h-3.5 w-3.5" />导出 JSON
+            <FileDown className="mr-2 h-3.5 w-3.5" />Export JSON
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -351,11 +351,11 @@ function MenuBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem onClick={onUndo} disabled={historyIndex <= 0}>
-            <Undo2 className="mr-2 h-3.5 w-3.5" />撤销
+            <Undo2 className="mr-2 h-3.5 w-3.5" />Undo
             <DropdownMenuShortcut>⌘Z</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onRedo} disabled={historyIndex >= historyLength - 1}>
-            <Redo2 className="mr-2 h-3.5 w-3.5" />重做
+            <Redo2 className="mr-2 h-3.5 w-3.5" />Redo
             <DropdownMenuShortcut>⌘⇧Z</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -371,31 +371,31 @@ function MenuBar({
         <DropdownMenuContent align="start" className="w-52">
           <DropdownMenuItem onClick={onToggle3D}>
             <Box className="mr-2 h-3.5 w-3.5" />
-            {show3DView ? '隐藏 3D 视图' : '显示 3D 视图'}
+            {show3DView ? 'Hide 3D View' : 'Show 3D View'}
             <DropdownMenuShortcut>3</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onToggleGrid}>
             <LayoutGrid className="mr-2 h-3.5 w-3.5" />
-            {gridVisible ? '隐藏网格' : '显示网格'}
+            {gridVisible ? 'Hide Grid' : 'Show Grid'}
             <DropdownMenuShortcut>G</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onToggleSnap}>
             <Magnet className="mr-2 h-3.5 w-3.5" />
-            {snapEnabled ? '关闭吸附' : '开启吸附'}
+            {snapEnabled ? 'Disable Snap' : 'Enable Snap'}
             <DropdownMenuShortcut>⇧S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem disabled>
-            <ZoomIn className="mr-2 h-3.5 w-3.5" />放大
+            <ZoomIn className="mr-2 h-3.5 w-3.5" />Zoom In
             <DropdownMenuShortcut>⌘+</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem disabled>
-            <ZoomOut className="mr-2 h-3.5 w-3.5" />缩小
+            <ZoomOut className="mr-2 h-3.5 w-3.5" />Zoom Out
             <DropdownMenuShortcut>⌘-</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem disabled>
-            <Maximize2 className="mr-2 h-3.5 w-3.5" />适应窗口
+            <Maximize2 className="mr-2 h-3.5 w-3.5" />Fit to Window
             <DropdownMenuShortcut>⌘0</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -414,7 +414,7 @@ function MenuBar({
               className="mr-2 h-3.5 w-3.5"
               style={{ color: currentTool === 'select' ? 'hsl(var(--ws-active))' : undefined }}
             />
-            选择工具
+            Select Tool
             <DropdownMenuShortcut>V</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -423,7 +423,7 @@ function MenuBar({
               className="mr-2 h-3.5 w-3.5"
               style={{ color: currentTool === 'wall' ? 'hsl(var(--ws-active))' : undefined }}
             />
-            绘制墙体
+            Draw Wall
             <DropdownMenuShortcut>W</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onSelectTool('door')}>
@@ -431,7 +431,7 @@ function MenuBar({
               className="mr-2 h-3.5 w-3.5"
               style={{ color: currentTool === 'door' ? 'hsl(var(--ws-active))' : undefined }}
             />
-            放置门
+            Place Door
             <DropdownMenuShortcut>D</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onSelectTool('window')}>
@@ -439,7 +439,7 @@ function MenuBar({
               className="mr-2 h-3.5 w-3.5"
               style={{ color: currentTool === 'window' ? 'hsl(var(--ws-active))' : undefined }}
             />
-            放置窗户
+            Place Window
             <DropdownMenuShortcut>N</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -448,7 +448,7 @@ function MenuBar({
               className="mr-2 h-3.5 w-3.5"
               style={{ color: currentTool === 'measure' ? 'hsl(var(--ws-active))' : undefined }}
             />
-            测量工具
+            Measure Tool
             <DropdownMenuShortcut>M</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -463,7 +463,7 @@ function MenuBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem>
-            <Info className="mr-2 h-3.5 w-3.5" />键盘快捷键
+            <Info className="mr-2 h-3.5 w-3.5" />Keyboard Shortcuts
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
