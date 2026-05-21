@@ -4,21 +4,32 @@ This document locks the current visual direction for Vishvakarma.OS.
 
 ## Canonical logo
 
-The official logo is the uploaded swan/V Vishvakarma mark.
+The official logo is the uploaded swan/V Vishvakarma image supplied by the project owner.
 
-Current repo asset:
+Current repo implementation:
 
-- `public/brand/vishvakarma-official-logo.svg`
+- `src/brand/officialLogo.ts`
+- `OFFICIAL_LOGO_SRC`
+
+This is a raster image data asset derived from the user-provided PNG artwork. It replaced the earlier generated SVG-style approximation.
 
 Use this asset for:
 
-- favicon / browser icon
 - splash / loading screens
 - auth page
 - app shell brand rail
+- editor header
+- onboarding panels
 - presentation/deck references
 
-Do not replace it with generic icons such as shield, layer, blueprint, or cube icons.
+Browser favicon is intentionally left without the old generated SVG reference until a properly exported `.png`, `.webp`, or `.ico` logo file is committed as a binary asset.
+
+Do not replace the official logo with:
+
+- generated SVG approximations
+- generic icons such as shield, layer, blueprint, or cube icons
+- AI-recreated logo variants
+- alternate swan/V marks
 
 ## Visual direction
 
@@ -29,7 +40,7 @@ The UI must align with the supplied reference images:
 3. Black tool rails and slim professional controls.
 4. Gold accent lines for active/selected architectural elements.
 5. Black/gold Vishvakarma splash/auth stage.
-6. Sacred-architecture logo treatment, but functional drafting UI after login.
+6. Official swan/V logo treatment, but functional drafting UI after login.
 
 ## Product tone
 
@@ -51,18 +62,20 @@ The UI must align with the supplied reference images:
 
 ## No-drift rules
 
-- Keep the auth page black/gold and centered around the official logo.
+- Keep the auth page black/gold and centered around the official user-provided logo.
 - Keep the editor workspace cream/blueprint-like, not generic SaaS blue.
 - Keep tool rails compact and iPad-friendly.
 - Keep route/auth/security evidence separate from visual changes.
 - Do not add unrelated features during brand passes.
+- Do not reintroduce generated SVG logo files unless the user explicitly provides an SVG export of their real logo.
 
 ## Current implementation files
 
-- `public/brand/vishvakarma-official-logo.svg`
+- `src/brand/officialLogo.ts`
 - `src/vish-theme.css`
 - `src/main.tsx`
 - `src/pages/AuthPage.tsx`
+- `src/pages/EditorPage.tsx`
 - `src/components/layouts/AppLayout.tsx`
 - `src/components/common/RouteGuard.tsx`
 - `index.html`
