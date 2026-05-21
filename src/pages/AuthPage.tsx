@@ -1,12 +1,11 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AlertTriangle, CheckCircle2, LockKeyhole, Mail } from 'lucide-react';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-
-const officialLogo = '/brand/vishvakarma-official-logo.svg';
 
 function getReturnPath(state: unknown) {
   if (typeof state === 'object' && state !== null && 'from' in state) {
@@ -64,7 +63,7 @@ export default function AuthPage() {
         <section className="rounded-[2rem] border border-primary/25 bg-black/30 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-8 flex items-center gap-4">
             <div className="vish-logo-tile flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl p-2">
-              <img src={officialLogo} alt="Vishvakarma.OS official swan V logo" className="h-full w-full rounded-xl object-cover" />
+              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied swan V logo" className="h-full w-full rounded-xl object-cover" />
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.34em] text-primary/80">Secure Access</p>
@@ -103,7 +102,7 @@ export default function AuthPage() {
         <Card className="vish-panel self-center rounded-[1.75rem] text-foreground">
           <CardHeader>
             <div className="mb-4 flex justify-center">
-              <img src={officialLogo} alt="Vishvakarma.OS official logo" className="h-20 w-20 rounded-2xl object-cover shadow-lg" />
+              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-20 w-20 rounded-2xl object-cover shadow-lg" />
             </div>
             <CardTitle className="text-center text-2xl">Request secure access</CardTitle>
             <CardDescription className="text-center">
