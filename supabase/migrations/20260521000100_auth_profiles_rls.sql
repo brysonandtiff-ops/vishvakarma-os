@@ -81,6 +81,16 @@ begin
     create policy "projects_owner_all" on public.projects for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
 
+  if to_regclass('public.specs') is not null then
+    alter table public.specs enable row level security;
+    if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'specs' and column_name = 'user_id') then
+      alter table public.specs add column user_id uuid references auth.users(id) on delete cascade;
+    end if;
+    alter table public.specs alter column user_id set default auth.uid();
+    drop policy if exists "specs_owner_all" on public.specs;
+    create policy "specs_owner_all" on public.specs for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+
   if to_regclass('public.change_requests') is not null then
     alter table public.change_requests enable row level security;
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'change_requests' and column_name = 'user_id') then
