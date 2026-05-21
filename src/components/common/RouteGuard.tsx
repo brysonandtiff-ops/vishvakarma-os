@@ -8,6 +8,7 @@ interface RouteGuardProps {
 
 const PUBLIC_ROUTES = ['/auth'];
 const localDemoMode = import.meta.env.DEV;
+const officialLogo = '/brand/vishvakarma-official-logo.svg';
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.includes(pathname);
@@ -39,10 +40,17 @@ export function RouteGuard({ children }: RouteGuardProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-        <div className="flex flex-col items-center gap-4 rounded-xl border bg-card p-8 shadow">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Checking secure session…</p>
+      <div className="vish-dark-stage flex min-h-screen items-center justify-center px-6">
+        <div className="relative flex flex-col items-center gap-5 text-center">
+          <div className="absolute h-80 w-80 rounded-full border border-primary/10" aria-hidden="true" />
+          <div className="absolute h-56 w-56 animate-spin rounded-full border border-primary/20 border-t-primary/60" aria-hidden="true" />
+          <div className="vish-logo-tile relative z-10 flex h-24 w-24 items-center justify-center rounded-3xl p-2">
+            <img src={officialLogo} alt="Vishvakarma.OS official logo" className="h-full w-full rounded-2xl object-cover" />
+          </div>
+          <div className="relative z-10 space-y-2">
+            <p className="vish-wordmark text-lg font-bold tracking-[0.42em]">VISHVAKARMA.OS</p>
+            <p className="text-xs uppercase tracking-[0.32em] text-primary/55">Checking secure session…</p>
+          </div>
         </div>
       </div>
     );
