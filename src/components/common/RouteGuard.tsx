@@ -1,45 +1,54 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RouteGuardProps {
   children: React.ReactNode;
 }
 
-// Please add the pages that can be accessed without logging in to PUBLIC_ROUTES.
-const PUBLIC_ROUTES = ['/login', '/403', '/404',"/"];
+const PUBLIC_ROUTES = ['/auth'];
 
-function matchPublicRoute(path: string, patterns: string[]) {
-  return patterns.some(pattern => {
-    if (pattern.includes('*')) {
-      const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
-      return regex.test(path);
-    }
-    return path === pattern;
-  });
+function isPublicRoute(pathname: string) {
+  return PUBLIC_ROUTES.includes(pathname);
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, isConfigured } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const publicRoute = isPublicRoute(location.pathname);
 
   useEffect(() => {
     if (loading) return;
 
-    const isPublic = matchPublicRoute(location.pathname, PUBLIC_ROUTES);
+    if (!isConfigured) return;
 
-    if (!user && !isPublic) {
-      navigate('/login', { state: { from: location.pathname }, replace: true });
+    if (!user && !publicRoute) {
+      navigate('/auth', { state: { from: location.pathname }, replace: true });
+      return;
     }
-  }, [user, loading, location.pathname, navigate]);
+
+    if (user && publicRoute) {
+      const from = typeof location.state === 'object' && location.state && 'from' in location.state
+        ? String(location.state.from)
+        : '/';
+      navigate(from, { replace: true });
+    }
+  }, [isConfigured, loading, location.pathname, location.state, navigate, publicRoute, user]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <div className="flex flex-col items-center gap-4 rounded-xl border bg-card p-8 shadow">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Checking secure session…</p>
+        </div>
       </div>
     );
+  }
+
+  if (isConfigured && !user && !publicRoute) {
+    return null;
   }
 
   return <>{children}</>;
