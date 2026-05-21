@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RouteGuardProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const PUBLIC_ROUTES = ['/auth'];
