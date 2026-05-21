@@ -1,15 +1,19 @@
 {
-  "name": "miaoda-react-admin",
+  "name": "vishvakarma-os",
   "version": "0.0.1",
+  "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "build": "vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:routes": "vitest run src/routes.production.test.ts",
     "lint": "tsgo -p tsconfig.check.json; biome lint --only=correctness/noUndeclaredDependencies; ast-grep scan",
-    "verify": "npm run lint && npm run test && npm run build"
+    "verify": "pnpm run lint && pnpm run test && pnpm run build",
+    "verify:ci": "pnpm run verify && pnpm run test:routes"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
