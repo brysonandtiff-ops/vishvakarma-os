@@ -21,6 +21,7 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import AppLayout from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import EditorCommandStrip from '@/components/editor/EditorCommandStrip';
@@ -129,7 +130,7 @@ function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => v
       <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-3xl border border-primary/30 bg-black/80 shadow-2xl backdrop-blur-xl">
         <div className="flex items-center gap-3 border-b border-primary/20 px-5 py-4">
           <div className="vish-logo-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl p-1.5">
-            <img src="/brand/vishvakarma-official-logo.svg" alt="Vishvakarma.OS logo" className="h-full w-full rounded-xl object-cover" />
+            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-xl object-cover" />
           </div>
           <div>
             <p className="text-sm font-semibold text-ws-text">Start your floor plan</p>
@@ -487,7 +488,7 @@ export default function EditorPage() {
         <header className="flex h-12 shrink-0 items-center gap-3 border-b border-ws-border bg-ws-menubar px-3">
           <div className="flex items-center gap-2 border-r border-ws-border pr-3">
             <div className="vish-logo-tile flex h-8 w-8 items-center justify-center rounded-xl p-1">
-              <img src="/brand/vishvakarma-official-logo.svg" alt="Vishvakarma.OS" className="h-full w-full rounded-lg object-cover" />
+              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-lg object-cover" />
             </div>
             <div>
               <p className="vish-wordmark text-[11px] font-bold tracking-[0.22em]">VISHVAKARMA.OS</p>
