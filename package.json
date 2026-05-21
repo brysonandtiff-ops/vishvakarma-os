@@ -10,7 +10,7 @@
     "build": "vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:routes": "vitest run src/routes.production.test.ts",
+    "test:routes": "vitest run src/routes.production.test.tsx",
     "lint": "tsgo -p tsconfig.check.json; biome lint --only=correctness/noUndeclaredDependencies; ast-grep scan",
     "verify": "pnpm run lint && pnpm run test && pnpm run build",
     "verify:ci": "pnpm run verify && pnpm run test:routes"
