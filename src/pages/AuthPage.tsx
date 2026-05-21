@@ -60,7 +60,7 @@ export default function AuthPage() {
         <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10" />
       </div>
 
-      <div className="relative z-10 grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="relative z-10 grid w-full max-w-6xl items-center gap-7 lg:grid-cols-[1.12fr_0.88fr]">
         <section className="rounded-[2rem] border border-primary/25 bg-black/30 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-8 flex items-center gap-4">
             <div className="vish-logo-tile flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl p-2">
@@ -74,11 +74,11 @@ export default function AuthPage() {
           </div>
 
           <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-stone-100 md:text-5xl">
-            Protected iPad-first architectural workspace.
+            Protected iPad&#8209;first architectural workspace.
           </h2>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-stone-300">
             Sign in or create an account with a secure email link. The blueprint editor, 3D studio,
-            registry, change requests, release gates, and audit trail remain behind an authenticated session.
+            registry, change requests, release gates, and audit trail stay behind a verified session.
           </p>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
