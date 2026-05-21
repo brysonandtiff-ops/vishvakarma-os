@@ -7,6 +7,7 @@ interface RouteGuardProps {
 }
 
 const PUBLIC_ROUTES = ['/auth'];
+const localDemoMode = import.meta.env.DEV;
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.includes(pathname);
@@ -17,11 +18,11 @@ export function RouteGuard({ children }: RouteGuardProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const publicRoute = isPublicRoute(location.pathname);
+  const gated = isConfigured || !localDemoMode;
 
   useEffect(() => {
     if (loading) return;
-
-    if (!isConfigured) return;
+    if (!gated) return;
 
     if (!user && !publicRoute) {
       navigate('/auth', { state: { from: location.pathname }, replace: true });
@@ -34,7 +35,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
         : '/';
       navigate(from, { replace: true });
     }
-  }, [isConfigured, loading, location.pathname, location.state, navigate, publicRoute, user]);
+  }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);
 
   if (loading) {
     return (
@@ -47,7 +48,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
     );
   }
 
-  if (isConfigured && !user && !publicRoute) {
+  if (gated && !user && !publicRoute) {
     return null;
   }
 
