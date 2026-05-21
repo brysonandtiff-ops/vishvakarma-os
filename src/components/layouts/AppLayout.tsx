@@ -12,7 +12,6 @@ import {
   Package,
   History,
   Menu,
-  Layers,
   LogOut,
   UserCircle,
 } from 'lucide-react';
@@ -22,6 +21,8 @@ import { useState } from 'react';
 interface AppLayoutProps {
   children: React.ReactNode;
 }
+
+const officialLogo = '/brand/vishvakarma-official-logo.svg';
 
 const allNav = [
   { name: 'Blueprint Editor', path: '/', icon: PenTool, group: 'EDITOR' },
@@ -108,18 +109,18 @@ function SidebarContent({
         {/* Brand */}
         <div
           className={`flex shrink-0 items-center border-b border-ws-border ${
-            collapsed ? 'h-12 justify-center' : 'h-12 gap-2.5 px-3'
+            collapsed ? 'h-14 justify-center' : 'h-16 gap-3 px-3'
           }`}
         >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-ws-active-bg">
-            <Layers className="h-4 w-4 text-ws-active" />
+          <div className="vish-logo-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-1">
+            <img src={officialLogo} alt="Vishvakarma.OS official logo" className="h-full w-full rounded-lg object-cover" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-[11px] font-bold tracking-tight text-ws-text">
-                Vishvakarma.OS
+              <p className="vish-wordmark truncate text-[11px] font-bold tracking-[0.28em]">
+                VISHVAKARMA.OS
               </p>
-              <p className="font-technical text-[9px] text-ws-text-faint">v1.0.0</p>
+              <p className="font-technical text-[9px] uppercase tracking-[0.22em] text-ws-text-faint">Divine Architecture · v1.0.0</p>
             </div>
           )}
         </div>
@@ -206,9 +207,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full bg-background">
       {/* Desktop Sidebar — collapsed icon rail (48px) */}
-      <aside className="hidden w-12 shrink-0 border-r border-ws-border lg:block">
+      <aside className="hidden w-14 shrink-0 border-r border-ws-border lg:block">
         <SidebarContent collapsed />
       </aside>
 
@@ -218,13 +219,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed left-2 top-2 z-40 h-8 w-8 rounded border border-ws-border bg-ws-toolbar text-ws-text hover:bg-ws-hover lg:hidden"
+            className="fixed left-2 top-2 z-40 h-9 w-9 rounded-xl border border-ws-border bg-ws-toolbar text-ws-text shadow-lg hover:bg-ws-hover lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-52 p-0 border-r-0">
+        <SheetContent side="left" className="w-64 p-0 border-r-0">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
