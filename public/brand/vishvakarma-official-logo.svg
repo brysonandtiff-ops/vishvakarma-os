@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Vishvakarma.OS official swan V logo</title>
+  <desc id="desc">Gold sacred-architecture V mark with swan neck and wings, based on the official uploaded Vishvakarma.OS logo direction.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#fff4c7"/>
+      <stop offset="42%" stop-color="#d69a33"/>
+      <stop offset="100%" stop-color="#7b3f10"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fff3bf"/>
+      <stop offset="28%" stop-color="#d9a33b"/>
+      <stop offset="58%" stop-color="#a76d1d"/>
+      <stop offset="100%" stop-color="#fff0b0"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#fff8df"/>
+      <stop offset="62%" stop-color="#f3b2a5"/>
+      <stop offset="100%" stop-color="#d88769"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.9  0 1 0 0 0.55  0 0 1 0 0.12  0 0 0 0.75 0"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g opacity=".28" stroke="#fff2b8" stroke-width="1.5" fill="none">
+    <circle cx="256" cy="256" r="190"/>
+    <circle cx="256" cy="256" r="150"/>
+    <path d="M256 64 312 196 454 206 345 298 378 438 256 363 134 438 167 298 58 206 200 196Z"/>
+    <path d="M90 260h332M256 90v332M137 137l238 238M375 137 137 375"/>
+  </g>
+  <g filter="url(#glow)">
+    <path d="M84 305c55-15 96-43 133-82 28-30 44-69 32-102-9-25-36-40-61-28 28-34 83-29 111 4 38 45 12 110-18 149-18 23-37 42-54 60l53 82 54-109c14-28 33-50 57-66 23-15 44-21 65-23-40 33-67 70-87 112l-79 165h-42l-77-121c-42 35-91 53-147 61z" fill="url(#gold)" stroke="#fff1a6" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M260 102c21-58 81-62 117-39 39 25 54 80 32 123-17 33-58 49-91 34 41-14 59-49 50-80-8-29-38-49-70-36-18 7-30 22-38 39z" fill="#fff6df" stroke="#7a2f12" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M362 78c29 7 47 36 39 65-8 28-38 45-66 37 20-8 34-26 36-47 2-19-4-38-9-55z" fill="#f4b49f" opacity=".9"/>
+    <path d="M374 133c10-7 20-8 30-2 4 3 5 9 1 13-9 9-22 10-34 4z" fill="#17120c"/>
+    <circle cx="334" cy="105" r="7" fill="#8e1111" stroke="#fff2bd" stroke-width="3"/>
+    <path d="M197 220c-43-4-88-30-132-80 69 17 119 39 154 72z" fill="url(#wing)" stroke="#fff1c6" stroke-width="5"/>
+    <path d="M318 222c44-4 88-31 132-80-69 17-119 40-154 73z" fill="url(#wing)" stroke="#fff1c6" stroke-width="5"/>
+    <path d="M110 159c42 22 75 45 100 70M402 159c-42 22-75 45-100 70" stroke="#bd6d41" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+  </g>
+  <g opacity=".88" fill="#fff2bd">
+    <circle cx="157" cy="318" r="5"/>
+    <circle cx="350" cy="306" r="5"/>
+    <circle cx="284" cy="398" r="6"/>
+    <circle cx="222" cy="160" r="4"/>
+  </g>
+</svg>
