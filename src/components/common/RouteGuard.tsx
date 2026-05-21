@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RouteGuardProps {
@@ -8,7 +9,6 @@ interface RouteGuardProps {
 
 const PUBLIC_ROUTES = ['/auth'];
 const localDemoMode = import.meta.env.DEV;
-const officialLogo = '/brand/vishvakarma-official-logo.svg';
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.includes(pathname);
@@ -45,7 +45,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
           <div className="absolute h-80 w-80 rounded-full border border-primary/10" aria-hidden="true" />
           <div className="absolute h-56 w-56 animate-spin rounded-full border border-primary/20 border-t-primary/60" aria-hidden="true" />
           <div className="vish-logo-tile relative z-10 flex h-24 w-24 items-center justify-center rounded-3xl p-2">
-            <img src={officialLogo} alt="Vishvakarma.OS official logo" className="h-full w-full rounded-2xl object-cover" />
+            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-2xl object-cover" />
           </div>
           <div className="relative z-10 space-y-2">
             <p className="vish-wordmark text-lg font-bold tracking-[0.42em]">VISHVAKARMA.OS</p>
