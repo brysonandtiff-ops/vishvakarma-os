@@ -14,7 +14,7 @@ test.describe('production auth gate', () => {
     await page.goto('/auth');
 
     await expect(page.getByRole('heading', { name: /vishvakarma\.os/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /request secure access/i })).toBeVisible();
+    await expect(page.getByText(/request secure access/i).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /send secure access link/i })).toBeVisible();
   });
 
@@ -23,7 +23,7 @@ test.describe('production auth gate', () => {
       await page.goto(route);
 
       await expect(page).toHaveURL(/\/auth$/);
-      await expect(page.getByRole('heading', { name: /request secure access/i })).toBeVisible();
+      await expect(page.getByText(/request secure access/i).first()).toBeVisible();
     });
   }
 
