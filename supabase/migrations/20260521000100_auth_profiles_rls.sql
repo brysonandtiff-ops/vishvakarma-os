@@ -69,8 +69,6 @@ create trigger profiles_touch_updated_at
   before update on public.profiles
   for each row execute function public.touch_updated_at();
 
--- User-owned app data policies. These clauses are guarded by dynamic SQL so this migration is safe
--- even if a table is not present in older local databases yet.
 do $$
 begin
   if to_regclass('public.projects') is not null then
@@ -78,6 +76,7 @@ begin
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'projects' and column_name = 'user_id') then
       alter table public.projects add column user_id uuid references auth.users(id) on delete cascade;
     end if;
+    alter table public.projects alter column user_id set default auth.uid();
     drop policy if exists "projects_owner_all" on public.projects;
     create policy "projects_owner_all" on public.projects for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
@@ -87,6 +86,7 @@ begin
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'change_requests' and column_name = 'user_id') then
       alter table public.change_requests add column user_id uuid references auth.users(id) on delete cascade;
     end if;
+    alter table public.change_requests alter column user_id set default auth.uid();
     drop policy if exists "change_requests_owner_all" on public.change_requests;
     create policy "change_requests_owner_all" on public.change_requests for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
@@ -96,6 +96,7 @@ begin
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'registry' and column_name = 'user_id') then
       alter table public.registry add column user_id uuid references auth.users(id) on delete cascade;
     end if;
+    alter table public.registry alter column user_id set default auth.uid();
     drop policy if exists "registry_owner_all" on public.registry;
     create policy "registry_owner_all" on public.registry for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
@@ -105,6 +106,7 @@ begin
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'releases' and column_name = 'user_id') then
       alter table public.releases add column user_id uuid references auth.users(id) on delete cascade;
     end if;
+    alter table public.releases alter column user_id set default auth.uid();
     drop policy if exists "releases_owner_all" on public.releases;
     create policy "releases_owner_all" on public.releases for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
@@ -114,6 +116,7 @@ begin
     if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'audit_logs' and column_name = 'user_id') then
       alter table public.audit_logs add column user_id uuid references auth.users(id) on delete cascade;
     end if;
+    alter table public.audit_logs alter column user_id set default auth.uid();
     drop policy if exists "audit_logs_owner_read" on public.audit_logs;
     create policy "audit_logs_owner_read" on public.audit_logs for select using (auth.uid() = user_id);
     drop policy if exists "audit_logs_owner_insert" on public.audit_logs;
