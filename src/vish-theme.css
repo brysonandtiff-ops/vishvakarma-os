@@ -1,0 +1,79 @@
+:root {
+  --background: 38 30% 94%;
+  --foreground: 36 14% 11%;
+  --card: 38 34% 97%;
+  --card-foreground: 36 14% 11%;
+  --primary: 39 52% 47%;
+  --primary-foreground: 38 38% 96%;
+  --secondary: 38 22% 88%;
+  --secondary-foreground: 36 14% 16%;
+  --muted: 38 22% 88%;
+  --muted-foreground: 36 12% 42%;
+  --accent: 39 54% 88%;
+  --accent-foreground: 36 35% 24%;
+  --border: 38 18% 78%;
+  --input: 38 18% 78%;
+  --ring: 39 52% 47%;
+
+  --vish-ink: 36 14% 9%;
+  --vish-paper: 42 35% 96%;
+  --vish-gold: 39 52% 47%;
+  --vish-shadow: 36 38% 12% / 0.18;
+
+  --ws-canvas: 38 30% 92%;
+  --ws-toolbar: 36 10% 9%;
+  --ws-sidebar: 36 10% 8%;
+  --ws-menubar: 36 10% 8%;
+  --ws-statusbar: 36 10% 10%;
+  --ws-border: 38 16% 72%;
+  --ws-border-subtle: 38 18% 82%;
+  --ws-text: 38 25% 92%;
+  --ws-text-dim: 38 12% 68%;
+  --ws-text-faint: 39 32% 45%;
+  --ws-hover: 36 10% 16%;
+  --ws-active: 39 61% 58%;
+  --ws-active-bg: 39 49% 19%;
+  --ws-active-ring: 39 61% 58% / 0.3;
+  --ws-grid-line: 38 18% 82%;
+  --ws-grid-major: 38 16% 72%;
+  --ws-snap: 39 61% 52%;
+}
+
+body {
+  background: radial-gradient(circle at 50% -10%, hsl(42 65% 88% / 0.52), transparent 42rem), hsl(var(--background));
+}
+
+.blueprint-grid,
+.blueprint-grid-major {
+  background-color: hsl(var(--ws-canvas));
+  background-image:
+    linear-gradient(hsl(var(--ws-grid-major) / 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--ws-grid-major) / 0.55) 1px, transparent 1px),
+    linear-gradient(hsl(var(--ws-grid-line) / 0.72) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--ws-grid-line) / 0.72) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+}
+
+.vish-wordmark {
+  color: hsl(var(--vish-gold));
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px hsl(var(--vish-gold) / 0.28);
+}
+
+.vish-dark-stage {
+  background: radial-gradient(circle at 50% 34%, hsl(var(--vish-gold) / 0.18), transparent 24rem), hsl(var(--vish-ink));
+  color: hsl(42 35% 90%);
+}
+
+.vish-panel {
+  border: 1px solid hsl(var(--vish-gold) / 0.28);
+  background: linear-gradient(180deg, hsl(38 28% 96% / 0.97), hsl(37 25% 91% / 0.94));
+  box-shadow: 0 24px 70px hsl(0 0% 0% / 0.28), 0 0 44px hsl(var(--vish-gold) / 0.12);
+}
+
+.vish-logo-tile {
+  background: radial-gradient(circle at 50% 35%, hsl(42 90% 72% / 0.5), transparent 55%), linear-gradient(135deg, hsl(31 63% 28%), hsl(42 74% 58%));
+  border: 1px solid hsl(43 78% 72% / 0.68);
+  box-shadow: 0 0 22px hsl(var(--vish-gold) / 0.42);
+}
