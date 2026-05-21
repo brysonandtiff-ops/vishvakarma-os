@@ -1,6 +1,6 @@
 # Vishvakarma.OS — Production Readiness Evidence
 
-**Status:** Release hardening and auth hardening added. Final production approval requires the GitHub Actions `Verify Vishvakarma.OS` workflow to pass on the release commit.
+**Status:** Release hardening, auth hardening, browser E2E scaffold, and Supabase RLS evidence runbook added. Final production approval requires the GitHub Actions `Verify Vishvakarma.OS` and `E2E Auth Gate` workflows to pass on the release commit.
 
 **Last updated:** 2026-05-21
 
@@ -15,6 +15,7 @@
 | Lint | `pnpm run lint` exits 0 | Enforced in CI |
 | Unit tests | `pnpm run test` exits 0 | Enforced in CI |
 | Production route smoke | `pnpm run test:routes` verifies route list, public/private access policy, and renderable elements | Added and enforced in CI |
+| Browser auth E2E | Playwright verifies `/auth` loads and signed-out users are redirected from private routes | Added in `E2E Auth Gate` workflow |
 | Production build | `pnpm run build` creates `dist/` | Enforced in CI |
 | Build artifact | CI uploads `dist/` as `vishvakarma-os-dist` | Added |
 | Passwordless account access | `/auth` uses Supabase email-link account access | Added |
@@ -22,6 +23,7 @@
 | Account shell controls | App shell shows account/session mode and sign-out control | Added |
 | Profile creation | Supabase trigger creates `profiles` rows for new auth users | Added |
 | RLS baseline | User-owned app tables are row-level-security scoped by `user_id` | Added |
+| RLS evidence runbook | `docs/release/SUPABASE_RLS_EVIDENCE.md` documents exact proof queries and manual checks | Added |
 | Environment template | `.env.example` documents required Supabase variables and auth setup checklist | Added |
 | Local-only safety | Missing Supabase env no longer creates an invalid production crash path | Added |
 | Vercel SPA routing | Deep links rewrite to `index.html` | Added |
@@ -33,9 +35,10 @@
 
 Do **not** mark a release as production ready unless all of these are true:
 
-1. The latest commit on `main` has a passing GitHub Actions run named **Verify Vishvakarma.OS**.
-2. The `dist/` artifact is present in that workflow run.
-3. A deployed preview opens every production route:
+1. The latest commit on `main` has passing GitHub Actions runs named **Verify Vishvakarma.OS** and **E2E Auth Gate**.
+2. The `dist/` artifact is present in the verify workflow run.
+3. The Playwright report is attached or inspected for the E2E workflow run.
+4. A deployed preview opens every production route:
    - `/auth`
    - `/`
    - `/spec-center`
@@ -43,15 +46,16 @@ Do **not** mark a release as production ready unless all of these are true:
    - `/change-requests`
    - `/releases`
    - `/audit`
-4. Supabase production environment variables are configured in the host:
+5. Supabase production environment variables are configured in the host:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-5. Supabase Auth is configured:
+6. Supabase Auth is configured:
    - email link / OTP provider enabled
    - production site URL allowlisted
    - preview/local URLs allowlisted when needed
-6. Supabase migrations are applied before real users are invited.
-7. Manual smoke test confirms:
+7. Supabase migrations are applied before real users are invited.
+8. `docs/release/SUPABASE_RLS_EVIDENCE.md` has been executed and evidence attached.
+9. Manual smoke test confirms:
    - `/auth` loads while signed out
    - signed-out users cannot access private app routes in production
    - account creation/sign-in email link reaches the configured site URL
@@ -67,6 +71,9 @@ Do **not** mark a release as production ready unless all of these are true:
 ```bash
 pnpm install --frozen-lockfile
 pnpm run verify:ci
+pnpm run build
+pnpm dlx @playwright/test@1.54.2 install chromium
+pnpm dlx @playwright/test@1.54.2 test
 pnpm run preview
 ```
 
@@ -76,18 +83,17 @@ Open the preview and test every production route listed above.
 
 ## Auth / RLS Verification
 
-Run these checks against the Supabase project before production release:
+Run the RLS runbook before production release:
 
-```sql
-select tablename, rowsecurity
-from pg_tables
-where schemaname = 'public'
-  and tablename in ('profiles', 'projects', 'specs', 'registry', 'change_requests', 'releases', 'audit_logs');
-```
+- `docs/release/SUPABASE_RLS_EVIDENCE.md`
 
-Expected: every listed table that exists has `rowsecurity = true`.
+Required proof:
 
-Also create a test user through `/auth`, confirm a `profiles` row is created, then confirm that user-owned rows are only visible to the signed-in owner.
+- RLS enabled on all protected tables.
+- Owner policies exist for all protected tables.
+- Protected app tables have `user_id` ownership columns.
+- New `/auth` account creates a matching `profiles` row.
+- Supabase security advisor has no unresolved production RLS issue.
 
 ---
 
@@ -95,8 +101,8 @@ Also create a test user through `/auth`, confirm a `profiles` row is created, th
 
 | Risk | Impact | Required Next Action |
 |---|---|---|
-| No full browser E2E suite yet | Route manifest is checked, but user flows are not fully browser-driven | Add Playwright route open + auth redirect + editor smoke tests |
-| Supabase RLS not proven by live advisor output yet | Persistence/security depends on live database policies | Add Supabase advisor output and screenshot/SQL proof |
+| E2E workflow not yet confirmed green in this chat | Browser proof exists in repo, but latest run status was not returned by GitHub yet | Confirm `E2E Auth Gate` workflow passes |
+| Supabase RLS not proven by live advisor output yet | Persistence/security depends on live database policies | Run `SUPABASE_RLS_EVIDENCE.md` and attach output |
 | Large 3D bundle | May affect lower-end iPads | Add bundle analysis and code-split 3D chamber if needed |
 | Manual deployment proof not attached | CI creates artifact but does not prove hosted preview health | Attach Vercel deployment URL and screenshots |
 
@@ -107,6 +113,7 @@ Also create a test user through `/auth`, confirm a `profiles` row is created, th
 The release must be blocked if any of these occur:
 
 - GitHub Actions verification fails.
+- E2E Auth Gate fails.
 - Supabase production env values are missing for production release.
 - Supabase Auth email-link flow is not configured.
 - Supabase migrations are not applied.
@@ -121,8 +128,10 @@ The release must be blocked if any of these occur:
 
 ## Evidence Checklist
 
-- [ ] GitHub Actions workflow URL attached
+- [ ] GitHub Actions **Verify Vishvakarma.OS** workflow URL attached
+- [ ] GitHub Actions **E2E Auth Gate** workflow URL attached
 - [ ] `vishvakarma-os-dist` artifact attached
+- [ ] Playwright auth-gate report attached
 - [ ] Vercel deployment URL attached
 - [ ] `/auth` screenshot while signed out attached
 - [ ] Private-route redirect proof attached
