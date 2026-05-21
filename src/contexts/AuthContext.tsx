@@ -1,9 +1,25 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '@/db/supabase';
-import type { User } from '@supabase/supabase-js';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  loading: boolean;
+  isConfigured: boolean;
+  mode: 'connected' | 'local-only';
+  requestAccessLink: (email: string) => Promise<{ error: Error | null }>;
+  signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 export async function getProfile(userId: string): Promise<Profile | null> {
+  if (!isSupabaseConfigured) return null;
+
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -11,65 +27,93 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     .maybeSingle();
 
   if (error) {
-    console.error('Failed to fetch user profile:', error);
+    console.error('[Vishvakarma.OS] Failed to fetch user profile:', error);
     return null;
   }
+
   return data;
 }
-interface AuthContextType {
-  user: User | null;
-  profile: Profile | null;
-  loading: boolean;
-  signInWithUsername: (username: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithUsername: (username: string, password: string) => Promise<{ error: Error | null }>;
-  signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isSupabaseConfigured);
 
-  const refreshProfile = async () => {
-    if (!user) {
+  const loadProfile = useCallback(async (nextUser: User | null) => {
+    if (!nextUser) {
       setProfile(null);
       return;
     }
 
-    const profileData = await getProfile(user.id);
-    setProfile(profileData);
-  };
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
-      }
-      setLoading(false);
-    });
-    // In this function, do NOT use any await calls. Use `.then()` instead to avoid deadlocks.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
-      } else {
-        setProfile(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const nextProfile = await getProfile(nextUser.id);
+    setProfile(nextProfile);
   }, []);
 
-  const signInWithUsername = async (username: string, password: string) => {
+  const refreshProfile = useCallback(async () => {
+    await loadProfile(user);
+  }, [loadProfile, user]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return () => {
+        mounted = false;
+      };
+    }
+
+    supabase.auth
+      .getSession()
+      .then(async ({ data, error }) => {
+        if (!mounted) return;
+        if (error) throw error;
+
+        const nextSession = data.session ?? null;
+        const nextUser = nextSession?.user ?? null;
+        setSession(nextSession);
+        setUser(nextUser);
+        await loadProfile(nextUser);
+      })
+      .catch((error) => {
+        console.error('[Vishvakarma.OS] Auth session read failed:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      const nextUser = nextSession?.user ?? null;
+      setSession(nextSession);
+      setUser(nextUser);
+      setLoading(false);
+      void loadProfile(nextUser);
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
+  const requestAccessLink = useCallback(async (email: string) => {
     try {
-      const email = `${username}@miaoda.com`;
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      if (!isSupabaseConfigured) {
+        throw new Error('Supabase is not configured. Add environment variables to enable account access.');
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: {
+          emailRedirectTo: window.location.origin,
+          shouldCreateUser: true,
+        },
       });
 
       if (error) throw error;
@@ -77,34 +121,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       return { error: error as Error };
     }
-  };
+  }, []);
 
-  const signUpWithUsername = async (username: string, password: string) => {
-    try {
-      const email = `${username}@miaoda.com`;
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
+  const signOut = useCallback(async () => {
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      return { error: error as Error };
     }
-  };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
+    setSession(null);
     setUser(null);
     setProfile(null);
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithUsername, signUpWithUsername, signOut, refreshProfile }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      session,
+      profile,
+      loading,
+      isConfigured: isSupabaseConfigured,
+      mode: supabaseMode,
+      requestAccessLink,
+      signOut,
+      refreshProfile,
+    }),
+    [loading, profile, refreshProfile, requestAccessLink, session, signOut, user]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
