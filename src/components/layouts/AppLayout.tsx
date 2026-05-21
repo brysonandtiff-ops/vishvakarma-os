@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import {
   PenTool,
   FileText,
@@ -21,8 +22,6 @@ import { useState } from 'react';
 interface AppLayoutProps {
   children: React.ReactNode;
 }
-
-const officialLogo = '/brand/vishvakarma-official-logo.svg';
 
 const allNav = [
   { name: 'Blueprint Editor', path: '/', icon: PenTool, group: 'EDITOR' },
@@ -106,14 +105,13 @@ function SidebarContent({
   return (
     <TooltipProvider delayDuration={500}>
       <div className="flex h-full flex-col bg-ws-sidebar">
-        {/* Brand */}
         <div
           className={`flex shrink-0 items-center border-b border-ws-border ${
             collapsed ? 'h-14 justify-center' : 'h-16 gap-3 px-3'
           }`}
         >
           <div className="vish-logo-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-1">
-            <img src={officialLogo} alt="Vishvakarma.OS official logo" className="h-full w-full rounded-lg object-cover" />
+            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-lg object-cover" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
@@ -125,7 +123,6 @@ function SidebarContent({
           )}
         </div>
 
-        {/* Nav */}
         <ScrollArea className="flex-1">
           <nav className={`py-2 ${collapsed ? 'px-1.5 space-y-0.5' : 'px-2 space-y-3'}`}>
             {groups.map((group) => {
@@ -155,7 +152,6 @@ function SidebarContent({
           </nav>
         </ScrollArea>
 
-        {/* Footer */}
         <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-2'}`}>
           {collapsed ? (
             <Tooltip>
@@ -208,12 +204,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      {/* Desktop Sidebar — collapsed icon rail (48px) */}
       <aside className="hidden w-14 shrink-0 border-r border-ws-border lg:block">
         <SidebarContent collapsed />
       </aside>
 
-      {/* Mobile Menu */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetTrigger asChild>
           <Button
@@ -230,7 +224,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </SheetContent>
       </Sheet>
 
-      {/* Main Content */}
       <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
     </div>
   );
