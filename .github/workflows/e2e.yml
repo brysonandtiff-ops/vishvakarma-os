@@ -1,0 +1,75 @@
+name: E2E Auth Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auth-gate:
+    name: Browser auth/private-route proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install app dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright for CI run
+        run: pnpm add -D @playwright/test@1.54.2
+
+      - name: Install Chromium browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build production app
+        run: pnpm run build
+
+      - name: Run auth/private-route E2E proof
+        env:
+          # Deliberately dummy-but-valid values so production build enables the auth gate
+          # without requiring real Supabase credentials for redirect-only tests.
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key-that-is-long-enough-for-runtime-guard
+        run: pnpm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-auth-gate-report
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results
+          if-no-files-found: ignore
+          retention-days: 14
