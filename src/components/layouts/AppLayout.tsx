@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   PenTool,
   FileText,
@@ -12,6 +13,8 @@ import {
   History,
   Menu,
   Layers,
+  LogOut,
+  UserCircle,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
@@ -85,11 +88,18 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const location = useLocation();
+  const { user, profile, mode, signOut } = useAuth();
   const groups = ['EDITOR', 'GOVERNANCE', 'SYSTEM'] as const;
   const groupLabels: Record<string, string> = {
     EDITOR: 'Editor',
     GOVERNANCE: 'Governance',
     SYSTEM: 'System',
+  };
+  const accountLabel = profile?.full_name || user?.email || (mode === 'local-only' ? 'Local-only demo' : 'No session');
+
+  const handleSignOut = async () => {
+    await signOut();
+    onNavigate?.();
   };
 
   return (
@@ -147,13 +157,43 @@ function SidebarContent({
         {/* Footer */}
         <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-2'}`}>
           {collapsed ? (
-            <div className="flex h-7 w-7 mx-auto items-center justify-center">
-              <div className="h-2 w-2 rounded-full bg-success" />
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex h-7 w-7 mx-auto items-center justify-center rounded text-ws-text-faint hover:bg-ws-hover hover:text-ws-text"
+                  aria-label="Sign out"
+                >
+                  <UserCircle className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={6} className="text-xs">
+                {accountLabel}
+              </TooltipContent>
+            </Tooltip>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-success" />
-              <p className="text-[10px] text-ws-text-faint">Governance active</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-success" />
+                <p className="text-[10px] text-ws-text-faint">Governance active · {mode}</p>
+              </div>
+              <div className="flex items-center justify-between gap-2 rounded border border-ws-border bg-ws-toolbar/50 px-2 py-1.5">
+                <div className="min-w-0">
+                  <p className="truncate text-[10px] font-medium text-ws-text">{accountLabel}</p>
+                  <p className="text-[9px] text-ws-text-faint">Protected workspace</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSignOut}
+                  className="h-7 w-7 shrink-0 text-ws-text-faint hover:text-ws-text"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
           )}
         </div>
