@@ -651,7 +651,7 @@ export default function EditorPage() {
         onExportJSON={handleExportJSON}
         projectName={projectName}
         wallCount={walls.length}
-        openingCount={openingCount}
+        openingCount={openings.length}
       />
     </AppLayout>
   );
