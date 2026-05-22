@@ -1,0 +1,27 @@
+{
+  "name": "Vishvakarma.OS",
+  "short_name": "Vishvakarma",
+  "description": "iPad-first architectural blueprint editor and live 3D planning studio.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "browser"],
+  "orientation": "any",
+  "background_color": "#17120c",
+  "theme_color": "#17120c",
+  "categories": ["productivity", "design", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
