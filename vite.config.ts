@@ -23,4 +23,19 @@ export default defineConfig(({ command }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('three') || id.includes('@react-three')) return 'vendor-3d';
+          if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('sonner')) return 'vendor-ui';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+          if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+          return 'vendor-misc';
+        },
+      },
+    },
+  },
 }));
