@@ -1,0 +1,133 @@
+/* Vishvakarma.OS — iPad workspace polish layer */
+
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: 100dvh;
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@media (pointer: coarse), (hover: none) {
+  .architect-tool-button {
+    width: 64px;
+    min-height: 58px;
+    border-radius: 12px;
+  }
+
+  .vish-tool-rail {
+    width: 86px;
+    gap: 6px;
+    padding-block: 10px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .architect-canvas {
+    max-width: none;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .ws-pane-header {
+    min-height: 34px;
+  }
+
+  .ws-status-bar {
+    min-height: 28px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .vish-editor-main {
+    flex-direction: column;
+  }
+
+  .vish-editor-center {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .vish-viewport-3d {
+    width: 100%;
+    min-height: 260px;
+    max-height: 36dvh;
+    border-left: 0;
+    border-top: 1px solid hsl(var(--ws-border));
+  }
+
+  .vish-properties-panel {
+    width: 100%;
+    max-height: 34dvh;
+    border-left: 0;
+    border-top: 1px solid hsl(var(--border));
+  }
+}
+
+@media (orientation: portrait) and (max-width: 980px) {
+  .vish-editor-header {
+    min-height: 64px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 8px;
+  }
+
+  .vish-editor-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .vish-editor-body {
+    flex-direction: column;
+  }
+
+  .vish-tool-rail {
+    width: 100%;
+    height: 78px;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 8px 10px;
+    border-right: 0;
+    border-bottom: 1px solid hsl(var(--ws-border));
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .vish-tool-rail .ws-tool-group-label,
+  .vish-tool-rail [data-testid="tool-separator"] {
+    display: none;
+  }
+
+  .vish-editor-center {
+    width: 100%;
+  }
+
+  .vish-canvas-scroll {
+    padding: 10px;
+  }
+
+  .vish-viewport-3d {
+    min-height: 220px;
+    max-height: 28dvh;
+  }
+}
+
+@media (max-width: 720px) {
+  .vish-editor-header .vish-wordmark,
+  .vish-editor-header .font-technical {
+    letter-spacing: 0.12em;
+  }
+
+  .vish-editor-header-actions button {
+    min-height: 40px;
+  }
+
+  .ws-status-bar {
+    gap: 8px;
+    overflow-x: auto;
+  }
+}
