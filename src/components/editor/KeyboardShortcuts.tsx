@@ -85,7 +85,7 @@ export default function KeyboardShortcuts() {
           </div>
 
           <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
-            <p className="font-semibold mb-1">Tips:</p>
+            <p className="font-semibold mb-1">💡 Tips:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>Hover over walls with Measure tool to see dimensions</li>
               <li>Click walls with Door/Window tools to place openings</li>
