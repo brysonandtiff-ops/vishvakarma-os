@@ -8,18 +8,18 @@ interface RouteGuardProps {
 }
 
 const PUBLIC_ROUTES = ['/auth'];
-const localDemoMode = import.meta.env.DEV;
+const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.includes(pathname);
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
-  const { user, loading, isConfigured } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const publicRoute = isPublicRoute(location.pathname);
-  const gated = isConfigured || !localDemoMode;
+  const gated = !allowLocalDemoMode;
 
   useEffect(() => {
     if (loading) return;
