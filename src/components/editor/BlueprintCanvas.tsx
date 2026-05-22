@@ -31,6 +31,12 @@ function getHitArea(mode: InputMode, base = 10) {
   return base;
 }
 
+function getInputMode(event: CanvasPointerEvent): InputMode {
+  if (event.pointerType === 'pen') return 'pen';
+  if (event.pointerType === 'touch') return 'touch';
+  return 'mouse';
+}
+
 export default function BlueprintCanvas({
   walls,
   openings,
@@ -114,18 +120,18 @@ export default function BlueprintCanvas({
   );
 
   const getOpeningAtPoint = useCallback(
-    (point: Point2D) => openings.find((opening) => {
+    (point: Point2D, mode: InputMode) => openings.find((opening) => {
       const wall = walls.find((candidate) => candidate.id === opening.wallId);
       if (!wall) return false;
       const x = wall.start.x + (wall.end.x - wall.start.x) * opening.position;
       const y = wall.start.y + (wall.end.y - wall.start.y) * opening.position;
-      return Math.hypot(point.x - x, point.y - y) < getHitArea(inputMode, 15);
-    }), [inputMode, openings, walls]);
+      return Math.hypot(point.x - x, point.y - y) < getHitArea(mode, 15);
+    }), [openings, walls]);
 
-  const placeOpening = (point: Point2D) => {
+  const placeOpening = (point: Point2D, mode: InputMode) => {
     if (currentTool !== 'door' && currentTool !== 'window') return;
 
-    const wall = getWallAtPoint(point, getHitArea(inputMode));
+    const wall = getWallAtPoint(point, getHitArea(mode));
     if (!wall) return;
 
     const wallLength = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
@@ -160,7 +166,8 @@ export default function BlueprintCanvas({
 
   const handlePointerDown = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    setInputMode(event.pointerType === 'pen' ? 'pen' : event.pointerType === 'touch' ? 'touch' : 'mouse');
+    const mode = getInputMode(event);
+    setInputMode(mode);
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getCanvasPoint(event);
 
@@ -172,16 +179,17 @@ export default function BlueprintCanvas({
     }
 
     if (currentTool === 'select') {
-      onWallSelect(getWallAtPoint(point, getHitArea(inputMode, 5))?.id);
+      onWallSelect(getWallAtPoint(point, getHitArea(mode, 5))?.id);
       return;
     }
 
-    placeOpening(point);
+    placeOpening(point, mode);
   };
 
   const handlePointerMove = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    setInputMode(event.pointerType === 'pen' ? 'pen' : event.pointerType === 'touch' ? 'touch' : 'mouse');
+    const mode = getInputMode(event);
+    setInputMode(mode);
     const point = getCanvasPoint(event);
     setHoveredPoint(point);
 
@@ -190,8 +198,8 @@ export default function BlueprintCanvas({
       return;
     }
 
-    const wall = getWallAtPoint(point, getHitArea(inputMode));
-    const opening = getOpeningAtPoint(point);
+    const wall = getWallAtPoint(point, getHitArea(mode));
+    const opening = getOpeningAtPoint(point, mode);
     setHoveredWall(wall?.id ?? null);
     setHoveredOpening(opening?.id ?? null);
 
@@ -341,7 +349,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, grid
   for (let y = 0; y < canvas.height; y += gridSize * 5) {
     ctx.beginPath();
     ctx.moveTo(0, y);
-    ctx.lineTo(x, canvas.height);
+    ctx.lineTo(canvas.width, y);
     ctx.stroke();
   }
 }
@@ -510,7 +518,7 @@ function pointToLineDistance(point: Point2D, lineStart: Point2D, lineEnd: Point2
   const c = lineEnd.x - lineStart.x;
   const d = lineEnd.y - lineStart.y;
   const lenSq = c * c + d * d;
-  const param = lenSq === 0 ? -1 : (a * c + d * b) / lenSq;
+  const param = lenSq === 0 ? -1 : (a * c + b * d) / lenSq;
 
   const x = param < 0 ? lineStart.x : param > 1 ? lineEnd.x : lineStart.x + param * c;
   const y = param < 0 ? lineStart.y : param > 1 ? lineEnd.y : lineStart.y + param * d;
