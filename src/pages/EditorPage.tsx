@@ -13,9 +13,11 @@ import {
   CheckCircle2,
   FileDown,
   FolderOpen,
+  HardDrive,
   Layers,
   MousePointer2,
   Plus,
+  RotateCcw,
   Save,
   Sparkles,
   Wifi,
@@ -30,6 +32,14 @@ import PropertiesPanel from '@/components/editor/PropertiesPanel';
 import SolarTimeline from '@/components/editor/SolarTimeline';
 import ToolRail from '@/components/editor/ToolRail';
 import { createProject, getProjects, updateProject } from '@/db/api';
+import {
+  buildDraftPayload,
+  clearLocalDraft,
+  hasMeaningfulDraftContent,
+  readLocalDraft,
+  saveLocalDraft,
+  type LocalDraftPayload,
+} from '@/editor/localDraft';
 import type { LightingConfig, Opening, Project, ProjectManifest, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
@@ -42,6 +52,8 @@ const DEFAULT_LIGHTING: LightingConfig = {
   timeOfDay: 12,
   intensity: 1,
 };
+
+type SaveState = 'clean' | 'unsaved' | 'local-draft' | 'cloud-saved' | 'restored-draft';
 
 function Viewport3DLoading() {
   return (
@@ -85,6 +97,29 @@ function SaveModeBadge({ connected }: { connected: boolean | null }) {
           <span className="font-technical text-[10px] text-ws-text-faint">Local Preview</span>
         </>
       )}
+    </div>
+  );
+}
+
+function SaveStateBadge({ state, lastDraftAt }: { state: SaveState; lastDraftAt: string | null }) {
+  const labels: Record<SaveState, string> = {
+    clean: 'Saved',
+    unsaved: 'Unsaved',
+    'local-draft': 'Local Draft',
+    'cloud-saved': 'Cloud Saved',
+    'restored-draft': 'Recovered Draft',
+  };
+
+  const tone = state === 'unsaved'
+    ? 'text-warning border-warning/30 bg-warning/10'
+    : state === 'local-draft' || state === 'restored-draft'
+      ? 'text-primary border-primary/25 bg-primary/10'
+      : 'text-success border-success/25 bg-success/10';
+
+  return (
+    <div className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 ${tone}`} title={lastDraftAt ? `Last local draft: ${new Date(lastDraftAt).toLocaleString()}` : undefined}>
+      <HardDrive className="h-3.5 w-3.5" />
+      <span className="font-technical text-[10px]">{labels[state]}</span>
     </div>
   );
 }
@@ -169,6 +204,55 @@ function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => v
         </div>
       </div>
     </div>
+  );
+}
+
+function DraftRecoveryDialog({
+  open,
+  draft,
+  onRestore,
+  onDiscard,
+}: {
+  open: boolean;
+  draft: LocalDraftPayload | null;
+  onRestore: () => void;
+  onDiscard: () => void;
+}) {
+  if (!draft) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={(value) => !value && onDiscard()}>
+      <DialogContent className="max-w-[calc(100%-2rem)] rounded-3xl md:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Recover local draft?</DialogTitle>
+          <DialogDescription>
+            Vishvakarma.OS found an unsaved local draft from {new Date(draft.savedAt).toLocaleString()}.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="rounded-2xl border bg-muted/50 p-4 text-sm">
+          <div className="flex items-center justify-between border-b pb-2">
+            <span className="text-muted-foreground">Project</span>
+            <span className="font-medium">{draft.projectName}</span>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+            <div className="rounded-xl bg-card p-3">
+              <p className="text-2xl font-bold text-primary">{draft.manifest.walls.length}</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Walls</p>
+            </div>
+            <div className="rounded-xl bg-card p-3">
+              <p className="text-2xl font-bold text-primary">{draft.manifest.openings.length}</p>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Openings</p>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onDiscard}>Discard Draft</Button>
+          <Button onClick={onRestore} className="gap-2">
+            <RotateCcw className="h-4 w-4" /> Restore Draft
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -366,6 +450,11 @@ export default function EditorPage() {
   const [selectedWallId, setSelectedWallId] = useState<string>();
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [saveState, setSaveState] = useState<SaveState>('clean');
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<string | null>(null);
+  const [recoveryDraft, setRecoveryDraft] = useState<LocalDraftPayload | null>(null);
+  const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
@@ -411,6 +500,61 @@ export default function EditorPage() {
   }, [loadProjects]);
 
   useEffect(() => {
+    const draft = readLocalDraft();
+    if (draft && hasMeaningfulDraftContent(draft)) {
+      setRecoveryDraft(draft);
+      setRecoveryDialogOpen(true);
+      setLastDraftSavedAt(draft.savedAt);
+      setSaveState('local-draft');
+    }
+  }, []);
+
+  useEffect(() => {
+    const hasContent = walls.length > 0 || openings.length > 0;
+    if (!hasContent) return;
+
+    setHasUnsavedChanges(true);
+    setSaveState((state) => (state === 'cloud-saved' ? 'unsaved' : state === 'restored-draft' ? 'restored-draft' : 'unsaved'));
+
+    const saveDraft = () => {
+      const payload = buildDraftPayload({
+        projectId: currentProject?.id ?? null,
+        projectName,
+        description: currentProject?.description,
+        walls,
+        openings,
+        lighting,
+        snapEnabled,
+      });
+
+      if (saveLocalDraft(payload)) {
+        setLastDraftSavedAt(payload.savedAt);
+        setSaveState((state) => (state === 'cloud-saved' ? 'cloud-saved' : 'local-draft'));
+      }
+    };
+
+    const timer = window.setTimeout(saveDraft, 1200);
+    const interval = window.setInterval(saveDraft, 5000);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.clearInterval(interval);
+    };
+  }, [currentProject?.description, currentProject?.id, lighting, openings, projectName, snapEnabled, walls]);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'v' || event.key === 'V') setCurrentTool('select');
       else if (event.key === 'w' || event.key === 'W') setCurrentTool('wall');
@@ -445,10 +589,39 @@ export default function EditorPage() {
       setLighting(sampleManifest.lighting);
       setGridVisible(true);
       setSnapEnabled(sampleManifest.snapToGrid);
+      setHasUnsavedChanges(true);
+      setSaveState('unsaved');
       toast.success('Sample project loaded');
     } catch (error) {
       console.error('Failed to load sample project:', error);
       toast.error('Failed to load sample project');
+    }
+  };
+
+  const restoreLocalDraft = () => {
+    if (!recoveryDraft) return;
+
+    setCurrentProject(null);
+    setWalls(recoveryDraft.manifest.walls);
+    setOpenings(recoveryDraft.manifest.openings);
+    setLighting(recoveryDraft.manifest.lighting);
+    setSnapEnabled(recoveryDraft.manifest.snapToGrid);
+    setGridVisible(true);
+    setHasUnsavedChanges(true);
+    setSaveState('restored-draft');
+    setLastDraftSavedAt(recoveryDraft.savedAt);
+    setRecoveryDialogOpen(false);
+    toast.success('Local draft restored');
+  };
+
+  const discardLocalDraft = () => {
+    clearLocalDraft();
+    setRecoveryDialogOpen(false);
+    setRecoveryDraft(null);
+    if (walls.length === 0 && openings.length === 0) {
+      setSaveState('clean');
+      setLastDraftSavedAt(null);
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -462,6 +635,10 @@ export default function EditorPage() {
     try {
       const updated = await updateProject(currentProject.id, { manifest: buildManifest() });
       setCurrentProject(updated);
+      clearLocalDraft();
+      setSaveState('cloud-saved');
+      setLastDraftSavedAt(null);
+      setHasUnsavedChanges(false);
       toast.success('Project saved');
     } catch (error) {
       console.error('Failed to save project:', error);
@@ -470,12 +647,16 @@ export default function EditorPage() {
   };
 
   const handleLoadProject = (project: Project) => {
+    clearLocalDraft();
     setCurrentProject(project);
     setWalls(project.manifest.walls || []);
     setOpenings(project.manifest.openings || []);
     setLighting(project.manifest.lighting || DEFAULT_LIGHTING);
     setSnapEnabled(project.manifest.snapToGrid ?? true);
     setLoadDialogOpen(false);
+    setSaveState('cloud-saved');
+    setLastDraftSavedAt(null);
+    setHasUnsavedChanges(false);
     toast.success(`Loaded: ${project.name}`);
   };
 
@@ -519,6 +700,7 @@ export default function EditorPage() {
           </div>
 
           <SaveModeBadge connected={supabaseConnected} />
+          <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
           <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setNewProjectOpen(true)}>
             <Plus className="h-3.5 w-3.5" /> New
           </Button>
@@ -643,6 +825,12 @@ export default function EditorPage() {
         />
       </div>
 
+      <DraftRecoveryDialog
+        open={recoveryDialogOpen}
+        draft={recoveryDraft}
+        onRestore={restoreLocalDraft}
+        onDiscard={discardLocalDraft}
+      />
       <NewProjectDialog open={newProjectOpen} onOpenChange={setNewProjectOpen} onProjectCreated={loadProjects} />
       <OpenProjectDialog open={loadDialogOpen} projects={projects} onOpenChange={setLoadDialogOpen} onLoadProject={handleLoadProject} />
       <ExportFloorPlanDialog
