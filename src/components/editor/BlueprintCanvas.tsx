@@ -23,6 +23,13 @@ interface BlueprintCanvasProps {
 }
 
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
+type InputMode = 'mouse' | 'touch' | 'pen';
+
+function getHitArea(mode: InputMode, base = 10) {
+  if (mode === 'pen') return base + 8;
+  if (mode === 'touch') return base + 16;
+  return base;
+}
 
 export default function BlueprintCanvas({
   walls,
@@ -44,6 +51,7 @@ export default function BlueprintCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<Point2D | null>(null);
   const [hoveredWall, setHoveredWall] = useState<string | null>(null);
   const [hoveredOpening, setHoveredOpening] = useState<string | null>(null);
+  const [inputMode, setInputMode] = useState<InputMode>('mouse');
   const [previewOpening, setPreviewOpening] = useState<{
     position: Point2D;
     wallId: string;
@@ -111,13 +119,13 @@ export default function BlueprintCanvas({
       if (!wall) return false;
       const x = wall.start.x + (wall.end.x - wall.start.x) * opening.position;
       const y = wall.start.y + (wall.end.y - wall.start.y) * opening.position;
-      return Math.hypot(point.x - x, point.y - y) < 15;
-    }), [openings, walls]);
+      return Math.hypot(point.x - x, point.y - y) < getHitArea(inputMode, 15);
+    }), [inputMode, openings, walls]);
 
   const placeOpening = (point: Point2D) => {
     if (currentTool !== 'door' && currentTool !== 'window') return;
 
-    const wall = getWallAtPoint(point);
+    const wall = getWallAtPoint(point, getHitArea(inputMode));
     if (!wall) return;
 
     const wallLength = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
@@ -152,6 +160,7 @@ export default function BlueprintCanvas({
 
   const handlePointerDown = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    setInputMode(event.pointerType === 'pen' ? 'pen' : event.pointerType === 'touch' ? 'touch' : 'mouse');
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getCanvasPoint(event);
 
@@ -163,7 +172,7 @@ export default function BlueprintCanvas({
     }
 
     if (currentTool === 'select') {
-      onWallSelect(getWallAtPoint(point, 5)?.id);
+      onWallSelect(getWallAtPoint(point, getHitArea(inputMode, 5))?.id);
       return;
     }
 
@@ -172,6 +181,7 @@ export default function BlueprintCanvas({
 
   const handlePointerMove = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    setInputMode(event.pointerType === 'pen' ? 'pen' : event.pointerType === 'touch' ? 'touch' : 'mouse');
     const point = getCanvasPoint(event);
     setHoveredPoint(point);
 
@@ -180,7 +190,7 @@ export default function BlueprintCanvas({
       return;
     }
 
-    const wall = getWallAtPoint(point);
+    const wall = getWallAtPoint(point, getHitArea(inputMode));
     const opening = getOpeningAtPoint(point);
     setHoveredWall(wall?.id ?? null);
     setHoveredOpening(opening?.id ?? null);
@@ -288,6 +298,8 @@ export default function BlueprintCanvas({
       width={1200}
       height={800}
       className="architect-canvas cursor-crosshair-precise touch-none select-none rounded-lg shadow-sm"
+      data-input-mode={inputMode}
+      aria-label="2D blueprint drawing canvas"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -329,7 +341,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, grid
   for (let y = 0; y < canvas.height; y += gridSize * 5) {
     ctx.beginPath();
     ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
+    ctx.lineTo(x, canvas.height);
     ctx.stroke();
   }
 }
@@ -498,7 +510,7 @@ function pointToLineDistance(point: Point2D, lineStart: Point2D, lineEnd: Point2
   const c = lineEnd.x - lineStart.x;
   const d = lineEnd.y - lineStart.y;
   const lenSq = c * c + d * d;
-  const param = lenSq === 0 ? -1 : (a * c + b * d) / lenSq;
+  const param = lenSq === 0 ? -1 : (a * c + d * b) / lenSq;
 
   const x = param < 0 ? lineStart.x : param > 1 ? lineEnd.x : lineStart.x + param * c;
   const y = param < 0 ? lineStart.y : param > 1 ? lineEnd.y : lineStart.y + param * d;
