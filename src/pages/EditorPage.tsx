@@ -1,6 +1,6 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -29,10 +29,11 @@ import MaterialPicker from '@/components/editor/MaterialPicker';
 import PropertiesPanel from '@/components/editor/PropertiesPanel';
 import SolarTimeline from '@/components/editor/SolarTimeline';
 import ToolRail from '@/components/editor/ToolRail';
-import Viewport3D from '@/components/editor/Viewport3D';
 import { createProject, getProjects, updateProject } from '@/db/api';
 import type { LightingConfig, Opening, Project, ProjectManifest, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
+
+const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
 const SPEC_VERSION = '1.0.0';
 const DEFAULT_LIGHTING: LightingConfig = {
@@ -41,6 +42,20 @@ const DEFAULT_LIGHTING: LightingConfig = {
   timeOfDay: 12,
   intensity: 1,
 };
+
+function Viewport3DLoading() {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-black/20 px-6 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+        <Box className="h-6 w-6 text-primary" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ws-text">Loading 3D engine</p>
+        <p className="text-[11px] text-ws-text-faint">Three.js mounts only when 3D preview is opened.</p>
+      </div>
+    </div>
+  );
+}
 
 function useSupabaseStatus() {
   const [connected, setConnected] = useState<boolean | null>(null);
@@ -344,7 +359,7 @@ function ExportFloorPlanDialog({
 
 export default function EditorPage() {
   const [currentTool, setCurrentTool] = useState<ToolType>('select');
-  const [show3DView, setShow3DView] = useState(true);
+  const [show3DView, setShow3DView] = useState(false);
   const [gridVisible, setGridVisible] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [unitSystem] = useState<UnitSystem>('metric');
@@ -576,10 +591,12 @@ export default function EditorPage() {
               <section className="flex w-80 shrink-0 flex-col border-l border-ws-border md:w-96">
                 <div className="ws-pane-header">
                   <span className="ws-pane-label">3D Preview</span>
-                  <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Live sync</span>
+                  <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Deferred WebGL</span>
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <Viewport3D walls={walls} openings={openings} lighting={lighting} />
+                  <Suspense fallback={<Viewport3DLoading />}>
+                    <Viewport3D walls={walls} openings={openings} lighting={lighting} />
+                  </Suspense>
                 </div>
               </section>
             )}
@@ -634,7 +651,7 @@ export default function EditorPage() {
         onExportJSON={handleExportJSON}
         projectName={projectName}
         wallCount={walls.length}
-        openingCount={openings.length}
+        openingCount={openingCount}
       />
     </AppLayout>
   );
