@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
+const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
@@ -14,16 +17,16 @@ export default defineConfig({
     ? [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
     : [['list']],
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173',
+    baseURL: previewUrl,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'pnpm run preview',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    command: 'pnpm run build && pnpm run preview',
+    url: previewUrl,
+    reuseExistingServer,
+    timeout: 60_000,
   },
   projects: [
     {
