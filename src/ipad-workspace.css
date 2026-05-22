@@ -43,16 +43,17 @@
 }
 
 @media (max-width: 1180px) {
-  .vish-editor-main {
+  .bg-ws-canvas > div.flex.flex-1.overflow-hidden {
     flex-direction: column;
   }
 
-  .vish-editor-center {
+  .bg-ws-canvas > div.flex.flex-1.overflow-hidden > div.flex.flex-1.min-w-0.overflow-hidden {
     min-height: 0;
     flex: 1 1 auto;
   }
 
-  .vish-viewport-3d {
+  .bg-ws-canvas section.w-80,
+  .bg-ws-canvas section.md\:w-96 {
     width: 100%;
     min-height: 260px;
     max-height: 36dvh;
@@ -60,7 +61,7 @@
     border-top: 1px solid hsl(var(--ws-border));
   }
 
-  .vish-properties-panel {
+  .bg-ws-canvas aside.w-72 {
     width: 100%;
     max-height: 34dvh;
     border-left: 0;
@@ -69,19 +70,14 @@
 }
 
 @media (orientation: portrait) and (max-width: 980px) {
-  .vish-editor-header {
+  .bg-ws-canvas > header {
     min-height: 64px;
     flex-wrap: wrap;
     align-content: center;
     gap: 8px;
   }
 
-  .vish-editor-header-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .vish-editor-body {
+  .bg-ws-canvas > div.flex.flex-1.overflow-hidden {
     flex-direction: column;
   }
 
@@ -102,27 +98,24 @@
     display: none;
   }
 
-  .vish-editor-center {
-    width: 100%;
-  }
-
-  .vish-canvas-scroll {
+  .bg-ws-canvas section.flex-1 > div.relative.flex-1.overflow-auto {
     padding: 10px;
   }
 
-  .vish-viewport-3d {
+  .bg-ws-canvas section.w-80,
+  .bg-ws-canvas section.md\:w-96 {
     min-height: 220px;
     max-height: 28dvh;
   }
 }
 
 @media (max-width: 720px) {
-  .vish-editor-header .vish-wordmark,
-  .vish-editor-header .font-technical {
+  .bg-ws-canvas > header .vish-wordmark,
+  .bg-ws-canvas > header .font-technical {
     letter-spacing: 0.12em;
   }
 
-  .vish-editor-header-actions button {
+  .bg-ws-canvas > header button {
     min-height: 40px;
   }
 
