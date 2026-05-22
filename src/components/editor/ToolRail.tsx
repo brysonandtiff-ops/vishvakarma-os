@@ -101,7 +101,7 @@ export default function ToolRail({
   return (
     <TooltipProvider delayDuration={250}>
       <div
-        className="architect-tool-dock flex h-full w-[72px] shrink-0 flex-col items-center gap-1 py-2"
+        className="vish-tool-rail architect-tool-dock flex h-full w-[72px] shrink-0 flex-col items-center gap-1 py-2"
         data-testid="tool-rail"
       >
         <p className="ws-tool-group-label w-full">Draw</p>
