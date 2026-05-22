@@ -11,8 +11,12 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:routes": "vitest run src/routes.production.test.tsx",
-    "test:e2e": "playwright test",
-    "lint": "tsgo -p tsconfig.check.json; biome lint --only=correctness/noUndeclaredDependencies; ast-grep scan",
+    "test:e2e": "pnpm exec playwright test",
+    "test:e2e:install": "pnpm exec playwright install --with-deps",
+    "lint": "pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure",
+    "lint:types": "tsgo -p tsconfig.check.json",
+    "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",
+    "lint:structure": "ast-grep scan",
     "verify": "pnpm run lint && pnpm run test && pnpm run build",
     "verify:ci": "pnpm run verify && pnpm run test:routes"
   },
@@ -85,7 +89,9 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@ast-grep/cli": "^0.39.5",
     "@biomejs/biome": "2.4.5",
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
