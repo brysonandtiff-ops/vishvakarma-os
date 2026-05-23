@@ -26,8 +26,8 @@
     --popover:      0 0% 100%;
     --popover-foreground: 0 0% 11%;
 
-    /* ── ACCENT BLUE — #4a90e2 ── */
-    --primary:      213 69% 59%;       /* #4a90e2 */
+    /* ── ACCENT GOLD — official Vishvakarma brand ── */
+    --primary:      39 52% 47%;        /* vish-gold */
     --primary-foreground: 0 0% 100%;
 
     /* ── SECONDARY / MUTED ── */
@@ -37,33 +37,33 @@
     --muted-foreground: 0 0% 44%;      /* #707070 */
 
     /* ── ACCENT ── */
-    --accent:       213 69% 96%;       /* very pale blue tint */
-    --accent-foreground: 213 69% 35%;
+    --accent:       39 52% 93%;        /* very pale gold tint */
+    --accent-foreground: 39 52% 22%;
 
     /* ── STATE ── */
     --destructive:  0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --success:      142 60% 34%;
     --warning:      38 90% 46%;
-    --info:         213 69% 59%;
+    --info:         39 52% 47%;
 
     /* ── BORDERS / INPUTS ── */
     --border:       0 0% 86%;          /* #dbdbdb */
     --input:        0 0% 86%;
-    --ring:         213 69% 59%;
+    --ring:         39 52% 47%;
 
     /* ── SIDEBAR (always dark) ── */
     --sidebar-background:         220 13% 13%;   /* #1d2026 */
     --sidebar-foreground:         0 0% 80%;       /* #cccccc */
-    --sidebar-primary:            213 69% 59%;    /* accent blue */
+    --sidebar-primary:            39 52% 47%;     /* vish-gold */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent:             220 13% 19%;    /* hover row */
     --sidebar-accent-foreground:  0 0% 92%;
     --sidebar-border:             220 13% 20%;    /* #2d3140 */
-    --sidebar-ring:               213 69% 59%;
+    --sidebar-ring:               39 52% 47%;
 
     /* ── CHARTS ── */
-    --chart-1: 213 69% 59%;
+    --chart-1: 39 52% 47%;
     --chart-2:  38 90% 56%;
     --chart-3: 142 60% 40%;
     --chart-4:   0 72% 55%;
@@ -73,7 +73,7 @@
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.07), 0 1px 1px -1px hsl(0 0% 0% / 0.04);
     --shadow-md: 0 4px 10px -2px hsl(0 0% 0% / 0.09), 0 2px 5px -2px hsl(0 0% 0% / 0.05);
     --shadow-lg: 0 10px 22px -4px hsl(0 0% 0% / 0.11), 0 4px 8px -4px hsl(0 0% 0% / 0.07);
-    --shadow-glow: 0 0 0 3px hsl(213 69% 59% / 0.20);
+    --shadow-glow: 0 0 0 3px hsl(39 52% 47% / 0.25);
 
     /* ════════════════════════════════════════════════════
        WORKSTATION — always-dark canvas/toolbar tokens
@@ -90,12 +90,12 @@
     --ws-text-dim:    0 0% 50%;        /* #808080 – dim text */
     --ws-text-faint:  0 0% 35%;        /* #595959 – very dim */
     --ws-hover:       220 14% 18%;     /* hover row */
-    --ws-active:      213 69% 59%;     /* accent blue – active tool */
-    --ws-active-bg:   213 69% 20%;     /* accent bg on dark */
-    --ws-active-ring: 213 69% 59% / 0.25;
+    --ws-active:      39 61% 58%;      /* vish-gold – active tool */
+    --ws-active-bg:   39 49% 19%;      /* gold bg on dark */
+    --ws-active-ring: 39 61% 58% / 0.25;
     --ws-grid-line:   220 14% 17%;     /* subtle grid */
     --ws-grid-major:  220 14% 21%;     /* major grid */
-    --ws-snap:        213 69% 59%;     /* snap indicator color */
+    --ws-snap:        39 61% 52%;      /* gold snap indicator */
   }
 }
 
@@ -125,7 +125,7 @@
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, hsl(213 69% 59%), hsl(213 69% 72%));
+    background: linear-gradient(135deg, hsl(39 52% 42%), hsl(43 78% 66%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
