@@ -19,8 +19,7 @@ Date: 2026-05-23
 Implemented:
 
 - `public/manifest.webmanifest`
-- SVG app icon at `public/icons/icon.svg`
-- Apple touch icon at `public/icons/apple-touch-icon.svg`
+- App icons and Apple touch icons are embedded as WebP base64 directly from the official swan logo artwork.
 - `<link rel="manifest">` in `index.html`
 - `<link rel="apple-touch-icon">` in `index.html`
 - `apple-mobile-web-app-capable=yes`
@@ -39,6 +38,15 @@ Manual iPad Safari proof still required before public release:
 7. Confirm `/auth` renders correctly in portrait and landscape.
 8. Confirm private routes redirect to `/auth` while signed out.
 9. Capture screenshots or video for release evidence.
+
+### Physical Device Evidence Log
+*(Place captured screenshots in `docs/release/evidence/` and check these off)*
+- [ ] **Home Screen icon installed:** (e.g., `ipad_homescreen.png`)
+- [ ] **Auth page (Portrait):** (e.g., `ipad_auth_portrait.png`)
+- [ ] **Auth page (Landscape):** (e.g., `ipad_auth_landscape.png`)
+- [ ] **Editor workspace after sign-in:** (e.g., `ipad_editor_canvas.png`)
+- [ ] **3D Toggle/Panel opened:** (e.g., `ipad_3d_panel.png`)
+- [ ] **Autosave/Sync badge visible:** (e.g., `ipad_autosave_badge.png`)
 
 ## Bundle readiness
 
@@ -74,8 +82,7 @@ Do not mark Vishvakarma.OS public-production-ready until all of the following ar
 If PWA metadata causes deployment or icon issues, rollback these files first:
 
 - `public/manifest.webmanifest`
-- `public/icons/icon.svg`
-- `public/icons/apple-touch-icon.svg`
+- The inline base64 `href` parameters for icons.
 - iPad metadata links in `index.html`
 
 If E2E becomes unstable due to local port conflicts, verify port `4173` is not already occupied before rerunning Playwright.
