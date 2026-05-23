@@ -27,6 +27,7 @@ import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import AppLayout from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import EditorCommandStrip from '@/components/editor/EditorCommandStrip';
+import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import MaterialPicker from '@/components/editor/MaterialPicker';
 import PropertiesPanel from '@/components/editor/PropertiesPanel';
 import SolarTimeline from '@/components/editor/SolarTimeline';

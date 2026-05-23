@@ -141,7 +141,7 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100, wall.height / 100, wall.thickness / 100]} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
-        <meshStandardMaterial color="#808080" roughness={0.8} />
+        <meshStandardMaterial color="#9C9080" roughness={0.8} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       
@@ -161,7 +161,7 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
             <boxGeometry args={[opening.width / 100, opening.height / 100, wall.thickness / 100 + 0.02]} />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <meshStandardMaterial 
-              color={opening.type === 'door' ? '#C85A54' : '#4A7BA7'} 
+              color={opening.type === 'door' ? '#C85A54' : '#C8963A'}
               transparent 
               opacity={0.7}
             />
@@ -180,7 +180,7 @@ function Floor() {
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <planeGeometry args={[20, 20]} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <meshStandardMaterial color="#f0f0f0" roughness={0.9} />
+      <meshStandardMaterial color="#F5F0E8" roughness={0.9} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
     </mesh>
   );
@@ -248,7 +248,7 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
             ))}
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <gridHelper args={[20, 20, '#0066CC', '#cccccc']} />
+            <gridHelper args={[20, 20, '#B8941F', '#D4CFC4']} />
           </Canvas>
         </WebGLErrorBoundary>
 
@@ -273,7 +273,7 @@ function Viewport3DHeader({ wallCount }: { wallCount: number }) {
     <div
       className="flex h-7 shrink-0 items-center gap-2 px-3"
       style={{
-        background: 'linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(220 20% 12%) 100%)',
+        background: 'linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(var(--ws-bg)) 100%)',
         borderBottom: '1px solid hsl(var(--ws-border))',
       }}
     >

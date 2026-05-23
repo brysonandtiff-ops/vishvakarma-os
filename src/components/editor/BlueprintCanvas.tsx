@@ -412,7 +412,7 @@ function drawWallMeasurement(ctx: CanvasRenderingContext2D, wall: Wall, unitSyst
 function drawOpening(ctx: CanvasRenderingContext2D, wall: Wall, opening: Opening, options: { hovered: boolean; unitSystem: UnitSystem }) {
   const x = wall.start.x + (wall.end.x - wall.start.x) * opening.position;
   const y = wall.start.y + (wall.end.y - wall.start.y) * opening.position;
-  const color = opening.type === 'door' ? '#C85A54' : '#4A7BA7';
+  const color = opening.type === 'door' ? '#C85A54' : '#C8963A';
 
   ctx.fillStyle = color;
   ctx.beginPath();
@@ -452,14 +452,14 @@ function drawPreviewOpening(ctx: CanvasRenderingContext2D, preview: { position: 
   const wall = walls.find((item) => item.id === preview.wallId);
   if (!wall) return;
 
-  const color = preview.type === 'door' ? '#C85A54' : '#4A7BA7';
+  const color = preview.type === 'door' ? '#C85A54' : '#C8963A';
   const width = preview.type === 'door' ? 90 : 120;
   const height = preview.type === 'door' ? 210 : 120;
   const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
   const labelX = preview.position.x + Math.sin(wallAngle) * 35;
   const labelY = preview.position.y - Math.cos(wallAngle) * 35;
 
-  ctx.fillStyle = preview.type === 'door' ? 'rgba(200, 90, 84, 0.4)' : 'rgba(74, 123, 167, 0.4)';
+  ctx.fillStyle = preview.type === 'door' ? 'rgba(200, 90, 84, 0.4)' : 'rgba(200, 150, 58, 0.4)';
   ctx.beginPath();
   ctx.arc(preview.position.x, preview.position.y, 12, 0, Math.PI * 2);
   ctx.fill();
@@ -504,7 +504,7 @@ function drawWallPreview(ctx: CanvasRenderingContext2D, start: Point2D, end: Poi
 
   const snapped = walls.some((wall) => Math.hypot(end.x - wall.start.x, end.y - wall.start.y) < 1 || Math.hypot(end.x - wall.end.x, end.y - wall.end.y) < 1);
   if (snapped) {
-    ctx.strokeStyle = '#4CAF50';
+    ctx.strokeStyle = '#CF9B3A';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(end.x, end.y, 15, 0, Math.PI * 2);
