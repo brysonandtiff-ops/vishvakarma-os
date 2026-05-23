@@ -710,6 +710,7 @@ export default function EditorPage() {
           <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
             <Save className="h-3.5 w-3.5" /> Save
           </Button>
+          <KeyboardShortcuts />
         </header>
 
         <EditorCommandStrip
