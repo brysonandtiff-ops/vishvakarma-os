@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import "./vish-theme.css";
 import "./ipad-workspace.css";
+import "./styles/vish-editor-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { enforce, enableDevelopmentMode } from "./governance/core/enforcer";
