@@ -17,11 +17,12 @@
     "lint:types": "tsgo -p tsconfig.check.json",
     "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",
     "lint:structure": "ast-grep scan",
+    "auth:gates": "node scripts/quality/check-auth-config-guard.mjs",
     "flawless:gates": "node scripts/quality/check-flawless-use-gates.mjs",
     "launch:evidence": "node scripts/quality/check-launch-evidence.mjs",
     "launch:evidence:strict": "node scripts/quality/check-launch-evidence.mjs --strict",
     "release:gates": "node scripts/verify-all.js",
-    "verify": "pnpm run lint && pnpm run flawless:gates && pnpm run launch:evidence && pnpm run test && pnpm run build",
+    "verify": "pnpm run lint && pnpm run auth:gates && pnpm run flawless:gates && pnpm run launch:evidence && pnpm run test && pnpm run build",
     "verify:ci": "pnpm run verify && pnpm run test:routes"
   },
   "dependencies": {
