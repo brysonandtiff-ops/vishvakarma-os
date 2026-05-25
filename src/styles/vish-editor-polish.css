@@ -1,0 +1,123 @@
+/* Vishvakarma.OS — premium blueprint editor polish layer
+   This file intentionally targets existing editor structure without changing drawing logic. */
+
+.vish-workspace-shell .bg-ws-canvas {
+  background:
+    radial-gradient(circle at 20% 0%, hsl(43 85% 58% / 0.075), transparent 26rem),
+    radial-gradient(circle at 100% 24%, hsl(39 75% 48% / 0.055), transparent 24rem),
+    hsl(var(--ws-canvas));
+}
+
+.vish-workspace-shell header.bg-ws-menubar {
+  position: relative;
+  min-height: 3.35rem;
+  background:
+    linear-gradient(90deg, hsl(220 15% 11%), hsl(220 14% 13%), hsl(220 15% 10%));
+  box-shadow:
+    inset 0 -1px 0 hsl(43 75% 62% / 0.13),
+    0 10px 26px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell header.bg-ws-menubar::after {
+  content: 'ॐ वास्तु · शिल्प · प्रमाण';
+  position: absolute;
+  right: 0.85rem;
+  bottom: -1.05rem;
+  z-index: 5;
+  border: 1px solid hsl(43 75% 62% / 0.24);
+  border-radius: 9999px;
+  background: hsl(220 14% 10% / 0.92);
+  color: hsl(43 82% 68% / 0.78);
+  font-family: 'IBM Plex Mono', 'Noto Sans Devanagari', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+  text-transform: uppercase;
+  pointer-events: none;
+  box-shadow: 0 10px 28px hsl(0 0% 0% / 0.25);
+}
+
+.vish-workspace-shell .ws-pane-header {
+  min-height: 2.15rem;
+  background:
+    linear-gradient(90deg, hsl(var(--ws-toolbar)), hsl(220 15% 12%)),
+    radial-gradient(circle at 12% 50%, hsl(43 90% 60% / 0.13), transparent 9rem);
+  border-bottom-color: hsl(43 65% 48% / 0.25);
+  box-shadow: inset 0 1px 0 hsl(43 88% 70% / 0.08);
+}
+
+.vish-workspace-shell .ws-pane-label {
+  color: hsl(43 72% 66% / 0.92);
+  letter-spacing: 0.16em;
+}
+
+.vish-workspace-shell .ws-pane-stat {
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-workspace-shell .architect-tool-dock {
+  background:
+    linear-gradient(180deg, hsl(220 14% 12%), hsl(220 14% 9%)),
+    radial-gradient(circle at 50% 0%, hsl(43 80% 58% / 0.12), transparent 9rem);
+  box-shadow: inset -1px 0 0 hsl(43 70% 55% / 0.1);
+}
+
+.vish-workspace-shell .architect-tool-button {
+  border-radius: 0.8rem;
+}
+
+.vish-workspace-shell .architect-tool-button.active {
+  background:
+    linear-gradient(135deg, hsl(39 54% 18%), hsl(43 62% 28% / 0.8));
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active-ring)),
+    0 0 18px hsl(43 90% 62% / 0.18),
+    inset 0 1px 0 hsl(43 90% 72% / 0.18);
+}
+
+.vish-workspace-shell .blueprint-grid,
+.vish-workspace-shell .blueprint-grid-major,
+.vish-workspace-shell .architect-canvas {
+  background-blend-mode: screen, normal;
+  box-shadow:
+    inset 0 0 0 1px hsl(43 80% 60% / 0.08),
+    inset 0 0 80px hsl(43 70% 50% / 0.045),
+    0 24px 70px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell .ws-panel-light {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(43 80% 82% / 0.2), transparent 14rem),
+    hsl(0 0% 100%);
+  border-left-color: hsl(43 34% 50% / 0.32);
+  box-shadow: -18px 0 40px hsl(0 0% 0% / 0.18);
+}
+
+.vish-workspace-shell .ws-panel-light .ws-panel-label,
+.vish-workspace-shell .ws-panel-light p[class*='uppercase'] {
+  letter-spacing: 0.14em;
+}
+
+.vish-workspace-shell .ws-status-bar {
+  min-height: 1.6rem;
+  background:
+    linear-gradient(90deg, hsl(220 15% 9%), hsl(220 15% 11%));
+  border-top-color: hsl(43 65% 48% / 0.22);
+}
+
+.vish-workspace-shell .ws-status-bar .ws-status-item.active {
+  text-shadow: 0 0 18px hsl(43 90% 62% / 0.2);
+}
+
+@media (max-width: 900px) {
+  .vish-workspace-shell header.bg-ws-menubar::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-workspace-shell * {
+    scroll-behavior: auto !important;
+  }
+}
