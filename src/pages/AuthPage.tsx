@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import '@/styles/vish-auth-gate.css';
 
 const SANSKRIT_MATRIX_COLUMNS = [
   'ॐ श्री विश्वकर्मणे नमः',
