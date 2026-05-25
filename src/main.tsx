@@ -4,6 +4,7 @@ import "./index.css";
 import "./vish-theme.css";
 import "./ipad-workspace.css";
 import "./styles/vish-editor-polish.css";
+import "./styles/vish-governance-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { enforce, enableDevelopmentMode } from "./governance/core/enforcer";
