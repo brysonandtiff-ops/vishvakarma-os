@@ -45,6 +45,23 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('requestAccessLink(email)');
   });
 
+  it('keeps the premium workspace shell treatment after login', () => {
+    const appLayout = read('src/components/layouts/AppLayout.tsx');
+    const styles = read('src/styles/vish-workspace-shell.css');
+
+    expect(appLayout).toContain("@/styles/vish-workspace-shell.css");
+    expect(appLayout).toContain('vish-workspace-shell');
+    expect(appLayout).toContain('vish-workspace-sidebar');
+    expect(appLayout).toContain('vish-shell-brand');
+    expect(appLayout).toContain('vish-shell-logo');
+    expect(appLayout).toContain('vish-shell-nav-active');
+    expect(appLayout).toContain('Governance locked');
+    expect(appLayout).toContain('विश्वकर्मा · Divine Architecture');
+    expect(styles).toContain('.vish-workspace-sidebar');
+    expect(styles).toContain('.vish-shell-nav-active');
+    expect(styles).toContain('.vish-shell-account');
+  });
+
   it('keeps animation CSS premium, responsive, and reduced-motion safe', () => {
     const styles = read('src/styles/vish-auth-gate.css');
 
