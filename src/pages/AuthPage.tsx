@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, LockKeyhole, Mail } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,13 @@ const SANSKRIT_MATRIX_COLUMNS = [
   'ॐ ह्रीं क्लीं सौः',
   'विद्या कर्म ज्योति रूपम्',
   'स्थिरं सौन्दर्यम् शुभम्',
+] as const;
+
+const TRUST_PILLARS = [
+  'Secure session gate',
+  'Governance audit ready',
+  'iPad-first workspace',
+  'Release evidence locked',
 ] as const;
 
 function getReturnPath(state: unknown) {
@@ -113,6 +120,15 @@ export default function AuthPage() {
             Sign in or create an account with a secure email link. The blueprint editor, 3D studio,
             registry, change requests, release gates, and audit trail stay behind a verified session.
           </p>
+
+          <div className="vish-auth-trust-strip mt-7 grid gap-2 rounded-2xl border border-primary/20 bg-black/20 p-3 sm:grid-cols-2">
+            {TRUST_PILLARS.map((pillar) => (
+              <div key={pillar} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-stone-300">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span>{pillar}</span>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
