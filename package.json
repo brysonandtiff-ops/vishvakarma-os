@@ -17,6 +17,7 @@
     "lint:types": "tsgo -p tsconfig.check.json",
     "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",
     "lint:structure": "ast-grep scan",
+    "release:gates": "node scripts/verify-all.js",
     "verify": "pnpm run lint && pnpm run test && pnpm run build",
     "verify:ci": "pnpm run verify && pnpm run test:routes"
   },

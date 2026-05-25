@@ -1,21 +1,55 @@
-# Vishvakarma.OS Production Evidence Pack
+# Vishvakarma.OS Launch Evidence Index
 
-This folder stores release-proof artifacts for Vishvakarma.OS production readiness.
+This folder stores production-launch evidence generated from the current codebase and current deployment target.
 
-## Required evidence files
+## Required Evidence Files
 
-| Evidence | File / folder | Required before production |
-|---|---|---|
-| Main CI workflow result | `ci-verify.md` | Yes |
-| Browser auth E2E result | `e2e-auth-gate.md` | Yes |
-| Vercel deployment proof | `vercel-deployment.md` | Yes |
-| Supabase RLS proof output | `supabase-rls-output.md` | Yes |
-| Supabase Auth configuration proof | `supabase-auth-config.md` | Yes |
-| Route screenshots | `screenshots/` | Yes |
-| Manual iPad/tablet smoke notes | `manual-device-smoke.md` | Yes |
+| File | Purpose | Public Launch Required |
+|---|---|---:|
+| `latest-ci-run.md` | Records the latest GitHub Actions run and artifact status | Yes |
+| `security-headers.md` | Records deployed response headers and CSP/HSTS proof | Yes |
+| `supabase-production-check.md` | Proves Supabase env, auth URLs, migrations, and storage/RLS assumptions are configured | Yes |
+| `save-load-proof.md` | Proves project save, reload, export, and import behaviour | Yes |
+| `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
+| `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
+| `performance-notes.md` | Records build size, load behaviour, and interaction performance | Yes |
+| `screenshots/` | Stores route, iPad, parity, and deployment screenshots | Yes |
 
-## Evidence quality rule
+## Evidence Rules
 
-Evidence must include exact dates, commit SHA, URLs where applicable, pass/fail status, and reviewer initials.
+- Evidence must reference the commit SHA and deployment URL it came from.
+- Screenshots or command logs must be current, not copied from older builds.
+- Manual evidence cannot be marked complete without a human-readable result and reproduction steps.
+- Public production launch remains blocked until every required file is filled.
+- Do not mark production ready if any required evidence file is missing or still contains placeholder values.
 
-Do not mark production ready if any required evidence file is missing or still contains placeholder values.
+## Evidence Header Template
+
+Use this header in every evidence file:
+
+```txt
+Generated from commit: <sha>
+Deployment URL: <url>
+Generated at: <timestamp>
+Operator: <name>
+Result: PASS / FAIL / PARTIAL
+```
+
+## Launch Gate Interpretation
+
+- `PASS` means the evidence is complete and reproducible.
+- `PARTIAL` means the feature may work, but the launch claim is still blocked.
+- `FAIL` means public production launch is blocked until fixed and retested.
+
+## Minimum Public Launch Bundle
+
+Before public release, attach:
+
+1. latest green CI run,
+2. deployed security header proof,
+3. Supabase production proof,
+4. save/load determinism proof,
+5. 2D/3D parity proof,
+6. iPad touch audit,
+7. performance notes,
+8. route screenshots.

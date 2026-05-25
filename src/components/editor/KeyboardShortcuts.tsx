@@ -14,9 +14,15 @@ export default function KeyboardShortcuts() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" title="Keyboard Shortcuts">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text"
+          title="Keyboard Shortcuts"
+          aria-label="Keyboard Shortcuts"
+        >
           <Keyboard className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Shortcuts</span>
+          <span className="hidden sm:inline" aria-hidden="true">Shortcuts</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
