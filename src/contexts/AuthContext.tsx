@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
+import { getSupabaseConfigurationError, isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
 interface AuthContextType {
@@ -16,6 +16,22 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function normalizeMagicLinkError(error: unknown) {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+
+    if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
+      return new Error(
+        'Magic-link request could not reach Supabase. Check that VITE_SUPABASE_URL is a real Supabase project URL, VITE_SUPABASE_ANON_KEY is the matching anon key, and the deployment can access the internet.'
+      );
+    }
+
+    return error;
+  }
+
+  return new Error('Magic-link request failed for an unknown reason.');
+}
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   if (!isSupabaseConfigured) return null;
@@ -104,8 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestAccessLink = useCallback(async (email: string) => {
     try {
-      if (!isSupabaseConfigured) {
-        throw new Error('Supabase is not configured. Add environment variables to enable account access.');
+      const configurationError = getSupabaseConfigurationError();
+      if (configurationError) {
+        throw new Error(configurationError);
       }
 
       const { error } = await supabase.auth.signInWithOtp({
@@ -119,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return { error: null };
     } catch (error) {
-      return { error: error as Error };
+      return { error: normalizeMagicLinkError(error) };
     }
   }, []);
 
