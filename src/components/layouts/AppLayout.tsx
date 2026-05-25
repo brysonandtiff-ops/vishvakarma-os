@@ -15,9 +15,11 @@ import {
   Menu,
   LogOut,
   UserCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
+import '@/styles/vish-workspace-shell.css';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -48,10 +50,10 @@ function NavItem({
     <Link to={item.path} onClick={onClick}>
       <div
         className={`
-          group flex h-9 items-center rounded-md transition-all duration-100
-          ${collapsed ? 'w-9 justify-center mx-auto' : 'gap-2.5 px-2.5'}
+          group flex h-10 items-center rounded-xl transition-all duration-150
+          ${collapsed ? 'w-10 justify-center mx-auto' : 'gap-2.5 px-2.5'}
           ${isActive
-            ? 'bg-ws-active-bg text-ws-active border border-ws-active/30'
+            ? 'vish-shell-nav-active text-ws-active border border-ws-active/35'
             : 'text-ws-text-dim hover:bg-ws-hover hover:text-ws-text border border-transparent'}
         `}
       >
@@ -60,7 +62,7 @@ function NavItem({
           <span className="min-w-0 truncate text-xs font-medium">{item.name}</span>
         )}
         {!collapsed && isActive && (
-          <span className="ml-auto h-1 w-1 shrink-0 rounded-full bg-ws-active" />
+          <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-ws-active shadow-[0_0_14px_hsl(39_90%_62%/0.75)]" />
         )}
       </div>
     </Link>
@@ -104,31 +106,35 @@ function SidebarContent({
 
   return (
     <TooltipProvider delayDuration={500}>
-      <div className="flex h-full flex-col bg-ws-sidebar">
+      <div className="vish-workspace-sidebar flex h-full flex-col bg-ws-sidebar">
         <div
-          className={`flex shrink-0 items-center border-b border-ws-border ${
-            collapsed ? 'h-14 justify-center' : 'h-16 gap-3 px-3'
+          className={`vish-shell-brand flex shrink-0 items-center border-b border-ws-border ${
+            collapsed ? 'h-16 justify-center' : 'h-20 gap-3 px-3'
           }`}
         >
-          <div className="vish-logo-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-1">
-            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-lg object-cover" />
+          <div className="vish-logo-tile vish-shell-logo flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl p-1">
+            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-xl object-cover" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
               <p className="vish-wordmark truncate text-[11px] font-bold tracking-[0.28em]">
                 VISHVAKARMA.OS
               </p>
-              <p className="font-technical text-[9px] uppercase tracking-[0.22em] text-ws-text-faint">Divine Architecture · v1.0.0</p>
+              <p className="font-technical text-[9px] uppercase tracking-[0.22em] text-ws-text-faint">विश्वकर्मा · Divine Architecture</p>
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-[8px] uppercase tracking-[0.18em] text-primary/85">
+                <ShieldCheck className="h-3 w-3" />
+                Governance locked
+              </div>
             </div>
           )}
         </div>
 
         <ScrollArea className="flex-1">
-          <nav className={`py-2 ${collapsed ? 'px-1.5 space-y-0.5' : 'px-2 space-y-3'}`}>
+          <nav className={`py-3 ${collapsed ? 'px-1.5 space-y-1' : 'px-2 space-y-4'}`}>
             {groups.map((group) => {
               const items = allNav.filter((n) => n.group === group);
               return (
-                <div key={group} className={collapsed ? 'space-y-0.5' : 'space-y-0.5'}>
+                <div key={group} className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {!collapsed && (
                     <p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
                       {groupLabels[group]}
@@ -152,14 +158,14 @@ function SidebarContent({
           </nav>
         </ScrollArea>
 
-        <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-2'}`}>
+        <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-3'}`}>
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex h-7 w-7 mx-auto items-center justify-center rounded text-ws-text-faint hover:bg-ws-hover hover:text-ws-text"
+                  className="flex h-8 w-8 mx-auto items-center justify-center rounded-xl text-ws-text-faint hover:bg-ws-hover hover:text-ws-text"
                   aria-label="Sign out"
                 >
                   <UserCircle className="h-4 w-4" />
@@ -171,11 +177,11 @@ function SidebarContent({
             </Tooltip>
           ) : (
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-success" />
-                <p className="text-[10px] text-ws-text-faint">Governance active · {mode}</p>
+              <div className="flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2 py-1">
+                <div className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_10px_hsl(142_60%_45%/0.75)]" />
+                <p className="text-[10px] text-ws-text-dim">Governance active · {mode}</p>
               </div>
-              <div className="flex items-center justify-between gap-2 rounded border border-ws-border bg-ws-toolbar/50 px-2 py-1.5">
+              <div className="vish-shell-account flex items-center justify-between gap-2 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-[10px] font-medium text-ws-text">{accountLabel}</p>
                   <p className="text-[9px] text-ws-text-faint">Protected workspace</p>
@@ -203,8 +209,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <aside className="hidden w-14 shrink-0 border-r border-ws-border lg:block">
+    <div className="vish-workspace-shell flex min-h-screen w-full bg-background">
+      <aside className="hidden w-16 shrink-0 border-r border-ws-border lg:block">
         <SidebarContent collapsed />
       </aside>
 
@@ -213,13 +219,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed left-2 top-2 z-40 h-9 w-9 rounded-xl border border-ws-border bg-ws-toolbar text-ws-text shadow-lg hover:bg-ws-hover lg:hidden"
+            className="fixed left-2 top-2 z-40 h-10 w-10 rounded-xl border border-ws-border bg-ws-toolbar text-ws-text shadow-lg hover:bg-ws-hover lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0 border-r-0">
+        <SheetContent side="left" className="w-72 p-0 border-r-0">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>

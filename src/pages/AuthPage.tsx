@@ -1,11 +1,28 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, LockKeyhole, Mail } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import '@/styles/vish-auth-gate.css';
+
+const SANSKRIT_MATRIX_COLUMNS = [
+  'ॐ श्री विश्वकर्मणे नमः',
+  'धर्म अर्थ शिल्प विज्ञान',
+  'मन्त्र यन्त्र वास्तु रचना',
+  'ॐ ह्रीं क्लीं सौः',
+  'विद्या कर्म ज्योति रूपम्',
+  'स्थिरं सौन्दर्यम् शुभम्',
+] as const;
+
+const TRUST_PILLARS = [
+  'Secure session gate',
+  'Governance audit ready',
+  'iPad-first workspace',
+  'Release evidence locked',
+] as const;
 
 function getReturnPath(state: unknown) {
   if (typeof state === 'object' && state !== null && 'from' in state) {
@@ -52,24 +69,48 @@ export default function AuthPage() {
   };
 
   return (
-    <main className="vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <div className="pointer-events-none absolute inset-0 opacity-25" aria-hidden="true">
-        <div className="absolute left-1/2 top-1/2 h-[680px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/20" />
-        <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15" />
-        <div className="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10" />
+    <main className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <div className="vish-sanskrit-matrix pointer-events-none absolute inset-0" aria-hidden="true">
+        {SANSKRIT_MATRIX_COLUMNS.map((glyphs, index) => (
+          <span
+            key={glyphs}
+            className="vish-sanskrit-column"
+            style={{
+              left: `${8 + index * 16}%`,
+              animationDelay: `${index * -3.2}s`,
+              animationDuration: `${18 + index * 2.4}s`,
+            }}
+          >
+            {Array.from({ length: 9 }, (_, lineIndex) => (
+              <span key={`${glyphs}-${lineIndex}`}>{glyphs}</span>
+            ))}
+          </span>
+        ))}
       </div>
 
+      <div className="vish-mandala-aura pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="vish-mandala-ring vish-mandala-ring-outer" />
+        <div className="vish-mandala-ring vish-mandala-ring-mid" />
+        <div className="vish-mandala-ring vish-mandala-ring-inner" />
+      </div>
+
+      <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
+
       <div className="relative z-10 grid w-full max-w-6xl items-center gap-7 lg:grid-cols-[1.12fr_0.88fr]">
-        <section className="rounded-[2rem] border border-primary/25 bg-black/30 p-8 shadow-2xl backdrop-blur-xl">
+        <section className="vish-auth-hero rounded-[2rem] border border-primary/25 bg-black/35 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-8 flex items-center gap-4">
-            <div className="vish-logo-tile flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl p-2">
+            <div className="vish-logo-tile vish-logo-tile-animated flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl p-2">
               <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied swan V logo" className="h-full w-full rounded-xl object-cover" />
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.34em] text-primary/80">Secure Access</p>
               <h1 className="vish-wordmark mt-2 text-2xl font-bold tracking-[0.34em]">Vishvakarma.OS</h1>
-              <p className="mt-2 text-xs uppercase tracking-[0.28em] text-primary/55">विष्वकर्मा · Divine Architecture</p>
+              <p className="mt-2 text-xs uppercase tracking-[0.28em] text-primary/55">विश्वकर्मा · Divine Architecture</p>
             </div>
+          </div>
+
+          <div className="mb-5 inline-flex rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary/85">
+            मन्त्र matrix · secure architecture gate
           </div>
 
           <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-stone-100 md:text-5xl">
@@ -80,18 +121,27 @@ export default function AuthPage() {
             registry, change requests, release gates, and audit trail stay behind a verified session.
           </p>
 
+          <div className="vish-auth-trust-strip mt-7 grid gap-2 rounded-2xl border border-primary/20 bg-black/20 p-3 sm:grid-cols-2">
+            {TRUST_PILLARS.map((pillar) => (
+              <div key={pillar} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-stone-300">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span>{pillar}</span>
+              </div>
+            ))}
+          </div>
+
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-primary/20 bg-white/5 p-4">
+            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
               <LockKeyhole className="mb-3 h-5 w-5 text-primary" />
               <p className="text-sm font-semibold text-stone-100">Passwordless</p>
               <p className="mt-1 text-xs text-stone-400">Email-link access with no password UI.</p>
             </div>
-            <div className="rounded-2xl border border-primary/20 bg-white/5 p-4">
+            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
               <CheckCircle2 className="mb-3 h-5 w-5 text-primary" />
               <p className="text-sm font-semibold text-stone-100">Session guarded</p>
               <p className="mt-1 text-xs text-stone-400">Private routes redirect to this gate.</p>
             </div>
-            <div className="rounded-2xl border border-primary/20 bg-white/5 p-4">
+            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
               <Mail className="mb-3 h-5 w-5 text-primary" />
               <p className="text-sm font-semibold text-stone-100">Account creation</p>
               <p className="mt-1 text-xs text-stone-400">New users are created through Supabase Auth.</p>
@@ -99,10 +149,10 @@ export default function AuthPage() {
           </div>
         </section>
 
-        <Card className="vish-panel self-center rounded-[1.75rem] text-foreground">
+        <Card className="vish-auth-access-card vish-panel self-center rounded-[1.75rem] text-foreground">
           <CardHeader>
             <div className="mb-4 flex justify-center">
-              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-20 w-20 rounded-2xl object-cover shadow-lg" />
+              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="vish-access-logo h-20 w-20 rounded-2xl object-cover shadow-lg" />
             </div>
             <CardTitle className="text-center text-2xl">Request secure access</CardTitle>
             <CardDescription className="text-center">

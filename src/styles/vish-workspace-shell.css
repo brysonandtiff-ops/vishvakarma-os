@@ -1,0 +1,66 @@
+.vish-workspace-shell {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(43 90% 62% / 0.08), transparent 28rem),
+    linear-gradient(180deg, hsl(220 14% 10%), hsl(220 14% 8%));
+}
+
+.vish-workspace-sidebar {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, hsl(220 15% 12%), hsl(220 14% 9%)),
+    radial-gradient(circle at 50% 0%, hsl(43 85% 56% / 0.12), transparent 14rem);
+}
+
+.vish-workspace-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, hsl(43 75% 62% / 0.08), transparent),
+    repeating-linear-gradient(180deg, transparent 0 26px, hsl(43 85% 62% / 0.025) 26px 27px);
+  opacity: 0.8;
+}
+
+.vish-workspace-sidebar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vish-shell-brand {
+  background:
+    radial-gradient(circle at 20% 20%, hsl(43 90% 62% / 0.16), transparent 7rem),
+    linear-gradient(180deg, hsl(220 15% 15% / 0.96), hsl(220 14% 11% / 0.96));
+  box-shadow:
+    inset 0 1px 0 hsl(43 80% 72% / 0.1),
+    0 18px 40px hsl(0 0% 0% / 0.18);
+}
+
+.vish-shell-logo {
+  box-shadow:
+    0 0 0 1px hsl(43 90% 70% / 0.36),
+    0 0 24px hsl(39 88% 54% / 0.22),
+    0 14px 34px hsl(0 0% 0% / 0.28);
+}
+
+.vish-shell-nav-active {
+  background:
+    linear-gradient(135deg, hsl(39 49% 18% / 0.96), hsl(43 68% 26% / 0.7));
+  box-shadow:
+    inset 0 1px 0 hsl(43 90% 72% / 0.14),
+    0 0 20px hsl(39 85% 48% / 0.12);
+}
+
+.vish-shell-account {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(43 88% 68% / 0.09), transparent 8rem),
+    hsl(var(--ws-toolbar) / 0.68);
+  box-shadow: inset 0 1px 0 hsl(43 90% 80% / 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-workspace-sidebar::before {
+    opacity: 0.35;
+  }
+}
