@@ -125,6 +125,92 @@ function SaveStateBadge({ state, lastDraftAt }: { state: SaveState; lastDraftAt:
   );
 }
 
+function ProjectProofPanel({
+  projectName,
+  wallCount,
+  openingCount,
+  saveState,
+  lastDraftAt,
+  supabaseConnected,
+  snapEnabled,
+}: {
+  projectName: string;
+  wallCount: number;
+  openingCount: number;
+  saveState: SaveState;
+  lastDraftAt: string | null;
+  supabaseConnected: boolean | null;
+  snapEnabled: boolean;
+}) {
+  const hasGeometry = wallCount > 0 || openingCount > 0;
+  const proofRows = [
+    {
+      label: 'Blueprint structure',
+      value: hasGeometry ? `${wallCount} walls · ${openingCount} openings` : 'Awaiting first wall',
+      ok: hasGeometry,
+    },
+    {
+      label: 'Save protection',
+      value: saveState === 'cloud-saved' ? 'Cloud verified' : lastDraftAt ? 'Local restore point active' : 'Ready to protect edits',
+      ok: saveState !== 'unsaved',
+    },
+    {
+      label: 'Snapshot readiness',
+      value: hasGeometry ? 'Export package can be generated' : 'Load demo to see proof',
+      ok: hasGeometry,
+    },
+    {
+      label: 'Workflow mode',
+      value: supabaseConnected ? 'Connected workspace' : 'Local preview mode',
+      ok: true,
+    },
+  ];
+
+  return (
+    <section className="m-4 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-white/70 to-white shadow-sm" data-testid="project-proof-panel">
+      <div className="border-b border-primary/20 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+            <CheckCircle2 className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Project Proof</p>
+            <p className="truncate text-sm font-semibold text-foreground">{projectName}</p>
+          </div>
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          Visible governance status for demo confidence, save safety, and release handoff.
+        </p>
+      </div>
+
+      <div className="space-y-2 px-4 py-3">
+        {proofRows.map((row) => (
+          <div key={row.label} className="flex items-start justify-between gap-3 rounded-2xl border border-border/70 bg-white/65 px-3 py-2">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{row.label}</p>
+              <p className="mt-0.5 text-xs text-foreground">{row.value}</p>
+            </div>
+            <span className={`mt-0.5 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${row.ok ? 'border-success/30 bg-success/10 text-success' : 'border-warning/30 bg-warning/10 text-warning'}`}>
+              {row.ok ? 'OK' : 'Next'}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 border-t border-primary/20 px-4 py-3 text-center">
+        <div className="rounded-2xl bg-black/5 p-2">
+          <p className="text-lg font-bold text-primary">{snapEnabled ? 'ON' : 'OFF'}</p>
+          <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Snap</p>
+        </div>
+        <div className="rounded-2xl bg-black/5 p-2">
+          <p className="text-lg font-bold text-primary">1.0</p>
+          <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Spec</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StatusBar({
   currentTool,
   wallCount,
@@ -178,29 +264,38 @@ function StatusBar({
 function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => void; onNewProject: () => void }) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-      <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-3xl border border-primary/30 bg-black/80 shadow-2xl backdrop-blur-xl">
+      <div className="pointer-events-auto w-full max-w-lg overflow-hidden rounded-3xl border border-primary/30 bg-black/85 shadow-2xl backdrop-blur-xl" data-testid="first-run-welcome">
         <div className="flex items-center gap-3 border-b border-primary/20 px-5 py-4">
-          <div className="vish-logo-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl p-1.5">
+          <div className="vish-logo-tile flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl p-1.5">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-xl object-cover" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-ws-text">Start your floor plan</p>
-            <p className="text-[11px] text-ws-text-faint">Draw walls, place openings, preview in 3D.</p>
+            <p className="text-base font-semibold text-ws-text">Build your first verified blueprint</p>
+            <p className="text-[11px] text-ws-text-faint">Draw in 2D, preview in 3D, and keep proof visible while you work.</p>
           </div>
         </div>
 
-        <div className="space-y-2 px-5 py-4 text-xs text-ws-text-dim">
-          <p><span className="text-primary">1.</span> Tap <strong>Wall</strong>, then tap start and end points.</p>
-          <p><span className="text-primary">2.</span> Tap <strong>Door</strong> or <strong>Window</strong>, then tap a wall.</p>
-          <p><span className="text-primary">3.</span> Use <strong>3D</strong>, <strong>Grid</strong>, and <strong>Snap</strong> from the command strip.</p>
+        <div className="grid gap-3 px-5 py-4 text-xs text-ws-text-dim sm:grid-cols-3">
+          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
+            <p className="font-semibold text-ws-text">1. Draw</p>
+            <p className="mt-1 leading-relaxed">Tap Wall, then tap start and end points. Doors and windows snap onto walls.</p>
+          </div>
+          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
+            <p className="font-semibold text-ws-text">2. Preview</p>
+            <p className="mt-1 leading-relaxed">Open 3D only when needed. The heavy WebGL engine stays deferred.</p>
+          </div>
+          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
+            <p className="font-semibold text-ws-text">3. Prove</p>
+            <p className="mt-1 leading-relaxed">Use Project Proof to show save mode, structure, spec, and export readiness.</p>
+          </div>
         </div>
 
-        <div className="grid gap-2 border-t border-primary/20 px-5 py-4">
+        <div className="grid gap-2 border-t border-primary/20 px-5 py-4 sm:grid-cols-2">
           <Button onClick={onLoadSample} className="rounded-xl bg-primary text-primary-foreground">
-            <Sparkles className="mr-2 h-4 w-4" /> Load Sample Project
+            <Sparkles className="mr-2 h-4 w-4" /> Load Demo Blueprint
           </Button>
           <Button onClick={onNewProject} variant="outline" className="rounded-xl border-primary/30 bg-white/5 text-ws-text hover:bg-primary/15">
-            <Plus className="mr-2 h-4 w-4" /> Create New Project
+            <Plus className="mr-2 h-4 w-4" /> Start Blank Project
           </Button>
         </div>
       </div>
@@ -457,6 +552,7 @@ export default function EditorPage() {
   const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [demoProjectName, setDemoProjectName] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
@@ -466,7 +562,7 @@ export default function EditorPage() {
   const [lighting, setLighting] = useState<LightingConfig>(DEFAULT_LIGHTING);
   const supabaseConnected = useSupabaseStatus();
 
-  const projectName = currentProject?.name || 'Untitled Project';
+  const projectName = currentProject?.name || demoProjectName || 'Untitled Project';
   const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
 
   const buildManifest = useCallback((): ProjectManifest => ({
@@ -585,14 +681,15 @@ export default function EditorPage() {
       const response = await fetch('/samples/sample-house-01.json');
       const sampleManifest: ProjectManifest = await response.json();
       setCurrentProject(null);
+      setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
       setWalls(sampleManifest.walls);
       setOpenings(sampleManifest.openings);
       setLighting(sampleManifest.lighting);
       setGridVisible(true);
       setSnapEnabled(sampleManifest.snapToGrid);
       setHasUnsavedChanges(true);
-      setSaveState('unsaved');
-      toast.success('Sample project loaded');
+      setSaveState('local-draft');
+      toast.success('Demo blueprint loaded with Project Proof active');
     } catch (error) {
       console.error('Failed to load sample project:', error);
       toast.error('Failed to load sample project');
@@ -603,6 +700,7 @@ export default function EditorPage() {
     if (!recoveryDraft) return;
 
     setCurrentProject(null);
+    setDemoProjectName(recoveryDraft.projectName);
     setWalls(recoveryDraft.manifest.walls);
     setOpenings(recoveryDraft.manifest.openings);
     setLighting(recoveryDraft.manifest.lighting);
@@ -620,6 +718,7 @@ export default function EditorPage() {
     setRecoveryDialogOpen(false);
     setRecoveryDraft(null);
     if (walls.length === 0 && openings.length === 0) {
+      setDemoProjectName(null);
       setSaveState('clean');
       setLastDraftSavedAt(null);
       setHasUnsavedChanges(false);
@@ -636,6 +735,7 @@ export default function EditorPage() {
     try {
       const updated = await updateProject(currentProject.id, { manifest: buildManifest() });
       setCurrentProject(updated);
+      setDemoProjectName(null);
       clearLocalDraft();
       setSaveState('cloud-saved');
       setLastDraftSavedAt(null);
@@ -650,6 +750,7 @@ export default function EditorPage() {
   const handleLoadProject = (project: Project) => {
     clearLocalDraft();
     setCurrentProject(project);
+    setDemoProjectName(null);
     setWalls(project.manifest.walls || []);
     setOpenings(project.manifest.openings || []);
     setLighting(project.manifest.lighting || DEFAULT_LIGHTING);
@@ -792,6 +893,15 @@ export default function EditorPage() {
               {selectedWall ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Layers className="h-4 w-4 text-muted-foreground" />}
             </div>
             <ScrollArea className="flex-1">
+              <ProjectProofPanel
+                projectName={projectName}
+                wallCount={walls.length}
+                openingCount={openings.length}
+                saveState={saveState}
+                lastDraftAt={lastDraftSavedAt}
+                supabaseConnected={supabaseConnected}
+                snapEnabled={snapEnabled}
+              />
               <PropertiesPanel
                 selectedWall={selectedWall}
                 openings={openings}
