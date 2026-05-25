@@ -12,16 +12,10 @@
   "categories": ["productivity", "design", "utilities"],
   "icons": [
     {
-      "src": "/icons/icon.svg",
+      "src": "/brand/vishvakarma-official-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/apple-touch-icon.svg",
-      "sizes": "180x180",
-      "type": "image/svg+xml",
-      "purpose": "any"
     }
   ]
 }
