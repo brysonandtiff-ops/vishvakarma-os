@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Lint, security, test, route smoke, and build
+    name: Lint, security, evidence, test, route smoke, and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -45,6 +45,9 @@ jobs:
 
       - name: Check Vercel security headers
         run: node scripts/quality/check-vercel-security.mjs
+
+      - name: Check launch evidence templates
+        run: pnpm run launch:evidence
 
       - name: Unit tests
         run: pnpm run test
