@@ -23,6 +23,17 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('मन्त्र matrix · secure architecture gate');
   });
 
+  it('keeps the trust/status strip and official auth copy intact', () => {
+    const authPage = read('src/pages/AuthPage.tsx');
+
+    expect(authPage).toContain('TRUST_PILLARS');
+    expect(authPage).toContain('vish-auth-trust-strip');
+    expect(authPage).toContain('Secure session gate');
+    expect(authPage).toContain('Governance audit ready');
+    expect(authPage).toContain('iPad-first workspace');
+    expect(authPage).toContain('Release evidence locked');
+  });
+
   it('keeps official logo treatment and auth form intact', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
