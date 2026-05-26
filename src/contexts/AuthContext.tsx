@@ -1,11 +1,28 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { backendStatus } from '@/backend/backendConfig';
+import {
+  clearFirebaseSessionSnapshot,
+  completeFirebaseEmailLinkSignIn,
+  readFirebaseSessionSnapshot,
+  requestFirebaseAccessLink,
+  type FirebaseSessionSnapshot,
+} from '@/backend/firebase/firebaseAuthGateway';
 import { getSupabaseConfigurationError, isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
+type FirebaseAuthUser = {
+  id: string;
+  email: string;
+  provider: 'firebase';
+};
+
+type AuthUser = User | FirebaseAuthUser;
+type AuthSession = Session | FirebaseSessionSnapshot;
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
+  session: AuthSession | null;
   profile: Profile | null;
   loading: boolean;
   isConfigured: boolean;
@@ -17,13 +34,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function firebaseUserFromSession(session: FirebaseSessionSnapshot): FirebaseAuthUser {
+  return {
+    id: session.uid,
+    email: session.email,
+    provider: 'firebase',
+  };
+}
+
 function normalizeMagicLinkError(error: unknown) {
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
 
     if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
+      const providerLabel = backendStatus.provider === 'firebase' ? 'Firebase Auth' : 'Supabase';
       return new Error(
-        'Magic-link request could not reach Supabase. Check that VITE_SUPABASE_URL is a real Supabase project URL, VITE_SUPABASE_ANON_KEY is the matching anon key, and the deployment can access the internet.'
+        `Magic-link request could not reach ${providerLabel}. Check the active backend environment variables and deployment network access.`
       );
     }
 
@@ -34,6 +60,7 @@ function normalizeMagicLinkError(error: unknown) {
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
+  if (backendStatus.provider !== 'supabase') return null;
   if (!isSupabaseConfigured) return null;
 
   const { data, error } = await supabase
@@ -51,13 +78,18 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [loading, setLoading] = useState(backendStatus.isConfigured);
 
-  const loadProfile = useCallback(async (nextUser: User | null) => {
+  const loadProfile = useCallback(async (nextUser: AuthUser | null) => {
     if (!nextUser) {
+      setProfile(null);
+      return;
+    }
+
+    if (backendStatus.provider !== 'supabase') {
       setProfile(null);
       return;
     }
@@ -72,6 +104,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+
+    if (!backendStatus.isConfigured) {
+      setLoading(false);
+      return () => {
+        mounted = false;
+      };
+    }
+
+    if (backendStatus.provider === 'firebase') {
+      completeFirebaseEmailLinkSignIn()
+        .then(({ session: nextSession, error }) => {
+          if (!mounted) return;
+          if (error) throw error;
+
+          const restoredSession = nextSession ?? readFirebaseSessionSnapshot();
+          setSession(restoredSession);
+          setUser(restoredSession ? firebaseUserFromSession(restoredSession) : null);
+          setProfile(null);
+        })
+        .catch((error) => {
+          console.error('[Vishvakarma.OS] Firebase auth session read failed:', error);
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          }
+        })
+        .finally(() => {
+          if (mounted) setLoading(false);
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
 
     if (!isSupabaseConfigured) {
       setLoading(false);
@@ -120,6 +187,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestAccessLink = useCallback(async (email: string) => {
     try {
+      if (backendStatus.provider === 'firebase') {
+        return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
+      }
+
       const configurationError = getSupabaseConfigurationError();
       if (configurationError) {
         throw new Error(configurationError);
@@ -141,7 +212,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (isSupabaseConfigured) {
+    if (backendStatus.provider === 'firebase') {
+      clearFirebaseSessionSnapshot();
+    } else if (isSupabaseConfigured) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     }
@@ -157,8 +230,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       loading,
-      isConfigured: isSupabaseConfigured,
-      mode: supabaseMode,
+      isConfigured: backendStatus.isConfigured,
+      mode: backendStatus.provider === 'supabase' ? supabaseMode : backendStatus.mode,
       requestAccessLink,
       signOut,
       refreshProfile,
