@@ -6,6 +6,7 @@ import { join } from 'node:path';
 const root = process.cwd();
 const supabasePath = join(root, 'src/db/supabase.ts');
 const authPath = join(root, 'src/contexts/AuthContext.tsx');
+const firebaseAuthPath = join(root, 'src/backend/firebase/firebaseAuthGateway.ts');
 
 const failures = [];
 
@@ -20,6 +21,7 @@ function readRequiredFile(path, label) {
 
 const supabase = readRequiredFile(supabasePath, 'src/db/supabase.ts');
 const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
+const firebaseAuth = readRequiredFile(firebaseAuthPath, 'src/backend/firebase/firebaseAuthGateway.ts');
 
 const supabaseRequired = [
   'isPlaceholderValue',
@@ -36,16 +38,33 @@ for (const phrase of supabaseRequired) {
 }
 
 const authRequired = [
-  'getSupabaseConfigurationError',
+  'backendStatus.provider === \'firebase\'',
+  'requestFirebaseAccessLink',
+  'completeFirebaseEmailLinkSignIn',
   'normalizeMagicLinkError',
   "message.includes('fetch failed')",
   "message.includes('failed to fetch')",
-  'Magic-link request could not reach Supabase',
+  'Magic-link request could not reach ${providerLabel}',
 ];
 
 for (const phrase of authRequired) {
   if (!auth.includes(phrase)) {
     failures.push(`src/contexts/AuthContext.tsx is missing auth handling phrase: ${phrase}`);
+  }
+}
+
+const firebaseRequired = [
+  'FIREBASE_SEND_OOB_CODE_URL',
+  'FIREBASE_SIGN_IN_WITH_EMAIL_LINK_URL',
+  'requestFirebaseAccessLink',
+  'completeFirebaseEmailLinkSignIn',
+  'readFirebaseSessionSnapshot',
+  'clearFirebaseSessionSnapshot',
+];
+
+for (const phrase of firebaseRequired) {
+  if (!firebaseAuth.includes(phrase)) {
+    failures.push(`src/backend/firebase/firebaseAuthGateway.ts is missing Firebase auth phrase: ${phrase}`);
   }
 }
 
@@ -60,4 +79,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
-console.log('Magic-link placeholder config and fetch-failure handling are guarded.');
+console.log('Supabase and Firebase magic-link auth configuration handling is guarded.');
