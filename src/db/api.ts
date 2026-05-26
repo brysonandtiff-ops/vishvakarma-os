@@ -1,4 +1,12 @@
-// API layer for Supabase database operations
+// API layer for Vishvakarma.OS database operations
+import { backendStatus } from '@/backend/backendConfig';
+import {
+  createFirestoreProject,
+  deleteFirestoreProject,
+  getFirestoreProject,
+  getFirestoreProjects,
+  updateFirestoreProject,
+} from '@/backend/firebase/firestoreProjectGateway';
 import { supabase } from './supabase';
 import type {
   Project,
@@ -16,6 +24,10 @@ import type {
 // ============================================================================
 
 export async function getProjects(): Promise<Project[]> {
+  if (backendStatus.provider === 'firebase') {
+    return getFirestoreProjects();
+  }
+
   const { data, error } = await supabase
     .from('projects')
     .select('*')
@@ -26,6 +38,10 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getProject(id: string): Promise<Project | null> {
+  if (backendStatus.provider === 'firebase') {
+    return getFirestoreProject(id);
+  }
+
   const { data, error } = await supabase
     .from('projects')
     .select('*')
@@ -41,6 +57,10 @@ export async function createProject(
   description: string | undefined,
   manifest: ProjectManifest
 ): Promise<Project> {
+  if (backendStatus.provider === 'firebase') {
+    return createFirestoreProject(name, description, manifest);
+  }
+
   const { data, error } = await supabase
     .from('projects')
     .insert({
@@ -66,6 +86,10 @@ export async function updateProject(
   id: string,
   updates: Partial<Pick<Project, 'name' | 'description' | 'manifest'>>
 ): Promise<Project> {
+  if (backendStatus.provider === 'firebase') {
+    return updateFirestoreProject(id, updates);
+  }
+
   const { data, error } = await supabase
     .from('projects')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -81,6 +105,10 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  if (backendStatus.provider === 'firebase') {
+    return deleteFirestoreProject(id);
+  }
+
   const { error } = await supabase.from('projects').delete().eq('id', id);
 
   if (error) throw error;
