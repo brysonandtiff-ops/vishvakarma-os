@@ -1,6 +1,6 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
-import { Component, useMemo, useRef } from 'react';
+import { Component, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
@@ -27,6 +27,62 @@ function detectWebGL(): { supported: boolean; reason?: string } {
     return { supported: false, reason: 'WebGL context creation threw an exception.' };
   }
 }
+
+type AtmospherePerformanceMode = 'standard' | 'premium' | 'cinematic';
+
+const ATMOSPHERE_MODES: Record<AtmospherePerformanceMode, {
+  label: string;
+  particleCount: number;
+  particleOpacity: number;
+  particleSize: number;
+  godRays: boolean;
+  sacredFloor: boolean;
+  fogNear: number;
+  fogFar: number;
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+  dpr: [number, number];
+}> = {
+  standard: {
+    label: 'Standard',
+    particleCount: 42,
+    particleOpacity: 0.18,
+    particleSize: 0.032,
+    godRays: false,
+    sacredFloor: true,
+    fogNear: 12,
+    fogFar: 30,
+    autoRotate: false,
+    autoRotateSpeed: 0,
+    dpr: [1, 1.25],
+  },
+  premium: {
+    label: 'Premium',
+    particleCount: 110,
+    particleOpacity: 0.34,
+    particleSize: 0.043,
+    godRays: true,
+    sacredFloor: true,
+    fogNear: 9,
+    fogFar: 26,
+    autoRotate: true,
+    autoRotateSpeed: 0.22,
+    dpr: [1, 1.6],
+  },
+  cinematic: {
+    label: 'Cinematic',
+    particleCount: 180,
+    particleOpacity: 0.46,
+    particleSize: 0.05,
+    godRays: true,
+    sacredFloor: true,
+    fogNear: 7,
+    fogFar: 24,
+    autoRotate: true,
+    autoRotateSpeed: 0.32,
+    dpr: [1, 1.85],
+  },
+};
 
 // ---------------------------------------------------------------------------
 // WebGL Error Boundary — class component required for componentDidCatch
@@ -190,34 +246,36 @@ function Floor() {
   );
 }
 
-function SacredFloorGeometry() {
+function SacredFloorGeometry({ mode }: { mode: AtmospherePerformanceMode }) {
   const floorRef = useRef<THREE.Group | null>(null);
+  const ringRadii = mode === 'standard' ? [3.6, 7.2] : mode === 'premium' ? [2.4, 4.8, 7.2] : [2.4, 4.8, 7.2, 9.6];
+  const radialRotations = mode === 'standard' ? [0, Math.PI / 2] : [0, Math.PI / 4, Math.PI / 2, (Math.PI * 3) / 4];
 
   useFrame((state) => {
     if (!floorRef.current) return;
-    floorRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.12) * 0.015;
+    floorRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.12) * (mode === 'standard' ? 0.006 : 0.015);
   });
 
   return (
     // @ts-expect-error - React Three Fiber JSX types
     <group ref={floorRef} position={[0, 0.018, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      {[2.4, 4.8, 7.2, 9.6].map((radius, index) => (
+      {ringRadii.map((radius, index) => (
         // @ts-expect-error - React Three Fiber JSX types
         <mesh key={radius} position={[0, 0, 0.002 + index * 0.001]}>
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <ringGeometry args={[radius - 0.012, radius, 192]} />
+          <ringGeometry args={[radius - 0.012, radius, mode === 'standard' ? 96 : 192]} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshBasicMaterial color="#D9A72C" transparent opacity={0.07 - index * 0.008} side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#D9A72C" transparent opacity={0.065 - index * 0.008} side={THREE.DoubleSide} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
         </mesh>
       ))}
-      {[0, Math.PI / 4, Math.PI / 2, (Math.PI * 3) / 4].map((rotation) => (
+      {radialRotations.map((rotation) => (
         // @ts-expect-error - React Three Fiber JSX types
         <mesh key={rotation} rotation={[0, 0, rotation]}>
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <planeGeometry args={[0.018, 18]} />
+          <planeGeometry args={[0.018, mode === 'standard' ? 14 : 18]} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshBasicMaterial color="#F5D76A" transparent opacity={0.045} side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#F5D76A" transparent opacity={mode === 'standard' ? 0.026 : 0.045} side={THREE.DoubleSide} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
         </mesh>
       ))}
@@ -226,13 +284,13 @@ function SacredFloorGeometry() {
   );
 }
 
-function AtmosphericParticles() {
+function AtmosphericParticles({ mode }: { mode: AtmospherePerformanceMode }) {
+  const config = ATMOSPHERE_MODES[mode];
   const pointsRef = useRef<THREE.Points | null>(null);
   const particlePositions = useMemo(() => {
-    const count = 140;
-    const positions = new Float32Array(count * 3);
+    const positions = new Float32Array(config.particleCount * 3);
 
-    for (let index = 0; index < count; index += 1) {
+    for (let index = 0; index < config.particleCount; index += 1) {
       const orbit = index * 1.618;
       const radius = 2.4 + ((index * 37) % 100) / 100 * 8.4;
       positions[index * 3] = Math.cos(orbit) * radius;
@@ -241,12 +299,12 @@ function AtmosphericParticles() {
     }
 
     return positions;
-  }, []);
+  }, [config.particleCount]);
 
   useFrame((state) => {
     if (!pointsRef.current) return;
-    pointsRef.current.rotation.y = state.clock.elapsedTime * 0.018;
-    pointsRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.32) * 0.08;
+    pointsRef.current.rotation.y = state.clock.elapsedTime * (mode === 'cinematic' ? 0.026 : 0.018);
+    pointsRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.32) * (mode === 'standard' ? 0.04 : 0.08);
   });
 
   return (
@@ -259,14 +317,15 @@ function AtmosphericParticles() {
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </bufferGeometry>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <pointsMaterial color="#F4C34F" size={0.045} transparent opacity={0.38} sizeAttenuation depthWrite={false} />
+      <pointsMaterial color="#F4C34F" size={config.particleSize} transparent opacity={config.particleOpacity} sizeAttenuation depthWrite={false} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
     </points>
   );
 }
 
-function GodRayShafts() {
+function GodRayShafts({ mode }: { mode: AtmospherePerformanceMode }) {
   const groupRef = useRef<THREE.Group | null>(null);
+  const rayPositions = mode === 'cinematic' ? [-4.2, -1.4, 1.4, 4.2] : [-3.2, 0, 3.2];
 
   useFrame((state) => {
     if (!groupRef.current) return;
@@ -276,13 +335,13 @@ function GodRayShafts() {
   return (
     // @ts-expect-error - React Three Fiber JSX types
     <group ref={groupRef} position={[0, 2.5, 0]}>
-      {[-3.2, 0, 3.2].map((x, index) => (
+      {rayPositions.map((x, index) => (
         // @ts-expect-error - React Three Fiber JSX types
-        <mesh key={x} position={[x, 0.2, -2 - index * 0.8]} rotation={[0.35, 0, -0.18 + index * 0.18]}>
+        <mesh key={x} position={[x, 0.2, -2 - index * 0.55]} rotation={[0.35, 0, -0.2 + index * 0.13]}>
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <planeGeometry args={[1.35, 7]} />
+          <planeGeometry args={[mode === 'cinematic' ? 1.55 : 1.35, mode === 'cinematic' ? 8 : 7]} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshBasicMaterial color="#F5D76A" transparent opacity={0.055} depthWrite={false} side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#F5D76A" transparent opacity={mode === 'cinematic' ? 0.065 : 0.05} depthWrite={false} side={THREE.DoubleSide} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
         </mesh>
       ))}
@@ -291,21 +350,23 @@ function GodRayShafts() {
   );
 }
 
-function SacredAtmosphere() {
+function SacredAtmosphere({ mode }: { mode: AtmospherePerformanceMode }) {
+  const config = ATMOSPHERE_MODES[mode];
+
   return (
     <>
-      <SacredFloorGeometry />
-      <AtmosphericParticles />
-      <GodRayShafts />
+      {config.sacredFloor && <SacredFloorGeometry mode={mode} />}
+      <AtmosphericParticles mode={mode} />
+      {config.godRays && <GodRayShafts mode={mode} />}
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <fog attach="fog" args={["#17120A", 9, 26]} />
+      <fog attach="fog" args={["#17120A", config.fogNear, config.fogFar]} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <hemisphereLight args={["#F2C45A", "#17120A", 0.42]} />
+      <hemisphereLight args={["#F2C45A", "#17120A", mode === 'standard' ? 0.32 : mode === 'premium' ? 0.42 : 0.5]} />
     </>
   );
 }
 
-function Lighting({ lighting }: { lighting: LightingConfig }) {
+function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: AtmospherePerformanceMode }) {
   // Convert azimuth and elevation to 3D position
   const azimuthRad = (lighting.sunAzimuth * Math.PI) / 180;
   const elevationRad = (lighting.sunElevation * Math.PI) / 180;
@@ -318,31 +379,38 @@ function Lighting({ lighting }: { lighting: LightingConfig }) {
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <ambientLight intensity={0.38} />
+      <ambientLight intensity={mode === 'standard' ? 0.34 : 0.38} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <directionalLight
         position={[x, y, z]}
         intensity={lighting.intensity}
         color="#FFE3A3"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={mode === 'standard' ? 1024 : 2048}
+        shadow-mapSize-height={mode === 'standard' ? 1024 : 2048}
       />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <pointLight position={[-4, 3.2, 3.5]} color="#D99B25" intensity={0.42} distance={12} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <pointLight position={[4.5, 1.4, -4]} color="#7A4B10" intensity={0.18} distance={10} />
+      {mode !== 'standard' && (
+        <>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <pointLight position={[-4, 3.2, 3.5]} color="#D99B25" intensity={mode === 'cinematic' ? 0.48 : 0.42} distance={12} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <pointLight position={[4.5, 1.4, -4]} color="#7A4B10" intensity={mode === 'cinematic' ? 0.22 : 0.18} distance={10} />
+        </>
+      )}
     </>
   );
 }
 
 export default function Viewport3D({ walls, openings, lighting }: Viewport3DProps) {
+  const [atmosphereMode, setAtmosphereMode] = useState<AtmospherePerformanceMode>('premium');
+  const atmosphereConfig = ATMOSPHERE_MODES[atmosphereMode];
+
   // Pre-check: avoid mounting Canvas at all if WebGL is unsupported
   const webgl = detectWebGL();
   if (!webgl.supported) {
     return (
       <div className="flex h-full w-full flex-col">
-        <Viewport3DHeader wallCount={0} />
+        <Viewport3DHeader wallCount={0} atmosphereMode={atmosphereMode} />
         <div className="flex-1 bg-muted">
           <Viewport3DFallback reason={webgl.reason ?? 'WebGL is not supported.'} />
         </div>
@@ -352,7 +420,7 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
 
   return (
     <div className="flex h-full w-full flex-col">
-      <Viewport3DHeader wallCount={walls.length} />
+      <Viewport3DHeader wallCount={walls.length} atmosphereMode={atmosphereMode} />
       <div className="relative flex-1 overflow-hidden bg-[#14100a]">
         <WebGLErrorBoundary
           fallback={
@@ -361,17 +429,17 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
         >
           <Canvas
             shadows
-            dpr={[1, 1.75]}
-            gl={{ antialias: true, alpha: false }}
+            dpr={atmosphereConfig.dpr}
+            gl={{ antialias: atmosphereMode !== 'standard', alpha: false, powerPreference: atmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
             style={{ width: '100%', height: '100%' }}
           >
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={["#14100A"]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-            <OrbitControls enableDamping dampingFactor={0.06} autoRotate autoRotateSpeed={0.25} />
+            <OrbitControls enableDamping dampingFactor={0.06} autoRotate={atmosphereConfig.autoRotate} autoRotateSpeed={atmosphereConfig.autoRotateSpeed} />
 
-            <Lighting lighting={lighting} />
-            <SacredAtmosphere />
+            <Lighting lighting={lighting} mode={atmosphereMode} />
+            <SacredAtmosphere mode={atmosphereMode} />
 
             <Floor />
 
@@ -384,12 +452,32 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
           </Canvas>
         </WebGLErrorBoundary>
 
-        {/* Atmosphere label overlay */}
-        <div className="pointer-events-none absolute right-3 top-3 rounded-xl border border-primary/25 bg-black/35 px-3 py-2 text-right shadow-2xl backdrop-blur-md">
-          <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
-            <Sparkles className="h-3 w-3" /> Architect Energy
+        {/* Atmosphere mode controls */}
+        <div className="absolute right-3 top-3 space-y-2 text-right">
+          <div className="rounded-xl border border-primary/25 bg-black/35 px-3 py-2 shadow-2xl backdrop-blur-md">
+            <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
+              <Sparkles className="h-3 w-3" /> Architect Energy
+            </div>
+            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stone-300/70">
+              {atmosphereConfig.label} · {atmosphereMode === 'standard' ? 'low power' : atmosphereMode === 'premium' ? 'balanced' : 'max visuals'}
+            </p>
           </div>
-          <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stone-300/70">Sacred geometry atmosphere</p>
+          <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-primary/20 bg-black/40 p-1 shadow-2xl backdrop-blur-md">
+            {(Object.keys(ATMOSPHERE_MODES) as AtmospherePerformanceMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setAtmosphereMode(mode)}
+                className={`rounded-lg px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition ${
+                  atmosphereMode === mode
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'text-stone-300/70 hover:bg-white/10 hover:text-stone-100'
+                }`}
+              >
+                {ATMOSPHERE_MODES[mode].label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Orbit hint overlay */}
@@ -399,7 +487,7 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
         >
           <RotateCcw className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-text-faint))' }} />
           <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.04em' }}>
-            Drag to orbit · Scroll to zoom · Idle energy enabled
+            Drag to orbit · Scroll to zoom · {atmosphereConfig.label} atmosphere
           </span>
         </div>
       </div>
@@ -408,7 +496,7 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
 }
 
 // ── Premium 3D Viewport Header ──────────────────────────────────────────────
-function Viewport3DHeader({ wallCount }: { wallCount: number }) {
+function Viewport3DHeader({ wallCount, atmosphereMode }: { wallCount: number; atmosphereMode: AtmospherePerformanceMode }) {
   return (
     <div
       className="flex h-7 shrink-0 items-center gap-2 px-3"
@@ -454,7 +542,7 @@ function Viewport3DHeader({ wallCount }: { wallCount: number }) {
         style={{ background: 'hsl(var(--ws-border-subtle))', border: '1px solid hsl(var(--ws-border))' }}
       >
         <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.06em' }}>
-          WebGL · Atmosphere
+          WebGL · {ATMOSPHERE_MODES[atmosphereMode].label}
         </span>
       </div>
     </div>
