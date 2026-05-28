@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
@@ -20,8 +23,12 @@
     "launch:evidence": "node scripts/quality/check-launch-evidence.mjs",
     "launch:evidence:strict": "node scripts/quality/check-launch-evidence.mjs --strict",
     "release:gates": "node scripts/verify-all.js",
+    "release:gates:strict": "node scripts/verify-all.js --strict",
     "verify": "pnpm run lint && pnpm run launch:evidence && pnpm run test && pnpm run build",
-    "verify:ci": "pnpm run verify && pnpm run test:routes"
+    "verify:ci": "pnpm run verify && pnpm run test:routes",
+    "ci": "pnpm run lint && node scripts/quality/check-vercel-security.mjs && pnpm run launch:evidence && pnpm run test:coverage && pnpm run test:routes && pnpm run build",
+    "production:verify-env": "node scripts/production/verify-env.mjs",
+    "production:evidence": "node scripts/production/generate-evidence.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -67,7 +74,6 @@
     "input-otp": "^1.4.2",
     "ky": "^1.13.0",
     "lucide-react": "^0.576.0",
-    "miaoda-auth-react": "2.0.6",
     "miaoda-sc-plugin": "1.0.61",
     "motion": "^12.23.25",
     "next-themes": "^0.4.6",
@@ -100,7 +106,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/lodash": "^4.17.20",
     "@types/node": "^24.2.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -111,11 +116,10 @@
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.21",
     "jsdom": "^28.1.0",
-    "miaoda-sc-plugin": "^1.0.4",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.11",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@latest",
+    "vite": "npm:rolldown-vite@7.2.10",
     "vite-plugin-svgr": "^4.5.0",
     "vitest": "^4.0.18"
   }

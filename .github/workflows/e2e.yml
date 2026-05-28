@@ -1,6 +1,7 @@
 name: E2E Auth Gate
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -39,19 +40,25 @@ jobs:
       - name: Install app dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright for CI run
-        run: pnpm add -D @playwright/test@1.54.2
-
       - name: Install Chromium browser
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Build production app
+        env:
+          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
+          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ci-placeholder
+          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key-that-is-long-enough-for-runtime-guard
         run: pnpm run build
 
       - name: Run auth/private-route E2E proof
         env:
-          # Deliberately dummy-but-valid values so production build enables the auth gate
-          # without requiring real Supabase credentials for redirect-only tests.
+          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
+          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ci-placeholder
+          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key-that-is-long-enough-for-runtime-guard
         run: pnpm run test:e2e
@@ -62,14 +69,5 @@ jobs:
         with:
           name: playwright-auth-gate-report
           path: playwright-report
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Upload Playwright test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-test-results
-          path: test-results
           if-no-files-found: ignore
           retention-days: 14

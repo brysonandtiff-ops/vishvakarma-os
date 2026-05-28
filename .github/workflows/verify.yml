@@ -50,7 +50,7 @@ jobs:
         run: pnpm run launch:evidence
 
       - name: Unit tests
-        run: pnpm run test
+        run: pnpm run test:coverage
 
       - name: Production route gate
         run: pnpm run test:routes
@@ -71,6 +71,7 @@ jobs:
     name: Playwright E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: verify
 
     steps:
       - name: Checkout
@@ -94,6 +95,13 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run Playwright tests
+        env:
+          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
+          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ci-placeholder
+          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key-that-is-long-enough-for-runtime-guard
         run: pnpm run test:e2e
 
       - name: Upload Playwright report
