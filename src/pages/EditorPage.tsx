@@ -52,7 +52,7 @@ import {
   saveLocalDraft,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
-import type { DimensionAnnotation, Label, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
+import type { DimensionAnnotation, Label as RoomLabel, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
@@ -88,7 +88,7 @@ export default function EditorPage() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [walls, setWalls] = useState<Wall[]>([]);
   const [openings, setOpenings] = useState<Opening[]>([]);
-  const [labels, setLabels] = useState<Label[]>([]);
+  const [labels, setLabels] = useState<RoomLabel[]>([]);
   const [dimensions, setDimensions] = useState<DimensionAnnotation[]>([]);
   const [lighting, setLighting] = useState<LightingConfig>(DEFAULT_LIGHTING);
   const supabaseConnected = useSupabaseStatus();

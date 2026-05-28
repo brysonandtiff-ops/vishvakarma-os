@@ -20,7 +20,7 @@ export interface ValidationResult {
 }
 
 export interface FileValidationResult extends ValidationResult {
-  fileType?: 'json' | 'svg' | 'gltf' | 'unknown';
+  fileType?: 'json' | 'svg' | 'unknown';
   fileSize?: number;
 }
 
@@ -52,7 +52,7 @@ export class FormatValidator {
     const fileType = this.detectFileType(file);
 
     if (fileType === 'unknown') {
-      errors.push('Unsupported file type. Expected .json, .svg, or .gltf file');
+      errors.push('Unsupported file type. Expected .json or .svg file');
     }
 
     return {
@@ -68,7 +68,7 @@ export class FormatValidator {
   /**
    * Detect file type from file
    */
-  private static detectFileType(file: File): 'json' | 'svg' | 'gltf' | 'unknown' {
+  private static detectFileType(file: File): 'json' | 'svg' | 'unknown' {
     const extension = file.name.split('.').pop()?.toLowerCase();
 
     switch (extension) {
@@ -76,14 +76,9 @@ export class FormatValidator {
         return 'json';
       case 'svg':
         return 'svg';
-      case 'gltf':
-      case 'glb':
-        return 'gltf';
       default:
-        // Check MIME type
         if (file.type === 'application/json') return 'json';
         if (file.type === 'image/svg+xml') return 'svg';
-        if (file.type === 'model/gltf+json') return 'gltf';
         return 'unknown';
     }
   }

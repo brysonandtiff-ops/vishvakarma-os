@@ -18,7 +18,7 @@ import type { GovernanceEvent } from './governanceLock';
 import type { VersionSnapshot } from './versionControlHooks';
 import { enforce } from '@/governance/core/enforcer';
 import { createSnapshot } from '@/governance/snapshots/snapshotManager';
-import { buildTextPdf } from '@/utils/minimalPdf';
+import { buildTextPdf, pdfBytesToBlob } from '@/utils/minimalPdf';
 
 export interface ExportOptions {
   includeGovernanceHistory?: boolean;
@@ -182,7 +182,7 @@ export class ExportModule {
       ];
 
       const pdfBytes = buildTextPdf(manifest.name, lines);
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blob = pdfBytesToBlob(pdfBytes);
       const filename = `${manifest.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pdf`;
 
       return {

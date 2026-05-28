@@ -43,3 +43,7 @@ export function buildTextPdf(title: string, lines: string[]): Uint8Array {
 
   return new TextEncoder().encode(pdf);
 }
+
+export function pdfBytesToBlob(pdfBytes: Uint8Array): Blob {
+  return new Blob([Uint8Array.from(pdfBytes)], { type: 'application/pdf' });
+}

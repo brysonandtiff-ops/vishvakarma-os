@@ -171,7 +171,7 @@ export function createSnapshot(
   const chain = loadSnapshotChain();
   
   // Generate snapshot ID
-  const id = `snapshot-${Date.now()}-${simpleHash(String(Math.random()))}`;
+  const id = `snapshot-${Date.now()}-${sha256Hex(String(Math.random())).slice(0, 8)}`;
   
   // Generate hashes
   const hash = hashManifest(manifest);

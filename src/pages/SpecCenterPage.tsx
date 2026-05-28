@@ -13,7 +13,7 @@ import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck } from 'lu
 import AppLayout from '@/components/layouts/AppLayout';
 import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
-import { buildTextPdf } from '@/utils/minimalPdf';
+import { buildTextPdf, pdfBytesToBlob } from '@/utils/minimalPdf';
 import type { Spec } from '@/types';
 
 const requiredSections = [
@@ -76,7 +76,7 @@ export default function SpecCenterPage() {
 
   function openSpecPdf(title: string, content: string) {
     const pdfBytes = buildTextPdf(title, content.split('\n'));
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const blob = pdfBytesToBlob(pdfBytes);
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
