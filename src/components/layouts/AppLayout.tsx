@@ -1,4 +1,4 @@
-// Main application layout with sidebar navigation — professional workstation style
+﻿// Main application layout with sidebar navigation — professional workstation style
 import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -14,15 +14,17 @@ import {
   History,
   Menu,
   LogOut,
-  UserCircle,
   ShieldCheck,
   Search,
   PanelLeftClose,
   PanelLeftOpen,
+  UserCircle,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCallback, useEffect, useState } from 'react';
 import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/components/workspace/WorkspaceCommandPalette';
+import { WorkspaceStatusHub } from '@/components/workspace/WorkspaceStatusHub';
+import { WorkspaceNotifications } from '@/components/workspace/WorkspaceNotifications';
 import { loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
 import '@/styles/vish-workspace-shell.css';
 
@@ -59,7 +61,7 @@ function NavItem({
     <Link to={item.path} onClick={onClick}>
       <div
         className={`
-          group flex h-10 items-center rounded-xl transition-all duration-150
+          group flex h-10 items-center rounded-xl transition-all duration-150 tap-highlight-none
           ${collapsed ? 'w-10 justify-center mx-auto' : 'gap-2.5 px-2.5'}
           ${isActive
             ? 'vish-shell-nav-active text-ws-active border border-ws-active/35'
@@ -106,7 +108,7 @@ function SidebarContent({
     GOVERNANCE: 'Governance',
     SYSTEM: 'System',
   };
-  const accountLabel = profile?.full_name || user?.email || (mode === 'local-only' ? 'Local-only demo' : 'No session');
+  const accountLabel = profile?.full_name || user?.email || 'Local User';
 
   const handleSignOut = async () => {
     await signOut();
@@ -249,16 +251,17 @@ function SidebarContent({
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(() => loadWorkspacePrefs().sidebarCollapsed);
+  const [prefs, setPrefs] = useState(() => loadWorkspacePrefs());
 
   useEffect(() => {
-    saveWorkspacePrefs({ sidebarCollapsed: collapsed });
-  }, [collapsed]);
+    saveWorkspacePrefs(prefs);
+  }, [prefs]);
 
-  const toggleCollapsed = useCallback(() => setCollapsed((prev) => !prev), []);
+  const toggleCollapsed = useCallback(() => setPrefs(prev => ({ ...prev, sidebarCollapsed: !prev.sidebarCollapsed })), []);
+  const collapsed = prefs.sidebarCollapsed;
 
   return (
-    <div className="vish-workspace-shell flex min-h-screen w-full bg-background">
+    <div className="vish-workspace-shell flex min-h-screen w-full bg-background" data-density={prefs.density}>
       <WorkspaceCommandPalette />
       <aside
         className={`relative hidden shrink-0 border-r border-ws-border lg:block ${collapsed ? 'w-16' : 'w-60'}`}
@@ -267,10 +270,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text-dim shadow-md hover:bg-ws-hover hover:text-ws-text lg:flex"
+          className="absolute -right-4 top-20 z-10 hidden h-8 w-8 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text-dim shadow-lg hover:bg-ws-hover hover:text-ws-text lg:flex tap-highlight-none transition-all duration-200"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <PanelLeftOpen className="h-3.5 w-3.5" /> : <PanelLeftClose className="h-3.5 w-3.5" />}
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
       </aside>
 
@@ -279,10 +282,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed left-2 top-2 z-40 h-10 w-10 rounded-xl border border-ws-border bg-ws-toolbar text-ws-text shadow-lg hover:bg-ws-hover lg:hidden"
+            className="fixed left-4 bottom-4 z-40 h-12 w-12 rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover lg:hidden"
             aria-label="Open navigation"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0 border-r-0">
@@ -290,7 +293,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
+      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        <WorkspaceNotifications />
+        <div className="flex-1 overflow-x-hidden overflow-y-auto">{children}</div>
+      </main>
     </div>
   );
 }
