@@ -47,6 +47,7 @@ export default function StatusBar({
         <span>{snapEnabled ? '⊕ Snap ON' : '⊗ Snap OFF'}</span>
       </div>
       <div className="ml-auto ws-status-item">
+        <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">ॐ शिल्प · </span>
         <span>Vishvakarma.OS v1.0.0</span>
       </div>
     </div>

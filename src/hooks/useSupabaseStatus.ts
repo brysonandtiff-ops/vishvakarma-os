@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { backendStatus } from '@/backend/backendConfig';
+import { isSupabaseConfigured } from '@/db/supabase';
 
+/**
+ * True when cloud persistence (Supabase) is configured and the active provider can use it.
+ */
 export function useSupabaseStatus() {
-  const [connected, setConnected] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    setConnected(Boolean(url && key && url !== 'undefined' && key !== 'undefined'));
+  return useMemo(() => {
+    if (!backendStatus.isConfigured) return false;
+    if (backendStatus.provider === 'firebase') return false;
+    return isSupabaseConfigured;
   }, []);
-
-  return connected;
 }

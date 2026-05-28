@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RouteGuardProps {
@@ -9,6 +10,8 @@ interface RouteGuardProps {
 
 const PUBLIC_ROUTES = ['/auth'];
 const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
+/** Unconfigured backends run as a full local workspace — no auth deadlock in production. */
+const allowLocalAccess = allowLocalDemoMode || !backendStatus.isConfigured;
 
 const BOOT_MANTRAS = [
   'ॐ विश्वकर्मणे नमः',
@@ -28,7 +31,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const publicRoute = isPublicRoute(location.pathname);
-  const gated = !allowLocalDemoMode;
+  const gated = !allowLocalAccess;
 
   useEffect(() => {
     if (loading) return;

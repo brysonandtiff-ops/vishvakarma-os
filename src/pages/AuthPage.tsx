@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CheckCircle2, LockKeyhole, Mail, MailCheck, ShieldCheck, Sparkles } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,7 @@ function getReturnPath(state: unknown) {
 export default function AuthPage() {
   const { user, loading, isConfigured, mode, requestAccessLink } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -123,7 +124,7 @@ export default function AuthPage() {
 
           <div className="vish-auth-mantra-chip mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary/85">
             <Sparkles className="h-3.5 w-3.5" />
-            ॐ विश्वकर्मणे नमः · secure architecture gate
+            मन्त्र matrix · secure architecture gate
           </div>
 
           <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-stone-100 md:text-5xl">
@@ -173,7 +174,7 @@ export default function AuthPage() {
             <div className="vish-card-mantra mx-auto mb-3 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
               मन्त्र प्रवेश
             </div>
-            <CardTitle className="text-center text-2xl">Request your access link</CardTitle>
+            <CardTitle className="text-center text-2xl">Request secure access</CardTitle>
             <CardDescription className="text-center">
               Enter your email and Vishvakarma.OS will send a secure sign-in link. No password required.
             </CardDescription>
@@ -192,11 +193,11 @@ export default function AuthPage() {
               <div className="mb-4 flex gap-3 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
                 <div>
-                  <p className="font-semibold">Local-only mode active</p>
+                  <p className="font-semibold">Local workspace available</p>
                   <p className="text-muted-foreground">
                     Auth is disabled until real{' '}
                     {backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase'} environment variables are
-                    configured. Current mode: {mode}.
+                    configured. You can still draw, import, and export locally. Current mode: {mode}.
                   </p>
                 </div>
               </div>
@@ -235,11 +236,24 @@ export default function AuthPage() {
                 {submitting ? 'Sending access link…' : 'Send secure access link'}
                 {!submitting && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
+
+              {!isConfigured && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 w-full rounded-xl border-primary/30"
+                  onClick={() => navigate('/')}
+                >
+                  Enter local workspace · स्थानीय कार्यस्थान
+                </Button>
+              )}
             </form>
 
             <div className="mt-5 rounded-2xl border border-border/70 bg-white/50 p-3 text-[11px] leading-5 text-muted-foreground">
               <strong className="text-foreground">Access note:</strong> links open back into the same protected workspace.
-              If the email does not arrive, check Supabase email provider and redirect URL settings.
+              {backendStatus.provider === 'firebase'
+                ? ' If the email does not arrive, check Firebase authorized domains and email-link settings.'
+                : ' If the email does not arrive, check Supabase email provider and redirect URL settings.'}
             </div>
           </CardContent>
         </Card>

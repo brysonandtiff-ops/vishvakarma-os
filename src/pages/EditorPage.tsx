@@ -35,6 +35,7 @@ import ToolRail from '@/components/editor/ToolRail';
 import { createProject, getProjects, updateProject } from '@/db/api';
 import DraftRecoveryDialog from '@/components/editor/DraftRecoveryDialog';
 import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
+import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import OpenProjectDialog from '@/components/editor/OpenProjectDialog';
@@ -52,6 +53,7 @@ import {
   saveLocalDraft,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
+import { isLocalProjectId } from '@/editor/localProject';
 import type { DimensionAnnotation, Label as RoomLabel, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
@@ -86,6 +88,7 @@ export default function EditorPage() {
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [walls, setWalls] = useState<Wall[]>([]);
   const [openings, setOpenings] = useState<Opening[]>([]);
   const [labels, setLabels] = useState<RoomLabel[]>([]);
@@ -269,6 +272,23 @@ export default function EditorPage() {
       return;
     }
 
+    if (isLocalProjectId(currentProject.id)) {
+      const updatedManifest = buildManifest();
+      setCurrentProject({
+        ...currentProject,
+        name: updatedManifest.name,
+        description: updatedManifest.description,
+        manifest: updatedManifest,
+        updated_at: new Date().toISOString(),
+      });
+      clearLocalDraft();
+      setSaveState('local-draft');
+      setLastDraftSavedAt(null);
+      setHasUnsavedChanges(false);
+      toast.success('Project saved locally');
+      return;
+    }
+
     try {
       const updated = await updateProject(currentProject.id, { manifest: buildManifest() });
       setCurrentProject(updated);
@@ -284,21 +304,41 @@ export default function EditorPage() {
     }
   };
 
+  const applyManifest = useCallback((manifest: ProjectManifest) => {
+    setWalls(manifest.walls);
+    setOpenings(manifest.openings);
+    setLabels(manifest.labels ?? []);
+    setDimensions(manifest.dimensions ?? []);
+    setLighting(manifest.lighting || DEFAULT_LIGHTING);
+    setSnapEnabled(manifest.snapToGrid ?? true);
+    setGridVisible(true);
+  }, []);
+
   const handleLoadProject = (project: Project) => {
     clearLocalDraft();
     setCurrentProject(project);
     setDemoProjectName(null);
-    setWalls(project.manifest.walls || []);
-    setOpenings(project.manifest.openings || []);
-    setLabels(project.manifest.labels ?? []);
-    setDimensions(project.manifest.dimensions ?? []);
-    setLighting(project.manifest.lighting || DEFAULT_LIGHTING);
-    setSnapEnabled(project.manifest.snapToGrid ?? true);
+    applyManifest(project.manifest);
     setLoadDialogOpen(false);
-    setSaveState('cloud-saved');
+    setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
     setHasUnsavedChanges(false);
     toast.success(`Loaded: ${project.name}`);
+  };
+
+  const handleProjectCreated = (project: Project) => {
+    void loadProjects();
+    handleLoadProject(project);
+  };
+
+  const handleImportedManifest = (manifest: ProjectManifest) => {
+    clearLocalDraft();
+    setCurrentProject(null);
+    setDemoProjectName(manifest.name);
+    applyManifest(manifest);
+    setHasUnsavedChanges(true);
+    setSaveState('local-draft');
+    toast.success(`Imported ${manifest.name}`);
   };
 
   const handleExportJSON = () => {
@@ -364,6 +404,7 @@ export default function EditorPage() {
           snapEnabled={snapEnabled}
           onToggleSnap={() => setSnapEnabled((value) => !value)}
           onLoadSample={loadSampleProject}
+          onImport={() => setImportDialogOpen(true)}
           onExport={() => setExportDialogOpen(true)}
           wallCount={walls.length}
           openingCount={openings.length}
@@ -489,7 +530,12 @@ export default function EditorPage() {
         onRestore={restoreLocalDraft}
         onDiscard={discardLocalDraft}
       />
-      <NewProjectDialog open={newProjectOpen} onOpenChange={setNewProjectOpen} onProjectCreated={loadProjects} />
+      <NewProjectDialog open={newProjectOpen} onOpenChange={setNewProjectOpen} onProjectCreated={handleProjectCreated} />
+      <ImportFloorPlanDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onImported={handleImportedManifest}
+      />
       <OpenProjectDialog open={loadDialogOpen} projects={projects} onOpenChange={setLoadDialogOpen} onLoadProject={handleLoadProject} />
       <ExportFloorPlanDialog
         open={exportDialogOpen}

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import "./vish-theme.css";
 import "./ipad-workspace.css";
+import "./styles/vish-auth-gate.css";
 import "./styles/vish-editor-polish.css";
 import "./styles/vish-governance-polish.css";
 import App from "./App.tsx";

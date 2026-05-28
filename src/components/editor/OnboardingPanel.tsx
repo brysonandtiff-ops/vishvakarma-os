@@ -2,6 +2,24 @@ import { Button } from '@/components/ui/button';
 import { Plus, Sparkles } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 
+const ONBOARDING_STEPS = [
+  {
+    sanskrit: 'रचना',
+    english: 'Draw',
+    detail: 'Tap Wall, then tap start and end points. Doors and windows snap onto walls.',
+  },
+  {
+    sanskrit: 'दर्शन',
+    english: 'Preview',
+    detail: 'Open 3D only when needed. The heavy WebGL engine stays deferred.',
+  },
+  {
+    sanskrit: 'प्रमाण',
+    english: 'Prove',
+    detail: 'Use Project Proof to show save mode, structure, spec, and export readiness.',
+  },
+] as const;
+
 export default function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => void; onNewProject: () => void }) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
@@ -11,24 +29,22 @@ export default function OnboardingPanel({ onLoadSample, onNewProject }: { onLoad
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-xl object-cover" />
           </div>
           <div>
+            <p className="font-devanagari text-[10px] uppercase tracking-[0.28em] text-primary/75">ॐ विश्वकर्मणे नमः · प्रथम रचना</p>
             <p className="text-base font-semibold text-ws-text">Build your first verified blueprint</p>
             <p className="text-[11px] text-ws-text-faint">Draw in 2D, preview in 3D, and keep proof visible while you work.</p>
           </div>
         </div>
 
         <div className="grid gap-3 px-5 py-4 text-xs text-ws-text-dim sm:grid-cols-3">
-          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
-            <p className="font-semibold text-ws-text">1. Draw</p>
-            <p className="mt-1 leading-relaxed">Tap Wall, then tap start and end points. Doors and windows snap onto walls.</p>
-          </div>
-          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
-            <p className="font-semibold text-ws-text">2. Preview</p>
-            <p className="mt-1 leading-relaxed">Open 3D only when needed. The heavy WebGL engine stays deferred.</p>
-          </div>
-          <div className="rounded-2xl border border-primary/15 bg-white/5 p-3">
-            <p className="font-semibold text-ws-text">3. Prove</p>
-            <p className="mt-1 leading-relaxed">Use Project Proof to show save mode, structure, spec, and export readiness.</p>
-          </div>
+          {ONBOARDING_STEPS.map((step, index) => (
+            <div key={step.english} className="rounded-2xl border border-primary/15 bg-white/5 p-3">
+              <p className="font-semibold text-ws-text">
+                {index + 1}. {step.english}
+                <span className="font-devanagari ml-1.5 text-[10px] font-normal text-primary/70">· {step.sanskrit}</span>
+              </p>
+              <p className="mt-1 leading-relaxed">{step.detail}</p>
+            </div>
+          ))}
         </div>
 
         <div className="grid gap-2 border-t border-primary/20 px-5 py-4 sm:grid-cols-2">

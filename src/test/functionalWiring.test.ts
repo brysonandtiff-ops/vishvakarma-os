@@ -41,8 +41,24 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain("const PUBLIC_ROUTES = ['/auth']");
     expect(routeGuard).toContain("navigate('/auth'");
     expect(routeGuard).toContain("state: { from: location.pathname }");
+    expect(routeGuard).toContain('allowLocalAccess');
     expect(routeGuard).toContain('if (gated && !user && !publicRoute)');
     expect(routeGuard).toContain('return null');
+  });
+
+  it('wires import and new-project flows in the editor', () => {
+    const editor = read('src/pages/EditorPage.tsx');
+
+    expect(editor).toContain('ImportFloorPlanDialog');
+    expect(editor).toContain('onImported={handleImportedManifest}');
+    expect(editor).toContain('onProjectCreated={handleProjectCreated}');
+    expect(editor).toContain('onImport={() => setImportDialogOpen(true)}');
+  });
+
+  it('loads Sanskrit boot/auth styles at app startup', () => {
+    const main = read('src/main.tsx');
+
+    expect(main).toContain('./styles/vish-auth-gate.css');
   });
 
   it('keeps loading, auth, and app shell surfaces on the official brand asset', () => {

@@ -3,6 +3,7 @@ import {
   Box,
   DoorOpen,
   FileDown,
+  FileUp,
   Grid3x3,
   Magnet,
   MousePointer2,
@@ -22,6 +23,7 @@ interface EditorCommandStripProps {
   snapEnabled: boolean;
   onToggleSnap: () => void;
   onLoadSample: () => void;
+  onImport: () => void;
   onExport: () => void;
   wallCount: number;
   openingCount: number;
@@ -80,6 +82,7 @@ export default function EditorCommandStrip({
   snapEnabled,
   onToggleSnap,
   onLoadSample,
+  onImport,
   onExport,
   wallCount,
   openingCount,
@@ -110,6 +113,7 @@ export default function EditorCommandStrip({
         <StripButton active={gridVisible} icon={Grid3x3} label="Grid" shortcut="G" onClick={onToggleGrid} />
         <StripButton active={snapEnabled} icon={Magnet} label="Snap" onClick={onToggleSnap} />
         <StripButton icon={Package} label="Sample" onClick={onLoadSample} />
+        <StripButton icon={FileUp} label="Import" onClick={onImport} />
         <StripButton icon={FileDown} label="Export" onClick={onExport} />
       </div>
     </div>
