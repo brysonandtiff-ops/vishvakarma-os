@@ -144,7 +144,7 @@ export default function AuthPage() {
             <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
               <Mail className="mb-3 h-5 w-5 text-primary" />
               <p className="text-sm font-semibold text-stone-100">Account creation</p>
-              <p className="mt-1 text-xs text-stone-400">New users are created through Supabase Auth.</p>
+              <p className="mt-1 text-xs text-stone-400">New users are created through Firebase Auth.</p>
             </div>
           </div>
         </section>
@@ -156,7 +156,7 @@ export default function AuthPage() {
             </div>
             <CardTitle className="text-center text-2xl">Request secure access</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and Supabase will send a sign-in link. If the account does not exist, it will be created.
+              Enter your email and Firebase will send a secure sign-in link. If the account does not exist, it will be created.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -166,7 +166,8 @@ export default function AuthPage() {
                 <div>
                   <p className="font-semibold">Local-only mode active</p>
                   <p className="text-muted-foreground">
-                    Auth is disabled until VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are configured.
+                    Auth is disabled until the Firebase environment variables (VITE_FIREBASE_API_KEY,
+                    VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID) are configured.
                     Current mode: {mode}.
                   </p>
                 </div>

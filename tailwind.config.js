@@ -87,6 +87,16 @@ export default {
                   active:  'hsl(var(--ws-active))',
                   'active-bg': 'hsl(var(--ws-active-bg))',
                 },
+                earth: {
+                    900: '#1e1b18', // dark text/canvas
+                    800: '#2a2622', // tool dock
+                    700: '#3a3530', // tool dock hover/lines
+                    500: '#b88c51', // primary gold accent
+                    400: '#d6b58b', // light gold hover
+                    200: '#e5e0d8', // light borders
+                    100: '#efeadf', // light properties background
+                    50: '#fbf9f6'   // lightest panel background
+                },
                 sidebar: {
                     DEFAULT: 'hsl(var(--sidebar-background))',
                     background: 'hsl(var(--sidebar-background))',
