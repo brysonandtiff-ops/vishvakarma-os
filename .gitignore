@@ -34,3 +34,7 @@ playwright-report/
 
 # Claude Code local settings
 .claude/
+
+# Local generated / accidental nested workspace
+coverage/
+vishvakarma-os/

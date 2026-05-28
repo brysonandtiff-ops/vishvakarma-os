@@ -14,6 +14,7 @@ export default defineConfig({
       '**/coverage/**',
       '**/playwright-report/**',
       '**/test-results/**',
+      'vishvakarma-os/**',
       'e2e/**',
       '**/*.e2e.*',
     ],
