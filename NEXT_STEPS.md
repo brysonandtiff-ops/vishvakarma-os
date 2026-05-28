@@ -1,9 +1,9 @@
 # Next Steps & Roadmap
 ## Vishvakarma.OS v1.0.0 → v1.1.0
 
-**Current Status**: ✅ v1.0.0 Production Ready  
-**Build**: 🟡 YELLOW (6 automated gates passed, 4 manual warnings)  
-**Last Updated**: 2026-02-15
+**Current Status**: Internal demo ready; public production launch blocked pending live Firebase/Supabase evidence  
+**Build**: YELLOW — automated gates pass locally; manual device and production backend proof still required  
+**Last Updated**: 2026-05-29
 
 ---
 

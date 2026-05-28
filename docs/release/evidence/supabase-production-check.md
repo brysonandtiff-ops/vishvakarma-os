@@ -8,7 +8,9 @@ Result: `PASS / FAIL / PARTIAL`
 
 ## Purpose
 
-Prove Vishvakarma.OS has a production-ready Supabase configuration before public launch.
+Prove Vishvakarma.OS has a production-ready Supabase data configuration before public launch.
+
+Authentication is Firebase-first. This checklist covers the legacy Supabase data backend only. See `firebase-production-check.md` for auth proof.
 
 ## Environment Variables
 

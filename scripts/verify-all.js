@@ -5,7 +5,9 @@
 import { readFile, access } from 'fs/promises';
 import { constants } from 'fs';
 import { join } from 'path';
+import { execSync } from 'child_process';
 
+const strict = process.argv.includes('--strict');
 const gates = [];
 
 function pass(name, message, details = []) {
@@ -31,6 +33,10 @@ async function fileExists(path) {
 
 async function readText(path) {
   return readFile(path, 'utf-8');
+}
+
+function runCommand(command) {
+  execSync(command, { stdio: 'pipe', encoding: 'utf-8' });
 }
 
 async function checkSpecGate() {
@@ -156,18 +162,38 @@ async function checkEnvTemplateGate() {
   }
 
   const env = await readText(envPath);
-  const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
+  const required = [
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_APP_ID',
+    'VITE_SUPABASE_URL',
+    'VITE_SUPABASE_ANON_KEY',
+  ];
   const missing = required.filter((key) => !env.includes(key));
 
   if (missing.length > 0) {
     return fail(name, '.env.example is missing required production variables.', missing);
   }
 
-  return pass(name, '.env.example documents required Supabase variables.');
+  return pass(name, '.env.example documents required Firebase and Supabase variables.');
 }
 
 function checkManualGate(name, commandOrEvidence) {
   return manual(name, 'Manual or runtime proof is required. This gate is not auto-passed.', [commandOrEvidence]);
+}
+
+async function checkAutomatedCommandGate(name, command) {
+  if (!strict) {
+    return checkManualGate(name, `Run: ${command}`);
+  }
+
+  try {
+    runCommand(command);
+    return pass(name, `${command} completed successfully in --strict mode.`);
+  } catch (error) {
+    return fail(name, `${command} failed in --strict mode.`, [String(error?.stdout ?? error?.message ?? error)]);
+  }
 }
 
 async function runAllGates() {
@@ -180,8 +206,8 @@ async function runAllGates() {
   gates.push(await checkSampleGate());
   gates.push(await checkVercelSecurityGate());
   gates.push(await checkEnvTemplateGate());
-  gates.push(checkManualGate('Gate 7: Unit tests green', 'Run: pnpm run test'));
-  gates.push(checkManualGate('Gate 8: E2E route smoke green', 'Run: pnpm run test:e2e'));
+  gates.push(await checkAutomatedCommandGate('Gate 7: Unit tests green', 'pnpm run test'));
+  gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'pnpm run test:e2e'));
   gates.push(checkManualGate('Gate 9: Save/load determinism', 'Attach Supabase or local-mode save/load evidence'));
   gates.push(checkManualGate('Gate 10: 2D/3D parity', 'Attach sample project 2D wall/opening count vs 3D render evidence'));
   gates.push(checkManualGate('Gate 11: iPad touch target audit', 'Attach iPad or emulated coarse-pointer screenshots'));

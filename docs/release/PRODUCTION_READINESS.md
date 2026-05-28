@@ -18,7 +18,8 @@
 | Browser auth E2E | Playwright verifies `/auth` loads and signed-out users are redirected from private routes | Added in `E2E Auth Gate` workflow |
 | Production build | `pnpm run build` creates `dist/` | Enforced in CI |
 | Build artifact | CI uploads `dist/` as `vishvakarma-os-dist` | Added |
-| Passwordless account access | `/auth` uses Supabase email-link account access | Added |
+| Passwordless account access | `/auth` uses Firebase email-link account access | Added |
+| Data persistence | Supabase stores projects, registry, releases, audit logs | Added |
 | App route guard | All application routes are private in production; only `/auth` is public | Added |
 | Account shell controls | App shell shows account/session mode and sign-out control | Added |
 | Profile creation | Supabase trigger creates `profiles` rows for new auth users | Added |
@@ -49,13 +50,17 @@ Do **not** mark a release as production ready unless all of these are true:
 5. Supabase production environment variables are configured in the host:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-6. Supabase Auth is configured:
-   - email link / OTP provider enabled
+6. Firebase production environment variables are configured in the host:
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_APP_ID`
+7. Firebase Auth is configured:
+   - email link / passwordless provider enabled
    - production site URL allowlisted
-   - preview/local URLs allowlisted when needed
-7. Supabase migrations are applied before real users are invited.
-8. `docs/release/SUPABASE_RLS_EVIDENCE.md` has been executed and evidence attached.
-9. Manual smoke test confirms:
+8. Supabase migrations are applied before real users are invited.
+9. `docs/release/SUPABASE_RLS_EVIDENCE.md` has been executed and evidence attached.
+10. Manual smoke test confirms:
    - `/auth` loads while signed out
    - signed-out users cannot access private app routes in production
    - account creation/sign-in email link reaches the configured site URL
