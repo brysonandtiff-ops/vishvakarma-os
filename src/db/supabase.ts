@@ -3,12 +3,42 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const hasSupabaseUrl = typeof supabaseUrl === 'string' && supabaseUrl.startsWith('https://');
-const hasSupabaseAnonKey = typeof supabaseAnonKey === 'string' && supabaseAnonKey.length > 20;
+function isPlaceholderValue(value: unknown) {
+  if (typeof value !== 'string') return true;
+  const normalized = value.trim().toLowerCase();
+
+  return (
+    normalized.length === 0 ||
+    normalized.includes('your-project') ||
+    normalized.includes('your-supabase') ||
+    normalized.includes('placeholder') ||
+    normalized.includes('example.com')
+  );
+}
+
+const hasSupabaseUrl =
+  typeof supabaseUrl === 'string' &&
+  supabaseUrl.startsWith('https://') &&
+  !isPlaceholderValue(supabaseUrl);
+
+const hasSupabaseAnonKey =
+  typeof supabaseAnonKey === 'string' &&
+  supabaseAnonKey.length > 20 &&
+  !isPlaceholderValue(supabaseAnonKey);
 
 export const isSupabaseConfigured = hasSupabaseUrl && hasSupabaseAnonKey;
 
 export const supabaseMode = isSupabaseConfigured ? 'connected' : 'local-only';
+
+export function getSupabaseConfigurationError() {
+  if (isSupabaseConfigured) return null;
+
+  const missing = [];
+  if (!hasSupabaseUrl) missing.push('VITE_SUPABASE_URL');
+  if (!hasSupabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
+
+  return `Supabase is not configured for magic-link access. Set real ${missing.join(' and ')} values in your local .env.local or Vercel environment variables.`;
+}
 
 const fallbackSupabaseUrl = 'https://local-only.invalid.supabase.co';
 const fallbackSupabaseAnonKey = 'local-only-placeholder-anon-key-not-for-production';
@@ -16,7 +46,7 @@ const fallbackSupabaseAnonKey = 'local-only-placeholder-anon-key-not-for-product
 if (!isSupabaseConfigured) {
   console.warn(
     '[Vishvakarma.OS] Supabase is not configured. The app is running in local-only mode. ' +
-      'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable persistence, registry, releases, and audit logs.'
+      'Set real VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY values to enable magic links, persistence, registry, releases, and audit logs.'
   );
 }
 

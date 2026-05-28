@@ -1,26 +1,24 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { backendStatus } from '@/backend/backendConfig';
 import {
-  isSignInWithEmailLink,
-  onAuthStateChanged,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  signOut as firebaseSignOut,
-  type User as FirebaseUser,
-} from 'firebase/auth';
-import { firebaseAuth, isFirebaseConfigured } from '@/backend/firebase/firebaseClient';
-import { authMode } from '@/backend/backendConfig';
-import { isSupabaseConfigured, supabase } from '@/db/supabase';
+  clearFirebaseSessionSnapshot,
+  completeFirebaseEmailLinkSignIn,
+  readFirebaseSessionSnapshot,
+  requestFirebaseAccessLink,
+  type FirebaseSessionSnapshot,
+} from '@/backend/firebase/firebaseAuthGateway';
+import { getSupabaseConfigurationError, isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
-export interface AuthUser {
+type FirebaseAuthUser = {
   id: string;
-  email: string | null;
-  displayName: string | null;
-}
+  email: string;
+  provider: 'firebase';
+};
 
-export interface AuthSession {
-  user: AuthUser;
-}
+type AuthUser = User | FirebaseAuthUser;
+type AuthSession = Session | FirebaseSessionSnapshot;
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -36,17 +34,33 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const PENDING_EMAIL_KEY = 'vishvakarma:auth:pending-email';
-
-function toAuthUser(firebaseUser: FirebaseUser): AuthUser {
+function firebaseUserFromSession(session: FirebaseSessionSnapshot): FirebaseAuthUser {
   return {
-    id: firebaseUser.uid,
-    email: firebaseUser.email,
-    displayName: firebaseUser.displayName,
+    id: session.uid,
+    email: session.email,
+    provider: 'firebase',
   };
 }
 
+function normalizeMagicLinkError(error: unknown) {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+
+    if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
+      const providerLabel = backendStatus.provider === 'firebase' ? 'Firebase Auth' : 'Supabase';
+      return new Error(
+        `Magic-link request could not reach ${providerLabel}. Check the active backend environment variables and deployment network access.`
+      );
+    }
+
+    return error;
+  }
+
+  return new Error('Magic-link request failed for an unknown reason.');
+}
+
 export async function getProfile(userId: string): Promise<Profile | null> {
+  if (backendStatus.provider !== 'supabase') return null;
   if (!isSupabaseConfigured) return null;
 
   const { data, error } = await supabase
@@ -64,12 +78,18 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [loading, setLoading] = useState(backendStatus.isConfigured);
 
   const loadProfile = useCallback(async (nextUser: AuthUser | null) => {
     if (!nextUser) {
+      setProfile(null);
+      return;
+    }
+
+    if (backendStatus.provider !== 'supabase') {
       setProfile(null);
       return;
     }
@@ -83,34 +103,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile, user]);
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !firebaseAuth) {
-      setLoading(false);
-      return;
-    }
-
-    const auth = firebaseAuth;
     let mounted = true;
 
-    // Complete a passwordless email-link sign-in if the user arrived via the link.
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      const storedEmail = window.localStorage.getItem(PENDING_EMAIL_KEY);
-      const email = storedEmail ?? window.prompt('Confirm your email to complete secure sign-in') ?? '';
-
-      if (email) {
-        signInWithEmailLink(auth, email, window.location.href)
-          .then(() => {
-            window.localStorage.removeItem(PENDING_EMAIL_KEY);
-            window.history.replaceState(null, '', window.location.pathname);
-          })
-          .catch((error) => {
-            console.error('[Vishvakarma.OS] Email-link sign-in failed:', error);
-          });
-      }
+    if (!backendStatus.isConfigured) {
+      setLoading(false);
+      return () => {
+        mounted = false;
+      };
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!mounted) return;
-      const nextUser = firebaseUser ? toAuthUser(firebaseUser) : null;
+    if (backendStatus.provider === 'firebase') {
+      completeFirebaseEmailLinkSignIn()
+        .then(({ session: nextSession, error }) => {
+          if (!mounted) return;
+          if (error) throw error;
+
+          const restoredSession = nextSession ?? readFirebaseSessionSnapshot();
+          setSession(restoredSession);
+          setUser(restoredSession ? firebaseUserFromSession(restoredSession) : null);
+          setProfile(null);
+        })
+        .catch((error) => {
+          console.error('[Vishvakarma.OS] Firebase auth session read failed:', error);
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          }
+        })
+        .finally(() => {
+          if (mounted) setLoading(false);
+        });
+
+      return () => {
+        mounted = false;
+      };
+    }
+
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return () => {
+        mounted = false;
+      };
+    }
+
+    supabase.auth
+      .getSession()
+      .then(async ({ data, error }) => {
+        if (!mounted) return;
+        if (error) throw error;
+
+        const nextSession = data.session ?? null;
+        const nextUser = nextSession?.user ?? null;
+        setSession(nextSession);
+        setUser(nextUser);
+        await loadProfile(nextUser);
+      })
+      .catch((error) => {
+        console.error('[Vishvakarma.OS] Auth session read failed:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      const nextUser = nextSession?.user ?? null;
+      setSession(nextSession);
       setUser(nextUser);
       setLoading(false);
       void loadProfile(nextUser);
@@ -118,38 +181,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
-      unsubscribe();
+      listener.subscription.unsubscribe();
     };
   }, [loadProfile]);
 
   const requestAccessLink = useCallback(async (email: string) => {
     try {
-      if (!isFirebaseConfigured || !firebaseAuth) {
-        throw new Error('Firebase is not configured. Add environment variables to enable secure access.');
+      if (backendStatus.provider === 'firebase') {
+        return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
       }
 
-      const normalizedEmail = email.trim().toLowerCase();
-      await sendSignInLinkToEmail(firebaseAuth, normalizedEmail, {
-        url: window.location.origin,
-        handleCodeInApp: true,
+      const configurationError = getSupabaseConfigurationError();
+      if (configurationError) {
+        throw new Error(configurationError);
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: {
+          emailRedirectTo: window.location.origin,
+          shouldCreateUser: true,
+        },
       });
-      window.localStorage.setItem(PENDING_EMAIL_KEY, normalizedEmail);
+
+      if (error) throw error;
       return { error: null };
     } catch (error) {
-      return { error: error as Error };
+      return { error: normalizeMagicLinkError(error) };
     }
   }, []);
 
   const signOut = useCallback(async () => {
-    if (isFirebaseConfigured && firebaseAuth) {
-      await firebaseSignOut(firebaseAuth);
+    if (backendStatus.provider === 'firebase') {
+      clearFirebaseSessionSnapshot();
+    } else if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     }
 
+    setSession(null);
     setUser(null);
     setProfile(null);
   }, []);
-
-  const session = useMemo<AuthSession | null>(() => (user ? { user } : null), [user]);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -157,8 +230,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       loading,
-      isConfigured: isFirebaseConfigured,
-      mode: authMode,
+      isConfigured: backendStatus.isConfigured,
+      mode: backendStatus.provider === 'supabase' ? supabaseMode : backendStatus.mode,
       requestAccessLink,
       signOut,
       refreshProfile,

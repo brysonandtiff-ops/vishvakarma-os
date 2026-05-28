@@ -1,4 +1,5 @@
 import type { LightingConfig, Opening, ProjectManifest, Wall } from '@/types';
+import { createProjectManifest, PROJECT_SPEC_VERSION } from '@/core/projectModel';
 
 export const LOCAL_DRAFT_KEY = 'vishvakarma.os.editor.localDraft.v1';
 export const LOCAL_DRAFT_VERSION = 1;
@@ -33,22 +34,16 @@ export function buildDraftPayload(input: DraftSnapshotInput): LocalDraftPayload 
     savedAt: now,
     projectId: input.projectId ?? null,
     projectName: input.projectName,
-    manifest: {
-      version: '1.0.0',
+    manifest: createProjectManifest({
       name: input.projectName,
       description: input.description,
       walls: input.walls,
       openings: input.openings,
-      materials: [],
-      floorMaterial: 'material-concrete',
       lighting: input.lighting,
-      gridSize: 20,
       snapToGrid: input.snapEnabled,
-      metadata: {
-        created: now,
-        modified: now,
-      },
-    },
+      createdAt: now,
+      modifiedAt: now,
+    }),
   };
 }
 
@@ -73,6 +68,10 @@ export function readLocalDraft(): LocalDraftPayload | null {
     const parsed = JSON.parse(raw) as Partial<LocalDraftPayload>;
     if (parsed.version !== LOCAL_DRAFT_VERSION) return null;
     if (!parsed.manifest || !Array.isArray(parsed.manifest.walls) || !Array.isArray(parsed.manifest.openings)) {
+      return null;
+    }
+
+    if (parsed.manifest.version !== PROJECT_SPEC_VERSION) {
       return null;
     }
 

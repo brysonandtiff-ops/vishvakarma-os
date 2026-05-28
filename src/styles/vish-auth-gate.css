@@ -1,12 +1,15 @@
-.vish-auth-gate {
+.vish-auth-gate,
+.vish-boot-stage {
   isolation: isolate;
   background:
-    radial-gradient(circle at 18% 24%, hsl(39 80% 54% / 0.18), transparent 26rem),
-    radial-gradient(circle at 82% 34%, hsl(43 90% 72% / 0.11), transparent 22rem),
+    radial-gradient(circle at 18% 24%, hsl(39 80% 54% / 0.2), transparent 26rem),
+    radial-gradient(circle at 82% 34%, hsl(43 90% 72% / 0.13), transparent 22rem),
+    radial-gradient(circle at 50% 92%, hsl(15 88% 44% / 0.12), transparent 24rem),
     linear-gradient(135deg, #110f0a 0%, #191611 46%, #0d0c09 100%);
 }
 
-.vish-auth-gate::before {
+.vish-auth-gate::before,
+.vish-boot-stage::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -19,13 +22,37 @@
   opacity: 0.7;
 }
 
-.vish-sanskrit-matrix {
+.vish-auth-gate::after,
+.vish-boot-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, transparent 0 44%, hsl(0 0% 0% / 0.22) 72%, hsl(0 0% 0% / 0.54) 100%);
+  z-index: 0;
+}
+
+.vish-yantra-grid,
+.vish-boot-yantra {
+  background:
+    conic-gradient(from 45deg at 50% 50%, transparent 0 12%, hsl(43 90% 62% / 0.08) 12% 13%, transparent 13% 37%, hsl(43 90% 62% / 0.08) 37% 38%, transparent 38% 100%),
+    radial-gradient(circle at center, transparent 0 24%, hsl(43 90% 62% / 0.08) 24.2% 24.6%, transparent 25% 100%);
+  background-size: 18rem 18rem, 22rem 22rem;
+  background-position: center;
+  opacity: 0.38;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
+}
+
+.vish-sanskrit-matrix,
+.vish-boot-sanskrit-rain {
   overflow: hidden;
   opacity: 0.24;
   mix-blend-mode: screen;
 }
 
-.vish-sanskrit-column {
+.vish-sanskrit-column,
+.vish-boot-sanskrit-column {
   position: absolute;
   top: -120%;
   display: flex;
@@ -47,7 +74,14 @@
   animation-iteration-count: infinite;
 }
 
-.vish-sanskrit-column span:nth-child(3n) {
+.vish-boot-sanskrit-column {
+  color: hsl(43 100% 72% / 0.38);
+  font-size: 0.72rem;
+  opacity: 0.82;
+}
+
+.vish-sanskrit-column span:nth-child(3n),
+.vish-boot-sanskrit-column span:nth-child(3n) {
   color: hsl(50 100% 86% / 0.72);
 }
 
@@ -139,6 +173,19 @@
     inset 0 1px 0 hsl(43 88% 78% / 0.13);
 }
 
+.vish-auth-hero::before {
+  content: '';
+  position: absolute;
+  inset: 1rem;
+  pointer-events: none;
+  border-radius: 1.45rem;
+  border: 1px solid hsl(43 90% 70% / 0.08);
+  background:
+    linear-gradient(90deg, transparent 49.5%, hsl(43 90% 70% / 0.08) 50%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, hsl(43 90% 70% / 0.08) 50%, transparent 50.5%);
+  opacity: 0.8;
+}
+
 .vish-auth-hero::after {
   content: '';
   position: absolute;
@@ -148,6 +195,25 @@
     linear-gradient(120deg, transparent 0%, hsl(43 90% 70% / 0.12) 38%, transparent 56%),
     radial-gradient(circle at 16% 8%, hsl(43 100% 72% / 0.16), transparent 12rem);
   opacity: 0.72;
+}
+
+.vish-auth-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vish-auth-mantra-chip,
+.vish-card-mantra {
+  background:
+    linear-gradient(135deg, hsl(43 96% 68% / 0.16), hsl(18 86% 50% / 0.08));
+  box-shadow:
+    inset 0 1px 0 hsl(43 100% 88% / 0.16),
+    0 0 28px hsl(39 88% 54% / 0.12);
+}
+
+.vish-card-mantra {
+  border: 1px solid hsl(43 78% 54% / 0.24);
+  color: hsl(39 82% 36%);
 }
 
 .vish-auth-feature-card {
@@ -181,6 +247,8 @@
   position: relative;
   overflow: hidden;
   border: 1px solid hsl(39 42% 48% / 0.28);
+  background:
+    linear-gradient(145deg, hsl(42 50% 98% / 0.96), hsl(39 45% 91% / 0.94));
   box-shadow:
     0 30px 80px hsl(0 0% 0% / 0.28),
     0 0 52px hsl(39 80% 54% / 0.14);
@@ -192,8 +260,17 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 0%, hsl(43 100% 70% / 0.18), transparent 12rem),
-    linear-gradient(135deg, hsl(43 90% 88% / 0.26), transparent 34%);
+    radial-gradient(circle at 50% 0%, hsl(43 100% 70% / 0.2), transparent 12rem),
+    linear-gradient(135deg, hsl(43 90% 88% / 0.3), transparent 34%);
+}
+
+.vish-auth-access-card::after {
+  content: '';
+  position: absolute;
+  inset: 0.85rem;
+  border-radius: 1.25rem;
+  border: 1px solid hsl(39 45% 42% / 0.08);
+  pointer-events: none;
 }
 
 .vish-auth-access-card > * {
@@ -201,27 +278,195 @@
   z-index: 1;
 }
 
+.vish-access-logo-shell {
+  background:
+    radial-gradient(circle, hsl(43 92% 78% / 0.45), hsl(35 44% 18% / 0.1));
+  border: 1px solid hsl(43 76% 48% / 0.2);
+}
+
+.vish-access-steps {
+  box-shadow: inset 0 1px 0 hsl(43 100% 96% / 0.52);
+}
+
+.vish-email-field input:focus-visible {
+  box-shadow:
+    0 0 0 3px hsl(43 88% 58% / 0.18),
+    inset 0 1px 0 hsl(43 100% 96% / 0.55);
+}
+
+.vish-auth-submit {
+  position: relative;
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.vish-auth-submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-110%);
+  background: linear-gradient(90deg, transparent, hsl(43 100% 88% / 0.22), transparent);
+  transition: transform 360ms ease;
+}
+
+.vish-auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.08);
+  box-shadow:
+    0 14px 36px hsl(39 80% 42% / 0.28),
+    0 0 0 1px hsl(43 96% 78% / 0.32);
+}
+
+.vish-auth-submit:hover:not(:disabled)::before {
+  transform: translateX(110%);
+}
+
+.vish-boot-mandala {
+  filter: drop-shadow(0 0 32px hsl(39 88% 54% / 0.18));
+}
+
+.vish-boot-ring,
+.vish-boot-aura {
+  position: absolute;
+  border-radius: 9999px;
+}
+
+.vish-boot-ring {
+  border: 1px solid hsl(43 88% 66% / 0.22);
+  box-shadow:
+    inset 0 0 48px hsl(39 85% 48% / 0.08),
+    0 0 58px hsl(39 85% 48% / 0.12);
+}
+
+.vish-boot-ring::before,
+.vish-boot-ring::after {
+  content: '';
+  position: absolute;
+  inset: 10%;
+  border-radius: inherit;
+  border: 1px dashed hsl(43 96% 72% / 0.18);
+}
+
+.vish-boot-ring::after {
+  inset: 27%;
+  border-style: solid;
+  opacity: 0.66;
+}
+
+.vish-boot-ring-outer {
+  width: 24rem;
+  height: 24rem;
+  animation: vish-mandala-drift 32s linear infinite;
+}
+
+.vish-boot-ring-middle {
+  width: 17rem;
+  height: 17rem;
+  animation: vish-mandala-drift 22s linear infinite reverse;
+}
+
+.vish-boot-ring-inner {
+  width: 10rem;
+  height: 10rem;
+  border-color: hsl(43 100% 78% / 0.34);
+  animation: vish-boot-pulse 3.8s ease-in-out infinite;
+}
+
+.vish-boot-aura {
+  width: 14rem;
+  height: 14rem;
+  background:
+    radial-gradient(circle, hsl(43 100% 74% / 0.22), transparent 64%),
+    conic-gradient(from 0deg, transparent, hsl(43 95% 66% / 0.16), transparent, hsl(18 86% 50% / 0.1), transparent);
+  filter: blur(1px);
+  animation: vish-boot-aura 5.4s ease-in-out infinite;
+}
+
+.vish-boot-logo-wrap {
+  background:
+    radial-gradient(circle, hsl(43 100% 84% / 0.32), hsl(28 46% 18% / 0.5));
+  border: 1px solid hsl(43 90% 74% / 0.38);
+  box-shadow:
+    0 0 0 1px hsl(43 100% 88% / 0.1),
+    0 24px 70px hsl(0 0% 0% / 0.38),
+    0 0 48px hsl(43 90% 58% / 0.24);
+  animation: vish-boot-logo-rise 2.8s ease-in-out infinite;
+}
+
+.vish-boot-swan {
+  box-shadow:
+    0 0 0 1px hsl(43 96% 82% / 0.38),
+    0 0 34px hsl(43 100% 72% / 0.2);
+}
+
+.vish-boot-scanline {
+  background: linear-gradient(90deg, transparent, hsl(43 100% 78% / 0.46), transparent);
+  animation: vish-boot-scanline 4s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes vish-boot-pulse {
+  0%, 100% { transform: scale(0.95); opacity: 0.55; }
+  50% { transform: scale(1.08); opacity: 0.95; }
+}
+
+@keyframes vish-boot-aura {
+  0%, 100% { transform: scale(0.9) rotate(0deg); opacity: 0.48; }
+  50% { transform: scale(1.12) rotate(14deg); opacity: 0.86; }
+}
+
+@keyframes vish-boot-logo-rise {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-54%) scale(1.04); }
+}
+
+@keyframes vish-boot-scanline {
+  0%, 100% { transform: translateY(0); opacity: 0; }
+  18% { opacity: 0.58; }
+  50% { transform: translateY(100vh); opacity: 0.32; }
+  80% { opacity: 0; }
+}
+
 @media (max-width: 900px) {
-  .vish-sanskrit-matrix {
+  .vish-sanskrit-matrix,
+  .vish-boot-sanskrit-rain {
     opacity: 0.16;
   }
 
-  .vish-sanskrit-column {
+  .vish-sanskrit-column,
+  .vish-boot-sanskrit-column {
     font-size: 0.72rem;
+  }
+
+  .vish-auth-hero {
+    padding: 1.35rem;
+  }
+
+  .vish-boot-mandala {
+    transform: scale(0.78);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .vish-sanskrit-column,
+  .vish-boot-sanskrit-column,
   .vish-mandala-ring-outer,
   .vish-mandala-ring-mid,
   .vish-mandala-ring-inner,
   .vish-auth-orb,
-  .vish-logo-tile-animated {
+  .vish-logo-tile-animated,
+  .vish-boot-ring-outer,
+  .vish-boot-ring-middle,
+  .vish-boot-ring-inner,
+  .vish-boot-aura,
+  .vish-boot-logo-wrap,
+  .vish-boot-scanline {
     animation: none !important;
   }
 
-  .vish-auth-feature-card {
+  .vish-auth-feature-card,
+  .vish-auth-submit,
+  .vish-auth-submit::before {
     transition: none;
   }
 }
