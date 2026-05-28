@@ -8,7 +8,7 @@ import {
   requestFirebaseAccessLink,
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
-import { getSupabaseConfigurationError, isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
+import { isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
 type FirebaseAuthUser = {
@@ -191,9 +191,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
       }
 
-      const configurationError = getSupabaseConfigurationError();
-      if (configurationError) {
-        throw new Error(configurationError);
+      if (!backendStatus.isConfigured) {
+        throw new Error(
+          backendStatus.configurationError ??
+            'Supabase is not configured. Set real VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY values.'
+        );
       }
 
       const { error } = await supabase.auth.signInWithOtp({

@@ -33,7 +33,7 @@ export const supabaseMode = isSupabaseConfigured ? 'connected' : 'local-only';
 export function getSupabaseConfigurationError() {
   if (isSupabaseConfigured) return null;
 
-  const missing = [];
+  const missing: string[] = [];
   if (!hasSupabaseUrl) missing.push('VITE_SUPABASE_URL');
   if (!hasSupabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
 

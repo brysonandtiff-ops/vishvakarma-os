@@ -68,13 +68,14 @@ export class ImportModule {
           return this.importFromJSON(content, options);
         case 'svg':
           return this.importFromSVG(content, options);
-        case 'gltf':
-          return {
-            success: false,
-            errors: ['GLTF import is not supported yet. Export floor plans as JSON or SVG.'],
-            warnings: [],
-          };
         default:
+          if (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb')) {
+            return {
+              success: false,
+              errors: ['GLTF import is not supported yet. Export floor plans as JSON or SVG.'],
+              warnings: [],
+            };
+          }
           return {
             success: false,
             errors: ['Unsupported file type'],
