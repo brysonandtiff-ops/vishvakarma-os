@@ -16,10 +16,19 @@ import {
   LogOut,
   UserCircle,
   ShieldCheck,
+  Search,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/components/workspace/WorkspaceCommandPalette';
+import { loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
 import '@/styles/vish-workspace-shell.css';
+
+function openCommandPalette() {
+  window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
+}
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -129,6 +138,39 @@ function SidebarContent({
           )}
         </div>
 
+        <div className={`shrink-0 ${collapsed ? 'px-1.5 pt-2' : 'px-2 pt-3'}`}>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={openCommandPalette}
+                  className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl border border-ws-border text-ws-text-dim hover:bg-ws-hover hover:text-ws-text"
+                  aria-label="Open command palette"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={6} className="text-xs">
+                Command palette · ⌘K
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="vish-shell-command flex h-10 w-full items-center gap-2.5 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2.5 text-ws-text-dim transition-colors hover:bg-ws-hover hover:text-ws-text"
+              aria-label="Open command palette"
+            >
+              <Search className="h-4 w-4 shrink-0 opacity-70" />
+              <span className="min-w-0 truncate text-xs">Search workspace…</span>
+              <kbd className="ml-auto rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[9px] font-medium tracking-widest text-ws-text-faint">
+                ⌘K
+              </kbd>
+            </button>
+          )}
+        </div>
+
         <ScrollArea className="flex-1">
           <nav className={`py-3 ${collapsed ? 'px-1.5 space-y-1' : 'px-2 space-y-4'}`}>
             {groups.map((group) => {
@@ -207,11 +249,29 @@ function SidebarContent({
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => loadWorkspacePrefs().sidebarCollapsed);
+
+  useEffect(() => {
+    saveWorkspacePrefs({ sidebarCollapsed: collapsed });
+  }, [collapsed]);
+
+  const toggleCollapsed = useCallback(() => setCollapsed((prev) => !prev), []);
 
   return (
     <div className="vish-workspace-shell flex min-h-screen w-full bg-background">
-      <aside className="hidden w-16 shrink-0 border-r border-ws-border lg:block">
-        <SidebarContent collapsed />
+      <WorkspaceCommandPalette />
+      <aside
+        className={`relative hidden shrink-0 border-r border-ws-border lg:block ${collapsed ? 'w-16' : 'w-60'}`}
+      >
+        <SidebarContent collapsed={collapsed} />
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          className="absolute -right-3 top-20 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text-dim shadow-md hover:bg-ws-hover hover:text-ws-text lg:flex"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <PanelLeftOpen className="h-3.5 w-3.5" /> : <PanelLeftClose className="h-3.5 w-3.5" />}
+        </button>
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
