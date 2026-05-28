@@ -27,10 +27,18 @@ describe('workspace command palette', () => {
 
 describe('workspace memory persistence', () => {
   it('round-trips layout preferences through storage', () => {
-    saveWorkspacePrefs({ sidebarCollapsed: true });
-    expect(loadWorkspacePrefs().sidebarCollapsed).toBe(true);
+    const testPrefs: any = { 
+      sidebarCollapsed: true, 
+      density: 'compact', 
+      palettePreference: 'icons' 
+    };
+    saveWorkspacePrefs(testPrefs);
+    const loaded = loadWorkspacePrefs();
+    expect(loaded.sidebarCollapsed).toBe(true);
+    expect(loaded.density).toBe('compact');
+    expect(loaded.palettePreference).toBe('icons');
 
-    saveWorkspacePrefs({ sidebarCollapsed: false });
+    saveWorkspacePrefs({ ...defaultWorkspacePrefs, sidebarCollapsed: false });
     expect(loadWorkspacePrefs().sidebarCollapsed).toBe(false);
   });
 

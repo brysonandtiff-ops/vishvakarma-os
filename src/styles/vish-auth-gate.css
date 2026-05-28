@@ -118,8 +118,8 @@
 
 .vish-auth-orb {
   background:
-    radial-gradient(circle, hsl(43 96% 72% / 0.16), transparent 60%),
-    conic-gradient(from 45deg, transparent, hsl(39 85% 58% / 0.14), transparent, hsl(43 100% 80% / 0.1), transparent);
+    radial-gradient(circle, hsl(43 96% 72% / 0.12), transparent 70%),
+    conic-gradient(from 45deg, transparent, hsl(39 85% 58% / 0.1), transparent, hsl(43 100% 80% / 0.08), transparent);
   filter: blur(0.2px);
   opacity: 0.86;
   animation: vish-orb-breathe 9s ease-in-out infinite;

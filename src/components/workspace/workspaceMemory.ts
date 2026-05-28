@@ -3,12 +3,16 @@
 
 export interface WorkspacePrefs {
   sidebarCollapsed: boolean;
+  density: 'compact' | 'standard' | 'spacious';
+  palettePreference: 'icons' | 'text' | 'both';
 }
 
 const STORAGE_KEY = 'vishvakarma:workspace:prefs';
 
 export const defaultWorkspacePrefs: WorkspacePrefs = {
   sidebarCollapsed: false,
+  density: 'standard',
+  palettePreference: 'both',
 };
 
 export function loadWorkspacePrefs(): WorkspacePrefs {
@@ -24,6 +28,14 @@ export function loadWorkspacePrefs(): WorkspacePrefs {
         typeof parsed.sidebarCollapsed === 'boolean'
           ? parsed.sidebarCollapsed
           : defaultWorkspacePrefs.sidebarCollapsed,
+      density:
+        parsed.density && ['compact', 'standard', 'spacious'].includes(parsed.density)
+          ? (parsed.density as WorkspacePrefs['density'])
+          : defaultWorkspacePrefs.density,
+      palettePreference:
+        parsed.palettePreference && ['icons', 'text', 'both'].includes(parsed.palettePreference)
+          ? (parsed.palettePreference as WorkspacePrefs['palettePreference'])
+          : defaultWorkspacePrefs.palettePreference,
     };
   } catch {
     return { ...defaultWorkspacePrefs };

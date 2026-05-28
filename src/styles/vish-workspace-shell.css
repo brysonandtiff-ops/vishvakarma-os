@@ -1,15 +1,15 @@
 .vish-workspace-shell {
   background:
-    radial-gradient(circle at 0% 0%, hsl(43 90% 62% / 0.08), transparent 28rem),
-    linear-gradient(180deg, hsl(220 14% 10%), hsl(220 14% 8%));
+    radial-gradient(circle at 0% 0%, hsl(43 90% 62% / 0.06), transparent 32rem),
+    linear-gradient(180deg, hsl(220 14% 9%), hsl(220 14% 7%));
 }
 
 .vish-workspace-sidebar {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(180deg, hsl(220 15% 12%), hsl(220 14% 9%)),
-    radial-gradient(circle at 50% 0%, hsl(43 85% 56% / 0.12), transparent 14rem);
+    linear-gradient(180deg, hsl(220 15% 11%), hsl(220 14% 8%)),
+    radial-gradient(circle at 50% 0%, hsl(43 85% 56% / 0.09), transparent 16rem);
 }
 
 .vish-workspace-sidebar::before {
@@ -18,9 +18,9 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, transparent, hsl(43 75% 62% / 0.08), transparent),
-    repeating-linear-gradient(180deg, transparent 0 26px, hsl(43 85% 62% / 0.025) 26px 27px);
-  opacity: 0.8;
+    linear-gradient(90deg, transparent, hsl(43 75% 62% / 0.05), transparent),
+    repeating-linear-gradient(180deg, transparent 0 28px, hsl(43 85% 62% / 0.015) 28px 29px);
+  opacity: 0.7;
 }
 
 .vish-workspace-sidebar > * {
@@ -30,18 +30,18 @@
 
 .vish-shell-brand {
   background:
-    radial-gradient(circle at 20% 20%, hsl(43 90% 62% / 0.16), transparent 7rem),
-    linear-gradient(180deg, hsl(220 15% 15% / 0.96), hsl(220 14% 11% / 0.96));
+    radial-gradient(circle at 20% 20%, hsl(43 90% 62% / 0.12), transparent 8rem),
+    linear-gradient(180deg, hsl(220 15% 14% / 0.98), hsl(220 14% 10% / 0.98));
   box-shadow:
-    inset 0 1px 0 hsl(43 80% 72% / 0.1),
-    0 18px 40px hsl(0 0% 0% / 0.18);
+    inset 0 1px 0 hsl(43 80% 72% / 0.08),
+    0 24px 48px -12px hsl(0 0% 0% / 0.25);
 }
 
 .vish-shell-logo {
   box-shadow:
-    0 0 0 1px hsl(43 90% 70% / 0.36),
-    0 0 24px hsl(39 88% 54% / 0.22),
-    0 14px 34px hsl(0 0% 0% / 0.28);
+    0 0 0 1px hsl(43 90% 70% / 0.3),
+    0 0 24px hsl(39 88% 54% / 0.18),
+    0 14px 34px hsl(0 0% 0% / 0.35);
 }
 
 .vish-shell-nav-active {
