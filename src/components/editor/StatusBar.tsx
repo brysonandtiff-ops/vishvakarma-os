@@ -20,6 +20,8 @@ export default function StatusBar({
     door: 'Door — tap a wall to place a door.',
     window: 'Window — tap a wall to place a window.',
     measure: 'Measure — hover or tap walls to inspect dimensions.',
+    text: 'Label — tap to place a room label.',
+    dimension: 'Dimension — tap start point, then end point.',
   };
 
   return (

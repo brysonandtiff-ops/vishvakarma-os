@@ -1,6 +1,6 @@
 // 2D Blueprint Canvas Component — pointer-first for mouse, touch, and Pencil-style input
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
-import type { Opening, Point2D, ToolType, Wall } from '@/types';
+import type { DimensionAnnotation, Label, Opening, Point2D, ToolType, Wall } from '@/types';
 import {
   checkOpeningOverlap,
   formatDimensionBySystem,
@@ -11,14 +11,21 @@ import {
 interface BlueprintCanvasProps {
   walls: Wall[];
   openings: Opening[];
+  labels?: Label[];
+  dimensions?: DimensionAnnotation[];
   currentTool: ToolType;
   gridVisible: boolean;
   snapEnabled: boolean;
   gridSize: number;
   onWallAdd: (wall: Wall) => void;
   onOpeningAdd: (opening: Opening) => void;
+  onOpeningUpdate?: (openingId: string, updates: Partial<Opening>) => void;
+  onLabelAdd?: (label: Label) => void;
+  onDimensionAdd?: (dimension: DimensionAnnotation) => void;
   onWallSelect: (wallId: string | undefined) => void;
+  onOpeningSelect?: (openingId: string | undefined) => void;
   selectedWallId?: string;
+  selectedOpeningId?: string;
   unitSystem?: UnitSystem;
 }
 
@@ -37,17 +44,39 @@ function getInputMode(event: CanvasPointerEvent): InputMode {
   return 'mouse';
 }
 
+function positionOnWall(point: Point2D, wall: Wall): number {
+  const dx = wall.end.x - wall.start.x;
+  const dy = wall.end.y - wall.start.y;
+  const wallLength = Math.hypot(dx, dy);
+  if (wallLength === 0) return 0;
+  return Math.max(0, Math.min(1, ((point.x - wall.start.x) * dx + (point.y - wall.start.y) * dy) / (wallLength * wallLength)));
+}
+
+function snapOpeningPosition(position: number): number {
+  const endpointThreshold = 0.08;
+  if (position < endpointThreshold) return 0;
+  if (position > 1 - endpointThreshold) return 1;
+  return position;
+}
+
 export default function BlueprintCanvas({
   walls,
   openings,
+  labels = [],
+  dimensions = [],
   currentTool,
   gridVisible,
   snapEnabled,
   gridSize,
   onWallAdd,
   onOpeningAdd,
+  onOpeningUpdate,
+  onLabelAdd,
+  onDimensionAdd,
   onWallSelect,
+  onOpeningSelect,
   selectedWallId,
+  selectedOpeningId,
   unitSystem = 'metric',
 }: BlueprintCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,6 +92,8 @@ export default function BlueprintCanvas({
     wallId: string;
     type: 'door' | 'window';
   } | null>(null);
+  const [draggingOpeningId, setDraggingOpeningId] = useState<string | null>(null);
+  const [dimensionStart, setDimensionStart] = useState<Point2D | null>(null);
 
   const snapToGrid = useCallback(
     (point: Point2D): Point2D => {
@@ -135,9 +166,7 @@ export default function BlueprintCanvas({
     if (!wall) return;
 
     const wallLength = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-    const dx = wall.end.x - wall.start.x;
-    const dy = wall.end.y - wall.start.y;
-    const position = Math.max(0, Math.min(1, ((point.x - wall.start.x) * dx + (point.y - wall.start.y) * dy) / (wallLength * wallLength)));
+    const position = snapOpeningPosition(positionOnWall(point, wall));
 
     const opening: Opening = {
       id: `${currentTool}-${Date.now()}`,
@@ -179,7 +208,42 @@ export default function BlueprintCanvas({
     }
 
     if (currentTool === 'select') {
+      const opening = getOpeningAtPoint(point, mode);
+      if (opening) {
+        onOpeningSelect?.(opening.id);
+        onWallSelect(undefined);
+        setDraggingOpeningId(opening.id);
+        return;
+      }
+
+      onOpeningSelect?.(undefined);
       onWallSelect(getWallAtPoint(point, getHitArea(mode, 5))?.id);
+      return;
+    }
+
+    if (currentTool === 'text') {
+      onLabelAdd?.({
+        id: `label-${Date.now()}`,
+        text: 'Room',
+        position: point,
+        fontSize: 14,
+        color: '#2c1810',
+      });
+      return;
+    }
+
+    if (currentTool === 'dimension') {
+      if (!dimensionStart) {
+        setDimensionStart(point);
+        return;
+      }
+
+      onDimensionAdd?.({
+        id: `dimension-${Date.now()}`,
+        start: dimensionStart,
+        end: point,
+      });
+      setDimensionStart(null);
       return;
     }
 
@@ -195,6 +259,15 @@ export default function BlueprintCanvas({
 
     if (isDrawing && startPoint && currentTool === 'wall') {
       setCurrentPoint(point);
+      return;
+    }
+
+    if (draggingOpeningId && onOpeningUpdate) {
+      const opening = openings.find((item) => item.id === draggingOpeningId);
+      const wall = opening ? walls.find((candidate) => candidate.id === opening.wallId) : undefined;
+      if (opening && wall) {
+        onOpeningUpdate(opening.id, { position: snapOpeningPosition(positionOnWall(point, wall)) });
+      }
       return;
     }
 
@@ -244,6 +317,7 @@ export default function BlueprintCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    setDraggingOpeningId(null);
     finishWallDrawing(event);
   };
 
@@ -252,6 +326,8 @@ export default function BlueprintCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    setDraggingOpeningId(null);
+    setDimensionStart(null);
     setIsDrawing(false);
     setStartPoint(null);
     setCurrentPoint(null);
@@ -286,9 +362,23 @@ export default function BlueprintCanvas({
       const wall = walls.find((item) => item.id === opening.wallId);
       if (!wall) continue;
       drawOpening(ctx, wall, opening, {
-        hovered: opening.id === hoveredOpening || currentTool === 'measure',
+        hovered: opening.id === hoveredOpening || opening.id === selectedOpeningId || currentTool === 'measure',
         unitSystem,
       });
+    }
+
+    for (const label of labels) {
+      ctx.fillStyle = label.color ?? '#2c1810';
+      ctx.font = `${label.fontSize ?? 14}px sans-serif`;
+      ctx.fillText(label.text, label.position.x, label.position.y);
+    }
+
+    for (const dimension of dimensions) {
+      drawDimension(ctx, dimension, unitSystem);
+    }
+
+    if (dimensionStart && hoveredPoint && currentTool === 'dimension') {
+      drawDimension(ctx, { id: 'preview', start: dimensionStart, end: hoveredPoint }, unitSystem, true);
     }
 
     if (previewOpening) {
@@ -298,7 +388,7 @@ export default function BlueprintCanvas({
     if (isDrawing && startPoint && currentPoint) {
       drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
     }
-  }, [currentPoint, currentTool, gridSize, gridVisible, hoveredOpening, hoveredWall, isDrawing, openings, previewOpening, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
+  }, [currentPoint, currentTool, dimensionStart, dimensions, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, openings, previewOpening, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
 
   return (
     <canvas
@@ -510,6 +600,35 @@ function drawWallPreview(ctx: CanvasRenderingContext2D, start: Point2D, end: Poi
     ctx.arc(end.x, end.y, 15, 0, Math.PI * 2);
     ctx.stroke();
   }
+}
+
+function drawDimension(
+  ctx: CanvasRenderingContext2D,
+  dimension: DimensionAnnotation,
+  unitSystem: UnitSystem,
+  preview = false,
+) {
+  const length = Math.hypot(dimension.end.x - dimension.start.x, dimension.end.y - dimension.start.y);
+  const midX = (dimension.start.x + dimension.end.x) / 2;
+  const midY = (dimension.start.y + dimension.end.y) / 2;
+
+  ctx.strokeStyle = preview ? 'rgba(184, 148, 31, 0.6)' : '#B8941F';
+  ctx.lineWidth = preview ? 1 : 2;
+  ctx.beginPath();
+  ctx.moveTo(dimension.start.x, dimension.start.y);
+  ctx.lineTo(dimension.end.x, dimension.end.y);
+  ctx.stroke();
+
+  ctx.fillStyle = preview ? 'rgba(249, 246, 240, 0.85)' : '#F9F6F0';
+  ctx.fillRect(midX - 36, midY - 12, 72, 24);
+  ctx.strokeStyle = '#B8941F';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(midX - 36, midY - 12, 72, 24);
+  ctx.fillStyle = '#2C2C2C';
+  ctx.font = 'bold 11px "SF Mono", Monaco, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), midX, midY);
 }
 
 function pointToLineDistance(point: Point2D, lineStart: Point2D, lineEnd: Point2D): number {

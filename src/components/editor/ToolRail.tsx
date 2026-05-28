@@ -5,6 +5,7 @@ import {
   Square,
   DoorOpen,
   SquareDashed,
+  Type,
   Ruler,
   Grid3x3,
   Magnet,
@@ -29,6 +30,8 @@ const drawTools = [
   { id: 'door'    as ToolType, icon: DoorOpen,       label: 'Door',    shortcut: 'D', hint: 'Tap a wall to place' },
   { id: 'window'  as ToolType, icon: SquareDashed,   label: 'Window',  shortcut: 'N', hint: 'Tap a wall to place' },
   { id: 'measure' as ToolType, icon: Ruler,           label: 'Measure', shortcut: 'M', hint: 'Inspect dimensions' },
+  { id: 'text'    as ToolType, icon: Type,           label: 'Label',   shortcut: 'T', hint: 'Tap to place room label' },
+  { id: 'dimension' as ToolType, icon: Ruler,        label: 'Dim',     shortcut: 'Shift+M', hint: 'Tap two points for dimension' },
 ];
 
 function ToolButton({

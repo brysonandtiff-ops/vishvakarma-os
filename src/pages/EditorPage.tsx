@@ -52,7 +52,7 @@ import {
   saveLocalDraft,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
-import type { LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
+import type { DimensionAnnotation, Label, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
@@ -72,6 +72,7 @@ export default function EditorPage() {
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [unitSystem] = useState<UnitSystem>('metric');
   const [selectedWallId, setSelectedWallId] = useState<string>();
+  const [selectedOpeningId, setSelectedOpeningId] = useState<string>();
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [saveState, setSaveState] = useState<SaveState>('clean');
@@ -87,6 +88,8 @@ export default function EditorPage() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [walls, setWalls] = useState<Wall[]>([]);
   const [openings, setOpenings] = useState<Opening[]>([]);
+  const [labels, setLabels] = useState<Label[]>([]);
+  const [dimensions, setDimensions] = useState<DimensionAnnotation[]>([]);
   const [lighting, setLighting] = useState<LightingConfig>(DEFAULT_LIGHTING);
   const supabaseConnected = useSupabaseStatus();
 
@@ -99,6 +102,8 @@ export default function EditorPage() {
     description: currentProject?.description,
     walls,
     openings,
+    labels,
+    dimensions,
     materials: [],
     floorMaterial: 'material-concrete',
     lighting,
@@ -108,7 +113,7 @@ export default function EditorPage() {
       created: currentProject?.created_at || new Date().toISOString(),
       modified: new Date().toISOString(),
     },
-  }), [currentProject?.created_at, currentProject?.description, lighting, openings, projectName, snapEnabled, walls]);
+  }), [currentProject?.created_at, currentProject?.description, dimensions, labels, lighting, openings, projectName, snapEnabled, walls]);
 
   const loadProjects = useCallback(async () => {
     try {
@@ -212,6 +217,8 @@ export default function EditorPage() {
       setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
       setWalls(sampleManifest.walls);
       setOpenings(sampleManifest.openings);
+      setLabels(sampleManifest.labels ?? []);
+      setDimensions(sampleManifest.dimensions ?? []);
       setLighting(sampleManifest.lighting);
       setGridVisible(true);
       setSnapEnabled(sampleManifest.snapToGrid);
@@ -231,6 +238,8 @@ export default function EditorPage() {
     setDemoProjectName(recoveryDraft.projectName);
     setWalls(recoveryDraft.manifest.walls);
     setOpenings(recoveryDraft.manifest.openings);
+    setLabels(recoveryDraft.manifest.labels ?? []);
+    setDimensions(recoveryDraft.manifest.dimensions ?? []);
     setLighting(recoveryDraft.manifest.lighting);
     setSnapEnabled(recoveryDraft.manifest.snapToGrid);
     setGridVisible(true);
@@ -281,6 +290,8 @@ export default function EditorPage() {
     setDemoProjectName(null);
     setWalls(project.manifest.walls || []);
     setOpenings(project.manifest.openings || []);
+    setLabels(project.manifest.labels ?? []);
+    setDimensions(project.manifest.dimensions ?? []);
     setLighting(project.manifest.lighting || DEFAULT_LIGHTING);
     setSnapEnabled(project.manifest.snapToGrid ?? true);
     setLoadDialogOpen(false);
@@ -386,14 +397,21 @@ export default function EditorPage() {
                 <BlueprintCanvas
                   walls={walls}
                   openings={openings}
+                  labels={labels}
+                  dimensions={dimensions}
                   currentTool={currentTool}
                   gridVisible={gridVisible}
                   snapEnabled={snapEnabled}
                   gridSize={20}
                   onWallAdd={(wall) => setWalls((items) => [...items, wall])}
                   onOpeningAdd={(opening) => setOpenings((items) => [...items, opening])}
+                  onOpeningUpdate={(openingId, updates) => setOpenings((items) => items.map((opening) => opening.id === openingId ? { ...opening, ...updates } : opening))}
+                  onLabelAdd={(label) => setLabels((items) => [...items, label])}
+                  onDimensionAdd={(dimension) => setDimensions((items) => [...items, dimension])}
                   onWallSelect={setSelectedWallId}
+                  onOpeningSelect={setSelectedOpeningId}
                   selectedWallId={selectedWallId}
+                  selectedOpeningId={selectedOpeningId}
                   unitSystem={unitSystem}
                 />
                 {showOnboarding && <OnboardingPanel onLoadSample={loadSampleProject} onNewProject={() => setNewProjectOpen(true)} />}
