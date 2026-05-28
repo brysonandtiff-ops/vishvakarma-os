@@ -18,6 +18,7 @@ import type { GovernanceEvent } from './governanceLock';
 import type { VersionSnapshot } from './versionControlHooks';
 import { enforce } from '@/governance/core/enforcer';
 import { createSnapshot } from '@/governance/snapshots/snapshotManager';
+import { buildTextPdf } from '@/utils/minimalPdf';
 
 export interface ExportOptions {
   includeGovernanceHistory?: boolean;
@@ -141,7 +142,7 @@ export class ExportModule {
    */
   static async exportSVG(
     manifest: ProjectManifest,
-    options: ExportOptions = { format: 'svg' }
+    _options: ExportOptions = { format: 'svg' }
   ): Promise<ExportResult> {
     try {
       const svg = this.generateSVG(manifest);
@@ -159,6 +160,43 @@ export class ExportModule {
         success: false,
         filename: 'export_failed.svg',
         mimeType: 'image/svg+xml',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  static async exportPDF(
+    manifest: ProjectManifest,
+    _options: ExportOptions = { format: 'pdf' }
+  ): Promise<ExportResult> {
+    try {
+      const lines = [
+        `Exported: ${new Date().toISOString()}`,
+        `Walls: ${manifest.walls.length}`,
+        `Openings: ${manifest.openings.length}`,
+        `Labels: ${manifest.labels?.length ?? 0}`,
+        `Dimensions: ${manifest.dimensions?.length ?? 0}`,
+        `Grid size: ${manifest.gridSize}px`,
+        '',
+        'Floor plan vector detail is available via SVG export.',
+      ];
+
+      const pdfBytes = buildTextPdf(manifest.name, lines);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const filename = `${manifest.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pdf`;
+
+      return {
+        success: true,
+        data: blob,
+        filename,
+        mimeType: 'application/pdf',
+        size: blob.size,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        filename: 'export_failed.pdf',
+        mimeType: 'application/pdf',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
@@ -240,6 +278,20 @@ export class ExportModule {
 
     // Add metadata
     svg += `\n    <text class="text" x="10" y="${height - 10}">Walls: ${manifest.walls.length} | Openings: ${manifest.openings.length}</text>`;
+
+    for (const label of manifest.labels ?? []) {
+      const x = label.position.x - bounds.minX + padding;
+      const y = label.position.y - bounds.minY + padding;
+      svg += `\n    <text class="text" x="${x}" y="${y}" font-size="${label.fontSize ?? 14}">${label.text}</text>`;
+    }
+
+    for (const dimension of manifest.dimensions ?? []) {
+      const x1 = dimension.start.x - bounds.minX + padding;
+      const y1 = dimension.start.y - bounds.minY + padding;
+      const x2 = dimension.end.x - bounds.minX + padding;
+      const y2 = dimension.end.y - bounds.minY + padding;
+      svg += `\n    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b8941f" stroke-width="1" />`;
+    }
 
     svg += `\n  </g>\n</svg>`;
 
@@ -370,12 +422,7 @@ export class ExportModule {
         };
         break;
       case 'pdf':
-        result = {
-          success: false,
-          filename: 'export_failed.pdf',
-          mimeType: 'application/pdf',
-          error: 'PDF export not yet implemented',
-        };
+        result = await this.exportPDF(manifest, options);
         break;
       default:
         result = {

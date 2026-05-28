@@ -201,6 +201,14 @@ describe('ExportModule', () => {
   });
 
   describe('Error Handling', () => {
+    it('should export PDF successfully', async () => {
+      const result = await ExportModule.exportPDF(manifest);
+
+      expect(result.success).toBe(true);
+      expect(result.mimeType).toBe('application/pdf');
+      expect(result.data).toBeInstanceOf(Blob);
+    });
+
     it('should handle unsupported format', async () => {
       const result = await ExportModule.exportAndDownload(manifest, {
         format: 'gltf',

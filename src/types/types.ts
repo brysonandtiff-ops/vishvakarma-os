@@ -44,12 +44,29 @@ export interface LightingConfig {
   intensity: number; // 0-1
 }
 
+export interface Label {
+  id: string;
+  text: string;
+  position: Point2D;
+  fontSize?: number;
+  color?: string;
+}
+
+export interface DimensionAnnotation {
+  id: string;
+  start: Point2D;
+  end: Point2D;
+  offset?: number;
+}
+
 export interface ProjectManifest {
   version: string;
   name: string;
   description?: string;
   walls: Wall[];
   openings: Opening[];
+  labels?: Label[];
+  dimensions?: DimensionAnnotation[];
   materials: Material[];
   floorMaterial: string;
   lighting: LightingConfig;
@@ -146,7 +163,7 @@ export interface RouteManifestEntry {
 // EDITOR STATE TYPES
 // ============================================================================
 
-export type ToolType = 'select' | 'wall' | 'door' | 'window' | 'measure';
+export type ToolType = 'select' | 'wall' | 'door' | 'window' | 'measure' | 'text' | 'dimension';
 
 export interface EditorState {
   currentTool: ToolType;

@@ -9,6 +9,7 @@
  */
 
 import type { ProjectManifest } from '@/types';
+import { sha256Hex } from '@/utils/sha256';
 
 // ============================================================================
 // TYPES
@@ -54,25 +55,11 @@ const CHAIN_SEED = 'vishvakarma-os-v1.0.0';
 // ============================================================================
 
 /**
- * Generates a simple hash from a string
- * In production, use a cryptographic hash function like SHA-256
- */
-function simpleHash(input: string): string {
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return Math.abs(hash).toString(36);
-}
-
-/**
- * Generates a hash for a manifest
+ * Generates a hash for a manifest using SHA-256
  */
 function hashManifest(manifest: ProjectManifest): string {
   const manifestString = JSON.stringify(manifest, Object.keys(manifest).sort());
-  return simpleHash(manifestString);
+  return sha256Hex(manifestString);
 }
 
 /**
@@ -80,7 +67,7 @@ function hashManifest(manifest: ProjectManifest): string {
  */
 function generateChainHash(previousHash: string | null, currentHash: string): string {
   const input = `${previousHash || CHAIN_SEED}:${currentHash}`;
-  return simpleHash(input);
+  return sha256Hex(input);
 }
 
 // ============================================================================

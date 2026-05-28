@@ -1,11 +1,12 @@
 /**
  * Collaboration Engine Module
- * 
- * Enables real-time multi-user editing with WebSocket connections.
- * Handles user presence, cursor positions, and operation broadcasting.
- * 
- * Part of STEP 8 - Collaboration & Multi-User Editing
+ *
+ * Real-time multi-user editing with Supabase Realtime broadcast transport.
+ * Falls back to in-process delivery when Supabase is not configured.
  */
+
+import type { RealtimeChannel } from '@supabase/supabase-js';
+import { isSupabaseConfigured, supabase } from '@/db/supabase';
 
 export interface User {
   id: string;
@@ -72,9 +73,6 @@ export type CollaborationCallback = (message: CollaborationMessage) => void;
 
 /**
  * Collaboration Engine Class
- * 
- * Note: This is a mock implementation for demonstration.
- * In production, this would integrate with Supabase Realtime or WebRTC.
  */
 export class CollaborationEngine {
   private static instance: CollaborationEngine | null = null;
@@ -84,6 +82,7 @@ export class CollaborationEngine {
   private connected = false;
   private roomId: string | null = null;
   private heartbeatInterval: number | null = null;
+  private channel: RealtimeChannel | null = null;
 
   private constructor() {
     // Private constructor for singleton
@@ -127,6 +126,18 @@ export class CollaborationEngine {
     // Send presence message
     this.broadcastPresence('online', userName, color);
 
+    if (isSupabaseConfigured) {
+      this.channel = supabase.channel(`collab:${roomId}`, {
+        config: { broadcast: { self: false } },
+      });
+
+      this.channel.on('broadcast', { event: 'collab' }, ({ payload }) => {
+        this.handleRemoteMessage(payload as CollaborationMessage);
+      });
+
+      await this.channel.subscribe();
+    }
+
     // Start heartbeat
     this.startHeartbeat();
 
@@ -151,6 +162,11 @@ export class CollaborationEngine {
 
     // Stop heartbeat
     this.stopHeartbeat();
+
+    if (this.channel) {
+      await supabase.removeChannel(this.channel);
+      this.channel = null;
+    }
 
     // Clear state
     this.connected = false;
@@ -343,12 +359,57 @@ export class CollaborationEngine {
   }
 
   /**
-   * Broadcast message to all subscribers
+   * Broadcast message to subscribers and remote peers
    */
   private broadcast(message: CollaborationMessage): void {
-    // In a real implementation, this would send to WebSocket/Supabase
-    // For now, we just notify local callbacks
-    this.callbacks.forEach(callback => {
+    if (this.channel && isSupabaseConfigured) {
+      void this.channel.send({
+        type: 'broadcast',
+        event: 'collab',
+        payload: message,
+      });
+    }
+
+    this.deliverToCallbacks(message);
+  }
+
+  private handleRemoteMessage(message: CollaborationMessage): void {
+    if (message.userId === this.currentUserId) {
+      return;
+    }
+
+    if (message.type === 'presence') {
+      const presenceData = (message as PresenceMessage).data;
+      const user = this.users.get(message.userId);
+
+      if (user) {
+        user.isOnline = presenceData.status === 'online';
+        user.lastSeen = Date.now();
+      } else if (presenceData.status === 'online') {
+        this.users.set(message.userId, {
+          id: message.userId,
+          name: presenceData.name,
+          color: presenceData.color,
+          isOnline: true,
+          lastSeen: Date.now(),
+        });
+      }
+    } else if (message.type === 'cursor') {
+      const cursorData = (message as CursorMessage).data;
+      const user = this.users.get(message.userId);
+
+      if (user) {
+        user.cursor = { x: cursorData.x, y: cursorData.y };
+        user.activeTool = cursorData.tool;
+        user.lastSeen = Date.now();
+      }
+    }
+
+    this.deliverToCallbacks(message);
+  }
+
+  private deliverToCallbacks(message: CollaborationMessage): void {
+    this.callbacks.forEach((callback) => {
       try {
         callback(message);
       } catch (error) {
@@ -411,36 +472,7 @@ export class CollaborationEngine {
    * Simulate receiving a message (for testing)
    */
   simulateMessage(message: CollaborationMessage): void {
-    // Update user state based on message
-    if (message.type === 'presence') {
-      const presenceData = (message as PresenceMessage).data;
-      const user = this.users.get(message.userId);
-
-      if (user) {
-        user.isOnline = presenceData.status === 'online';
-        user.lastSeen = Date.now();
-      } else if (presenceData.status === 'online') {
-        this.users.set(message.userId, {
-          id: message.userId,
-          name: presenceData.name,
-          color: presenceData.color,
-          isOnline: true,
-          lastSeen: Date.now(),
-        });
-      }
-    } else if (message.type === 'cursor') {
-      const cursorData = (message as CursorMessage).data;
-      const user = this.users.get(message.userId);
-
-      if (user) {
-        user.cursor = { x: cursorData.x, y: cursorData.y };
-        user.activeTool = cursorData.tool;
-        user.lastSeen = Date.now();
-      }
-    }
-
-    // Broadcast to callbacks
-    this.broadcast(message);
+    this.handleRemoteMessage(message);
   }
 
   /**

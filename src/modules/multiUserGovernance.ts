@@ -8,6 +8,8 @@
  */
 
 import type { ProjectManifest } from '@/types';
+import { broadcastOperation } from './collaborationEngine';
+import { ElementLockingSystem } from './elementLock';
 import { logGovernanceEvent } from './governanceLock';
 
 export interface MultiUserOperation {
@@ -298,11 +300,24 @@ export class MultiUserGovernance {
 
     const lastOp = userOps[0];
 
-    // Check if element still exists and is not locked by another user
-    // (This would integrate with ElementLockingSystem in production)
+    if (lastOp.elementId && lastOp.elementType) {
+      const locking = ElementLockingSystem.getInstance();
+      const lock = locking.getLock(lastOp.elementId, lastOp.elementType);
+      if (lock && lock.userId !== userId) {
+        return {
+          success: false,
+          error: `Element is locked by ${lock.userName}`,
+        };
+      }
+    }
 
     // Mark operation as unapplied
     lastOp.applied = false;
+
+    broadcastOperation('undo', lastOp.elementId, lastOp.elementType, {
+      operationId: lastOp.id,
+      userId,
+    });
 
     logGovernanceEvent({
       type: 'multi-user-undo',

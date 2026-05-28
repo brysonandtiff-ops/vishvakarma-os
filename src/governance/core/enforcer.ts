@@ -10,6 +10,7 @@
 
 import { getGovernanceLock } from '@/modules/governanceLock';
 import type { ProjectManifest } from '@/types';
+import { generateSystemSpecHash } from '@/governance/core/specHash';
 
 // ============================================================================
 // TYPES
@@ -249,11 +250,7 @@ function validateSpecHash(): CheckResult {
  * Generates a hash of the current spec configuration
  */
 function generateSpecHash(): string {
-  // In production, this would hash the actual spec files
-  // For now, we use a deterministic hash based on version
-  const version = '1.0.0';
-  const specVersion = 'v1';
-  return `${version}-${specVersion}`;
+  return generateSystemSpecHash();
 }
 
 // ============================================================================
