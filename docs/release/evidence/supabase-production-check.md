@@ -1,10 +1,10 @@
 # Supabase Production Check
 
-Generated from commit: `<sha>`  
-Deployment URL: `<url>`  
-Generated at: `<timestamp>`  
-Operator: `<name>`  
-Result: `PASS / FAIL / PARTIAL`
+Generated from commit: `88c9854fb8159e63f5c672957731f8d2a30a945a`
+Deployment URL: https://vishvakarma-os.vercel.app
+Generated at: 2026-05-29T00:00:00.000Z
+Operator: repo completion pass
+Result: `PARTIAL`
 
 ## Purpose
 
@@ -16,8 +16,8 @@ Authentication is Firebase-first. This checklist covers the legacy Supabase data
 
 | Variable | Configured in deploy host | Notes |
 |---|---:|---|
-| `VITE_SUPABASE_URL` | Pending |  |
-| `VITE_SUPABASE_ANON_KEY` | Pending |  |
+| `VITE_SUPABASE_URL` | Pending — operator | Template documented in `.env.example` |
+| `VITE_SUPABASE_ANON_KEY` | Pending — operator | Template documented in `.env.example` |
 
 Do not paste secret values into this evidence file.
 
@@ -60,5 +60,5 @@ Paste policy summary or verification output here. Do not include private keys.
 ## Verdict
 
 ```txt
-PASS / FAIL / PARTIAL — explain why.
+PARTIAL — migrations and RLS runbooks ready in supabase/migrations/ and docs/release/SUPABASE_RLS_EVIDENCE.md; operator must reactivate Supabase project and apply to production.
 ```

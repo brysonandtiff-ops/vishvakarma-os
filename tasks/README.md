@@ -20,40 +20,29 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 ## Current Build State
 
-> This section reflects the **live repository state** as of the last commit. It separates verified working components from documented but unverified features.
+> Reflects repository state as of May 2026. See [`docs/release/evidence/EVIDENCE_MANIFEST.md`](../docs/release/evidence/EVIDENCE_MANIFEST.md) for launch status.
 
 ### Verified Working ✅
 
 | Component | Status | Evidence |
 |---|---|---|
-| **Lint pipeline** | ✅ Clean | `npm run lint` — 127 files, 0 errors (Biome + `tsgo` + ast-grep) |
-| **2D Blueprint Editor** | ✅ Built | `BlueprintCanvas.tsx` (21 KB) — grid, wall drawing, door/window placement, snap-to-grid, undo/redo, export/import JSON, sample project load |
-| **3D Viewport** | ✅ Built | `Viewport3D.tsx` (9 KB) — React Three Fiber Canvas, wall extrusion, opening markers, orbit controls, solar lighting. **WebGL error boundary** prevents crash on context failure |
-| **ToolRail** | ✅ Built | `ToolRail.tsx` (5 KB) — 5 tools (Select/Wall/Door/Window/Measure), keyboard shortcuts, active state glow, touch-optimized |
-| **Properties Panel** | ✅ Built | `PropertiesPanel.tsx` (8 KB) — wall height/thickness/material, opening sill height, live measurements |
-| **Solar Timeline** | ✅ Built | `SolarTimeline.tsx` (4 KB) — sun azimuth/elevation sliders, intensity control |
-| **Material Picker** | ✅ Built | `MaterialPicker.tsx` (2 KB) — paint, wood, concrete presets |
-| **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
-| **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
-| **All 6 Routes** | ✅ Built | `/`, `/spec-center`, `/registry`, `/change-requests`, `/releases`, `/audit` — all pages render without error |
-| **Spec Center** | ✅ Built | `SpecCenterPage.tsx` (10 KB) — locked spec cards, SHA-256 hash display, stats row |
-| **Registry** | ✅ Built | `RegistryPage.tsx` (12 KB) — entry cards with type icons, grid layout, empty state |
-| **Change Requests** | ✅ Built | `ChangeRequestsPage.tsx` (15 KB) — priority badges, status workflow, tab counts |
-| **Releases** | ✅ Built | `ReleasesPage.tsx` (14 KB) — gate progress, stop-ship list, build status hero |
-| **Audit Log** | ✅ Built | `AuditLogPage.tsx` (8 KB) — timeline layout, date grouping, action badges |
-| **Core Modules** | ✅ Built | 12 modules — canvas engine, governance lock, version control, export/import, format validator, theme manager, accessibility layer, collaboration engine, element lock, multi-user governance |
-| **Design System** | ✅ Built | `index.css` (288 lines) — dark/light mode tokens, glass panels, glow effects, elevation system, semantic colours |
-| **Supabase Layer** | ✅ Built | `src/db/api.ts` — CRUD wrappers for all tables |
+| **Lint + typecheck** | ✅ Clean | `pnpm run lint` — Biome + `tsgo` + ast-grep |
+| **Unit tests** | ✅ ~380+ tests | `pnpm run test` (Vitest) |
+| **Dev / Build** | ✅ Enabled | `pnpm run dev`, `pnpm run build`, `pnpm run ci` |
+| **2D Blueprint Editor** | ✅ Built | Walls, doors, windows, labels, dimensions, drag openings |
+| **3D Viewport** | ✅ Built | Live 2D→3D sync, WebGL error boundary |
+| **Firebase auth + Supabase data** | ✅ Wired | See `src/backend/backendConfig.ts` |
+| **Governance OS** | ✅ Built | 6 routes with SHA-256 snapshot hashing |
+| **Export/import** | ✅ JSON, SVG, PDF | GLTF deferred (stub returns clear error) |
+| **Realtime collaboration** | ✅ Transport | Supabase Realtime with local fallback |
 
 ### Known Limitations ⚠️
 
 | Area | Status | Notes |
 |---|---|---|
-| **Dev / Build scripts** | ⚠️ Disabled | `npm run dev` and `npm run build` print warnings. Use `npx vite --host 127.0.0.1` to start. This is an intentional lint-only workflow. |
-| **Tests** | ⚠️ Not runnable | 18 test files exist but `npm test` is not wired in `package.json`. Vitest config is present. Tests are **unverified**. |
-| **Supabase persistence** | ⚠️ Config-dependent | Requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. App works in local-only mode without them. |
-| **Real-time collaboration** | ⚠️ Stubbed | `collaborationEngine.ts` and `multiUserGovernance.ts` exist but rely on Supabase Realtime which is untested. |
-| **Production build** | ⚠️ Not confirmed | No recent production build has been verified. Vite config exists but build script is disabled. |
+| **Public production launch** | ⚠️ Blocked | Requires live Supabase/Firebase env + CI artifact links |
+| **GLTF export/import** | ⚠️ Deferred | Not in file validator; JSON/SVG/PDF supported |
+| **Physical iPad proof** | ⚠️ Partial | Playwright tablet viewports pass; device audit recommended |
 
 ### File Inventory
 
@@ -74,7 +63,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 ### Blueprint Editor
 - Interactive 2D canvas with snap-to-grid and configurable grid size
-- **Tools**: Select · Wall · Door · Window · Measure (keyboard shortcuts: V / W / D / N / M)
+- **Tools**: Select · Wall · Door · Window · Measure · Label · Dimension (keyboard shortcuts: V / W / D / N / M)
 - Wall properties: length, height, thickness, material
 - Door and window openings with sill height control
 - Undo / redo with full history stack
@@ -123,7 +112,8 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | UI Components | shadcn/ui + Radix UI |
 | Styling | Tailwind CSS v3 + CSS custom properties |
 | 3D Engine | Three.js + React Three Fiber + Drei |
-| Backend / DB | Supabase (PostgreSQL + Auth + Storage) |
+| Backend / Auth | Firebase Authentication |
+| Backend / Data | Supabase (PostgreSQL + Realtime) |
 | Forms | React Hook Form + Zod |
 | Routing | React Router v7 |
 | Notifications | Sonner |
@@ -206,40 +196,21 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 
 ### Requirements
 
-- **Node.js** ≥ 20
-- **npm** ≥ 10 or **pnpm** ≥ 9
+- **Node.js** ≥ 20 (see `.nvmrc`)
+- **pnpm** 9.15.0
 
 ### Setup
 
 ```bash
-# 1. Install dependencies
-npm install
-# or
-pnpm install
-
-# 2. Copy environment variables
-cp .env.example .env
-# Fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-
-# 3. Start the development server
-npx vite --host 127.0.0.1
-
-# 4. Run the linter (TypeScript + Biome + ast-grep)
-npm run lint
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+pnpm run dev
+pnpm run verify:ci
 ```
-
-> **Note:** The `npm run dev` and `npm run build` scripts are intentionally disabled in this workspace — the project uses a lint-only verification workflow. To start the dev server directly, use `npx vite`.
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-These are required for project save/load, change requests, registry, releases, and audit log. The app functions in a degraded (local-only) mode without them.
+Firebase auth + Supabase data — see root [`README.md`](../README.md) for the full variable list.
 
 ---
 
@@ -263,9 +234,9 @@ All schema is managed via migrations in `supabase/migrations/`.
 ## Lint & Quality
 
 ```bash
-npm run lint
-# Runs: tsgo (TypeScript native) + Biome (correctness) + ast-grep (structural rules)
-# Expected result: 127 files · 0 errors
+pnpm run lint
+pnpm run test
+pnpm run release:gates
 ```
 
 The linter enforces:

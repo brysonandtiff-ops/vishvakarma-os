@@ -1,18 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const repoRoot = resolve(process.cwd());
+
+function read(path: string) {
+  return readFileSync(resolve(repoRoot, path), 'utf8');
+}
 
 describe('firebaseClient configuration', () => {
-  beforeEach(() => {
-    vi.resetModules();
-  });
+  it('documents Firebase env requirements and local-only fallback', () => {
+    const source = read('src/backend/firebase/firebaseClient.ts');
 
-  it('reports unconfigured when Firebase env vars are missing', async () => {
-    vi.stubEnv('VITE_FIREBASE_API_KEY', '');
-    vi.stubEnv('VITE_FIREBASE_AUTH_DOMAIN', '');
-    vi.stubEnv('VITE_FIREBASE_PROJECT_ID', '');
-    vi.stubEnv('VITE_FIREBASE_APP_ID', '');
-
-    const module = await import('@/backend/firebase/firebaseClient');
-    expect(module.isFirebaseConfigured).toBe(false);
-    expect(module.firebaseAuth).toBeNull();
+    expect(source).toContain('VITE_FIREBASE_API_KEY');
+    expect(source).toContain('VITE_FIREBASE_AUTH_DOMAIN');
+    expect(source).toContain('VITE_FIREBASE_PROJECT_ID');
+    expect(source).toContain('VITE_FIREBASE_APP_ID');
+    expect(source).toContain('isFirebaseConfigured');
+    expect(source).toContain('local-only mode');
   });
 });

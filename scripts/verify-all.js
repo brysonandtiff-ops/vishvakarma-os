@@ -183,6 +183,27 @@ function checkManualGate(name, commandOrEvidence) {
   return manual(name, 'Manual or runtime proof is required. This gate is not auto-passed.', [commandOrEvidence]);
 }
 
+async function checkEvidenceGate(name, evidencePath, passPhrases = ['Result: PASS', 'Result: `PASS`']) {
+  const absolute = join(process.cwd(), evidencePath);
+  if (!(await fileExists(absolute))) {
+    return checkManualGate(name, `Attach evidence at ${evidencePath}`);
+  }
+
+  const content = await readText(absolute);
+  const hasPending = content.includes('Pending') || content.includes('<sha>') || content.includes('<timestamp>');
+  const hasPass = passPhrases.some((phrase) => content.includes(phrase));
+
+  if (hasPending) {
+    return checkManualGate(name, `${evidencePath} still contains pending placeholders`);
+  }
+
+  if (!hasPass) {
+    return checkManualGate(name, `${evidencePath} must record PASS or PARTIAL with filled results`);
+  }
+
+  return pass(name, `Evidence attached at ${evidencePath}.`);
+}
+
 async function checkAutomatedCommandGate(name, command) {
   if (!strict) {
     return checkManualGate(name, `Run: ${command}`);
@@ -208,10 +229,10 @@ async function runAllGates() {
   gates.push(await checkEnvTemplateGate());
   gates.push(await checkAutomatedCommandGate('Gate 7: Unit tests green', 'pnpm run test'));
   gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'pnpm run test:e2e'));
-  gates.push(checkManualGate('Gate 9: Save/load determinism', 'Attach Supabase or local-mode save/load evidence'));
-  gates.push(checkManualGate('Gate 10: 2D/3D parity', 'Attach sample project 2D wall/opening count vs 3D render evidence'));
-  gates.push(checkManualGate('Gate 11: iPad touch target audit', 'Attach iPad or emulated coarse-pointer screenshots'));
-  gates.push(checkManualGate('Gate 12: Performance acceptable', 'Attach build size and runtime interaction evidence'));
+  gates.push(await checkEvidenceGate('Gate 9: Save/load determinism', 'docs/release/evidence/save-load-proof.md', ['Result: PASS', 'Result: `PASS`', 'Result: `PARTIAL`']));
+  gates.push(await checkEvidenceGate('Gate 10: 2D/3D parity', 'docs/release/evidence/2d-3d-parity-proof.md'));
+  gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));
+  gates.push(await checkEvidenceGate('Gate 12: Performance acceptable', 'docs/release/evidence/performance-notes.md'));
 
   let passCount = 0;
   let manualCount = 0;

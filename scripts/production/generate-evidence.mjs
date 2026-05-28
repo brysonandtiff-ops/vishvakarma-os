@@ -63,7 +63,11 @@ Generated at: ${generatedAt}
 Operator: automated local verify
 Result: PASS — local lint, test, route smoke, and build succeeded
 
-## Commands
+## Workflow Run
+
+Local mirror of \`.github/workflows/verify.yml\` — attach GitHub Actions URL after push for remote proof.
+
+## Command Parity
 
 \`\`\`bash
 pnpm run lint
@@ -114,10 +118,11 @@ Result: PASS — build artifact produced locally
 |---|---|
 | dist/ total | ${distMb} MB |
 
-## Runtime notes
+## Runtime Interaction Checks
 
-Manual iPad interaction and 3D update latency still require device evidence.
-Automated build size captured above.
+- Build completes under local verify pipeline.
+- 3D vendor chunk isolated via \`manualChunks\` in vite.config.ts.
+- Manual iPad interaction and 3D update latency still require device evidence.
 `;
 
   const saveLoadProof = await readFile(join(evidenceDir, 'save-load-proof.md'), 'utf-8');

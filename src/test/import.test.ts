@@ -295,6 +295,28 @@ describe('ImportModule', () => {
   });
 
   describe('Error Handling', () => {
+    it('should import SVG wall geometry exported by Vishvakarma.OS', () => {
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+  <line class="wall" x1="0" y1="0" x2="100" y2="0" stroke-width="10" />
+  <circle class="door" cx="50" cy="0" r="5" />
+  <text class="text">Imported SVG</text>
+</svg>`;
+
+      const result = ImportModule.importFromSVG(svg);
+
+      expect(result.success).toBe(true);
+      expect(result.manifest?.walls).toHaveLength(1);
+      expect(result.manifest?.openings).toHaveLength(1);
+    });
+
+    it('should reject SVG without wall geometry', () => {
+      const result = ImportModule.importFromSVG('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+
+      expect(result.success).toBe(false);
+      expect(result.errors[0]).toContain('no wall geometry');
+    });
+
     it('should handle corrupted JSON gracefully', async () => {
       const result = await ImportModule.importJSON('{ "version": "1.0.0", "walls": [}');
 

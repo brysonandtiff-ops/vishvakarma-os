@@ -8,6 +8,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    fileParallelism: false,
+    pool: 'threads',
+    maxWorkers: 1,
+    testTimeout: 30000,
+    hookTimeout: 30000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

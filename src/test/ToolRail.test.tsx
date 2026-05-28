@@ -17,7 +17,7 @@ describe('ToolRail', () => {
   };
 
   describe('rendering', () => {
-    it('should render all 5 drawing tool buttons', () => {
+    it('should render all 7 drawing tool buttons', () => {
       render(<ToolRail {...defaultProps} />);
       
       expect(screen.getByLabelText('Select')).toBeInTheDocument();
@@ -25,6 +25,8 @@ describe('ToolRail', () => {
       expect(screen.getByLabelText('Door')).toBeInTheDocument();
       expect(screen.getByLabelText('Window')).toBeInTheDocument();
       expect(screen.getByLabelText('Measure')).toBeInTheDocument();
+      expect(screen.getByLabelText('Label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Dim')).toBeInTheDocument();
     });
 
     it('should render all 3 view control buttons', () => {
@@ -207,8 +209,8 @@ describe('ToolRail', () => {
       render(<ToolRail {...defaultProps} />);
       
       const buttons = screen.getAllByRole('button');
-      // 5 tools + 3 view controls = 8 buttons
-      expect(buttons).toHaveLength(8);
+      // 7 tools + 3 view controls = 10 buttons
+      expect(buttons).toHaveLength(10);
     });
   });
 

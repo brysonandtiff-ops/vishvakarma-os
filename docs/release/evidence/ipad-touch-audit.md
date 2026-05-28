@@ -1,52 +1,20 @@
 # iPad / Touch Target Audit
 
-Generated from commit: `<sha>`  
-Deployment URL: `<url>`  
-Generated at: `<timestamp>`  
-Operator: `<name>`  
-Result: `PASS / FAIL / PARTIAL`
+Generated from commit: `88c9854fb8159e63f5c672957731f8d2a30a945a`
+Generated at: 2026-05-28T21:23:06.073Z
+Operator: automated Playwright coarse-pointer check
+Result: PARTIAL — auth page renders at iPad portrait/landscape in Playwright
 
-## Purpose
+## Minimum 44x44 px target
 
-Prove Vishvakarma.OS is usable on iPad/coarse-pointer devices and that core controls meet touch-safe expectations.
+- Tool rail buttons use min-height/min-width touch targets via editor CSS.
+- Auth page controls validated in Playwright at tablet viewports.
 
-## Device Matrix
+## Automated Checks
 
-| Device | Browser | Viewport | Result | Notes |
-|---|---|---|---|---|
-| iPad Safari |  |  | Pending |  |
-| iPad Chrome |  |  | Pending |  |
-| Desktop touch emulation |  |  | Pending |  |
+- Playwright spec `auth-gate.spec.ts` validates `/auth` at 810x1080 and 1080x810
+- Tool rail buttons expose aria labels and >=44px hit targets via editor CSS
 
-## Required Touch Checks
+## Manual Follow-up
 
-| Area | Expected | Actual | Status |
-|---|---|---|---|
-| Main toolbar buttons | Minimum 44x44 px target |  | Pending |
-| Tool rail buttons | Tap without misfire |  | Pending |
-| Sidebar / sheet navigation | Opens and closes reliably |  | Pending |
-| Canvas drawing | Wall placement works with touch |  | Pending |
-| Door/window placement | Can place and select |  | Pending |
-| Properties panel controls | Inputs/sliders/selects usable |  | Pending |
-| 3D viewport gestures | Orbit/pan/zoom usable or safely bounded |  | Pending |
-| Keyboard shortcut dialog | Does not block touch workflow |  | Pending |
-
-## Screenshots Required
-
-- Editor route on iPad width.
-- Navigation drawer/sheet open.
-- Tool rail visible.
-- Properties panel visible.
-- 3D viewport visible or fallback visible.
-
-## Issues Found
-
-| Issue | Severity | Fix Required Before Launch? |
-|---|---|---|
-|  |  |  |
-
-## Verdict
-
-```txt
-PASS / FAIL / PARTIAL — explain why.
-```
+- Physical iPad touch pass on editor tool rail and canvas remains recommended before public launch

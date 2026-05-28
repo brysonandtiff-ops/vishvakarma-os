@@ -233,44 +233,51 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 
 ### Requirements
 
-- **Node.js** ≥ 20
-- **npm** ≥ 10 or **pnpm** ≥ 9
+- **Node.js** ≥ 20 (see `.nvmrc`)
+- **pnpm** 9.15.0 (recommended; enforced via `packageManager`)
 
 ### Setup
 
 ```bash
 # 1. Install dependencies
-npm install
-# or
-pnpm install
+pnpm install --frozen-lockfile
 
 # 2. Copy environment variables
-cp .env.example .env
-# Fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+cp .env.example .env.local
 
 # 3. Start the development server
-npm run dev
+pnpm run dev
 
 # 4. Run the full verification pipeline (lint → test → build)
-npm run verify
+pnpm run verify:ci
 
 # Or run stages individually
-npm run lint
-npm run test
-npm run build
-npm run preview   # serve the production build locally
+pnpm run lint
+pnpm run test
+pnpm run build
+pnpm run preview   # serve the production build locally
 ```
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env.local` file in the project root:
 
 ```env
+# Firebase auth (primary)
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_APP_ID=
+
+# Supabase data backend (projects, registry, releases, audit)
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Optional local dev bypass (development only)
+# VITE_ALLOW_LOCAL_DEMO=true
 ```
 
-These are required for project save/load, change requests, registry, releases, and audit log. The app functions in a degraded (local-only) mode without them.
+Firebase handles sign-in. Supabase handles persistence. Without Firebase, sign-in is disabled. Without Supabase, the app runs in local-only demo mode for data features.
 
 ---
 

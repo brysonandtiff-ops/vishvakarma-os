@@ -41,15 +41,17 @@ describe('Blueprint editor visual polish', () => {
   });
 
   it('protects first-run demo and governance proof product polish', () => {
+    const onboarding = read('src/components/editor/OnboardingPanel.tsx');
+    const proofPanel = read('src/components/editor/ProjectProofPanel.tsx');
     const editor = read('src/pages/EditorPage.tsx');
 
-    expect(editor).toContain('data-testid="first-run-welcome"');
-    expect(editor).toContain('Build your first verified blueprint');
-    expect(editor).toContain('Load Demo Blueprint');
-    expect(editor).toContain('Start Blank Project');
-    expect(editor).toContain('function ProjectProofPanel');
-    expect(editor).toContain('data-testid="project-proof-panel"');
-    expect(editor).toContain('Visible governance status for demo confidence');
-    expect(editor).toContain('Project Proof');
+    expect(onboarding).toContain('data-testid="first-run-welcome"');
+    expect(onboarding).toContain('Build your first verified blueprint');
+    expect(onboarding).toContain('Load Demo Blueprint');
+    expect(onboarding).toContain('Start Blank Project');
+    expect(proofPanel).toContain('data-testid="project-proof-panel"');
+    expect(proofPanel).toContain('Visible governance status for demo confidence');
+    expect(proofPanel).toContain('Project Proof');
+    expect(editor).toContain('<ProjectProofPanel');
   });
 });
