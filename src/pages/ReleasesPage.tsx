@@ -45,6 +45,7 @@ export default function ReleasesPage() {
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedGates, setExpandedGates] = useState<Set<string>>(new Set());
+  const [showStopShipViolations, setShowStopShipViolations] = useState(false); // State for Stop-Ship Violations visibility
 
   useEffect(() => {
     loadReleases();
@@ -64,6 +65,10 @@ export default function ReleasesPage() {
       else next.add(id);
       return next;
     });
+  }
+
+  function toggleStopShipViolations() {
+    setShowStopShipViolations((prev) => !prev);
   }
 
   // Release gates — all statuses are derived from real programmatic checks
@@ -518,6 +523,7 @@ export default function ReleasesPage() {
             </div>
 
             {/* Stop-Ship Violations */}
+            {/* Always visible for now, but can be toggled */}
             <div className="flex gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
               <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
               <div>

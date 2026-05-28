@@ -129,8 +129,8 @@ export default function RegistryPage() {
                     {filteredEntries.map((entry) => {
                       const cfg = getTypeConfig(entry.type);
                       const Icon = cfg.icon;
-                      return (
-                        <Card key={entry.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5">
+                      return ( // Apply crystal-surface for a premium feel
+                        <Card key={entry.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 crystal-surface">
                           <CardHeader className="pb-2">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex min-w-0 flex-1 items-center gap-2.5">

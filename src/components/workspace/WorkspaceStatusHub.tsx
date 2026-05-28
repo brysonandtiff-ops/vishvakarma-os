@@ -7,7 +7,7 @@ interface WorkspaceStatusHubProps {
 }
 
 /**
- * Workspace Status Hub â€” Unified reporting for auth mode, data posture, 
+ * Workspace Status Hub — Unified reporting for auth mode, data posture, 
  * navigation context, and system health.
  */
 export function WorkspaceStatusHub({ collapsed }: WorkspaceStatusHubProps) {
@@ -39,7 +39,7 @@ export function WorkspaceStatusHub({ collapsed }: WorkspaceStatusHubProps) {
       <div className="space-y-2.5">
         <div className="flex items-center gap-2.5 text-[10px] font-medium text-ws-text-dim">
           <ShieldCheck className="h-3.5 w-3.5 text-success/80" />
-          <span className="truncate">{authStatus} Â· {mode}</span>
+          <span className="truncate">{authStatus} · {mode}</span>
         </div>
         
         <div className="flex items-center gap-2.5 text-[10px] text-ws-text-dim">
@@ -49,7 +49,7 @@ export function WorkspaceStatusHub({ collapsed }: WorkspaceStatusHubProps) {
 
         <div className="flex items-center gap-2.5 text-[10px] text-ws-text-dim">
           <Target className="h-3.5 w-3.5 text-ws-active/80" />
-          <span className="truncate font-mono">v1.0.0-RC1 Â· Release Ready</span>
+          <span className="truncate font-mono">v1.0.0-RC1 · Release Ready</span>
         </div>
       </div>
     </div>

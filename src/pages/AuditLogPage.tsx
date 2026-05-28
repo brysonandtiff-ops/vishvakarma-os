@@ -1,6 +1,6 @@
 // Audit Log Page - System audit trail with timeline display
 import { useState, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge'; // Keep this import
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';

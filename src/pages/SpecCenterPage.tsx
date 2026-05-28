@@ -5,12 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
-import { getSpecs } from '@/db/api';
+import { createSpec, getSpecs } from '@/db/api';
+import { getSystemSpecHash } from '@/governance/core/specHash';
+import { buildTextPdf } from '@/utils/minimalPdf';
 import type { Spec } from '@/types';
-
-const BLUEPRINT_EDITOR_SPEC_HASH = 'e8f4a2b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5';
 
 const requiredSections = [
   'Required UI Regions',
@@ -46,6 +50,13 @@ const specContent = `## Required UI Regions
 export default function SpecCenterPage() {
   const [specs, setSpecs] = useState<Spec[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fullSpecOpen, setFullSpecOpen] = useState(false);
+  const [newSpecOpen, setNewSpecOpen] = useState(false);
+  const [selectedSpec, setSelectedSpec] = useState<{ title: string; content: string } | null>(null);
+  const [newSpecName, setNewSpecName] = useState('');
+  const [newSpecCategory, setNewSpecCategory] = useState('Governance');
+  const [newSpecContent, setNewSpecContent] = useState('');
+  const blueprintSpecHash = getSystemSpecHash();
 
   useEffect(() => {
     loadSpecs();
@@ -56,6 +67,39 @@ export default function SpecCenterPage() {
     const data = await getSpecs();
     setSpecs(data);
     setLoading(false);
+  }
+
+  function openFeaturedSpec() {
+    setSelectedSpec({ title: 'Blueprint Editor v1.0.0', content: specContent });
+    setFullSpecOpen(true);
+  }
+
+  function openSpecPdf(title: string, content: string) {
+    const pdfBytes = buildTextPdf(title, content.split('\n'));
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleCreateSpec() {
+    if (!newSpecName.trim() || !newSpecContent.trim()) return;
+    await createSpec({
+      name: newSpecName.trim(),
+      category: newSpecCategory.trim() || 'General',
+      content: newSpecContent.trim(),
+      version: '1.0.0',
+      status: 'draft',
+    });
+    setNewSpecOpen(false);
+    setNewSpecName('');
+    setNewSpecContent('');
+    await loadSpecs();
   }
 
   return (
@@ -70,7 +114,7 @@ export default function SpecCenterPage() {
                 Centralized specification management with governance enforcement
               </p>
             </div>
-            <Button size="sm" variant="outline" className="shrink-0">
+            <Button size="sm" variant="outline" className="shrink-0" onClick={() => setNewSpecOpen(true)}>
               <Plus className="mr-1.5 h-3.5 w-3.5" />
               New Spec
             </Button>
@@ -128,7 +172,7 @@ export default function SpecCenterPage() {
                         SHA-256 Spec Hash
                       </p>
                       <p className="break-all font-mono text-xs text-foreground/80">
-                        {BLUEPRINT_EDITOR_SPEC_HASH}
+                        {blueprintSpecHash}
                       </p>
                     </div>
                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
@@ -164,8 +208,8 @@ export default function SpecCenterPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm">View Full Spec</Button>
-                  <Button variant="outline" size="sm">Export PDF</Button>
+                  <Button variant="outline" size="sm" onClick={openFeaturedSpec}>View Full Spec</Button>
+                  <Button variant="outline" size="sm" onClick={() => openSpecPdf('Blueprint Editor v1.0.0', specContent)}>Export PDF</Button>
                   <Button variant="outline" size="sm" disabled>
                     <Lock className="mr-2 h-3.5 w-3.5" />
                     Edit (Locked)
@@ -196,9 +240,9 @@ export default function SpecCenterPage() {
                         </div>
                       </CardHeader>
                       <CardContent className="mt-auto flex gap-2">
-                        <Button variant="outline" size="sm">View</Button>
+                        <Button variant="outline" size="sm" onClick={() => { setSelectedSpec({ title: spec.name, content: spec.content }); setFullSpecOpen(true); }}>View</Button>
                         {spec.status !== 'locked' && (
-                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="outline" size="sm" onClick={() => openSpecPdf(spec.name, spec.content)}>Export PDF</Button>
                         )}
                       </CardContent>
                     </Card>
@@ -232,6 +276,45 @@ export default function SpecCenterPage() {
           </div>
         </ScrollArea>
       </div>
+
+      <Dialog open={fullSpecOpen} onOpenChange={setFullSpecOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{selectedSpec?.title ?? 'Specification'}</DialogTitle>
+            <DialogDescription>Full governing specification content</DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] rounded-lg border p-4">
+            <pre className="whitespace-pre-wrap font-mono text-xs">{selectedSpec?.content}</pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={newSpecOpen} onOpenChange={setNewSpecOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Specification</DialogTitle>
+            <DialogDescription>Create a draft specification for governance review.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="spec-name">Name</Label>
+              <Input id="spec-name" value={newSpecName} onChange={(event) => setNewSpecName(event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="spec-category">Category</Label>
+              <Input id="spec-category" value={newSpecCategory} onChange={(event) => setNewSpecCategory(event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="spec-content">Content</Label>
+              <Textarea id="spec-content" rows={8} value={newSpecContent} onChange={(event) => setNewSpecContent(event.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewSpecOpen(false)}>Cancel</Button>
+            <Button onClick={() => void handleCreateSpec()}>Create Draft</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
