@@ -17,3 +17,5 @@ export interface Profile {
 
 // Re-export all types from types.ts
 export * from './types';
+
+export type SaveState = 'clean' | 'unsaved' | 'local-draft' | 'cloud-saved' | 'restored-draft';
