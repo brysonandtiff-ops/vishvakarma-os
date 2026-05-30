@@ -94,6 +94,23 @@
   box-shadow: -18px 0 40px hsl(0 0% 0% / 0.18);
 }
 
+.vish-workspace-shell .ws-panel-dark,
+.vish-workspace-shell .vish-dark-panel {
+  background:
+    linear-gradient(180deg, hsl(var(--ws-panel)), hsl(220 14% 10%));
+  border-left-color: hsl(43 40% 35% / 0.28);
+  box-shadow: -18px 0 40px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell .vish-canvas-stage,
+.vish-workspace-shell .blueprint-grid-mockup {
+  background-color: hsl(var(--ws-canvas-surface));
+  background-image:
+    linear-gradient(hsl(0 0% 0% / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 0% / 0.045) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
 .vish-workspace-shell .ws-panel-light .ws-panel-label,
 .vish-workspace-shell .ws-panel-light p[class*='uppercase'] {
   letter-spacing: 0.14em;

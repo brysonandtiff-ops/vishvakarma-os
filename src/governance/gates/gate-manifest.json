@@ -1,0 +1,111 @@
+{
+  "version": "1.0.0",
+  "product": "Vishvakarma.OS",
+  "description": "Authoritative release gate manifest — consumed by verify-all.js, Releases UI, and world-record measurement.",
+  "gates": [
+    {
+      "id": "gate-1",
+      "number": 1,
+      "name": "Governing spec present",
+      "description": "Blueprint Editor specification exists with core governance language",
+      "category": "automated",
+      "evidencePath": "docs/SPEC.md"
+    },
+    {
+      "id": "gate-2",
+      "number": 2,
+      "name": "Registry present",
+      "description": "Registry documents required project entities and schemas",
+      "category": "automated",
+      "evidencePath": "docs/REGISTRY.md"
+    },
+    {
+      "id": "gate-3",
+      "number": 3,
+      "name": "Route manifest present",
+      "description": "All production governance routes are declared in src/routes.tsx",
+      "category": "automated",
+      "evidencePath": "src/routes.tsx"
+    },
+    {
+      "id": "gate-4",
+      "number": 4,
+      "name": "Sample project validates as JSON",
+      "description": "Sample project file parses successfully",
+      "category": "automated",
+      "evidencePath": "public/samples/sample-house-01.json"
+    },
+    {
+      "id": "gate-5",
+      "number": 5,
+      "name": "Production security headers configured",
+      "description": "vercel.json contains required CSP, HSTS, and security headers",
+      "category": "automated",
+      "evidencePath": "vercel.json"
+    },
+    {
+      "id": "gate-6",
+      "number": 6,
+      "name": "Environment template present",
+      "description": ".env.example documents Firebase auth and Supabase data variables",
+      "category": "automated",
+      "evidencePath": ".env.example"
+    },
+    {
+      "id": "gate-7",
+      "number": 7,
+      "name": "Unit tests green",
+      "description": "Vitest unit test suite passes with zero failures",
+      "category": "automated-strict",
+      "command": "pnpm run test"
+    },
+    {
+      "id": "gate-8",
+      "number": 8,
+      "name": "E2E route smoke green",
+      "description": "Playwright auth and route smoke tests pass",
+      "category": "automated-strict",
+      "command": "pnpm run test:e2e"
+    },
+    {
+      "id": "gate-9",
+      "number": 9,
+      "name": "Save/load determinism",
+      "description": "Save, reload, export, and import evidence attached",
+      "category": "evidence",
+      "evidencePath": "docs/release/evidence/save-load-proof.md"
+    },
+    {
+      "id": "gate-10",
+      "number": 10,
+      "name": "2D/3D parity",
+      "description": "Sample project 2D counts match 3D render expectations",
+      "category": "evidence",
+      "evidencePath": "docs/release/evidence/2d-3d-parity-proof.md"
+    },
+    {
+      "id": "gate-11",
+      "number": 11,
+      "name": "iPad touch target audit",
+      "description": "Touch-safe controls verified for tablet viewports",
+      "category": "evidence",
+      "evidencePath": "docs/release/evidence/ipad-touch-audit.md"
+    },
+    {
+      "id": "gate-12",
+      "number": 12,
+      "name": "Performance acceptable",
+      "description": "Build size and runtime interaction evidence attached",
+      "category": "evidence",
+      "evidencePath": "docs/release/evidence/performance-notes.md"
+    },
+    {
+      "id": "gate-13",
+      "number": 13,
+      "name": "World record evidence present",
+      "description": "Machine-readable world record measurement artifact exists",
+      "category": "automated",
+      "evidencePath": "docs/world-record/latest-measurement.json"
+    }
+  ]
+}

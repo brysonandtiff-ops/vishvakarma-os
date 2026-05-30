@@ -8,6 +8,7 @@ import {
   LogOut,
   Package,
   PenTool,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -31,6 +32,7 @@ const ROUTE_ICONS: Record<string, LucideIcon> = {
   '/registry': Database,
   '/change-requests': GitPullRequest,
   '/releases': Package,
+  '/world-records': Trophy,
   '/audit': History,
 };
 

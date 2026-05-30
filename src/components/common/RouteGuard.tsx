@@ -10,8 +10,11 @@ interface RouteGuardProps {
 
 const PUBLIC_ROUTES = ['/auth'];
 const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
-/** Unconfigured backends run as a full local workspace — no auth deadlock in production. */
-const allowLocalAccess = allowLocalDemoMode || !backendStatus.isConfigured;
+/** Dev-only bypass when backend env is missing or explicit local demo is enabled. Production always gates. */
+const allowLocalAccess =
+  import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured);
+const showServiceConfigBanner =
+  import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode;
 
 const BOOT_MANTRAS = [
   'ॐ विश्वकर्मणे नमः',
@@ -103,5 +106,17 @@ export function RouteGuard({ children }: RouteGuardProps) {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {showServiceConfigBanner && (
+        <div
+          role="status"
+          className="border-b border-warning/40 bg-warning/10 px-4 py-2 text-center text-xs text-warning"
+        >
+          Service configuration required — set Vercel environment variables (see docs/release/VERCEL_ENV.md).
+        </div>
+      )}
+      {children}
+    </>
+  );
 }

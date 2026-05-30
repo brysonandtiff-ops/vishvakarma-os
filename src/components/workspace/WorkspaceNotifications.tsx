@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Database, ShieldAlert, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 
 /**
  * Workspace Notifications strip — high visibility alert for data mode posture.
@@ -13,15 +11,6 @@ export function WorkspaceNotifications() {
   const [dismissed, setDismissed] = useState(false);
 
   if (mode !== 'local-only' || dismissed) return null;
-
-  const handleRecoverData = () => {
-    toast.info('Attempting to recover data and transition to cloud mode...');
-    // In a real scenario, this would trigger a more complex process:
-    // 1. Attempt to re-authenticate with Firebase/Supabase.
-    // 2. If successful, prompt user to upload local draft/changes.
-    // 3. Clear local-only state.
-    console.log('Recover Data button clicked.');
-  };
 
   return (
     <div className="relative vish-notifications-strip flex h-9 w-full shrink-0 items-center px-4 text-[9px] font-bold uppercase tracking-[0.2em] text-warning backdrop-blur-md shadow-sm">
@@ -35,14 +24,6 @@ export function WorkspaceNotifications() {
         <span>Data persistent in browser only · Cloud connectivity disabled</span>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRecoverData}
-          className="h-6 text-xs text-warning border-warning/30 bg-warning/10 hover:bg-warning/20 hover:text-warning tap-highlight-none"
-        >
-          Recover Data
-        </Button>
         <button
           onClick={() => setDismissed(true)}
           className="flex h-6 w-6 items-center justify-center rounded-lg text-warning/60 transition-all hover:bg-warning/10 hover:text-warning tap-highlight-none"

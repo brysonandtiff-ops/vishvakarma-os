@@ -51,6 +51,18 @@ This file is the production release evidence ledger. It must be updated whenever
 | Performance | Build size + runtime | PASS | [`performance-notes.md`](performance-notes.md) |
 | Security headers | CSP/HSTS on live deploy | PASS — CONFIG | [`security-headers.md`](security-headers.md) — vercel.json verified |
 
+## World Record Evidence
+
+| Gate | Required proof | Status | Link / artifact |
+|---|---|---|---|
+| Gate manifest | 12 metric gates + 13 total in `gate-manifest.json` | PASS — CODE | [`src/governance/gates/gate-manifest.json`](../../src/governance/gates/gate-manifest.json) |
+| Measurement artifact | `pnpm run record:measure` output | PASS — LOCAL | [`docs/world-record/latest-measurement.json`](../../world-record/latest-measurement.json) |
+| Claim document | Honest status + metric definition | PASS | [`docs/world-record/WORLD_RECORD_CLAIM.md`](../../world-record/WORLD_RECORD_CLAIM.md) |
+| Competitor baseline | Point-in-time survey | PASS — SURVEY | [`docs/world-record/COMPETITOR_BASELINE.md`](../../world-record/COMPETITOR_BASELINE.md) |
+| Witness attestation | Independent witness signature | PENDING | [`docs/world-record/WITNESS_ATTESTATION.md`](../../world-record/WITNESS_ATTESTATION.md) |
+| Guinness application | Official GWR certificate | NOT SUBMITTED | [`docs/world-record/GUINNESS_APPLICATION.md`](../../world-record/GUINNESS_APPLICATION.md) |
+| In-app registry | `/world-records` route | PASS — CODE | Self-Verified Candidate badge until GWR certificate attached |
+
 ## Stop-Ship Review
 
 - [x] No failing automated lint gate locally.

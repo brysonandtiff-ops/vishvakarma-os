@@ -11,7 +11,7 @@ function read(path: string) {
 
 describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps route manifest complete and access-scoped', () => {
-    const expectedRoutes = ['/auth', '/', '/spec-center', '/registry', '/change-requests', '/releases', '/audit'];
+    const expectedRoutes = ['/auth', '/', '/spec-center', '/registry', '/change-requests', '/releases', '/world-records', '/audit'];
     const actualRoutes = routes.map((route) => route.path);
 
     expect(actualRoutes).toEqual(expectedRoutes);
@@ -32,7 +32,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(app).toContain('import routes from \'./routes\'');
     expect(app).toContain('routes.map((route) =>');
     expect(app).toContain('<Route key={route.path} path={route.path} element={route.element} />');
-    expect(app).toContain('<Route path="*" element={<Navigate to="/" replace />} />');
+    expect(app).toContain('<Route path="*" element={<NotFound />} />');
   });
 
   it('keeps protected routing enforced through RouteGuard', () => {
@@ -42,6 +42,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain("navigate('/auth'");
     expect(routeGuard).toContain("state: { from: location.pathname }");
     expect(routeGuard).toContain('allowLocalAccess');
+    expect(routeGuard).toContain('showServiceConfigBanner');
+    expect(routeGuard).toContain('import.meta.env.PROD');
     expect(routeGuard).toContain('if (gated && !user && !publicRoute)');
     expect(routeGuard).toContain('return null');
   });
@@ -59,6 +61,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const main = read('src/main.tsx');
 
     expect(main).toContain('./styles/vish-auth-gate.css');
+    expect(main).toContain('enableProductionMode');
+    expect(main).toContain('import.meta.env.PROD');
   });
 
   it('keeps loading, auth, and app shell surfaces on the official brand asset', () => {
@@ -70,7 +74,9 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(authPage).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
-    expect(authPage).toContain('Request secure access');
+    expect(authPage).toContain('requestAccessLink(email)');
+    expect(authPage).toContain('Sign in with email link');
+    expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
   });
 });

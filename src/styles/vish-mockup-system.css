@@ -1,0 +1,259 @@
+/* Vishvakarma.OS — mockup-driven shared UI primitives */
+
+.vish-gold-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(43 65% 52% / 0.35);
+  background: hsl(220 14% 12% / 0.92);
+  color: hsl(43 72% 66%);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+}
+
+.vish-dark-panel {
+  background:
+    linear-gradient(180deg, hsl(var(--ws-panel)), hsl(220 14% 10%));
+  color: hsl(var(--ws-text));
+  border-left: 1px solid hsl(var(--ws-border));
+  box-shadow: -12px 0 32px hsl(0 0% 0% / 0.22);
+}
+
+.vish-bilingual-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(43 65% 58%);
+}
+
+.vish-bilingual-label span {
+  color: hsl(var(--ws-text-dim));
+  font-weight: 500;
+}
+
+.vish-gold-button {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--vish-gold-start)),
+    hsl(var(--vish-gold-end))
+  );
+  color: hsl(0 0% 7%);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem;
+  box-shadow:
+    0 8px 24px hsl(43 65% 40% / 0.35),
+    inset 0 1px 0 hsl(43 90% 78% / 0.4);
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.vish-gold-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.08) brightness(1.04);
+}
+
+.vish-gold-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vish-oauth-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(220 14% 11%);
+  color: hsl(var(--ws-text));
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.vish-oauth-button:hover:not(:disabled) {
+  border-color: hsl(43 65% 52% / 0.45);
+  background: hsl(220 14% 14%);
+}
+
+.vish-mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--ws-text-dim));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.85rem;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.vish-mode-tab:hover:not(:disabled) {
+  color: hsl(var(--ws-text));
+  background: hsl(var(--ws-hover));
+}
+
+.vish-mode-tab.active {
+  border-color: hsl(43 65% 52% / 0.5);
+  background: hsl(43 49% 18% / 0.85);
+  color: hsl(43 72% 66%);
+  box-shadow: 0 0 18px hsl(43 65% 52% / 0.15);
+}
+
+.vish-mode-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vish-tool-section-label {
+  width: 100%;
+  padding: 0.5rem 0 0.25rem;
+  text-align: center;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(43 55% 48% / 0.75);
+  user-select: none;
+}
+
+.vish-canvas-stage {
+  background-color: hsl(var(--ws-canvas-surface));
+  background-image:
+    linear-gradient(hsl(0 0% 0% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 0% / 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.vish-auth-card-mockup {
+  position: relative;
+  width: min(100%, 26rem);
+  border-radius: 1.25rem;
+  border: 1px solid hsl(var(--vish-card-border));
+  background:
+    linear-gradient(165deg, hsl(var(--vish-card)), hsl(0 0% 5%));
+  box-shadow:
+    0 32px 80px hsl(0 0% 0% / 0.55),
+    0 0 0 1px hsl(43 65% 52% / 0.08),
+    inset 0 1px 0 hsl(43 90% 72% / 0.08);
+  padding: 2rem 1.75rem 1.5rem;
+}
+
+.vish-auth-card-mockup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, hsl(43 90% 60% / 0.12), transparent 55%);
+}
+
+.vish-auth-card-mockup > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vish-mockup-input {
+  width: 100%;
+  border-radius: 0.65rem;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(0 0% 4%);
+  color: hsl(var(--ws-text));
+  font-size: 0.875rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.vish-mockup-input::placeholder {
+  color: hsl(var(--ws-text-faint));
+}
+
+.vish-mockup-input:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.45);
+  outline-offset: 1px;
+}
+
+.vish-editor-topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  background: linear-gradient(90deg, hsl(0 0% 6%), hsl(220 14% 10%), hsl(0 0% 6%));
+  border-bottom: 1px solid hsl(var(--ws-border));
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
+}
+
+.vish-mode-tab-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(0 0% 5% / 0.85);
+  padding: 0.2rem;
+}
+
+.vish-tool-rail .architect-tool-button.active {
+  position: relative;
+  border-color: hsl(43 65% 52% / 0.65);
+  box-shadow:
+    inset 3px 0 0 hsl(43 65% 52%),
+    0 0 16px hsl(43 65% 52% / 0.12);
+}
+
+.vish-tool-rail .architect-tool-button.stub {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.vish-canvas-overlay-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(220 14% 10% / 0.92);
+  backdrop-filter: blur(12px);
+  color: hsl(var(--ws-text-dim));
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.25);
+}
+
+.vish-gov-card-dark {
+  border-color: hsl(43 40% 35% / 0.22);
+  background:
+    linear-gradient(165deg, hsl(220 14% 13%), hsl(220 14% 10%));
+  color: hsl(var(--ws-text));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-gold-button,
+  .vish-oauth-button,
+  .vish-mode-tab {
+    transition: none;
+  }
+}

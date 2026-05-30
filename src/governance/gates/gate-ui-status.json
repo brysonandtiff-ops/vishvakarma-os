@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-05-30T19:09:51.060Z",
+  "source": "scripts/verify-all.js",
+  "strict": true,
+  "gates": {
+    "gate-1": {
+      "status": "fail",
+      "message": "SPEC.md is present but missing required governance terms."
+    },
+    "gate-2": {
+      "status": "pass",
+      "message": "Registry is present and covers required entities."
+    },
+    "gate-3": {
+      "status": "pass",
+      "message": "Route manifest contains required production routes."
+    },
+    "gate-4": {
+      "status": "pass",
+      "message": "Sample project JSON parses successfully."
+    },
+    "gate-5": {
+      "status": "pass",
+      "message": "Production security headers are configured."
+    },
+    "gate-6": {
+      "status": "pass",
+      "message": ".env.example documents required Firebase and Supabase variables."
+    },
+    "gate-7": {
+      "status": "fail",
+      "message": "pnpm run test failed in --strict mode."
+    },
+    "gate-8": {
+      "status": "fail",
+      "message": "pnpm run test:e2e failed in --strict mode."
+    },
+    "gate-9": {
+      "status": "pass",
+      "message": "Evidence attached at docs/release/evidence/save-load-proof.md."
+    },
+    "gate-10": {
+      "status": "pass",
+      "message": "Evidence attached at docs/release/evidence/2d-3d-parity-proof.md."
+    },
+    "gate-11": {
+      "status": "pass",
+      "message": "Evidence attached at docs/release/evidence/ipad-touch-audit.md."
+    },
+    "gate-12": {
+      "status": "pass",
+      "message": "Evidence attached at docs/release/evidence/performance-notes.md."
+    },
+    "gate-13": {
+      "status": "pass",
+      "message": "World record artifact present with 12 metric gates."
+    }
+  },
+  "verification": {
+    "lint": "fail",
+    "tests": "fail",
+    "build": "pending",
+    "note": "Counts from release:gates:strict run"
+  }
+}

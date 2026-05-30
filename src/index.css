@@ -26,9 +26,9 @@
     --popover:      0 0% 100%;
     --popover-foreground: 0 0% 11%;
 
-    /* ── ACCENT GOLD — official Vishvakarma brand ── */
-    --primary:      39 52% 47%;        /* vish-gold */
-    --primary-foreground: 0 0% 100%;
+    /* ── ACCENT GOLD — mockup metallic gold (#D4AF37) ── */
+    --primary:      43 65% 52%;
+    --primary-foreground: 0 0% 7%;
 
     /* ── SECONDARY / MUTED ── */
     --secondary:    0 0% 92%;          /* #ebebeb */
@@ -96,6 +96,15 @@
     --ws-grid-line:   220 14% 17%;     /* subtle grid */
     --ws-grid-major:  220 14% 21%;     /* major grid */
     --ws-snap:        39 61% 52%;      /* gold snap indicator */
+    --ws-panel:       220 14% 13%;     /* dark properties rail */
+    --ws-canvas-surface: 35 45% 97%;   /* #FDF9F5 – blueprint paper */
+
+    /* ── MOCKUP AUTH / STAGE ── */
+    --vish-stage:     0 0% 2%;          /* #050505 */
+    --vish-card:      0 0% 7%;          /* #111111 */
+    --vish-card-border: 43 40% 35% / 0.28;
+    --vish-gold-start: 43 74% 58%;
+    --vish-gold-end:   35 55% 42%;
   }
 }
 
@@ -434,22 +443,22 @@
    ══════════════════════════════════════════════════════ */
 
 .gov-page-header {
-  background: linear-gradient(to bottom, hsl(0 0% 100%), hsl(0 0% 98.5%));
-  border-bottom: 1px solid hsl(var(--border));
+  background: linear-gradient(to bottom, hsl(220 14% 12%), hsl(220 14% 10%));
+  border-bottom: 1px solid hsl(var(--ws-border));
   padding: 24px 32px 20px;
-  box-shadow: 0 1px 3px 0 hsla(0, 0%, 0%, 0.02);
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.18);
 }
 
 .gov-page-header h1 {
   font-size: 18px;
   font-weight: 700;
-  color: hsl(0 0% 10%);
+  color: hsl(var(--ws-text));
   letter-spacing: -0.01em;
 }
 
 .gov-page-header p {
   font-size: 13px;
-  color: hsl(0 0% 44%);
+  color: hsl(var(--ws-text-dim));
   margin-top: 2px;
 }
 

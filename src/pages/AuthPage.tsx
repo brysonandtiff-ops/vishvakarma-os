@@ -1,12 +1,11 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, CheckCircle2, LockKeyhole, Mail, MailCheck, ShieldCheck, Sparkles } from 'lucide-react';
+import { AlertTriangle, BookOpen, Download, Shield, Trophy } from 'lucide-react';
+import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import '@/styles/vish-auth-gate.css';
 
 const SANSKRIT_MATRIX_COLUMNS = [
@@ -18,19 +17,6 @@ const SANSKRIT_MATRIX_COLUMNS = [
   'स्थिरं सौन्दर्यम् शुभम्',
   'रचना प्रमाणं सुरक्षा',
   'सत्यं शिल्पं प्रकाशः',
-] as const;
-
-const TRUST_PILLARS = [
-  'Secure session gate',
-  'Governance audit ready',
-  'iPad-first workspace',
-  'Release evidence locked',
-] as const;
-
-const ACCESS_STEPS = [
-  'Enter your email',
-  'Open the secure link',
-  'Return to the workspace',
 ] as const;
 
 function getReturnPath(state: unknown) {
@@ -51,7 +37,10 @@ export default function AuthPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const returnPath = getReturnPath(location.state);
-  const emailPreview = useMemo(() => email.trim().toLowerCase() || 'you@example.com', [email]);
+  const emailPreview = useMemo(() => email.trim().toLowerCase() || 'architect@firm.com', [email]);
+  const isProduction = import.meta.env.PROD;
+  const showConfigRequired = isProduction && !backendStatus.isConfigured;
+  const allowLocalWorkspace = !isProduction && !isConfigured;
 
   if (!loading && user) {
     return <Navigate to={returnPath} replace />;
@@ -77,6 +66,12 @@ export default function AuthPage() {
     }
 
     setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
+  };
+
+  const handleInstall = () => {
+    toast.message('Install as App', {
+      description: 'Use your browser menu (Add to Home Screen / Install app) to install Vishvakarma.OS.',
+    });
   };
 
   return (
@@ -109,154 +104,128 @@ export default function AuthPage() {
 
       <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
 
-      <div className="relative z-10 grid w-full max-w-6xl items-center gap-7 lg:grid-cols-[1.08fr_0.92fr]">
-        <section className="vish-auth-hero rounded-[2rem] border border-primary/25 bg-black/35 p-8 shadow-2xl backdrop-blur-xl">
-          <div className="mb-8 flex items-center gap-4">
-            <div className="vish-logo-tile vish-logo-tile-animated flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl p-2">
-              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied swan V logo" className="h-full w-full rounded-xl object-cover" />
+      <div className="relative z-10 flex w-full max-w-lg flex-col items-center justify-center gap-6 px-2">
+        <div className="vish-auth-card-mockup w-full" data-testid="auth-mockup-card">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="vish-access-logo-shell vish-logo-tile-animated mb-4 flex h-20 w-20 items-center justify-center rounded-2xl p-2">
+              <img
+                src={OFFICIAL_LOGO_SRC}
+                alt="Vishvakarma.OS official user-supplied swan V logo"
+                className="vish-access-logo h-full w-full rounded-xl object-cover"
+              />
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-primary/80">Secure Access</p>
-              <h1 className="vish-wordmark mt-2 text-2xl font-bold tracking-[0.34em]">Vishvakarma.OS</h1>
-              <p className="mt-2 text-xs uppercase tracking-[0.28em] text-primary/55">विश्वकर्मा · Divine Architecture</p>
-            </div>
+            <h1 className="vish-wordmark text-lg font-bold tracking-[0.28em] text-primary">VISHVAKARMA.OS</h1>
+            <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
+            <p className="mt-3 text-sm text-muted-foreground">Sign in to your workspace</p>
           </div>
 
-          <div className="vish-auth-mantra-chip mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary/85">
-            <Sparkles className="h-3.5 w-3.5" />
-            मन्त्र matrix · secure architecture gate
-          </div>
-
-          <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-stone-100 md:text-5xl">
-            Enter the protected design mandala.
-          </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-stone-300">
-            A calm, passwordless access gate for the blueprint editor, 3D studio, registry,
-            change requests, release gates, and audit trail. Built to feel premium, spiritual,
-            and precise without weakening the product trust layer.
-          </p>
-
-          <div className="vish-auth-trust-strip mt-7 grid gap-2 rounded-2xl border border-primary/20 bg-black/20 p-3 sm:grid-cols-2">
-            {TRUST_PILLARS.map((pillar) => (
-              <div key={pillar} className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-stone-300">
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
-                <span>{pillar}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
-              <LockKeyhole className="mb-3 h-5 w-5 text-primary" />
-              <p className="text-sm font-semibold text-stone-100">Passwordless</p>
-              <p className="mt-1 text-xs text-stone-400">Email-link access with no password UI.</p>
-            </div>
-            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
-              <CheckCircle2 className="mb-3 h-5 w-5 text-primary" />
-              <p className="text-sm font-semibold text-stone-100">Session guarded</p>
-              <p className="mt-1 text-xs text-stone-400">Private routes redirect to this gate.</p>
-            </div>
-            <div className="vish-auth-feature-card rounded-2xl border border-primary/20 bg-white/5 p-4">
-              <MailCheck className="mb-3 h-5 w-5 text-primary" />
-              <p className="text-sm font-semibold text-stone-100">Inbox verified</p>
-              <p className="mt-1 text-xs text-stone-400">Magic links keep access simple and auditable.</p>
-            </div>
-          </div>
-        </section>
-
-        <Card className="vish-auth-access-card vish-panel self-center rounded-[1.75rem] text-foreground">
-          <CardHeader className="pb-4">
-            <div className="mb-4 flex justify-center">
-              <div className="vish-access-logo-shell flex h-24 w-24 items-center justify-center rounded-[1.7rem] p-2">
-                <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="vish-access-logo h-full w-full rounded-2xl object-cover shadow-lg" />
+          {showConfigRequired && (
+            <div className="mb-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+              <div>
+                <p className="font-semibold text-destructive">Service configuration required</p>
+                <p className="text-muted-foreground">
+                  Production deploy is missing backend environment variables. Set Vercel vars per{' '}
+                  <code className="rounded bg-muted px-1 text-xs">docs/release/VERCEL_ENV.md</code>.
+                </p>
               </div>
             </div>
-            <div className="vish-card-mantra mx-auto mb-3 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
-              मन्त्र प्रवेश
-            </div>
-            <CardTitle className="text-center text-2xl">Request secure access</CardTitle>
-            <CardDescription className="text-center">
-              Enter your email and Vishvakarma.OS will send a secure sign-in link. No password required.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="vish-access-steps mb-5 grid gap-2 rounded-2xl border border-primary/15 bg-primary/5 p-3 sm:grid-cols-3">
-              {ACCESS_STEPS.map((step, index) => (
-                <div key={step} className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">{index + 1}</span>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
+          )}
 
-            {!isConfigured && (
-              <div className="mb-4 flex gap-3 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-                <div>
-                  <p className="font-semibold">Local workspace available</p>
-                  <p className="text-muted-foreground">
-                    Auth is disabled until real{' '}
-                    {backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase'} environment variables are
-                    configured. You can still draw, import, and export locally. Current mode: {mode}.
-                  </p>
-                </div>
+          {allowLocalWorkspace && (
+            <div className="mb-4 flex gap-3 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+              <div>
+                <p className="font-semibold">Local workspace available</p>
+                <p className="text-muted-foreground">
+                  Auth is disabled until real{' '}
+                  {backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase'} environment variables are
+                  configured. Current mode: {mode}.
+                </p>
               </div>
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-4">
+            <label className="block space-y-1.5">
+              <span className="vish-bilingual-label">
+                Email <span>- ई-पत्र</span>
+              </span>
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="architect@firm.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                disabled={!isConfigured || submitting || showConfigRequired}
+                className="vish-mockup-input"
+              />
+            </label>
+
+            {error && (
+              <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </p>
             )}
 
-            <form onSubmit={onSubmit} className="space-y-4">
-              <label className="block space-y-2 text-sm font-medium">
-                <span>Email address</span>
-                <span className="vish-email-field relative block">
-                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    disabled={!isConfigured || submitting}
-                    className="h-12 rounded-xl bg-white/75 pl-10 pr-3 text-base shadow-inner"
-                  />
-                </span>
-              </label>
+            {message && (
+              <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
+                {message}
+              </p>
+            )}
 
-              {error && (
-                <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {error}
-                </p>
-              )}
+            <button type="submit" className="vish-gold-button" disabled={!isConfigured || submitting || showConfigRequired}>
+              {submitting ? 'Sending access link…' : 'Sign in with email link'}
+            </button>
 
-              {message && (
-                <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
-                  {message}
-                </p>
-              )}
+            {allowLocalWorkspace && (
+              <button
+                type="button"
+                className="vish-oauth-button"
+                onClick={() => navigate('/')}
+              >
+                Enter local workspace · स्थानीय कार्यस्थान
+              </button>
+            )}
+          </form>
 
-              <Button type="submit" className="vish-auth-submit h-12 w-full rounded-xl bg-primary text-primary-foreground shadow-lg" disabled={!isConfigured || submitting}>
-                {submitting ? 'Sending access link…' : 'Send secure access link'}
-                {!submitting && <ArrowRight className="ml-2 h-4 w-4" />}
-              </Button>
+          <p className="mt-4 text-center text-[11px] text-muted-foreground text-pretty">
+            Magic-link only — no password. Social sign-in is not available in this release.
+          </p>
 
-              {!isConfigured && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 w-full rounded-xl border-primary/30"
-                  onClick={() => navigate('/')}
-                >
-                  Enter local workspace · स्थानीय कार्यस्थान
-                </Button>
-              )}
-            </form>
+          <button
+            type="button"
+            className="mt-5 flex w-full items-center justify-center gap-2 text-[11px] text-primary/70 hover:text-primary"
+            onClick={() => toast.message('Features & guides', { description: 'Open Spec Center after sign-in for governance docs and editor guides.' })}
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            Explore all features &amp; guides · विशेषताएँ
+          </button>
 
-            <div className="mt-5 rounded-2xl border border-border/70 bg-white/50 p-3 text-[11px] leading-5 text-muted-foreground">
-              <strong className="text-foreground">Access note:</strong> links open back into the same protected workspace.
-              {backendStatus.provider === 'firebase'
-                ? ' If the email does not arrive, check Firebase authorized domains and email-link settings.'
-                : ' If the email does not arrive, check Supabase email provider and redirect URL settings.'}
-            </div>
-          </CardContent>
-        </Card>
+          <button type="button" className="vish-oauth-button mt-3" onClick={handleInstall}>
+            <Download className="h-4 w-4 text-primary" />
+            Install as App · गृह-स्थापना
+          </button>
+        </div>
+
+        <div className="grid w-full gap-3 sm:grid-cols-2" data-testid="auth-trust-pillars">
+          <div className="vish-auth-feature-card rounded-xl border border-primary/20 bg-card/30 p-3 text-center backdrop-blur-sm">
+            <Shield className="mx-auto mb-2 h-4 w-4 text-primary" aria-hidden="true" />
+            <p className="text-[11px] font-semibold text-foreground">
+              {WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system
+            </p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              In-repo pre-release gates enforced before ship — not a Guinness title claim.
+            </p>
+          </div>
+          <div className="vish-auth-feature-card rounded-xl border border-primary/20 bg-card/30 p-3 text-center backdrop-blur-sm">
+            <Trophy className="mx-auto mb-2 h-4 w-4 text-primary" aria-hidden="true" />
+            <p className="text-[11px] font-semibold text-foreground">Self-Verified Candidate</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              World Records registry with SHA-256 proof — open after sign-in at /world-records.
+            </p>
+          </div>
+        </div>
       </div>
     </main>
   );

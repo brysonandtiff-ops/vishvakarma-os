@@ -2,13 +2,59 @@
 // verify:all - Honest release-gate validation for Vishvakarma.OS.
 // This script must never mark manual checks as passed.
 
-import { readFile, access } from 'fs/promises';
+import { readFile, access, writeFile } from 'fs/promises';
 import { constants } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 
 const strict = process.argv.includes('--strict');
 const gates = [];
+
+const GATE_IDS = [
+  'gate-1',
+  'gate-2',
+  'gate-3',
+  'gate-4',
+  'gate-5',
+  'gate-6',
+  'gate-7',
+  'gate-8',
+  'gate-9',
+  'gate-10',
+  'gate-11',
+  'gate-12',
+  'gate-13',
+];
+
+function mapGateUiStatus(scriptStatus) {
+  if (scriptStatus === 'PASS') return 'pass';
+  if (scriptStatus === 'FAIL') return 'fail';
+  return 'warning';
+}
+
+async function writeGateUiStatus(results, summary) {
+  const gateEntries = {};
+  for (const [index, gate] of results.entries()) {
+    const id = GATE_IDS[index];
+    if (!id) continue;
+    gateEntries[id] = {
+      status: mapGateUiStatus(gate.status),
+      message: gate.message,
+    };
+  }
+
+  const payload = {
+    generatedAt: new Date().toISOString(),
+    source: 'scripts/verify-all.js',
+    strict,
+    gates: gateEntries,
+    verification: summary,
+  };
+
+  const outPath = join(process.cwd(), 'src', 'governance', 'gates', 'gate-ui-status.json');
+  await writeFile(outPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+  console.log(`\nWrote UI gate status snapshot: ${outPath}`);
+}
 
 function pass(name, message, details = []) {
   return { name, status: 'PASS', passed: true, message, details };
@@ -95,7 +141,7 @@ async function checkRoutesGate() {
   }
 
   const routes = await readText(routesPath);
-  const requiredRoutes = ['/', '/spec-center', '/registry', '/change-requests', '/releases', '/audit'];
+  const requiredRoutes = ['/', '/spec-center', '/registry', '/change-requests', '/releases', '/audit', '/world-records'];
   const missing = requiredRoutes.filter((route) => !routes.includes(route));
 
   if (missing.length > 0) {
@@ -217,6 +263,33 @@ async function checkAutomatedCommandGate(name, command) {
   }
 }
 
+async function checkWorldRecordGate() {
+  const name = 'Gate 13: World record evidence present';
+  const measurementPath = join(process.cwd(), 'docs', 'world-record', 'latest-measurement.json');
+
+  if (!(await fileExists(measurementPath))) {
+    return checkManualGate(name, 'Run: pnpm run record:measure');
+  }
+
+  try {
+    const raw = await readText(measurementPath);
+    const measurement = JSON.parse(raw);
+    const gateCount = Number(measurement.gateCount ?? 0);
+    const metricGateCount = Number(measurement.metricGateCount ?? 12);
+
+    if (gateCount < 13 || metricGateCount < 12) {
+      return fail(name, 'World record measurement reports insufficient gate count.', [
+        `gateCount=${gateCount}`,
+        `metricGateCount=${metricGateCount}`,
+      ]);
+    }
+
+    return pass(name, `World record artifact present with ${metricGateCount} metric gates.`);
+  } catch (error) {
+    return fail(name, 'World record measurement JSON is invalid.', [String(error)]);
+  }
+}
+
 async function runAllGates() {
   console.log('Running honest release gates for Vishvakarma.OS\n');
   console.log('='.repeat(72));
@@ -233,6 +306,7 @@ async function runAllGates() {
   gates.push(await checkEvidenceGate('Gate 10: 2D/3D parity', 'docs/release/evidence/2d-3d-parity-proof.md'));
   gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));
   gates.push(await checkEvidenceGate('Gate 12: Performance acceptable', 'docs/release/evidence/performance-notes.md'));
+  gates.push(await checkWorldRecordGate());
 
   let passCount = 0;
   let manualCount = 0;
@@ -255,6 +329,17 @@ async function runAllGates() {
   console.log(`Passed: ${passCount}`);
   console.log(`Manual evidence required: ${manualCount}`);
   console.log(`Failed: ${failCount}`);
+
+  const verification = {
+    lint: passCount >= 6 && failCount === 0 ? 'pass' : failCount > 0 ? 'fail' : 'warning',
+    tests: gates[6]?.status === 'PASS' && gates[7]?.status === 'PASS' ? 'pass' : gates[6]?.status === 'FAIL' || gates[7]?.status === 'FAIL' ? 'fail' : 'pending',
+    build: 'pending',
+    note: strict
+      ? 'Counts from release:gates:strict run'
+      : 'Run pnpm run release:gates:strict locally or in CI for live test counts',
+  };
+
+  await writeGateUiStatus(gates, verification);
 
   if (failCount > 0) {
     console.log('\nRELEASE BLOCKED: failing gates must be fixed.');

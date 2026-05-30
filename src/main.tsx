@@ -3,19 +3,23 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import "./vish-theme.css";
 import "./ipad-workspace.css";
+import "./styles/vish-mockup-system.css";
 import "./styles/vish-auth-gate.css";
 import "./styles/vish-editor-polish.css";
 import "./styles/vish-governance-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
-import { enforce, enableDevelopmentMode } from "./governance/core/enforcer";
+import { enforce, enableDevelopmentMode, enableProductionMode } from "./governance/core/enforcer";
 
 // ============================================================================
 // GOVERNANCE ENFORCEMENT — APP STARTUP
 // ============================================================================
 
-// Enable development mode (auto-repair enabled)
-enableDevelopmentMode();
+if (import.meta.env.PROD) {
+  enableProductionMode();
+} else {
+  enableDevelopmentMode();
+}
 
 // Run enforcement check on startup
 const startupEnforcement = enforce();

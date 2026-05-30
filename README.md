@@ -368,6 +368,26 @@ See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the ful
 
 ---
 
+## Production deployment (Vercel)
+
+Before inviting users to [https://vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app), configure **Production** environment variables in the Vercel project:
+
+| Variable | Value |
+|----------|-------|
+| `VITE_BACKEND_PROVIDER` | `supabase` |
+| `VITE_SUPABASE_URL` | Your Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Your Supabase anon key |
+
+Optional Firebase auth variables and operator steps (migrations, RLS, smoke tests) are documented in [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md).
+
+Validate locally:
+
+```bash
+pnpm run production:verify-env
+```
+
+---
+
 ## Platform
 
 - **iPad-first** — all touch targets ≥ 44×44 px
@@ -386,6 +406,7 @@ See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the ful
 | [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance system quick-start guide |
 | [`docs/GOVERNANCE_IMPLEMENTATION.md`](docs/GOVERNANCE_IMPLEMENTATION.md) | Governance architecture deep-dive |
 | [`docs/RELEASE_v1.0.0.md`](docs/RELEASE_v1.0.0.md) | v1.0.0 release notes and evidence pack |
+| [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Vercel production environment variables |
 | [`docs/REGISTRY.md`](docs/REGISTRY.md) | Registry documentation |
 | [`docs/RELEASE.md`](docs/RELEASE.md) | Release process documentation |
 | [`tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md`](tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md) | Complete build document |

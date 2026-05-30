@@ -20,29 +20,25 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('vish-sanskrit-column');
     expect(authPage).toContain('vish-mandala-aura');
     expect(authPage).toContain('vish-mandala-ring-outer');
-    expect(authPage).toContain('मन्त्र matrix · secure architecture gate');
+    expect(authPage).toContain('vish-auth-card-mockup');
   });
 
-  it('keeps the trust/status strip and official auth copy intact', () => {
-    const authPage = read('src/pages/AuthPage.tsx');
-
-    expect(authPage).toContain('TRUST_PILLARS');
-    expect(authPage).toContain('vish-auth-trust-strip');
-    expect(authPage).toContain('Secure session gate');
-    expect(authPage).toContain('Governance audit ready');
-    expect(authPage).toContain('iPad-first workspace');
-    expect(authPage).toContain('Release evidence locked');
-  });
-
-  it('keeps official logo treatment and auth form intact', () => {
+  it('keeps mockup auth card copy and magic-link flow intact', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
     expect(authPage).toContain('OFFICIAL_LOGO_SRC');
     expect(authPage).toContain('vish-logo-tile-animated');
     expect(authPage).toContain('vish-access-logo');
-    expect(authPage).toContain('Request secure access');
-    expect(authPage).toContain('Send secure access link');
+    expect(authPage).toContain('VISHVAKARMA.OS');
+    expect(authPage).toContain('iPad-Native Architecture Suite');
     expect(authPage).toContain('requestAccessLink(email)');
+    expect(authPage).toContain('Sign in with email link');
+    expect(authPage).toContain('Magic-link only');
+    expect(authPage).toContain('auth-trust-pillars');
+    expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system');
+    expect(authPage).not.toContain('Continue with Google');
+    expect(authPage).not.toContain('Forgot password?');
+    expect(authPage).not.toContain('type="password"');
   });
 
   it('keeps the premium workspace shell treatment after login', () => {

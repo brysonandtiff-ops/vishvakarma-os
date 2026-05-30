@@ -1,48 +1,91 @@
-// Properties Panel for Selected Elements
+// Properties Panel for Selected Elements and tool defaults
+import { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, Ruler, DoorOpen, SquareDashed } from 'lucide-react';
-import type { Wall, Opening } from '@/types';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
+import { getToolDefaults } from '@/components/editor/toolDefaults';
+import type { ToolType, Wall, Opening } from '@/types';
 
 interface PropertiesPanelProps {
+  currentTool: ToolType;
   selectedWall?: Wall;
   openings: Opening[];
   onWallUpdate: (wallId: string, updates: Partial<Wall>) => void;
   onOpeningUpdate: (openingId: string, updates: Partial<Opening>) => void;
   onWallDelete: (wallId: string) => void;
   onOpeningDelete: (openingId: string) => void;
+  morePanel?: React.ReactNode;
+}
+
+function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
+  const config = getToolDefaults(currentTool);
+
+  return (
+    <div className="space-y-4 px-4 py-4">
+      <div>
+        <p className="ws-pane-label text-primary">Properties</p>
+        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ws-text">
+          {config.sectionTitle}
+        </p>
+      </div>
+      {config.fields.map((field) => (
+        <div key={field.id} className="space-y-1.5">
+          <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">
+            {field.label}
+          </Label>
+          {field.type === 'select' ? (
+            <select
+              className="vish-mockup-input h-9 text-xs"
+              defaultValue={field.value}
+              aria-label={field.label}
+            >
+              {field.options?.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              readOnly
+              value={field.value}
+              aria-label={field.label}
+              className="vish-mockup-input h-9 text-xs"
+            />
+          )}
+        </div>
+      ))}
+      <p className="text-[10px] text-ws-text-faint">{config.footnote}</p>
+    </div>
+  );
 }
 
 export default function PropertiesPanel({
+  currentTool,
   selectedWall,
   openings,
   onWallUpdate,
   onOpeningUpdate,
   onWallDelete,
   onOpeningDelete,
+  morePanel,
 }: PropertiesPanelProps) {
+  const [moreOpen, setMoreOpen] = useState(false);
+
   if (!selectedWall) {
     return (
-      <div className="flex h-full flex-col" style={{ background: 'hsl(var(--ws-panel))', borderLeft: '1px solid hsl(var(--ws-border))' }}>
-        {/* Panel header */}
-        <div className="ws-pane-header">
-          <span className="ws-pane-label">Properties</span>
-        </div>
-        {/* Empty state */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-ws-border bg-ws-toolbar">
-            <Ruler className="h-5 w-5 text-ws-text-faint" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-ws-text">No selection</p>
-            <p className="mt-0.5 text-[10px] text-ws-text-faint text-pretty">
-              Select a wall to view and edit its properties
-            </p>
-          </div>
-        </div>
+      <div className="vish-dark-panel flex h-full flex-col">
+        <ToolDefaultsPanel currentTool={currentTool} />
+        {morePanel && (
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="border-t border-ws-border">
+            <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+              More panels
+              <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent>{morePanel}</CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
     );
   }
@@ -55,20 +98,15 @@ export default function PropertiesPanel({
   const wallOpenings = openings.filter((o) => o.wallId === selectedWall.id);
 
   return (
-    <div
-      className="flex h-full flex-col overflow-y-auto"
-      style={{ background: 'hsl(var(--ws-panel))', borderLeft: '1px solid hsl(var(--ws-border))' }}
-    >
-      {/* Panel header */}
+    <div className="vish-dark-panel flex h-full flex-col overflow-y-auto">
       <div className="ws-pane-header shrink-0">
         <span className="ws-pane-label">Wall Properties</span>
         <span className="ws-pane-stat">{selectedWall.id.slice(0, 10)}</span>
       </div>
 
       <div className="flex-1 space-y-0 overflow-y-auto">
-        {/* Dimensions section */}
         <div className="ws-panel-section px-3 py-3">
-          <p className="ws-panel-label mb-2 px-0 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">Dimensions</p>
+          <p className="mb-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">Dimensions</p>
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-ws-text-faint">Length</span>
@@ -78,8 +116,6 @@ export default function PropertiesPanel({
               <span className="text-[10px] text-ws-text-faint">ID</span>
               <span className="font-mono text-[10px] text-ws-text">{selectedWall.id.slice(0, 12)}...</span>
             </div>
-
-            {/* Thickness */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="thickness" className="text-[10px] font-normal text-ws-text-faint">Thickness</Label>
@@ -93,8 +129,6 @@ export default function PropertiesPanel({
                 className="w-full"
               />
             </div>
-
-            {/* Height */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="height" className="text-[10px] font-normal text-ws-text-faint">Height</Label>
@@ -113,13 +147,10 @@ export default function PropertiesPanel({
 
         <Separator className="bg-ws-border" />
 
-        {/* Openings section */}
         <div className="px-3 py-3">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
-              Openings ({wallOpenings.length})
-            </p>
-          </div>
+          <p className="mb-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
+            Openings ({wallOpenings.length})
+          </p>
           {wallOpenings.length === 0 ? (
             <p className="text-[10px] text-ws-text-faint">No doors or windows on this wall</p>
           ) : (
@@ -129,16 +160,15 @@ export default function PropertiesPanel({
                 return (
                   <div
                     key={opening.id}
-                    className="rounded-lg border border-ws-border-subtle bg-ws-toolbar p-2.5 space-y-2"
+                    className="space-y-2 rounded-lg border border-ws-border-subtle bg-ws-toolbar p-2.5"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <OpeningIcon className="h-3 w-3 text-ws-text-dim" />
-                        <span className="text-[10px] font-semibold capitalize text-ws-text">
-                          {opening.type}
-                        </span>
+                        <span className="text-[10px] font-semibold capitalize text-ws-text">{opening.type}</span>
                       </div>
                       <button
+                        type="button"
                         onClick={() => onOpeningDelete(opening.id)}
                         className="flex h-5 w-5 items-center justify-center rounded text-ws-text-faint transition-colors hover:bg-destructive/20 hover:text-destructive"
                         aria-label={`Delete ${opening.type}`}
@@ -146,7 +176,6 @@ export default function PropertiesPanel({
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>
-
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <Label className="text-[10px] font-normal text-ws-text-faint">Width</Label>
@@ -193,7 +222,6 @@ export default function PropertiesPanel({
 
         <Separator className="bg-ws-border" />
 
-        {/* Delete */}
         <div className="px-3 py-3">
           <Button
             variant="destructive"
@@ -205,6 +233,16 @@ export default function PropertiesPanel({
             Delete Wall
           </Button>
         </div>
+
+        {morePanel && (
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="border-t border-ws-border">
+            <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+              More panels
+              <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent>{morePanel}</CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
     </div>
   );

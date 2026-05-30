@@ -8,6 +8,7 @@ const expectedRoutePaths = [
   '/registry',
   '/change-requests',
   '/releases',
+  '/world-records',
   '/audit',
 ];
 
@@ -17,6 +18,7 @@ const expectedPrivateRoutePaths = [
   '/registry',
   '/change-requests',
   '/releases',
+  '/world-records',
   '/audit',
 ];
 

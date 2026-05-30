@@ -10,25 +10,23 @@ import {
   XCircle,
   AlertCircle,
   Package,
-  Shield,
-  FileCheck,
-  Database,
-  Zap,
-  Eye,
-  TestTube,
-  Target,
-  Lock,
-  TrendingUp,
+  ScanLine,
   FlaskConical,
   Hammer,
-  ScanLine,
   ChevronDown,
   ChevronRight,
   Rocket,
 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { getReleases } from '@/db/api';
+import {
+  downloadEvidencePack,
+  getBuildVerificationSummary,
+  getReleaseGatesForUi,
+  RELEASE_GATE_COUNT,
+} from '@/governance/gates/releaseGateManifest';
 import type { Release } from '@/types';
+import { Link } from 'react-router';
 
 interface ReleaseGate {
   id: string;
@@ -71,181 +69,72 @@ export default function ReleasesPage() {
     setShowStopShipViolations((prev) => !prev);
   }
 
-  // Release gates — all statuses are derived from real programmatic checks
-  // (see scripts/verify-gates.cjs for the authoritative verification logic)
-  const releaseGates: ReleaseGate[] = [
-    {
-      id: 'gate-1',
-      name: 'Spec Present and Valid',
-      description: 'Blueprint Editor specification exists, is complete, and is locked',
-      status: 'pass',
-      message: 'SPEC.md validated — all required sections present and locked',
-      icon: FileCheck,
-      link: '/docs/SPEC.md',
-      evidence: [
-        '✓ Status field: **LOCKED** confirmed in docs/SPEC.md',
-        '✓ Spec hash present — content fingerprint matches',
-        '✓ Version header: Blueprint Editor v1.0.0',
-        '✓ All required sections: Overview, Architecture, Components, Data Model',
-      ],
-    },
-    {
-      id: 'gate-2',
-      name: 'Registry Valid',
-      description: 'All entities registered with complete schemas and documentation',
-      status: 'pass',
-      message: '8 core entities documented in REGISTRY.md with full schemas',
-      icon: Database,
-      link: '/docs/REGISTRY.md',
-      evidence: [
-        '✓ Project — id, name, manifest, created_at, updated_at',
-        '✓ ProjectManifest — version, walls, openings, materials, lighting',
-        '✓ GridSettings — gridSize, snapToGrid, snapRadius',
-        '✓ WallSegment — id, start, end, thickness, height, material',
-        '✓ Opening — id, wallId, type, position, width, height',
-        '✓ MaterialPreset — id, name, color, roughness, metalness',
-        '✓ EnvironmentState — sunAzimuth, sunElevation, ambientIntensity',
-        '✓ ViewportState — zoom, pan, show3D, gridVisible',
-      ],
-    },
-    {
-      id: 'gate-3',
-      name: 'Routes Match Manifest',
-      description: 'All application routes declared and implemented',
-      status: 'pass',
-      message: '6/6 routes registered in src/routes.tsx',
-      icon: Shield,
-      evidence: [
-        '✓ / → EditorPage (blueprint editor)',
-        '✓ /spec-center → SpecCenterPage',
-        '✓ /registry → RegistryPage',
-        '✓ /change-requests → ChangeRequestsPage',
-        '✓ /releases → ReleasesPage',
-        '✓ /audit → AuditLogPage',
-        '✓ Undefined paths redirect to root via catch-all route',
-      ],
-    },
-    {
-      id: 'gate-4',
-      name: 'Sample Loads Successfully',
-      description: 'Sample project validates and loads without errors',
-      status: 'pass',
-      message: 'sample-house-01.json passes full schema validation',
-      icon: Package,
-      evidence: [
-        '✓ version: "1.0.0" matches MANIFEST_VERSION constant',
-        '✓ walls: 4 segments (wall-1 through wall-4)',
-        '✓ openings: 3 items (door-1, window-1, window-2)',
-        '✓ lighting: sunAzimuth, sunElevation, intensity all present',
-        '✓ gridSize and snapToGrid present',
-        '✓ All opening.wallId refs resolve to valid wall IDs',
-      ],
-    },
-    {
-      id: 'gate-5',
-      name: 'Save/Load Deterministic',
-      description: 'Save → Load cycle reproduces identical manifest state',
-      status: 'pass',
-      message: 'Manifest roundtrip verified deterministic — stable IDs, no timestamp drift',
-      icon: Zap,
-      evidence: [
-        '✓ Wall IDs use stable slugs (wall-1…wall-4), not Date.now()',
-        '✓ Opening IDs use stable slugs (door-1, window-1, window-2)',
-        '✓ Double-serialisation test: JSON.stringify output identical across two passes',
-        '✓ Opening → wall foreign key refs validated before export',
-        '✓ exportedAt / metadata.modified are audit fields — excluded from parity check',
-        '✓ New project IDs generated as uuid-v4 strings, not epoch integers',
-      ],
-    },
-    {
-      id: 'gate-6',
-      name: '2D/3D Parity',
-      description: 'Same manifest produces identical 2D and 3D representations',
-      status: 'pass',
-      message: 'Both renderers consume identical Wall[] / Opening[] arrays from @/types',
-      icon: Eye,
-      evidence: [
-        '✓ BlueprintCanvas and Viewport3D both import Wall, Opening from @/types',
-        '✓ Both accept walls: Wall[] and openings: Opening[] props — no copy or transform',
-        '✓ BlueprintCanvas draws walls via walls.forEach() — full array consumed',
-        '✓ Viewport3D renders walls via walls.map() → <WallMesh> — full array consumed',
-        '✓ No intermediate state: both renderers read directly from EditorPage state',
-        '✓ Structural parity confirmed — same data, two renderers, zero divergence',
-      ],
-    },
-    {
-      id: 'gate-7',
-      name: 'Tests Green',
-      description: 'All automated tests pass with zero failures',
-      status: 'pass',
-      message: '382/382 tests passing across 18 test files — 0 failures',
-      icon: TestTube,
-      evidence: [
-        '✓ vitest.config.ts present and configured',
-        '✓ 15 test files in src/test/ (18 total including integration)',
-        '✓ Test domains: collaborationEngine, multiUserGovernance, elementLock,',
-        '  canvasEngine, roomCalculations, governanceLock, versionControl, export/import',
-        '✓ npm test: 382 passing, 0 failing, 0 skipped',
-        '✓ npm run verify: lint → test → build all green',
-      ],
-    },
-    {
-      id: 'gate-8',
-      name: 'Touch Targets Valid',
-      description: 'All interactive elements meet iPad touch target size (≥44px)',
-      status: 'pass',
-      message: 'All controls ≥44px — .touch-target class enforced via index.css',
-      icon: Target,
-      evidence: [
-        '✓ .touch-target { min-height: 44px; min-width: 44px } in index.css',
-        '✓ ToolRail buttons: 48×48px via .architect-tool-button',
-        '✓ MenuBar buttons: h-9 (36px) with full-row tap area via padding',
-        '✓ Dialog / Sheet close buttons: h-8 w-8 minimum',
-        '✓ Tooltip delayDuration={400} prevents accidental trigger on touch',
-      ],
-    },
-    {
-      id: 'gate-9',
-      name: 'No Spec Drift',
-      description: 'All UI elements declared in spec — no undocumented features',
-      status: 'pass',
-      message: 'All 5 tools and 6 modes declared in SPEC.md and ToolRail.tsx',
-      icon: Lock,
-      evidence: [
-        '✓ select tool — registered in ToolRail and SPEC.md §Tools',
-        '✓ wall tool — registered in ToolRail and SPEC.md §Tools',
-        '✓ door tool — registered in ToolRail and SPEC.md §Tools',
-        '✓ window tool — registered in ToolRail and SPEC.md §Tools',
-        '✓ measure tool — registered in ToolRail and SPEC.md §Tools',
-        '✓ src/core/specValidation.ts validates against registered element list',
-      ],
-    },
-    {
-      id: 'gate-10',
-      name: 'Performance Acceptable',
-      description: 'Editor performs well on target hardware — iPad Air 2020',
-      status: 'pass',
-      message: 'All 7/7 performance optimisation checks verified via static analysis',
-      icon: TrendingUp,
-      evidence: [
-        '✓ R3F Canvas <Canvas shadows> — GPU shadow map, not CPU raycast',
-        '✓ OrbitControls enableDamping={true} dampingFactor={0.05} — smooth 60fps camera',
-        '✓ WebGL pre-check (detectWebGL) — avoids failed canvas init cost',
-        '✓ WebGL error boundary — graceful degradation, no blank screen hang',
-        '✓ BlueprintCanvas wall.id usage — stable identity, no full redraw on selection',
-        '✓ Touch targets ≥44px — no mis-tap penalty on iPad',
-        '✓ Tooltip delayDuration={400} — no tooltip flicker during gesture',
-      ],
-    },
-  ];
+  // Release gates — aligned with scripts/verify-all.js via gate-manifest.json
+  const releaseGates: ReleaseGate[] = getReleaseGatesForUi();
 
   const passedGates = releaseGates.filter((g) => g.status === 'pass').length;
   const failedGates = releaseGates.filter((g) => g.status === 'fail').length;
   const warningGates = releaseGates.filter((g) => g.status === 'warning').length;
+  const pendingGates = releaseGates.filter((g) => g.status === 'pending').length;
   const totalGates = releaseGates.length;
   const passPercentage = (passedGates / totalGates) * 100;
 
-  const buildStatus = failedGates > 0 ? 'RED' : warningGates > 0 ? 'YELLOW' : 'GREEN';
+  const buildStatus =
+    failedGates > 0 ? 'RED' : warningGates > 0 || pendingGates > 0 ? 'YELLOW' : 'GREEN';
+
+  const verification = getBuildVerificationSummary();
+  const snapshotDate = new Date(verification.generatedAt).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
+  const verificationRows = [
+    {
+      icon: ScanLine,
+      label: 'Lint',
+      status: verification.lint,
+      value:
+        verification.lint === 'pass'
+          ? 'Automated gates 1–6 pass'
+          : verification.lint === 'fail'
+            ? 'Gate failures'
+            : 'Not verified in snapshot',
+      detail: 'From gate-ui-status.json · run pnpm run release:gates',
+    },
+    {
+      icon: FlaskConical,
+      label: 'Tests',
+      status: verification.tests,
+      value:
+        verification.testsPassed != null && verification.testsTotal != null
+          ? `${verification.testsPassed} / ${verification.testsTotal}`
+          : verification.tests === 'pass'
+            ? 'Strict run passed'
+            : 'Run release:gates:strict',
+      detail: verification.note,
+    },
+    {
+      icon: Hammer,
+      label: 'Build',
+      status: verification.build,
+      value:
+        verification.build === 'pass'
+          ? 'dist/ ready'
+          : verification.build === 'fail'
+            ? 'Build failed'
+            : 'Run pnpm run build in CI',
+      detail: 'Last verified at build time — not a live CI run',
+    },
+  ] as const;
+
+  async function handleEvidencePackDownload() {
+    try {
+      await downloadEvidencePack();
+      toast.success('Evidence pack downloaded');
+    } catch {
+      toast.error('Could not download evidence pack');
+    }
+  }
 
   function getStatusIcon(status: string) {
     switch (status) {
@@ -300,8 +189,8 @@ export default function ReleasesPage() {
                 }`} />
                 Build: {buildStatus}
               </div>
-              <Button variant="outline" size="sm" onClick={() => toast.info('Evidence pack generation requires a release record.')}>
-                Generate Evidence Pack
+              <Button variant="outline" size="sm" onClick={() => void handleEvidencePackDownload()}>
+                Download Evidence Pack
               </Button>
             </div>
           </div>
@@ -310,54 +199,55 @@ export default function ReleasesPage() {
         <ScrollArea className="flex-1">
           <div className="mx-auto max-w-5xl space-y-6 p-6">
 
-            {/* Live Verification Health Banner */}
+            {/* Verification snapshot — from gate-ui-status.json (pnpm run release:gates) */}
             <div className="rounded-xl border border-border bg-card shadow-sm">
               <div className="flex items-center justify-between border-b border-border px-5 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Live Verification Status
+                  Verification Snapshot
                 </p>
-                <Badge variant="outline" className="border-success/40 bg-success/10 font-mono text-[10px] text-success">
-                  Last run: current build
+                <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
+                  Last verified: {snapshotDate}
                 </Badge>
               </div>
+              <p className="border-b border-border px-5 py-2 text-[10px] text-muted-foreground text-pretty">
+                Status reflects the committed gate snapshot, not a live CI run. Run{' '}
+                <code className="rounded bg-muted px-1">pnpm run release:gates:strict</code> locally or in CI, then
+                commit <code className="rounded bg-muted px-1">src/governance/gates/gate-ui-status.json</code>.
+              </p>
               <div className="grid grid-cols-3 divide-x divide-border">
-                {[
-                  {
-                    icon: ScanLine,
-                    label: 'Lint',
-                    value: '0 errors',
-                    detail: '127 files · Biome + tsgo + ast-grep',
-                    pass: true,
-                  },
-                  {
-                    icon: FlaskConical,
-                    label: 'Tests',
-                    value: '382 / 382',
-                    detail: '18 test files · Vitest · 0 failures',
-                    pass: true,
-                  },
-                  {
-                    icon: Hammer,
-                    label: 'Build',
-                    value: 'dist/ ready',
-                    detail: 'Vite · all modules · 0 errors',
-                    pass: true,
-                  },
-                ].map(({ icon: Icon, label, value, detail, pass }) => (
-                  <div key={label} className="flex items-start gap-3 p-4">
-                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${pass ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                      <Icon className={`h-4 w-4 ${pass ? 'text-success' : 'text-destructive'}`} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-semibold text-foreground">{label}</p>
-                        <CheckCircle2 className="h-3 w-3 text-success" />
+                {verificationRows.map(({ icon: Icon, label, status, value, detail }) => {
+                  const pass = status === 'pass';
+                  const warn = status === 'warning' || status === 'pending';
+                  return (
+                    <div key={label} className="flex items-start gap-3 p-4">
+                      <div
+                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                          pass ? 'bg-success/10' : warn ? 'bg-warning/10' : 'bg-destructive/10'
+                        }`}
+                      >
+                        <Icon
+                          className={`h-4 w-4 ${
+                            pass ? 'text-success' : warn ? 'text-warning' : 'text-destructive'
+                          }`}
+                        />
                       </div>
-                      <p className="font-mono text-sm font-bold text-foreground">{value}</p>
-                      <p className="text-[10px] text-muted-foreground text-pretty">{detail}</p>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-semibold text-foreground">{label}</p>
+                          {pass ? (
+                            <CheckCircle2 className="h-3 w-3 text-success" />
+                          ) : warn ? (
+                            <AlertCircle className="h-3 w-3 text-warning" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-destructive" />
+                          )}
+                        </div>
+                        <p className="font-mono text-sm font-bold text-foreground">{value}</p>
+                        <p className="text-[10px] text-muted-foreground text-pretty">{detail}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -379,7 +269,7 @@ export default function ReleasesPage() {
                   variant={buildStatus === 'GREEN' ? 'default' : 'outline'}
                   disabled={buildStatus === 'RED'}
                   className="shrink-0 gap-2"
-                  onClick={() => buildStatus === 'GREEN' && toast.success('Release marked as ready — all 10 gates passed.')}
+                  onClick={() => buildStatus === 'GREEN' && toast.success(`Release marked as ready — all ${RELEASE_GATE_COUNT} gates passed.`)}
                 >
                   {buildStatus === 'GREEN' ? (
                     <><Rocket className="h-3.5 w-3.5" />Mark as Ready</>
@@ -417,12 +307,13 @@ export default function ReleasesPage() {
                   <div>
                     <p className="text-sm font-semibold text-success">Release Ready</p>
                     <p className="mt-0.5 text-xs text-muted-foreground text-pretty">
-                      All 10 release gates have passed programmatic verification.
-                      Spec is locked, registry is complete, routes are registered,
-                      sample loads correctly, save/load is deterministic, 2D/3D renderers
-                      share the same data source, 382 tests pass, touch targets meet
-                      iPad standards, no spec drift detected, and performance
-                      optimisations are in place.
+                      All {RELEASE_GATE_COUNT} release gates report pass in the committed snapshot (
+                      {snapshotDate}).{' '}
+                      <Link to="/world-records" className="text-primary underline-offset-2 hover:underline">
+                        View world record evidence
+                      </Link>
+                      . Re-run <code className="rounded bg-muted px-1">pnpm run release:gates:strict</code> before
+                      shipping to refresh counts and evidence files.
                     </p>
                   </div>
                 </div>
@@ -433,9 +324,9 @@ export default function ReleasesPage() {
                   <div>
                     <p className="text-sm font-semibold text-warning">Not Release Ready</p>
                     <p className="mt-0.5 text-xs text-muted-foreground text-pretty">
-                      {warningGates} gate{warningGates !== 1 ? 's' : ''} require attention before this
-                      build can be marked as ready. Expand each warning gate below for details
-                      and the specific fix required.
+                      {warningGates + pendingGates} gate{warningGates + pendingGates !== 1 ? 's' : ''} require
+                      attention before this build can be marked as ready. Expand each non-pass gate below for
+                      details and the fix required.
                     </p>
                   </div>
                 </div>

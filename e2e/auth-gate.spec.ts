@@ -14,12 +14,8 @@ test.describe('Authentication and Private Route Gate', () => {
   for (const route of privateRoutes) {
     test(`redirects unauthenticated user from ${route} to /auth`, async ({ page }) => {
       await page.goto(route);
-      
-      // Wait for the client-side/server-side redirect to settle
-      await page.waitForURL('**/auth*');
-      
-      // Verify the URL path explicitly ends up resolving to the auth page
-      expect(page.url()).toContain('/auth');
+      await page.waitForURL('**/auth**');
+      await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
     });
   }
 

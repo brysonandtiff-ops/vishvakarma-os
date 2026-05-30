@@ -19,13 +19,14 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   UserCircle,
+  Trophy,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, createContext, useContext } from 'react';
 import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/components/workspace/WorkspaceCommandPalette';
-import { WorkspaceStatusHub } from '@/components/workspace/WorkspaceStatusHub';
 import { WorkspaceNotifications } from '@/components/workspace/WorkspaceNotifications';
 import { loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
+import { getCommandPaletteShortcutLabel } from '@/utils/commandPaletteShortcut';
 import '@/styles/vish-workspace-shell.css';
 
 function openCommandPalette() {
@@ -34,6 +35,13 @@ function openCommandPalette() {
 
 interface AppLayoutProps {
   children: React.ReactNode;
+  immersive?: boolean;
+}
+
+const GovernanceNavContext = createContext<{ openNav: () => void }>({ openNav: () => {} });
+
+export function useGovernanceNav() {
+  return useContext(GovernanceNavContext);
 }
 
 const allNav = [
@@ -42,6 +50,7 @@ const allNav = [
   { name: 'Registry',         path: '/registry',         icon: Database,       group: 'GOVERNANCE' },
   { name: 'Change Requests',  path: '/change-requests',  icon: GitPullRequest, group: 'GOVERNANCE' },
   { name: 'Release Center',   path: '/releases',         icon: Package,        group: 'GOVERNANCE' },
+  { name: 'World Records',    path: '/world-records',    icon: Trophy,         group: 'GOVERNANCE' },
   { name: 'Audit Log',        path: '/audit',            icon: History,        group: 'SYSTEM' },
 ];
 
@@ -109,6 +118,7 @@ function SidebarContent({
     SYSTEM: 'System',
   };
   const accountLabel = profile?.full_name || user?.email || 'Local User';
+  const paletteShortcut = getCommandPaletteShortcutLabel();
 
   const handleSignOut = async () => {
     await signOut();
@@ -154,7 +164,7 @@ function SidebarContent({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={6} className="text-xs">
-                Command palette · ⌘K
+                Command palette · {paletteShortcut}
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -167,7 +177,7 @@ function SidebarContent({
               <Search className="h-4 w-4 shrink-0 opacity-70" />
               <span className="min-w-0 truncate text-xs">Search workspace…</span>
               <kbd className="ml-auto rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[9px] font-medium tracking-widest text-ws-text-faint">
-                ⌘K
+                {paletteShortcut}
               </kbd>
             </button>
           )}
@@ -249,7 +259,7 @@ function SidebarContent({
   );
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+export default function AppLayout({ children, immersive = false }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [prefs, setPrefs] = useState(() => loadWorkspacePrefs());
 
@@ -259,10 +269,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const toggleCollapsed = useCallback(() => setPrefs(prev => ({ ...prev, sidebarCollapsed: !prev.sidebarCollapsed })), []);
   const collapsed = prefs.sidebarCollapsed;
+  const openNav = useCallback(() => setMobileOpen(true), []);
 
   return (
-    <div className="vish-workspace-shell flex min-h-screen w-full bg-background" data-density={prefs.density}>
+    <GovernanceNavContext.Provider value={{ openNav }}>
+    <div className="vish-workspace-shell flex min-h-screen w-full bg-background" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
       <WorkspaceCommandPalette />
+      {!immersive && (
       <aside
         className={`relative hidden shrink-0 border-r border-ws-border lg:block ${collapsed ? 'w-16' : 'w-60'}`}
       >
@@ -276,8 +289,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
       </aside>
+      )}
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        {!immersive && (
         <SheetTrigger asChild>
           <Button
             variant="ghost"
@@ -288,7 +303,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0 border-r-0">
+        )}
+        <SheetContent side="left" className="w-72 p-0 border-r-0 bg-ws-sidebar">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
@@ -298,5 +314,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="flex-1 overflow-x-hidden overflow-y-auto">{children}</div>
       </main>
     </div>
+    </GovernanceNavContext.Provider>
   );
 }

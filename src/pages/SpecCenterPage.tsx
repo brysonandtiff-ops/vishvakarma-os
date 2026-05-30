@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck } from 'lucide-react';
+import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
@@ -50,6 +50,7 @@ const specContent = `## Required UI Regions
 export default function SpecCenterPage() {
   const [specs, setSpecs] = useState<Spec[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [fullSpecOpen, setFullSpecOpen] = useState(false);
   const [newSpecOpen, setNewSpecOpen] = useState(false);
   const [selectedSpec, setSelectedSpec] = useState<{ title: string; content: string } | null>(null);
@@ -64,9 +65,15 @@ export default function SpecCenterPage() {
 
   async function loadSpecs() {
     setLoading(true);
-    const data = await getSpecs();
-    setSpecs(data);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const data = await getSpecs();
+      setSpecs(data);
+    } catch {
+      setLoadError('Failed to load specifications');
+    } finally {
+      setLoading(false);
+    }
   }
 
   function openFeaturedSpec() {
@@ -138,6 +145,18 @@ export default function SpecCenterPage() {
 
         <ScrollArea className="flex-1">
           <div className="mx-auto max-w-5xl space-y-6 p-6">
+            {loadError && (
+              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {loadError}
+              </div>
+            )}
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="mt-3 text-sm">Loading specifications…</p>
+              </div>
+            )}
             {/* Blueprint Editor Spec — Featured */}
             <Card className="overflow-hidden border-2 border-primary/60 shadow-md">
               <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-6 py-3">

@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, Database, Wrench, Box, Layers } from 'lucide-react';
+import { Plus, Database, Wrench, Box, Layers, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { getRegistryEntries, createRegistryEntry } from '@/db/api';
 import type { RegistryEntry } from '@/types';
@@ -19,18 +19,25 @@ import type { RegistryEntry } from '@/types';
 export default function RegistryPage() {
   const [entries, setEntries] = useState<RegistryEntry[]>([]);
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadEntries();
   }, []);
 
   const loadEntries = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const data = await getRegistryEntries();
       setEntries(data);
-    } catch (error) {
-      console.error('Failed to load registry:', error);
+    } catch (err) {
+      console.error('Failed to load registry:', err);
+      setError('Failed to load registry entries');
       toast.error('Failed to load registry entries');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,6 +94,18 @@ export default function RegistryPage() {
 
         <ScrollArea className="flex-1">
           <div className="p-6">
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="mt-3 text-sm">Loading registry entries…</p>
+              </div>
+            ) : (
             <Tabs value={selectedType} onValueChange={setSelectedType}>
               <TabsList className="mb-6">
                 {types.map((type) => (
@@ -187,6 +206,7 @@ export default function RegistryPage() {
                 )}
               </TabsContent>
             </Tabs>
+            )}
           </div>
         </ScrollArea>
       </div>

@@ -29,15 +29,15 @@ test.describe('iPad production readiness', () => {
     await page.setViewportSize(iPadLandscape);
     await page.goto('/auth');
 
-    await expect(page.getByRole('heading', { name: /vishvakarma\.os/i })).toBeVisible();
-    await expect(page.getByText(/request secure access/i).first()).toBeVisible();
+    await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+    await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
   });
 
   test('auth gate fits iPad portrait viewport', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
     await page.goto('/auth');
 
-    await expect(page.getByRole('heading', { name: /vishvakarma\.os/i })).toBeVisible();
-    await expect(page.getByText(/request secure access/i).first()).toBeVisible();
+    await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+    await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
   });
 });

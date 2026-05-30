@@ -10,7 +10,7 @@ interface MaterialPickerProps {
   onMaterialSelect: (materialId: string) => void;
 }
 
-const materialPresets: Material[] = [
+export const MATERIAL_PRESETS: Material[] = [
   {
     id: 'material-paint',
     name: 'Paint',
@@ -34,12 +34,20 @@ const materialPresets: Material[] = [
   },
 ];
 
+export function getMaterialVisual(materialId: string): { color: string; roughness: number; metalness: number } {
+  const preset = MATERIAL_PRESETS.find((material) => material.id === materialId);
+  if (preset) {
+    return { color: preset.color, roughness: preset.roughness, metalness: preset.metalness ?? 0.06 };
+  }
+  return { color: '#B5A58F', roughness: 0.72, metalness: 0.06 };
+}
+
 export default function MaterialPicker({
   materials,
   selectedMaterial,
   onMaterialSelect,
 }: MaterialPickerProps) {
-  const allMaterials = [...materialPresets, ...materials];
+  const allMaterials = [...MATERIAL_PRESETS, ...materials];
 
   return (
     <Card>

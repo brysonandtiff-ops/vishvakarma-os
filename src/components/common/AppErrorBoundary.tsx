@@ -34,12 +34,12 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
     }
 
     return (
-      <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+      <div className="vish-auth-card-mockup mx-auto flex min-h-[240px] max-w-lg flex-col items-center justify-center gap-4 p-8 text-center">
         <div>
-          <p className="text-sm font-semibold text-foreground">{this.props.title ?? 'Something went wrong'}</p>
+          <p className="text-sm font-semibold text-primary">{this.props.title ?? 'Something went wrong'}</p>
           <p className="mt-2 text-sm text-muted-foreground">{this.state.message || 'An unexpected rendering error occurred.'}</p>
         </div>
-        <Button type="button" variant="outline" onClick={() => this.setState({ hasError: false, message: '' })}>
+        <Button type="button" variant="outline" className="border-primary/30" onClick={() => this.setState({ hasError: false, message: '' })}>
           Try again
         </Button>
       </div>

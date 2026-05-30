@@ -4,6 +4,7 @@ import RegistryPage from './pages/RegistryPage';
 import ChangeRequestsPage from './pages/ChangeRequestsPage';
 import ReleasesPage from './pages/ReleasesPage';
 import AuditLogPage from './pages/AuditLogPage';
+import WorldRecordsPage from './pages/WorldRecordsPage';
 import AuthPage from './pages/AuthPage';
 import type { ReactNode } from 'react';
 
@@ -57,6 +58,13 @@ const routes: RouteConfig[] = [
     name: 'Release Center',
     path: '/releases',
     element: <ReleasesPage />,
+    visible: true,
+    access: 'private',
+  },
+  {
+    name: 'World Records',
+    path: '/world-records',
+    element: <WorldRecordsPage />,
     visible: true,
     access: 'private',
   },

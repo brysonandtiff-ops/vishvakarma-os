@@ -58,6 +58,20 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Generate world record measurement
+        run: pnpm run record:measure
+
+      - name: Upload world record evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: world-record-evidence
+          path: |
+            docs/world-record/latest-measurement.json
+            public/world-record/latest-measurement.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Upload production build artifact
         uses: actions/upload-artifact@v4
         if: always()

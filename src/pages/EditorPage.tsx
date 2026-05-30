@@ -1,32 +1,17 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import {
-  Box,
-  CheckCircle2,
-  FileDown,
-  FolderOpen,
-  HardDrive,
-  Layers,
-  MousePointer2,
-  Plus,
-  RotateCcw,
-  Save,
-  Sparkles,
-  Wifi,
-  WifiOff,
-} from 'lucide-react';
-import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import AppLayout from '@/components/layouts/AppLayout';
+import { Box, FolderOpen, Save } from 'lucide-react';
+import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
-import EditorCommandStrip from '@/components/editor/EditorCommandStrip';
+import EditorTopBar from '@/components/editor/EditorTopBar';
+import RadialToolMenu from '@/components/editor/RadialToolMenu';
 import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import MaterialPicker from '@/components/editor/MaterialPicker';
 import PropertiesPanel from '@/components/editor/PropertiesPanel';
@@ -54,6 +39,7 @@ import {
   type LocalDraftPayload,
 } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
+import { VersionControlHooks } from '@/modules/versionControlHooks';
 import type { DimensionAnnotation, Label as RoomLabel, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 
@@ -68,6 +54,15 @@ const DEFAULT_LIGHTING: LightingConfig = {
 };
 
 export default function EditorPage() {
+  return (
+    <AppLayout immersive>
+      <EditorWorkspace />
+    </AppLayout>
+  );
+}
+
+function EditorWorkspace() {
+  const { openNav } = useGovernanceNav();
   const [currentTool, setCurrentTool] = useState<ToolType>('select');
   const [show3DView, setShow3DView] = useState(false);
   const [gridVisible, setGridVisible] = useState(true);
@@ -94,7 +89,11 @@ export default function EditorPage() {
   const [labels, setLabels] = useState<RoomLabel[]>([]);
   const [dimensions, setDimensions] = useState<DimensionAnnotation[]>([]);
   const [lighting, setLighting] = useState<LightingConfig>(DEFAULT_LIGHTING);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const supabaseConnected = useSupabaseStatus();
+  const versionControlRef = useRef<VersionControlHooks | null>(null);
+  const skipVersionSnapshotRef = useRef(false);
 
   const projectName = currentProject?.name || demoProjectName || 'Untitled Project';
   const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
@@ -117,6 +116,116 @@ export default function EditorPage() {
       modified: new Date().toISOString(),
     },
   }), [currentProject?.created_at, currentProject?.description, dimensions, labels, lighting, openings, projectName, snapEnabled, walls]);
+
+  const applyManifest = useCallback((manifest: ProjectManifest) => {
+    setWalls(manifest.walls);
+    setOpenings(manifest.openings);
+    setLabels(manifest.labels ?? []);
+    setDimensions(manifest.dimensions ?? []);
+    setLighting(manifest.lighting || DEFAULT_LIGHTING);
+    setSnapEnabled(manifest.snapToGrid ?? true);
+    setGridVisible(true);
+  }, []);
+
+  const refreshUndoRedo = useCallback(() => {
+    const versionControl = versionControlRef.current;
+    if (!versionControl) return;
+    setCanUndo(versionControl.canUndo());
+    setCanRedo(versionControl.canRedo());
+  }, []);
+
+  const resetVersionHistory = useCallback((manifest: ProjectManifest) => {
+    const versionControl = versionControlRef.current;
+    if (!versionControl) return;
+    skipVersionSnapshotRef.current = true;
+    versionControl.clearVersionHistory();
+    versionControl.saveVersion(manifest, 'Loaded', false);
+    versionControl.updateCurrentManifest(manifest);
+    skipVersionSnapshotRef.current = false;
+    refreshUndoRedo();
+  }, [refreshUndoRedo]);
+
+  useEffect(() => {
+    const versionControl = new VersionControlHooks({
+      autoSaveEnabled: false,
+      autoSaveInterval: 30000,
+      maxVersions: 50,
+      persistToLocalStorage: false,
+    });
+    versionControl.initialize();
+    versionControlRef.current = versionControl;
+
+    const initialManifest: ProjectManifest = {
+      version: SPEC_VERSION,
+      name: 'Untitled Project',
+      walls: [],
+      openings: [],
+      labels: [],
+      dimensions: [],
+      materials: [],
+      floorMaterial: 'material-concrete',
+      lighting: DEFAULT_LIGHTING,
+      gridSize: 20,
+      snapToGrid: true,
+      metadata: {
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+      },
+    };
+    versionControl.saveVersion(initialManifest, 'Initial', false);
+    versionControl.updateCurrentManifest(initialManifest);
+    refreshUndoRedo();
+
+    return () => versionControl.cleanup();
+  }, [refreshUndoRedo]);
+
+  const pushVersionSnapshot = useCallback(
+    (manifest: ProjectManifest) => {
+      const versionControl = versionControlRef.current;
+      if (!versionControl || skipVersionSnapshotRef.current) return;
+      versionControl.saveVersion(manifest, 'Editor snapshot');
+      versionControl.updateCurrentManifest(manifest);
+      refreshUndoRedo();
+    },
+    [refreshUndoRedo],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      pushVersionSnapshot(buildManifest());
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [walls, openings, labels, dimensions, lighting, snapEnabled, pushVersionSnapshot, buildManifest]);
+
+  const handleUndo = useCallback(() => {
+    const versionControl = versionControlRef.current;
+    if (!versionControl?.canUndo()) return;
+    const restored = versionControl.undo();
+    if (!restored) return;
+    skipVersionSnapshotRef.current = true;
+    applyManifest(restored);
+    skipVersionSnapshotRef.current = false;
+    refreshUndoRedo();
+  }, [applyManifest, refreshUndoRedo]);
+
+  const handleRedo = useCallback(() => {
+    const versionControl = versionControlRef.current;
+    if (!versionControl?.canRedo()) return;
+    const restored = versionControl.redo();
+    if (!restored) return;
+    skipVersionSnapshotRef.current = true;
+    applyManifest(restored);
+    skipVersionSnapshotRef.current = false;
+    refreshUndoRedo();
+  }, [applyManifest, refreshUndoRedo]);
+
+  const handleMaterialSelect = useCallback((materialId: string) => {
+    setSelectedMaterial(materialId);
+    if (!selectedWallId) return;
+    setWalls((items) =>
+      items.map((wall) => (wall.id === selectedWallId ? { ...wall, material: materialId } : wall)),
+    );
+  }, [selectedWallId]);
 
   const loadProjects = useCallback(async () => {
     try {
@@ -189,6 +298,17 @@ export default function EditorPage() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const mod = event.metaKey || event.ctrlKey;
+      if (mod && event.key.toLowerCase() === 'z' && !event.shiftKey) {
+        event.preventDefault();
+        handleUndo();
+        return;
+      }
+      if (mod && (event.key.toLowerCase() === 'z' && event.shiftKey || event.key.toLowerCase() === 'y')) {
+        event.preventDefault();
+        handleRedo();
+        return;
+      }
       if (event.key === 'v' || event.key === 'V') setCurrentTool('select');
       else if (event.key === 'w' || event.key === 'W') setCurrentTool('wall');
       else if (event.key === 'd' || event.key === 'D') setCurrentTool('door');
@@ -210,7 +330,7 @@ export default function EditorPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedWallId]);
+  }, [handleRedo, handleUndo, selectedWallId]);
 
   const loadSampleProject = async () => {
     try {
@@ -227,6 +347,7 @@ export default function EditorPage() {
       setSnapEnabled(sampleManifest.snapToGrid);
       setHasUnsavedChanges(true);
       setSaveState('local-draft');
+      resetVersionHistory(sampleManifest);
       toast.success('Demo blueprint loaded with Project Proof active');
     } catch (error) {
       console.error('Failed to load sample project:', error);
@@ -250,6 +371,7 @@ export default function EditorPage() {
     setSaveState('restored-draft');
     setLastDraftSavedAt(recoveryDraft.savedAt);
     setRecoveryDialogOpen(false);
+    resetVersionHistory(recoveryDraft.manifest);
     toast.success('Local draft restored');
   };
 
@@ -304,21 +426,12 @@ export default function EditorPage() {
     }
   };
 
-  const applyManifest = useCallback((manifest: ProjectManifest) => {
-    setWalls(manifest.walls);
-    setOpenings(manifest.openings);
-    setLabels(manifest.labels ?? []);
-    setDimensions(manifest.dimensions ?? []);
-    setLighting(manifest.lighting || DEFAULT_LIGHTING);
-    setSnapEnabled(manifest.snapToGrid ?? true);
-    setGridVisible(true);
-  }, []);
-
   const handleLoadProject = (project: Project) => {
     clearLocalDraft();
     setCurrentProject(project);
     setDemoProjectName(null);
     applyManifest(project.manifest);
+    resetVersionHistory(project.manifest);
     setLoadDialogOpen(false);
     setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
@@ -336,6 +449,7 @@ export default function EditorPage() {
     setCurrentProject(null);
     setDemoProjectName(manifest.name);
     applyManifest(manifest);
+    resetVersionHistory(manifest);
     setHasUnsavedChanges(true);
     setSaveState('local-draft');
     toast.success(`Imported ${manifest.name}`);
@@ -359,77 +473,79 @@ export default function EditorPage() {
     [selectedWallId, walls]
   );
 
+  useEffect(() => {
+    if (selectedWall?.material) {
+      setSelectedMaterial(selectedWall.material);
+    }
+  }, [selectedWall?.id, selectedWall?.material]);
+
+  const showRadialMenu = currentTool === 'wall' || currentTool === 'door' || currentTool === 'window';
+
+  const morePanel = (
+    <>
+      <ProjectProofPanel
+        projectName={projectName}
+        wallCount={walls.length}
+        openingCount={openings.length}
+        saveState={saveState}
+        lastDraftAt={lastDraftSavedAt}
+        supabaseConnected={supabaseConnected}
+        snapEnabled={snapEnabled}
+      />
+      <div className="mx-4 h-px bg-border" />
+      <div className="px-4 py-3">
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Materials</p>
+        <MaterialPicker materials={[]} selectedMaterial={selectedMaterial} onMaterialSelect={handleMaterialSelect} />
+      </div>
+      <div className="mx-4 h-px bg-border" />
+      <div className="px-4 py-3">
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
+        <SolarTimeline lighting={lighting} onLightingChange={setLighting} />
+      </div>
+    </>
+  );
+
   return (
-    <AppLayout> {/* AppLayout provides the main sidebar and notifications */}
+    <>
       <div className="flex h-screen flex-col overflow-hidden bg-ws-canvas">
-        <header className="flex h-12 shrink-0 items-center gap-3 border-b border-ws-border bg-ws-menubar px-3">
-          <div className="flex items-center gap-2 border-r border-ws-border pr-3">
-            <div className="vish-logo-tile flex h-8 w-8 items-center justify-center rounded-xl p-1">
-              <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official user-supplied logo" className="h-full w-full rounded-lg object-cover" />
-            </div>
-            <div>
-              <p className="vish-wordmark text-[11px] font-bold tracking-[0.22em]">VISHVAKARMA.OS</p>
-              <p className="font-technical text-[9px] uppercase tracking-[0.18em] text-ws-text-faint">3D Floor Planner</p>
-            </div>
-          </div>
-
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <span className="truncate text-sm font-semibold text-ws-text">{projectName}</span>
-            <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 font-technical text-[9px] uppercase tracking-wide text-primary">
-              {walls.length} walls · {openings.length} openings
-            </span>
-          </div>
-
-          <SaveModeBadge connected={supabaseConnected} />
-          <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setNewProjectOpen(true)}>
-            <Plus className="h-3.5 w-3.5" /> New
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
-            <FolderOpen className="h-3.5 w-3.5" /> Open
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
-            <Save className="h-3.5 w-3.5" /> Save
-          </Button>
-          <KeyboardShortcuts />
-        </header>
-
-        <EditorCommandStrip
-          currentTool={currentTool}
-          onSelectTool={setCurrentTool}
+        <EditorTopBar
+          projectName={projectName}
           show3DView={show3DView}
           onToggle3D={() => setShow3DView((value) => !value)}
           gridVisible={gridVisible}
           onToggleGrid={() => setGridVisible((value) => !value)}
-          snapEnabled={snapEnabled}
-          onToggleSnap={() => setSnapEnabled((value) => !value)}
-          onLoadSample={loadSampleProject}
-          onImport={() => setImportDialogOpen(true)}
+          onNewProject={() => setNewProjectOpen(true)}
           onExport={() => setExportDialogOpen(true)}
-          wallCount={walls.length}
-          openingCount={openings.length}
+          onImport={() => setImportDialogOpen(true)}
+          onOpenGovernance={openNav}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          canUndo={canUndo}
+          canRedo={canRedo}
         />
 
+        <div className="flex shrink-0 items-center gap-2 border-b border-ws-border bg-ws-menubar px-3 py-1.5">
+          <SaveModeBadge connected={supabaseConnected} />
+          <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
+          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
+            <FolderOpen className="h-3.5 w-3.5" /> Open
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
+            <Save className="h-3.5 w-3.5" /> Save
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
+            Sample
+          </Button>
+          <KeyboardShortcuts />
+        </div>
+
         <div className="flex flex-1 overflow-hidden">
-          <ToolRail
-            currentTool={currentTool}
-            onToolChange={setCurrentTool}
-            show3DView={show3DView}
-            onToggle3DView={() => setShow3DView((value) => !value)}
-            gridVisible={gridVisible}
-            onToggleGrid={() => setGridVisible((value) => !value)}
-            snapEnabled={snapEnabled}
-            onToggleSnap={() => setSnapEnabled((value) => !value)}
-          />
+          <ToolRail currentTool={currentTool} onToolChange={setCurrentTool} />
 
           <div className="flex flex-1 min-w-0 overflow-hidden">
             <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
-              <div className="ws-pane-header">
-                <span className="ws-pane-label">2D Blueprint</span>
-                <span className="ws-pane-stat">Touch / Pencil ready</span>
-              </div>
               <div
-                className="relative flex-1 overflow-auto p-4"
+                className="vish-canvas-stage relative flex-1 overflow-auto p-4"
                 onPointerMove={(event) => {
                   const rect = event.currentTarget.getBoundingClientRect();
                   setMousePos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
@@ -455,6 +571,13 @@ export default function EditorPage() {
                   selectedOpeningId={selectedOpeningId}
                   unitSystem={unitSystem}
                 />
+                <RadialToolMenu
+                  visible={showRadialMenu}
+                  x={mousePos.x}
+                  y={mousePos.y}
+                  currentTool={currentTool}
+                  onSelectTool={setCurrentTool}
+                />
                 {showOnboarding && <OnboardingPanel onLoadSample={loadSampleProject} onNewProject={() => setNewProjectOpen(true)} />}
               </div>
             </section>
@@ -463,7 +586,7 @@ export default function EditorPage() {
               <section className="flex w-80 shrink-0 flex-col border-l border-ws-border md:w-96">
                 <div className="ws-pane-header">
                   <span className="ws-pane-label">3D Preview</span>
-                  <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Deferred WebGL</span>
+                  <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Live sync</span>
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
@@ -474,44 +597,21 @@ export default function EditorPage() {
             )}
           </div>
 
-          <aside className="ws-panel-light flex w-72 shrink-0 flex-col overflow-hidden">
-            <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/70 bg-white/55 px-4">
-              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Properties</span>
-              {selectedWall ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Layers className="h-4 w-4 text-muted-foreground" />}
-            </div>
-            <ScrollArea className="flex-1">
-              <ProjectProofPanel
-                projectName={projectName}
-                wallCount={walls.length}
-                openingCount={openings.length}
-                saveState={saveState}
-                lastDraftAt={lastDraftSavedAt}
-                supabaseConnected={supabaseConnected}
-                snapEnabled={snapEnabled}
-              />
-              <PropertiesPanel
-                selectedWall={selectedWall}
-                openings={openings}
-                onWallUpdate={(wallId, updates) => setWalls((items) => items.map((wall) => wall.id === wallId ? { ...wall, ...updates } : wall))}
-                onOpeningUpdate={(openingId, updates) => setOpenings((items) => items.map((opening) => opening.id === openingId ? { ...opening, ...updates } : opening))}
-                onWallDelete={(wallId) => {
-                  setWalls((items) => items.filter((wall) => wall.id !== wallId));
-                  setOpenings((items) => items.filter((opening) => opening.wallId !== wallId));
-                  setSelectedWallId(undefined);
-                }}
-                onOpeningDelete={(openingId) => setOpenings((items) => items.filter((opening) => opening.id !== openingId))}
-              />
-              <div className="mx-4 h-px bg-border" />
-              <div className="px-4 py-3">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Materials</p>
-                <MaterialPicker materials={[]} selectedMaterial={selectedMaterial} onMaterialSelect={setSelectedMaterial} />
-              </div>
-              <div className="mx-4 h-px bg-border" />
-              <div className="px-4 py-3">
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
-                <SolarTimeline lighting={lighting} onLightingChange={setLighting} />
-              </div>
-            </ScrollArea>
+          <aside className="vish-dark-panel ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
+            <PropertiesPanel
+              currentTool={currentTool}
+              selectedWall={selectedWall}
+              openings={openings}
+              onWallUpdate={(wallId, updates) => setWalls((items) => items.map((wall) => wall.id === wallId ? { ...wall, ...updates } : wall))}
+              onOpeningUpdate={(openingId, updates) => setOpenings((items) => items.map((opening) => opening.id === openingId ? { ...opening, ...updates } : opening))}
+              onWallDelete={(wallId) => {
+                setWalls((items) => items.filter((wall) => wall.id !== wallId));
+                setOpenings((items) => items.filter((opening) => opening.wallId !== wallId));
+                setSelectedWallId(undefined);
+              }}
+              onOpeningDelete={(openingId) => setOpenings((items) => items.filter((opening) => opening.id !== openingId))}
+              morePanel={morePanel}
+            />
           </aside>
         </div>
 
@@ -545,6 +645,6 @@ export default function EditorPage() {
         wallCount={walls.length}
         openingCount={openings.length}
       />
-    </AppLayout>
+    </>
   );
 }

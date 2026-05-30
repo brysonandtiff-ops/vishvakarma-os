@@ -9,14 +9,16 @@ function read(path: string) {
 }
 
 describe('Blueprint editor visual polish', () => {
-  it('wires the editor polish stylesheet through app startup', () => {
+  it('wires the editor polish and mockup stylesheets through app startup', () => {
     const main = read('src/main.tsx');
 
     expect(main).toContain('./styles/vish-editor-polish.css');
+    expect(main).toContain('./styles/vish-mockup-system.css');
   });
 
   it('keeps premium Vishvakarma workspace styling targeted to existing editor surfaces', () => {
     const styles = read('src/styles/vish-editor-polish.css');
+    const mockup = read('src/styles/vish-mockup-system.css');
 
     expect(styles).toContain('.vish-workspace-shell .bg-ws-canvas');
     expect(styles).toContain('ॐ वास्तु · शिल्प · प्रमाण');
@@ -26,8 +28,10 @@ describe('Blueprint editor visual polish', () => {
     expect(styles).toContain('.vish-workspace-shell .architect-tool-button.active');
     expect(styles).toContain('.vish-workspace-shell .blueprint-grid');
     expect(styles).toContain('.vish-workspace-shell .architect-canvas');
-    expect(styles).toContain('.vish-workspace-shell .ws-panel-light');
+    expect(styles).toContain('.vish-workspace-shell .ws-panel-dark');
     expect(styles).toContain('.vish-workspace-shell .ws-status-bar');
+    expect(mockup).toContain('.vish-editor-topbar');
+    expect(mockup).toContain('.vish-canvas-stage');
   });
 
   it('does not alter the editor drawing/event wiring while adding visual polish', () => {
@@ -38,6 +42,8 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('onWallSelect={setSelectedWallId}');
     expect(editor).toContain('showOnboarding && <OnboardingPanel');
     expect(editor).toContain('<StatusBar');
+    expect(editor).toContain('<EditorTopBar');
+    expect(editor).toContain('immersive');
   });
 
   it('protects first-run demo and governance proof product polish', () => {

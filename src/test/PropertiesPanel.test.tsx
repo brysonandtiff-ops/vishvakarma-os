@@ -34,6 +34,7 @@ describe('PropertiesPanel', () => {
   };
 
   const defaultProps = {
+    currentTool: 'select' as const,
     openings: [],
     onWallUpdate: vi.fn(),
     onOpeningUpdate: vi.fn(),
@@ -42,18 +43,18 @@ describe('PropertiesPanel', () => {
   };
 
   describe('empty state', () => {
-    it('should render empty state when no wall is selected', () => {
-      render(<PropertiesPanel {...defaultProps} />);
+    it('should render tool defaults when no wall is selected', () => {
+      render(<PropertiesPanel {...defaultProps} currentTool="door" />);
       
       expect(screen.getByText('Properties')).toBeInTheDocument();
-      expect(screen.getByText('Select a wall to view and edit its properties')).toBeInTheDocument();
+      expect(screen.getByText('Door defaults')).toBeInTheDocument();
+      expect(screen.getByText('Pre-flight defaults – adjust before placing.')).toBeInTheDocument();
     });
 
     it('should not render wall properties in empty state', () => {
       render(<PropertiesPanel {...defaultProps} />);
       
       expect(screen.queryByText('Wall Properties')).not.toBeInTheDocument();
-      expect(screen.queryByText('Thickness')).not.toBeInTheDocument();
     });
   });
 
@@ -379,10 +380,10 @@ describe('PropertiesPanel', () => {
       
       expect(screen.getByText('Wall Properties')).toBeInTheDocument();
       
-      rerender(<PropertiesPanel {...defaultProps} />);
+      rerender(<PropertiesPanel {...defaultProps} currentTool="select" />);
       
       expect(screen.queryByText('Wall Properties')).not.toBeInTheDocument();
-      expect(screen.getByText('Select a wall to view and edit its properties')).toBeInTheDocument();
+      expect(screen.getByText('Select a wall or opening to edit properties.')).toBeInTheDocument();
     });
   });
 

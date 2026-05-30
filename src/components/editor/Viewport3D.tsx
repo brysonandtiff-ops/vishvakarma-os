@@ -8,6 +8,7 @@ import type { Wall, Opening, LightingConfig } from '@/types';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getMaterialVisual } from '@/components/editor/MaterialPicker';
 
 // ---------------------------------------------------------------------------
 // WebGL capability pre-check
@@ -186,6 +187,7 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
 
   // Get openings for this wall
   const wallOpenings = openings.filter((o) => o.wallId === wall.id);
+  const { color, roughness, metalness } = getMaterialVisual(wall.material);
 
   return (
     <>
@@ -199,7 +201,7 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100, wall.height / 100, wall.thickness / 100]} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
-        <meshStandardMaterial color="#B5A58F" roughness={0.72} metalness={0.06} />
+        <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       

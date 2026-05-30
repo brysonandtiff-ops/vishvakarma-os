@@ -32,6 +32,7 @@
     "production:verify-env": "node scripts/production/verify-env.mjs",
     "production:evidence": "node scripts/production/generate-evidence.mjs",
     "production:manual-evidence": "node scripts/production/generate-manual-evidence.mjs",
+    "record:measure": "node scripts/world-record/measure-record.mjs",
     "deploy:vercel": "bash scripts/deploy-vercel.sh"
   },
   "dependencies": {

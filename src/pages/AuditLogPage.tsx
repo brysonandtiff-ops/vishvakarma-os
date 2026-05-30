@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'; // Keep this import
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
+import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedPayloads, setExpandedPayloads] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
@@ -22,11 +23,13 @@ export default function AuditLogPage() {
 
   const loadLogs = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAuditLogs(200);
       setLogs(data);
-    } catch (error) {
-      console.error('Failed to load audit logs:', error);
+    } catch (err) {
+      console.error('Failed to load audit logs:', err);
+      setError('Failed to load audit logs');
       toast.error('Failed to load audit logs');
     } finally {
       setLoading(false);
@@ -115,7 +118,18 @@ export default function AuditLogPage() {
 
         <ScrollArea className="flex-1">
           <div className="px-6 py-6">
-            {logs.length === 0 && !loading ? (
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="mt-3 text-sm">Loading audit timeline…</p>
+              </div>
+            ) : logs.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
                 <History className="mx-auto h-10 w-10 text-muted-foreground/40" />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">No audit events yet</h3>

@@ -26,7 +26,14 @@ export default defineConfig({
     command: 'pnpm run build && pnpm run preview',
     url: previewUrl,
     reuseExistingServer,
-    timeout: 60_000,
+    timeout: 120_000,
+    env: {
+      ...process.env,
+      VITE_BACKEND_PROVIDER: 'supabase',
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+      VITE_ALLOW_LOCAL_DEMO: '',
+    },
   },
   projects: [
     {

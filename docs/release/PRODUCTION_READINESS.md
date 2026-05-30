@@ -26,6 +26,7 @@
 | RLS baseline | User-owned app tables are row-level-security scoped by `user_id` | Added |
 | RLS evidence runbook | `docs/release/SUPABASE_RLS_EVIDENCE.md` documents exact proof queries and manual checks | Added |
 | Environment template | `.env.example` documents required Supabase variables and auth setup checklist | Added |
+| Vercel production env | `docs/release/VERCEL_ENV.md` documents required Production env vars | Added |
 | Local-only safety | Missing Supabase env no longer creates an invalid production crash path | Added |
 | Vercel SPA routing | Deep links rewrite to `index.html` | Added |
 | Security headers | Baseline browser hardening headers configured in `vercel.json` | Added |
