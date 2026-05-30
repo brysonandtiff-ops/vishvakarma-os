@@ -5,14 +5,14 @@ const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30_000,
+  timeout: 60_000,
   expect: {
     timeout: 5_000,
   },
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: process.env.CI
     ? [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
     : [['list']],

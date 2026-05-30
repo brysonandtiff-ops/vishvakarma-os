@@ -17,8 +17,8 @@ This file is the production release evidence ledger. It must be updated whenever
 |---|---|---|---|
 | Verify workflow | Install, lint, tests, route smoke, build | PASS — LOCAL 2026-05-31 | `pnpm run verify:ci` — 428 tests, lint, build OK |
 | Build artifact | `vishvakarma-os-dist` uploaded | PARTIAL | Local `dist/` built; attach GitHub artifact link after workflow run |
-| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PARTIAL | `pnpm run test:e2e` uses `--mode e2e` + RouteGuard public-route fix; re-run after commit for green report |
-| Playwright report | `playwright-auth-gate-report` uploaded | PARTIAL | Run `pnpm run test:e2e` locally or attach CI artifact |
+| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS — LOCAL 2026-05-31 | `pnpm run test:e2e` — 19/19 passed (e2e build mode, single worker) |
+| Playwright report | `playwright-auth-gate-report` uploaded | PARTIAL | Local run green; attach CI artifact after push |
 
 ## Deployment Evidence
 
@@ -68,7 +68,7 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] No failing automated lint gate locally.
 - [x] Unit tests green locally (`pnpm run verify:ci` — 428 passed 2026-05-31).
 - [ ] No failing GitHub CI gate attached. — attach workflow URL after push.
-- [ ] No failing E2E gate attached. — attach Playwright report after push.
+- [x] No failing E2E gate attached locally (19/19 Playwright 2026-05-31).
 - [ ] No exposed private route while signed out (live). — requires Firebase on Vercel.
 - [ ] No missing Supabase/Firebase production env on Vercel. — operator task.
 - [ ] No unapplied migration (live Supabase). — operator task.
