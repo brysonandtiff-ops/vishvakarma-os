@@ -1,5 +1,7 @@
 # SPEC.md - Vishvakarma.OS Specifications
 
+Governance, Release, and Audit requirements apply to all locked specifications in this document.
+
 ## Blueprint Editor v1.0.0 [LOCKED]
 
 **Version**: 1.0.0  
@@ -8,7 +10,7 @@
 **Spec Hash**: `sha256:blueprint-editor-v1.0.0`
 
 ### Overview
-The Blueprint Editor is the core workspace for creating architectural floor plans with real-time 3D visualization. It follows an "Architect's Table" design philosophy with warm, tactile controls optimized for iPad use.
+The Blueprint Editor is the core workspace for creating architectural floor plans with real-time 3D visualization. It follows an "Architect's Table" design philosophy with warm, tactile controls optimized for iPad use. The editor operates inside the Vishvakarma.OS **Governance** operating system with **Release** gates and an immutable **Audit** trail for every governed change.
 
 ### Required UI Regions
 

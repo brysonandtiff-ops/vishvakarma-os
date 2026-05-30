@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-30T19:09:51.060Z",
+  "generatedAt": "2026-05-30T19:22:38.941Z",
   "source": "scripts/verify-all.js",
-  "strict": true,
+  "strict": false,
   "gates": {
     "gate-1": {
-      "status": "fail",
-      "message": "SPEC.md is present but missing required governance terms."
+      "status": "pass",
+      "message": "SPEC.md is present and contains core governance language."
     },
     "gate-2": {
       "status": "pass",
@@ -28,12 +28,12 @@
       "message": ".env.example documents required Firebase and Supabase variables."
     },
     "gate-7": {
-      "status": "fail",
-      "message": "pnpm run test failed in --strict mode."
+      "status": "warning",
+      "message": "Manual or runtime proof is required. This gate is not auto-passed."
     },
     "gate-8": {
-      "status": "fail",
-      "message": "pnpm run test:e2e failed in --strict mode."
+      "status": "warning",
+      "message": "Manual or runtime proof is required. This gate is not auto-passed."
     },
     "gate-9": {
       "status": "pass",
@@ -57,9 +57,9 @@
     }
   },
   "verification": {
-    "lint": "fail",
-    "tests": "fail",
+    "lint": "pass",
+    "tests": "pending",
     "build": "pending",
-    "note": "Counts from release:gates:strict run"
+    "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
   }
 }

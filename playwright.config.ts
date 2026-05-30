@@ -23,7 +23,7 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'pnpm run build && pnpm run preview',
+    command: 'pnpm exec vite build --mode e2e && pnpm run preview',
     url: previewUrl,
     reuseExistingServer,
     timeout: 120_000,

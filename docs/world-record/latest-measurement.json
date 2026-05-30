@@ -18,16 +18,16 @@
     "Performance acceptable",
     "World record evidence present"
   ],
-  "testFileCount": 37,
-  "commit": "31030c56ddeb5df2f435d793e91dfff3b889fed4",
-  "timestamp": "2026-05-30T18:55:44.310Z",
+  "testFileCount": 38,
+  "commit": "e0b75467a70fe1e8f3dd1297f4f3bcbdd468532f",
+  "timestamp": "2026-05-30T19:22:38.543Z",
   "reproduceCommand": "pnpm run record:measure",
   "status": "self_verified",
   "honestyNote": "Self-Verified Candidate — not an official Guinness World Records title until GWR adjudication completes and a certificate is attached.",
   "releaseGateSummary": {
-    "passed": 10,
+    "passed": 11,
     "manual": 2,
-    "failed": 1
+    "failed": 0
   },
-  "evidenceHash": "3239100dacd47f39fda2313d546eada26cc4bfcdb7edcba60236de0ed33aedc7"
+  "evidenceHash": "b429519bd26f8f144ab5b6aef760bb32cf373e996c457caf70c719c4e61df139"
 }

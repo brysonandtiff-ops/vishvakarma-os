@@ -6,16 +6,16 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Field | Value |
 |---|---|
-| Current end-of-day commit | `88c9854fb8159e63f5c672957731f8d2a30a945a` |
+| Current end-of-day commit | (see git log after production polish commit) |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
-| Review date | 2026-05-29 Australia/Perth |
-| Final status | CLEARED FOR REPO GATES — local verify + evidence templates filled. Live Supabase/Firebase production credentials and GitHub Actions artifact links still require operator attach before public launch claim. |
+| Review date | 2026-05-31 Australia/Perth |
+| Final status | PRODUCTION POLISH — `pnpm run verify:ci` passed (428 unit tests, lint, build). UI truthfulness + auth hardening shipped. Vercel Supabase env + E2E attach still operator tasks. |
 
 ## CI Evidence
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Verify workflow | Install, lint, tests, route smoke, build | PASS — LOCAL | [`latest-ci-run.md`](latest-ci-run.md) — run `pnpm run production:evidence` after push for GitHub URL |
+| Verify workflow | Install, lint, tests, route smoke, build | PASS — LOCAL 2026-05-31 | `pnpm run verify:ci` — 428 tests, lint, build OK |
 | Build artifact | `vishvakarma-os-dist` uploaded | PARTIAL | Local `dist/` built; attach GitHub artifact link after workflow run |
 | E2E Auth Gate | Browser proof for `/auth` and private route redirect | PARTIAL | Playwright scaffold in `.github/workflows/e2e.yml`; attach report after green run |
 | Playwright report | `playwright-auth-gate-report` uploaded | PARTIAL | Run `pnpm run test:e2e` locally or attach CI artifact |
@@ -66,7 +66,7 @@ This file is the production release evidence ledger. It must be updated whenever
 ## Stop-Ship Review
 
 - [x] No failing automated lint gate locally.
-- [x] Unit tests green locally (`pnpm run test`).
+- [x] Unit tests green locally (`pnpm run verify:ci` — 428 passed 2026-05-31).
 - [ ] No failing GitHub CI gate attached. — attach workflow URL after push.
 - [ ] No failing E2E gate attached. — attach Playwright report after push.
 - [ ] No exposed private route while signed out (live). — requires Firebase on Vercel.
@@ -79,7 +79,7 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Decision | Reviewer | Date | Notes |
 |---|---|---|---|
-| REPO GATES CLEARED | Automated completion pass | 2026-05-29 | `pnpm run release:gates:strict` clears automated gates when tests pass. Public launch still requires live backend credentials and CI artifact links. |
+| PRODUCTION POLISH SHIPPED | Automated completion pass | 2026-05-31 | Production mode, honest Release Center snapshot, working editor undo/material, NotFound route, ToolRail trimmed. Deploy: https://vishvakarma-os.vercel.app — set Vercel env per VERCEL_ENV.md. |
 
 ## Operator Checklist (External)
 

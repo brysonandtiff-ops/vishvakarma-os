@@ -11,7 +11,7 @@ describe('ToolRail', () => {
   };
 
   describe('rendering', () => {
-    it('should render grouped drawing tool buttons', () => {
+    it('should render working drafting tool buttons only', () => {
       render(<ToolRail {...defaultProps} />);
 
       expect(screen.getByLabelText('Select')).toBeInTheDocument();
@@ -20,22 +20,14 @@ describe('ToolRail', () => {
       expect(screen.getByLabelText('Window')).toBeInTheDocument();
       expect(screen.getByLabelText('Measure')).toBeInTheDocument();
       expect(screen.getByLabelText('Label')).toBeInTheDocument();
-      expect(screen.getByLabelText('Dim')).toBeInTheDocument();
+      expect(screen.getByLabelText('Dimension')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Arc')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Vastu')).not.toBeInTheDocument();
     });
 
-    it('should render section labels for mockup groups', () => {
+    it('uses production tool rail class for iPad layout', () => {
       const { container } = render(<ToolRail {...defaultProps} />);
-
-      expect(container.textContent).toContain('Structure');
-      expect(container.textContent).toContain('Annotate');
-      expect(container.textContent).toContain('Analysis');
-    });
-
-    it('should render stub tools as disabled', () => {
-      render(<ToolRail {...defaultProps} />);
-
-      expect(screen.getByLabelText('Arc')).toBeDisabled();
-      expect(screen.getByLabelText('Vastu')).toBeDisabled();
+      expect(container.querySelector('.vish-tool-rail')).toBeInTheDocument();
     });
   });
 
