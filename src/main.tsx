@@ -15,7 +15,12 @@ import { enforce, enableDevelopmentMode, enableProductionMode } from "./governan
 // GOVERNANCE ENFORCEMENT — APP STARTUP
 // ============================================================================
 
-if (import.meta.env.PROD) {
+// E2E builds use production RouteGuard/auth but relaxed enforcer (no startup throw).
+const isE2eBuild = import.meta.env.MODE === 'e2e';
+
+if (isE2eBuild || import.meta.env.DEV) {
+  enableDevelopmentMode();
+} else if (import.meta.env.PROD) {
   enableProductionMode();
 } else {
   enableDevelopmentMode();

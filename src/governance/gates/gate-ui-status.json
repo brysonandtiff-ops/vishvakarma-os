@@ -58,8 +58,10 @@
   },
   "verification": {
     "lint": "pass",
-    "tests": "pending",
-    "build": "pending",
-    "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
+    "tests": "pass",
+    "build": "pass",
+    "testsPassed": 428,
+    "testsTotal": 428,
+    "note": "Last verified via pnpm run verify:ci on 2026-05-31 (428 unit tests + production build)"
   }
 }

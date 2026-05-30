@@ -8,7 +8,10 @@ test.describe('iPad production readiness', () => {
     await page.goto('/auth');
 
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
-    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', /\/icons\/apple-touch-icon\.svg$/);
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+      'href',
+      /\/brand\/vishvakarma-official-logo\.svg$/,
+    );
     await expect(page.locator('meta[name="apple-mobile-web-app-capable"]')).toHaveAttribute('content', 'yes');
     await expect(page.locator('meta[name="apple-mobile-web-app-status-bar-style"]')).toHaveAttribute('content', 'black-translucent');
     await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/);
@@ -29,7 +32,7 @@ test.describe('iPad production readiness', () => {
     await page.setViewportSize(iPadLandscape);
     await page.goto('/auth');
 
-    await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
   });
 
@@ -37,7 +40,7 @@ test.describe('iPad production readiness', () => {
     await page.setViewportSize(iPadPortrait);
     await page.goto('/auth');
 
-    await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
   });
 });

@@ -17,7 +17,7 @@ This file is the production release evidence ledger. It must be updated whenever
 |---|---|---|---|
 | Verify workflow | Install, lint, tests, route smoke, build | PASS — LOCAL 2026-05-31 | `pnpm run verify:ci` — 428 tests, lint, build OK |
 | Build artifact | `vishvakarma-os-dist` uploaded | PARTIAL | Local `dist/` built; attach GitHub artifact link after workflow run |
-| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PARTIAL | Playwright scaffold in `.github/workflows/e2e.yml`; attach report after green run |
+| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PARTIAL | `pnpm run test:e2e` uses `--mode e2e` + RouteGuard public-route fix; re-run after commit for green report |
 | Playwright report | `playwright-auth-gate-report` uploaded | PARTIAL | Run `pnpm run test:e2e` locally or attach CI artifact |
 
 ## Deployment Evidence

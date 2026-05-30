@@ -53,7 +53,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
     }
   }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);
 
-  if (loading) {
+  if (loading && !publicRoute) {
     return (
       <div className="vish-boot-stage vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-6">
         <div className="vish-boot-sanskrit-rain pointer-events-none absolute inset-0" aria-hidden="true">

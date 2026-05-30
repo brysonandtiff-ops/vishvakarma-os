@@ -44,6 +44,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain('allowLocalAccess');
     expect(routeGuard).toContain('showServiceConfigBanner');
     expect(routeGuard).toContain('import.meta.env.PROD');
+    expect(routeGuard).toContain('if (loading && !publicRoute)');
     expect(routeGuard).toContain('if (gated && !user && !publicRoute)');
     expect(routeGuard).toContain('return null');
   });

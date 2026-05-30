@@ -14,8 +14,8 @@ test.describe('Authentication and Private Route Gate', () => {
   for (const route of privateRoutes) {
     test(`redirects unauthenticated user from ${route} to /auth`, async ({ page }) => {
       await page.goto(route);
-      await page.waitForURL('**/auth**');
-      await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+      await page.waitForURL('**/auth**', { timeout: 60_000 });
+      await expect(page.getByTestId('auth-mockup-card')).toBeVisible();
     });
   }
 

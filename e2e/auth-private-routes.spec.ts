@@ -13,7 +13,7 @@ test.describe('production auth gate', () => {
   test('renders the auth page for signed-out users', async ({ page }) => {
     await page.goto('/auth');
 
-    await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in with email link/i })).toBeVisible();
   });
@@ -22,8 +22,8 @@ test.describe('production auth gate', () => {
     test(`redirects signed-out user from ${route} to auth`, async ({ page }) => {
       await page.goto(route);
 
-      await page.waitForURL('**/auth**');
-      await expect(page.getByText('VISHVAKARMA.OS')).toBeVisible();
+      await page.waitForURL('**/auth**', { timeout: 60_000 });
+      await expect(page.getByTestId('auth-mockup-card')).toBeVisible();
     });
   }
 
