@@ -6,7 +6,7 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Field | Value |
 |---|---|
-| Current end-of-day commit | (see git log after production polish commit) |
+| Current end-of-day commit | `8cb790c` (production polish + e2e stability) |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-05-31 Australia/Perth |
 | Final status | PRODUCTION POLISH — `pnpm run verify:ci` passed (428 unit tests, lint, build). UI truthfulness + auth hardening shipped. Vercel Supabase env + E2E attach still operator tasks. |
@@ -24,7 +24,7 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Vercel deployment | Preview or production URL opens | PASS — PARTIAL | https://vishvakarma-os.vercel.app |
+| Vercel deployment | Preview or production URL opens | PASS — 2026-05-31 | https://vishvakarma-os.vercel.app (deploy `dpl_5eWdjLHvMH2qozQ6xzZc5Qjf6eau`) |
 | `/auth` screenshot | Signed-out auth page visible | PASS — PARTIAL | Prior screenshot; refresh after Firebase env configured |
 | Logo correctness | App uses user-supplied logo | PASS — CODE | `src/brand/officialLogo.ts` |
 | Private route redirect | Signed-out `/releases` redirects to `/auth` | PARTIAL | E2E spec covers; live proof pending Firebase on Vercel |
