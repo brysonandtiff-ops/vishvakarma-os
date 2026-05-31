@@ -60,6 +60,30 @@ function firebaseRequestUrl(baseUrl: string) {
   return `${baseUrl}?key=${encodeURIComponent(apiKey)}`;
 }
 
+export function writeFirebaseSessionSnapshot(session: FirebaseSessionSnapshot) {
+  if (!hasBrowserStorage()) return;
+  window.localStorage.setItem(FIREBASE_SESSION_KEY, JSON.stringify(session));
+}
+
+export async function buildFirebaseSessionFromIdToken(
+  uid: string,
+  email: string,
+  idToken: string,
+  refreshToken = ''
+): Promise<FirebaseSessionSnapshot> {
+  const session: FirebaseSessionSnapshot = {
+    provider: 'firebase',
+    uid,
+    email,
+    idToken,
+    refreshToken,
+    expiresAt: Date.now() + 3600 * 1000,
+  };
+
+  writeFirebaseSessionSnapshot(session);
+  return session;
+}
+
 export function readFirebaseSessionSnapshot(): FirebaseSessionSnapshot | null {
   if (!hasBrowserStorage()) return null;
 
@@ -93,7 +117,7 @@ export function isFirebaseEmailLinkCallback(search = typeof window !== 'undefine
 }
 
 export async function requestFirebaseAccessLink(email: string, redirectTo: string) {
-  if (!backendStatus.isConfigured || backendStatus.provider !== 'firebase') {
+  if (!backendStatus.isConfigured) {
     return {
       error: new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.'),
     };
@@ -143,7 +167,7 @@ export async function requestFirebaseAccessLink(email: string, redirectTo: strin
 }
 
 export async function completeFirebaseEmailLinkSignIn(search = typeof window !== 'undefined' ? window.location.search : '') {
-  if (!backendStatus.isConfigured || backendStatus.provider !== 'firebase') {
+  if (!backendStatus.isConfigured) {
     return { session: null, error: null };
   }
 
@@ -194,7 +218,7 @@ export async function completeFirebaseEmailLinkSignIn(search = typeof window !==
     };
 
     if (hasBrowserStorage()) {
-      window.localStorage.setItem(FIREBASE_SESSION_KEY, JSON.stringify(session));
+      writeFirebaseSessionSnapshot(session);
       window.localStorage.removeItem(FIREBASE_PENDING_EMAIL_KEY);
     }
 

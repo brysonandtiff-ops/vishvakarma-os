@@ -1,16 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
 import { backendStatus } from '@/backend/backendConfig';
 import {
+  buildFirebaseSessionFromIdToken,
   clearFirebaseSessionSnapshot,
   completeFirebaseEmailLinkSignIn,
   readFirebaseSessionSnapshot,
   requestFirebaseAccessLink,
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
+import { firebaseAuth } from '@/backend/firebase/firebaseClient';
 import { signInWithAppleFirebase, signInWithGoogleFirebase } from '@/backend/firebase/firebaseOAuthGateway';
-import { isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
+import { ensureFirestoreProfile, getFirestoreProfile } from '@/backend/firebase/firestoreProfileGateway';
 import type { Profile } from '@/types';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 
 type FirebaseAuthUser = {
   id: string;
@@ -18,8 +20,8 @@ type FirebaseAuthUser = {
   provider: 'firebase';
 };
 
-type AuthUser = User | FirebaseAuthUser;
-type AuthSession = Session | FirebaseSessionSnapshot;
+type AuthUser = FirebaseAuthUser;
+type AuthSession = FirebaseSessionSnapshot;
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -50,9 +52,8 @@ function normalizeMagicLinkError(error: unknown) {
     const message = error.message.toLowerCase();
 
     if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
-      const providerLabel = backendStatus.provider === 'firebase' ? 'Firebase Auth' : 'Supabase';
       return new Error(
-        `Magic-link request could not reach ${providerLabel}. Check the active backend environment variables and deployment network access.`
+        'Magic-link request could not reach Firebase Auth. Check Firebase environment variables and deployment network access.'
       );
     }
 
@@ -63,21 +64,18 @@ function normalizeMagicLinkError(error: unknown) {
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
-  if (backendStatus.provider !== 'supabase') return null;
-  if (!isSupabaseConfigured) return null;
+  if (!backendStatus.isConfigured) return null;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) {
+  try {
+    return await getFirestoreProfile(userId);
+  } catch (error) {
     console.error('[Vishvakarma.OS] Failed to fetch user profile:', error);
     return null;
   }
+}
 
-  return data;
+async function syncSessionFromFirebaseUser(uid: string, email: string, idToken: string) {
+  return buildFirebaseSessionFromIdToken(uid, email, idToken);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -87,18 +85,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(backendStatus.isConfigured);
 
   const loadProfile = useCallback(async (nextUser: AuthUser | null) => {
-    if (!nextUser) {
+    if (!nextUser || !backendStatus.isConfigured) {
       setProfile(null);
       return;
     }
 
-    if (backendStatus.provider !== 'supabase') {
+    try {
+      const nextProfile = await ensureFirestoreProfile(nextUser.id, nextUser.email);
+      setProfile(nextProfile);
+    } catch (error) {
+      console.error('[Vishvakarma.OS] Failed to load profile:', error);
       setProfile(null);
-      return;
     }
-
-    const nextProfile = await getProfile(nextUser.id);
-    setProfile(nextProfile);
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -115,109 +113,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    if (backendStatus.provider === 'firebase') {
-      if (!backendStatus.isConfigured) {
-        setLoading(false);
-        return () => {
-          mounted = false;
-        };
-      }
-
-      completeFirebaseEmailLinkSignIn()
-        .then(({ session: nextSession, error }) => {
-          if (!mounted) return;
-          if (error) throw error;
-
-          const restoredSession = nextSession ?? readFirebaseSessionSnapshot();
-          setSession(restoredSession);
-          setUser(restoredSession ? firebaseUserFromSession(restoredSession) : null);
-          setProfile(null);
-        })
-        .catch((error) => {
-          console.error('[Vishvakarma.OS] Firebase auth session read failed:', error);
-          if (mounted) {
-            setSession(null);
-            setUser(null);
-            setProfile(null);
-          }
-        })
-        .finally(() => {
-          if (mounted) setLoading(false);
-        });
-
-      return () => {
-        mounted = false;
-      };
-    }
-
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return () => {
-        mounted = false;
-      };
-    }
-
-    supabase.auth
-      .getSession()
-      .then(async ({ data, error }) => {
+    completeFirebaseEmailLinkSignIn()
+      .then(async ({ session: emailLinkSession, error }) => {
         if (!mounted) return;
         if (error) throw error;
 
-        const nextSession = data.session ?? null;
-        const nextUser = nextSession?.user ?? null;
+        if (emailLinkSession) {
+          setSession(emailLinkSession);
+          setUser(firebaseUserFromSession(emailLinkSession));
+          await loadProfile(firebaseUserFromSession(emailLinkSession));
+        }
+      })
+      .catch((error) => {
+        console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', error);
+      });
+
+    if (!firebaseAuth) {
+      const restoredSession = readFirebaseSessionSnapshot();
+      if (mounted) {
+        setSession(restoredSession);
+        setUser(restoredSession ? firebaseUserFromSession(restoredSession) : null);
+        void loadProfile(restoredSession ? firebaseUserFromSession(restoredSession) : null);
+        setLoading(false);
+      }
+
+      return () => {
+        mounted = false;
+      };
+    }
+
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+      if (!mounted) return;
+
+      if (!firebaseUser) {
+        clearFirebaseSessionSnapshot();
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const idToken = await firebaseUser.getIdToken();
+        const nextSession = await syncSessionFromFirebaseUser(
+          firebaseUser.uid,
+          firebaseUser.email ?? '',
+          idToken
+        );
+        const nextUser = firebaseUserFromSession(nextSession);
+
         setSession(nextSession);
         setUser(nextUser);
         await loadProfile(nextUser);
-      })
-      .catch((error) => {
-        console.error('[Vishvakarma.OS] Auth session read failed:', error);
-        if (mounted) {
-          setSession(null);
-          setUser(null);
-          setProfile(null);
-        }
-      })
-      .finally(() => {
+      } catch (error) {
+        console.error('[Vishvakarma.OS] Firebase auth session sync failed:', error);
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+      } finally {
         if (mounted) setLoading(false);
-      });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      const nextUser = nextSession?.user ?? null;
-      setSession(nextSession);
-      setUser(nextUser);
-      setLoading(false);
-      void loadProfile(nextUser);
+      }
     });
 
     return () => {
       mounted = false;
-      listener.subscription.unsubscribe();
+      unsubscribe();
     };
   }, [loadProfile]);
 
   const requestAccessLink = useCallback(async (email: string) => {
     try {
-      if (backendStatus.provider === 'firebase') {
-        return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
-      }
-
       if (!backendStatus.isConfigured) {
         throw new Error(
           backendStatus.configurationError ??
-            'Supabase is not configured. Set real VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY values.'
+            'Firebase is not configured. Set VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, and VITE_FIREBASE_APP_ID.'
         );
       }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: window.location.origin,
-          shouldCreateUser: true,
-        },
-      });
-
-      if (error) throw error;
-      return { error: null };
+      return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
     } catch (error) {
       return { error: normalizeMagicLinkError(error) };
     }
@@ -225,62 +199,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     try {
-      if (backendStatus.provider === 'firebase') {
-        const session = await signInWithGoogleFirebase();
-        if (session) {
-          setSession(session);
-          setUser(firebaseUserFromSession(session));
-        }
-        return { error: null };
-      }
-
       if (!backendStatus.isConfigured) {
-        throw new Error(backendStatus.configurationError ?? 'Backend is not configured.');
+        throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth` },
-      });
-      if (error) throw error;
+      const nextSession = await signInWithGoogleFirebase();
+      if (nextSession) {
+        setSession(nextSession);
+        setUser(firebaseUserFromSession(nextSession));
+        await loadProfile(firebaseUserFromSession(nextSession));
+      }
       return { error: null };
     } catch (error) {
       return { error: error instanceof Error ? error : new Error('Google sign-in failed.') };
     }
-  }, []);
+  }, [loadProfile]);
 
   const signInWithApple = useCallback(async () => {
     try {
-      if (backendStatus.provider === 'firebase') {
-        const session = await signInWithAppleFirebase();
-        if (session) {
-          setSession(session);
-          setUser(firebaseUserFromSession(session));
-        }
-        return { error: null };
-      }
-
       if (!backendStatus.isConfigured) {
-        throw new Error(backendStatus.configurationError ?? 'Backend is not configured.');
+        throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/auth` },
-      });
-      if (error) throw error;
+      const nextSession = await signInWithAppleFirebase();
+      if (nextSession) {
+        setSession(nextSession);
+        setUser(firebaseUserFromSession(nextSession));
+        await loadProfile(firebaseUserFromSession(nextSession));
+      }
       return { error: null };
     } catch (error) {
       return { error: error instanceof Error ? error : new Error('Apple sign-in failed.') };
     }
-  }, []);
+  }, [loadProfile]);
 
   const signOut = useCallback(async () => {
-    if (backendStatus.provider === 'firebase') {
+    if (firebaseAuth) {
+      await firebaseSignOut(firebaseAuth);
+    } else {
       clearFirebaseSessionSnapshot();
-    } else if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
     }
 
     setSession(null);
@@ -295,7 +252,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       loading,
       isConfigured: backendStatus.isConfigured,
-      mode: backendStatus.provider === 'supabase' ? supabaseMode : backendStatus.mode,
+      mode: backendStatus.mode,
       requestAccessLink,
       signInWithGoogle,
       signInWithApple,

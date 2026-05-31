@@ -456,7 +456,7 @@ export default function ReleasesPage() {
               ) : releases.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
                   <p className="text-sm text-muted-foreground">No release records yet.</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Connect Supabase or run a gated release to populate history.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Connect Firebase or run a gated release to populate history.</p>
                 </div>
               ) : (
                 <div className="grid gap-3">

@@ -60,8 +60,7 @@ export default function ProjectsPage() {
     }
   };
 
-  const cloudLabel =
-    backendStatus.provider === 'firebase' ? 'Firebase Cloud Save' : 'Supabase Cloud Save';
+  const cloudLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
 
   return (
     <AppLayout>

@@ -213,8 +213,6 @@ async function checkEnvTemplateGate() {
     'VITE_FIREBASE_AUTH_DOMAIN',
     'VITE_FIREBASE_PROJECT_ID',
     'VITE_FIREBASE_APP_ID',
-    'VITE_SUPABASE_URL',
-    'VITE_SUPABASE_ANON_KEY',
   ];
   const missing = required.filter((key) => !env.includes(key));
 
@@ -222,7 +220,7 @@ async function checkEnvTemplateGate() {
     return fail(name, '.env.example is missing required production variables.', missing);
   }
 
-  return pass(name, '.env.example documents required Firebase and Supabase variables.');
+  return pass(name, '.env.example documents required Firebase variables.');
 }
 
 function checkManualGate(name, commandOrEvidence) {

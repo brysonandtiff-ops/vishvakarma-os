@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
 import { backendStatus } from '@/backend/backendConfig';
-import { isSupabaseConfigured } from '@/db/supabase';
 
-export type CloudSaveLabel = 'Firebase Cloud Save' | 'Supabase Cloud Save' | 'Local Draft';
+export type CloudSaveLabel = 'Firebase Cloud Save' | 'Local Draft';
 
 /**
- * Cloud persistence status for the active backend provider.
+ * Cloud persistence status for Firebase Firestore.
  */
 export function useCloudSaveStatus(): { connected: boolean; label: CloudSaveLabel } {
   return useMemo(() => {
@@ -13,14 +12,7 @@ export function useCloudSaveStatus(): { connected: boolean; label: CloudSaveLabe
       return { connected: false, label: 'Local Draft' };
     }
 
-    if (backendStatus.provider === 'firebase') {
-      return { connected: true, label: 'Firebase Cloud Save' };
-    }
-
-    return {
-      connected: isSupabaseConfigured,
-      label: 'Supabase Cloud Save',
-    };
+    return { connected: true, label: 'Firebase Cloud Save' };
   }, []);
 }
 

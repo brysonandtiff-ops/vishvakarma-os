@@ -9,9 +9,10 @@ const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${previe
 
 const env = {
   ...process.env,
-  VITE_BACKEND_PROVIDER: 'supabase',
-  VITE_SUPABASE_URL: '',
-  VITE_SUPABASE_ANON_KEY: '',
+  VITE_FIREBASE_API_KEY: '',
+  VITE_FIREBASE_AUTH_DOMAIN: '',
+  VITE_FIREBASE_PROJECT_ID: '',
+  VITE_FIREBASE_APP_ID: '',
   VITE_ALLOW_LOCAL_DEMO: '',
   VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
   PLAYWRIGHT_REUSE_SERVER: '1',

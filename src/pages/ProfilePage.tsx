@@ -10,12 +10,8 @@ export default function ProfilePage() {
   const { user, profile, mode, signOut, isConfigured } = useAuth();
   const navigate = useNavigate();
 
-  const providerLabel = backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase';
-  const saveLabel = backendStatus.isConfigured
-    ? backendStatus.provider === 'firebase'
-      ? 'Firebase Cloud Save'
-      : 'Supabase Cloud Save'
-    : 'Local Draft';
+  const providerLabel = 'Firebase';
+  const saveLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
 
   const handleSignOut = async () => {
     await signOut();

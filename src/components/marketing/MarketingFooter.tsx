@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 
 export function MarketingFooter() {
   return (
@@ -11,7 +12,9 @@ export function MarketingFooter() {
         </div>
         <nav className="flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">
           <Link to="/features" className="hover:text-primary">Features</Link>
-          <Link to="/pricing" className="hover:text-primary">Pricing</Link>
+          {PRICING_PAGE_ENABLED && (
+            <Link to="/pricing" className="hover:text-primary">Pricing</Link>
+          )}
           <Link to="/auth" className="hover:text-primary">Sign In</Link>
         </nav>
         <p className="text-xs text-stone-500">

@@ -29,7 +29,7 @@ const TIERS = [
       'Unlimited projects',
       'Full 2D + Sacred 3D View',
       'Export Package (JSON, PNG, PDF, DXF)',
-      'Cloud Save (Firebase or Supabase)',
+      'Cloud Save (Firebase)',
       'Project Proof governance',
       'Vastu Harmony (preview)',
     ],

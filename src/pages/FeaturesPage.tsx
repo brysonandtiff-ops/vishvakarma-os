@@ -107,7 +107,7 @@ export default function FeaturesPage() {
               <div key={mod.name} className="vish-feature-grid-card">
                 <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-primary">{mod.name}</h3>
                 <p className="mt-2 text-xs text-stone-500">
-                  {mod.ready ? 'Available now in editor.' : 'Planned — requires Supabase Realtime in this release.'}
+                  {mod.ready ? 'Available now in editor.' : 'Planned — remote collaboration in a future release.'}
                 </p>
               </div>
             ))}

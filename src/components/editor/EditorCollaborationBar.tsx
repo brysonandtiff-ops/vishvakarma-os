@@ -13,10 +13,10 @@ export default function EditorCollaborationBar({ projectName }: EditorCollaborat
   const { user } = useAuth();
   const [onlineCount, setOnlineCount] = useState(0);
   const [active, setActive] = useState(false);
-  const supabaseReady = backendStatus.isConfigured && backendStatus.provider === 'supabase';
+  const backendReady = backendStatus.isConfigured;
 
   useEffect(() => {
-    if (!supabaseReady || !user) {
+    if (!backendReady || !user) {
       setActive(false);
       setOnlineCount(0);
       return;
@@ -41,9 +41,9 @@ export default function EditorCollaborationBar({ projectName }: EditorCollaborat
       window.clearInterval(interval);
       void disconnectFromRoom();
     };
-  }, [projectName, supabaseReady, user]);
+  }, [backendReady, projectName, user]);
 
-  const label = supabaseReady
+  const label = backendReady
     ? active
       ? `Collaboration active · ${onlineCount} online`
       : 'Connecting collaboration…'
@@ -61,10 +61,10 @@ export default function EditorCollaborationBar({ projectName }: EditorCollaborat
 }
 
 export function useCollaborationCursorBroadcast(currentTool: string) {
-  const supabaseReady = backendStatus.isConfigured && backendStatus.provider === 'supabase';
+  const backendReady = backendStatus.isConfigured;
 
   return (point: Point2D) => {
-    if (!supabaseReady) return;
+    if (!backendReady) return;
     broadcastCursor(point.x, point.y, currentTool);
   };
 }

@@ -5,9 +5,6 @@ const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
 
 const authGateServerEnv = {
   ...process.env,
-  VITE_BACKEND_PROVIDER: 'supabase',
-  VITE_SUPABASE_URL: '',
-  VITE_SUPABASE_ANON_KEY: '',
   VITE_FIREBASE_API_KEY: '',
   VITE_FIREBASE_AUTH_DOMAIN: '',
   VITE_FIREBASE_PROJECT_ID: '',

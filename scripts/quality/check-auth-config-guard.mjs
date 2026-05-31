@@ -4,9 +4,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = process.cwd();
-const supabasePath = join(root, 'src/db/supabase.ts');
 const authPath = join(root, 'src/contexts/AuthContext.tsx');
 const firebaseAuthPath = join(root, 'src/backend/firebase/firebaseAuthGateway.ts');
+const backendConfigPath = join(root, 'src/backend/backendConfig.ts');
 
 const failures = [];
 
@@ -19,32 +19,19 @@ function readRequiredFile(path, label) {
   return readFileSync(path, 'utf8');
 }
 
-const supabase = readRequiredFile(supabasePath, 'src/db/supabase.ts');
 const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
 const firebaseAuth = readRequiredFile(firebaseAuthPath, 'src/backend/firebase/firebaseAuthGateway.ts');
-
-const supabaseRequired = [
-  'isPlaceholderValue',
-  "normalized.includes('your-project')",
-  "normalized.includes('your-supabase')",
-  'getSupabaseConfigurationError',
-  'Supabase is not configured for magic-link access',
-];
-
-for (const phrase of supabaseRequired) {
-  if (!supabase.includes(phrase)) {
-    failures.push(`src/db/supabase.ts is missing guard phrase: ${phrase}`);
-  }
-}
+const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendConfig.ts');
 
 const authRequired = [
-  'backendStatus.provider === \'firebase\'',
+  'onAuthStateChanged',
   'requestFirebaseAccessLink',
   'completeFirebaseEmailLinkSignIn',
+  'ensureFirestoreProfile',
   'normalizeMagicLinkError',
   "message.includes('fetch failed')",
   "message.includes('failed to fetch')",
-  'Magic-link request could not reach ${providerLabel}',
+  'Magic-link request could not reach Firebase Auth',
 ];
 
 for (const phrase of authRequired) {
@@ -60,6 +47,7 @@ const firebaseRequired = [
   'completeFirebaseEmailLinkSignIn',
   'readFirebaseSessionSnapshot',
   'clearFirebaseSessionSnapshot',
+  'writeFirebaseSessionSnapshot',
 ];
 
 for (const phrase of firebaseRequired) {
@@ -68,8 +56,24 @@ for (const phrase of firebaseRequired) {
   }
 }
 
-if (auth.includes("throw new Error('Supabase is not configured. Add environment variables to enable account access.')")) {
-  failures.push('AuthContext still contains the old generic Supabase configuration error.');
+const backendRequired = [
+  'VITE_FIREBASE_API_KEY',
+  "provider: 'firebase'",
+  'Firebase backend is not configured',
+];
+
+for (const phrase of backendRequired) {
+  if (!backendConfig.includes(phrase)) {
+    failures.push(`src/backend/backendConfig.ts is missing backend phrase: ${phrase}`);
+  }
+}
+
+if (existsSync(join(root, 'src/db/supabase.ts'))) {
+  failures.push('Legacy src/db/supabase.ts still exists — Firebase-only cutover requires its removal.');
+}
+
+if (auth.includes('@supabase/supabase-js') || auth.includes("from '@/db/supabase'")) {
+  failures.push('AuthContext still imports Supabase client code.');
 }
 
 if (failures.length > 0) {
@@ -79,4 +83,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
-console.log('Supabase and Firebase magic-link auth configuration handling is guarded.');
+console.log('Firebase magic-link auth configuration handling is guarded.');

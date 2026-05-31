@@ -1,12 +1,11 @@
 /**
  * Collaboration Engine Module
  *
- * Real-time multi-user editing with Supabase Realtime broadcast transport.
- * Falls back to in-process delivery when Supabase is not configured.
+ * In-process collaboration delivery for local and connected sessions.
+ * Remote realtime transport is deferred until a Firebase-backed channel is added.
  */
 
-import type { RealtimeChannel } from '@supabase/supabase-js';
-import { isSupabaseConfigured, supabase } from '@/db/supabase';
+import { backendStatus } from '@/backend/backendConfig';
 
 export interface User {
   id: string;
@@ -82,7 +81,6 @@ export class CollaborationEngine {
   private connected = false;
   private roomId: string | null = null;
   private heartbeatInterval: number | null = null;
-  private channel: RealtimeChannel | null = null;
 
   private constructor() {
     // Private constructor for singleton
@@ -126,16 +124,8 @@ export class CollaborationEngine {
     // Send presence message
     this.broadcastPresence('online', userName, color);
 
-    if (isSupabaseConfigured) {
-      this.channel = supabase.channel(`collab:${roomId}`, {
-        config: { broadcast: { self: false } },
-      });
-
-      this.channel.on('broadcast', { event: 'collab' }, ({ payload }) => {
-        this.handleRemoteMessage(payload as CollaborationMessage);
-      });
-
-      await this.channel.subscribe();
+    if (!backendStatus.isConfigured) {
+      console.warn('[Collaboration] Backend not configured — using local session delivery only.');
     }
 
     // Start heartbeat
@@ -162,11 +152,6 @@ export class CollaborationEngine {
 
     // Stop heartbeat
     this.stopHeartbeat();
-
-    if (this.channel) {
-      await supabase.removeChannel(this.channel);
-      this.channel = null;
-    }
 
     // Clear state
     this.connected = false;
@@ -362,14 +347,6 @@ export class CollaborationEngine {
    * Broadcast message to subscribers and remote peers
    */
   private broadcast(message: CollaborationMessage): void {
-    if (this.channel && isSupabaseConfigured) {
-      void this.channel.send({
-        type: 'broadcast',
-        event: 'collab',
-        payload: message,
-      });
-    }
-
     this.deliverToCallbacks(message);
   }
 

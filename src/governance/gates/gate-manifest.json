@@ -47,7 +47,7 @@
       "id": "gate-6",
       "number": 6,
       "name": "Environment template present",
-      "description": ".env.example documents Firebase auth and Supabase data variables",
+      "description": ".env.example documents required Firebase auth and Firestore variables",
       "category": "automated",
       "evidencePath": ".env.example"
     },

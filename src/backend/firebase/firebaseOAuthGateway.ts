@@ -6,12 +6,13 @@ import {
 } from 'firebase/auth';
 import { backendStatus } from '@/backend/backendConfig';
 import { firebaseAuth } from '@/backend/firebase/firebaseClient';
-import type { FirebaseSessionSnapshot } from '@/backend/firebase/firebaseAuthGateway';
-
-const FIREBASE_SESSION_KEY = 'vishvakarma.os.firebase.session.v1';
+import {
+  buildFirebaseSessionFromIdToken,
+  type FirebaseSessionSnapshot,
+} from '@/backend/firebase/firebaseAuthGateway';
 
 async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) {
-  if (!backendStatus.isConfigured || backendStatus.provider !== 'firebase') {
+  if (!backendStatus.isConfigured) {
     throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
   }
 
@@ -24,18 +25,11 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) 
     const user = credential.user;
     const idToken = await user.getIdToken();
 
-    const session: FirebaseSessionSnapshot = {
-      provider: 'firebase',
-      uid: user.uid,
-      email: user.email ?? '',
-      idToken,
-      refreshToken: '',
-      expiresAt: Date.now() + 3600 * 1000,
-    };
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(FIREBASE_SESSION_KEY, JSON.stringify(session));
-    }
+    const session = await buildFirebaseSessionFromIdToken(
+      user.uid,
+      user.email ?? '',
+      idToken
+    );
 
     return session;
   } catch (error) {

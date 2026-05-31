@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { isProtectedRoute } from './components/common/RouteGuard';
+import { PRICING_PAGE_ENABLED } from './config/marketingFeatures';
 import routes from './routes';
 
 const expectedRoutePaths = [
   '/',
   '/features',
-  '/pricing',
+  ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
   '/auth',
   '/reset-password',
   '/404',
@@ -20,7 +21,14 @@ const expectedRoutePaths = [
   '/audit',
 ];
 
-const expectedPublicRoutePaths = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
+const expectedPublicRoutePaths = [
+  '/',
+  '/features',
+  ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
+  '/auth',
+  '/reset-password',
+  '/404',
+];
 
 const expectedPrivateRoutePaths = [
   '/editor',

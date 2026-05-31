@@ -1,52 +1,101 @@
 # Vercel Production Environment Variables
 
-Configure these in the Vercel project **Settings → Environment Variables** for the **Production** environment before deploying Vishvakarma.OS to https://vishvakarma-os.vercel.app.
+Configure these in the Vercel project **Settings → Environment Variables** for **Production** (and Preview if you want auth on preview URLs) before deploying Vishvakarma.OS.
 
-## Required (Supabase backend — default)
+The app is **Firebase-only**. Supabase variables are no longer used by the runtime build.
 
-| Variable | Value |
-|----------|-------|
-| `VITE_BACKEND_PROVIDER` | `supabase` |
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anon (public) key |
+## Required (Firebase Auth + Firestore)
 
-## Optional (Firebase auth instead of Supabase magic link)
+| Variable | Where to find it |
+|----------|------------------|
+| `VITE_FIREBASE_API_KEY` | Firebase Console → Project settings → General → Web app config |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Same (e.g. `your-project.firebaseapp.com`) |
+| `VITE_FIREBASE_PROJECT_ID` | Same |
+| `VITE_FIREBASE_APP_ID` | Same |
 
-If you use Firebase email-link auth, set these per [`.env.example`](../../.env.example) and allowlist `vishvakarma-os.vercel.app` in Firebase Auth **Authorized domains**:
+## Recommended (optional but useful)
 
-| Variable |
-|----------|
-| `VITE_FIREBASE_API_KEY` |
-| `VITE_FIREBASE_AUTH_DOMAIN` |
-| `VITE_FIREBASE_PROJECT_ID` |
-| `VITE_FIREBASE_APP_ID` |
+| Variable | Purpose |
+|----------|---------|
+| `VITE_FIREBASE_STORAGE_BUCKET` | Future file uploads |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase SDK completeness |
 
-When using Firebase, also set `VITE_BACKEND_PROVIDER=firebase`.
+## Remove from Vercel (legacy)
 
-## Lovable disconnected — Vercel is sole deploy
+Delete these if still present — they are ignored by the current app and can cause confusion:
 
-Vishvakarma.OS no longer uses Lovable.ai for Git sync or hosting. Complete these steps once (browser):
+- `VITE_BACKEND_PROVIDER`
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-### Disconnect in Lovable
+## Firebase Console checklist (before first deploy)
 
-1. Open the project in [Lovable](https://lovable.dev) → **Settings → Integrations → GitHub**
-2. **Disconnect** the linked repo (`brysonandtiff-ops/vishvakarma-os`)
-3. Confirm no further auto-commits from Lovable
+1. **Authentication → Sign-in method**
+   - Enable **Email link (passwordless sign-in)** under Email/Password
+   - Optionally enable **Google** and **Apple**
+2. **Authentication → Settings → Authorized domains**
+   - Add your production domain (e.g. `vishvakarma-os.vercel.app`)
+   - Add `localhost` for local dev
+   - Add Vercel preview domain pattern if testing preview deploys
+3. **Firestore Database**
+   - Create database (production mode)
+   - Deploy rules from this repo (see below)
 
-### Revoke Lovable GitHub App
+## Deploy Firestore security rules
 
-1. GitHub → **Settings → Applications → Installed GitHub Apps**
-2. Find **Lovable** (legacy name: GPT Engineer) → **Configure**
-3. Remove access to `brysonandtiff-ops/vishvakarma-os` or revoke the app
-4. Repo **Settings → Webhooks** — delete any Lovable-related webhooks
+From the repo root, with [Firebase CLI](https://firebase.google.com/docs/cli) installed and logged in:
 
-### Confirm Vercel-only deploy
+```bash
+firebase login
+firebase use your-firebase-project-id
+firebase deploy --only firestore:rules
+```
 
-1. Vercel **Settings → Git** — connected repo: `brysonandtiff-ops/vishvakarma-os`, production branch: `main`
-2. If Lovable served a custom domain, point DNS only to Vercel
-3. Set production env vars below, then **Redeploy** (Vite inlines `VITE_*` at build time)
+Rules file: [`firestore.rules`](../../firestore.rules)  
+Config: [`firebase.json`](../../firebase.json)
 
-Legacy Lovable project ID `app-9nam5bayv401` and `/workspace/...` paths were removed from the codebase (2026-05-31).
+## Vercel redeploy (required after env changes)
+
+Vite inlines `VITE_*` at **build time**. After adding or changing Firebase env vars:
+
+1. Vercel → **Deployments** → **Redeploy** latest `main` (or push a commit)
+2. Do not rely on a runtime-only env change without a new build
+
+## Local development
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with real Firebase Web app values (not placeholders)
+pnpm run dev
+```
+
+Validate template:
+
+```bash
+pnpm run production:verify-env
+pnpm run production:verify-env --strict   # also checks .env.local values
+```
+
+## Migrating data from Supabase
+
+If you had production data in Supabase, follow [`FIREBASE_CUTOVER.md`](./FIREBASE_CUTOVER.md) **before** deleting the old Supabase project.
+
+## Post-deploy smoke test
+
+1. Open production URL in incognito — console should **not** mention Supabase
+2. If Firebase env is set: only a single config warning if something is missing; otherwise no backend warnings
+3. `/auth` — request email link or OAuth sign-in
+4. `/editor` — create project, save, reload, confirm cloud save badge shows **Firebase Cloud Save**
+5. `/registry`, `/releases`, `/audit-log` — pages load (empty until Firestore has data)
+
+## Promote an admin user
+
+Requires a Firebase service account (not the Web API key):
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+node scripts/production/setup-admin.mjs admin@example.com
+```
 
 ## Build settings (vercel.json)
 
@@ -56,30 +105,8 @@ Legacy Lovable project ID `app-9nam5bayv401` and `/workspace/...` paths were rem
 | Build | `pnpm run build` |
 | Output | `dist` |
 
-## Local validation
-
-```bash
-pnpm run production:verify-env
-```
-
-Strict mode (fails if `.env.local` placeholders remain):
-
-```bash
-pnpm run production:verify-env --strict
-```
-
-## Operator checklist
-
-1. Disconnect Lovable from GitHub (section above).
-2. Apply Supabase migrations from `supabase/migrations/` before inviting users.
-3. Set production env vars in Vercel (table above).
-4. Redeploy after changing env vars — Vite inlines `VITE_*` at build time.
-5. Smoke test: signed-out `/editor` redirects to `/auth`; sign-in lands in editor.
-6. Run `pnpm run release:gates:strict` and attach CI artifact links to `docs/release/evidence/EVIDENCE_MANIFEST.md`.
-
 ## Related docs
 
-- [Apply Supabase migrations (operator)](./SUPABASE_MIGRATIONS_APPLY.md)
-- [Supabase RLS evidence runbook](./SUPABASE_RLS_EVIDENCE.md)
+- [Firebase cutover runbook](./FIREBASE_CUTOVER.md)
 - [Production readiness](./PRODUCTION_READINESS.md)
 - [Evidence manifest](./evidence/EVIDENCE_MANIFEST.md)

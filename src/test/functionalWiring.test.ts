@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import routes from '@/routes';
 
 const repoRoot = resolve(process.cwd());
@@ -14,7 +15,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const expectedRoutes = [
       '/',
       '/features',
-      '/pricing',
+      ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
       '/auth',
       '/reset-password',
       '/404',
@@ -32,7 +33,14 @@ describe('Vishvakarma.OS functional wiring guard', () => {
 
     expect(actualRoutes).toEqual(expectedRoutes);
     expect(new Set(actualRoutes).size).toBe(actualRoutes.length);
-    const publicPaths = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
+    const publicPaths = [
+      '/',
+      '/features',
+      ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
+      '/auth',
+      '/reset-password',
+      '/404',
+    ];
     for (const path of publicPaths) {
       expect(routes.find((route) => route.path === path)?.access).toBe('public');
     }

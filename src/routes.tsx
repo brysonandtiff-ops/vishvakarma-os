@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import FeaturesPage from './pages/FeaturesPage';
 import PricingPage from './pages/PricingPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import { PRICING_PAGE_ENABLED } from './config/marketingFeatures';
 import SpecCenterPage from './pages/SpecCenterPage';
 import RegistryPage from './pages/RegistryPage';
 import ChangeRequestsPage from './pages/ChangeRequestsPage';
@@ -40,13 +41,17 @@ const routes: RouteConfig[] = [
     visible: false,
     access: 'public',
   },
-  {
-    name: 'Pricing',
-    path: '/pricing',
-    element: <PricingPage />,
-    visible: false,
-    access: 'public',
-  },
+  ...(PRICING_PAGE_ENABLED
+    ? [
+        {
+          name: 'Pricing',
+          path: '/pricing',
+          element: <PricingPage />,
+          visible: false,
+          access: 'public' as const,
+        },
+      ]
+    : []),
   {
     name: 'Account Access',
     path: '/auth',

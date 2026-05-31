@@ -9,7 +9,7 @@ import { Database, ShieldAlert, X } from 'lucide-react';
 export function WorkspaceNotifications() {
   const { mode } = useAuth();
   const [dismissed, setDismissed] = useState(false);
-  const providerLabel = backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase';
+  const providerLabel = 'Firebase';
 
   if (mode !== 'local-only' || dismissed) return null;
 

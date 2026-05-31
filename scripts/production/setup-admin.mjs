@@ -1,98 +1,49 @@
 #!/usr/bin/env node
-import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
-import dotenv from 'dotenv';
+/**
+ * Promote a Firebase user to admin by setting Firestore profile role and custom claims.
+ * Requires: GOOGLE_APPLICATION_CREDENTIALS, optional FIREBASE_PROJECT_ID
+ */
+import { readFile } from 'node:fs/promises';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
-dotenv.config();
+const email = process.argv[2];
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('Missing required Supabase environment variables. Please provide SUPABASE_SERVICE_ROLE_KEY.');
+if (!email) {
+  console.error('Usage: node scripts/production/setup-admin.mjs <email>');
   process.exit(1);
 }
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-async function findUserByEmail(email) {
-  let page = 1;
-  const perPage = 200;
-
-  while (true) {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Failed to list users: ${error.message}`);
-    }
-
-    const match = data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
-    if (match) return match;
-    if (data.users.length < perPage) return null;
-    page += 1;
-  }
+const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (!credentialsPath) {
+  console.error('Set GOOGLE_APPLICATION_CREDENTIALS to a Firebase service account JSON file.');
+  process.exit(1);
 }
 
-function isExistingUserError(error) {
-  const message = error?.message?.toLowerCase() ?? '';
-  return message.includes('already') || message.includes('registered') || error?.status === 422;
-}
+const serviceAccount = JSON.parse(await readFile(credentialsPath, 'utf8'));
 
-async function setup() {
-  const email = process.env.ADMIN_EMAIL ?? 'admin@vishvakarma.local';
-  const password = 'A1!' + crypto.randomBytes(12).toString('base64').slice(0, 14) + 'z#';
-
-  console.log(`Creating admin account: ${email}`);
-
-  let userId;
-  const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
+if (getApps().length === 0) {
+  initializeApp({
+    credential: cert(serviceAccount),
+    projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id,
   });
-
-  if (createError) {
-    if (!isExistingUserError(createError)) {
-      console.error('Error creating user:', createError.message);
-      process.exit(1);
-    }
-
-    const existingUser = await findUserByEmail(email);
-    if (!existingUser) {
-      console.error('Existing user reported but could not be resolved by email.');
-      process.exit(1);
-    }
-
-    userId = existingUser.id;
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password,
-      email_confirm: true,
-    });
-
-    if (updateError) {
-      console.error('Error updating existing admin user:', updateError.message);
-      process.exit(1);
-    }
-  } else {
-    userId = createData.user?.id;
-    if (!userId) {
-      console.error('Create user succeeded but returned no user id.');
-      process.exit(1);
-    }
-  }
-
-  const { error: profileError } = await supabaseAdmin.from('profiles').update({ role: 'admin' }).eq('id', userId);
-  if (profileError) {
-    console.error('Error promoting profile to admin:', profileError.message);
-    process.exit(1);
-  }
-
-  console.log('Admin setup complete.');
-  console.log('--- CREDENTIALS ---');
-  console.log(`Username (Email): ${email}`);
-  console.log(`Password: ${password}`);
 }
 
-setup().catch((error) => {
-  console.error('Admin setup failed:', error.message);
-  process.exit(1);
-});
+const auth = getAuth();
+const db = getFirestore();
+const user = await auth.getUserByEmail(email);
+
+await auth.setCustomUserClaims(user.uid, { role: 'admin' });
+await db.collection('profiles').doc(user.uid).set(
+  {
+    id: user.uid,
+    email: user.email,
+    role: 'admin',
+    ownerId: user.uid,
+    updated_at: new Date().toISOString(),
+  },
+  { merge: true }
+);
+
+console.log(`Promoted ${email} (${user.uid}) to admin.`);

@@ -1,9 +1,0 @@
-# Supabase local CLI config — link with:
-#   npx supabase link --project-ref <your-ref>
-# Then apply migrations:
-#   npx supabase db push
-
-project_id = "amjlqwcauqeggrmkntlw"
-
-[db]
-major_version = 15

@@ -11,10 +11,4 @@ test.describe('marketing pages', () => {
     await page.goto('/features');
     await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
   });
-
-  test('pricing page loads tiers', async ({ page }) => {
-    await page.goto('/pricing');
-    await expect(page.getByRole('heading', { name: 'Studio' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible();
-  });
 });

@@ -17,8 +17,6 @@ const FIREBASE_KEYS = [
   'VITE_FIREBASE_APP_ID',
 ];
 
-const SUPABASE_KEYS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
-
 async function fileExists(path) {
   try {
     await access(path, constants.R_OK);
@@ -67,13 +65,10 @@ async function main() {
   const envExample = await readFile(envExamplePath, 'utf-8');
   let passed = true;
   passed = checkKeys(envExample, FIREBASE_KEYS, '.env.example (Firebase)') && passed;
-  passed = checkKeys(envExample, SUPABASE_KEYS, '.env.example (Supabase)') && passed;
 
   if (strict && (await fileExists(envLocalPath))) {
     const envLocal = await readFile(envLocalPath, 'utf-8');
-    const firebaseOk = checkLiveValues(envLocal, FIREBASE_KEYS, '.env.local');
-    const supabaseOk = checkLiveValues(envLocal, SUPABASE_KEYS, '.env.local');
-    passed = firebaseOk && supabaseOk && passed;
+    passed = checkLiveValues(envLocal, FIREBASE_KEYS, '.env.local') && passed;
   } else if (strict) {
     console.warn('[WARN] --strict: .env.local not found; skipping live value checks');
   }

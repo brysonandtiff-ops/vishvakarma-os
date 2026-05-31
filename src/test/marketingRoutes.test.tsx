@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import routes from '@/routes';
 
 describe('marketing routes', () => {
@@ -6,7 +7,11 @@ describe('marketing routes', () => {
     const paths = routes.map((r) => r.path);
     expect(paths).toContain('/');
     expect(paths).toContain('/features');
-    expect(paths).toContain('/pricing');
+    if (PRICING_PAGE_ENABLED) {
+      expect(paths).toContain('/pricing');
+    } else {
+      expect(paths).not.toContain('/pricing');
+    }
     expect(paths).toContain('/auth');
     expect(paths).toContain('/404');
   });

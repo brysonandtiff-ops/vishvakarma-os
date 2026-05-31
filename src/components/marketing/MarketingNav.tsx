@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 
 export function MarketingNav() {
   const { user } = useAuth();
@@ -23,9 +24,11 @@ export function MarketingNav() {
           <Link to="/features" className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-300 hover:text-primary">
             Features
           </Link>
-          <Link to="/pricing" className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-300 hover:text-primary">
-            Pricing
-          </Link>
+          {PRICING_PAGE_ENABLED && (
+            <Link to="/pricing" className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-300 hover:text-primary">
+              Pricing
+            </Link>
+          )}
           <Link to={ctaTo} className="vish-gold-cta px-6 py-2.5 text-[0.65rem]">
             Start Free
           </Link>

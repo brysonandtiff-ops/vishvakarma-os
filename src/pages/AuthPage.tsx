@@ -131,7 +131,7 @@ export default function AuthPage() {
             <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
             <p className="mt-3 text-sm text-muted-foreground">Sign in with a secure email link</p>
             <p className="mt-1 text-[10px] text-muted-foreground">
-              {backendStatus.provider === 'firebase' ? 'Firebase Cloud Save' : 'Supabase Cloud Save'}
+              Firebase Cloud Save
               {isConfigured ? ' · Protected Workspace' : ' · Local Draft mode until configured'}
             </p>
           </div>
@@ -155,8 +155,7 @@ export default function AuthPage() {
               <div>
                 <p className="font-semibold">Local workspace available</p>
                 <p className="text-muted-foreground">
-                  Auth is disabled until real{' '}
-                  {backendStatus.provider === 'firebase' ? 'Firebase' : 'Supabase'} environment variables are
+                  Auth is disabled until real Firebase environment variables are
                   configured. Current mode: {mode}.
                 </p>
               </div>

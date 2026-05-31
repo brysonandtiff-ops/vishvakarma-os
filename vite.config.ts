@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
           if (!id.includes('node_modules')) return undefined;
           if (id.includes('three') || id.includes('@react-three')) return 'vendor-3d';
           if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('sonner')) return 'vendor-ui';
-          if (id.includes('@supabase')) return 'vendor-supabase';
+          if (id.includes('firebase')) return 'vendor-firebase';
           if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
           return 'vendor-misc';
         },

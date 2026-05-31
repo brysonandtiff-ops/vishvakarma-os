@@ -25,7 +25,7 @@
     },
     "gate-6": {
       "status": "pass",
-      "message": ".env.example documents required Firebase and Supabase variables."
+      "message": ".env.example documents required Firebase variables."
     },
     "gate-7": {
       "status": "pass",

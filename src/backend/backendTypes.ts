@@ -8,8 +8,10 @@ import type {
   Spec,
 } from '@/types';
 
-export type BackendProvider = 'supabase' | 'firebase';
+export type BackendProvider = 'firebase';
 export type BackendMode = 'connected' | 'local-only';
+
+export type EnvSource = Record<string, unknown>;
 
 export interface BackendStatus {
   provider: BackendProvider;
@@ -47,6 +49,6 @@ export interface BackendGateway {
   governance: GovernanceGateway;
 }
 
-export function createBackendNotImplementedError(provider: BackendProvider, feature: string) {
-  return new Error(`${provider} backend ${feature} is not implemented yet.`);
+export function createBackendNotImplementedError(feature: string) {
+  return new Error(`Firebase backend ${feature} is not implemented yet.`);
 }
