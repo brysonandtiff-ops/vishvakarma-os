@@ -11,7 +11,12 @@ import "./styles/vish-editor-polish.css";
 import "./styles/vish-governance-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
-import { enforce, enableDevelopmentMode, enableProductionMode } from "./governance/core/enforcer";
+import {
+  bootstrapClientGovernanceState,
+  configureEnforcement,
+  enforce,
+  enableDevelopmentMode,
+} from "./governance/core/enforcer";
 
 // ============================================================================
 // GOVERNANCE ENFORCEMENT — APP STARTUP
@@ -23,10 +28,17 @@ const isE2eBuild = import.meta.env.MODE === 'e2e';
 if (isE2eBuild || import.meta.env.DEV) {
   enableDevelopmentMode();
 } else if (import.meta.env.PROD) {
-  enableProductionMode();
+  // Production SPA: advisory-only at runtime — verify-all.js / CI enforce hard gates.
+  configureEnforcement({
+    mode: 'production',
+    enableAutoRepair: false,
+    blockOnFailure: false,
+  });
 } else {
   enableDevelopmentMode();
 }
+
+bootstrapClientGovernanceState();
 
 // Run enforcement check on startup
 const startupEnforcement = enforce();
