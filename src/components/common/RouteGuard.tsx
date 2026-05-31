@@ -3,12 +3,16 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
+import routes from '@/routes';
 
 interface RouteGuardProps {
   children: ReactNode;
 }
 
-const PUBLIC_ROUTES = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
+const PROTECTED_ROUTES = routes
+  .filter((route) => route.access === 'private')
+  .map((route) => route.path);
+
 const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
 const isE2eLocalAccess =
   import.meta.env.MODE === 'e2e' &&
@@ -30,8 +34,15 @@ const BOOT_MANTRAS = [
   'यन्त्र मन्त्र मण्डलम्',
 ] as const;
 
-function isPublicRoute(pathname: string) {
-  return PUBLIC_ROUTES.includes(pathname) || pathname === '/404';
+/** Paths that require an authenticated session before rendering. */
+export function isProtectedRoute(pathname: string): boolean {
+  return PROTECTED_ROUTES.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+}
+
+function isPublicRoute(pathname: string): boolean {
+  return !isProtectedRoute(pathname);
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
@@ -54,7 +65,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
       const from = typeof location.state === 'object' && location.state && 'from' in location.state
         ? String(location.state.from)
         : '/editor';
-      const dest = from.startsWith('/') && !PUBLIC_ROUTES.includes(from) ? from : '/editor';
+      const dest = from.startsWith('/') && isProtectedRoute(from) ? from : '/editor';
       navigate(dest, { replace: true });
     }
   }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);

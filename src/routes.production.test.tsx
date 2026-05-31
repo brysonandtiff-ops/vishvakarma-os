@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isProtectedRoute } from './components/common/RouteGuard';
 import routes from './routes';
 
 const expectedRoutePaths = [
@@ -62,5 +63,25 @@ describe('production route manifest', () => {
     const firstPrivateRoute = routes.find((route) => route.access === 'private');
     expect(firstPrivateRoute?.path).toBe('/editor');
     expect(firstPrivateRoute?.name).toBe('Blueprint Editor');
+  });
+});
+
+describe('route access guard', () => {
+  it('treats unknown paths as public so the wildcard 404 renders without auth redirect', () => {
+    expect(isProtectedRoute('/404-test')).toBe(false);
+    expect(isProtectedRoute('/not-real-page')).toBe(false);
+    expect(isProtectedRoute('/random/deep/path')).toBe(false);
+  });
+
+  it('keeps manifest private routes auth-gated', () => {
+    for (const path of expectedPrivateRoutePaths) {
+      expect(isProtectedRoute(path)).toBe(true);
+    }
+  });
+
+  it('keeps marketing and auth routes public', () => {
+    for (const path of expectedPublicRoutePaths) {
+      expect(isProtectedRoute(path)).toBe(false);
+    }
   });
 });

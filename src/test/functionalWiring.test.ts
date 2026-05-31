@@ -57,7 +57,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps protected routing enforced through RouteGuard', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
 
-    expect(routeGuard).toContain("const PUBLIC_ROUTES = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404']");
+    expect(routeGuard).toContain("route.access === 'private'");
+    expect(routeGuard).toContain('isProtectedRoute');
     expect(routeGuard).toContain("navigate('/auth'");
     expect(routeGuard).toContain("state: { from: location.pathname }");
     expect(routeGuard).toContain('allowLocalAccess');
