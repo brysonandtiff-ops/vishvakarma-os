@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router';
 import {
   Database,
   FileText,
+  FolderOpen,
   GitPullRequest,
   History,
   LogOut,
   Package,
   PenTool,
   Trophy,
+  User,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -27,7 +29,9 @@ import routes from '@/routes';
 export const OPEN_COMMAND_PALETTE_EVENT = 'vish:open-command-palette';
 
 const ROUTE_ICONS: Record<string, LucideIcon> = {
-  '/': PenTool,
+  '/editor': PenTool,
+  '/projects': FolderOpen,
+  '/profile': User,
   '/spec-center': FileText,
   '/registry': Database,
   '/change-requests': GitPullRequest,
@@ -80,7 +84,7 @@ export function WorkspaceCommandPalette() {
 
   const runSignOut = () => {
     setOpen(false);
-    void signOut();
+    void signOut().then(() => navigate('/auth', { replace: true }));
   };
 
   return (

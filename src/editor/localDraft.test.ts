@@ -3,6 +3,7 @@ import type { LightingConfig, Opening, Wall } from '@/types';
 import {
   LOCAL_DRAFT_KEY,
   LOCAL_DRAFT_VERSION,
+  buildDraftPayloadFromManifest,
   buildDraftPayload,
   clearLocalDraft,
   hasMeaningfulDraftContent,
@@ -66,6 +67,28 @@ describe('localDraft', () => {
     expect(draft.manifest.floorMaterial).toBe(DEFAULT_FLOOR_MATERIAL);
     expect(draft.manifest.lighting).toEqual(lighting);
     expect(draft.manifest.snapToGrid).toBe(false);
+  });
+
+  it('preserves labels and dimensions when saving from full manifest', () => {
+    const base = buildDraftPayload({
+      projectName: 'Full Draft',
+      walls: [wall],
+      openings: [],
+      lighting,
+      snapEnabled: true,
+    });
+
+    const draft = buildDraftPayloadFromManifest({
+      projectName: 'Full Draft',
+      manifest: {
+        ...base.manifest,
+        labels: [{ id: 'lbl-1', text: 'Kitchen', position: { x: 50, y: 50 }, fontSize: 14 }],
+        dimensions: [{ id: 'dim-1', start: { x: 0, y: 0 }, end: { x: 200, y: 0 }, offset: 20 }],
+      },
+    });
+
+    expect(draft.manifest.labels).toHaveLength(1);
+    expect(draft.manifest.dimensions).toHaveLength(1);
   });
 
   it('detects meaningful geometry for recovery prompts', () => {

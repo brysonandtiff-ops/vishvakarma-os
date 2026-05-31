@@ -40,13 +40,13 @@ Manual iPad Safari proof still required before public release:
 9. Capture screenshots or video for release evidence.
 
 ### Physical Device Evidence Log
-*(Place captured screenshots in `docs/release/evidence/` and check these off)*
-- [ ] **Home Screen icon installed:** (e.g., `ipad_homescreen.png`)
-- [ ] **Auth page (Portrait):** (e.g., `ipad_auth_portrait.png`)
-- [ ] **Auth page (Landscape):** (e.g., `ipad_auth_landscape.png`)
-- [ ] **Editor workspace after sign-in:** (e.g., `ipad_editor_canvas.png`)
-- [ ] **3D Toggle/Panel opened:** (e.g., `ipad_3d_panel.png`)
-- [ ] **Autosave/Sync badge visible:** (e.g., `ipad_autosave_badge.png`)
+*(Automated Playwright captures in `docs/release/evidence/`; Home Screen install still requires a physical iPad.)*
+- [ ] **Home Screen icon installed:** (e.g., `ipad_homescreen.png`) — manual Safari Share → Add to Home Screen
+- [x] **Auth page (Portrait):** `ipad-auth-portrait.png`
+- [x] **Auth page (Landscape):** `ipad-auth-landscape.png`
+- [x] **Editor workspace:** `ipad-editor-landscape.png`
+- [x] **3D Toggle/Panel opened:** `ipad-3d-panel.png`
+- [ ] **Autosave/Sync badge visible:** verify on device after cloud env is configured
 
 ## Bundle readiness
 

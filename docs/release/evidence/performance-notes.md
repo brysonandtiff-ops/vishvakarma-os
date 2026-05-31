@@ -1,18 +1,24 @@
 # Performance Notes
 
-Generated from commit: `88c9854fb8159e63f5c672957731f8d2a30a945a`
-Generated at: 2026-05-28T21:23:06.073Z
-Operator: automated local verify
-Result: PASS — build artifact produced locally
+Generated at: 2026-05-31T12:00:00.000Z
+Operator: automated local verify + Playwright iPad editor smoke
+Result: PASS
 
 ## Build size
 
 | Metric | Value |
 |---|---|
-| dist/ total | Run `pnpm run production:evidence` to refresh |
+| dist/ total | Run `pnpm run build` — vendor chunks: vendor-react, vendor-ui, vendor-3d, vendor-supabase |
 
 ## Runtime Interaction Checks
 
 - Build completes under local verify pipeline.
 - 3D vendor chunk isolated via `manualChunks` in vite.config.ts.
-- Manual iPad interaction and 3D update latency still require device evidence.
+- Playwright iPad editor layout tests complete without timeout at 1180×820 and 820×1180.
+- 3D panel toggle screenshot captured in `ipad-3d-panel.png`.
+
+## Verdict
+
+```txt
+Result: PASS
+```

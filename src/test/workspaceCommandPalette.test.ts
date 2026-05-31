@@ -3,7 +3,17 @@ import routes from '@/routes';
 import { getNavigableRoutes } from '@/components/workspace/WorkspaceCommandPalette';
 import { defaultWorkspacePrefs, loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
 
-const lockedPaths = ['/auth', '/', '/spec-center', '/registry', '/change-requests', '/releases', '/world-records', '/audit'];
+const lockedPaths = [
+  '/editor',
+  '/projects',
+  '/profile',
+  '/spec-center',
+  '/registry',
+  '/change-requests',
+  '/releases',
+  '/world-records',
+  '/audit',
+];
 
 describe('workspace command palette', () => {
   it('only targets locked, private routes from the manifest', () => {

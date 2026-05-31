@@ -11,6 +11,7 @@ import type { Opening, ProjectManifest, Wall } from '@/types';
 import type { ExportPackage } from './export';
 import type { GovernanceEvent } from './governanceLock';
 import type { VersionSnapshot } from './versionControlHooks';
+import { createProjectManifest } from '@/core/projectModel';
 import { FormatValidator } from './formatValidator';
 import { logGovernanceEvent } from './governanceLock';
 
@@ -346,6 +347,42 @@ export class ImportModule {
   }
 
   /**
+   * Normalize imported manifest through the canonical project model factory.
+   */
+  static normalizeManifest(manifest: ProjectManifest): ProjectManifest {
+    const base = createProjectManifest({
+      name: manifest.name,
+      description: manifest.description,
+      walls: manifest.walls,
+      openings: manifest.openings,
+      materials: manifest.materials,
+      floorMaterial: manifest.floorMaterial,
+      lighting: manifest.lighting,
+      gridSize: manifest.gridSize,
+      snapToGrid: manifest.snapToGrid,
+      createdAt: manifest.metadata?.created,
+      modifiedAt: manifest.metadata?.modified,
+      author: manifest.metadata?.author,
+    });
+
+    return {
+      ...base,
+      labels: manifest.labels,
+      dimensions: manifest.dimensions,
+      rooms: manifest.rooms,
+      furniture: manifest.furniture,
+      mepSymbols: manifest.mepSymbols,
+      plumbingRuns: manifest.plumbingRuns,
+      landscapeElements: manifest.landscapeElements,
+      measurements: manifest.measurements,
+      costItems: manifest.costItems,
+      staircases: manifest.staircases,
+      ceilingZones: manifest.ceilingZones,
+      camera: manifest.camera,
+    };
+  }
+
+  /**
    * Import plain manifest
    */
   private static importPlainManifest(
@@ -360,7 +397,7 @@ export class ImportModule {
       manifest = FormatValidator.sanitizeManifest(manifest);
     }
 
-    // Log import event
+    manifest = ImportModule.normalizeManifest(manifest);
     logGovernanceEvent({
       type: 'project-imported',
       metadata: {

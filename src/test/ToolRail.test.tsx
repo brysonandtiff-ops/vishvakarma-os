@@ -11,8 +11,8 @@ describe('ToolRail', () => {
   };
 
   describe('rendering', () => {
-    it('should render working drafting tool buttons only', () => {
-      render(<ToolRail {...defaultProps} />);
+    it('should render drafting tools and draft-mode tools', () => {
+      render(<ToolRail {...defaultProps} workspaceMode="draft" />);
 
       expect(screen.getByLabelText('Select')).toBeInTheDocument();
       expect(screen.getByLabelText('Wall')).toBeInTheDocument();
@@ -21,8 +21,9 @@ describe('ToolRail', () => {
       expect(screen.getByLabelText('Measure')).toBeInTheDocument();
       expect(screen.getByLabelText('Label')).toBeInTheDocument();
       expect(screen.getByLabelText('Dimension')).toBeInTheDocument();
+      expect(screen.getByLabelText('Room')).toBeInTheDocument();
+      expect(screen.getByLabelText('Vastu')).toBeInTheDocument();
       expect(screen.queryByLabelText('Arc')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Vastu')).not.toBeInTheDocument();
     });
 
     it('uses production tool rail class for iPad layout', () => {
@@ -41,6 +42,17 @@ describe('ToolRail', () => {
       await user.click(screen.getByLabelText('Wall'));
 
       expect(onToolChange).toHaveBeenCalledWith('wall');
+    });
+
+    it('should call onToolChange when Vastu tool is clicked in draft mode', async () => {
+      const user = userEvent.setup();
+      const onToolChange = vi.fn();
+
+      render(<ToolRail {...defaultProps} workspaceMode="draft" onToolChange={onToolChange} />);
+
+      await user.click(screen.getByLabelText('Vastu'));
+
+      expect(onToolChange).toHaveBeenCalledWith('vastu');
     });
   });
 

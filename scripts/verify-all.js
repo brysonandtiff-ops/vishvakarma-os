@@ -251,15 +251,11 @@ async function checkEvidenceGate(name, evidencePath, passPhrases = ['Result: PAS
 }
 
 async function checkAutomatedCommandGate(name, command) {
-  if (!strict) {
-    return checkManualGate(name, `Run: ${command}`);
-  }
-
   try {
     runCommand(command);
-    return pass(name, `${command} completed successfully in --strict mode.`);
+    return pass(name, `${command} completed successfully.`);
   } catch (error) {
-    return fail(name, `${command} failed in --strict mode.`, [String(error?.stdout ?? error?.message ?? error)]);
+    return fail(name, `${command} failed.`, [String(error?.stdout ?? error?.message ?? error)]);
   }
 }
 
@@ -301,7 +297,7 @@ async function runAllGates() {
   gates.push(await checkVercelSecurityGate());
   gates.push(await checkEnvTemplateGate());
   gates.push(await checkAutomatedCommandGate('Gate 7: Unit tests green', 'pnpm run test'));
-  gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'pnpm run test:e2e'));
+  gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'node scripts/run-e2e-gates.mjs'));
   gates.push(await checkEvidenceGate('Gate 9: Save/load determinism', 'docs/release/evidence/save-load-proof.md', ['Result: PASS', 'Result: `PASS`', 'Result: `PARTIAL`']));
   gates.push(await checkEvidenceGate('Gate 10: 2D/3D parity', 'docs/release/evidence/2d-3d-parity-proof.md'));
   gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));

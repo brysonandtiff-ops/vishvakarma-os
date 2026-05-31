@@ -6,7 +6,8 @@ import path from 'path';
 import { miaodaDevPlugin } from 'miaoda-sc-plugin';
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
+  envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
   plugins: [
     react(),
     svgr({

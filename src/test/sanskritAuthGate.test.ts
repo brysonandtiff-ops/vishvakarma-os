@@ -32,13 +32,20 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
     expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Sign in with email link');
-    expect(authPage).toContain('Magic-link only');
+    expect(authPage).toContain('Sign In');
+    expect(authPage).toContain('Continue with Google');
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system');
-    expect(authPage).not.toContain('Continue with Google');
-    expect(authPage).not.toContain('Forgot password?');
-    expect(authPage).not.toContain('type="password"');
+    expect(authPage).toContain('type="password"');
+  });
+
+  it('enables OAuth providers when backend is configured', () => {
+    const authPage = read('src/pages/AuthPage.tsx');
+
+    expect(authPage).toContain('Continue with Google');
+    expect(authPage).toContain('Continue with Apple');
+    expect(authPage).toContain('signInWithGoogle');
+    expect(authPage).toContain('signInWithApple');
   });
 
   it('keeps the premium workspace shell treatment after login', () => {

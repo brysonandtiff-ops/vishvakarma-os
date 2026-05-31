@@ -1,0 +1,91 @@
+import { expect, test } from '@playwright/test';
+
+const iPadLandscape = { width: 1180, height: 820 };
+const iPadPortrait = { width: 820, height: 1180 };
+
+async function dismissOnboardingIfPresent(page: import('@playwright/test').Page) {
+  const dismiss = page.getByRole('button', { name: /dismiss|close|got it|skip/i });
+  if (await dismiss.first().isVisible().catch(() => false)) {
+    await dismiss.first().click();
+  }
+}
+
+async function assertNoHorizontalOverflow(page: import('@playwright/test').Page) {
+  const overflow = await page.evaluate(() => {
+    const doc = document.documentElement;
+    return doc.scrollWidth > doc.clientWidth + 2;
+  });
+  expect(overflow).toBe(false);
+}
+
+async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
+  const tooSmall = await page.evaluate(() => {
+    const selectors = [
+      '[data-testid="editor-top-bar"] button',
+      '[data-testid="tool-rail"] button',
+      '.bg-ws-canvas > .flex.shrink-0 button',
+    ];
+    const buttons = selectors.flatMap((sel) => Array.from(document.querySelectorAll<HTMLButtonElement>(sel)));
+    const seen = new Set<Element>();
+    const failures: string[] = [];
+    for (const button of buttons) {
+      if (seen.has(button)) continue;
+      seen.add(button);
+      const rect = button.getBoundingClientRect();
+      const style = window.getComputedStyle(button);
+      if (style.display === 'none' || style.visibility === 'hidden' || rect.width === 0 || rect.height === 0) {
+        continue;
+      }
+      if (rect.width < 44 || rect.height < 44) {
+        failures.push(`${button.getAttribute('aria-label') ?? button.textContent?.trim() ?? 'button'}: ${rect.width}x${rect.height}`);
+      }
+    }
+    return failures;
+  });
+  expect(tooSmall, `Touch targets below 44px: ${tooSmall.join(', ')}`).toEqual([]);
+}
+
+test.describe('iPad editor layout', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/editor');
+    await dismissOnboardingIfPresent(page);
+  });
+
+  test('editor workspace fits iPad landscape', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('tool-rail')).toBeVisible();
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await assertEditorTouchTargets(page);
+  });
+
+  test('editor workspace fits iPad portrait', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('tool-rail')).toBeVisible();
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await assertEditorTouchTargets(page);
+  });
+
+  test('captures iPad editor evidence screenshots', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+
+    await page.screenshot({
+      path: 'docs/release/evidence/ipad-editor-landscape.png',
+      fullPage: false,
+    });
+
+    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    if (await toggle3d.isVisible()) {
+      await toggle3d.click();
+      await page.waitForTimeout(500);
+      await page.screenshot({
+        path: 'docs/release/evidence/ipad-3d-panel.png',
+        fullPage: false,
+      });
+    }
+  });
+});

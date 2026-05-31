@@ -8,6 +8,7 @@ import {
   requestFirebaseAccessLink,
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
+import { signInWithAppleFirebase, signInWithGoogleFirebase } from '@/backend/firebase/firebaseOAuthGateway';
 import { isSupabaseConfigured, supabase, supabaseMode } from '@/db/supabase';
 import type { Profile } from '@/types';
 
@@ -28,6 +29,8 @@ interface AuthContextType {
   isConfigured: boolean;
   mode: 'connected' | 'local-only';
   requestAccessLink: (email: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
+  signInWithApple: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -113,6 +116,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (backendStatus.provider === 'firebase') {
+      if (!backendStatus.isConfigured) {
+        setLoading(false);
+        return () => {
+          mounted = false;
+        };
+      }
+
       completeFirebaseEmailLinkSignIn()
         .then(({ session: nextSession, error }) => {
           if (!mounted) return;
@@ -213,6 +223,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      if (backendStatus.provider === 'firebase') {
+        const session = await signInWithGoogleFirebase();
+        if (session) {
+          setSession(session);
+          setUser(firebaseUserFromSession(session));
+        }
+        return { error: null };
+      }
+
+      if (!backendStatus.isConfigured) {
+        throw new Error(backendStatus.configurationError ?? 'Backend is not configured.');
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error('Google sign-in failed.') };
+    }
+  }, []);
+
+  const signInWithApple = useCallback(async () => {
+    try {
+      if (backendStatus.provider === 'firebase') {
+        const session = await signInWithAppleFirebase();
+        if (session) {
+          setSession(session);
+          setUser(firebaseUserFromSession(session));
+        }
+        return { error: null };
+      }
+
+      if (!backendStatus.isConfigured) {
+        throw new Error(backendStatus.configurationError ?? 'Backend is not configured.');
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error('Apple sign-in failed.') };
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     if (backendStatus.provider === 'firebase') {
       clearFirebaseSessionSnapshot();
@@ -235,10 +297,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isConfigured: backendStatus.isConfigured,
       mode: backendStatus.provider === 'supabase' ? supabaseMode : backendStatus.mode,
       requestAccessLink,
+      signInWithGoogle,
+      signInWithApple,
       signOut,
       refreshProfile,
     }),
-    [loading, profile, refreshProfile, requestAccessLink, session, signOut, user]
+    [loading, profile, refreshProfile, requestAccessLink, session, signInWithApple, signInWithGoogle, signOut, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

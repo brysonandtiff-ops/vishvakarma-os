@@ -22,6 +22,11 @@ export default function StatusBar({
     measure: 'Measure — hover or tap walls to inspect dimensions.',
     text: 'Label — tap to place a room label.',
     dimension: 'Dimension — tap start point, then end point.',
+    room: 'Room — tap enclosed area to detect and label rooms.',
+    vastu: 'Vastu — harmony compass overlay; adjust north in sidebar.',
+    mep: 'MEP — tap canvas to place MEP symbols.',
+    furniture: 'Furniture — tap canvas to place furniture.',
+    landscape: 'Landscape — tap canvas to place garden elements.',
   };
 
   return (

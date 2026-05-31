@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import AppLayout from '@/components/layouts/AppLayout';
 import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
@@ -95,18 +96,35 @@ export default function SpecCenterPage() {
   }
 
   async function handleCreateSpec() {
-    if (!newSpecName.trim() || !newSpecContent.trim()) return;
-    await createSpec({
-      name: newSpecName.trim(),
-      category: newSpecCategory.trim() || 'General',
-      content: newSpecContent.trim(),
-      version: '1.0.0',
-      status: 'draft',
-    });
-    setNewSpecOpen(false);
-    setNewSpecName('');
-    setNewSpecContent('');
-    await loadSpecs();
+    if (!newSpecName.trim() || !newSpecContent.trim()) {
+      toast.error('Name and content are required');
+      return;
+    }
+
+    const missingSections = requiredSections.filter(
+      (section) => !newSpecContent.includes(section)
+    );
+    if (missingSections.length > 0) {
+      toast.error(`Spec content is missing required sections: ${missingSections.join(', ')}`);
+      return;
+    }
+
+    try {
+      await createSpec({
+        name: newSpecName.trim(),
+        category: newSpecCategory.trim() || 'General',
+        content: newSpecContent.trim(),
+        version: '1.0.0',
+        status: 'draft',
+      });
+      setNewSpecOpen(false);
+      setNewSpecName('');
+      setNewSpecContent('');
+      toast.success('Specification created');
+      await loadSpecs();
+    } catch {
+      toast.error('Failed to create specification');
+    }
   }
 
   return (

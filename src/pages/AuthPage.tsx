@@ -22,17 +22,18 @@ const SANSKRIT_MATRIX_COLUMNS = [
 function getReturnPath(state: unknown) {
   if (typeof state === 'object' && state !== null && 'from' in state) {
     const from = String((state as { from: unknown }).from);
-    return from.startsWith('/') ? from : '/';
+    return from.startsWith('/') ? from : '/editor';
   }
 
-  return '/';
+  return '/editor';
 }
 
 export default function AuthPage() {
-  const { user, loading, isConfigured, mode, requestAccessLink } = useAuth();
+  const { user, loading, isConfigured, mode, requestAccessLink, signInWithGoogle, signInWithApple } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +73,19 @@ export default function AuthPage() {
     toast.message('Install as App', {
       description: 'Use your browser menu (Add to Home Screen / Install app) to install Vishvakarma.OS.',
     });
+  };
+
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setError(null);
+    setMessage(null);
+    setSubmitting(true);
+    const result = provider === 'google' ? await signInWithGoogle() : await signInWithApple();
+    setSubmitting(false);
+    if (result.error) {
+      setError(result.error.message);
+      return;
+    }
+    navigate(returnPath, { replace: true });
   };
 
   return (
@@ -116,7 +130,11 @@ export default function AuthPage() {
             </div>
             <h1 className="vish-wordmark text-lg font-bold tracking-[0.28em] text-primary">VISHVAKARMA.OS</h1>
             <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
-            <p className="mt-3 text-sm text-muted-foreground">Sign in to your workspace</p>
+            <p className="mt-3 text-sm text-muted-foreground">Sign in with a secure email link</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {backendStatus.provider === 'firebase' ? 'Firebase Cloud Save' : 'Supabase Cloud Save'}
+              {isConfigured ? ' · Protected Workspace' : ' · Local Draft mode until configured'}
+            </p>
           </div>
 
           {showConfigRequired && (
@@ -162,6 +180,23 @@ export default function AuthPage() {
               />
             </label>
 
+            <label className="block space-y-1.5">
+              <span className="vish-bilingual-label">Password</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                disabled={!isConfigured || submitting || showConfigRequired}
+                className="vish-mockup-input"
+                aria-describedby="auth-password-hint"
+              />
+            </label>
+            <p id="auth-password-hint" className="text-[10px] text-muted-foreground">
+              Sign-in uses a secure email link. Password is optional until provider password auth ships.
+            </p>
+
             {error && (
               <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {error}
@@ -175,28 +210,55 @@ export default function AuthPage() {
             )}
 
             <button type="submit" className="vish-gold-button" disabled={!isConfigured || submitting || showConfigRequired}>
-              {submitting ? 'Sending access link…' : 'Sign in with email link'}
+              {submitting ? 'Sending access link…' : 'Sign In'}
             </button>
+
+            <p className="text-center text-[11px] text-muted-foreground">
+              <button type="button" className="text-primary hover:underline" onClick={() => navigate('/auth')}>
+                Sign up
+              </button>
+              {' · '}
+              <button type="button" className="text-primary hover:underline" onClick={() => navigate('/reset-password')}>
+                Forgot password
+              </button>
+            </p>
 
             {allowLocalWorkspace && (
               <button
                 type="button"
                 className="vish-oauth-button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/editor')}
               >
                 Enter local workspace · स्थानीय कार्यस्थान
               </button>
             )}
           </form>
 
-          <p className="mt-4 text-center text-[11px] text-muted-foreground text-pretty">
-            Magic-link only — no password. Social sign-in is not available in this release.
+          <p className="my-4 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Or
           </p>
 
           <button
             type="button"
+            className="vish-oauth-button"
+            disabled={submitting || !isConfigured}
+            onClick={() => void handleOAuth('google')}
+          >
+            Continue with Google
+          </button>
+          <button
+            type="button"
+            className="vish-oauth-button mt-2"
+            disabled={submitting || !isConfigured}
+            onClick={() => void handleOAuth('apple')}
+          >
+            Continue with Apple
+          </button>
+
+          <button
+            type="button"
             className="mt-5 flex w-full items-center justify-center gap-2 text-[11px] text-primary/70 hover:text-primary"
-            onClick={() => toast.message('Features & guides', { description: 'Open Spec Center after sign-in for governance docs and editor guides.' })}
+            onClick={() => navigate('/features')}
           >
             <BookOpen className="h-3.5 w-3.5" />
             Explore all features &amp; guides · विशेषताएँ

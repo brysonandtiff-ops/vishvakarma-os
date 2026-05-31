@@ -137,7 +137,7 @@ export default function AuditLogPage() {
                   System activity will appear here as you interact with Vishvakarma.OS
                 </p>
                 <div className="mt-5 flex flex-col items-center gap-2">
-                  <Button size="sm" className="gap-2" onClick={() => navigate('/')}>
+                  <Button size="sm" className="gap-2" onClick={() => navigate('/editor')}>
                     <ArrowRight className="h-3.5 w-3.5" />
                     Open the Editor
                   </Button>

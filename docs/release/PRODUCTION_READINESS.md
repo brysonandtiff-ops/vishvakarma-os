@@ -2,7 +2,7 @@
 
 **Status:** Release hardening, auth hardening, browser E2E scaffold, and Supabase RLS evidence runbook added. Final production approval requires the GitHub Actions `Verify Vishvakarma.OS` and `E2E Auth Gate` workflows to pass on the release commit.
 
-**Last updated:** 2026-05-21
+**Last updated:** 2026-05-31
 
 ---
 
@@ -26,6 +26,9 @@
 | RLS baseline | User-owned app tables are row-level-security scoped by `user_id` | Added |
 | RLS evidence runbook | `docs/release/SUPABASE_RLS_EVIDENCE.md` documents exact proof queries and manual checks | Added |
 | Environment template | `.env.example` documents required Supabase variables and auth setup checklist | Added |
+| Export format limits | `docs/user/EXPORT_LIMITATIONS.md` documents PNG/PDF/DXF non-CAD scope | Added |
+| Stub tool roadmap | `docs/user/STUB_TOOLS.md` documents Room/Vastu/MEP/Furniture/Landscape UI-only status | Added |
+| Release screenshot pack | `docs/release/evidence/SCREENSHOT_PACK.md` + `pnpm run test:screenshots` | Added |
 | Vercel production env | `docs/release/VERCEL_ENV.md` documents required Production env vars | Added |
 | Local-only safety | Missing Supabase env no longer creates an invalid production crash path | Added |
 | Vercel SPA routing | Deep links rewrite to `index.html` | Added |
@@ -111,6 +114,8 @@ Required proof:
 | Supabase RLS not proven by live advisor output yet | Persistence/security depends on live database policies | Run `SUPABASE_RLS_EVIDENCE.md` and attach output |
 | Large 3D bundle | May affect lower-end iPads | Add bundle analysis and code-split 3D chamber if needed |
 | Manual deployment proof not attached | CI creates artifact but does not prove hosted preview health | Attach Vercel deployment URL and screenshots |
+| Export formats not CAD-grade | PNG/PDF/DXF are demo outputs only | See `docs/user/EXPORT_LIMITATIONS.md`; use JSON for round-trip |
+| Stub tools in rail | Room/Vastu/MEP/Furniture/Landscape show toast only | See `docs/user/STUB_TOOLS.md`; do not demo as complete |
 
 ---
 
@@ -143,6 +148,8 @@ The release must be blocked if any of these occur:
 - [ ] Private-route redirect proof attached
 - [ ] Successful email-link sign-in proof attached
 - [ ] Screenshots for all six private production routes attached
+- [ ] Release screenshot pack captured (`pnpm run test:screenshots` + manual items in `docs/release/evidence/SCREENSHOT_PACK.md`)
+- [ ] Export limitations acknowledged (`docs/user/EXPORT_LIMITATIONS.md`)
 - [ ] Supabase environment configured in host
 - [ ] Supabase Auth URL/provider proof attached
 - [ ] Supabase RLS/advisor evidence attached

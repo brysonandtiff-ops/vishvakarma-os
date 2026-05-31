@@ -36,10 +36,15 @@ describe('Blueprint editor visual polish', () => {
 
   it('does not alter the editor drawing/event wiring while adding visual polish', () => {
     const editor = read('src/pages/EditorPage.tsx');
+    const viewport = read('src/components/editor/Viewport3D.tsx');
 
-    expect(editor).toContain('onWallAdd={(wall) => setWalls((items) => [...items, wall])}');
-    expect(editor).toContain('onOpeningAdd={(opening) => setOpenings((items) => [...items, opening])}');
-    expect(editor).toContain('onWallSelect={setSelectedWallId}');
+    expect(editor).toContain('onWallAdd={(wall) => engine.addWall(wall)}');
+    expect(editor).toContain('serializeProjectManifest');
+    expect(editor).toContain('buildProjectExportFilename');
+    expect(viewport).toContain('ATMOSPHERE_STORAGE_KEY');
+    expect(viewport).toContain('prefers-reduced-motion');
+    expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
+    expect(editor).toContain('useFloorPlanEngine');
     expect(editor).toContain('showOnboarding && <OnboardingPanel');
     expect(editor).toContain('<StatusBar');
     expect(editor).toContain('<EditorTopBar');

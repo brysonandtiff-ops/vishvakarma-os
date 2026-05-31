@@ -31,6 +31,7 @@ describe('backendConfig', () => {
       mode: 'connected',
       isConfigured: true,
       configurationError: null,
+      missingKeys: [],
     });
   });
 
@@ -63,6 +64,7 @@ describe('backendConfig', () => {
       mode: 'connected',
       isConfigured: true,
       configurationError: null,
+      missingKeys: [],
     });
   });
 });

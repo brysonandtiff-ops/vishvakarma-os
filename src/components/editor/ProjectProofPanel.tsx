@@ -7,7 +7,8 @@ export default function ProjectProofPanel({
   openingCount,
   saveState,
   lastDraftAt,
-  supabaseConnected,
+  cloudConnected,
+  cloudSaveLabel,
   snapEnabled,
 }: {
   projectName: string;
@@ -15,7 +16,8 @@ export default function ProjectProofPanel({
   openingCount: number;
   saveState: SaveState;
   lastDraftAt: string | null;
-  supabaseConnected: boolean | null;
+  cloudConnected: boolean | null;
+  cloudSaveLabel?: string;
   snapEnabled: boolean;
 }) {
   const hasGeometry = wallCount > 0 || openingCount > 0;
@@ -37,7 +39,7 @@ export default function ProjectProofPanel({
     },
     {
       label: 'Workflow mode',
-      value: supabaseConnected ? 'Connected workspace' : 'Local preview mode',
+      value: cloudConnected ? (cloudSaveLabel ?? 'Cloud Save') : 'Local Draft mode',
       ok: true,
     },
   ];

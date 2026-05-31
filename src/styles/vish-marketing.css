@@ -1,0 +1,40 @@
+.vish-marketing-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+.vish-marketing-hero-title {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.vish-marketing-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: hsl(var(--vish-gold-muted));
+}
+
+.vish-features-toggle button[data-active='true'] {
+  border-color: hsl(var(--vish-gold) / 0.6);
+  background: hsl(var(--vish-gold) / 0.12);
+  color: hsl(var(--vish-gold));
+}
+
+.vish-feature-grid-card {
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.3);
+  background: hsl(0 0% 4% / 0.7);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+  min-height: 120px;
+}
+
+.vish-pricing-card {
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.35);
+  background: hsl(0 0% 4% / 0.75);
+  border-radius: 1rem;
+  padding: 1.75rem;
+}

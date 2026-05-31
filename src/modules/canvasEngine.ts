@@ -1,6 +1,9 @@
 /**
  * Canvas Engine Module
- * 
+ *
+ * QUARANTINE: Test/automation-only parallel geometry state.
+ * Editor runtime truth is FloorPlanEngine — do NOT import this module from editor pages.
+ *
  * Unified coordination layer for all canvas operations.
  * Ensures all drawing, selection, and measurement operations
  * are validated and tracked through governance.

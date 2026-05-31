@@ -75,7 +75,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <div className="vish-dark-panel flex h-full flex-col">
+      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col">
         <ToolDefaultsPanel currentTool={currentTool} />
         {morePanel && (
           <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="border-t border-ws-border">
@@ -98,7 +98,7 @@ export default function PropertiesPanel({
   const wallOpenings = openings.filter((o) => o.wallId === selectedWall.id);
 
   return (
-    <div className="vish-dark-panel flex h-full flex-col overflow-y-auto">
+    <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
       <div className="ws-pane-header shrink-0">
         <span className="ws-pane-label">Wall Properties</span>
         <span className="ws-pane-stat">{selectedWall.id.slice(0, 10)}</span>

@@ -16,6 +16,7 @@ export interface BackendStatus {
   mode: BackendMode;
   isConfigured: boolean;
   configurationError: string | null;
+  missingKeys: string[];
 }
 
 export interface AuthGateway {

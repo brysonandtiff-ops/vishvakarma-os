@@ -5,6 +5,8 @@ import "./vish-theme.css";
 import "./ipad-workspace.css";
 import "./styles/vish-mockup-system.css";
 import "./styles/vish-auth-gate.css";
+import "./styles/vish-sacred-tokens.css";
+import "./styles/vish-marketing.css";
 import "./styles/vish-editor-polish.css";
 import "./styles/vish-governance-polish.css";
 import App from "./App.tsx";

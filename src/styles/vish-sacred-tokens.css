@@ -1,0 +1,178 @@
+/* Vishvakarma.OS — Sacred UX design tokens (source: product spec + vishvakarma-os-summary.pdf) */
+
+:root {
+  --vish-obsidian: 0 0% 2.5%;
+  --vish-chrome: 0 0% 3%;
+  --vish-gold: 42 60% 56%;
+  --vish-gold-muted: 42 35% 38%;
+  --vish-gold-glow: 42 90% 62%;
+  --vish-canvas-paper: #f6f1e7;
+  --vish-text: 0 0% 98%;
+  --vish-text-muted: 0 0% 65%;
+  --vish-warm-404-bg: 38 32% 94%;
+  --vish-warm-404-text: 36 14% 18%;
+}
+
+.vish-sacred-stage {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 20% 18%, hsl(var(--vish-gold) / 0.14), transparent 28rem),
+    radial-gradient(circle at 78% 28%, hsl(var(--vish-gold-glow) / 0.08), transparent 22rem),
+    radial-gradient(ellipse at 50% 100%, hsl(15 70% 20% / 0.35), transparent 50%),
+    hsl(var(--vish-obsidian));
+  color: hsl(var(--vish-text));
+}
+
+.vish-sacred-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, hsl(var(--vish-gold-glow) / 0.55), transparent),
+    radial-gradient(1px 1px at 68% 14%, hsl(var(--vish-gold) / 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 44% 38%, hsl(0 0% 100% / 0.35), transparent),
+    radial-gradient(1px 1px at 88% 62%, hsl(var(--vish-gold-glow) / 0.45), transparent),
+    radial-gradient(1px 1px at 24% 78%, hsl(var(--vish-gold) / 0.3), transparent);
+  background-size: 100% 100%;
+  opacity: 0.5;
+  animation: vish-dust-drift 28s linear infinite;
+}
+
+@keyframes vish-dust-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-1%, 0.5%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.vish-glass-panel {
+  border: 1px solid hsl(var(--vish-gold) / 0.28);
+  background: linear-gradient(165deg, hsl(0 0% 6% / 0.82), hsl(0 0% 3% / 0.92));
+  backdrop-filter: blur(40px);
+  box-shadow:
+    0 24px 70px hsl(0 0% 0% / 0.45),
+    0 0 44px hsl(var(--vish-gold) / 0.08),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.12);
+}
+
+.vish-gold-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--vish-gold-glow) / 0.55);
+  background: linear-gradient(135deg, hsl(31 63% 32%), hsl(var(--vish-gold)), hsl(43 74% 62%));
+  color: hsl(0 0% 8%);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow:
+    0 0 28px hsl(var(--vish-gold) / 0.45),
+    0 8px 24px hsl(0 0% 0% / 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vish-gold-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 36px hsl(var(--vish-gold) / 0.55),
+    0 12px 28px hsl(0 0% 0% / 0.4);
+}
+
+.vish-gold-cta-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--vish-gold) / 0.45);
+  background: hsl(0 0% 4% / 0.6);
+  color: hsl(var(--vish-gold));
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.vish-marketing-nav {
+  border-bottom: 1px solid hsl(var(--vish-gold-muted) / 0.35);
+  background: hsl(var(--vish-chrome) / 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.vish-hero-gold {
+  color: hsl(var(--vish-gold));
+  text-shadow: 0 0 24px hsl(var(--vish-gold) / 0.35);
+}
+
+.vish-stat-pill {
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.4);
+  background: hsl(0 0% 5% / 0.65);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.vish-pricing-popular {
+  border-color: hsl(var(--vish-gold) / 0.65);
+  box-shadow: 0 0 32px hsl(var(--vish-gold) / 0.2);
+}
+
+.vish-video-card {
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.35);
+  background: hsl(0 0% 4% / 0.85);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.vish-video-thumb {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(145deg, hsl(0 0% 8%), hsl(0 0% 3%));
+  display: grid;
+  place-items: center;
+}
+
+.vish-play-glow {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--vish-gold) / 0.5);
+  background: hsl(var(--vish-gold) / 0.2);
+  box-shadow: 0 0 24px hsl(var(--vish-gold) / 0.5);
+  display: grid;
+  place-items: center;
+  color: hsl(var(--vish-gold));
+}
+
+.vish-warm-404 {
+  min-height: 100vh;
+  background: hsl(var(--vish-warm-404-bg));
+  color: hsl(var(--vish-warm-404-text));
+}
+
+.vish-devanagari-accent {
+  font-family: 'Noto Sans Devanagari', 'IBM Plex Sans', sans-serif;
+  letter-spacing: 0.12em;
+  color: hsl(var(--vish-gold-muted));
+}
+
+.vish-auth-center-card {
+  width: min(100%, 26rem);
+  border-radius: 1.25rem;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.45);
+  background: hsl(0 0% 3% / 0.94);
+  box-shadow: 0 32px 80px hsl(0 0% 0% / 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-sacred-stage::before {
+    animation: none;
+  }
+}

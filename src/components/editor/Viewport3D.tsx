@@ -4,7 +4,7 @@ import { Component, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import type { Wall, Opening, LightingConfig } from '@/types';
+import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement } from '@/types';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,35 @@ function detectWebGL(): { supported: boolean; reason?: string } {
 }
 
 type AtmospherePerformanceMode = 'standard' | 'premium' | 'cinematic';
+
+const ATMOSPHERE_STORAGE_KEY = 'vishvakarma.os.3d.atmosphere.v1';
+
+function resolveDefaultAtmosphereMode(): AtmospherePerformanceMode {
+  if (typeof window === 'undefined') return 'premium';
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return 'standard';
+  }
+
+  if (window.devicePixelRatio < 1.5) {
+    return 'standard';
+  }
+
+  const stored = window.localStorage.getItem(ATMOSPHERE_STORAGE_KEY);
+  if (stored === 'standard' || stored === 'premium' || stored === 'cinematic') {
+    return stored;
+  }
+
+  return 'premium';
+}
+
+function persistAtmosphereMode(mode: AtmospherePerformanceMode) {
+  try {
+    window.localStorage.setItem(ATMOSPHERE_STORAGE_KEY, mode);
+  } catch {
+    // ignore quota errors
+  }
+}
 
 const ATMOSPHERE_MODES: Record<AtmospherePerformanceMode, {
   label: string;
@@ -170,6 +199,110 @@ interface Viewport3DProps {
   walls: Wall[];
   openings: Opening[];
   lighting: LightingConfig;
+  furniture?: FurnitureItem[];
+  mepSymbols?: MepSymbol[];
+  landscapeElements?: LandscapeElement[];
+  walkMode?: boolean;
+  presentationLock?: boolean;
+}
+
+function canvasToWorld(point: { x: number; y: number }) {
+  return {
+    x: (point.x - 600) / 100,
+    z: (point.y - 400) / 100,
+  };
+}
+
+function FurnitureMesh({ item }: { item: FurnitureItem }) {
+  const { x, z } = canvasToWorld(item.position);
+  const width = (item.width ?? 80) / 100;
+  const depth = (item.depth ?? 60) / 100;
+  const height = item.type === 'bed' ? 0.45 : item.type === 'sofa' ? 0.55 : 0.75;
+
+  return (
+    // @ts-expect-error - React Three Fiber JSX types
+    <mesh position={[x, height / 2, z]} rotation={[0, ((item.rotation ?? 0) * Math.PI) / 180, 0]} castShadow>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <boxGeometry args={[width, height, depth]} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <meshStandardMaterial color="#6b4f3a" roughness={0.72} metalness={0.05} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+    </mesh>
+  );
+}
+
+function MepMarker({ symbol }: { symbol: MepSymbol }) {
+  const { x, z } = canvasToWorld(symbol.position);
+  const color =
+    symbol.type === 'outlet'
+      ? '#2563eb'
+      : symbol.type === 'switch'
+        ? '#ca8a04'
+        : symbol.type === 'hvac'
+          ? '#0891b2'
+          : '#7c3aed';
+
+  return (
+    // @ts-expect-error - React Three Fiber JSX types
+    <mesh position={[x, 0.08, z]}>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <sphereGeometry args={[0.08, 12, 12]} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.25} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+    </mesh>
+  );
+}
+
+function LandscapeMarker({ element }: { element: LandscapeElement }) {
+  const { x, z } = canvasToWorld(element.position);
+
+  if (element.type === 'tree') {
+    return (
+      <>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <mesh position={[x, 0.35, z]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <coneGeometry args={[0.22, 0.7, 8]} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <meshStandardMaterial color="#2e7d32" roughness={0.8} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <mesh position={[x, 0.08, z]}>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <cylinderGeometry args={[0.05, 0.07, 0.16, 8]} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <meshStandardMaterial color="#5c3d1e" />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      </>
+    );
+  }
+
+  if (element.type === 'shrub') {
+    return (
+      // @ts-expect-error - React Three Fiber JSX types
+      <mesh position={[x, 0.12, z]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <sphereGeometry args={[0.16, 10, 10]} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <meshStandardMaterial color="#388e3c" roughness={0.85} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+    );
+  }
+
+  return (
+    // @ts-expect-error - React Three Fiber JSX types
+    <mesh position={[x, 0.02, z]} rotation={[-Math.PI / 2, 0, 0]}>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <planeGeometry args={[0.5, 0.12]} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <meshStandardMaterial color="#8d6e63" roughness={0.9} />
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+    </mesh>
+  );
 }
 
 function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
@@ -403,8 +536,21 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   );
 }
 
-export default function Viewport3D({ walls, openings, lighting }: Viewport3DProps) {
-  const [atmosphereMode, setAtmosphereMode] = useState<AtmospherePerformanceMode>('premium');
+export default function Viewport3D({
+  walls,
+  openings,
+  lighting,
+  furniture = [],
+  mepSymbols = [],
+  landscapeElements = [],
+  walkMode = false,
+  presentationLock = false,
+}: Viewport3DProps) {
+  const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveDefaultAtmosphereMode);
+  const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
+    setAtmosphereModeState(mode);
+    persistAtmosphereMode(mode);
+  };
   const atmosphereConfig = ATMOSPHERE_MODES[atmosphereMode];
 
   // Pre-check: avoid mounting Canvas at all if WebGL is unsupported
@@ -449,12 +595,30 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
               <WallMesh key={wall.id} wall={wall} openings={openings} />
             ))}
 
+            {furniture.map((item) => (
+              <FurnitureMesh key={item.id} item={item} />
+            ))}
+
+            {mepSymbols.map((symbol) => (
+              <MepMarker key={symbol.id} symbol={symbol} />
+            ))}
+
+            {landscapeElements.map((element) => (
+              <LandscapeMarker key={element.id} element={element} />
+            ))}
+
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <gridHelper args={[20, 20, '#C99A27', '#5C4B2A']} />
           </Canvas>
         </WebGLErrorBoundary>
 
+        {walkMode && (
+          <p className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary">
+            Walk mode — use orbit to navigate
+          </p>
+        )}
         {/* Atmosphere mode controls */}
+        {!presentationLock && (
         <div className="absolute right-3 top-3 space-y-2 text-right">
           <div className="rounded-xl border border-primary/25 bg-black/35 px-3 py-2 shadow-2xl backdrop-blur-md">
             <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
@@ -481,8 +645,9 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
             ))}
           </div>
         </div>
+        )}
 
-        {/* Orbit hint overlay */}
+        {!walkMode && (
         <div
           className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md px-2 py-1"
           style={{ background: 'hsl(var(--ws-toolbar) / 0.85)', border: '1px solid hsl(var(--ws-border))' }}
@@ -492,6 +657,7 @@ export default function Viewport3D({ walls, openings, lighting }: Viewport3DProp
             Drag to orbit · Scroll to zoom · {atmosphereConfig.label} atmosphere
           </span>
         </div>
+        )}
       </div>
     </div>
   );

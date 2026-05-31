@@ -3,6 +3,26 @@ import { defineConfig, devices } from '@playwright/test';
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
 
+const authGateServerEnv = {
+  ...process.env,
+  VITE_BACKEND_PROVIDER: 'supabase',
+  VITE_SUPABASE_URL: '',
+  VITE_SUPABASE_ANON_KEY: '',
+  VITE_FIREBASE_API_KEY: '',
+  VITE_FIREBASE_AUTH_DOMAIN: '',
+  VITE_FIREBASE_PROJECT_ID: '',
+  VITE_FIREBASE_STORAGE_BUCKET: '',
+  VITE_FIREBASE_MESSAGING_SENDER_ID: '',
+  VITE_FIREBASE_APP_ID: '',
+  VITE_ALLOW_LOCAL_DEMO: '',
+  VITE_E2E_ALLOW_LOCAL_ACCESS: '',
+};
+
+const appSmokeServerEnv = {
+  ...authGateServerEnv,
+  VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+};
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
@@ -22,23 +42,48 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  webServer: {
-    command: 'pnpm exec vite build --mode e2e && pnpm run preview',
-    url: previewUrl,
-    reuseExistingServer,
-    timeout: 120_000,
-    env: {
-      ...process.env,
-      VITE_BACKEND_PROVIDER: 'supabase',
-      VITE_SUPABASE_URL: '',
-      VITE_SUPABASE_ANON_KEY: '',
-      VITE_ALLOW_LOCAL_DEMO: '',
-    },
-  },
   projects: [
     {
-      name: 'chromium',
+      name: 'auth-gate',
+      testMatch: [
+        '**/auth-gate.spec.ts',
+        '**/auth-private-routes.spec.ts',
+        '**/ipad-production-readiness.spec.ts',
+      ],
       use: { ...devices['Desktop Chrome'] },
+      webServer: {
+        command: 'pnpm run preview',
+        url: previewUrl,
+        reuseExistingServer,
+        timeout: 120_000,
+        env: authGateServerEnv,
+      },
+    },
+    {
+      name: 'app-smoke',
+      testMatch: [
+        '**/ipad-editor-layout.spec.ts',
+        '**/governance-smoke.spec.ts',
+        '**/editor-features.spec.ts',
+        '**/marketing-pages.spec.ts',
+      ],
+      use: { ...devices['Desktop Chrome'], hasTouch: true },
+      webServer: {
+        command: 'pnpm run preview',
+        url: previewUrl,
+        reuseExistingServer,
+        timeout: 120_000,
+        env: appSmokeServerEnv,
+      },
+    },
+    {
+      name: 'screenshot-pack',
+      testMatch: ['**/release-screenshot-pack.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1194, height: 834 },
+        hasTouch: true,
+      },
     },
   ],
 });

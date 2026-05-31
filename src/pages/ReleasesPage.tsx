@@ -51,9 +51,14 @@ export default function ReleasesPage() {
 
   async function loadReleases() {
     setLoading(true);
-    const data = await getReleases();
-    setReleases(data);
-    setLoading(false);
+    try {
+      const data = await getReleases();
+      setReleases(data);
+    } catch {
+      setReleases([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function toggleGate(id: string) {
@@ -444,9 +449,16 @@ export default function ReleasesPage() {
             </div>
 
             {/* Previous Releases */}
-            {releases.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-base font-semibold text-foreground">Previous Releases</h2>
+            <div className="space-y-4">
+              <h2 className="text-base font-semibold text-foreground">Previous Releases</h2>
+              {loading ? (
+                <p className="text-sm text-muted-foreground">Loading release history…</p>
+              ) : releases.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
+                  <p className="text-sm text-muted-foreground">No release records yet.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Connect Supabase or run a gated release to populate history.</p>
+                </div>
+              ) : (
                 <div className="grid gap-3">
                   {releases.map((release) => (
                     <div key={release.id} className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -457,17 +469,35 @@ export default function ReleasesPage() {
                             {release.status}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground text-pretty">{release.description}</p>
+                        <p className="text-xs text-muted-foreground text-pretty">{release.description || release.title}</p>
+                        {release.released_at && (
+                          <p className="mt-1 text-[10px] text-muted-foreground">
+                            Released {new Date(release.released_at).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
                       <div className="flex shrink-0 gap-2">
-                        <Button variant="outline" size="sm" className="h-8">Evidence Pack</Button>
-                        <Button variant="outline" size="sm" className="h-8">Change Log</Button>
+                        <Button variant="outline" size="sm" className="h-8" onClick={() => void handleEvidencePackDownload()}>
+                          Evidence Pack
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() =>
+                            toast.message(`${release.version} change log`, {
+                              description: release.description || release.title,
+                            })
+                          }
+                        >
+                          Change Log
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </ScrollArea>
       </div>

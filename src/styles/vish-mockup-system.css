@@ -91,6 +91,13 @@
   background: hsl(220 14% 14%);
 }
 
+.vish-oauth-button--disabled,
+.vish-oauth-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: hsl(var(--ws-border) / 0.5);
+}
+
 .vish-mode-tab {
   display: inline-flex;
   align-items: center;
@@ -203,6 +210,19 @@
   box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
 }
 
+.vish-editor-topbar-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.5rem;
+}
+
+.vish-editor-topbar-center {
+  display: flex;
+  justify-content: center;
+  max-width: min(100%, 34rem);
+}
+
 .vish-mode-tab-group {
   display: inline-flex;
   align-items: center;
@@ -221,8 +241,14 @@
     0 0 16px hsl(43 65% 52% / 0.12);
 }
 
-.vish-tool-rail .architect-tool-button.stub {
+.vish-tool-rail .architect-tool-button.stub,
+.vish-tool-rail .architect-tool-button--soon {
   opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.vish-canvas-overlay-pill--soon {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

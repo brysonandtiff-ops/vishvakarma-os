@@ -1,5 +1,5 @@
 ﻿// Main application layout with sidebar navigation — professional workstation style
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,6 +18,8 @@ import {
   Search,
   PanelLeftClose,
   PanelLeftOpen,
+  FolderOpen,
+  User,
   UserCircle,
   Trophy,
 } from 'lucide-react';
@@ -45,7 +47,9 @@ export function useGovernanceNav() {
 }
 
 const allNav = [
-  { name: 'Blueprint Editor', path: '/', icon: PenTool, group: 'EDITOR' },
+  { name: 'Blueprint Editor', path: '/editor', icon: PenTool, group: 'EDITOR' },
+  { name: 'Projects', path: '/projects', icon: FolderOpen, group: 'EDITOR' },
+  { name: 'Profile', path: '/profile', icon: User, group: 'EDITOR' },
   { name: 'Spec Center',      path: '/spec-center',      icon: FileText,       group: 'GOVERNANCE' },
   { name: 'Registry',         path: '/registry',         icon: Database,       group: 'GOVERNANCE' },
   { name: 'Change Requests',  path: '/change-requests',  icon: GitPullRequest, group: 'GOVERNANCE' },
@@ -110,6 +114,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile, mode, signOut } = useAuth();
   const groups = ['EDITOR', 'GOVERNANCE', 'SYSTEM'] as const;
   const groupLabels: Record<string, string> = {
@@ -122,6 +127,7 @@ function SidebarContent({
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/auth', { replace: true });
     onNavigate?.();
   };
 
@@ -269,7 +275,9 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
 
   const toggleCollapsed = useCallback(() => setPrefs(prev => ({ ...prev, sidebarCollapsed: !prev.sidebarCollapsed })), []);
   const collapsed = prefs.sidebarCollapsed;
-  const openNav = useCallback(() => setMobileOpen(true), []);
+  const openNav = useCallback(() => {
+    setMobileOpen(true);
+  }, []);
 
   return (
     <GovernanceNavContext.Provider value={{ openNav }}>
@@ -293,25 +301,33 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         {!immersive && (
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="fixed left-4 bottom-4 z-40 h-12 w-12 rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover lg:hidden"
-            aria-label="Open navigation"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="vish-mobile-nav-fab fixed left-4 bottom-4 z-40 h-12 w-12 min-h-[44px] min-w-[44px] rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover lg:hidden touch-target"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
         )}
         <SheetContent side="left" className="w-72 p-0 border-r-0 bg-ws-sidebar">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <WorkspaceNotifications />
-        <div className="flex-1 overflow-x-hidden overflow-y-auto">{children}</div>
+        <div
+          className={
+            immersive
+              ? 'vish-immersive-page flex min-h-0 flex-1 flex-col overflow-hidden'
+              : 'vish-governance-page min-h-0 flex-1 overflow-x-hidden overflow-y-auto'
+          }
+        >
+          {children}
+        </div>
       </main>
     </div>
     </GovernanceNavContext.Provider>

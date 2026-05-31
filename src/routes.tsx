@@ -1,4 +1,10 @@
+import ProjectsPage from './pages/ProjectsPage';
+import ProfilePage from './pages/ProfilePage';
 import EditorPage from './pages/EditorPage';
+import LandingPage from './pages/LandingPage';
+import FeaturesPage from './pages/FeaturesPage';
+import PricingPage from './pages/PricingPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import SpecCenterPage from './pages/SpecCenterPage';
 import RegistryPage from './pages/RegistryPage';
 import ChangeRequestsPage from './pages/ChangeRequestsPage';
@@ -6,6 +12,7 @@ import ReleasesPage from './pages/ReleasesPage';
 import AuditLogPage from './pages/AuditLogPage';
 import WorldRecordsPage from './pages/WorldRecordsPage';
 import AuthPage from './pages/AuthPage';
+import NotFoundPage from './pages/NotFound';
 import type { ReactNode } from 'react';
 
 export type RouteAccess = 'public' | 'private';
@@ -20,6 +27,27 @@ export interface RouteConfig {
 
 const routes: RouteConfig[] = [
   {
+    name: 'Landing',
+    path: '/',
+    element: <LandingPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
+    name: 'Features',
+    path: '/features',
+    element: <FeaturesPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
+    name: 'Pricing',
+    path: '/pricing',
+    element: <PricingPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
     name: 'Account Access',
     path: '/auth',
     element: <AuthPage />,
@@ -27,9 +55,37 @@ const routes: RouteConfig[] = [
     access: 'public',
   },
   {
+    name: 'Reset Password',
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
+    name: 'Not Found',
+    path: '/404',
+    element: <NotFoundPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
     name: 'Blueprint Editor',
-    path: '/',
+    path: '/editor',
     element: <EditorPage />,
+    visible: true,
+    access: 'private',
+  },
+  {
+    name: 'Projects',
+    path: '/projects',
+    element: <ProjectsPage />,
+    visible: true,
+    access: 'private',
+  },
+  {
+    name: 'Profile',
+    path: '/profile',
+    element: <ProfilePage />,
     visible: true,
     access: 'private',
   },

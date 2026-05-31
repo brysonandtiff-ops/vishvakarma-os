@@ -23,6 +23,10 @@ export default {
             }
         },
         extend: {
+            screens: {
+                /** iPad Pro 12.9" landscape — matches ipad-workspace.css --vish-tablet-max */
+                tablet: '1194px',
+            },
             colors: {
                 border: 'hsl(var(--border))',
                 borderColor: {

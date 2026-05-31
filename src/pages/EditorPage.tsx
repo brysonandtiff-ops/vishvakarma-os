@@ -1,6 +1,7 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -19,39 +20,47 @@ import SolarTimeline from '@/components/editor/SolarTimeline';
 import ToolRail from '@/components/editor/ToolRail';
 import { createProject, getProjects, updateProject } from '@/db/api';
 import DraftRecoveryDialog from '@/components/editor/DraftRecoveryDialog';
+import EditorMenuSheet from '@/components/editor/EditorMenuSheet';
 import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
 import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
+import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
+import { VastuPanel } from '@/components/editor/panels/VastuPanel';
+import {
+  AgniThermalPanel,
+  AkashaCastPanel,
+  PanchatattvaPanel,
+  TvashtarPanel,
+  VayuJalaPanel,
+} from '@/components/editor/panels/SimulationPanels';
+import EditorPhasePills from '@/components/editor/EditorPhasePills';
+import EditorCommandStrip from '@/components/editor/EditorCommandStrip';
 import OpenProjectDialog from '@/components/editor/OpenProjectDialog';
 import ProjectProofPanel from '@/components/editor/ProjectProofPanel';
 import SaveModeBadge from '@/components/editor/SaveModeBadge';
 import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
+import EditorCompassCost from '@/components/editor/EditorCompassCost';
+import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
-import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';
+import { useCloudSaveStatus } from '@/hooks/useSupabaseStatus';
 import {
-  buildDraftPayload,
+  buildDraftPayloadFromManifest,
   clearLocalDraft,
   hasMeaningfulDraftContent,
   readLocalDraft,
   saveLocalDraft,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
+import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { isLocalProjectId } from '@/editor/localProject';
-import { VersionControlHooks } from '@/modules/versionControlHooks';
-import type { DimensionAnnotation, Label as RoomLabel, LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';
+import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
+import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
+import { shouldIgnoreKeyboardShortcuts } from '@/utils/keyboardShortcuts';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
-
-const SPEC_VERSION = '1.0.0';
-const DEFAULT_LIGHTING: LightingConfig = {
-  sunAzimuth: 180,
-  sunElevation: 45,
-  timeOfDay: 12,
-  intensity: 1,
-};
 
 export default function EditorPage() {
   return (
@@ -62,14 +71,41 @@ export default function EditorPage() {
 }
 
 function EditorWorkspace() {
+  const location = useLocation();
   const { openNav } = useGovernanceNav();
-  const [currentTool, setCurrentTool] = useState<ToolType>('select');
-  const [show3DView, setShow3DView] = useState(false);
-  const [gridVisible, setGridVisible] = useState(true);
-  const [snapEnabled, setSnapEnabled] = useState(true);
+  const {
+    walls,
+    openings,
+    labels,
+    dimensions,
+    rooms,
+    furniture,
+    mepSymbols,
+    landscapeElements,
+    costItems,
+    northOrientation,
+    lighting,
+    gridSize,
+    session,
+    canUndo,
+    canRedo,
+    engine,
+    setTool,
+    setWorkspaceMode,
+  } = useFloorPlanEngine();
+
+  const broadcastCollaborationCursor = useCollaborationCursorBroadcast(session.currentTool);
+  const currentTool = session.currentTool;
+  const show3DView = session.show3DView;
+  const gridVisible = session.gridVisible;
+  const snapEnabled = session.snapEnabled;
+  const selectedWallId = session.selectedWallId;
+  const selectedOpeningId = session.selectedOpeningId;
+  const workspaceMode = session.workspaceMode;
+  const zenMode = session.zenMode;
+  const presentationLock = session.presentationLock;
+
   const [unitSystem] = useState<UnitSystem>('metric');
-  const [selectedWallId, setSelectedWallId] = useState<string>();
-  const [selectedOpeningId, setSelectedOpeningId] = useState<string>();
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [saveState, setSaveState] = useState<SaveState>('clean');
@@ -84,148 +120,135 @@ function EditorWorkspace() {
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [walls, setWalls] = useState<Wall[]>([]);
-  const [openings, setOpenings] = useState<Opening[]>([]);
-  const [labels, setLabels] = useState<RoomLabel[]>([]);
-  const [dimensions, setDimensions] = useState<DimensionAnnotation[]>([]);
-  const [lighting, setLighting] = useState<LightingConfig>(DEFAULT_LIGHTING);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-  const supabaseConnected = useSupabaseStatus();
-  const versionControlRef = useRef<VersionControlHooks | null>(null);
-  const skipVersionSnapshotRef = useRef(false);
+  const [editorMenuOpen, setEditorMenuOpen] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState(true);
+  const cloudSave = useCloudSaveStatus();
 
-  const projectName = currentProject?.name || demoProjectName || 'Untitled Project';
+  const projectName = currentProject?.name || demoProjectName || session.projectName;
   const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
 
-  const buildManifest = useCallback((): ProjectManifest => ({
-    version: SPEC_VERSION,
-    name: projectName,
-    description: currentProject?.description,
-    walls,
-    openings,
-    labels,
-    dimensions,
-    materials: [],
-    floorMaterial: 'material-concrete',
-    lighting,
-    gridSize: 20,
-    snapToGrid: snapEnabled,
-    metadata: {
-      created: currentProject?.created_at || new Date().toISOString(),
-      modified: new Date().toISOString(),
-    },
-  }), [currentProject?.created_at, currentProject?.description, dimensions, labels, lighting, openings, projectName, snapEnabled, walls]);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const doc = document.documentElement;
+      const canvasRoot = document.querySelector('.bg-ws-canvas');
+      const topBar = document.querySelector('[data-testid="editor-top-bar"]');
+      const immersivePage = document.querySelector('.vish-immersive-page');
+      const tabGroup = document.querySelector('.vish-mode-tab-group');
+      const modeBadge = document.querySelector('.vish-editor-mode-badge');
+      const tabRect = tabGroup?.getBoundingClientRect();
+      const badgeRect = modeBadge?.getBoundingClientRect();
+      const overlaps =
+        tabRect && badgeRect
+          ? !(
+              tabRect.right < badgeRect.left ||
+              tabRect.left > badgeRect.right ||
+              tabRect.bottom < badgeRect.top ||
+              tabRect.top > badgeRect.bottom
+            )
+          : null;
+      // #region agent log
+      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c3a1f5' },
+        body: JSON.stringify({
+          sessionId: 'c3a1f5',
+          runId: 'layout-audit',
+          hypothesisId: 'A',
+          location: 'EditorPage.tsx:layoutMeasure',
+          message: 'editor layout metrics',
+          data: {
+            docOverflowX: doc.scrollWidth > doc.clientWidth + 2,
+            scrollWidth: doc.scrollWidth,
+            clientWidth: doc.clientWidth,
+            innerHeight: window.innerHeight,
+            canvasHeight: canvasRoot?.clientHeight ?? null,
+            immersiveHeight: immersivePage?.clientHeight ?? null,
+            usesFullHeight: canvasRoot?.classList.contains('h-full') ?? null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      // #region agent log
+      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c3a1f5' },
+        body: JSON.stringify({
+          sessionId: 'c3a1f5',
+          runId: 'layout-audit',
+          hypothesisId: 'B',
+          location: 'EditorPage.tsx:topbarMeasure',
+          message: 'topbar overlap check',
+          data: {
+            tabDisplay: tabGroup ? getComputedStyle(tabGroup).display : null,
+            badgeDisplay: modeBadge ? getComputedStyle(modeBadge).display : null,
+            tabBadgeOverlap: overlaps,
+            topBarHeight: topBar?.clientHeight ?? null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [showOnboarding, welcomeOpen, show3DView, workspaceMode]);
 
-  const applyManifest = useCallback((manifest: ProjectManifest) => {
-    setWalls(manifest.walls);
-    setOpenings(manifest.openings);
-    setLabels(manifest.labels ?? []);
-    setDimensions(manifest.dimensions ?? []);
-    setLighting(manifest.lighting || DEFAULT_LIGHTING);
-    setSnapEnabled(manifest.snapToGrid ?? true);
-    setGridVisible(true);
-  }, []);
-
-  const refreshUndoRedo = useCallback(() => {
-    const versionControl = versionControlRef.current;
-    if (!versionControl) return;
-    setCanUndo(versionControl.canUndo());
-    setCanRedo(versionControl.canRedo());
-  }, []);
-
-  const resetVersionHistory = useCallback((manifest: ProjectManifest) => {
-    const versionControl = versionControlRef.current;
-    if (!versionControl) return;
-    skipVersionSnapshotRef.current = true;
-    versionControl.clearVersionHistory();
-    versionControl.saveVersion(manifest, 'Loaded', false);
-    versionControl.updateCurrentManifest(manifest);
-    skipVersionSnapshotRef.current = false;
-    refreshUndoRedo();
-  }, [refreshUndoRedo]);
-
-  useEffect(() => {
-    const versionControl = new VersionControlHooks({
-      autoSaveEnabled: false,
-      autoSaveInterval: 30000,
-      maxVersions: 50,
-      persistToLocalStorage: false,
-    });
-    versionControl.initialize();
-    versionControlRef.current = versionControl;
-
-    const initialManifest: ProjectManifest = {
-      version: SPEC_VERSION,
-      name: 'Untitled Project',
-      walls: [],
-      openings: [],
-      labels: [],
-      dimensions: [],
-      materials: [],
-      floorMaterial: 'material-concrete',
-      lighting: DEFAULT_LIGHTING,
-      gridSize: 20,
-      snapToGrid: true,
+  const buildManifest = useCallback((): ProjectManifest => {
+    const manifest = engine.buildManifest();
+    return {
+      ...manifest,
       metadata: {
-        created: new Date().toISOString(),
+        ...manifest.metadata,
+        created: currentProject?.created_at || manifest.metadata.created,
         modified: new Date().toISOString(),
       },
     };
-    versionControl.saveVersion(initialManifest, 'Initial', false);
-    versionControl.updateCurrentManifest(initialManifest);
-    refreshUndoRedo();
+  }, [currentProject?.created_at, engine]);
 
-    return () => versionControl.cleanup();
-  }, [refreshUndoRedo]);
-
-  const pushVersionSnapshot = useCallback(
+  const applyManifest = useCallback(
     (manifest: ProjectManifest) => {
-      const versionControl = versionControlRef.current;
-      if (!versionControl || skipVersionSnapshotRef.current) return;
-      versionControl.saveVersion(manifest, 'Editor snapshot');
-      versionControl.updateCurrentManifest(manifest);
-      refreshUndoRedo();
+      engine.loadManifest(manifest, manifest.name);
     },
-    [refreshUndoRedo],
+    [engine],
   );
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      pushVersionSnapshot(buildManifest());
-    }, 250);
-    return () => window.clearTimeout(timer);
-  }, [walls, openings, labels, dimensions, lighting, snapEnabled, pushVersionSnapshot, buildManifest]);
-
   const handleUndo = useCallback(() => {
-    const versionControl = versionControlRef.current;
-    if (!versionControl?.canUndo()) return;
-    const restored = versionControl.undo();
-    if (!restored) return;
-    skipVersionSnapshotRef.current = true;
-    applyManifest(restored);
-    skipVersionSnapshotRef.current = false;
-    refreshUndoRedo();
-  }, [applyManifest, refreshUndoRedo]);
+    engine.undo();
+  }, [engine]);
 
   const handleRedo = useCallback(() => {
-    const versionControl = versionControlRef.current;
-    if (!versionControl?.canRedo()) return;
-    const restored = versionControl.redo();
-    if (!restored) return;
-    skipVersionSnapshotRef.current = true;
-    applyManifest(restored);
-    skipVersionSnapshotRef.current = false;
-    refreshUndoRedo();
-  }, [applyManifest, refreshUndoRedo]);
+    engine.redo();
+  }, [engine]);
 
-  const handleMaterialSelect = useCallback((materialId: string) => {
-    setSelectedMaterial(materialId);
-    if (!selectedWallId) return;
-    setWalls((items) =>
-      items.map((wall) => (wall.id === selectedWallId ? { ...wall, material: materialId } : wall)),
-    );
-  }, [selectedWallId]);
+  const handleMaterialSelect = useCallback(
+    (materialId: string) => {
+      setSelectedMaterial(materialId);
+      if (!selectedWallId) return;
+      engine.updateWall(selectedWallId, { material: materialId });
+    },
+    [engine, selectedWallId],
+  );
+
+  const handleRoomDetect = useCallback(
+    (point: Point2D) => {
+      const room = engine.detectRoomAtPoint(point);
+      if (!room) {
+        toast.message('Room tool', { description: 'Click inside an enclosed wall loop to detect a room.' });
+        return;
+      }
+      engine.addLabel({
+        id: `label-${room.id}`,
+        text: room.name,
+        position: room.center ?? point,
+        fontSize: 14,
+        color: '#6b4f2a',
+      });
+      toast.success(`Detected ${room.name}${room.area ? ` (${room.area.toFixed(1)} m²)` : ''}`);
+    },
+    [engine],
+  );
 
   const loadProjects = useCallback(async () => {
     try {
@@ -259,14 +282,10 @@ function EditorWorkspace() {
     setSaveState((state) => (state === 'cloud-saved' ? 'unsaved' : state === 'restored-draft' ? 'restored-draft' : 'unsaved'));
 
     const saveDraft = () => {
-      const payload = buildDraftPayload({
+      const payload = buildDraftPayloadFromManifest({
         projectId: currentProject?.id ?? null,
         projectName,
-        description: currentProject?.description,
-        walls,
-        openings,
-        lighting,
-        snapEnabled,
+        manifest: buildManifest(),
       });
 
       if (saveLocalDraft(payload)) {
@@ -298,6 +317,18 @@ function EditorWorkspace() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (shouldIgnoreKeyboardShortcuts(event)) return;
+      if (
+        recoveryDialogOpen ||
+        newProjectOpen ||
+        loadDialogOpen ||
+        exportDialogOpen ||
+        importDialogOpen ||
+        editorMenuOpen
+      ) {
+        return;
+      }
+
       const mod = event.metaKey || event.ctrlKey;
       if (mod && event.key.toLowerCase() === 'z' && !event.shiftKey) {
         event.preventDefault();
@@ -309,28 +340,62 @@ function EditorWorkspace() {
         handleRedo();
         return;
       }
-      if (event.key === 'v' || event.key === 'V') setCurrentTool('select');
-      else if (event.key === 'w' || event.key === 'W') setCurrentTool('wall');
-      else if (event.key === 'd' || event.key === 'D') setCurrentTool('door');
-      else if (event.key === 'n' || event.key === 'N') setCurrentTool('window');
-      else if (event.key === 'm' || event.key === 'M') setCurrentTool('measure');
-      else if (event.key === 'g' || event.key === 'G') setGridVisible((value) => !value);
-      else if (event.key === '3') setShow3DView((value) => !value);
-      else if (event.key === 's' && event.shiftKey) {
+      if (event.key === 'v' || event.key === 'V') {
         event.preventDefault();
-        setSnapEnabled((value) => !value);
-      }
-      else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedWallId) {
+        setTool('select');
+      } else if (event.key === 'w' || event.key === 'W') {
         event.preventDefault();
-        setWalls((items) => items.filter((wall) => wall.id !== selectedWallId));
-        setOpenings((items) => items.filter((opening) => opening.wallId !== selectedWallId));
-        setSelectedWallId(undefined);
+        setTool('wall');
+      } else if (event.key === 'd' || event.key === 'D') {
+        event.preventDefault();
+        setTool('door');
+      } else if (event.key === 'n' || event.key === 'N') {
+        event.preventDefault();
+        setTool('window');
+      } else if (event.key === 'm' || event.key === 'M') {
+        if (event.shiftKey) {
+          event.preventDefault();
+          setTool('dimension');
+        } else {
+          event.preventDefault();
+          setTool('measure');
+        }
+      } else if (event.key === 't' || event.key === 'T') {
+        event.preventDefault();
+        setTool('text');
+      } else if (event.key === 'g' || event.key === 'G') {
+        event.preventDefault();
+        engine.setGridVisible(!gridVisible);
+      } else if (event.key === '3') {
+        event.preventDefault();
+        engine.setShow3D(!show3DView);
+      } else if (event.key === 's' && event.shiftKey) {
+        event.preventDefault();
+        engine.setSnapEnabled(!snapEnabled);
+      } else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedWallId) {
+        event.preventDefault();
+        engine.removeWall(selectedWallId);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleRedo, handleUndo, selectedWallId]);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [
+    editorMenuOpen,
+    engine,
+    exportDialogOpen,
+    gridVisible,
+    handleRedo,
+    handleUndo,
+    importDialogOpen,
+    loadDialogOpen,
+    newProjectOpen,
+    recoveryDialogOpen,
+    selectedWallId,
+    setTool,
+    show3DView,
+    snapEnabled,
+  ]);
 
   const loadSampleProject = async () => {
     try {
@@ -338,16 +403,10 @@ function EditorWorkspace() {
       const sampleManifest: ProjectManifest = await response.json();
       setCurrentProject(null);
       setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
-      setWalls(sampleManifest.walls);
-      setOpenings(sampleManifest.openings);
-      setLabels(sampleManifest.labels ?? []);
-      setDimensions(sampleManifest.dimensions ?? []);
-      setLighting(sampleManifest.lighting);
-      setGridVisible(true);
-      setSnapEnabled(sampleManifest.snapToGrid);
+      applyManifest(sampleManifest);
+      engine.setGridVisible(true);
       setHasUnsavedChanges(true);
       setSaveState('local-draft');
-      resetVersionHistory(sampleManifest);
       toast.success('Demo blueprint loaded with Project Proof active');
     } catch (error) {
       console.error('Failed to load sample project:', error);
@@ -360,18 +419,12 @@ function EditorWorkspace() {
 
     setCurrentProject(null);
     setDemoProjectName(recoveryDraft.projectName);
-    setWalls(recoveryDraft.manifest.walls);
-    setOpenings(recoveryDraft.manifest.openings);
-    setLabels(recoveryDraft.manifest.labels ?? []);
-    setDimensions(recoveryDraft.manifest.dimensions ?? []);
-    setLighting(recoveryDraft.manifest.lighting);
-    setSnapEnabled(recoveryDraft.manifest.snapToGrid);
-    setGridVisible(true);
+    applyManifest(recoveryDraft.manifest);
+    engine.setGridVisible(true);
     setHasUnsavedChanges(true);
     setSaveState('restored-draft');
     setLastDraftSavedAt(recoveryDraft.savedAt);
     setRecoveryDialogOpen(false);
-    resetVersionHistory(recoveryDraft.manifest);
     toast.success('Local draft restored');
   };
 
@@ -426,18 +479,25 @@ function EditorWorkspace() {
     }
   };
 
-  const handleLoadProject = (project: Project) => {
+  const handleLoadProject = useCallback((project: Project) => {
     clearLocalDraft();
     setCurrentProject(project);
     setDemoProjectName(null);
     applyManifest(project.manifest);
-    resetVersionHistory(project.manifest);
     setLoadDialogOpen(false);
     setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
     setHasUnsavedChanges(false);
     toast.success(`Loaded: ${project.name}`);
-  };
+  }, [applyManifest]);
+
+  useEffect(() => {
+    const pending = (location.state as { loadProject?: Project } | null)?.loadProject;
+    if (pending) {
+      handleLoadProject(pending);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, handleLoadProject]);
 
   const handleProjectCreated = (project: Project) => {
     void loadProjects();
@@ -449,23 +509,26 @@ function EditorWorkspace() {
     setCurrentProject(null);
     setDemoProjectName(manifest.name);
     applyManifest(manifest);
-    resetVersionHistory(manifest);
     setHasUnsavedChanges(true);
     setSaveState('local-draft');
     toast.success(`Imported ${manifest.name}`);
   };
 
   const handleExportJSON = () => {
-    const manifest = buildManifest();
-    const dataStr = JSON.stringify(manifest, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${manifest.name.replace(/\s+/g, '-').toLowerCase()}-floor-plan.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success('Floor plan exported');
+    try {
+      const manifest = buildManifest();
+      const dataStr = serializeProjectManifest(manifest);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = buildProjectExportFilename(manifest);
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success('Export Package saved as JSON');
+    } catch {
+      toast.error('JSON export failed');
+    }
   };
 
   const selectedWall = useMemo(
@@ -481,15 +544,40 @@ function EditorWorkspace() {
 
   const showRadialMenu = currentTool === 'wall' || currentTool === 'door' || currentTool === 'window';
 
+  const manifest = buildManifest();
+
   const morePanel = (
     <>
+      <EditorPhasePills />
+      <EditorCommandStrip
+        currentTool={currentTool}
+        onSelectTool={setTool}
+        show3DView={show3DView}
+        onToggle3D={() => engine.setShow3D(!show3DView)}
+        gridVisible={gridVisible}
+        onToggleGrid={() => engine.setGridVisible(!gridVisible)}
+        snapEnabled={snapEnabled}
+        onToggleSnap={() => engine.setSnapEnabled(!snapEnabled)}
+        onLoadSample={() => void loadSampleProject()}
+        onImport={() => setImportDialogOpen(true)}
+        onExport={() => setExportDialogOpen(true)}
+        wallCount={walls.length}
+        openingCount={openings.length}
+      />
+      {workspaceMode === 'mep' && <TvashtarPanel manifest={manifest} />}
+      {(workspaceMode === 'draft' || currentTool === 'vastu') && <VastuPanel manifest={manifest} />}
+      <VayuJalaPanel manifest={manifest} />
+      <AgniThermalPanel manifest={manifest} />
+      <PanchatattvaPanel />
+      <AkashaCastPanel />
       <ProjectProofPanel
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}
         saveState={saveState}
         lastDraftAt={lastDraftSavedAt}
-        supabaseConnected={supabaseConnected}
+        cloudConnected={cloudSave.connected}
+        cloudSaveLabel={cloudSave.label}
         snapEnabled={snapEnabled}
       />
       <div className="mx-4 h-px bg-border" />
@@ -500,23 +588,30 @@ function EditorWorkspace() {
       <div className="mx-4 h-px bg-border" />
       <div className="px-4 py-3">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
-        <SolarTimeline lighting={lighting} onLightingChange={setLighting} />
+        <SolarTimeline lighting={lighting} onLightingChange={(value) => engine.setLighting(value)} />
       </div>
     </>
   );
 
   return (
     <>
-      <div className="flex h-screen flex-col overflow-hidden bg-ws-canvas">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas">
         <EditorTopBar
           projectName={projectName}
           show3DView={show3DView}
-          onToggle3D={() => setShow3DView((value) => !value)}
+          workspaceMode={workspaceMode}
+          zenMode={zenMode}
+          presentationLock={presentationLock}
+          onWorkspaceModeChange={setWorkspaceMode}
+          onToggleZen={() => engine.setZenMode(!zenMode)}
+          onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
+          onToggle3D={() => engine.setShow3D(!show3DView)}
           gridVisible={gridVisible}
-          onToggleGrid={() => setGridVisible((value) => !value)}
+          onToggleGrid={() => engine.setGridVisible(!gridVisible)}
           onNewProject={() => setNewProjectOpen(true)}
           onExport={() => setExportDialogOpen(true)}
           onImport={() => setImportDialogOpen(true)}
+          onOpenEditorMenu={() => setEditorMenuOpen(true)}
           onOpenGovernance={openNav}
           onUndo={handleUndo}
           onRedo={handleRedo}
@@ -524,23 +619,28 @@ function EditorWorkspace() {
           canRedo={canRedo}
         />
 
-        <div className="flex shrink-0 items-center gap-2 border-b border-ws-border bg-ws-menubar px-3 py-1.5">
-          <SaveModeBadge connected={supabaseConnected} />
+        <div className="flex shrink-0 flex-wrap items-center gap-2 overflow-x-auto border-b border-ws-border bg-ws-menubar px-3 py-1.5">
+          <SaveModeBadge connected={cloudSave.connected} label={cloudSave.label} />
+          <EditorCollaborationBar projectName={projectName} />
           <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
-          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
+          <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
             <FolderOpen className="h-3.5 w-3.5" /> Open
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
+          <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
             <Save className="h-3.5 w-3.5" /> Save
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
+          <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
             Sample
           </Button>
           <KeyboardShortcuts />
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          <ToolRail currentTool={currentTool} onToolChange={setCurrentTool} />
+          <ToolRail
+            currentTool={currentTool}
+            workspaceMode={workspaceMode}
+            onToolChange={setTool}
+          />
 
           <div className="flex flex-1 min-w-0 overflow-hidden">
             <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
@@ -556,29 +656,52 @@ function EditorWorkspace() {
                   openings={openings}
                   labels={labels}
                   dimensions={dimensions}
+                  rooms={rooms}
+                  furniture={furniture}
+                  mepSymbols={mepSymbols}
+                  landscapeElements={landscapeElements}
+                  northOrientation={northOrientation}
                   currentTool={currentTool}
                   gridVisible={gridVisible}
                   snapEnabled={snapEnabled}
-                  gridSize={20}
-                  onWallAdd={(wall) => setWalls((items) => [...items, wall])}
-                  onOpeningAdd={(opening) => setOpenings((items) => [...items, opening])}
-                  onOpeningUpdate={(openingId, updates) => setOpenings((items) => items.map((opening) => opening.id === openingId ? { ...opening, ...updates } : opening))}
-                  onLabelAdd={(label) => setLabels((items) => [...items, label])}
-                  onDimensionAdd={(dimension) => setDimensions((items) => [...items, dimension])}
-                  onWallSelect={setSelectedWallId}
-                  onOpeningSelect={setSelectedOpeningId}
+                  gridSize={gridSize}
+                  onWallAdd={(wall) => engine.addWall(wall)}
+                  onOpeningAdd={(opening) => engine.addOpening(opening)}
+                  onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
+                  onLabelAdd={(label) => engine.addLabel(label)}
+                  onDimensionAdd={(dimension) => engine.addDimension(dimension)}
+                  onRoomDetect={handleRoomDetect}
+                  onFurnitureAdd={(item) => engine.addFurniture(item)}
+                  onMepSymbolAdd={(symbol) => engine.addMepSymbol(symbol)}
+                  onLandscapeAdd={(element) => engine.addLandscapeElement(element)}
+                  onPointerCanvasMove={broadcastCollaborationCursor}
+                  onWallSelect={(id) => engine.setSelection(id, undefined)}
+                  onOpeningSelect={(id) => engine.setSelection(undefined, id)}
                   selectedWallId={selectedWallId}
                   selectedOpeningId={selectedOpeningId}
                   unitSystem={unitSystem}
+                />
+                <EditorCompassCost
+                  northOrientation={northOrientation}
+                  costItems={costItems}
+                  onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
                 />
                 <RadialToolMenu
                   visible={showRadialMenu}
                   x={mousePos.x}
                   y={mousePos.y}
                   currentTool={currentTool}
-                  onSelectTool={setCurrentTool}
+                  onSelectTool={setTool}
                 />
-                {showOnboarding && <OnboardingPanel onLoadSample={loadSampleProject} onNewProject={() => setNewProjectOpen(true)} />}
+                {showOnboarding && !welcomeOpen && (
+                  <OnboardingPanel onLoadSample={loadSampleProject} onNewProject={() => setNewProjectOpen(true)} />
+                )}
+                <WelcomeOverlay
+                  open={welcomeOpen && showOnboarding}
+                  onDismiss={() => setWelcomeOpen(false)}
+                  onNewProject={() => setNewProjectOpen(true)}
+                  onLoadSample={loadSampleProject}
+                />
               </div>
             </section>
 
@@ -590,7 +713,16 @@ function EditorWorkspace() {
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
-                    <Viewport3D walls={walls} openings={openings} lighting={lighting} />
+                    <Viewport3D
+                      walls={walls}
+                      openings={openings}
+                      lighting={lighting}
+                      furniture={furniture}
+                      mepSymbols={mepSymbols}
+                      landscapeElements={landscapeElements}
+                      walkMode={workspaceMode === 'walk'}
+                      presentationLock={presentationLock}
+                    />
                   </Suspense>
                 </div>
               </section>
@@ -602,14 +734,10 @@ function EditorWorkspace() {
               currentTool={currentTool}
               selectedWall={selectedWall}
               openings={openings}
-              onWallUpdate={(wallId, updates) => setWalls((items) => items.map((wall) => wall.id === wallId ? { ...wall, ...updates } : wall))}
-              onOpeningUpdate={(openingId, updates) => setOpenings((items) => items.map((opening) => opening.id === openingId ? { ...opening, ...updates } : opening))}
-              onWallDelete={(wallId) => {
-                setWalls((items) => items.filter((wall) => wall.id !== wallId));
-                setOpenings((items) => items.filter((opening) => opening.wallId !== wallId));
-                setSelectedWallId(undefined);
-              }}
-              onOpeningDelete={(openingId) => setOpenings((items) => items.filter((opening) => opening.id !== openingId))}
+              onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
+              onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
+              onWallDelete={(wallId) => engine.removeWall(wallId)}
+              onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
               morePanel={morePanel}
             />
           </aside>
@@ -624,11 +752,26 @@ function EditorWorkspace() {
         />
       </div>
 
+      <EditorMenuSheet
+        open={editorMenuOpen}
+        onOpenChange={setEditorMenuOpen}
+        onNewProject={() => setNewProjectOpen(true)}
+        onOpenProject={() => setLoadDialogOpen(true)}
+        onSave={handleSaveProject}
+        onImport={() => setImportDialogOpen(true)}
+        onExport={() => setExportDialogOpen(true)}
+        onLoadSample={() => void loadSampleProject()}
+        onToggle3D={() => engine.setShow3D(!show3DView)}
+        onToggleGrid={() => engine.setGridVisible(!gridVisible)}
+        show3DView={show3DView}
+        gridVisible={gridVisible}
+      />
       <DraftRecoveryDialog
         open={recoveryDialogOpen}
         draft={recoveryDraft}
         onRestore={restoreLocalDraft}
         onDiscard={discardLocalDraft}
+        onDismiss={() => setRecoveryDialogOpen(false)}
       />
       <NewProjectDialog open={newProjectOpen} onOpenChange={setNewProjectOpen} onProjectCreated={handleProjectCreated} />
       <ImportFloorPlanDialog
@@ -641,6 +784,7 @@ function EditorWorkspace() {
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
         onExportJSON={handleExportJSON}
+        manifest={manifest}
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}

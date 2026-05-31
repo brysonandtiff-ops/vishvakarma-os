@@ -1,26 +1,58 @@
+import { useState } from 'react';
 import { Compass, DollarSign } from 'lucide-react';
-import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Slider } from '@/components/ui/slider';
+import { sumCostItems } from '@/utils/costEstimate';
+import type { CostItem } from '@/types';
 
-export default function EditorCompassCost() {
+interface EditorCompassCostProps {
+  northOrientation: number;
+  costItems: CostItem[];
+  onNorthChange: (degrees: number) => void;
+}
+
+export default function EditorCompassCost({
+  northOrientation,
+  costItems,
+  onNorthChange,
+}: EditorCompassCostProps) {
+  const [compassOpen, setCompassOpen] = useState(false);
+  const totalCost = sumCostItems(costItems);
+
   return (
     <div className="pointer-events-auto absolute bottom-4 right-4 z-20 flex items-center gap-2" data-testid="editor-compass-cost">
+      <Popover open={compassOpen} onOpenChange={setCompassOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="vish-canvas-overlay-pill gap-1.5"
+            aria-label="Compass orientation"
+          >
+            <Compass className="h-3.5 w-3.5 text-primary" style={{ transform: `rotate(${northOrientation}deg)` }} />
+            N {Math.round(northOrientation)}°
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-56 space-y-3">
+          <p className="text-xs font-semibold text-foreground">North bearing</p>
+          <Slider
+            value={[northOrientation]}
+            min={0}
+            max={360}
+            step={1}
+            onValueChange={(value) => onNorthChange(value[0] ?? 0)}
+          />
+          <p className="text-[11px] text-muted-foreground">Aligns vastu compass overlay on the 2D canvas.</p>
+        </PopoverContent>
+      </Popover>
+
       <button
         type="button"
         className="vish-canvas-overlay-pill gap-1.5"
-        aria-label="Compass orientation"
-        onClick={() => toast.message('Compass', { description: 'North orientation control coming soon.' })}
-      >
-        <Compass className="h-3.5 w-3.5 text-primary" />
-        N
-      </button>
-      <button
-        type="button"
-        className="vish-canvas-overlay-pill gap-1.5"
-        aria-label="Cost estimate"
-        onClick={() => toast.message('Cost estimate', { description: 'Material cost rollup coming soon.' })}
+        aria-label={`Cost estimate ${totalCost}`}
+        title={costItems.map((item) => `${item.label}: $${item.amount}`).join('\n') || 'No cost items yet'}
       >
         <DollarSign className="h-3.5 w-3.5 text-primary" />
-        Cost
+        {totalCost > 0 ? `$${totalCost.toLocaleString()}` : 'Cost'}
       </button>
     </div>
   );

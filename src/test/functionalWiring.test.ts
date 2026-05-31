@@ -11,14 +11,33 @@ function read(path: string) {
 
 describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps route manifest complete and access-scoped', () => {
-    const expectedRoutes = ['/auth', '/', '/spec-center', '/registry', '/change-requests', '/releases', '/world-records', '/audit'];
+    const expectedRoutes = [
+      '/',
+      '/features',
+      '/pricing',
+      '/auth',
+      '/reset-password',
+      '/404',
+      '/editor',
+      '/projects',
+      '/profile',
+      '/spec-center',
+      '/registry',
+      '/change-requests',
+      '/releases',
+      '/world-records',
+      '/audit',
+    ];
     const actualRoutes = routes.map((route) => route.path);
 
     expect(actualRoutes).toEqual(expectedRoutes);
     expect(new Set(actualRoutes).size).toBe(actualRoutes.length);
-    expect(routes.find((route) => route.path === '/auth')?.access).toBe('public');
+    const publicPaths = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
+    for (const path of publicPaths) {
+      expect(routes.find((route) => route.path === path)?.access).toBe('public');
+    }
 
-    const privateRoutes = routes.filter((route) => route.path !== '/auth');
+    const privateRoutes = routes.filter((route) => route.access === 'private');
     for (const route of privateRoutes) {
       expect(route.access).toBe('private');
       expect(route.element).toBeTruthy();
@@ -38,7 +57,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps protected routing enforced through RouteGuard', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
 
-    expect(routeGuard).toContain("const PUBLIC_ROUTES = ['/auth']");
+    expect(routeGuard).toContain("const PUBLIC_ROUTES = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404']");
     expect(routeGuard).toContain("navigate('/auth'");
     expect(routeGuard).toContain("state: { from: location.pathname }");
     expect(routeGuard).toContain('allowLocalAccess');
@@ -76,7 +95,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
     expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Sign in with email link');
+    expect(authPage).toContain('Sign In');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
   });

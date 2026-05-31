@@ -8,11 +8,16 @@ interface RouteGuardProps {
   children: ReactNode;
 }
 
-const PUBLIC_ROUTES = ['/auth'];
+const PUBLIC_ROUTES = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
 const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
-/** Dev-only bypass when backend env is missing or explicit local demo is enabled. Production always gates. */
+const isE2eLocalAccess =
+  import.meta.env.MODE === 'e2e' &&
+  import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS === 'true' &&
+  !backendStatus.isConfigured;
+/** Dev / E2e-preview bypass when backend env is missing or explicit local demo is enabled. Production always gates. */
 const allowLocalAccess =
-  import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured);
+  isE2eLocalAccess ||
+  (import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured));
 const showServiceConfigBanner =
   import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode;
 
@@ -26,7 +31,7 @@ const BOOT_MANTRAS = [
 ] as const;
 
 function isPublicRoute(pathname: string) {
-  return PUBLIC_ROUTES.includes(pathname);
+  return PUBLIC_ROUTES.includes(pathname) || pathname === '/404';
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
@@ -45,11 +50,12 @@ export function RouteGuard({ children }: RouteGuardProps) {
       return;
     }
 
-    if (user && publicRoute) {
+    if (user && location.pathname === '/auth') {
       const from = typeof location.state === 'object' && location.state && 'from' in location.state
         ? String(location.state.from)
-        : '/';
-      navigate(from, { replace: true });
+        : '/editor';
+      const dest = from.startsWith('/') && !PUBLIC_ROUTES.includes(from) ? from : '/editor';
+      navigate(dest, { replace: true });
     }
   }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);
 

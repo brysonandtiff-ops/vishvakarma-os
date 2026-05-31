@@ -9,15 +9,9 @@ import { toast } from 'sonner';
 import { backendStatus } from '@/backend/backendConfig';
 import { createProject } from '@/db/api';
 import { createLocalProject } from '@/editor/localProject';
-import type { LightingConfig, Project, ProjectManifest } from '@/types';
-
-const SPEC_VERSION = '1.0.0';
-const DEFAULT_LIGHTING: LightingConfig = {
-  sunAzimuth: 180,
-  sunElevation: 45,
-  timeOfDay: 12,
-  intensity: 1,
-};
+import { createProjectManifest } from '@/core/projectModel';
+import { getFloorTemplate, TEMPLATE_IDS, type TemplateId } from '@/core/templates';
+import type { Project, ProjectManifest } from '@/types';
 
 export default function NewProjectDialog({
   open,
@@ -31,6 +25,7 @@ export default function NewProjectDialog({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [templateId, setTemplateId] = useState<TemplateId | 'blank'>('blank');
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -38,22 +33,10 @@ export default function NewProjectDialog({
       return;
     }
 
-    const initialManifest: ProjectManifest = {
-      version: SPEC_VERSION,
-      name: name.trim(),
-      description: description.trim() || undefined,
-      walls: [],
-      openings: [],
-      materials: [],
-      floorMaterial: 'material-concrete',
-      lighting: DEFAULT_LIGHTING,
-      gridSize: 20,
-      snapToGrid: true,
-      metadata: {
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-      },
-    };
+    const initialManifest: ProjectManifest =
+      templateId === 'blank'
+        ? createProjectManifest({ name: name.trim(), description: description.trim() || undefined })
+        : { ...getFloorTemplate(templateId), name: name.trim(), description: description.trim() || undefined };
 
     setSubmitting(true);
 
@@ -95,6 +78,25 @@ export default function NewProjectDialog({
               placeholder="Client floor plan"
               disabled={submitting}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Template</Label>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant={templateId === 'blank' ? 'default' : 'outline'} onClick={() => setTemplateId('blank')}>
+                Blank
+              </Button>
+              {TEMPLATE_IDS.map((id) => (
+                <Button
+                  key={id}
+                  type="button"
+                  size="sm"
+                  variant={templateId === id ? 'default' : 'outline'}
+                  onClick={() => setTemplateId(id)}
+                >
+                  {id === 'studio' ? 'Studio' : id === '2bhk' ? '2BHK' : '3BHK'}
+                </Button>
+              ))}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="project-description">Description</Label>

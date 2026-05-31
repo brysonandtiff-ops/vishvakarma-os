@@ -3,11 +3,12 @@ import { test, expect } from '@playwright/test';
 test.describe('Authentication and Private Route Gate', () => {
   // List of production routes that should be protected behind the auth gate
   const privateRoutes = [
-    '/',
+    '/editor',
     '/spec-center',
     '/registry',
     '/change-requests',
     '/releases',
+    '/world-records',
     '/audit',
   ];
 

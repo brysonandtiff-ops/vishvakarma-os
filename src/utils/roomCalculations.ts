@@ -1,5 +1,5 @@
 // Room Statistics Calculator
-import type { Wall } from '@/types';
+import type { Point2D, Room, Wall } from '@/types';
 
 export interface RoomStats {
   area: number; // in square pixels
@@ -133,4 +133,92 @@ export function pixelsToMeters(pixels: number): number {
 
 export function squarePixelsToSquareMeters(squarePixels: number): number {
   return squarePixels / (20 * 20);
+}
+
+function wallEndpointKey(point: Point2D) {
+  return `${Math.round(point.x)},${Math.round(point.y)}`;
+}
+
+export function buildOrderedVertices(walls: Wall[]): Point2D[] {
+  if (walls.length < 3) return [];
+
+  const vertices: Point2D[] = [];
+  const visited = new Set<string>();
+  let currentPoint = walls[0].start;
+  vertices.push(currentPoint);
+  visited.add(wallEndpointKey(currentPoint));
+
+  for (let i = 0; i < walls.length; i++) {
+    const nextWall = walls.find((wall) => {
+      const startKey = wallEndpointKey(wall.start);
+      const endKey = wallEndpointKey(wall.end);
+      const currentKey = wallEndpointKey(currentPoint);
+
+      if (startKey === currentKey && !visited.has(endKey)) return true;
+      if (endKey === currentKey && !visited.has(startKey)) return true;
+      return false;
+    });
+
+    if (!nextWall) break;
+
+    const startKey = wallEndpointKey(nextWall.start);
+    const endKey = wallEndpointKey(nextWall.end);
+    const currentKey = wallEndpointKey(currentPoint);
+
+    if (startKey === currentKey) {
+      currentPoint = nextWall.end;
+      vertices.push(currentPoint);
+      visited.add(endKey);
+    } else {
+      currentPoint = nextWall.start;
+      vertices.push(currentPoint);
+      visited.add(startKey);
+    }
+  }
+
+  return vertices;
+}
+
+export function pointInPolygon(point: Point2D, polygon: Point2D[]): boolean {
+  if (polygon.length < 3) return false;
+
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].x;
+    const yi = polygon[i].y;
+    const xj = polygon[j].x;
+    const yj = polygon[j].y;
+    const intersects =
+      yi > point.y !== yj > point.y &&
+      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi + Number.EPSILON) + xi;
+    if (intersects) inside = !inside;
+  }
+
+  return inside;
+}
+
+export function detectRoomFromWalls(walls: Wall[], name = 'Room'): Room | null {
+  const stats = calculateRoomStats(walls);
+  if (!stats.isEnclosed || stats.area <= 0) return null;
+
+  const center = calculateRoomCentroid(walls);
+  if (!center) return null;
+
+  return {
+    id: `room-${Date.now()}`,
+    name,
+    wallIds: walls.map((wall) => wall.id),
+    center,
+    area: squarePixelsToSquareMeters(stats.area),
+  };
+}
+
+export function detectRoomAtPoint(walls: Wall[], point: Point2D, name = 'Room'): Room | null {
+  const stats = calculateRoomStats(walls);
+  if (!stats.isEnclosed) return null;
+
+  const vertices = buildOrderedVertices(walls);
+  if (!pointInPolygon(point, vertices)) return null;
+
+  return detectRoomFromWalls(walls, name);
 }

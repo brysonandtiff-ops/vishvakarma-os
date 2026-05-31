@@ -2,8 +2,15 @@ import { describe, expect, it } from 'vitest';
 import routes from './routes';
 
 const expectedRoutePaths = [
-  '/auth',
   '/',
+  '/features',
+  '/pricing',
+  '/auth',
+  '/reset-password',
+  '/404',
+  '/editor',
+  '/projects',
+  '/profile',
   '/spec-center',
   '/registry',
   '/change-requests',
@@ -12,8 +19,12 @@ const expectedRoutePaths = [
   '/audit',
 ];
 
+const expectedPublicRoutePaths = ['/', '/features', '/pricing', '/auth', '/reset-password', '/404'];
+
 const expectedPrivateRoutePaths = [
-  '/',
+  '/editor',
+  '/projects',
+  '/profile',
   '/spec-center',
   '/registry',
   '/change-requests',
@@ -39,17 +50,17 @@ describe('production route manifest', () => {
     }
   });
 
-  it('keeps only the account access route public', () => {
+  it('keeps marketing and auth routes public', () => {
     const publicRoutes = routes.filter((route) => route.access === 'public').map((route) => route.path);
     const privateRoutes = routes.filter((route) => route.access === 'private').map((route) => route.path);
 
-    expect(publicRoutes).toEqual(['/auth']);
+    expect(publicRoutes).toEqual(expectedPublicRoutePaths);
     expect(privateRoutes).toEqual(expectedPrivateRoutePaths);
   });
 
   it('keeps the editor as the first private route for authenticated entry', () => {
     const firstPrivateRoute = routes.find((route) => route.access === 'private');
-    expect(firstPrivateRoute?.path).toBe('/');
+    expect(firstPrivateRoute?.path).toBe('/editor');
     expect(firstPrivateRoute?.name).toBe('Blueprint Editor');
   });
 });

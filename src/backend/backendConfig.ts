@@ -48,6 +48,7 @@ export function getBackendStatus(env: EnvSource = import.meta.env): BackendStatu
     provider,
     isConfigured,
     mode: isConfigured ? 'connected' : 'local-only',
+    missingKeys: missing,
     configurationError: isConfigured
       ? null
       : `${provider} backend is not configured. Missing real values for: ${missing.join(', ')}`,

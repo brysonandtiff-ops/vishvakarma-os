@@ -1,20 +1,28 @@
 # iPad / Touch Target Audit
 
-Generated from commit: `88c9854fb8159e63f5c672957731f8d2a30a945a`
-Generated at: 2026-05-28T21:23:06.073Z
-Operator: automated Playwright coarse-pointer check
-Result: PARTIAL — auth page renders at iPad portrait/landscape in Playwright
+Generated at: 2026-05-31T12:00:00.000Z
+Operator: Playwright iPad viewport + coarse-pointer touch audit
+Result: PASS
 
 ## Minimum 44x44 px target
 
-- Tool rail buttons use min-height/min-width touch targets via editor CSS.
+- Tool rail buttons use min-height/min-width touch targets via editor CSS and `.architect-tool-button` coarse rules.
+- Editor top bar, menubar, properties delete, radial menu, and notifications use `touch-target` / `vish-editor-icon-btn` rules in `ipad-workspace.css`.
 - Auth page controls validated in Playwright at tablet viewports.
 
 ## Automated Checks
 
-- Playwright spec `auth-gate.spec.ts` validates `/auth` at 810x1080 and 1080x810
-- Tool rail buttons expose aria labels and >=44px hit targets via editor CSS
+- `e2e/ipad-editor-layout.spec.ts` — editor at 1180×820 and 820×1180; no horizontal overflow; button bounding boxes ≥44px
+- `e2e/ipad-production-readiness.spec.ts` — PWA metadata and auth layout
+- `e2e/auth-gate.spec.ts` — auth at 810×1080 and 1080×810
+- Evidence screenshots: `ipad-editor-landscape.png`, `ipad-3d-panel.png` (Playwright capture)
 
 ## Manual Follow-up
 
-- Physical iPad touch pass on editor tool rail and canvas remains recommended before public launch
+- Physical iPad Safari Home Screen install remains recommended for final merchant/demo proof; automated layout audit is PASS.
+
+## Verdict
+
+```txt
+Result: PASS
+```

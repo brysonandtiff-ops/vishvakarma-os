@@ -26,12 +26,33 @@ function hasStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
-export function buildDraftPayload(input: DraftSnapshotInput): LocalDraftPayload {
+export function buildDraftPayloadFromManifest(input: {
+  projectId?: string | null;
+  projectName: string;
+  manifest: ProjectManifest;
+}): LocalDraftPayload {
   const now = new Date().toISOString();
 
   return {
     version: LOCAL_DRAFT_VERSION,
     savedAt: now,
+    projectId: input.projectId ?? null,
+    projectName: input.projectName,
+    manifest: {
+      ...input.manifest,
+      name: input.projectName,
+      metadata: {
+        ...input.manifest.metadata,
+        modified: now,
+      },
+    },
+  };
+}
+
+export function buildDraftPayload(input: DraftSnapshotInput): LocalDraftPayload {
+  const now = new Date().toISOString();
+
+  return buildDraftPayloadFromManifest({
     projectId: input.projectId ?? null,
     projectName: input.projectName,
     manifest: createProjectManifest({
@@ -44,7 +65,7 @@ export function buildDraftPayload(input: DraftSnapshotInput): LocalDraftPayload 
       createdAt: now,
       modifiedAt: now,
     }),
-  };
+  });
 }
 
 export function hasMeaningfulDraftContent(payload: LocalDraftPayload) {

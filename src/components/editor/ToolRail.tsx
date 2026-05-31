@@ -1,5 +1,4 @@
 // Tool rail — working drafting tools only
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   MousePointer2,
   Square,
@@ -7,11 +6,16 @@ import {
   SquareDashed,
   Type,
   Ruler,
+  Compass,
+  Sofa,
+  Zap,
+  TreePine,
 } from 'lucide-react';
-import type { ToolType } from '@/types';
+import type { ToolType, WorkspaceMode } from '@/types';
 
 interface ToolRailProps {
   currentTool: ToolType;
+  workspaceMode?: WorkspaceMode;
   onToolChange: (tool: ToolType) => void;
 }
 
@@ -23,7 +27,7 @@ type ToolEntry = {
   hint?: string;
 };
 
-const WORKING_TOOLS: ToolEntry[] = [
+const BASE_TOOLS: ToolEntry[] = [
   { id: 'select', icon: MousePointer2, label: 'Select', shortcut: 'V', hint: 'Select and inspect walls' },
   { id: 'wall', icon: Square, label: 'Wall', shortcut: 'W', hint: 'Tap start, tap end' },
   { id: 'door', icon: DoorOpen, label: 'Door', shortcut: 'D', hint: 'Tap a wall to place' },
@@ -32,6 +36,17 @@ const WORKING_TOOLS: ToolEntry[] = [
   { id: 'text', icon: Type, label: 'Label', shortcut: 'T', hint: 'Place room label' },
   { id: 'dimension', icon: Ruler, label: 'Dimension', shortcut: '⇧M', hint: 'Dimension line' },
 ];
+
+const MODE_TOOLS: Record<WorkspaceMode, ToolEntry[]> = {
+  draft: [
+    { id: 'room', icon: Square, label: 'Room', hint: 'Detect / label rooms' },
+    { id: 'vastu', icon: Compass, label: 'Vastu', hint: 'Harmony compass overlay' },
+  ],
+  mep: [{ id: 'mep', icon: Zap, label: 'MEP', hint: 'Place MEP symbols' }],
+  interior: [{ id: 'furniture', icon: Sofa, label: 'Furniture', hint: 'Place furniture' }],
+  landscape: [{ id: 'landscape', icon: TreePine, label: 'Landscape', hint: 'Garden elements' }],
+  walk: [],
+};
 
 function ToolButton({
   icon: Icon,
@@ -48,46 +63,36 @@ function ToolButton({
   isActive?: boolean;
   onClick?: () => void;
 }) {
+  const hintText = hint ?? label;
+  const titleText = shortcut ? `${label} (${shortcut}) — ${hintText}` : `${label} — ${hintText}`;
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          className={`architect-tool-button ${isActive ? 'active' : ''}`}
-          onClick={onClick}
-          aria-label={label}
-          aria-pressed={isActive}
-        >
-          <Icon className="h-[18px] w-[18px]" />
-          <span className="font-technical text-[8px] leading-none tracking-[0.06em]">{label}</span>
-          {shortcut && (
-            <span className="font-technical text-[7px] leading-none opacity-55">{shortcut}</span>
-          )}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="right" sideOffset={10} className="max-w-56">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold">{label}</span>
-            {shortcut && (
-              <kbd className="rounded border px-1 py-0.5 font-mono text-[9px]">{shortcut}</kbd>
-            )}
-          </div>
-          <p className="text-[11px] text-muted-foreground">{hint}</p>
-        </div>
-      </TooltipContent>
-    </Tooltip>
+    <button
+      type="button"
+      className={`architect-tool-button ${isActive ? 'active' : ''}`}
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={isActive}
+      title={titleText}
+    >
+      <Icon className="h-[18px] w-[18px]" />
+      <span className="font-technical text-[8px] leading-none tracking-[0.06em]">{label}</span>
+      {shortcut && (
+        <span className="font-technical text-[7px] leading-none opacity-55">{shortcut}</span>
+      )}
+    </button>
   );
 }
 
-export default function ToolRail({ currentTool, onToolChange }: ToolRailProps) {
+export default function ToolRail({ currentTool, workspaceMode = 'draft', onToolChange }: ToolRailProps) {
+  const tools = [...BASE_TOOLS, ...(MODE_TOOLS[workspaceMode] ?? [])];
+
   return (
-    <TooltipProvider delayDuration={250}>
-      <div
-        className="vish-tool-rail architect-tool-dock flex h-full w-[72px] shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
-        data-testid="tool-rail"
-      >
-        {WORKING_TOOLS.map((tool) => (
+    <div
+      className="vish-tool-rail architect-tool-dock flex h-full w-[72px] shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
+      data-testid="tool-rail"
+    >
+        {tools.map((tool) => (
           <ToolButton
             key={tool.id}
             icon={tool.icon}
@@ -98,7 +103,6 @@ export default function ToolRail({ currentTool, onToolChange }: ToolRailProps) {
             onClick={() => onToolChange(tool.id)}
           />
         ))}
-      </div>
-    </TooltipProvider>
+    </div>
   );
 }

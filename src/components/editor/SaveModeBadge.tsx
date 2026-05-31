@@ -1,6 +1,13 @@
 import { Wifi, WifiOff } from 'lucide-react';
+import type { CloudSaveLabel } from '@/hooks/useSupabaseStatus';
 
-export default function SaveModeBadge({ connected }: { connected: boolean | null }) {
+export default function SaveModeBadge({
+  connected,
+  label = 'Cloud Save',
+}: {
+  connected: boolean | null;
+  label?: CloudSaveLabel | string;
+}) {
   if (connected === null) return null;
 
   return (
@@ -8,12 +15,12 @@ export default function SaveModeBadge({ connected }: { connected: boolean | null
       {connected ? (
         <>
           <Wifi className="h-3.5 w-3.5 text-success" />
-          <span className="font-technical text-[10px] text-success">Cloud Save</span>
+          <span className="font-technical text-[10px] text-success">{label}</span>
         </>
       ) : (
         <>
           <WifiOff className="h-3.5 w-3.5 text-ws-text-faint" />
-          <span className="font-technical text-[10px] text-ws-text-faint">Local Preview</span>
+          <span className="font-technical text-[10px] text-ws-text-faint">Local Draft</span>
         </>
       )}
     </div>

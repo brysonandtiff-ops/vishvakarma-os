@@ -1,9 +1,9 @@
 # Next Steps & Roadmap
 ## Vishvakarma.OS v1.0.0 → v1.1.0
 
-**Current Status**: Internal demo ready; public production launch blocked pending live Firebase/Supabase evidence  
-**Build**: YELLOW — automated gates pass locally; manual device and production backend proof still required  
-**Last Updated**: 2026-05-29
+**Current Status**: Feature-complete locally; production auth requires operator Vercel env + Supabase migrations  
+**Build**: GREEN locally — 443 unit tests, extended editor tools, OAuth, collaboration UI  
+**Last Updated**: 2026-05-31
 
 ---
 
@@ -53,14 +53,9 @@
   - Document: Performance metrics and bottlenecks
 
 #### 1.2 Automated Test Suite (Gate 7)
-- [ ] Set up Jest + React Testing Library
-- [ ] Unit tests for room calculations (Shoelace formula)
-- [ ] Unit tests for snap-to-grid logic
-- [ ] Unit tests for corner auto-join
-- [ ] Component tests for ToolRail
-- [ ] Component tests for PropertiesPanel
-- [ ] Integration tests for undo/redo system
-- [ ] E2E tests for complete workflows
+- [x] Vitest + React Testing Library (443 tests)
+- [x] Playwright E2E auth gate + app smoke
+- [x] ToolRail, floor plan engine, cost estimate coverage
 
 **Estimated Effort**: 2-3 days  
 **Impact**: Moves build from YELLOW to GREEN

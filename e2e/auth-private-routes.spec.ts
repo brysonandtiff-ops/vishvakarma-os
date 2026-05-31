@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 const privateRoutes = [
-  '/',
+  '/editor',
   '/spec-center',
   '/registry',
   '/change-requests',
   '/releases',
+  '/world-records',
   '/audit',
 ];
 
@@ -15,7 +16,7 @@ test.describe('production auth gate', () => {
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /sign in with email link/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^sign in$/i })).toBeVisible();
   });
 
   for (const route of privateRoutes) {

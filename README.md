@@ -61,7 +61,10 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 | **Material Picker** | ✅ Built | `MaterialPicker.tsx` (2 KB) — paint, wood, concrete presets |
 | **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
 | **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
-| **All 6 Routes** | ✅ Built | `/`, `/spec-center`, `/registry`, `/change-requests`, `/releases`, `/audit` — all pages render without error |
+| **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes — see Application Routes |
+| **Extended ToolRail** | ✅ Built | Room, Vastu, MEP, Furniture, Landscape tools wired to canvas + 3D |
+| **OAuth Sign-in** | ✅ Built | Google/Apple via Firebase or Supabase when backend configured |
+| **Collaboration bar** | ✅ Built | Supabase Realtime presence when connected; local session fallback |
 | **Spec Center** | ✅ Built | `SpecCenterPage.tsx` (10 KB) — locked spec cards, SHA-256 hash display, stats row |
 | **Registry** | ✅ Built | `RegistryPage.tsx` (12 KB) — entry cards with type icons, grid layout, improved empty state with "view all" action |
 | **Change Requests** | ✅ Built | `ChangeRequestsPage.tsx` (15 KB) — priority badges, status workflow, tab counts, improved empty states with CTAs |
@@ -132,12 +135,19 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 
 | Route | Page | Description |
 |---|---|---|
-| `/` | Blueprint Editor | Main 2D + 3D workspace |
+| `/` | Landing | Marketing home |
+| `/features` | Features & Guides | Product reference |
+| `/pricing` | Pricing | Plans |
+| `/auth` | Account Access | Email link + Google/Apple OAuth |
+| `/editor` | Blueprint Editor | Main 2D + 3D workspace |
+| `/projects` | Projects | Cloud/local project list |
+| `/profile` | Profile | Account + sign-out |
 | `/spec-center` | Spec Center | Locked governing specifications |
 | `/registry` | Registry Center | Component and feature inventory |
 | `/change-requests` | Change Requests | Governed change workflow |
 | `/releases` | Release Center | Gate-checked release pipeline |
 | `/audit` | Audit Log | Full system event timeline |
+| `/world-records` | World Records | In-app registry |
 
 ---
 

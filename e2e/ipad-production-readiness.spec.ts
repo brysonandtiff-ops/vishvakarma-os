@@ -10,7 +10,7 @@ test.describe('iPad production readiness', () => {
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
       'href',
-      /\/brand\/vishvakarma-official-logo\.svg$/,
+      /\/brand\/vishvakarma-apple-touch-icon\.png$/,
     );
     await expect(page.locator('meta[name="apple-mobile-web-app-capable"]')).toHaveAttribute('content', 'yes');
     await expect(page.locator('meta[name="apple-mobile-web-app-status-bar-style"]')).toHaveAttribute('content', 'black-translucent');
@@ -34,6 +34,7 @@ test.describe('iPad production readiness', () => {
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
+    await page.screenshot({ path: 'docs/release/evidence/ipad-auth-landscape.png', fullPage: false });
   });
 
   test('auth gate fits iPad portrait viewport', async ({ page }) => {
@@ -42,5 +43,6 @@ test.describe('iPad production readiness', () => {
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
+    await page.screenshot({ path: 'docs/release/evidence/ipad-auth-portrait.png', fullPage: false });
   });
 });

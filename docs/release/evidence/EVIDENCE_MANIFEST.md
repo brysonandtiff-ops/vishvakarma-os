@@ -9,7 +9,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current end-of-day commit | `8cb790c` (production polish + e2e stability) |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-05-31 Australia/Perth |
-| Final status | PRODUCTION POLISH — `pnpm run verify:ci` passed (428 unit tests, lint, build). UI truthfulness + auth hardening shipped. Vercel Supabase env + E2E attach still operator tasks. |
+| Final status | Feature-complete local build — 443 unit tests, extended editor tools, OAuth, collaboration UI. Configure Vercel Firebase/Supabase env for live auth proof. |
 
 ## CI Evidence
 

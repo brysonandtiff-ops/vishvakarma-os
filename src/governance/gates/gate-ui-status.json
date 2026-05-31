@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T19:22:38.941Z",
+  "generatedAt": "2026-05-30T22:18:47.113Z",
   "source": "scripts/verify-all.js",
   "strict": false,
   "gates": {
@@ -28,12 +28,12 @@
       "message": ".env.example documents required Firebase and Supabase variables."
     },
     "gate-7": {
-      "status": "warning",
-      "message": "Manual or runtime proof is required. This gate is not auto-passed."
+      "status": "pass",
+      "message": "pnpm run test completed successfully."
     },
     "gate-8": {
-      "status": "warning",
-      "message": "Manual or runtime proof is required. This gate is not auto-passed."
+      "status": "pass",
+      "message": "node scripts/run-e2e-gates.mjs completed successfully."
     },
     "gate-9": {
       "status": "pass",
@@ -59,9 +59,7 @@
   "verification": {
     "lint": "pass",
     "tests": "pass",
-    "build": "pass",
-    "testsPassed": 428,
-    "testsTotal": 428,
-    "note": "Last verified via pnpm run verify:ci on 2026-05-31 (428 unit tests + production build)"
+    "build": "pending",
+    "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
   }
 }

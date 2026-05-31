@@ -49,6 +49,11 @@ export const architectTheme = {
     controlSpacing: '16px',
   },
 
+  /** iPad Pro 12.9" landscape logical width — used by ipad-workspace.css */
+  breakpoints: {
+    tabletMax: '1194px',
+  },
+
   // Shadows - subtle, tactile
   shadows: {
     tool: '0 2px 8px rgba(0, 0, 0, 0.12)',

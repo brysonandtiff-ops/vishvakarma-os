@@ -59,6 +59,76 @@ export interface DimensionAnnotation {
   offset?: number;
 }
 
+export interface Room {
+  id: string;
+  name: string;
+  wallIds: string[];
+  center?: Point2D;
+  area?: number;
+}
+
+export interface FurnitureItem {
+  id: string;
+  type: string;
+  position: Point2D;
+  rotation?: number;
+  width?: number;
+  depth?: number;
+}
+
+export interface MepSymbol {
+  id: string;
+  type: 'outlet' | 'switch' | 'hvac' | 'panel';
+  position: Point2D;
+}
+
+export interface PlumbingRun {
+  id: string;
+  points: Point2D[];
+}
+
+export interface LandscapeElement {
+  id: string;
+  type: string;
+  position: Point2D;
+}
+
+export interface CostItem {
+  id: string;
+  label: string;
+  amount: number;
+}
+
+export interface Staircase {
+  id: string;
+  position: Point2D;
+  direction: number;
+}
+
+export interface CeilingZone {
+  id: string;
+  roomId?: string;
+  type: 'flat' | 'tray' | 'coffered' | 'vaulted';
+}
+
+export interface ViewportCameraState {
+  position: [number, number, number];
+  target: [number, number, number];
+  zoom: number;
+}
+
+export type WorkspaceMode = 'draft' | 'mep' | 'interior' | 'landscape' | 'walk';
+
+export type CanvasInteractionState =
+  | 'IDLE'
+  | 'DRAWING_WALL'
+  | 'PLACING_DOOR'
+  | 'PLACING_WINDOW'
+  | 'PLACING_FURNITURE'
+  | 'SELECTING'
+  | 'PANNING'
+  | 'MEASURING';
+
 export interface ProjectManifest {
   version: string;
   name: string;
@@ -67,11 +137,22 @@ export interface ProjectManifest {
   openings: Opening[];
   labels?: Label[];
   dimensions?: DimensionAnnotation[];
+  rooms?: Room[];
+  furniture?: FurnitureItem[];
+  mepSymbols?: MepSymbol[];
+  plumbingRuns?: PlumbingRun[];
+  landscapeElements?: LandscapeElement[];
+  measurements?: DimensionAnnotation[];
+  costItems?: CostItem[];
+  staircases?: Staircase[];
+  ceilingZones?: CeilingZone[];
+  camera?: ViewportCameraState;
   materials: Material[];
   floorMaterial: string;
   lighting: LightingConfig;
   gridSize: number;
   snapToGrid: boolean;
+  northOrientation?: number;
   metadata: {
     created: string;
     modified: string;
@@ -163,7 +244,19 @@ export interface RouteManifestEntry {
 // EDITOR STATE TYPES
 // ============================================================================
 
-export type ToolType = 'select' | 'wall' | 'door' | 'window' | 'measure' | 'text' | 'dimension';
+export type ToolType =
+  | 'select'
+  | 'wall'
+  | 'door'
+  | 'window'
+  | 'measure'
+  | 'text'
+  | 'dimension'
+  | 'room'
+  | 'furniture'
+  | 'mep'
+  | 'vastu'
+  | 'landscape';
 
 export interface EditorState {
   currentTool: ToolType;

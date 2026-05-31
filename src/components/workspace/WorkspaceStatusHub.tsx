@@ -14,9 +14,9 @@ export function WorkspaceStatusHub({ collapsed }: WorkspaceStatusHubProps) {
   const location = useLocation();
   const { mode, user } = useAuth();
 
-  const routeLabel = location.pathname === '/' 
-    ? 'Editor' 
-    : location.pathname.slice(1).replace('-', ' ');
+  const routeLabel = location.pathname === '/editor'
+    ? 'Editor'
+    : location.pathname.slice(1).replace(/-/g, ' ');
     
   const authStatus = user ? 'Authenticated' : 'Anonymous';
   
