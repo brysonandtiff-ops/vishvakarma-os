@@ -45,7 +45,8 @@ describe('Blueprint editor visual polish', () => {
     expect(viewport).toContain('prefers-reduced-motion');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
-    expect(editor).toContain('showOnboarding && <OnboardingPanel');
+    expect(editor).toContain('showOnboarding && !welcomeOpen');
+    expect(editor).toContain('<OnboardingPanel');
     expect(editor).toContain('<StatusBar');
     expect(editor).toContain('<EditorTopBar');
     expect(editor).toContain('immersive');

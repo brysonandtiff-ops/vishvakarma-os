@@ -69,10 +69,10 @@ export default defineConfig({
       ],
       use: { ...devices['Desktop Chrome'], hasTouch: true },
       webServer: {
-        command: 'pnpm run preview',
+        command: 'pnpm run preview:e2e',
         url: previewUrl,
         reuseExistingServer,
-        timeout: 180_000,
+        timeout: 300_000,
         env: appSmokeServerEnv,
       },
     },

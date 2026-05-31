@@ -28,5 +28,8 @@ function run(command, env) {
 run('pnpm exec vite build --mode e2e', { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
 run('pnpm exec playwright test --project=auth-gate', { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
 
-run('pnpm exec vite build --mode e2e', { VITE_E2E_ALLOW_LOCAL_ACCESS: 'true' });
+run(
+  'pnpm exec vite build --mode e2e',
+  { VITE_E2E_ALLOW_LOCAL_ACCESS: 'true', VITE_ALLOW_LOCAL_DEMO: 'true' },
+);
 run('pnpm exec playwright test --project=app-smoke', { VITE_E2E_ALLOW_LOCAL_ACCESS: 'true' });

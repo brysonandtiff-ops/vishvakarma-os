@@ -324,9 +324,3 @@ See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the ful
 - **AuditLogPage** — date-grouped timeline layout with vertical connector line, entity-coloured icon dots, event action badges
 - **CSS design tokens** — `--cyan`, `--shadow-sm/md/lg`, `--shadow-glow`, `.glass-panel`, `.glow-ring`, `.gradient-text`, `.status-dot`, `.card-elevated` utilities added to `index.css`
 - **Lint** — 0 errors across 127 files
-
----
-
-## Learn More
-
-Miaoda help documentation: [Download and Building the App](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)

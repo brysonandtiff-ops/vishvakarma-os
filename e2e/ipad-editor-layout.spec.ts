@@ -48,6 +48,10 @@ async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
 test.describe('iPad editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/editor');
+    const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
+    if (await skipWelcome.isVisible().catch(() => false)) {
+      await skipWelcome.click();
+    }
     await dismissOnboardingIfPresent(page);
   });
 

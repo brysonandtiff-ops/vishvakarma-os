@@ -64,8 +64,9 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain('showServiceConfigBanner');
     expect(routeGuard).toContain('import.meta.env.PROD');
     expect(routeGuard).toContain('if (loading && !publicRoute)');
-    expect(routeGuard).toContain('if (gated && !user && !publicRoute)');
-    expect(routeGuard).toContain('return null');
+    expect(routeGuard).toContain('if (!user && !publicRoute)');
+    expect(routeGuard).toContain('if (gated && !loading && !user && !publicRoute)');
+    expect(routeGuard).toContain('<Navigate to="/auth"');
   });
 
   it('wires import and new-project flows in the editor', () => {
@@ -95,7 +96,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
     expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Sign In');
+    expect(authPage).toContain('Send secure access link');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
   });

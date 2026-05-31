@@ -9,12 +9,12 @@ test.describe('marketing pages', () => {
 
   test('features page loads', async ({ page }) => {
     await page.goto('/features');
-    await expect(page.getByText(/interactive guides/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
   });
 
   test('pricing page loads tiers', async ({ page }) => {
     await page.goto('/pricing');
-    await expect(page.getByText('Studio')).toBeVisible();
-    await expect(page.getByText('Enterprise')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Studio' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Enterprise' })).toBeVisible();
   });
 });

@@ -3,6 +3,10 @@ import { expect, test } from '@playwright/test';
 test.describe('editor core features (e2e local access)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/editor');
+    const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
+    if (await skipWelcome.isVisible().catch(() => false)) {
+      await skipWelcome.click();
+    }
     const onboardingClose = page.getByRole('button', { name: /close|dismiss|got it/i });
     if (await onboardingClose.first().isVisible().catch(() => false)) {
       await onboardingClose.first().click();

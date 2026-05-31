@@ -3,10 +3,8 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
-import { miaodaDevPlugin } from 'miaoda-sc-plugin';
-
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => ({
+export default defineConfig(({ mode }) => ({
   envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
   plugins: [
     react(),
@@ -17,7 +15,6 @@ export default defineConfig(({ command, mode }) => ({
         namedExport: 'ReactComponent',
       },
     }),
-    ...(command === 'serve' ? [miaodaDevPlugin()] : []),
   ],
   resolve: {
     alias: {

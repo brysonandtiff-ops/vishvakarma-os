@@ -61,6 +61,17 @@
 .vish-properties-panel input,
 .vish-properties-panel textarea,
 .vish-properties-panel [role="slider"],
+.vish-governance-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vish-governance-page > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .vish-governance-page,
 .vish-governance-page input,
 .vish-governance-page textarea {

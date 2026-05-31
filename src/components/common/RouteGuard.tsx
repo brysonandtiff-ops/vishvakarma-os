@@ -19,7 +19,7 @@ const allowLocalAccess =
   isE2eLocalAccess ||
   (import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured));
 const showServiceConfigBanner =
-  import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode;
+  import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode && !isE2eLocalAccess;
 
 const BOOT_MANTRAS = [
   'ॐ विश्वकर्मणे नमः',

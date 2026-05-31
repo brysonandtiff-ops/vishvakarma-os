@@ -16,7 +16,7 @@ test.describe('production auth gate', () => {
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/sign in with a secure email link/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /^sign in$/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /send secure access link/i })).toBeVisible();
   });
 
   for (const route of privateRoutes) {

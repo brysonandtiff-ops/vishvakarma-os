@@ -33,7 +33,6 @@ export default function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -180,21 +179,8 @@ export default function AuthPage() {
               />
             </label>
 
-            <label className="block space-y-1.5">
-              <span className="vish-bilingual-label">Password</span>
-              <input
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                disabled={!isConfigured || submitting || showConfigRequired}
-                className="vish-mockup-input"
-                aria-describedby="auth-password-hint"
-              />
-            </label>
-            <p id="auth-password-hint" className="text-[10px] text-muted-foreground">
-              Sign-in uses a secure email link. Password is optional until provider password auth ships.
+            <p className="text-[10px] leading-relaxed text-muted-foreground">
+              No password required — we email you a one-time secure link to open the protected workspace.
             </p>
 
             {error && (
@@ -210,16 +196,24 @@ export default function AuthPage() {
             )}
 
             <button type="submit" className="vish-gold-button" disabled={!isConfigured || submitting || showConfigRequired}>
-              {submitting ? 'Sending access link…' : 'Sign In'}
+              {submitting ? 'Sending access link…' : 'Send secure access link'}
             </button>
 
             <p className="text-center text-[11px] text-muted-foreground">
-              <button type="button" className="text-primary hover:underline" onClick={() => navigate('/auth')}>
-                Sign up
+              <button
+                type="button"
+                className="text-primary hover:underline"
+                onClick={() =>
+                  toast.message('New account', {
+                    description: 'Enter your email above — the same secure link creates your account on first sign-in.',
+                  })
+                }
+              >
+                New here? Use your email above
               </button>
               {' · '}
               <button type="button" className="text-primary hover:underline" onClick={() => navigate('/reset-password')}>
-                Forgot password
+                Access help
               </button>
             </p>
 

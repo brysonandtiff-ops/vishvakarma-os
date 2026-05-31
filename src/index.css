@@ -1,5 +1,5 @@
 /* stylelint-disable */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+/* Fonts loaded from index.html (preconnect + link) for CSP and faster first paint */
 
 @tailwind base;
 @tailwind components;

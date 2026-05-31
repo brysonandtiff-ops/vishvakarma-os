@@ -64,6 +64,7 @@ export class FloorPlanEngine {
   private listeners = new Set<() => void>();
   private revision = 0;
   private skipVersionSnapshot = false;
+  private cachedSnapshot: FloorPlanSnapshot | null = null;
 
   private constructor() {
     this.manifest = createEmptyProjectManifest('Untitled Project');
@@ -77,6 +78,7 @@ export class FloorPlanEngine {
     this.versionControl.initialize();
     this.versionControl.saveVersion(this.manifest, 'Initial', false);
     this.versionControl.updateCurrentManifest(this.manifest);
+    this.rebuildSnapshot();
   }
 
   static getInstance(): FloorPlanEngine {
@@ -96,20 +98,30 @@ export class FloorPlanEngine {
     return () => this.listeners.delete(listener);
   };
 
+  private rebuildSnapshot(): void {
+    this.cachedSnapshot = {
+      manifest: this.manifest,
+      session: this.session,
+      canUndo: this.versionControl.canUndo(),
+      canRedo: this.versionControl.canRedo(),
+      revision: this.revision,
+    };
+  }
+
   private notify(): void {
     this.revision += 1;
+    this.rebuildSnapshot();
     for (const listener of this.listeners) {
       listener();
     }
   }
 
-  getSnapshot = (): FloorPlanSnapshot => ({
-    manifest: this.manifest,
-    session: this.session,
-    canUndo: this.versionControl.canUndo(),
-    canRedo: this.versionControl.canRedo(),
-    revision: this.revision,
-  });
+  getSnapshot = (): FloorPlanSnapshot => {
+    if (!this.cachedSnapshot) {
+      this.rebuildSnapshot();
+    }
+    return this.cachedSnapshot!;
+  };
 
   getManifest(): ProjectManifest {
     return this.manifest;
@@ -255,6 +267,15 @@ export class FloorPlanEngine {
   }
 
   setLighting(lighting: LightingConfig): void {
+    const current = this.manifest.lighting;
+    if (
+      current.timeOfDay === lighting.timeOfDay &&
+      current.sunAzimuth === lighting.sunAzimuth &&
+      current.intensity === lighting.intensity &&
+      current.sunElevation === lighting.sunElevation
+    ) {
+      return;
+    }
     this.touchManifest({ lighting });
   }
 
@@ -374,6 +395,9 @@ export class FloorPlanEngine {
 
   setNorthOrientation(degrees: number): void {
     const normalized = ((degrees % 360) + 360) % 360;
+    if ((this.manifest.northOrientation ?? 0) === normalized) {
+      return;
+    }
     this.touchManifest({ northOrientation: normalized }, 'Set north');
   }
 

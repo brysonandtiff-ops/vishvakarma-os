@@ -452,9 +452,3 @@ pnpm run production:verify-env
 - **ReleasesPage** — build status hero card with gate progress bar, stop-ship violation list
 - **AuditLogPage** — date-grouped timeline layout with vertical connector line, entity-coloured icon dots, event action badges
 - **CSS design tokens** — `--cyan`, `--shadow-sm/md/lg`, `--shadow-glow`, `.glass-panel`, `.glow-ring`, `.gradient-text`, `.status-dot`, `.card-elevated` utilities added to `index.css`
-
----
-
-## Learn More
-
-Miaoda help documentation: [Download and Building the App](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)

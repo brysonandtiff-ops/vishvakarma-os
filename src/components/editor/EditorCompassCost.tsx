@@ -39,7 +39,12 @@ export default function EditorCompassCost({
             min={0}
             max={360}
             step={1}
-            onValueChange={(value) => onNorthChange(value[0] ?? 0)}
+            onValueChange={(value) => {
+              const next = value[0] ?? 0;
+              if (next !== northOrientation) {
+                onNorthChange(next);
+              }
+            }}
           />
           <p className="text-[11px] text-muted-foreground">Aligns vastu compass overlay on the 2D canvas.</p>
         </PopoverContent>

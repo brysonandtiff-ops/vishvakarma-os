@@ -38,7 +38,7 @@ function isExistingUserError(error) {
 }
 
 async function setup() {
-  const email = 'admin@miaoda.com';
+  const email = process.env.ADMIN_EMAIL ?? 'admin@vishvakarma.local';
   const password = 'A1!' + crypto.randomBytes(12).toString('base64').slice(0, 14) + 'z#';
 
   console.log(`Creating admin account: ${email}`);

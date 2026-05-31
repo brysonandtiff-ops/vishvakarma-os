@@ -1,6 +1,6 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -126,74 +126,6 @@ function EditorWorkspace() {
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
   const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
-
-  useLayoutEffect(() => {
-    const measure = () => {
-      const doc = document.documentElement;
-      const canvasRoot = document.querySelector('.bg-ws-canvas');
-      const topBar = document.querySelector('[data-testid="editor-top-bar"]');
-      const immersivePage = document.querySelector('.vish-immersive-page');
-      const tabGroup = document.querySelector('.vish-mode-tab-group');
-      const modeBadge = document.querySelector('.vish-editor-mode-badge');
-      const tabRect = tabGroup?.getBoundingClientRect();
-      const badgeRect = modeBadge?.getBoundingClientRect();
-      const overlaps =
-        tabRect && badgeRect
-          ? !(
-              tabRect.right < badgeRect.left ||
-              tabRect.left > badgeRect.right ||
-              tabRect.bottom < badgeRect.top ||
-              tabRect.top > badgeRect.bottom
-            )
-          : null;
-      // #region agent log
-      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c3a1f5' },
-        body: JSON.stringify({
-          sessionId: 'c3a1f5',
-          runId: 'layout-audit',
-          hypothesisId: 'A',
-          location: 'EditorPage.tsx:layoutMeasure',
-          message: 'editor layout metrics',
-          data: {
-            docOverflowX: doc.scrollWidth > doc.clientWidth + 2,
-            scrollWidth: doc.scrollWidth,
-            clientWidth: doc.clientWidth,
-            innerHeight: window.innerHeight,
-            canvasHeight: canvasRoot?.clientHeight ?? null,
-            immersiveHeight: immersivePage?.clientHeight ?? null,
-            usesFullHeight: canvasRoot?.classList.contains('h-full') ?? null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-      // #region agent log
-      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c3a1f5' },
-        body: JSON.stringify({
-          sessionId: 'c3a1f5',
-          runId: 'layout-audit',
-          hypothesisId: 'B',
-          location: 'EditorPage.tsx:topbarMeasure',
-          message: 'topbar overlap check',
-          data: {
-            tabDisplay: tabGroup ? getComputedStyle(tabGroup).display : null,
-            badgeDisplay: modeBadge ? getComputedStyle(modeBadge).display : null,
-            tabBadgeOverlap: overlaps,
-            topBarHeight: topBar?.clientHeight ?? null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [showOnboarding, welcomeOpen, show3DView, workspaceMode]);
 
   const buildManifest = useCallback((): ProjectManifest => {
     const manifest = engine.buildManifest();

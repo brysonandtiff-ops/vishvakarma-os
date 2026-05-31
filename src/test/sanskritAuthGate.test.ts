@@ -32,11 +32,11 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
     expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Sign In');
+    expect(authPage).toContain('Send secure access link');
     expect(authPage).toContain('Continue with Google');
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system');
-    expect(authPage).toContain('type="password"');
+    expect(authPage).not.toContain('type="password"');
   });
 
   it('enables OAuth providers when backend is configured', () => {
