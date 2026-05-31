@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -108,8 +108,8 @@ export function RouteGuard({ children }: RouteGuardProps) {
     );
   }
 
-  if (gated && !user && !publicRoute) {
-    return null;
+  if (gated && !loading && !user && !publicRoute) {
+    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
   return (

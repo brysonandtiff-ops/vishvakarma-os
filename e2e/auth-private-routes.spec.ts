@@ -15,7 +15,7 @@ test.describe('production auth gate', () => {
     await page.goto('/auth');
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/sign in to your workspace/i)).toBeVisible();
+    await expect(page.getByText(/sign in with a secure email link/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /^sign in$/i })).toBeVisible();
   });
 

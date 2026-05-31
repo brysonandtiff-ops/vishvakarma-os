@@ -18,7 +18,11 @@ const baseEnv = {
 };
 
 function run(command, env) {
-  execSync(command, { stdio: 'inherit', env: { ...baseEnv, ...env } });
+  execSync(command, {
+    stdio: 'inherit',
+    env: { ...baseEnv, ...env },
+    shell: true,
+  });
 }
 
 run('pnpm exec vite build --mode e2e', { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
