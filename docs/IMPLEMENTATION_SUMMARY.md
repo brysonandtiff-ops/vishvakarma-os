@@ -252,7 +252,7 @@ Vishvakarma.OS is an iPad-first, browser-native architectural blueprint editor w
 ## File Structure
 
 ```
-/workspace/app-9nam5bayv401/
+vishvakarma-os-live/
 ├── docs/
 │   ├── SPEC.md                    # Locked Blueprint Editor spec
 │   ├── REGISTRY.md                # Entity registry

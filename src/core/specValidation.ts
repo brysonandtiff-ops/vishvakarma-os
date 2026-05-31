@@ -1,5 +1,6 @@
 // Core validation utilities for spec and registry compliance
 import crypto from 'crypto';
+import { join } from 'path';
 
 // Spec hash calculation
 export function calculateSpecHash(specContent: string): string {
@@ -145,11 +146,13 @@ export interface VerifyAllResult {
 
 export async function verifyAll(): Promise<VerifyAllResult> {
   const checks: VerifyAllResult['checks'] = [];
-  
+  const specPath = join(process.cwd(), 'docs', 'SPEC.md');
+  const registryPath = join(process.cwd(), 'docs', 'REGISTRY.md');
+
   // Check 1: Spec exists and is valid
   try {
     const fs = await import('fs/promises');
-    const specContent = await fs.readFile('/workspace/app-9nam5bayv401/docs/SPEC.md', 'utf-8');
+    const specContent = await fs.readFile(specPath, 'utf-8');
     const specResult = validateSpec(specContent);
     
     checks.push({
@@ -170,7 +173,7 @@ export async function verifyAll(): Promise<VerifyAllResult> {
   // Check 2: Registry exists
   try {
     const fs = await import('fs/promises');
-    await fs.readFile('/workspace/app-9nam5bayv401/docs/REGISTRY.md', 'utf-8');
+    await fs.readFile(registryPath, 'utf-8');
     checks.push({
       name: 'Registry Documentation',
       passed: true,

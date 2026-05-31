@@ -167,7 +167,7 @@ if (hoveredPoint) {
 **Status**: ✅ VERIFIED AND COMPLETE
 
 **File Details**:
-- ✅ Location: `/workspace/app-9nam5bayv401/NEXT_STEPS.md`
+- ✅ Location: `NEXT_STEPS.md` (repo root)
 - ✅ Size: 9.0KB
 - ✅ Created: 2026-02-15
 
@@ -215,7 +215,7 @@ $ ls -lh NEXT_STEPS.md
 **Status**: ✅ VERIFIED AND COMPLETE
 
 **File Details**:
-- ✅ Location: `/workspace/app-9nam5bayv401/COMPLETE_SUMMARY.md`
+- ✅ Location: `COMPLETE_SUMMARY.md` (repo root)
 - ✅ Size: 19KB
 - ✅ Created: 2026-02-15
 
