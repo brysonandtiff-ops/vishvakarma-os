@@ -87,6 +87,44 @@ const DEFAULT_CONFIG: EnforcementConfig = {
 let currentConfig: EnforcementConfig = { ...DEFAULT_CONFIG };
 
 // ============================================================================
+// CLIENT STATE BOOTSTRAP
+// ============================================================================
+
+/**
+ * Seeds required browser-local governance keys on first visit.
+ * Production builds disable auto-repair, so this runs before enforce().
+ */
+export function bootstrapClientGovernanceState(): void {
+  try {
+    if (!localStorage.getItem('governance-event-log')) {
+      localStorage.setItem('governance-event-log', JSON.stringify([]));
+    }
+    if (!localStorage.getItem('version-control-state')) {
+      localStorage.setItem(
+        'version-control-state',
+        JSON.stringify({ history: [], currentIndex: -1, maxHistory: 50 })
+      );
+    }
+    if (!localStorage.getItem('theme')) {
+      localStorage.setItem('theme', 'dark');
+    }
+    if (!localStorage.getItem('accessibility-settings')) {
+      localStorage.setItem(
+        'accessibility-settings',
+        JSON.stringify({
+          highContrast: false,
+          reducedMotion: false,
+          screenReaderEnabled: false,
+          keyboardNavigationEnabled: true,
+        })
+      );
+    }
+  } catch {
+    // Advisory bootstrap — never block app startup
+  }
+}
+
+// ============================================================================
 // LANGUAGE VALIDATION
 // ============================================================================
 
