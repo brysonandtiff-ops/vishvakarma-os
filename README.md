@@ -21,45 +21,35 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 ## Current Build State
 
-> This section reflects the **live verified state** as of the last commit. All three pipeline stages have been confirmed with real terminal output.
+**Version:** v1.1.1 · **Last updated:** 2026-06-08
 
-### Verified Pipeline ✅
+### Verified Pipeline
 
 | Stage | Command | Result |
 |---|---|---|
 | **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
-| **Tests** | `pnpm run test` | Vitest unit/integration suite |
+| **Tests** | `pnpm run test` | Vitest unit/integration suite (400+ tests) |
 | **E2E** | `pnpm run test:e2e` | Playwright auth-gate + app-smoke |
 | **Build** | `pnpm run build` | Production build → `dist/` |
 | **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
-
-```
-# Terminal evidence — npm run verify
-Checked 127 files in 1919ms. No fixes applied.         ← lint
-
-Test Files  18 passed (18)                             ← tests
-     Tests  382 passed (382)
-  Duration  26.40s
-
-dist/index.html                     2.96 kB            ← build
-dist/assets/index-DlyCKhKK.css     75.12 kB
-dist/assets/index-B76kAsh9.js   1,512.57 kB
-✓ built in 2.29s
-```
+| **Release gates** | `pnpm run release:gates` | 13-gate manifest (automated + evidence) |
+| **Page references** | `pnpm run capture:page-references` | 31 UI screenshots → `docs/design/page-references/` |
 
 ### Verified Working ✅
 
 | Component | Status | Evidence |
 |---|---|---|
-| **Lint pipeline** | ✅ Verified | `npm run lint` — 127 files, 0 errors (Biome + `tsgo` + ast-grep) |
-| **Test suite** | ✅ Verified | `npm run test` — 382/382 passing across 18 files, 0 failures |
-| **Production build** | ✅ Verified | `npm run build` → `dist/` with 1.5 MB JS + 75 KB CSS, Vite exit 0 |
-| **2D Blueprint Editor** | ✅ Built | `BlueprintCanvas.tsx` (21 KB) — grid, wall drawing, door/window placement, snap-to-grid, undo/redo, export/import JSON, sample project load |
-| **3D Viewport** | ✅ Built | `Viewport3D.tsx` (9 KB) — React Three Fiber Canvas, wall extrusion, opening markers, orbit controls, solar lighting. **WebGL error boundary** prevents crash on context failure |
-| **ToolRail** | ✅ Built + Tested | `ToolRail.tsx` (5 KB) — 5 tools (Select/Wall/Door/Window/Measure), keyboard shortcuts, active state glow, touch-optimized. All 27 ToolRail tests pass. |
-| **Properties Panel** | ✅ Built | `PropertiesPanel.tsx` (8 KB) — wall height/thickness/material, opening sill height, live measurements |
-| **Solar Timeline** | ✅ Built | `SolarTimeline.tsx` (4 KB) — sun azimuth/elevation sliders, intensity control |
-| **Material Picker** | ✅ Built | `MaterialPicker.tsx` (2 KB) — paint, wood, concrete presets |
+| **Lint pipeline** | ✅ Verified | `pnpm run lint` — Biome + `tsgo` + ast-grep |
+| **Test suite** | ✅ Verified | `pnpm run test` — Vitest + Playwright E2E |
+| **Production build** | ✅ Verified | `pnpm run build` → `dist/` |
+| **2D Blueprint Editor** | ✅ Built | Wall/door/window drawing, opening drag handles, labels (`T`), dimensions (`⇧M`), furniture (`F`), room detect, snap-to-grid, undo/redo |
+| **3D Viewport** | ✅ Built | React Three Fiber — wall extrusion, furniture boxes, solar lighting, WebGL error boundary |
+| **ToolRail** | ✅ Built + Tested | Select, Wall, Door, Window, Measure, Text, Dimension, Room, MEP, Furniture, Landscape, Vastu |
+| **Properties Panel** | ✅ Built | Wall/opening inspector, label font/color editor, room area display |
+| **Solar Timeline** | ✅ Built | Sun azimuth/elevation sliders, intensity control |
+| **Material Picker** | ✅ Built | Presets + custom materials via `CustomMaterialDialog` |
+| **Visual PDF export** | ✅ Built | Rasterized floor plan with labels and dimensions (A4/Letter) |
+| **Projects page** | ✅ Built | Search, archive, duplicate, cloud + local project list |
 | **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
 | **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
 | **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes — see Application Routes |
@@ -89,13 +79,12 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 ### File Inventory
 
 ```
-127  TypeScript / TSX source files
-  1  Global CSS file (index.css)
- 18  Test files (18 passed / 382 tests passing)
-  7  Editor components
-  7  Page components (6 routes + NotFound)
+130+ TypeScript / TSX source files
+  1  Global CSS + sacred design tokens
+ 55+ Test files (Vitest + Playwright)
+ 31  Page-reference screenshots (marketing / editor / workspace / governance)
  12  Core modules
-  1  Supabase API layer
+  1  Firebase gateway layer (src/backend/firebase/)
   1  Route manifest
 ```
 
@@ -104,13 +93,15 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 ## Core Features
 
 ### Blueprint Editor
-- Interactive 2D canvas with snap-to-grid and configurable grid size
-- **Tools**: Select · Wall · Door · Window · Measure (keyboard shortcuts: V / W / D / N / M)
-- Wall properties: length, height, thickness, material
-- Door and window openings with sill height control
+- Interactive 2D canvas with snap-to-grid, endpoint snap, and cached grid layer
+- **Tools**: Select (V) · Wall (W) · Door (D) · Window (N) · Measure (M) · Text (T) · Dimension (⇧M) · Furniture (F) · Room · MEP · Landscape · Vastu
+- Drag-to-reposition openings with live position % and undo-safe commit
+- Editable room labels (double-click) with font/color in properties panel
+- Persistent dimension annotations with leader lines; toggle visibility with ⇧D
+- Custom materials, furniture placement with drag, room auto-detect with area
 - Undo / redo with full history stack
-- Save and load projects via Firebase Firestore persistence
-- Export project as JSON · Import from JSON file
+- Save and load via Firebase Firestore or local draft recovery
+- Export: JSON · PNG · **visual PDF** · DXF · Import from JSON/SVG
 - Load sample project for instant onboarding
 
 ### 3D Model Chamber
@@ -161,7 +152,7 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 | UI Components | shadcn/ui + Radix UI |
 | Styling | Tailwind CSS v3 + CSS custom properties |
 | 3D Engine | Three.js + React Three Fiber + Drei |
-| Backend / DB | Supabase (PostgreSQL + Auth + Storage) |
+| Backend / DB | Firebase (Auth + Firestore) |
 | Forms | React Hook Form + Zod |
 | Routing | React Router v7 |
 | Notifications | Sonner |
@@ -210,8 +201,10 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 │   │   ├── ChangeRequestsPage.tsx      # Change request workflow
 │   │   ├── ReleasesPage.tsx            # Release gate dashboard
 │   │   └── AuditLogPage.tsx            # Event audit timeline
+│   ├── backend/
+│   │   └── firebase/                   # Firestore gateways + retry
 │   ├── db/
-│   │   └── api.ts                      # Supabase CRUD layer
+│   │   └── api.ts                      # Project/governance API facade
 │   ├── modules/                        # Core business modules
 │   ├── governance/                     # Governance lock + validation
 │   ├── hooks/                          # Custom React hooks
@@ -219,14 +212,16 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 │   ├── routes.tsx                      # Centralised route manifest
 │   ├── App.tsx                         # Root app + router
 │   └── index.css                       # Design tokens + global styles
-├── supabase/
-│   └── migrations/                     # Database schema migrations
 ├── docs/                               # Extended documentation
 │   ├── SPEC.md                         # Blueprint editor specification (locked)
-│   ├── GOVERNANCE_QUICKSTART.md        # Governance system guide
-│   ├── RELEASE_v1.0.0.md               # v1.0.0 release notes
-│   ├── REGISTRY.md                     # Registry documentation
-│   └── prd.md                          # Product requirements document
+│   ├── design/page-references/         # 31 Playwright UI screenshots
+│   ├── user/                           # Getting Started, Tool Reference, FAQ
+│   ├── release/                        # Deployment, Vercel env, evidence pack
+│   └── GOVERNANCE_QUICKSTART.md        # Governance system guide
+├── MIGRATION.md                        # Version upgrades + Firebase cutover
+├── SECURITY.md                         # Security policy
+├── CONTRIBUTING.md                     # Contributor guide
+├── CHANGELOG.md                        # Version history
 ├── scripts/
 │   ├── verify-gates.cjs                # Release gate verification
 │   ├── verify-all.js                   # Full system verification
@@ -274,64 +269,51 @@ pnpm run preview   # serve the production build locally
 Create a `.env.local` file in the project root:
 
 ```env
-# Firebase auth (primary)
+# Firebase Auth + Firestore (required for cloud save/sign-in)
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_APP_ID=
 
-# Supabase data backend (projects, registry, releases, audit)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
-# Optional local dev bypass (development only)
-# VITE_ALLOW_LOCAL_DEMO=true
+# Optional
+# VITE_FIREBASE_STORAGE_BUCKET=
+# VITE_FIREBASE_MESSAGING_SENDER_ID=
 ```
 
-Firebase handles sign-in. Supabase handles persistence. Without Firebase, sign-in is disabled. Without Supabase, the app runs in local-only demo mode for data features.
+Without Firebase env vars, the app runs in **local-only mode**: full editor features, local draft recovery, and browser-stored projects. See [`docs/user/GETTING_STARTED.md`](docs/user/GETTING_STARTED.md).
 
 ---
 
-## Supabase Backend
+## Firebase Backend
 
-Vishvakarma.OS uses Supabase for all persistent storage:
+Vishvakarma.OS uses **Firebase Auth + Firestore** for persistence:
 
-| Table | Purpose |
+| Collection | Purpose |
 |---|---|
-| `projects` | Blueprint project metadata |
+| `projects` | Blueprint project manifests |
 | `specs` | Locked governance specifications |
 | `registry_entries` | Component and feature registry |
 | `change_requests` | Change request workflow records |
 | `releases` | Release version records |
 | `audit_logs` | Immutable system event log |
 
-All schema is managed via migrations in `supabase/migrations/`.
+Deploy rules: `firebase deploy --only firestore:rules`. See [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) and [`MIGRATION.md`](MIGRATION.md).
 
 ---
 
 ## Scripts & Quality
 
 ```bash
-npm run dev          # Vite dev server on 127.0.0.1
-npm run build        # Production build → dist/
-npm run preview      # Serve dist/ locally on :4173
-npm run test         # Vitest run — 382 tests across 18 files
-npm run test:coverage  # Vitest with v8 coverage report
-npm run lint         # tsgo + Biome + ast-grep
-npm run verify       # lint && test && build (full pipeline)
-```
-
-```
-# Latest npm run verify output:
-Checked 127 files in 1919ms. No fixes applied.   ← lint ✅
-
-Test Files  18 passed (18)                        ← tests ✅
-     Tests  382 passed (382)
-
-dist/index.html                     2.96 kB       ← build ✅
-dist/assets/index-DlyCKhKK.css     75.12 kB
-dist/assets/index-B76kAsh9.js   1,512.57 kB
-✓ built in 2.29s
+pnpm run dev                    # Vite dev server on 127.0.0.1
+pnpm run build                  # Production build → dist/
+pnpm run preview                # Serve dist/ locally on :4173
+pnpm run test                   # Vitest unit/integration suite
+pnpm run test:e2e               # Playwright auth-gate + app-smoke
+pnpm run test:coverage          # Vitest with v8 coverage report
+pnpm run lint                   # tsgo + Biome + ast-grep
+pnpm run verify:ci              # lint → test → routes → build
+pnpm run release:gates          # 13-gate release manifest
+pnpm run capture:page-references  # Regenerate UI screenshot pack
 ```
 
 The linter enforces:
@@ -381,21 +363,26 @@ See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the ful
 
 ## Production deployment (Vercel)
 
-Before inviting users to [https://vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app), configure **Production** environment variables in the Vercel project:
+Live site: [https://vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)
 
-| Variable | Value |
-|----------|-------|
-| `VITE_BACKEND_PROVIDER` | `supabase` |
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anon key |
+Configure **Production** Firebase env vars in Vercel (see [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md)):
 
-Optional Firebase auth variables and operator steps (migrations, RLS, smoke tests) are documented in [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md).
+| Variable | Purpose |
+|----------|---------|
+| `VITE_FIREBASE_API_KEY` | Web app API key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Auth domain |
+| `VITE_FIREBASE_PROJECT_ID` | Project ID |
+| `VITE_FIREBASE_APP_ID` | App ID |
 
-Validate locally:
+Then deploy Firestore rules and validate:
 
 ```bash
+firebase deploy --only firestore:rules
 pnpm run production:verify-env
+pnpm run release:gates
 ```
+
+Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 
 ---
 
@@ -413,43 +400,28 @@ pnpm run production:verify-env
 | Document | Description |
 |---|---|
 | [`docs/SPEC.md`](docs/SPEC.md) | Blueprint editor governing specification (locked) |
-| [`docs/prd.md`](docs/prd.md) | Full product requirements document |
-| [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance system quick-start guide |
-| [`docs/GOVERNANCE_IMPLEMENTATION.md`](docs/GOVERNANCE_IMPLEMENTATION.md) | Governance architecture deep-dive |
-| [`docs/RELEASE_v1.0.0.md`](docs/RELEASE_v1.0.0.md) | v1.0.0 release notes and evidence pack |
-| [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Vercel production environment variables |
+| [`docs/design/page-references/PAGE_REFERENCE.md`](docs/design/page-references/PAGE_REFERENCE.md) | 31 UI screenshots — regenerate with `pnpm run capture:page-references` |
+| [`docs/user/GETTING_STARTED.md`](docs/user/GETTING_STARTED.md) | Setup and first project |
+| [`docs/user/KEYBOARD_SHORTCUTS.md`](docs/user/KEYBOARD_SHORTCUTS.md) | Editor keyboard reference |
+| [`docs/user/TOOL_REFERENCE.md`](docs/user/TOOL_REFERENCE.md) | Tool guide |
+| [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md) | Production deployment guide |
+| [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Vercel Firebase env vars |
+| [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance quick-start |
 | [`docs/REGISTRY.md`](docs/REGISTRY.md) | Registry documentation |
-| [`docs/RELEASE.md`](docs/RELEASE.md) | Release process documentation |
-| [`tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md`](tasks/VISHVAKARMA_OS_BUILD_DOCUMENT.md) | Complete build document |
+| [`NEXT_STEPS.md`](NEXT_STEPS.md) | Roadmap and release gates |
+| [`CHANGELOG.md`](CHANGELOG.md) | Full version history |
+| [`MIGRATION.md`](MIGRATION.md) | Upgrade and Firebase cutover guide |
+| [`SECURITY.md`](SECURITY.md) | Security policy |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contributor guide |
 
 ---
 
-## Changelog — Recent Updates
+## Changelog — v1.1.1 (2026-06-08)
 
-### Current (latest commit)
+- Visual PDF export, opening drag handles, editable labels, dimension leader lines
+- Custom materials, furniture picker (`F`), projects search/archive/duplicate
+- Firebase-only docs, 13-gate manifest, save/load + parity automated tests
+- Monitoring/analytics scaffold, governance docs (MIGRATION, SECURITY, DEPLOYMENT)
+- Page reference screenshot pack refreshed (31 captures)
 
-**Verification restored — full pipeline now proven:**
-- **`npm run verify` exits 0** — lint → 382/382 tests → production build all pass in one command
-- **`package.json` scripts restored** — `dev`, `build`, `preview`, `test`, `test:coverage`, `verify` all wired with real commands (removed echo/warning placeholders)
-- **All 382 tests passing** — fixed 12 failing ToolRail tests (aria-label format and separator query mismatch from UI upgrade); 18/18 test files now green
-- **Production build confirmed** — `dist/` with 2467 modules, 1.5 MB JS, 75 KB CSS, 2.3 s build time
-- **First-run onboarding panel** — shown on empty editor canvas with step-by-step guide, "Load Sample Project" CTA, and "Create New Project" CTA
-- **Save mode badge** — Supabase Connected / Local Mode pill shown in editor toolbar
-- **2D→3D sync indicator** — pulse + spin icon fires in toolbar whenever walls or openings change
-- **Live verification health banner** — top of ReleasesPage shows lint / test / build status with real pass counts from the verified pipeline run
-- **Improved empty states** — Registry, Change Requests, and Audit Log all have action buttons (create, view all, navigate to editor)
-- **Fixed hardcoded colours** — ReleasesPage `bg-green-600`, `bg-red-600`, `bg-amber-500` replaced with semantic tokens (`text-success`, `text-destructive`, `text-warning`)
-
-### Previous
-
-- **WebGL error boundary** — two-layer defence (pre-flight check + React class boundary) prevents app crash on `BindToCurrentSequence` or any other WebGL context failure; full 2D editor remains operational
-- **UI upgrade** — premium dark glass architectural command center design system across all pages and components
-- **AppLayout** — refactored sidebar with grouped navigation sections (Editor / Governance / System), active state indicators, governance status footer
-- **ToolRail** — labeled tool sections (Tools / View), semantic token class names, keyboard shortcut `<kbd>` chips in tooltips, `aria-pressed` on all toggle buttons
-- **EditorPage** — compact top toolbar, 2D Blueprint / 3D Preview pane header labels, "Model Chamber" subtitle in 3D pane, proper `overflow-hidden` layout
-- **SpecCenterPage** — featured governing spec card with SHA-256 hash block, required sections grid, stats row (Total / Locked / Approved / Draft)
-- **ChangeRequestsPage** — priority badges with icons (critical / high / medium / low), status counts on tab triggers
-- **RegistryPage** — type-specific icon badges (Component · Feature · Tool), grid card layout with `h-full flex flex-col`
-- **ReleasesPage** — build status hero card with gate progress bar, stop-ship violation list
-- **AuditLogPage** — date-grouped timeline layout with vertical connector line, entity-coloured icon dots, event action badges
-- **CSS design tokens** — `--cyan`, `--shadow-sm/md/lg`, `--shadow-glow`, `.glass-panel`, `.glow-ring`, `.gradient-text`, `.status-dot`, `.card-elevated` utilities added to `index.css`
+See [`CHANGELOG.md`](CHANGELOG.md) for full history.
