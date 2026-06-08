@@ -18,6 +18,7 @@ import {
   Rocket,
 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getReleases } from '@/db/api';
 import {
   downloadEvidencePack,
@@ -203,6 +204,7 @@ export default function ReleasesPage() {
 
         <ScrollArea className="flex-1">
           <div className="mx-auto max-w-5xl space-y-6 p-6">
+            <GovernanceBackendBanner />
 
             {/* Verification snapshot — from gate-ui-status.json (pnpm run release:gates) */}
             <div className="rounded-xl border border-border bg-card shadow-sm">

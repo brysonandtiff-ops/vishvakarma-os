@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
 import { useNavigate } from 'react-router-dom';
@@ -118,6 +119,7 @@ export default function AuditLogPage() {
 
         <ScrollArea className="flex-1">
           <div className="px-6 py-6">
+            <GovernanceBackendBanner />
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />

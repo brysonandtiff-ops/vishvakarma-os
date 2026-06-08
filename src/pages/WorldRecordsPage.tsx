@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Copy, ExternalLink, Loader2, ShieldCheck, Trophy } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import {
   WORLD_RECORD_HONESTY_DISCLAIMER,
   buildWorldRecordsFromMeasurement,
@@ -89,6 +90,7 @@ export default function WorldRecordsPage() {
 
         <ScrollArea className="flex-1">
           <div className="space-y-6 p-4 md:p-6">
+            <GovernanceBackendBanner />
             {error && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />

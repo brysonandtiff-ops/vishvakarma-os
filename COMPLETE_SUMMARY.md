@@ -145,9 +145,8 @@ Vishvakarma.OS v1.0.0 is a **production-ready** iPad-first architectural bluepri
 - **State Management**: React hooks (useState, useCallback, useEffect)
 
 ### Backend Stack
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth (ready for future use)
-- **Storage**: Supabase Storage (for future file uploads)
+- **Database & Auth**: Firebase (Firestore + Authentication)
+- **Local mode**: Browser localStorage drafts when Firebase env is unset
 - **Edge Functions**: Supabase Functions (infrastructure ready)
 
 ### Key Libraries

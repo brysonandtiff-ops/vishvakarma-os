@@ -22,7 +22,7 @@ const FEATURE_MODULES = [
   { name: 'Local Draft', ready: true },
   { name: 'Vastu Harmony', ready: true },
   { name: 'MEP Routing', ready: true },
-  { name: 'Collaboration', ready: false },
+  { name: 'Collaboration', ready: false, preview: true },
   { name: 'Templates', ready: true },
   { name: 'Apple Pencil Support', ready: true },
 ] as const;
@@ -107,7 +107,11 @@ export default function FeaturesPage() {
               <div key={mod.name} className="vish-feature-grid-card">
                 <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-primary">{mod.name}</h3>
                 <p className="mt-2 text-xs text-stone-500">
-                  {mod.ready ? 'Available now in editor.' : 'Planned — remote collaboration in a future release.'}
+                  {mod.ready
+                    ? 'Available now in editor.'
+                    : 'preview' in mod && mod.preview
+                      ? 'Preview — full collaboration ships in v1.2.'
+                      : 'Planned — remote collaboration in a future release.'}
                 </p>
               </div>
             ))}

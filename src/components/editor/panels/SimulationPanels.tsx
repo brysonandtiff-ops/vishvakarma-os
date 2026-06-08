@@ -46,7 +46,10 @@ export function PanchatattvaPanel() {
   return (
     <div className="px-4 py-3 text-xs text-muted-foreground">
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Panchatattva</p>
-      <p>Five-element balance — live scoring with room labels.</p>
+      <p className="mt-1">Five-element balance scoring with room labels.</p>
+      <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
+        Coming in v1.2
+      </span>
     </div>
   );
 }
@@ -55,7 +58,10 @@ export function AkashaCastPanel() {
   return (
     <div className="px-4 py-3 text-xs text-muted-foreground">
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Akasha Cast</p>
-      <p className="rounded border border-dashed border-primary/30 p-2">Scaffolded — cloud render queue</p>
+      <p className="mt-1">Cloud render queue for high-fidelity previews.</p>
+      <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
+        Coming in v1.2
+      </span>
     </div>
   );
 }

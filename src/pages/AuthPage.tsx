@@ -41,6 +41,11 @@ export default function AuthPage() {
   const isProduction = import.meta.env.PROD;
   const showConfigRequired = isProduction && !backendStatus.isConfigured;
   const allowLocalWorkspace = !isProduction && !isConfigured;
+  const passwordResetNotice =
+    typeof location.state === 'object' &&
+    location.state !== null &&
+    'message' in location.state &&
+    (location.state as { message: unknown }).message === 'password-reset-unavailable';
 
   if (!loading && user) {
     return <Navigate to={returnPath} replace />;
@@ -181,6 +186,12 @@ export default function AuthPage() {
             <p className="text-[10px] leading-relaxed text-muted-foreground">
               No password required — we email you a one-time secure link to open the protected workspace.
             </p>
+
+            {passwordResetNotice && (
+              <p role="status" className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
+                Password reset is not available — request a new secure access link below instead.
+              </p>
+            )}
 
             {error && (
               <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

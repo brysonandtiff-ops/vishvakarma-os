@@ -7,8 +7,36 @@ test.describe('marketing pages', () => {
     await expect(page.getByRole('link', { name: /Start Free/i }).first()).toBeVisible();
   });
 
-  test('features page loads', async ({ page }) => {
+  test('features page loads and guide opens editor', async ({ page }) => {
     await page.goto('/features');
     await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
+    await page.getByRole('button', { name: /your first floor plan/i }).click();
+    await expect(page).toHaveURL(/\/editor$/);
+  });
+
+  test('features page guide opens editor via nav Start Free', async ({ page }) => {
+    await page.goto('/features');
+    await page.getByRole('link', { name: /start free/i }).first().click();
+    await expect(page).toHaveURL(/\/(auth|editor)$/);
+  });
+
+  test('/404 and unknown paths show not found page', async ({ page }) => {
+    await page.goto('/404');
+    await expect(page.getByText('404').first()).toBeVisible();
+
+    await page.goto('/this-route-does-not-exist');
+    await expect(page.getByText('404').first()).toBeVisible();
+  });
+
+  test('/pricing is not registered while flag is off', async ({ page }) => {
+    await page.goto('/pricing');
+    await expect(page.getByText('404').first()).toBeVisible();
+    await expect(page.getByText(/route does not exist|not found/i).first()).toBeVisible();
+  });
+
+  test('/reset-password redirects to auth with notice', async ({ page }) => {
+    await page.goto('/reset-password');
+    await expect(page).toHaveURL(/\/auth$/);
+    await expect(page.getByText(/password reset is not available/i)).toBeVisible();
   });
 });

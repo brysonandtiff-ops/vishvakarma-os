@@ -3,9 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FolderOpen, Loader2, PenTool, Plus, Trash2 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { deleteProject, getProjects } from '@/db/api';
 import { backendStatus } from '@/backend/backendConfig';
+import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localProjects';
+import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
 import type { Project } from '@/types';
 import { toast } from 'sonner';
@@ -16,17 +28,19 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getProjects();
-      setProjects(data);
+      const cloudProjects = backendStatus.isConfigured ? await getProjects() : [];
+      const localProjects = backendStatus.isConfigured ? [] : getLocalWorkspaceProjects();
+      setProjects([...cloudProjects, ...localProjects]);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load projects';
       setError(message);
-      setProjects([]);
+      setProjects(backendStatus.isConfigured ? [] : getLocalWorkspaceProjects());
     } finally {
       setLoading(false);
     }
@@ -40,19 +54,27 @@ export default function ProjectsPage() {
     navigate('/editor', { state: { loadProject: project } });
   };
 
-  const handleDelete = async (project: Project) => {
-    if (isLocalProjectId(project.id)) {
-      toast.message('Local projects', { description: 'Remove local projects from the editor save dialog.' });
-      return;
-    }
+  const handleDeleteConfirmed = async () => {
+    if (!pendingDelete) return;
 
-    if (!window.confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
-
+    const project = pendingDelete;
+    setPendingDelete(null);
     setDeletingId(project.id);
+
     try {
-      await deleteProject(project.id);
-      setProjects((prev) => prev.filter((p) => p.id !== project.id));
-      toast.success('Project deleted');
+      if (isLocalProjectId(project.id) || project.id.startsWith('local-draft-')) {
+        if (project.id.startsWith('local-draft-')) {
+          clearLocalDraft();
+        } else {
+          deleteLocalProject(project.id);
+        }
+        setProjects((prev) => prev.filter((entry) => entry.id !== project.id));
+        toast.success('Local project removed');
+      } else {
+        await deleteProject(project.id);
+        setProjects((prev) => prev.filter((entry) => entry.id !== project.id));
+        toast.success('Project deleted');
+      }
     } catch {
       toast.error('Failed to delete project');
     } finally {
@@ -75,7 +97,7 @@ export default function ProjectsPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               {backendStatus.isConfigured
                 ? `Cloud projects sync via ${cloudLabel}.`
-                : 'Local Draft mode — configure backend env vars for Cloud Save.'}
+                : 'Local Draft mode — projects and auto-saved drafts are stored in this browser.'}
             </p>
           </div>
           <Button asChild className="touch-target">
@@ -108,7 +130,7 @@ export default function ProjectsPage() {
             <FolderOpen className="mx-auto h-10 w-10 text-primary/60" aria-hidden="true" />
             <p className="mt-4 font-semibold text-foreground">No projects yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Open the editor to create a floor plan or load the sample project.
+              Open the editor to create a floor plan, load the sample project, or save a local draft.
             </p>
             <Button asChild className="mt-6 touch-target">
               <Link to="/editor">Open editor</Link>
@@ -118,34 +140,39 @@ export default function ProjectsPage() {
 
         {!loading && !error && projects.length > 0 && (
           <ul className="mt-8 space-y-3">
-            {projects.map((project) => (
-              <li
-                key={project.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/50 p-4"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-foreground">{project.name}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {project.manifest.walls.length} walls · {project.manifest.openings.length} openings ·{' '}
-                    {new Date(project.updated_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="touch-target"
-                    onClick={() => openProject(project)}
-                  >
-                    <PenTool className="mr-1.5 h-3.5 w-3.5" />
-                    Open
-                  </Button>
-                  {!isLocalProjectId(project.id) && (
+            {projects.map((project) => {
+              const isDraft = project.id.startsWith('local-draft-');
+              return (
+                <li
+                  key={project.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/50 p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-foreground">
+                      {project.name}
+                      {isDraft && (
+                        <span className="ml-2 rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                          Draft
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {project.manifest.walls.length} walls · {project.manifest.openings.length} openings ·{' '}
+                      {new Date(project.updated_at).toLocaleDateString()}
+                      {!backendStatus.isConfigured && ' · Local browser'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="touch-target" onClick={() => openProject(project)}>
+                      <PenTool className="mr-1.5 h-3.5 w-3.5" />
+                      Open
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       className="touch-target text-destructive hover:text-destructive"
                       disabled={deletingId === project.id}
-                      onClick={() => void handleDelete(project)}
+                      onClick={() => setPendingDelete(project)}
                       aria-label={`Delete ${project.name}`}
                     >
                       {deletingId === project.id ? (
@@ -154,13 +181,35 @@ export default function ProjectsPage() {
                         <Trash2 className="h-3.5 w-3.5" />
                       )}
                     </Button>
-                  )}
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
+
+      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete
+                ? `"${pendingDelete.name}" will be permanently removed. This cannot be undone.`
+                : 'This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => void handleDeleteConfirmed()}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

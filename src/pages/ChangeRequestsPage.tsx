@@ -13,6 +13,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
+import { backendStatus } from '@/backend/backendConfig';
 import { getChangeRequests, createChangeRequest, updateChangeRequest } from '@/db/api';
 import type { ChangeRequest } from '@/types';
 
@@ -141,6 +143,7 @@ export default function ChangeRequestsPage() {
 
         <ScrollArea className="flex-1">
           <div className="p-6">
+            <GovernanceBackendBanner />
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
               <TabsList className="mb-6 flex-wrap">
                 {statuses.map((status) => (
@@ -253,6 +256,7 @@ function NewChangeRequestDialog({ onRequestCreated }: { onRequestCreated: () => 
   const [type, setType] = useState<'feature' | 'bugfix' | 'enhancement'>('feature');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [requester, setRequester] = useState('');
+  const cloudReady = backendStatus.isConfigured;
 
   const handleCreate = async () => {
     if (!title.trim() || !description.trim()) {
@@ -286,7 +290,7 @@ function NewChangeRequestDialog({ onRequestCreated }: { onRequestCreated: () => 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="shrink-0 touch-target">
+        <Button className="shrink-0 touch-target" disabled={!cloudReady} title={cloudReady ? undefined : 'Requires Firebase cloud backend'}>
           <Plus className="mr-2 h-4 w-4" />
           New Request
         </Button>

@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
+import { backendStatus } from '@/backend/backendConfig';
 import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
 import { buildTextPdf, pdfBytesToBlob } from '@/utils/minimalPdf';
@@ -139,7 +141,14 @@ export default function SpecCenterPage() {
                 Centralized specification management with governance enforcement
               </p>
             </div>
-            <Button size="sm" variant="outline" className="shrink-0" onClick={() => setNewSpecOpen(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0"
+              disabled={!backendStatus.isConfigured}
+              title={backendStatus.isConfigured ? undefined : 'Requires Firebase cloud backend'}
+              onClick={() => setNewSpecOpen(true)}
+            >
               <Plus className="mr-1.5 h-3.5 w-3.5" />
               New Spec
             </Button>
@@ -163,6 +172,7 @@ export default function SpecCenterPage() {
 
         <ScrollArea className="flex-1">
           <div className="mx-auto max-w-5xl space-y-6 p-6">
+            <GovernanceBackendBanner />
             {loadError && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />

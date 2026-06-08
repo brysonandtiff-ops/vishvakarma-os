@@ -55,6 +55,8 @@ import {
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { isLocalProjectId } from '@/editor/localProject';
+import { upsertLocalProject } from '@/editor/localProjects';
+import { dismissOnboarding, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
@@ -121,7 +123,7 @@ function EditorWorkspace() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editorMenuOpen, setEditorMenuOpen] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState(true);
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !isOnboardingDismissed());
   const cloudSave = useCloudSaveStatus();
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
@@ -381,13 +383,15 @@ function EditorWorkspace() {
 
     if (isLocalProjectId(currentProject.id)) {
       const updatedManifest = buildManifest();
-      setCurrentProject({
+      const updatedProject: Project = {
         ...currentProject,
         name: updatedManifest.name,
         description: updatedManifest.description,
         manifest: updatedManifest,
         updated_at: new Date().toISOString(),
-      });
+      };
+      setCurrentProject(updatedProject);
+      upsertLocalProject(updatedProject);
       clearLocalDraft();
       setSaveState('local-draft');
       setLastDraftSavedAt(null);
@@ -630,7 +634,10 @@ function EditorWorkspace() {
                 )}
                 <WelcomeOverlay
                   open={welcomeOpen && showOnboarding}
-                  onDismiss={() => setWelcomeOpen(false)}
+                  onDismiss={() => {
+                    dismissOnboarding();
+                    setWelcomeOpen(false);
+                  }}
                   onNewProject={() => setNewProjectOpen(true)}
                   onLoadSample={loadSampleProject}
                 />

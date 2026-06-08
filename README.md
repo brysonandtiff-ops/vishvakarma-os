@@ -3,9 +3,9 @@
 **An iPad-first, browser-native architectural blueprint editor and live 3D studio — with a strict governance operating system built in.**
 
 [![Lint](https://img.shields.io/badge/lint-0%20errors%20·%20127%20files-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-382%20%2F%20382%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-brightgreen)]()
 [![Build](https://img.shields.io/badge/build-dist%2F%20confirmed-brightgreen)]()
-[![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Supabase-informational)]()
+[![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Firebase-informational)]()
 [![WebGL](https://img.shields.io/badge/WebGL-error%20bounded-brightgreen)]()
 [![UI](https://img.shields.io/badge/UI-premium%20dark%20glass-blueviolet)]()
 
@@ -27,10 +27,11 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 | Stage | Command | Result |
 |---|---|---|
-| **Lint** | `npm run lint` | ✅ 127 files · 0 errors · Biome + tsgo + ast-grep |
-| **Tests** | `npm run test` | ✅ 18 test files · **382 / 382 passing** · 0 failures · ~26 s |
-| **Build** | `npm run build` | ✅ `dist/` created · 2467 modules · 2.3 s · index.html + JS + CSS |
-| **Verify** | `npm run verify` | ✅ lint → test → build all exit 0 |
+| **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
+| **Tests** | `pnpm run test` | Vitest unit/integration suite |
+| **E2E** | `pnpm run test:e2e` | Playwright auth-gate + app-smoke |
+| **Build** | `pnpm run build` | Production build → `dist/` |
+| **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
 
 ```
 # Terminal evidence — npm run verify

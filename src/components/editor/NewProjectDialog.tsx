@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { backendStatus } from '@/backend/backendConfig';
 import { createProject } from '@/db/api';
 import { createLocalProject } from '@/editor/localProject';
+import { upsertLocalProject } from '@/editor/localProjects';
 import { createProjectManifest } from '@/core/projectModel';
 import { getFloorTemplate, TEMPLATE_IDS, type TemplateId } from '@/core/templates';
 import type { Project, ProjectManifest } from '@/types';
@@ -44,6 +45,10 @@ export default function NewProjectDialog({
       const project = backendStatus.isConfigured
         ? await createProject(name.trim(), description.trim() || undefined, initialManifest)
         : createLocalProject(name.trim(), description.trim() || undefined, initialManifest);
+
+      if (!backendStatus.isConfigured) {
+        upsertLocalProject(project);
+      }
 
       toast.success(backendStatus.isConfigured ? 'Project created' : 'Local project ready — draw and save to your browser');
       onOpenChange(false);

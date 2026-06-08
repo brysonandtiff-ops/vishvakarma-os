@@ -13,6 +13,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, Database, Wrench, Box, Layers, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
+import { backendStatus } from '@/backend/backendConfig';
 import { getRegistryEntries, createRegistryEntry } from '@/db/api';
 import type { RegistryEntry } from '@/types';
 
@@ -94,6 +96,7 @@ export default function RegistryPage() {
 
         <ScrollArea className="flex-1">
           <div className="p-6">
+            <GovernanceBackendBanner />
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -220,6 +223,7 @@ function NewRegistryDialog({ onEntryCreated }: { onEntryCreated: () => void }) {
   const [type, setType] = useState<'component' | 'feature' | 'tool'>('component');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'active' | 'deprecated'>('active');
+  const cloudReady = backendStatus.isConfigured;
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -245,7 +249,7 @@ function NewRegistryDialog({ onEntryCreated }: { onEntryCreated: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="shrink-0 touch-target">
+        <Button className="shrink-0 touch-target" disabled={!cloudReady} title={cloudReady ? undefined : 'Requires Firebase cloud backend'}>
           <Plus className="mr-2 h-4 w-4" />
           Register Entry
         </Button>
