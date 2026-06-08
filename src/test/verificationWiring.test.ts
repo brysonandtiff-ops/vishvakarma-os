@@ -30,10 +30,12 @@ describe('verification command wiring', () => {
     expect(workflow).toContain('pnpm run lint');
     expect(workflow).toContain('node scripts/quality/check-vercel-security.mjs');
     expect(workflow).toContain('pnpm run launch:evidence');
-    expect(workflow).toContain('pnpm run test');
+    expect(workflow).toContain('pnpm run test:coverage');
     expect(workflow).toContain('pnpm run test:routes');
     expect(workflow).toContain('pnpm run build');
+    expect(workflow).toContain('pnpm run record:measure');
     expect(workflow).toContain('pnpm run test:e2e');
-    expect(workflow).toContain('actions/upload-artifact@v4');
+    expect(workflow).toMatch(/actions\/upload-artifact@[\da-f]{40} # v4\.6\.2/);
+    expect(workflow).toContain('name: vishvakarma-os-dist');
   });
 });
