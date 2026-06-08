@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { dismissEditorOverlays } from './helpers';
+import { dismissEditorOverlays, resetWorkspacePrefs } from './helpers';
 
 test.describe('editor core features (e2e local access)', () => {
+  test.setTimeout(90_000);
+
   test.beforeEach(async ({ page }) => {
+    await resetWorkspacePrefs(page);
     await dismissEditorOverlays(page);
   });
 

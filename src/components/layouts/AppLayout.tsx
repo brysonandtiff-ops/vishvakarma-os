@@ -71,7 +71,7 @@ function NavItem({
 }) {
   const Icon = item.icon;
   const content = (
-    <Link to={item.path} onClick={onClick}>
+    <Link to={item.path} onClick={onClick} aria-label={item.name}>
       <div
         className={`
           group flex h-10 items-center rounded-xl transition-all duration-150 tap-highlight-none

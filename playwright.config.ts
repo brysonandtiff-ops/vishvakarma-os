@@ -68,7 +68,7 @@ export default defineConfig({
       ],
       use: { ...devices['Desktop Chrome'], hasTouch: true },
       webServer: {
-        command: 'pnpm run preview:e2e',
+        command: 'pnpm run preview:e2e:local',
         url: previewUrl,
         reuseExistingServer,
         timeout: 300_000,
@@ -78,6 +78,15 @@ export default defineConfig({
     {
       name: 'screenshot-pack',
       testMatch: ['**/release-screenshot-pack.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1194, height: 834 },
+        hasTouch: true,
+      },
+    },
+    {
+      name: 'page-reference-pack',
+      testMatch: ['**/page-reference-pack.spec.ts'],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1194, height: 834 },

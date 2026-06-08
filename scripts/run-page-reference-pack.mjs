@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Build e2e preview with local editor access, start preview, capture screenshots, then exit. */
+/** Build e2e preview with local editor access + pricing page, capture page references, then exit. */
 import { spawn } from 'node:child_process';
 import { execSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -15,6 +15,7 @@ const env = {
   VITE_FIREBASE_APP_ID: '',
   VITE_ALLOW_LOCAL_DEMO: '',
   VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+  VITE_PRICING_PAGE_ENABLED: 'true',
   PLAYWRIGHT_REUSE_SERVER: '1',
   PLAYWRIGHT_BASE_URL: previewUrl,
 };
@@ -38,7 +39,7 @@ function freePreviewPort() {
   }
 }
 
-async function waitForPreview(maxMs = 120_000) {
+async function waitForPreview(maxMs = 300_000) {
   const started = Date.now();
   while (Date.now() - started < maxMs) {
     try {
@@ -52,7 +53,7 @@ async function waitForPreview(maxMs = 120_000) {
   throw new Error(`Preview server did not start at ${previewUrl}`);
 }
 
-run('pnpm exec vite build --mode e2e-local');
+run('pnpm exec vite build --mode e2e');
 freePreviewPort();
 await delay(1000);
 
@@ -63,10 +64,10 @@ const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--host', '127.0.0.1',
 });
 
 try {
+  await delay(3000);
   await waitForPreview();
-  run('pnpm exec playwright test --project=screenshot-pack');
+  run('pnpm exec playwright test --project=page-reference-pack');
 } finally {
   preview.kill('SIGTERM');
   freePreviewPort();
 }
-

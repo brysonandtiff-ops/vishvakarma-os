@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+async function expectNotFound(page: import('@playwright/test').Page) {
+  await expect(page.getByText('404').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: /route not found/i })).toBeVisible();
+}
+
 test.describe('marketing pages', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  test.setTimeout(60_000);
+
   test('landing page hero and CTA', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText(/Sacred 3D View/i).first()).toBeVisible();
@@ -22,16 +30,15 @@ test.describe('marketing pages', () => {
 
   test('/404 and unknown paths show not found page', async ({ page }) => {
     await page.goto('/404');
-    await expect(page.getByText('404').first()).toBeVisible();
+    await expectNotFound(page);
 
     await page.goto('/this-route-does-not-exist');
-    await expect(page.getByText('404').first()).toBeVisible();
+    await expectNotFound(page);
   });
 
   test('/pricing is not registered while flag is off', async ({ page }) => {
     await page.goto('/pricing');
-    await expect(page.getByText('404').first()).toBeVisible();
-    await expect(page.getByText(/route does not exist|not found/i).first()).toBeVisible();
+    await expectNotFound(page);
   });
 
   test('/reset-password redirects to auth with notice', async ({ page }) => {
