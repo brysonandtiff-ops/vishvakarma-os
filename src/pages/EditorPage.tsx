@@ -8,13 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Box, FolderOpen, Save } from 'lucide-react';
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
+import { Box, FolderOpen, Loader2, Save } from 'lucide-react';
 import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import EditorTopBar from '@/components/editor/EditorTopBar';
 import RadialToolMenu from '@/components/editor/RadialToolMenu';
 import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import MaterialPicker from '@/components/editor/MaterialPicker';
+import CustomMaterialDialog from '@/components/editor/CustomMaterialDialog';
+import FurniturePicker from '@/components/editor/FurniturePicker';
 import PropertiesPanel from '@/components/editor/PropertiesPanel';
 import SolarTimeline from '@/components/editor/SolarTimeline';
 import ToolRail from '@/components/editor/ToolRail';
@@ -85,6 +88,8 @@ function EditorWorkspace() {
     mepSymbols,
     landscapeElements,
     costItems,
+    materials,
+    dimensionVisibility,
     northOrientation,
     lighting,
     gridSize,
@@ -124,6 +129,9 @@ function EditorWorkspace() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editorMenuOpen, setEditorMenuOpen] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(() => !isOnboardingDismissed());
+  const [selectedLabelId, setSelectedLabelId] = useState<string | undefined>();
+  const [savingProject, setSavingProject] = useState(false);
+  const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
   const cloudSave = useCloudSaveStatus();
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
@@ -280,6 +288,9 @@ function EditorWorkspace() {
       } else if (event.key === 'w' || event.key === 'W') {
         event.preventDefault();
         setTool('wall');
+      } else if (event.key === 'd' && event.shiftKey) {
+        event.preventDefault();
+        engine.setDimensionVisibility(!engine.getDimensionVisibility());
       } else if (event.key === 'd' || event.key === 'D') {
         event.preventDefault();
         setTool('door');
@@ -297,6 +308,9 @@ function EditorWorkspace() {
       } else if (event.key === 't' || event.key === 'T') {
         event.preventDefault();
         setTool('text');
+      } else if (event.key === 'f' || event.key === 'F') {
+        event.preventDefault();
+        setTool('furniture');
       } else if (event.key === 'g' || event.key === 'G') {
         event.preventDefault();
         engine.setGridVisible(!gridVisible);
@@ -381,6 +395,7 @@ function EditorWorkspace() {
       return;
     }
 
+    setSavingProject(true);
     if (isLocalProjectId(currentProject.id)) {
       const updatedManifest = buildManifest();
       const updatedProject: Project = {
@@ -397,6 +412,7 @@ function EditorWorkspace() {
       setLastDraftSavedAt(null);
       setHasUnsavedChanges(false);
       toast.success('Project saved locally');
+      setSavingProject(false);
       return;
     }
 
@@ -411,9 +427,17 @@ function EditorWorkspace() {
       toast.success('Project saved');
     } catch (error) {
       console.error('Failed to save project:', error);
-      toast.error('Failed to save project');
+      const message = error instanceof Error ? error.message : 'Failed to save project';
+      toast.error(message);
+    } finally {
+      setSavingProject(false);
     }
   };
+
+  const selectedLabel = useMemo(
+    () => labels.find((label) => label.id === selectedLabelId),
+    [labels, selectedLabelId],
+  );
 
   const handleLoadProject = useCallback((project: Project) => {
     clearLocalDraft();
@@ -519,8 +543,20 @@ function EditorWorkspace() {
       <div className="mx-4 h-px bg-border" />
       <div className="px-4 py-3">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Materials</p>
-        <MaterialPicker materials={[]} selectedMaterial={selectedMaterial} onMaterialSelect={handleMaterialSelect} />
+        <MaterialPicker materials={materials} selectedMaterial={selectedMaterial} onMaterialSelect={handleMaterialSelect} />
+        <Button variant="outline" size="sm" className="mt-2 w-full" onClick={() => setCustomMaterialOpen(true)}>
+          Add custom material
+        </Button>
       </div>
+      {workspaceMode === 'interior' && (
+        <>
+          <div className="mx-4 h-px bg-border" />
+          <div className="px-4 py-3">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Furniture</p>
+            <FurniturePicker onSelectTool={() => setTool('furniture')} />
+          </div>
+        </>
+      )}
       <div className="mx-4 h-px bg-border" />
       <div className="px-4 py-3">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
@@ -562,8 +598,8 @@ function EditorWorkspace() {
           <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
             <FolderOpen className="h-3.5 w-3.5" /> Open
           </Button>
-          <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject}>
-            <Save className="h-3.5 w-3.5" /> Save
+          <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject} disabled={savingProject}>
+            {savingProject ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
           </Button>
           <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
             Sample
@@ -587,11 +623,13 @@ function EditorWorkspace() {
                   setMousePos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
                 }}
               >
+                <AppErrorBoundary title="Blueprint canvas error">
                 <BlueprintCanvas
                   walls={walls}
                   openings={openings}
                   labels={labels}
                   dimensions={dimensions}
+                  dimensionVisibility={dimensionVisibility}
                   rooms={rooms}
                   furniture={furniture}
                   mepSymbols={mepSymbols}
@@ -605,9 +643,11 @@ function EditorWorkspace() {
                   onOpeningAdd={(opening) => engine.addOpening(opening)}
                   onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
                   onLabelAdd={(label) => engine.addLabel(label)}
-                  onDimensionAdd={(dimension) => engine.addDimension(dimension)}
+                  onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
+                  onDimensionAdd={(dimension) => engine.addDimension({ ...dimension, offset: dimension.offset ?? 24 })}
                   onRoomDetect={handleRoomDetect}
                   onFurnitureAdd={(item) => engine.addFurniture(item)}
+                  onFurnitureUpdate={(furnitureId, updates) => engine.updateFurniture(furnitureId, updates)}
                   onMepSymbolAdd={(symbol) => engine.addMepSymbol(symbol)}
                   onLandscapeAdd={(element) => engine.addLandscapeElement(element)}
                   onPointerCanvasMove={broadcastCollaborationCursor}
@@ -615,8 +655,11 @@ function EditorWorkspace() {
                   onOpeningSelect={(id) => engine.setSelection(undefined, id)}
                   selectedWallId={selectedWallId}
                   selectedOpeningId={selectedOpeningId}
+                  selectedLabelId={selectedLabelId}
+                  onLabelSelect={setSelectedLabelId}
                   unitSystem={unitSystem}
                 />
+                </AppErrorBoundary>
                 <EditorCompassCost
                   northOrientation={northOrientation}
                   costItems={costItems}
@@ -672,11 +715,18 @@ function EditorWorkspace() {
             <PropertiesPanel
               currentTool={currentTool}
               selectedWall={selectedWall}
+              selectedLabel={selectedLabel}
+              selectedRoom={rooms.find((r) => selectedLabel?.text === r.name)}
               openings={openings}
               onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
               onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
               onWallDelete={(wallId) => engine.removeWall(wallId)}
               onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
+              onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
+              onLabelDelete={(labelId) => {
+                engine.removeLabel(labelId);
+                setSelectedLabelId(undefined);
+              }}
               morePanel={morePanel}
             />
           </aside>
@@ -727,6 +777,11 @@ function EditorWorkspace() {
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}
+      />
+      <CustomMaterialDialog
+        open={customMaterialOpen}
+        onOpenChange={setCustomMaterialOpen}
+        onCreate={(material) => engine.addMaterial(material)}
       />
     </>
   );

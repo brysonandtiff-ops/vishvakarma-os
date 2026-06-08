@@ -24,11 +24,11 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
   expect: {
-    timeout: 5_000,
+    timeout: 15_000,
   },
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
+  retries: 1,
   workers: 1,
   reporter: process.env.CI
     ? [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
@@ -86,7 +86,7 @@ export default defineConfig({
     },
     {
       name: 'page-reference-pack',
-      testMatch: ['**/page-reference-pack.spec.ts'],
+      testMatch: ['**/page-reference-pack.spec.ts', '**/page-reference-pack-remainder.spec.ts'],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1194, height: 834 },

@@ -14,7 +14,7 @@ Vishvakarma.OS can be demoed as a strong browser-native architectural prototype.
 |---|---:|---|
 | Internal demo | Allowed | Core app, routes, tests, and build pipeline exist |
 | Private reviewer beta | Allowed after CI artifacts are attached | Needs fresh workflow run and build artifact |
-| Public production launch | Blocked until manual evidence is complete | Requires save/load, 2D/3D parity, iPad touch, performance, and Supabase proof |
+| Public production launch | Blocked until manual evidence is complete | Requires save/load, 2D/3D parity, iPad touch, performance, and Firebase proof |
 
 ---
 
@@ -42,16 +42,16 @@ Exit `2` is not a broken repo. It means the build is not yet publicly launch-cle
 
 ---
 
-## Manual Evidence Required
+## Manual Evidence Required (13-gate manifest)
 
 | Gate | Evidence Required | Launch Impact |
 |---|---|---|
-| Save/load determinism | Supabase-backed save, reload, import/export proof | Blocks public launch |
-| 2D/3D parity | Sample project wall/opening count matches rendered 3D model | Blocks public launch |
-| iPad touch target audit | iPad or coarse-pointer screenshots showing touch-safe controls | Blocks public launch |
-| Performance | Build size, load, interaction, and 3D update evidence | Blocks public launch |
-| Supabase production setup | URL/key configured, migrations applied, auth URL configured | Blocks public launch |
-| Security headers | Deployed header inspection showing CSP/HSTS active | Blocks public launch |
+| Gate 9 — Save/load determinism | Firebase-backed save, reload, import/export proof | Blocks public launch |
+| Gate 10 — 2D/3D parity | Sample project wall/opening count matches rendered 3D model | Blocks public launch |
+| Gate 11 — iPad touch target audit | iPad or coarse-pointer screenshots showing touch-safe controls | Blocks public launch |
+| Gate 12 — Performance | Build size, load, interaction, and 3D update evidence | Blocks public launch |
+| Firebase production setup | API keys configured, Firestore rules deployed, auth domains configured | Blocks public launch |
+| Gate 5 — Security headers | Deployed header inspection showing CSP/HSTS active | Blocks public launch |
 
 ---
 
@@ -70,7 +70,7 @@ latest-ci-run.md
 build-output.txt
 route-smoke-output.txt
 playwright-report-summary.md
-supabase-production-check.md
+firebase-production-check.md
 ipad-touch-audit.md
 2d-3d-parity-proof.md
 save-load-proof.md
@@ -89,8 +89,8 @@ Do not launch publicly if:
 - route production tests fail,
 - build fails,
 - Playwright E2E fails,
-- Supabase migrations are not applied,
-- production env variables are missing,
+- Firestore security rules are not deployed,
+- production Firebase env variables are missing,
 - save/load cannot be proven,
 - WebGL fallback cannot be proven,
 - iPad touch UX has not been checked,
@@ -106,7 +106,7 @@ Allowed:
 - iPad-first 2D drawing workspace.
 - Live 3D model chamber.
 - Governance OS for specs, registry, change requests, releases, and audit logs.
-- Supabase-backed persistence when configured.
+- Firebase-backed persistence when configured.
 
 Blocked unless separately proven:
 
@@ -125,7 +125,7 @@ The fastest value increase is not feature expansion. It is proof hardening:
 
 1. CI green on main.
 2. Public deploy with security headers.
-3. Supabase production proof.
+3. Firebase production proof.
 4. iPad evidence pack.
 5. Save/load determinism proof.
 6. 2D/3D parity proof.

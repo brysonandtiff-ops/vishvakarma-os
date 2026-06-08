@@ -9,10 +9,12 @@ import { detectRoomAtPoint, detectRoomFromWalls } from '@/utils/roomCalculations
 import type {
   CostItem,
   DimensionAnnotation,
+  FixtureItem,
   FurnitureItem,
   Label,
   LandscapeElement,
   LightingConfig,
+  Material,
   MepSymbol,
   Opening,
   Point2D,
@@ -323,8 +325,79 @@ export class FloorPlanEngine {
     this.touchManifest({ labels: [...(this.manifest.labels ?? []), label] });
   }
 
+  updateLabel(labelId: string, updates: Partial<Label>): void {
+    this.touchManifest({
+      labels: (this.manifest.labels ?? []).map((l) => (l.id === labelId ? { ...l, ...updates } : l)),
+    });
+  }
+
+  removeLabel(labelId: string): void {
+    this.touchManifest({
+      labels: (this.manifest.labels ?? []).filter((l) => l.id !== labelId),
+    });
+  }
+
   addDimension(dimension: DimensionAnnotation): void {
     this.touchManifest({ dimensions: [...(this.manifest.dimensions ?? []), dimension] });
+  }
+
+  updateDimension(dimensionId: string, updates: Partial<DimensionAnnotation>): void {
+    this.touchManifest({
+      dimensions: (this.manifest.dimensions ?? []).map((d) =>
+        d.id === dimensionId ? { ...d, ...updates } : d
+      ),
+    });
+  }
+
+  removeDimension(dimensionId: string): void {
+    this.touchManifest({
+      dimensions: (this.manifest.dimensions ?? []).filter((d) => d.id !== dimensionId),
+    });
+  }
+
+  setDimensionVisibility(visible: boolean): void {
+    if ((this.manifest.dimensionVisibility ?? true) === visible) return;
+    this.touchManifest({ dimensionVisibility: visible }, 'Toggle dimensions');
+  }
+
+  getDimensionVisibility(): boolean {
+    return this.manifest.dimensionVisibility ?? true;
+  }
+
+  addMaterial(material: Material): void {
+    this.touchManifest({ materials: [...this.manifest.materials, material] });
+  }
+
+  updateMaterial(materialId: string, updates: Partial<Material>): void {
+    this.touchManifest({
+      materials: this.manifest.materials.map((m) =>
+        m.id === materialId ? { ...m, ...updates } : m
+      ),
+    });
+  }
+
+  removeMaterial(materialId: string): void {
+    this.touchManifest({
+      materials: this.manifest.materials.filter((m) => m.id !== materialId),
+    });
+  }
+
+  addFixture(fixture: FixtureItem): void {
+    this.touchManifest({ fixtures: [...(this.manifest.fixtures ?? []), fixture] });
+  }
+
+  updateFixture(fixtureId: string, updates: Partial<FixtureItem>): void {
+    this.touchManifest({
+      fixtures: (this.manifest.fixtures ?? []).map((f) =>
+        f.id === fixtureId ? { ...f, ...updates } : f
+      ),
+    });
+  }
+
+  removeFixture(fixtureId: string): void {
+    this.touchManifest({
+      fixtures: (this.manifest.fixtures ?? []).filter((f) => f.id !== fixtureId),
+    });
   }
 
   detectAndSyncRooms(name = 'Room'): Room | null {

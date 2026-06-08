@@ -8,7 +8,7 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 |--------|--------|---------|
 | **JSON** | Full round-trip | Backup, import, cloud sync, Project Proof |
 | **PNG** | Partial raster | Quick share / thumbnail (walls only) |
-| **PDF** | Summary sheet | Project name, counts, labels list, material schedule |
+| **PDF** | Visual floor plan | Rasterized plan with walls, labels, dimensions + title block |
 | **DXF** | Basic geometry | Simple CAD import (LINE entities only) |
 
 ## JSON (recommended)
@@ -32,17 +32,15 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 
 ## PDF
 
-**Implementation:** `src/core/exporters/pdfExport.ts` — text summary via `minimalPdf`, not a drawing.
+**Implementation:** `src/core/exporters/pdfExport.ts` — SVG rasterized to JPEG embedded in A4/Letter PDF via `buildVisualPdf`.
 
 **Page content:**
 
-- Project name and export date (title)
-- Wall/opening counts, grid size, snap state
-- Room label list (text only)
-- Dimension coordinate list (text only)
-- Per-wall material schedule
+- Title block (project name + export date)
+- Rasterized 2D floor plan with walls, labels, and dimension lines
+- A4 landscape (default) or Letter sizing
 
-**Not suitable for:** Scaled floor plans, title blocks, room schedules with areas, or permit submissions.
+**Limitations:** Opening markers not drawn on raster; not a CAD vector export. Use DXF or JSON for CAD handoff.
 
 ## DXF
 
@@ -67,8 +65,8 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 
 In **Export Package** dialog, PDF and DXF buttons are disabled on **Starter** tier in code (`tier === 'starter'`). JSON and PNG remain available. Studio/Enterprise tiers enable all four buttons in the current build.
 
-## Future improvements (not in this release)
+## Future improvements
 
-- PNG: openings, labels, dimensions on raster
+- PNG: openings on raster
 - PDF: vector floor plan page with scale bar
 - DXF: proper blocks for doors/windows, unit metadata, room polylines

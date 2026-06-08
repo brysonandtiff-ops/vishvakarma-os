@@ -34,10 +34,13 @@ export const MATERIAL_PRESETS: Material[] = [
   },
 ];
 
-export function getMaterialVisual(materialId: string): { color: string; roughness: number; metalness: number } {
-  const preset = MATERIAL_PRESETS.find((material) => material.id === materialId);
-  if (preset) {
-    return { color: preset.color, roughness: preset.roughness, metalness: preset.metalness ?? 0.06 };
+export function getMaterialVisual(
+  materialId: string,
+  customMaterials: Material[] = [],
+): { color: string; roughness: number; metalness: number } {
+  const material = [...MATERIAL_PRESETS, ...customMaterials].find((entry) => entry.id === materialId);
+  if (material) {
+    return { color: material.color, roughness: material.roughness, metalness: material.metalness ?? 0.06 };
   }
   return { color: '#B5A58F', roughness: 0.72, metalness: 0.06 };
 }

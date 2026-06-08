@@ -64,8 +64,8 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 | **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
 | **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes — see Application Routes |
 | **Extended ToolRail** | ✅ Built | Room, Vastu, MEP, Furniture, Landscape tools wired to canvas + 3D |
-| **OAuth Sign-in** | ✅ Built | Google/Apple via Firebase or Supabase when backend configured |
-| **Collaboration bar** | ✅ Built | Supabase Realtime presence when connected; local session fallback |
+| **OAuth Sign-in** | ✅ Built | Google/Apple via Firebase when backend configured |
+| **Collaboration bar** | ✅ Built | Local session presence; Firebase Realtime planned for v2 |
 | **Spec Center** | ✅ Built | `SpecCenterPage.tsx` (10 KB) — locked spec cards, SHA-256 hash display, stats row |
 | **Registry** | ✅ Built | `RegistryPage.tsx` (12 KB) — entry cards with type icons, grid layout, improved empty state with "view all" action |
 | **Change Requests** | ✅ Built | `ChangeRequestsPage.tsx` (15 KB) — priority badges, status workflow, tab counts, improved empty states with CTAs |
@@ -73,17 +73,17 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 | **Audit Log** | ✅ Built | `AuditLogPage.tsx` (8 KB) — timeline layout, date grouping, action badges, empty state with editor CTA |
 | **Core Modules** | ✅ Built | 12 modules — canvas engine, governance lock, version control, export/import, format validator, theme manager, accessibility layer, collaboration engine, element lock, multi-user governance |
 | **Design System** | ✅ Built | `index.css` (288 lines) — dark/light mode tokens, glass panels, glow effects, elevation system, semantic colours |
-| **Supabase Layer** | ✅ Built | `src/db/api.ts` — CRUD wrappers for all tables |
+| **Firebase Layer** | ✅ Built | `src/backend/firebase/` — Firestore CRUD via `src/db/api.ts` |
 | **Onboarding** | ✅ Built | First-run panel on empty editor canvas with sample project CTA and new project CTA |
-| **Save Mode Badge** | ✅ Built | Supabase / Local mode pill shown in editor toolbar |
+| **Save Mode Badge** | ✅ Built | Firebase / Local mode pill shown in editor toolbar |
 | **2D→3D Sync Indicator** | ✅ Built | Pulse indicator in editor toolbar fires when walls/openings change |
 
 ### Known Limitations ⚠️
 
 | Area | Status | Notes |
 |---|---|---|
-| **Supabase persistence** | ⚠️ Config-dependent | Requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. App works in local-only mode without them — save/load is unavailable but all editing features function. |
-| **Real-time collaboration** | ⚠️ Stubbed | `collaborationEngine.ts` and `multiUserGovernance.ts` exist and are unit-tested, but depend on Supabase Realtime which requires a live connection. |
+| **Firebase persistence** | ⚠️ Config-dependent | Requires `VITE_FIREBASE_*` vars. App works in local-only mode without them — cloud save unavailable but all editing features function. |
+| **Real-time collaboration** | ⚠️ Stubbed | `collaborationEngine.ts` exists and is unit-tested; production Realtime wiring planned for v2. |
 | **Bundle size** | ⚠️ Large | 1.5 MB JS chunk — Three.js and React Three Fiber are the main contributors. Code-splitting is a future optimisation. |
 
 ### File Inventory
@@ -109,7 +109,7 @@ dist/assets/index-B76kAsh9.js   1,512.57 kB
 - Wall properties: length, height, thickness, material
 - Door and window openings with sill height control
 - Undo / redo with full history stack
-- Save and load projects via Supabase persistence
+- Save and load projects via Firebase Firestore persistence
 - Export project as JSON · Import from JSON file
 - Load sample project for instant onboarding
 

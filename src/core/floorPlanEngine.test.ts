@@ -55,4 +55,21 @@ describe('FloorPlanEngine', () => {
     engine.setNorthOrientation(135);
     expect(engine.getNorthOrientation()).toBe(135);
   });
+
+  it('updates and removes labels', () => {
+    const engine = FloorPlanEngine.getInstance();
+    engine.addLabel({ id: 'l1', text: 'Room', position: { x: 10, y: 10 } });
+    engine.updateLabel('l1', { text: 'Kitchen', fontSize: 18 });
+    expect(engine.getLabels()[0].text).toBe('Kitchen');
+    engine.removeLabel('l1');
+    expect(engine.getLabels()).toHaveLength(0);
+  });
+
+  it('toggles dimension visibility', () => {
+    const engine = FloorPlanEngine.getInstance();
+    expect(engine.getDimensionVisibility()).toBe(true);
+    engine.setDimensionVisibility(false);
+    expect(engine.getDimensionVisibility()).toBe(false);
+    expect(engine.buildManifest().dimensionVisibility).toBe(false);
+  });
 });

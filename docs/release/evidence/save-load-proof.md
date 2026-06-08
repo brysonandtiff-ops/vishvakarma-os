@@ -1,7 +1,7 @@
 # Save / Load Determinism Proof
 
-Generated at: 2026-05-31T12:00:00.000Z
-Operator: Vitest import/export/localDraft + Playwright editor-features
+Generated at: 2026-06-08T12:00:00.000Z
+Operator: Vitest saveLoadDeterminism + import/export/localDraft + Playwright editor-features
 Result: PASS
 
 ## Purpose
@@ -29,5 +29,5 @@ Prove Vishvakarma.OS can preserve a project through save, reload, export, and im
 ## Verdict
 
 ```txt
-Result: PASS — local draft save/reload verified in Playwright; import/export covered by unit tests. Cloud Supabase proof optional when production env is configured.
+Result: PASS — full manifest round-trip test (walls, openings, labels, dimensions, furniture, materials); local draft + Playwright reload; Firebase cloud proof requires operator staging smoke.
 ```

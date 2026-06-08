@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FolderOpen, Loader2, PenTool, Plus, Trash2 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { deleteProject, getProjects } from '@/db/api';
 import { backendStatus } from '@/backend/backendConfig';
 import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localProjects';
@@ -29,6 +30,8 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
 
   const loadProjects = useCallback(async () => {
     setLoading(true);
@@ -80,6 +83,57 @@ export default function ProjectsPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const filteredProjects = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return projects.filter((project) => {
+      if (!showArchived && project.description?.includes('[archived]')) return false;
+      if (!query) return true;
+      return (
+        project.name.toLowerCase().includes(query) ||
+        (project.description ?? '').toLowerCase().includes(query)
+      );
+    });
+  }, [projects, searchQuery, showArchived]);
+
+  const duplicateProject = (project: Project) => {
+    const copy: Project = {
+      ...project,
+      id: `local-${crypto.randomUUID()}`,
+      name: `${project.name} (copy)`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      manifest: {
+        ...project.manifest,
+        name: `${project.name} (copy)`,
+        metadata: {
+          ...project.manifest.metadata,
+          modified: new Date().toISOString(),
+        },
+      },
+    };
+    if (backendStatus.isConfigured) {
+      toast.info('Duplicate saved locally — sign in to cloud-save copies.');
+    }
+    navigate('/editor', { state: { loadProject: copy } });
+  };
+
+  const toggleArchive = async (project: Project) => {
+    const archived = project.description?.includes('[archived]');
+    const nextDescription = archived
+      ? (project.description ?? '').replace('[archived]', '').trim()
+      : `${project.description ?? ''} [archived]`.trim();
+    if (isLocalProjectId(project.id)) {
+      setProjects((prev) =>
+        prev.map((entry) =>
+          entry.id === project.id ? { ...entry, description: nextDescription } : entry,
+        ),
+      );
+      toast.success(archived ? 'Project restored' : 'Project archived');
+      return;
+    }
+    toast.info('Archive tag updated locally — cloud sync requires save in editor.');
   };
 
   const cloudLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
@@ -139,8 +193,25 @@ export default function ProjectsPage() {
         )}
 
         {!loading && !error && projects.length > 0 && (
-          <ul className="mt-8 space-y-3">
-            {projects.map((project) => {
+          <>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Input
+              placeholder="Search projects…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs"
+              aria-label="Search projects"
+            />
+            <Button
+              variant={showArchived ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowArchived((v) => !v)}
+            >
+              {showArchived ? 'Hide archived' : 'Show archived'}
+            </Button>
+          </div>
+          <ul className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto">
+            {filteredProjects.map((project) => {
               const isDraft = project.id.startsWith('local-draft-');
               return (
                 <li
@@ -167,6 +238,12 @@ export default function ProjectsPage() {
                       <PenTool className="mr-1.5 h-3.5 w-3.5" />
                       Open
                     </Button>
+                    <Button size="sm" variant="outline" className="touch-target" onClick={() => duplicateProject(project)}>
+                      Duplicate
+                    </Button>
+                    <Button size="sm" variant="ghost" className="touch-target" onClick={() => void toggleArchive(project)}>
+                      {project.description?.includes('[archived]') ? 'Restore' : 'Archive'}
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -186,6 +263,7 @@ export default function ProjectsPage() {
               );
             })}
           </ul>
+          </>
         )}
       </div>
 

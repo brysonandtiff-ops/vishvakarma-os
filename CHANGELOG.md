@@ -2,6 +2,24 @@
 
 All notable changes to Vishvakarma.OS are documented in this file.
 
+## [1.1.1] - 2026-06-08
+
+### Added
+- Visual PDF export with rasterized floor plan, labels, and dimensions
+- Opening drag handles, position % overlay, and single-step undo on commit
+- Label double-click edit, properties panel font/color controls
+- Dimension leader lines and Shift+D visibility toggle
+- Custom material dialog, furniture picker, F shortcut, furniture drag
+- Projects page search, archive, and duplicate
+- Save/load determinism and 2D/3D parity automated tests
+- MIGRATION.md, SECURITY.md, CONTRIBUTING.md, DEPLOYMENT.md
+- API retry, structured logger, monitoring and analytics consent scaffold
+- v2 architecture doc and RFC backlog index
+
+### Changed
+- Firebase-only documentation reconciled across README and launch docs
+- NEXT_STEPS.md synced to 13-gate manifest and current implementation status
+
 ## [1.1.0] - 2026-05-29
 
 ### Added

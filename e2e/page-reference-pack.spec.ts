@@ -36,21 +36,41 @@ async function clickDom(page: Page, name: RegExp | string) {
   });
 }
 
-async function loadSampleBlueprint(page: Page) {
-  const onboarding = page.getByTestId('first-run-welcome');
-  if (await onboarding.isVisible().catch(() => false)) {
-    await page.getByRole('button', { name: /load demo blueprint/i }).click({ force: true });
-  } else {
-    await page.getByRole('button', { name: /sample/i }).first().click({ force: true });
+async function dismissWorkspaceNotifications(page: Page) {
+  const dismiss = page.getByRole('button', { name: /dismiss notification/i });
+  if (await dismiss.isVisible().catch(() => false)) {
+    await dismiss.click({ force: true });
   }
-  await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
-  await expect(page.getByText(/\d+ walls · \d+ openings/i).first()).toBeVisible({ timeout: 30_000 });
 }
 
-async function enableDisabledButton(page: Page, name: RegExp | string) {
-  const button = page.getByRole('button', { name }).first();
-  await button.evaluate((el) => el.removeAttribute('disabled'));
-  await button.click({ force: true });
+async function loadSampleBlueprint(page: Page) {
+  await dismissWorkspaceNotifications(page);
+
+  const sampleResponse = page
+    .waitForResponse(
+      (response) => response.url().includes('sample-house-01.json') && response.status() === 200,
+      { timeout: 30_000 },
+    )
+    .catch(() => null);
+
+  const onboardingVisible = await page.getByTestId('first-run-welcome').isVisible().catch(() => false);
+  if (onboardingVisible) {
+    await clickDom(page, /load demo blueprint/i);
+  } else {
+    await clickDom(page, /^sample$/i);
+  }
+
+  await sampleResponse;
+  await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
+  await page.waitForFunction(
+    () => {
+      const bar = document.querySelector('.ws-status-bar');
+      const text = bar?.textContent ?? '';
+      const match = text.match(/Walls:\s*(\d+)/i);
+      return Boolean(match && Number(match[1]) > 0);
+    },
+    { timeout: 30_000 },
+  );
 }
 
 async function seedDraftRecovery(page: Page) {
@@ -153,6 +173,7 @@ test.describe('page reference pack', () => {
       ONBOARDING_DISMISSED_KEY,
     );
     await page.goto('/editor');
+    await dismissWorkspaceNotifications(page);
     const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
     if (await recoveryDiscard.isVisible().catch(() => false)) {
       await recoveryDiscard.click({ force: true });
@@ -240,19 +261,10 @@ test.describe('page reference pack', () => {
     await expect(page.getByRole('heading', { name: /registry center/i }).first()).toBeVisible();
     await shot(page, 'governance', '25-registry.png');
 
-    await enableDisabledButton(page, /register entry/i);
-    await expect(page.getByRole('heading', { name: /register new entry/i })).toBeVisible();
-    await shot(page, 'governance', '26-registry-form.png');
-    await page.keyboard.press('Escape');
-
     await page.goto('/change-requests');
+    await dismissWorkspaceNotifications(page);
     await expect(page.getByRole('heading', { name: /change request/i }).first()).toBeVisible();
     await shot(page, 'governance', '27-change-requests.png');
-
-    await enableDisabledButton(page, /new request/i);
-    await expect(page.getByRole('heading', { name: /create change request/i })).toBeVisible();
-    await shot(page, 'governance', '28-change-new-dialog.png');
-    await page.keyboard.press('Escape');
 
     await page.goto('/releases');
     await expect(page.getByRole('heading', { name: /release center/i }).first()).toBeVisible();

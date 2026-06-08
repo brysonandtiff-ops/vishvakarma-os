@@ -47,3 +47,59 @@ export function buildTextPdf(title: string, lines: string[]): Uint8Array {
 export function pdfBytesToBlob(pdfBytes: Uint8Array): Blob {
   return new Blob([Uint8Array.from(pdfBytes)], { type: 'application/pdf' });
 }
+
+/** A4 landscape media box with embedded JPEG floor plan + title block */
+export function buildVisualPdf(
+  title: string,
+  subtitle: string,
+  jpegBytes: Uint8Array,
+  pageSize: 'a4' | 'letter' = 'a4',
+): Uint8Array {
+  const mediaBox = pageSize === 'letter' ? '[0 0 792 612]' : '[0 0 842 595]';
+  const pageW = pageSize === 'letter' ? 792 : 842;
+  const pageH = pageSize === 'letter' ? 612 : 595;
+
+  let binary = '';
+  for (const byte of jpegBytes) {
+    binary += String.fromCharCode(byte);
+  }
+  const imageData = btoa(binary);
+
+  const imageObj = `6 0 obj\n<< /Type /XObject /Subtype /Image /Width 1200 /Height 800 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`;
+  const imageEnd = '\nendstream\nendobj\n';
+
+  const contentOps = [
+    'BT /F1 16 Tf 40 560 Td',
+    `(${escapePdfText(title)}) Tj ET`,
+    'BT /F1 10 Tf 40 540 Td',
+    `(${escapePdfText(subtitle)}) Tj ET`,
+    `q ${pageW - 80} 0 0 ${pageH - 120} 40 40 cm /Im1 Do Q`,
+  ].join('\n');
+
+  const content = `stream\n${contentOps}\nendstream`;
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox ${mediaBox} /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> >>\nendobj\n`,
+    `4 0 obj\n<< /Length ${byteLength(contentOps)} >>\n${content}\nendobj\n`,
+    '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n',
+    `${imageObj}${imageData}${imageEnd}`,
+  ];
+
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(byteLength(pdf));
+    pdf += object;
+  }
+
+  const xrefStart = byteLength(pdf);
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += '0000000000 65535 f \n';
+  for (let i = 1; i <= objects.length; i++) {
+    pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+
+  return new TextEncoder().encode(pdf);
+}

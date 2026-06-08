@@ -26,6 +26,9 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[Vishvakarma.OS] UI error boundary caught:', error, info.componentStack);
+    void import('@/lib/monitoring').then(({ captureException }) => {
+      captureException(error, { componentStack: info.componentStack ?? '' });
+    });
   }
 
   render() {

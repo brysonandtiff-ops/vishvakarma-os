@@ -13,7 +13,7 @@ pnpm install --frozen-lockfile
 cp .env.example .env.local
 ```
 
-Configure Firebase auth and Supabase data variables in `.env.local`.
+Configure Firebase Auth and Firestore variables in `.env.local` (see `.env.example`).
 
 ## Development
 
@@ -36,7 +36,7 @@ pnpm run production:evidence
 ## Production checklist
 
 1. Configure Firebase email-link auth and authorized domains
-2. Configure Supabase URL/anon key and apply migrations
-3. Set Vercel environment variables for both providers
+2. Deploy Firestore security rules (`firebase deploy --only firestore:rules`)
+3. Set Vercel Firebase environment variables (see `docs/release/VERCEL_ENV.md`)
 4. Run `pnpm run production:verify-env --strict`
 5. Attach evidence under `docs/release/evidence/`

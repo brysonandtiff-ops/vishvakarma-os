@@ -53,12 +53,13 @@ test.describe('workspace navigation (e2e local access)', () => {
 
   test('command palette jumps to profile and spec center', async ({ page }) => {
     await dismissEditorOverlays(page);
-    await page.getByRole('button', { name: /open command palette/i }).click();
+    await page.keyboard.press('Control+K');
+    await expect(page.getByPlaceholder(/jump to a workspace/i)).toBeVisible({ timeout: 15_000 });
     await page.getByPlaceholder(/jump to a workspace/i).fill('Profile');
     await page.getByRole('option', { name: /profile/i }).click();
     await expect(page).toHaveURL(/\/profile$/);
 
-    await page.getByRole('button', { name: /open command palette/i }).click();
+    await page.keyboard.press('Control+K');
     await page.getByPlaceholder(/jump to a workspace/i).fill('Spec Center');
     await page.getByRole('option', { name: /spec center/i }).click();
     await expect(page).toHaveURL(/\/spec-center$/);

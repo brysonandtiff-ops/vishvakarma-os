@@ -96,21 +96,59 @@ export function drawOpening(
   ctx: CanvasRenderingContext2D,
   wall: Wall,
   opening: Opening,
-  options: { hovered: boolean; unitSystem: UnitSystem },
+  options: {
+    hovered: boolean;
+    selected?: boolean;
+    dragging?: boolean;
+    dragPositionPercent?: number;
+    unitSystem: UnitSystem;
+  },
 ) {
-  const x = wall.start.x + (wall.end.x - wall.start.x) * opening.position;
-  const y = wall.start.y + (wall.end.y - wall.start.y) * opening.position;
+  const position = options.dragging && options.dragPositionPercent !== undefined
+    ? options.dragPositionPercent
+    : opening.position;
+  const x = wall.start.x + (wall.end.x - wall.start.x) * position;
+  const y = wall.start.y + (wall.end.y - wall.start.y) * position;
   const color = opening.type === 'door' ? '#C85A54' : '#C8963A';
 
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(x, y, options.hovered ? 10 : 8, 0, Math.PI * 2);
+  ctx.arc(x, y, options.hovered || options.selected ? 10 : 8, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = '#F5F1E8';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  if (!options.hovered) return;
+  if (options.selected || options.dragging) {
+    const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
+    const handleOffset = 18;
+    for (const sign of [-1, 1]) {
+      const hx = x + Math.cos(wallAngle) * handleOffset * sign;
+      const hy = y + Math.sin(wallAngle) * handleOffset * sign;
+      ctx.fillStyle = '#B8941F';
+      ctx.beginPath();
+      ctx.arc(hx, hy, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#F5F1E8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  if (options.dragging && options.dragPositionPercent !== undefined) {
+    ctx.fillStyle = 'rgba(249, 246, 240, 0.95)';
+    ctx.fillRect(x - 28, y - 36, 56, 20);
+    ctx.strokeStyle = '#B8941F';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - 28, y - 36, 56, 20);
+    ctx.fillStyle = '#2C2C2C';
+    ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${Math.round(position * 100)}%`, x, y - 26);
+  }
+
+  if (!options.hovered && !options.selected && !options.dragging) return;
 
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
@@ -226,19 +264,51 @@ export function drawDimension(
   preview = false,
 ) {
   const length = Math.hypot(dimension.end.x - dimension.start.x, dimension.end.y - dimension.start.y);
-  const midX = (dimension.start.x + dimension.end.x) / 2;
-  const midY = (dimension.start.y + dimension.end.y) / 2;
+  const dx = dimension.end.x - dimension.start.x;
+  const dy = dimension.end.y - dimension.start.y;
+  const angle = Math.atan2(dy, dx);
+  const offset = dimension.offset ?? 24;
+  const perpX = Math.sin(angle) * offset;
+  const perpY = -Math.cos(angle) * offset;
 
-  ctx.strokeStyle = preview ? 'rgba(184, 148, 31, 0.6)' : '#B8941F';
+  const dimStart = { x: dimension.start.x + perpX, y: dimension.start.y + perpY };
+  const dimEnd = { x: dimension.end.x + perpX, y: dimension.end.y + perpY };
+  const midX = (dimStart.x + dimEnd.x) / 2;
+  const midY = (dimStart.y + dimEnd.y) / 2;
+
+  const strokeColor = preview ? 'rgba(184, 148, 31, 0.6)' : '#B8941F';
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = preview ? 1 : 1.5;
+  ctx.setLineDash([4, 3]);
+
+  for (const [from, to] of [
+    [dimension.start, dimStart],
+    [dimension.end, dimEnd],
+  ] as const) {
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
   ctx.lineWidth = preview ? 1 : 2;
   ctx.beginPath();
-  ctx.moveTo(dimension.start.x, dimension.start.y);
-  ctx.lineTo(dimension.end.x, dimension.end.y);
+  ctx.moveTo(dimStart.x, dimStart.y);
+  ctx.lineTo(dimEnd.x, dimEnd.y);
   ctx.stroke();
+
+  const tick = 6;
+  for (const point of [dimStart, dimEnd]) {
+    ctx.beginPath();
+    ctx.moveTo(point.x - Math.sin(angle) * tick, point.y + Math.cos(angle) * tick);
+    ctx.lineTo(point.x + Math.sin(angle) * tick, point.y - Math.cos(angle) * tick);
+    ctx.stroke();
+  }
 
   ctx.fillStyle = preview ? 'rgba(249, 246, 240, 0.85)' : '#F9F6F0';
   ctx.fillRect(midX - 36, midY - 12, 72, 24);
-  ctx.strokeStyle = '#B8941F';
+  ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 1;
   ctx.strokeRect(midX - 36, midY - 12, 72, 24);
   ctx.fillStyle = '#2C2C2C';

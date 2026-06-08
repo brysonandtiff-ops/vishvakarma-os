@@ -6,6 +6,14 @@ Capture these assets for demo decks, store listings, and `FINAL_CLEANUP_EVIDENCE
 **Recommended viewport:** iPad 11 landscape — 1194×834 (Playwright `iPad (gen 7) landscape`)  
 **Also capture:** Desktop 1440×900 for marketing pages
 
+## Full page reference pack (development)
+
+For a complete per-route reference library (31 automated captures + manual checklist), see [PAGE_REFERENCE.md](../../design/page-references/PAGE_REFERENCE.md) and run:
+
+```bash
+pnpm run capture:page-references
+```
+
 ## Automated capture
 
 ```bash

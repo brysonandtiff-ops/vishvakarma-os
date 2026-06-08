@@ -6,6 +6,10 @@ import { RouteGuard } from '@/components/common/RouteGuard';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import '@/styles/vish-editor-mantra.css';
+import { initMonitoring } from '@/lib/monitoring';
+import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
+
+initMonitoring();
 
 import NotFound from './pages/NotFound';
 import routes from './routes';
@@ -28,6 +32,7 @@ const App: React.FC = () => {
               </AppErrorBoundary>
             </main>
           </div>
+          <AnalyticsConsentBanner />
           <Toaster />
         </RouteGuard>
       </AuthProvider>

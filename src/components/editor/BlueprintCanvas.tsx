@@ -47,9 +47,14 @@ interface BlueprintCanvasProps {
   onOpeningAdd: (opening: Opening) => void;
   onOpeningUpdate?: (openingId: string, updates: Partial<Opening>) => void;
   onLabelAdd?: (label: Label) => void;
+  onLabelUpdate?: (labelId: string, updates: Partial<Label>) => void;
   onDimensionAdd?: (dimension: DimensionAnnotation) => void;
+  dimensionVisibility?: boolean;
   onRoomDetect?: (point: Point2D) => void;
   onFurnitureAdd?: (item: FurnitureItem) => void;
+  onFurnitureUpdate?: (furnitureId: string, updates: Partial<FurnitureItem>) => void;
+  selectedLabelId?: string;
+  onLabelSelect?: (labelId: string | undefined) => void;
   onMepSymbolAdd?: (symbol: MepSymbol) => void;
   onLandscapeAdd?: (element: LandscapeElement) => void;
   onPointerCanvasMove?: (point: Point2D) => void;
@@ -125,10 +130,15 @@ export default function BlueprintCanvas({
   onOpeningAdd,
   onOpeningUpdate,
   onLabelAdd,
+  onLabelUpdate,
   onDimensionAdd,
+  dimensionVisibility = true,
   onRoomDetect,
   onFurnitureAdd,
+  onFurnitureUpdate,
   onMepSymbolAdd,
+  selectedLabelId,
+  onLabelSelect,
   onLandscapeAdd,
   onPointerCanvasMove,
   onWallSelect,
@@ -151,6 +161,13 @@ export default function BlueprintCanvas({
     type: 'door' | 'window';
   } | null>(null);
   const [draggingOpeningId, setDraggingOpeningId] = useState<string | null>(null);
+  const [dragOpeningPosition, setDragOpeningPosition] = useState<number | null>(null);
+  const [draggingFurnitureId, setDraggingFurnitureId] = useState<string | null>(null);
+  const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
+  const [editingLabelText, setEditingLabelText] = useState('');
+  const gridLayerRef = useRef<HTMLCanvasElement | null>(null);
+  const [gridLayerRevision, setGridLayerRevision] = useState(0);
+  const [dragFurniturePosition, setDragFurniturePosition] = useState<Point2D | null>(null);
   const [dimensionStart, setDimensionStart] = useState<Point2D | null>(null);
   const [furniturePresetIndex, setFurniturePresetIndex] = useState(0);
   const [mepTypeIndex, setMepTypeIndex] = useState(0);
@@ -215,10 +232,38 @@ export default function BlueprintCanvas({
     (point: Point2D, mode: InputMode) => openings.find((opening) => {
       const wall = walls.find((candidate) => candidate.id === opening.wallId);
       if (!wall) return false;
-      const x = wall.start.x + (wall.end.x - wall.start.x) * opening.position;
-      const y = wall.start.y + (wall.end.y - wall.start.y) * opening.position;
+      const pos = opening.id === draggingOpeningId && dragOpeningPosition !== null
+        ? dragOpeningPosition
+        : opening.position;
+      const x = wall.start.x + (wall.end.x - wall.start.x) * pos;
+      const y = wall.start.y + (wall.end.y - wall.start.y) * pos;
       return Math.hypot(point.x - x, point.y - y) < getHitArea(mode, 15);
-    }), [openings, walls]);
+    }), [dragOpeningPosition, draggingOpeningId, openings, walls]);
+
+  const getLabelAtPoint = useCallback(
+    (point: Point2D) => labels.find((label) => {
+      const size = (label.fontSize ?? 14) * (label.text.length * 0.45);
+      return (
+        point.x >= label.position.x - 4 &&
+        point.x <= label.position.x + size &&
+        point.y >= label.position.y - (label.fontSize ?? 14) &&
+        point.y <= label.position.y + 4
+      );
+    }),
+    [labels],
+  );
+
+  const getFurnitureAtPoint = useCallback(
+    (point: Point2D, mode: InputMode) => furniture.find((item) => {
+      const width = item.width ?? 80;
+      const depth = item.depth ?? 60;
+      return (
+        Math.abs(point.x - item.position.x) < width / 2 + getHitArea(mode, 4) &&
+        Math.abs(point.y - item.position.y) < depth / 2 + getHitArea(mode, 4)
+      );
+    }),
+    [furniture],
+  );
 
   const placeOpening = (point: Point2D, mode: InputMode) => {
     if (currentTool !== 'door' && currentTool !== 'window') return;
@@ -273,11 +318,32 @@ export default function BlueprintCanvas({
       if (opening) {
         onOpeningSelect?.(opening.id);
         onWallSelect(undefined);
+        onLabelSelect?.(undefined);
         setDraggingOpeningId(opening.id);
+        setDragOpeningPosition(opening.position);
+        return;
+      }
+
+      const furnitureItem = getFurnitureAtPoint(point, mode);
+      if (furnitureItem && onFurnitureUpdate) {
+        onOpeningSelect?.(undefined);
+        onWallSelect(undefined);
+        onLabelSelect?.(undefined);
+        setDraggingFurnitureId(furnitureItem.id);
+        setDragFurniturePosition(furnitureItem.position);
+        return;
+      }
+
+      const label = getLabelAtPoint(point);
+      if (label) {
+        onLabelSelect?.(label.id);
+        onOpeningSelect?.(undefined);
+        onWallSelect(undefined);
         return;
       }
 
       onOpeningSelect?.(undefined);
+      onLabelSelect?.(undefined);
       onWallSelect(getWallAtPoint(point, getHitArea(mode, 5))?.id);
       return;
     }
@@ -365,12 +431,17 @@ export default function BlueprintCanvas({
       return;
     }
 
-    if (draggingOpeningId && onOpeningUpdate) {
+    if (draggingOpeningId) {
       const opening = openings.find((item) => item.id === draggingOpeningId);
       const wall = opening ? walls.find((candidate) => candidate.id === opening.wallId) : undefined;
       if (opening && wall) {
-        onOpeningUpdate(opening.id, { position: snapOpeningPosition(positionOnWall(point, wall)) });
+        setDragOpeningPosition(snapOpeningPosition(positionOnWall(point, wall)));
       }
+      return;
+    }
+
+    if (draggingFurnitureId) {
+      setDragFurniturePosition(point);
       return;
     }
 
@@ -420,8 +491,37 @@ export default function BlueprintCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+
+    if (draggingOpeningId && onOpeningUpdate && dragOpeningPosition !== null) {
+      onOpeningUpdate(draggingOpeningId, { position: dragOpeningPosition });
+    }
+
+    if (draggingFurnitureId && onFurnitureUpdate && dragFurniturePosition) {
+      onFurnitureUpdate(draggingFurnitureId, { position: dragFurniturePosition });
+    }
+
     setDraggingOpeningId(null);
+    setDragOpeningPosition(null);
+    setDraggingFurnitureId(null);
+    setDragFurniturePosition(null);
     finishWallDrawing(event);
+  };
+
+  const handleDoubleClick = (event: CanvasPointerEvent) => {
+    const point = getCanvasPoint(event);
+    const label = getLabelAtPoint(point);
+    if (!label || !onLabelUpdate) return;
+    setEditingLabelId(label.id);
+    setEditingLabelText(label.text);
+    onLabelSelect?.(label.id);
+  };
+
+  const commitLabelEdit = () => {
+    if (editingLabelId && onLabelUpdate && editingLabelText.trim()) {
+      onLabelUpdate(editingLabelId, { text: editingLabelText.trim() });
+    }
+    setEditingLabelId(null);
+    setEditingLabelText('');
   };
 
   const handlePointerCancel = (event: CanvasPointerEvent) => {
@@ -430,6 +530,9 @@ export default function BlueprintCanvas({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     setDraggingOpeningId(null);
+    setDragOpeningPosition(null);
+    setDraggingFurnitureId(null);
+    setDragFurniturePosition(null);
     setDimensionStart(null);
     setIsDrawing(false);
     setStartPoint(null);
@@ -439,13 +542,34 @@ export default function BlueprintCanvas({
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (!gridLayerRef.current) {
+      gridLayerRef.current = document.createElement('canvas');
+    }
+    const gridLayer = gridLayerRef.current;
+    gridLayer.width = canvas.width;
+    gridLayer.height = canvas.height;
+    const gridCtx = gridLayer.getContext('2d');
+    if (gridCtx && gridVisible) {
+      gridCtx.fillStyle = '#F5F1E8';
+      gridCtx.fillRect(0, 0, gridLayer.width, gridLayer.height);
+      drawGrid(gridCtx, canvas, gridSize);
+    }
+    setGridLayerRevision((r) => r + 1);
+  }, [gridSize, gridVisible]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
     ctx.fillStyle = '#F5F1E8';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (gridVisible) {
+    if (gridVisible && gridLayerRef.current) {
+      ctx.drawImage(gridLayerRef.current, 0, 0);
+    } else if (gridVisible) {
       drawGrid(ctx, canvas, gridSize);
     }
 
@@ -466,13 +590,23 @@ export default function BlueprintCanvas({
       if (!wall) continue;
       drawOpening(ctx, wall, opening, {
         hovered: opening.id === hoveredOpening || opening.id === selectedOpeningId || currentTool === 'measure',
+        selected: opening.id === selectedOpeningId,
+        dragging: opening.id === draggingOpeningId,
+        dragPositionPercent: opening.id === draggingOpeningId ? dragOpeningPosition ?? undefined : undefined,
         unitSystem,
       });
     }
 
     for (const label of labels) {
+      const isSelected = label.id === selectedLabelId;
       ctx.fillStyle = label.color ?? '#2c1810';
       ctx.font = `${label.fontSize ?? 14}px sans-serif`;
+      if (isSelected) {
+        const textWidth = ctx.measureText(label.text).width;
+        ctx.strokeStyle = '#B8941F';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(label.position.x - 4, label.position.y - (label.fontSize ?? 14), textWidth + 8, (label.fontSize ?? 14) + 8);
+      }
       ctx.fillText(label.text, label.position.x, label.position.y);
     }
 
@@ -503,8 +637,11 @@ export default function BlueprintCanvas({
     for (const item of furniture) {
       const width = item.width ?? 80;
       const depth = item.depth ?? 60;
+      const pos = item.id === draggingFurnitureId && dragFurniturePosition
+        ? dragFurniturePosition
+        : item.position;
       ctx.save();
-      ctx.translate(item.position.x, item.position.y);
+      ctx.translate(pos.x, pos.y);
       ctx.rotate(((item.rotation ?? 0) * Math.PI) / 180);
       ctx.fillStyle = 'rgba(92, 64, 51, 0.35)';
       ctx.strokeStyle = '#5c4033';
@@ -581,8 +718,10 @@ export default function BlueprintCanvas({
       ctx.restore();
     }
 
-    for (const dimension of dimensions) {
-      drawDimension(ctx, dimension, unitSystem);
+    if (dimensionVisibility) {
+      for (const dimension of dimensions) {
+        drawDimension(ctx, dimension, unitSystem);
+      }
     }
 
     if (dimensionStart && hoveredPoint && currentTool === 'dimension') {
@@ -596,9 +735,32 @@ export default function BlueprintCanvas({
     if (isDrawing && startPoint && currentPoint) {
       drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
     }
-  }, [currentPoint, currentTool, dimensionStart, dimensions, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
+  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
 
   return (
+    <div className="relative">
+    {editingLabelId && (
+      <input
+        type="text"
+        value={editingLabelText}
+        onChange={(e) => setEditingLabelText(e.target.value)}
+        onBlur={commitLabelEdit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commitLabelEdit();
+          if (e.key === 'Escape') {
+            setEditingLabelId(null);
+            setEditingLabelText('');
+          }
+        }}
+        className="absolute z-10 rounded border border-primary bg-background px-2 py-1 text-sm shadow-md"
+        style={{
+          left: labels.find((l) => l.id === editingLabelId)?.position.x ?? 0,
+          top: (labels.find((l) => l.id === editingLabelId)?.position.y ?? 0) - 28,
+        }}
+        autoFocus
+        aria-label="Edit label text"
+      />
+    )}
     <canvas
       ref={canvasRef}
       width={1200}
@@ -610,6 +772,7 @@ export default function BlueprintCanvas({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onDoubleClick={handleDoubleClick}
       onPointerCancel={handlePointerCancel}
       onPointerLeave={() => {
         if (isDrawing) return;
@@ -618,5 +781,6 @@ export default function BlueprintCanvas({
         setPreviewOpening(null);
       }}
     />
+    </div>
   );
 }

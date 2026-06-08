@@ -53,7 +53,9 @@ async function waitForPreview(maxMs = 300_000) {
   throw new Error(`Preview server did not start at ${previewUrl}`);
 }
 
-run('pnpm exec vite build --mode e2e');
+if (process.env.SKIP_BUILD !== '1') {
+  run('pnpm exec vite build --mode e2e');
+}
 freePreviewPort();
 await delay(1000);
 
@@ -66,7 +68,10 @@ const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--host', '127.0.0.1',
 try {
   await delay(3000);
   await waitForPreview();
-  run('pnpm exec playwright test --project=page-reference-pack');
+  const testTarget = process.env.PAGE_REF_REMAINDER === '1'
+    ? 'page-reference-pack-remainder'
+    : '--project=page-reference-pack';
+  run(`pnpm exec playwright test ${testTarget}`);
 } finally {
   preview.kill('SIGTERM');
   freePreviewPort();

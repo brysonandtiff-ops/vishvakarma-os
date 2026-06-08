@@ -16,6 +16,7 @@ export interface Wall {
   thickness: number;
   height: number;
   material: string;
+  floorIndex?: number;
 }
 
 export interface Opening {
@@ -31,10 +32,31 @@ export interface Opening {
 export interface Material {
   id: string;
   name: string;
-  type: 'paint' | 'wood' | 'concrete';
+  type: 'paint' | 'wood' | 'concrete' | 'custom';
   color: string;
   roughness: number;
   metalness?: number;
+  textureUrl?: string;
+}
+
+export interface FixtureItem {
+  id: string;
+  type: 'point' | 'spot' | 'ceiling';
+  position: Point2D;
+  intensity?: number;
+  floorIndex?: number;
+}
+
+export interface BuildingFloor {
+  id: string;
+  name: string;
+  elevation: number;
+}
+
+export interface TerrainPatch {
+  id: string;
+  points: Point2D[];
+  elevation: number;
 }
 
 export interface LightingConfig {
@@ -153,6 +175,11 @@ export interface ProjectManifest {
   gridSize: number;
   snapToGrid: boolean;
   northOrientation?: number;
+  dimensionVisibility?: boolean;
+  fixtures?: FixtureItem[];
+  floors?: BuildingFloor[];
+  activeFloorIndex?: number;
+  terrain?: TerrainPatch[];
   metadata: {
     created: string;
     modified: string;

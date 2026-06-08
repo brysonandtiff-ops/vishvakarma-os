@@ -1,3 +1,4 @@
+import { fetchWithRetry } from '@/backend/fetchWithRetry';
 import type { Project, ProjectManifest } from '@/types';
 import {
   createFirestoreDocument,
@@ -12,7 +13,7 @@ import {
 const PROJECTS_COLLECTION = 'projects';
 
 export async function getFirestoreProjects(): Promise<Project[]> {
-  const documents = await listFirestoreDocuments(PROJECTS_COLLECTION);
+  const documents = await fetchWithRetry(() => listFirestoreDocuments(PROJECTS_COLLECTION));
   const ownerId = getCurrentOwnerId();
 
   return documents

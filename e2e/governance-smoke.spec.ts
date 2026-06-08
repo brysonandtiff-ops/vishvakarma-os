@@ -17,14 +17,14 @@ const governancePages: Array<{
     path: '/registry',
     heading: /registry center/i,
     assert: async (page) => {
-      await expect(page.getByRole('button', { name: /register entry/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /register entry/i }).first()).toBeVisible();
     },
   },
   {
     path: '/change-requests',
     heading: /change request/i,
     assert: async (page) => {
-      await expect(page.getByRole('button', { name: /new request/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /new request/i }).first()).toBeVisible();
     },
   },
   {
@@ -47,7 +47,7 @@ const governancePages: Array<{
     path: '/audit',
     heading: /audit log/i,
     assert: async (page) => {
-      await expect(page.getByRole('button', { name: /open the editor/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /open the editor/i }).first()).toBeVisible();
     },
   },
 ];
@@ -74,6 +74,6 @@ test.describe('governance pages smoke (e2e local access)', () => {
   test('local mode shows governance backend banner', async ({ page }) => {
     await page.goto('/change-requests', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('governance-backend-banner')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('button', { name: /new request/i })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /new request/i }).first()).toBeDisabled();
   });
 });

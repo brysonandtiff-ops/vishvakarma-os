@@ -7,16 +7,20 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
 import { getToolDefaults } from '@/components/editor/toolDefaults';
-import type { ToolType, Wall, Opening } from '@/types';
+import type { ToolType, Wall, Opening, Label as TextLabel, Room } from '@/types';
 
 interface PropertiesPanelProps {
   currentTool: ToolType;
   selectedWall?: Wall;
+  selectedLabel?: TextLabel;
+  selectedRoom?: Room;
   openings: Opening[];
   onWallUpdate: (wallId: string, updates: Partial<Wall>) => void;
   onOpeningUpdate: (openingId: string, updates: Partial<Opening>) => void;
   onWallDelete: (wallId: string) => void;
   onOpeningDelete: (openingId: string) => void;
+  onLabelUpdate?: (labelId: string, updates: Partial<TextLabel>) => void;
+  onLabelDelete?: (labelId: string) => void;
   morePanel?: React.ReactNode;
 }
 
@@ -64,14 +68,70 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
 export default function PropertiesPanel({
   currentTool,
   selectedWall,
+  selectedLabel,
+  selectedRoom,
   openings,
   onWallUpdate,
   onOpeningUpdate,
   onWallDelete,
   onOpeningDelete,
+  onLabelUpdate,
+  onLabelDelete,
   morePanel,
 }: PropertiesPanelProps) {
   const [moreOpen, setMoreOpen] = useState(false);
+
+  if (!selectedWall && selectedLabel && onLabelUpdate) {
+    return (
+      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+        <div className="ws-pane-header shrink-0">
+          <span className="ws-pane-label">Label Properties</span>
+        </div>
+        <div className="space-y-4 px-4 py-4">
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Text</Label>
+            <input
+              className="vish-mockup-input h-9 w-full text-xs"
+              value={selectedLabel.text}
+              onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
+              aria-label="Label text"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Font size</Label>
+            <Slider
+              min={10}
+              max={32}
+              step={1}
+              value={[selectedLabel.fontSize ?? 14]}
+              onValueChange={([v]) => onLabelUpdate(selectedLabel.id, { fontSize: v })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Color</Label>
+            <input
+              type="color"
+              value={selectedLabel.color ?? '#2c1810'}
+              onChange={(e) => onLabelUpdate(selectedLabel.id, { color: e.target.value })}
+              className="h-9 w-full cursor-pointer rounded border border-border"
+              aria-label="Label color"
+            />
+          </div>
+          {selectedRoom?.area !== undefined && (
+            <div className="flex items-center justify-between text-[10px]">
+              <span className="text-ws-text-faint">Room area</span>
+              <span className="font-mono text-ws-text">{selectedRoom.area.toFixed(1)} m²</span>
+            </div>
+          )}
+          {onLabelDelete && (
+            <Button variant="destructive" size="sm" className="w-full" onClick={() => onLabelDelete(selectedLabel.id)}>
+              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete label
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedWall) {
     return (

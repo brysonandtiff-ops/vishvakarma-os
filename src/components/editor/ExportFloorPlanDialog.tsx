@@ -49,7 +49,7 @@ export default function ExportFloorPlanDialog({
           </div>
           <DialogTitle>Export Package</DialogTitle>
           <DialogDescription>
-            JSON full manifest · PNG 2D walls raster · PDF summary sheet · DXF basic LINE entities
+            JSON full manifest · PNG 2D walls raster · PDF visual floor plan · DXF basic LINE entities
           </DialogDescription>
         </DialogHeader>
 
@@ -72,7 +72,7 @@ export default function ExportFloorPlanDialog({
 
         <DialogFooter className="flex flex-col gap-3 sm:items-center">
           <p className="w-full text-center text-[10px] text-muted-foreground">
-            PNG: walls only · PDF: project summary (not CAD drawing) · DXF: walls &amp; openings as LINE
+            PNG: walls only · PDF: visual plan with labels and dimensions · DXF: walls &amp; openings as LINE
           </p>
           <div className="flex flex-wrap justify-center gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
@@ -80,7 +80,12 @@ export default function ExportFloorPlanDialog({
           <Button
             disabled={!canPdf}
             title="Summary sheet with project name and date — not a CAD drawing"
-            onClick={() => { downloadPdf(manifest); onOpenChange(false); toast.success('PDF summary exported'); }}
+            onClick={() => {
+              void downloadPdf(manifest, true).then(() => {
+                onOpenChange(false);
+                toast.success('PDF floor plan exported');
+              }).catch(() => toast.error('PDF export failed'));
+            }}
           >
             PDF
           </Button>
