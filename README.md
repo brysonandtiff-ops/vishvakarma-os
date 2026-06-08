@@ -2,12 +2,13 @@
 
 **An iPad-first, browser-native architectural blueprint editor and live 3D studio — with a strict governance operating system built in.**
 
-[![Lint](https://img.shields.io/badge/lint-0%20errors%20·%20127%20files-brightgreen)]()
+[![Lint](https://img.shields.io/badge/lint-0%20errors%20·%20235%20files-brightgreen)]()
 [![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-brightgreen)]()
 [![Build](https://img.shields.io/badge/build-dist%2F%20confirmed-brightgreen)]()
 [![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Firebase-informational)]()
 [![WebGL](https://img.shields.io/badge/WebGL-error%20bounded-brightgreen)]()
-[![UI](https://img.shields.io/badge/UI-premium%20dark%20glass-blueviolet)]()
+[![Gates](https://img.shields.io/badge/release%20gates-13%20enforced-blueviolet)]()
+[![UI](https://img.shields.io/badge/UI-gold%20workstation-blueviolet)]()
 
 ---
 
@@ -23,16 +24,19 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 **Version:** v1.1.1 · **Last updated:** 2026-06-08
 
+**Production:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app) · Firebase `gen-lang-client-0690161780` · email-link auth + Firestore rules deployed
+
 ### Verified Pipeline
 
 | Stage | Command | Result |
 |---|---|---|
 | **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
-| **Tests** | `pnpm run test` | Vitest unit/integration suite (400+ tests) |
+| **Tests** | `pnpm run test` | Vitest unit/integration suite (454 tests) |
 | **E2E** | `pnpm run test:e2e` | Playwright auth-gate + app-smoke |
 | **Build** | `pnpm run build` | Production build → `dist/` |
 | **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
 | **Release gates** | `pnpm run release:gates` | 13-gate manifest (automated + evidence) |
+| **World record** | `pnpm run record:measure` | Gate count artifact → `docs/world-record/` |
 | **Page references** | `pnpm run capture:page-references` | 31 UI screenshots → `docs/design/page-references/` |
 
 ### Verified Working ✅
@@ -52,17 +56,21 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | **Projects page** | ✅ Built | Search, archive, duplicate, cloud + local project list |
 | **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
 | **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
-| **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes — see Application Routes |
+| **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes (pricing route feature-flagged) — see Application Routes |
+| **World Records** | ✅ Built | `WorldRecordsPage.tsx` — self-verified gate-count claim, measurement artifact, honesty disclaimer |
+| **Workspace Command Palette** | ✅ Built | `WorkspaceCommandPalette.tsx` — quick navigation across editor and governance routes |
+| **Analytics Consent** | ✅ Built | Opt-in banner pattern via `AnalyticsConsentBanner.tsx` |
 | **Extended ToolRail** | ✅ Built | Room, Vastu, MEP, Furniture, Landscape tools wired to canvas + 3D |
-| **OAuth Sign-in** | ✅ Built | Google/Apple via Firebase when backend configured |
+| **OAuth Sign-in** | ✅ Production | Email link (passwordless) on live site; Google/Apple when enabled in Firebase Console |
+| **Firebase production** | ✅ Connected | Vercel env vars set; Firestore rules deployed; authorized domain `vishvakarma-os.vercel.app` |
 | **Collaboration bar** | ✅ Built | Local session presence; Firebase Realtime planned for v2 |
 | **Spec Center** | ✅ Built | `SpecCenterPage.tsx` (10 KB) — locked spec cards, SHA-256 hash display, stats row |
 | **Registry** | ✅ Built | `RegistryPage.tsx` (12 KB) — entry cards with type icons, grid layout, improved empty state with "view all" action |
 | **Change Requests** | ✅ Built | `ChangeRequestsPage.tsx` (15 KB) — priority badges, status workflow, tab counts, improved empty states with CTAs |
 | **Releases** | ✅ Built | `ReleasesPage.tsx` — live verification health banner (lint/test/build status), gate progress, stop-ship list, build status hero |
 | **Audit Log** | ✅ Built | `AuditLogPage.tsx` (8 KB) — timeline layout, date grouping, action badges, empty state with editor CTA |
-| **Core Modules** | ✅ Built | 12 modules — canvas engine, governance lock, version control, export/import, format validator, theme manager, accessibility layer, collaboration engine, element lock, multi-user governance |
-| **Design System** | ✅ Built | `index.css` (288 lines) — dark/light mode tokens, glass panels, glow effects, elevation system, semantic colours |
+| **Core Modules** | ✅ Built | 11 modules — canvas engine, governance lock, version control, export/import, format validator, theme manager, accessibility layer, collaboration engine, element lock, multi-user governance |
+| **Design System** | ✅ Built | `index.css` (~530 lines) — gold workstation tokens, always-dark editor chrome, light governance panels, semantic colours |
 | **Firebase Layer** | ✅ Built | `src/backend/firebase/` — Firestore CRUD via `src/db/api.ts` |
 | **Onboarding** | ✅ Built | First-run panel on empty editor canvas with sample project CTA and new project CTA |
 | **Save Mode Badge** | ✅ Built | Firebase / Local mode pill shown in editor toolbar |
@@ -72,20 +80,22 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 | Area | Status | Notes |
 |---|---|---|
-| **Firebase persistence** | ⚠️ Config-dependent | Requires `VITE_FIREBASE_*` vars. App works in local-only mode without them — cloud save unavailable but all editing features function. |
+| **Firebase persistence** | ✅ Production / ⚠️ local | Production uses Vercel Firebase env vars. Local dev needs real values in `.env.local` — otherwise local-only mode (full editor, no cloud save). |
 | **Real-time collaboration** | ⚠️ Stubbed | `collaborationEngine.ts` exists and is unit-tested; production Realtime wiring planned for v2. |
 | **Bundle size** | ⚠️ Large | 1.5 MB JS chunk — Three.js and React Three Fiber are the main contributors. Code-splitting is a future optimisation. |
 
 ### File Inventory
 
 ```
-130+ TypeScript / TSX source files
-  1  Global CSS + sacred design tokens
- 55+ Test files (Vitest + Playwright)
+235  TypeScript / TSX source files (src/)
+  1  Global CSS + workstation design tokens
+ 58  Test files (Vitest + Playwright)
  31  Page-reference screenshots (marketing / editor / workspace / governance)
- 12  Core modules
+ 11  Core modules (src/modules/)
   1  Firebase gateway layer (src/backend/firebase/)
-  1  Route manifest
+  1  Firebase project link (.firebaserc → gen-lang-client-0690161780)
+  1  Route manifest (src/routes.tsx)
+ 13  Release gates (src/governance/gates/gate-manifest.json)
 ```
 
 ---
@@ -119,6 +129,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | Registry | `/registry` | Component, feature and tool registry |
 | Change Requests | `/change-requests` | Structured change workflow — pending → approved → implemented |
 | Release Center | `/releases` | Multi-gate release pipeline with stop-ship enforcement |
+| World Records | `/world-records` | Self-verified gate-count claim and measurement artifact |
 | Audit Log | `/audit` | Immutable chronological event timeline |
 
 ---
@@ -131,6 +142,8 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | `/features` | Features & Guides | Product reference |
 | `/pricing` | Pricing | Plans |
 | `/auth` | Account Access | Email link + Google/Apple OAuth |
+| `/reset-password` | Reset Password | Password reset flow (redirects to auth when unconfigured) |
+| `/404` | Not Found | Unknown route fallback |
 | `/editor` | Blueprint Editor | Main 2D + 3D workspace |
 | `/projects` | Projects | Cloud/local project list |
 | `/profile` | Profile | Account + sign-out |
@@ -139,7 +152,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | `/change-requests` | Change Requests | Governed change workflow |
 | `/releases` | Release Center | Gate-checked release pipeline |
 | `/audit` | Audit Log | Full system event timeline |
-| `/world-records` | World Records | In-app registry |
+| `/world-records` | World Records | Self-verified gate-count registry + measurement artifact |
 
 ---
 
@@ -165,13 +178,15 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 ## Design System
 
-Vishvakarma.OS uses a **premium dark glass architectural command center** visual language:
+Vishvakarma.OS uses a **gold workstation** visual language — dark editor chrome with light governance panels:
 
-- **Dark mode**: deep graphite background (`#0d0f12`) with electric cyan primary accent
-- **Light mode**: blueprint drafting table — warm white with slate blue accents
-- **Glass panels**: `backdrop-blur` frosted surface cards
-- **Elevation system**: 4 levels — surface → raised → overlay → glow
-- **Typography**: clean technical UI, `text-balance` on all headings
+- **Editor chrome**: always-dark canvas, toolbar, and status bar (`--ws-*` tokens)
+- **Governance panels**: light page background with white cards and muted borders
+- **Primary accent**: metallic gold (`#D4AF37` / `--primary`) for active tools, rings, and sidebar highlights
+- **Blueprint surface**: warm paper tone (`--ws-canvas-surface`) on the 2D drafting grid
+- **Sidebar**: fixed dark navigation rail with gold active indicators
+- **Elevation system**: shadow-sm → shadow-md → shadow-lg → shadow-glow
+- **Typography**: Inter UI + optional Devanagari display class
 - **Touch targets**: minimum 44×44 px (iPad-first)
 - **Scrollbar**: thin custom scrollbar in both webkit and Firefox
 - **Semantic tokens only** — no raw Tailwind colour classes in components
@@ -200,13 +215,16 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 │   │   ├── RegistryPage.tsx            # Component registry
 │   │   ├── ChangeRequestsPage.tsx      # Change request workflow
 │   │   ├── ReleasesPage.tsx            # Release gate dashboard
-│   │   └── AuditLogPage.tsx            # Event audit timeline
+│   │   ├── AuditLogPage.tsx            # Event audit timeline
+│   │   └── WorldRecordsPage.tsx        # World record registry
+│   ├── governance/
+│   │   ├── gates/                      # 13-gate release manifest
+│   │   └── records/                    # World record measurement registry
 │   ├── backend/
 │   │   └── firebase/                   # Firestore gateways + retry
 │   ├── db/
 │   │   └── api.ts                      # Project/governance API facade
 │   ├── modules/                        # Core business modules
-│   ├── governance/                     # Governance lock + validation
 │   ├── hooks/                          # Custom React hooks
 │   ├── types/                          # TypeScript type definitions
 │   ├── routes.tsx                      # Centralised route manifest
@@ -217,15 +235,21 @@ Vishvakarma.OS uses a **premium dark glass architectural command center** visual
 │   ├── design/page-references/         # 31 Playwright UI screenshots
 │   ├── user/                           # Getting Started, Tool Reference, FAQ
 │   ├── release/                        # Deployment, Vercel env, evidence pack
+│   ├── world-record/                   # Gate-count claim + measurement artifacts
+│   ├── v2/                             # v2.0 architecture notes
+│   ├── rfc/                            # Feature backlog RFCs
 │   └── GOVERNANCE_QUICKSTART.md        # Governance system guide
 ├── MIGRATION.md                        # Version upgrades + Firebase cutover
 ├── SECURITY.md                         # Security policy
 ├── CONTRIBUTING.md                     # Contributor guide
 ├── CHANGELOG.md                        # Version history
+├── .firebaserc                         # Linked Firebase project (gen-lang-client-0690161780)
+├── firebase.json                       # Firestore rules + auth provider config
+├── firestore.rules                     # Firestore security rules
 ├── scripts/
-│   ├── verify-gates.cjs                # Release gate verification
-│   ├── verify-all.js                   # Full system verification
-│   └── enforce-build.js                # Build enforcement script
+│   ├── verify-all.js                   # 13-gate release verification
+│   ├── setup-firebase-auth-config.mjs  # Email link + authorized domains (operator)
+│   └── world-record/measure-record.mjs # Gate-count measurement artifact
 ├── public/
 │   └── samples/                        # Sample project JSON files
 ├── tailwind.config.js                  # Tailwind + design token config
@@ -282,9 +306,17 @@ VITE_FIREBASE_APP_ID=
 
 Without Firebase env vars, the app runs in **local-only mode**: full editor features, local draft recovery, and browser-stored projects. See [`docs/user/GETTING_STARTED.md`](docs/user/GETTING_STARTED.md).
 
+Validate local config:
+
+```bash
+pnpm run production:verify-env --strict
+```
+
 ---
 
 ## Firebase Backend
+
+**Project:** `gen-lang-client-0690161780` (display name: vishvakarma-os) · **Web app:** Vishvakarma.OS
 
 Vishvakarma.OS uses **Firebase Auth + Firestore** for persistence:
 
@@ -297,7 +329,17 @@ Vishvakarma.OS uses **Firebase Auth + Firestore** for persistence:
 | `releases` | Release version records |
 | `audit_logs` | Immutable system event log |
 
-Deploy rules: `firebase deploy --only firestore:rules`. See [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) and [`MIGRATION.md`](MIGRATION.md).
+**Operator setup** (after linking `.firebaserc`):
+
+```bash
+npx -y firebase-tools@latest login          # or Firebase MCP auth flow
+npx -y firebase-tools@latest deploy --only firestore:rules
+pnpm run setup:firebase-auth                # email link + authorized domains
+```
+
+Auth on production enables **Email link (passwordless)** with authorized domains: `vishvakarma-os.vercel.app`, `localhost`, and default Firebase hosting domains.
+
+See [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) and [`MIGRATION.md`](MIGRATION.md).
 
 ---
 
@@ -313,7 +355,13 @@ pnpm run test:coverage          # Vitest with v8 coverage report
 pnpm run lint                   # tsgo + Biome + ast-grep
 pnpm run verify:ci              # lint → test → routes → build
 pnpm run release:gates          # 13-gate release manifest
+pnpm run record:measure         # World record gate-count artifact
 pnpm run capture:page-references  # Regenerate UI screenshot pack
+pnpm run ci                     # Full CI pipeline (coverage + routes + build)
+pnpm run verify                 # lint + auth/flawless gates + launch evidence + test + build
+pnpm run production:evidence    # Generate production evidence bundle
+pnpm run production:verify-env  # Check .env.example / .env.local Firebase keys
+pnpm run setup:firebase-auth    # Configure email link + authorized domains
 ```
 
 The linter enforces:
@@ -342,10 +390,21 @@ Vishvakarma.OS enforces a **no-drift governance model**:
 - All UI elements must be declared in the spec before implementation
 - Changes to locked specs require an approved Change Request
 - Release gates must all pass (or be explicitly waived with documented reason)
+- Gate 13 requires a machine-readable world record measurement artifact
 - Every system action is written to the audit log
 - Stop-ship violations block the release pipeline
 
 See [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) for the full governance workflow.
+
+### World Record Claim
+
+Vishvakarma.OS tracks a **self-verified** claim for most enforced pre-release compliance gates in a browser-native architectural floor plan editor. This is **not** an official Guinness World Records title until GWR adjudication completes.
+
+```bash
+pnpm run record:measure   # writes docs/world-record/latest-measurement.json
+```
+
+See [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_CLAIM.md) for metric definition, inclusion rules, and honesty statement.
 
 ---
 
@@ -374,13 +433,17 @@ Configure **Production** Firebase env vars in Vercel (see [`docs/release/VERCEL_
 | `VITE_FIREBASE_PROJECT_ID` | Project ID |
 | `VITE_FIREBASE_APP_ID` | App ID |
 
-Then deploy Firestore rules and validate:
+Then deploy Firestore rules, configure auth, and validate:
 
 ```bash
-firebase deploy --only firestore:rules
-pnpm run production:verify-env
+npx -y firebase-tools@latest deploy --only firestore:rules
+pnpm run setup:firebase-auth
+pnpm run production:verify-env --strict
 pnpm run release:gates
+vercel deploy --prod --yes   # redeploy after env changes (Vite inlines at build time)
 ```
+
+**Production checklist (completed):** Vercel `VITE_FIREBASE_*` vars set · legacy Supabase vars removed · Firestore rules deployed · email-link auth enabled · `vishvakarma-os.vercel.app` authorized.
 
 Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 
@@ -408,6 +471,11 @@ Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 | [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Vercel Firebase env vars |
 | [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance quick-start |
 | [`docs/REGISTRY.md`](docs/REGISTRY.md) | Registry documentation |
+| [`docs/README.md`](docs/README.md) | Extended architecture overview |
+| [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_CLAIM.md) | Self-verified gate-count claim |
+| [`docs/world-record/GUINNESS_APPLICATION.md`](docs/world-record/GUINNESS_APPLICATION.md) | GWR application draft |
+| [`docs/v2/ARCHITECTURE.md`](docs/v2/ARCHITECTURE.md) | v2.0 architecture notes |
+| [`docs/rfc/README.md`](docs/rfc/README.md) | Feature backlog RFC index |
 | [`NEXT_STEPS.md`](NEXT_STEPS.md) | Roadmap and release gates |
 | [`CHANGELOG.md`](CHANGELOG.md) | Full version history |
 | [`MIGRATION.md`](MIGRATION.md) | Upgrade and Firebase cutover guide |
@@ -420,8 +488,10 @@ Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 
 - Visual PDF export, opening drag handles, editable labels, dimension leader lines
 - Custom materials, furniture picker (`F`), projects search/archive/duplicate
-- Firebase-only docs, 13-gate manifest, save/load + parity automated tests
-- Monitoring/analytics scaffold, governance docs (MIGRATION, SECURITY, DEPLOYMENT)
-- Page reference screenshot pack refreshed (31 captures)
+- Firebase-only docs, 13-gate manifest (Gate 13 = world record evidence), save/load + parity tests
+- **Firebase production wired:** `.firebaserc`, Vercel env vars, Firestore rules, email-link auth, `pnpm run setup:firebase-auth`
+- World Records route, measurement script (`pnpm run record:measure`), honesty disclaimer
+- Workspace command palette, analytics consent banner, monitoring scaffold
+- Governance docs (MIGRATION, SECURITY, DEPLOYMENT) and page reference pack (31 captures)
 
 See [`CHANGELOG.md`](CHANGELOG.md) for full history.

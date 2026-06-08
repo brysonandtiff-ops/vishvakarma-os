@@ -37,6 +37,7 @@
     "verify:ci": "pnpm run verify && pnpm run test:routes",
     "ci": "pnpm run lint && node scripts/quality/check-vercel-security.mjs && pnpm run launch:evidence && pnpm run test:coverage && pnpm run test:routes && pnpm run build",
     "production:verify-env": "node scripts/production/verify-env.mjs",
+    "setup:firebase-auth": "node scripts/setup-firebase-auth-config.mjs",
     "production:evidence": "node scripts/production/generate-evidence.mjs",
     "production:manual-evidence": "node scripts/production/generate-manual-evidence.mjs",
     "record:measure": "node scripts/world-record/measure-record.mjs",

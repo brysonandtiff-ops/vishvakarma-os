@@ -2,5 +2,16 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "authorizedDomains": [
+      "localhost",
+      "vishvakarma-os.vercel.app",
+      "gen-lang-client-0690161780.firebaseapp.com"
+    ],
+    "providers": {
+      "emailPassword": true,
+      "emailLink": true
+    }
   }
 }
