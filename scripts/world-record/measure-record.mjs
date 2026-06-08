@@ -25,6 +25,23 @@ function parseReleaseGateSummary(output) {
   };
 }
 
+function readGateUiSummary(root) {
+  const statusPath = join(root, 'src', 'governance', 'gates', 'gate-ui-status.json');
+  if (!existsSync(statusPath)) {
+    return null;
+  }
+
+  const snapshot = JSON.parse(readFileSync(statusPath, 'utf8'));
+  const gateEntries = Object.values(snapshot.gates ?? {});
+  return {
+    passed: gateEntries.filter((gate) => gate.status === 'pass').length,
+    manual: gateEntries.filter((gate) => gate.status === 'warning').length,
+    failed: gateEntries.filter((gate) => gate.status === 'fail').length,
+    source: 'gate-ui-status.json',
+    generatedAt: snapshot.generatedAt ?? null,
+  };
+}
+
 function countTestFiles(root) {
   const dirs = [
     join(root, 'src', 'test'),
@@ -85,7 +102,28 @@ function main() {
   const docsPath = join(docsDir, 'latest-measurement.json');
   const publicPath = join(publicDir, 'latest-measurement.json');
 
-  const basePayload = {
+  let releaseGateSummary = readGateUiSummary(root);
+
+  if (process.env.RECORD_MEASURE_RUN_GATES === '1') {
+    try {
+      const output = run('node scripts/verify-all.js');
+      releaseGateSummary = parseReleaseGateSummary(output);
+    } catch (error) {
+      const output = String(error?.stdout ?? '');
+      if (output.includes('Passed:')) {
+        releaseGateSummary = parseReleaseGateSummary(output);
+      } else {
+        releaseGateSummary = {
+          passed: 0,
+          manual: 0,
+          failed: 1,
+          error: String(error?.message ?? error),
+        };
+      }
+    }
+  }
+
+  const payload = {
     product: manifest.product ?? 'Vishvakarma.OS',
     claimTitle: 'Most enforced pre-release compliance gates in a browser-native architectural floor plan editor',
     metricGateCount,
@@ -98,32 +136,6 @@ function main() {
     status: 'self_verified',
     honestyNote:
       'Self-Verified Candidate — not an official Guinness World Records title until GWR adjudication completes and a certificate is attached.',
-  };
-
-  // Write draft artifact so Gate 13 can pass during verify-all summary capture.
-  writeFileSync(docsPath, `${JSON.stringify({ ...basePayload, evidenceHash: 'pending' }, null, 2)}\n`);
-  writeFileSync(publicPath, readFileSync(docsPath, 'utf8'));
-
-  let releaseGateSummary = null;
-  try {
-    const output = run('node scripts/verify-all.js');
-    releaseGateSummary = parseReleaseGateSummary(output);
-  } catch (error) {
-    const output = String(error?.stdout ?? '');
-    if (output.includes('Passed:')) {
-      releaseGateSummary = parseReleaseGateSummary(output);
-    } else {
-      releaseGateSummary = {
-        passed: 0,
-        manual: 0,
-        failed: 1,
-        error: String(error?.message ?? error),
-      };
-    }
-  }
-
-  const payload = {
-    ...basePayload,
     releaseGateSummary,
   };
 
