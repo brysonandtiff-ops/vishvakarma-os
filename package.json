@@ -77,6 +77,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "catalog:",
     "@react-three/fiber": "catalog:",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.13.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -112,8 +113,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.2",
     "@ast-grep/cli": "^0.39.5",
+    "@axe-core/playwright": "^4.10.2",
     "@biomejs/biome": "2.4.5",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/container-queries": "^0.1.1",

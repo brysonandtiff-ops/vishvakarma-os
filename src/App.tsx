@@ -8,6 +8,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import '@/styles/vish-editor-mantra.css';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
+import { Analytics } from '@vercel/analytics/react';
 
 initMonitoring();
 
@@ -34,6 +35,7 @@ const App: React.FC = () => {
           </div>
           <AnalyticsConsentBanner />
           <Toaster />
+          <Analytics />
         </RouteGuard>
       </AuthProvider>
     </Router>
