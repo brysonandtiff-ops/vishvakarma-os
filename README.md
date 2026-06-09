@@ -2,12 +2,12 @@
 
 **An iPad-first, browser-native architectural blueprint editor and live 3D studio — with a strict governance operating system built in.**
 
-[![Lint](https://img.shields.io/badge/lint-0%20errors%20·%20235%20files-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-Vitest%20%2B%20Playwright-brightgreen)]()
+[![Production](https://img.shields.io/badge/production-v1.2.0%20live-brightgreen)](https://vishvakarma-os.vercel.app)
+[![CI](https://img.shields.io/badge/CI-verify%20%2B%20E2E%20%2B%20gates-brightgreen)](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27229901039)
+[![Tests](https://img.shields.io/badge/tests-461%20Vitest%20%2B%2060%20Playwright-brightgreen)]()
 [![Build](https://img.shields.io/badge/build-dist%2F%20confirmed-brightgreen)]()
 [![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Firebase-informational)]()
-[![WebGL](https://img.shields.io/badge/WebGL-error%20bounded-brightgreen)]()
-[![Gates](https://img.shields.io/badge/release%20gates-13%20enforced-blueviolet)]()
+[![Gates](https://img.shields.io/badge/release%20gates-13%2F13%20strict-blueviolet)]()
 [![UI](https://img.shields.io/badge/UI-gold%20workstation-blueviolet)]()
 
 ---
@@ -22,20 +22,25 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 
 ## Current Build State
 
-**Version:** v1.1.1 · **Last updated:** 2026-06-08
+**Version:** v1.2.0 · **Production launch:** 2026-06-09 · **Status:** Public pilot allowed
 
-**Production:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app) · Firebase `gen-lang-client-0690161780` · email-link auth + Firestore rules deployed
+**Live:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app) · Firebase `gen-lang-client-0690161780` · email-link auth + Firestore rules deployed
+
+**CI (release commit):** [Verify Vishvakarma.OS run 27229901039](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27229901039) — verify · Playwright E2E · release gate manifest all green
 
 ### Verified Pipeline
 
 | Stage | Command | Result |
 |---|---|---|
 | **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
-| **Tests** | `pnpm run test` | Vitest unit/integration suite (457 tests, 47 files) |
-| **E2E** | `pnpm run test:e2e` | Playwright auth-gate + app-smoke |
+| **Tests** | `pnpm run test` | Vitest — 461 tests (48 files) |
+| **E2E** | `pnpm run test:e2e` | Playwright — 60 tests (21 auth-gate + 39 app-smoke) |
+| **Cross-browser** | `pnpm run test:e2e:cross-browser` | Firefox smoke (WebKit on Linux/macOS CI) |
+| **A11y** | `pnpm run test:e2e:a11y` | axe-playwright WCAG 2.1 AA scan |
 | **Build** | `pnpm run build` | Production build → `dist/` |
 | **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
-| **Release gates** | `pnpm run release:gates` | 13-gate manifest (automated + evidence) |
+| **Release gates** | `pnpm run release:gates:strict` | 13/13 gates — exit 0 |
+| **Launch evidence** | `pnpm run launch:evidence:strict` | Operator evidence ledger — exit 0 |
 | **World record** | `pnpm run record:measure` | Gate count artifact → `docs/world-record/` |
 | **Page references** | `pnpm run capture:page-references` | 31 UI screenshots → `docs/design/page-references/` |
 
@@ -44,7 +49,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | Component | Status | Evidence |
 |---|---|---|
 | **Lint pipeline** | ✅ Verified | `pnpm run lint` — Biome + `tsgo` + ast-grep |
-| **Test suite** | ✅ Verified | `pnpm run test` — 457 Vitest tests (47 files) + Playwright E2E |
+| **Test suite** | ✅ Verified | `pnpm run test` — 461 Vitest tests + 60 Playwright E2E (local + CI) |
 | **Production build** | ✅ Verified | `pnpm run build` → `dist/` |
 | **2D Blueprint Editor** | ✅ Built | Wall/door/window drawing, gold endpoint snap ring, opening drag handles, labels (`T`), dimensions (`⇧M` / ⇧D toggle), furniture (`F`), MEP + lighting fixtures, room detect, snap-to-grid, undo/redo (50 states) |
 | **3D Viewport** | ✅ Built | React Three Fiber — wall extrusion, semi-transparent red doors + gold windows, fixture lights, furniture boxes, solar lighting, custom texture materials, WebGL error boundary |
@@ -88,9 +93,9 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 ### File Inventory
 
 ```
-235  TypeScript / TSX source files (src/)
+247  TypeScript / TSX source files (src/)
   1  Global CSS + workstation design tokens
- 58  Test files (Vitest + Playwright)
+ 62  Test files (Vitest + Playwright e2e/)
  31  Page-reference screenshots (marketing / editor / workspace / governance)
  11  Core modules (src/modules/)
   1  Firebase gateway layer (src/backend/firebase/)
@@ -354,11 +359,15 @@ pnpm run dev                    # Vite dev server on 127.0.0.1
 pnpm run build                  # Production build → dist/
 pnpm run preview                # Serve dist/ locally on :4173
 pnpm run test                   # Vitest unit/integration suite
-pnpm run test:e2e               # Playwright auth-gate + app-smoke
+pnpm run test:e2e               # Playwright auth-gate + app-smoke (60 tests)
+pnpm run test:e2e:cross-browser # Firefox + WebKit smoke
+pnpm run test:e2e:a11y          # WCAG 2.1 AA axe audit
 pnpm run test:coverage          # Vitest with v8 coverage report
 pnpm run lint                   # tsgo + Biome + ast-grep
 pnpm run verify:ci              # lint → test → routes → build
 pnpm run release:gates          # 13-gate release manifest
+pnpm run release:gates:strict   # Strict mode — exit 0 required for public launch
+pnpm run launch:evidence:strict # Operator evidence ledger validation
 pnpm run record:measure         # World record gate-count artifact
 pnpm run capture:page-references  # Regenerate UI screenshot pack
 pnpm run ci                     # Full CI pipeline (coverage + routes + build)
@@ -426,7 +435,9 @@ See [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_C
 
 ## Production deployment (Vercel)
 
-Live site: [https://vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)
+**v1.2.0** — live at [https://vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)
+
+Launch clearance: [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) · evidence ledger [`docs/release/evidence/EVIDENCE_MANIFEST.md`](docs/release/evidence/EVIDENCE_MANIFEST.md)
 
 Configure **Production** Firebase env vars in Vercel (see [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md)):
 
@@ -447,7 +458,7 @@ pnpm run release:gates
 vercel deploy --prod --yes   # redeploy after env changes (Vite inlines at build time)
 ```
 
-**Production checklist (completed):** Vercel `VITE_FIREBASE_*` vars set · legacy Supabase vars removed · Firestore rules deployed · email-link auth enabled · `vishvakarma-os.vercel.app` authorized.
+**Production checklist (v1.2.0):** Vercel `VITE_FIREBASE_*` vars set · Firestore rules deployed · email-link auth enabled · `vishvakarma-os.vercel.app` authorized · CSP/HSTS headers live · cloud save/load operator proof attached · strict gates 13/13 · CI green on release commit.
 
 Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 
@@ -489,12 +500,20 @@ Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 
 ---
 
+## Changelog — v1.2.0 production (2026-06-09)
+
+- **Public pilot launch cleared** — `release:gates:strict` + `launch:evidence:strict` exit 0; CI run [27229901039](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27229901039) green
+- UI polish pass — gold workstation marketing pages, metric pills, floor switcher, project thumbnails, accessibility contrast fixes
+- E2E battery hardened — 60 Playwright tests, cross-browser Firefox smoke, axe WCAG audit, 31 page-reference screenshots regenerated
+- Sample-save fix — loading demo blueprint no longer clears active project before save
+- Operator evidence pack — Firebase production, security headers, iPad touch audit, 2D/3D parity, save/load determinism ([`docs/release/evidence/`](docs/release/evidence/))
+- Product capability audit — [`docs/PRODUCT_CAPABILITIES.md`](docs/PRODUCT_CAPABILITIES.md)
+
 ## Changelog — v1.2 polish (2026-06-08)
 
 - MEP lighting fixtures (point/spot/ceiling) in 2D + 3D; dimension visibility chip (⇧D)
 - Custom material texture upload via Firebase Storage; export fidelity (openings in PNG/PDF/SVG)
 - SVG export in Export Package dialog; pricing page flag (`VITE_PRICING_PAGE_ENABLED=true`)
-- Product capability audit — [`docs/PRODUCT_CAPABILITIES.md`](docs/PRODUCT_CAPABILITIES.md)
 
 ## Changelog — v1.1.1 (2026-06-08)
 
