@@ -9,7 +9,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current target version | v1.2.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-09 |
-| Final status | Public launch cleared locally — `release:gates:strict` + `launch:evidence:strict` exit 0 on 2026-06-09 |
+| Final status | **Public launch allowed** — local strict gates + CI run 27229901039 green on 2026-06-09 |
 
 ## CI Evidence
 
@@ -19,7 +19,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Build artifact | `vishvakarma-os-dist` uploaded | PASS | Local `dist/` produced |
 | E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS | 60/60 Playwright (`test:e2e`) |
 | Playwright report | Cross-browser + a11y + page references | PASS | Firefox 3/3, a11y 3/3, page-ref 2/2 |
-| CI run URL | Green Actions on release commit | RE-RUN | https://github.com/brysonandtiff-ops/vishvakarma-os/actions |
+| CI run URL | Green Actions on release commit | PASS | https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27229901039 |
 
 ## Deployment Evidence
 
@@ -69,7 +69,7 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] Firestore rules deployed to production project.
 - [x] Evidence files filled (no launch placeholders).
 - [x] Marketing claims audited — collaboration marked preview/planned.
-- [ ] Fresh green GitHub Actions run URL attached after push.
+- [x] Fresh green GitHub Actions run URL attached after push.
 
 ## Operator Checklist (External)
 

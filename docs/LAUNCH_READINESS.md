@@ -14,7 +14,7 @@ Vishvakarma.OS can be demoed as a strong browser-native architectural prototype.
 |---|---:|---|
 | Internal demo | Allowed | Core app, routes, tests, and build pipeline exist |
 | Private reviewer beta | Allowed after CI artifacts are attached | Needs fresh workflow run and build artifact |
-| Public production launch | Cleared locally — attach green CI run on push | v1.2.0 evidence bundle complete; was **Blocked until manual evidence is complete** until 2026-06-09 operator pass |
+| Public production launch | **Allowed** | v1.2.0 — local + CI green (run 27229901039); was **Blocked until manual evidence is complete** until 2026-06-09 |
 
 ---
 
