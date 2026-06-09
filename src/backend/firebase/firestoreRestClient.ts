@@ -1,5 +1,5 @@
 import { backendStatus } from '@/backend/backendConfig';
-import { readFirebaseSessionSnapshot } from './firebaseAuthGateway';
+import { readFirebaseSessionSnapshot, resolveFirebaseSessionForFirestore } from './firebaseAuthGateway';
 
 export const FIRESTORE_API_BASE = 'https://firestore.googleapis.com/v1';
 
@@ -43,11 +43,8 @@ export function firestoreDocumentUrl(id: string, collection: string) {
   return `${collectionUrl}/${encodeURIComponent(id)}`;
 }
 
-export function getFirestoreAuthHeaders() {
-  const session = readFirebaseSessionSnapshot();
-  if (!session) {
-    throw new Error('Firebase session is missing. Sign in again before using Firestore.');
-  }
+export async function getFirestoreAuthHeaders() {
+  const session = await resolveFirebaseSessionForFirestore();
 
   return {
     Authorization: `Bearer ${session.idToken}`,
@@ -125,7 +122,7 @@ export async function listFirestoreDocuments(collection: string): Promise<Firest
   if (!url) throw new Error('Missing VITE_FIREBASE_PROJECT_ID.');
 
   const response = await fetch(url, {
-    headers: getFirestoreAuthHeaders(),
+    headers: await getFirestoreAuthHeaders(),
   });
   const payload = (await parseFirestoreResponse(response)) as FirestoreListResponse;
   return payload.documents ?? [];
@@ -137,7 +134,7 @@ export async function getFirestoreDocument(collection: string, id: string): Prom
   if (!url) throw new Error('Missing VITE_FIREBASE_PROJECT_ID.');
 
   const response = await fetch(url, {
-    headers: getFirestoreAuthHeaders(),
+    headers: await getFirestoreAuthHeaders(),
   });
 
   if (response.status === 404) return null;
@@ -156,7 +153,7 @@ export async function createFirestoreDocument(
 
   const response = await fetch(`${url}?documentId=${encodeURIComponent(id)}`, {
     method: 'POST',
-    headers: getFirestoreAuthHeaders(),
+    headers: await getFirestoreAuthHeaders(),
     body: JSON.stringify({ fields: objectToFirestoreFields(data) }),
   });
 
@@ -174,7 +171,7 @@ export async function updateFirestoreDocument(
 
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: getFirestoreAuthHeaders(),
+    headers: await getFirestoreAuthHeaders(),
     body: JSON.stringify({ fields: objectToFirestoreFields(data) }),
   });
 
@@ -188,7 +185,7 @@ export async function deleteFirestoreDocument(collection: string, id: string): P
 
   const response = await fetch(url, {
     method: 'DELETE',
-    headers: getFirestoreAuthHeaders(),
+    headers: await getFirestoreAuthHeaders(),
   });
 
   if (!response.ok && response.status !== 404) {

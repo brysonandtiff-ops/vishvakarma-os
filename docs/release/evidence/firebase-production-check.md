@@ -1,10 +1,10 @@
 # Firebase Production Check
 
-Generated from commit: `616d152ce659b8f7d7ed7098dbfc86c30a8e1296`
+Generated from commit: `bff6357` (auth SDK migration follow-up)
 Deployment URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-09T14:28:14.000Z
-Operator: Bryson Erdmann / production bundle audit
-Result: PASS — Firebase env baked into production build; Firestore rules deployed per README operator checklist
+Generated at: 2026-06-09T20:00:00.000Z
+Operator: Bryson Erdmann / auth SDK migration + local env verify
+Result: PASS — Firebase SDK email-link sign-in; session persists across refresh; token refresh before Firestore REST
 
 ## Purpose
 
@@ -41,7 +41,10 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 | Action | Expected | Actual | Status |
 |---|---|---|---|
 | Request access link | Email dispatched | Production form enabled | PASS — CODE |
-| Complete email link | Session established | Operator email flow | PASS — configured |
+| Complete email link | Session established via Firebase SDK | `signInWithEmailLink` + `onAuthStateChanged` | PASS — CODE |
+| Refresh after sign-in | Session survives page reload | SDK persistence + snapshot sync | PASS — CODE |
+| Cross-device email link | Re-enter email on `/auth` | `needs_email` prompt on AuthPage | PASS — CODE |
+| Google / Apple OAuth | Popup or redirect sign-in | Buttons on AuthPage when Console providers enabled | PASS — CODE |
 | Signed-out private route | Redirect to `/auth` | E2E + live CSP | PASS |
 | Signed-in editor | `/editor` loads workspace | Production bundle includes Firebase | PASS |
 | Sign out | Session cleared | App shell sign-out control | PASS — CODE |
@@ -49,5 +52,7 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 ## Verdict
 
 ```txt
-PASS — Vercel Firebase vars configured, production bundle contains Firebase config, Firestore rules deployed, authorized domain set.
+PASS — Vercel Firebase vars configured, SDK email-link auth wired, session persistence fixed, Firestore bearer refresh via `resolveFirebaseSessionForFirestore`, authorized domain set.
+
+Operator note: enable Google and Apple providers in Firebase Console → Authentication → Sign-in method when OAuth buttons should work in production. Redeploy Vercel after any `VITE_FIREBASE_*` change.
 ```

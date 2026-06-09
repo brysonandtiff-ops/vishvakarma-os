@@ -4,7 +4,7 @@ import {
   buildFirebaseSessionFromIdToken,
   clearFirebaseSessionSnapshot,
   completeFirebaseEmailLinkSignIn,
-  readFirebaseSessionSnapshot,
+  isFirebaseEmailLinkCallback,
   requestFirebaseAccessLink,
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
@@ -23,6 +23,8 @@ type FirebaseAuthUser = {
 type AuthUser = FirebaseAuthUser;
 type AuthSession = FirebaseSessionSnapshot;
 
+export type EmailLinkState = 'idle' | 'completing' | 'needs_email' | 'error';
+
 interface AuthContextType {
   user: AuthUser | null;
   session: AuthSession | null;
@@ -30,7 +32,10 @@ interface AuthContextType {
   loading: boolean;
   isConfigured: boolean;
   mode: 'connected' | 'local-only';
+  emailLinkState: EmailLinkState;
+  emailLinkError: string | null;
   requestAccessLink: (email: string) => Promise<{ error: Error | null }>;
+  completeEmailLinkSignIn: (email: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signInWithApple: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -74,8 +79,13 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   }
 }
 
-async function syncSessionFromFirebaseUser(uid: string, email: string, idToken: string) {
-  return buildFirebaseSessionFromIdToken(uid, email, idToken);
+async function syncSessionFromFirebaseUser(uid: string, email: string, forceRefresh = false) {
+  if (!firebaseAuth?.currentUser) {
+    throw new Error('Firebase user is not available.');
+  }
+
+  const idToken = await firebaseAuth.currentUser.getIdToken(forceRefresh);
+  return buildFirebaseSessionFromIdToken(uid, firebaseAuth.currentUser.email ?? email, idToken);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -83,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(backendStatus.isConfigured);
+  const [emailLinkState, setEmailLinkState] = useState<EmailLinkState>('idle');
+  const [emailLinkError, setEmailLinkError] = useState<string | null>(null);
 
   const loadProfile = useCallback(async (nextUser: AuthUser | null) => {
     if (!nextUser || !backendStatus.isConfigured) {
@@ -103,6 +115,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadProfile(user);
   }, [loadProfile, user]);
 
+  const completeEmailLinkSignIn = useCallback(async (email: string) => {
+    setEmailLinkError(null);
+    setEmailLinkState('completing');
+    setLoading(true);
+
+    const result = await completeFirebaseEmailLinkSignIn(email);
+
+    if (result.status === 'completed') {
+      setEmailLinkState('idle');
+      return { error: null };
+    }
+
+    if (result.status === 'error') {
+      setEmailLinkState('error');
+      setEmailLinkError(result.error.message);
+      setLoading(false);
+      return { error: result.error };
+    }
+
+    setEmailLinkState('needs_email');
+    setLoading(false);
+    return { error: new Error('Email is required to complete sign-in.') };
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
@@ -113,33 +149,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    completeFirebaseEmailLinkSignIn()
-      .then(async ({ session: emailLinkSession, error }) => {
-        if (!mounted) return;
-        if (error) throw error;
-
-        if (emailLinkSession) {
-          setSession(emailLinkSession);
-          setUser(firebaseUserFromSession(emailLinkSession));
-          await loadProfile(firebaseUserFromSession(emailLinkSession));
-        }
-      })
-      .catch((error) => {
-        console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', error);
-      });
-
     if (!firebaseAuth) {
-      const restoredSession = readFirebaseSessionSnapshot();
-      if (mounted) {
-        setSession(restoredSession);
-        setUser(restoredSession ? firebaseUserFromSession(restoredSession) : null);
-        void loadProfile(restoredSession ? firebaseUserFromSession(restoredSession) : null);
-        setLoading(false);
-      }
-
+      if (mounted) setLoading(false);
       return () => {
         mounted = false;
       };
+    }
+
+    if (isFirebaseEmailLinkCallback()) {
+      setEmailLinkState('completing');
+      void completeFirebaseEmailLinkSignIn()
+        .then((result) => {
+          if (!mounted) return;
+
+          if (result.status === 'needs_email') {
+            setEmailLinkState('needs_email');
+            setLoading(false);
+            return;
+          }
+
+          if (result.status === 'error') {
+            setEmailLinkState('error');
+            setEmailLinkError(result.error.message);
+            setLoading(false);
+            console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', result.error);
+            return;
+          }
+
+          if (result.status === 'completed') {
+            setEmailLinkState('idle');
+          }
+        })
+        .catch((error) => {
+          if (!mounted) return;
+          setEmailLinkState('error');
+          setEmailLinkError(error instanceof Error ? error.message : 'Email-link sign-in failed.');
+          setLoading(false);
+          console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', error);
+        });
     }
 
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
@@ -155,16 +202,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const idToken = await firebaseUser.getIdToken();
         const nextSession = await syncSessionFromFirebaseUser(
           firebaseUser.uid,
           firebaseUser.email ?? '',
-          idToken
+          true
         );
         const nextUser = firebaseUserFromSession(nextSession);
 
         setSession(nextSession);
         setUser(nextUser);
+        setEmailLinkState('idle');
+        setEmailLinkError(null);
         await loadProfile(nextUser);
       } catch (error) {
         console.error('[Vishvakarma.OS] Firebase auth session sync failed:', error);
@@ -243,6 +291,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setUser(null);
     setProfile(null);
+    setEmailLinkState('idle');
+    setEmailLinkError(null);
   }, []);
 
   const value = useMemo<AuthContextType>(
@@ -253,13 +303,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isConfigured: backendStatus.isConfigured,
       mode: backendStatus.mode,
+      emailLinkState,
+      emailLinkError,
       requestAccessLink,
+      completeEmailLinkSignIn,
       signInWithGoogle,
       signInWithApple,
       signOut,
       refreshProfile,
     }),
-    [loading, profile, refreshProfile, requestAccessLink, session, signInWithApple, signInWithGoogle, signOut, user]
+    [
+      emailLinkError,
+      emailLinkState,
+      loading,
+      profile,
+      refreshProfile,
+      requestAccessLink,
+      completeEmailLinkSignIn,
+      session,
+      signInWithApple,
+      signInWithGoogle,
+      signOut,
+      user,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

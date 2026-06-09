@@ -29,7 +29,18 @@ function getReturnPath(state: unknown) {
 }
 
 export default function AuthPage() {
-  const { user, loading, isConfigured, mode, requestAccessLink, signInWithGoogle, signInWithApple } = useAuth();
+  const {
+    user,
+    loading,
+    isConfigured,
+    mode,
+    emailLinkState,
+    emailLinkError,
+    requestAccessLink,
+    completeEmailLinkSignIn,
+    signInWithGoogle,
+    signInWithApple,
+  } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -47,9 +58,31 @@ export default function AuthPage() {
     'message' in location.state &&
     (location.state as { message: unknown }).message === 'password-reset-unavailable';
 
+  const completingEmailLink = emailLinkState === 'completing';
+  const needsEmailForLink = emailLinkState === 'needs_email';
+
   if (!loading && user) {
     return <Navigate to={returnPath} replace />;
   }
+
+  const onCompleteEmailLink = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setMessage(null);
+    setError(null);
+
+    if (!email.trim()) {
+      setError('Enter the same email address that received the secure access link.');
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await completeEmailLinkSignIn(email);
+    setSubmitting(false);
+
+    if (result.error) {
+      setError(result.error.message);
+    }
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -167,7 +200,32 @@ export default function AuthPage() {
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="space-y-4">
+          {completingEmailLink && (
+            <p role="status" className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
+              Completing secure sign-in…
+            </p>
+          )}
+
+          {needsEmailForLink && (
+            <div className="mb-4 flex gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div>
+                <p className="font-semibold text-stone-100">Confirm your email to finish sign-in</p>
+                <p className="text-muted-foreground">
+                  This link was opened in a new browser or device. Enter the email address that received the secure
+                  access link.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {(emailLinkError || error) && (
+            <p role="alert" className="mb-4 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {emailLinkError ?? error}
+            </p>
+          )}
+
+          <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="space-y-4">
             <label className="block space-y-1.5">
               <span className="vish-bilingual-label">
                 Email <span>- ई-पत्र</span>
@@ -193,20 +251,24 @@ export default function AuthPage() {
               </p>
             )}
 
-            {error && (
-              <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </p>
-            )}
-
             {message && (
               <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
                 {message}
               </p>
             )}
 
-            <button type="submit" className="vish-gold-button" disabled={!isConfigured || submitting || showConfigRequired}>
-              {submitting ? 'Sending access link…' : 'Send secure access link'}
+            <button
+              type="submit"
+              className="vish-gold-button"
+              disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
+            >
+              {needsEmailForLink
+                ? submitting
+                  ? 'Completing sign-in…'
+                  : 'Complete sign-in'
+                : submitting
+                  ? 'Sending access link…'
+                  : 'Send secure access link'}
             </button>
 
             <p className="text-center text-[11px] text-muted-foreground">

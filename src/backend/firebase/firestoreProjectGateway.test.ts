@@ -34,7 +34,9 @@ describe('firestoreProjectGateway', () => {
   });
 
   it('throws a readable error when Firebase session is missing', async () => {
-    vi.spyOn(firebaseAuthGateway, 'readFirebaseSessionSnapshot').mockReturnValue(null);
+    vi.spyOn(firebaseAuthGateway, 'resolveFirebaseSessionForFirestore').mockRejectedValue(
+      new Error('Firebase session is missing. Sign in again before using Firestore.'),
+    );
     const { createFirestoreProject } = await import('./firestoreProjectGateway');
 
     await expect(createFirestoreProject('Test', undefined, sampleManifest)).rejects.toThrow(
@@ -43,7 +45,8 @@ describe('firestoreProjectGateway', () => {
   });
 
   it('preserves manifest shape on create', async () => {
-    vi.spyOn(firebaseAuthGateway, 'readFirebaseSessionSnapshot').mockReturnValue({
+    vi.spyOn(firebaseAuthGateway, 'resolveFirebaseSessionForFirestore').mockResolvedValue({
+      provider: 'firebase',
       idToken: 'test-firebase-token',
       uid: 'user-1',
       email: 'architect@example.com',

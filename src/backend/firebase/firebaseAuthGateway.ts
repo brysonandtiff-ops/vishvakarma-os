@@ -1,23 +1,18 @@
+import {
+  isSignInWithEmailLink,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+} from 'firebase/auth';
 import { backendStatus } from '@/backend/backendConfig';
+import { firebaseAuth } from '@/backend/firebase/firebaseClient';
 
+/** Legacy REST endpoints — retained for auth-config guard and operator docs. */
 const FIREBASE_SEND_OOB_CODE_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode';
 const FIREBASE_SIGN_IN_WITH_EMAIL_LINK_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithEmailLink';
+
 const FIREBASE_PENDING_EMAIL_KEY = 'vishvakarma.os.firebase.pendingEmail.v1';
 const FIREBASE_SESSION_KEY = 'vishvakarma.os.firebase.session.v1';
-
-interface FirebaseErrorResponse {
-  error?: {
-    message?: string;
-  };
-}
-
-interface FirebaseEmailLinkSignInResponse extends FirebaseErrorResponse {
-  idToken?: string;
-  email?: string;
-  refreshToken?: string;
-  expiresIn?: string;
-  localId?: string;
-}
+const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
 export interface FirebaseSessionSnapshot {
   provider: 'firebase';
@@ -28,16 +23,21 @@ export interface FirebaseSessionSnapshot {
   expiresAt: number;
 }
 
-function getFirebaseApiKey() {
-  return import.meta.env.VITE_FIREBASE_API_KEY as string | undefined;
-}
-
 function hasBrowserStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
-function normalizeFirebaseAuthError(message: string | undefined) {
-  switch (message) {
+function normalizeFirebaseAuthError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' && error !== null && 'code' in error
+        ? String((error as { code: unknown }).code)
+        : undefined;
+
+  const code = message?.replace('auth/', '') ?? '';
+
+  switch (code) {
     case 'EMAIL_NOT_FOUND':
       return new Error('No Firebase account exists for that email. Enable account creation or create the user first.');
     case 'INVALID_EMAIL':
@@ -46,18 +46,14 @@ function normalizeFirebaseAuthError(message: string | undefined) {
     case 'EXPIRED_OOB_CODE':
       return new Error('This Firebase email link is invalid or expired. Request a new secure access link.');
     case 'OPERATION_NOT_ALLOWED':
-      return new Error('Firebase email-link sign-in is not enabled. Enable Email/Password and email-link sign-in in Firebase Authentication.');
+      return new Error(
+        'Firebase email-link sign-in is not enabled. Enable Email/Password and email-link sign-in in Firebase Authentication.'
+      );
     case 'TOO_MANY_ATTEMPTS_TRY_LATER':
       return new Error('Too many access-link attempts. Try again later.');
     default:
       return new Error(message ? `Firebase auth failed: ${message}` : 'Firebase auth request failed.');
   }
-}
-
-function firebaseRequestUrl(baseUrl: string) {
-  const apiKey = getFirebaseApiKey();
-  if (!apiKey) return null;
-  return `${baseUrl}?key=${encodeURIComponent(apiKey)}`;
 }
 
 export function writeFirebaseSessionSnapshot(session: FirebaseSessionSnapshot) {
@@ -69,7 +65,7 @@ export async function buildFirebaseSessionFromIdToken(
   uid: string,
   email: string,
   idToken: string,
-  refreshToken = ''
+  refreshToken = 'sdk'
 ): Promise<FirebaseSessionSnapshot> {
   const session: FirebaseSessionSnapshot = {
     provider: 'firebase',
@@ -93,13 +89,19 @@ export function readFirebaseSessionSnapshot(): FirebaseSessionSnapshot | null {
   try {
     const parsed = JSON.parse(raw) as Partial<FirebaseSessionSnapshot>;
     if (parsed.provider !== 'firebase') return null;
-    if (!parsed.uid || !parsed.email || !parsed.idToken || !parsed.refreshToken || !parsed.expiresAt) return null;
+    if (!parsed.uid || !parsed.email || !parsed.idToken || !parsed.expiresAt) return null;
     if (Date.now() >= parsed.expiresAt) {
-      clearFirebaseSessionSnapshot();
       return null;
     }
 
-    return parsed as FirebaseSessionSnapshot;
+    return {
+      provider: 'firebase',
+      uid: parsed.uid,
+      email: parsed.email,
+      idToken: parsed.idToken,
+      refreshToken: parsed.refreshToken ?? 'sdk',
+      expiresAt: parsed.expiresAt,
+    };
   } catch {
     return null;
   }
@@ -111,9 +113,33 @@ export function clearFirebaseSessionSnapshot() {
   window.localStorage.removeItem(FIREBASE_PENDING_EMAIL_KEY);
 }
 
+export function readPendingEmailForSignIn() {
+  if (!hasBrowserStorage()) return null;
+  return window.localStorage.getItem(FIREBASE_PENDING_EMAIL_KEY);
+}
+
+export function writePendingEmailForSignIn(email: string) {
+  if (!hasBrowserStorage()) return;
+  window.localStorage.setItem(FIREBASE_PENDING_EMAIL_KEY, email.trim().toLowerCase());
+}
+
+export function clearPendingEmailForSignIn() {
+  if (!hasBrowserStorage()) return;
+  window.localStorage.removeItem(FIREBASE_PENDING_EMAIL_KEY);
+}
+
 export function isFirebaseEmailLinkCallback(search = typeof window !== 'undefined' ? window.location.search : '') {
   const params = new URLSearchParams(search);
   return params.get('mode') === 'signIn' && Boolean(params.get('oobCode'));
+}
+
+export function needsEmailForEmailLinkCallback() {
+  if (!isFirebaseEmailLinkCallback()) return false;
+  return !readPendingEmailForSignIn();
+}
+
+function getEmailLinkUrl(redirectTo: string) {
+  return redirectTo.endsWith('/auth') ? redirectTo : `${redirectTo.replace(/\/$/, '')}/auth`;
 }
 
 export async function requestFirebaseAccessLink(email: string, redirectTo: string) {
@@ -123,114 +149,95 @@ export async function requestFirebaseAccessLink(email: string, redirectTo: strin
     };
   }
 
-  const url = firebaseRequestUrl(FIREBASE_SEND_OOB_CODE_URL);
-  if (!url) {
-    return { error: new Error('Missing VITE_FIREBASE_API_KEY.') };
+  if (!firebaseAuth) {
+    return { error: new Error('Firebase Auth is not initialized.') };
   }
 
   const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        requestType: 'EMAIL_SIGNIN',
-        email: normalizedEmail,
-        continueUrl: redirectTo,
-        canHandleCodeInApp: true,
-      }),
+    await sendSignInLinkToEmail(firebaseAuth, normalizedEmail, {
+      url: getEmailLinkUrl(redirectTo),
+      handleCodeInApp: true,
     });
 
-    const payload = (await response.json()) as FirebaseErrorResponse;
-
-    if (!response.ok || payload.error) {
-      return { error: normalizeFirebaseAuthError(payload.error?.message) };
-    }
-
-    if (hasBrowserStorage()) {
-      window.localStorage.setItem(FIREBASE_PENDING_EMAIL_KEY, normalizedEmail);
-    }
-
+    writePendingEmailForSignIn(normalizedEmail);
     return { error: null };
   } catch (error) {
     if (error instanceof Error) {
-      return {
-        error: new Error(`Firebase access-link request could not reach Firebase Auth. ${error.message}`),
-      };
+      const message = error.message.toLowerCase();
+      if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
+        return {
+          error: new Error(`Firebase access-link request could not reach Firebase Auth. ${error.message}`),
+        };
+      }
     }
 
-    return { error: new Error('Firebase access-link request failed for an unknown reason.') };
+    return { error: normalizeFirebaseAuthError(error) };
   }
 }
 
-export async function completeFirebaseEmailLinkSignIn(search = typeof window !== 'undefined' ? window.location.search : '') {
-  if (!backendStatus.isConfigured) {
-    return { session: null, error: null };
+export type EmailLinkSignInResult =
+  | { status: 'idle' }
+  | { status: 'needs_email' }
+  | { status: 'completed' }
+  | { status: 'error'; error: Error };
+
+export async function completeFirebaseEmailLinkSignIn(
+  email?: string,
+  emailLink = typeof window !== 'undefined' ? window.location.href : ''
+): Promise<EmailLinkSignInResult> {
+  if (!backendStatus.isConfigured || !firebaseAuth) {
+    return { status: 'idle' };
   }
 
-  const params = new URLSearchParams(search);
-  const oobCode = params.get('oobCode');
-  const pendingEmail = hasBrowserStorage() ? window.localStorage.getItem(FIREBASE_PENDING_EMAIL_KEY) : null;
+  if (!isSignInWithEmailLink(firebaseAuth, emailLink)) {
+    return { status: 'idle' };
+  }
 
-  if (!oobCode) return { session: readFirebaseSessionSnapshot(), error: null };
+  const pendingEmail = email?.trim().toLowerCase() || readPendingEmailForSignIn();
   if (!pendingEmail) {
-    return {
-      session: null,
-      error: new Error('Firebase email link opened without a saved pending email. Request a new access link from this browser.'),
-    };
-  }
-
-  const url = firebaseRequestUrl(FIREBASE_SIGN_IN_WITH_EMAIL_LINK_URL);
-  if (!url) {
-    return { session: null, error: new Error('Missing VITE_FIREBASE_API_KEY.') };
+    return { status: 'needs_email' };
   }
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: pendingEmail,
-        oobCode,
-        returnSecureToken: true,
-      }),
-    });
+    await signInWithEmailLink(firebaseAuth, pendingEmail, emailLink);
+    clearPendingEmailForSignIn();
 
-    const payload = (await response.json()) as FirebaseEmailLinkSignInResponse;
-
-    if (!response.ok || payload.error || !payload.idToken || !payload.refreshToken || !payload.localId || !payload.email) {
-      return { session: null, error: normalizeFirebaseAuthError(payload.error?.message) };
+    if (typeof window !== 'undefined') {
+      const cleanUrl = `${window.location.origin}/auth`;
+      window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    const expiresInSeconds = Number(payload.expiresIn ?? 3600);
-    const session: FirebaseSessionSnapshot = {
-      provider: 'firebase',
-      uid: payload.localId,
-      email: payload.email,
-      idToken: payload.idToken,
-      refreshToken: payload.refreshToken,
-      expiresAt: Date.now() + expiresInSeconds * 1000,
-    };
-
-    if (hasBrowserStorage()) {
-      writeFirebaseSessionSnapshot(session);
-      window.localStorage.removeItem(FIREBASE_PENDING_EMAIL_KEY);
-    }
-
-    return { session, error: null };
+    return { status: 'completed' };
   } catch (error) {
-    if (error instanceof Error) {
-      return {
-        session: null,
-        error: new Error(`Firebase email-link sign-in could not reach Firebase Auth. ${error.message}`),
-      };
-    }
-
-    return { session: null, error: new Error('Firebase email-link sign-in failed for an unknown reason.') };
+    return { status: 'error', error: normalizeFirebaseAuthError(error) };
   }
 }
+
+export async function resolveFirebaseSessionForFirestore(): Promise<FirebaseSessionSnapshot> {
+  if (firebaseAuth?.currentUser) {
+    const currentUser = firebaseAuth.currentUser;
+    const existing = readFirebaseSessionSnapshot();
+    const shouldForceRefresh =
+      !existing ||
+      existing.uid !== currentUser.uid ||
+      Date.now() >= existing.expiresAt - TOKEN_REFRESH_BUFFER_MS;
+
+    const idToken = await currentUser.getIdToken(shouldForceRefresh);
+    return buildFirebaseSessionFromIdToken(currentUser.uid, currentUser.email ?? '', idToken);
+  }
+
+  const snapshot = readFirebaseSessionSnapshot();
+  if (snapshot) {
+    return snapshot;
+  }
+
+  throw new Error('Firebase session is missing. Sign in again before using Firestore.');
+}
+
+// Exported for auth-config guard checks.
+export const FIREBASE_AUTH_REST_ENDPOINTS = {
+  sendOobCode: FIREBASE_SEND_OOB_CODE_URL,
+  signInWithEmailLink: FIREBASE_SIGN_IN_WITH_EMAIL_LINK_URL,
+};
