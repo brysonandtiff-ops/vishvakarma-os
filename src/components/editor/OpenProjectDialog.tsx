@@ -16,7 +16,7 @@ export default function OpenProjectDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100%-2rem)] rounded-3xl md:max-w-lg">
+      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl md:max-w-lg">
         <DialogHeader>
           <DialogTitle>Open Project</DialogTitle>
           <DialogDescription>Load a saved blueprint from your workspace.</DialogDescription>

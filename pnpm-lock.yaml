@@ -216,6 +216,9 @@ importers:
       '@ast-grep/cli':
         specifier: ^0.39.5
         version: 0.39.9
+      '@axe-core/playwright':
+        specifier: ^4.10.2
+        version: 4.11.3(playwright-core@1.60.0)
       '@biomejs/biome':
         specifier: 2.4.5
         version: 2.4.5
@@ -363,6 +366,11 @@ packages:
     resolution: {integrity: sha512-qMtu3GplcMS4PRefPtOeN2slcn6s+ccDiMRk+RvEQoxJqflNbKZi3ZbYq7O2Xh49N/VjeiU3n+5WYHaVFFEyAg==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
+
+  '@axe-core/playwright@4.11.3':
+    resolution: {integrity: sha512-h/kfksv4F0cVIDlKpT4700OehdRgpvuVskuQ2nb7/JmtWUXpe9ftHAPtwyXGvVSsa6SJ64A9ER7Zrzc/sIvC4w==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.28.6':
     resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
@@ -2579,6 +2587,10 @@ packages:
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
+
+  axe-core@4.11.4:
+    resolution: {integrity: sha512-KunSNx+TVpkAw/6ULfhnx+HWRecjqZGTOyquAoWHYLRSdK1tB5Ihce1ZW+UY3fj33bYAFWPu7W/GRSmmrCGuxA==}
+    engines: {node: '>=4'}
 
   axios@1.13.1:
     resolution: {integrity: sha512-hU4EGxxt+j7TQijx1oYdAjw4xuIp1wRQSsbMFwSthCWeBQur1eF+qJ5iQ5sN3Tw8YRzQNKb8jszgBdMDVqwJcw==}
@@ -5365,6 +5377,11 @@ snapshots:
       '@ast-grep/cli-win32-ia32-msvc': 0.39.9
       '@ast-grep/cli-win32-x64-msvc': 0.39.9
 
+  '@axe-core/playwright@4.11.3(playwright-core@1.60.0)':
+    dependencies:
+      axe-core: 4.11.4
+      playwright-core: 1.60.0
+
   '@babel/code-frame@7.28.6':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -7737,6 +7754,8 @@ snapshots:
       picocolors: 1.1.1
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
+
+  axe-core@4.11.4: {}
 
   axios@1.13.1:
     dependencies:

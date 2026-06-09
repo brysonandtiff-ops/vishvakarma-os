@@ -12,6 +12,7 @@ describe('Blueprint editor visual polish', () => {
   it('wires the editor polish and mockup stylesheets through app startup', () => {
     const main = read('src/main.tsx');
 
+    expect(main).toContain('./styles/vish-tokens.css');
     expect(main).toContain('./styles/vish-editor-polish.css');
     expect(main).toContain('./styles/vish-mockup-system.css');
   });
@@ -22,7 +23,7 @@ describe('Blueprint editor visual polish', () => {
 
     expect(styles).toContain('.vish-workspace-shell .bg-ws-canvas');
     expect(styles).toContain('ॐ वास्तु · शिल्प · प्रमाण');
-    expect(styles).toContain('.vish-workspace-shell header.bg-ws-menubar');
+    expect(styles).toContain('.vish-workspace-shell .vish-editor-topbar');
     expect(styles).toContain('.vish-workspace-shell .ws-pane-header');
     expect(styles).toContain('.vish-workspace-shell .architect-tool-dock');
     expect(styles).toContain('.vish-workspace-shell .architect-tool-button.active');
@@ -49,6 +50,8 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('<OnboardingPanel');
     expect(editor).toContain('<StatusBar');
     expect(editor).toContain('<EditorTopBar');
+    expect(editor).toContain('fileStrip={fileStrip}');
+    expect(editor).toContain('<EditorPhasePills />');
     expect(editor).toContain('immersive');
   });
 

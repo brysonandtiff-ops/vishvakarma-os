@@ -13,7 +13,7 @@ const env = {
   VITE_FIREBASE_AUTH_DOMAIN: '',
   VITE_FIREBASE_PROJECT_ID: '',
   VITE_FIREBASE_APP_ID: '',
-  VITE_ALLOW_LOCAL_DEMO: '',
+  VITE_ALLOW_LOCAL_DEMO: 'true',
   VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
   VITE_PRICING_PAGE_ENABLED: 'true',
   PLAYWRIGHT_REUSE_SERVER: '1',
@@ -22,6 +22,21 @@ const env = {
 
 function run(command) {
   execSync(command, { stdio: 'inherit', env, shell: true });
+}
+
+function runPlaywrightAsync(args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('pnpm', ['exec', 'playwright', 'test', ...args], {
+      stdio: 'inherit',
+      env,
+      shell: true,
+    });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`Playwright exited with code ${code}`));
+    });
+  });
 }
 
 function freePreviewPort() {
@@ -54,7 +69,7 @@ async function waitForPreview(maxMs = 300_000) {
 }
 
 if (process.env.SKIP_BUILD !== '1') {
-  run('pnpm exec vite build --mode e2e');
+  run('pnpm exec vite build --mode e2e-local');
 }
 freePreviewPort();
 await delay(1000);
@@ -68,10 +83,10 @@ const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--host', '127.0.0.1',
 try {
   await delay(3000);
   await waitForPreview();
-  const testTarget = process.env.PAGE_REF_REMAINDER === '1'
-    ? 'page-reference-pack-remainder'
-    : '--project=page-reference-pack';
-  run(`pnpm exec playwright test ${testTarget}`);
+  const testArgs = process.env.PAGE_REF_REMAINDER === '1'
+    ? ['page-reference-pack-remainder']
+    : ['--project=page-reference-pack'];
+  await runPlaywrightAsync(testArgs);
 } finally {
   preview.kill('SIGTERM');
   freePreviewPort();

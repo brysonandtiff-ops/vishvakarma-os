@@ -1,0 +1,21 @@
+# Vishvakarma.OS production build — 2026-06-09
+# Command: pnpm run build (via verify:ci)
+# Commit: 616d152ce659b8f7d7ed7098dbfc86c30a8e1296
+
+rolldown-vite v7.2.10 building client environment for production...
+transforming... 2564 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                             2.06 kB │ gzip:   0.79 kB
+dist/assets/index-B2zeLU-5.css            127.95 kB │ gzip:  24.44 kB
+dist/assets/monitoring-D5TJS8m_.js          0.07 kB │ gzip:   0.08 kB
+dist/assets/rolldown-runtime-Ckerh37x.js    0.68 kB │ gzip:   0.41 kB
+dist/assets/Viewport3D-BaAZ3-WI.js         14.91 kB │ gzip:   4.97 kB
+dist/assets/vendor-misc-DIkQJosJ.js        48.25 kB │ gzip:  16.98 kB
+dist/assets/vendor-firebase-I9eyPhH7.js   135.26 kB │ gzip:  40.91 kB
+dist/assets/vendor-ui-CDx3h5pX.js         139.77 kB │ gzip:  41.85 kB
+dist/assets/vendor-react-Bmwp_sNQ.js      227.71 kB │ gzip:  75.52 kB
+dist/assets/index-CECkLRhc.js             327.31 kB │ gzip:  83.15 kB
+dist/assets/vendor-3d-3Gks12ru.js         849.12 kB │ gzip: 225.59 kB
+built in 21.50s
+EXIT: 0

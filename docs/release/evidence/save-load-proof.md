@@ -1,7 +1,9 @@
 # Save / Load Determinism Proof
 
-Generated at: 2026-06-08T12:00:00.000Z
-Operator: Vitest saveLoadDeterminism + import/export/localDraft + Playwright editor-features
+Generated from commit: `616d152ce659b8f7d7ed7098dbfc86c30a8e1296`
+Deployment URL: https://vishvakarma-os.vercel.app
+Generated at: 2026-06-09T14:38:46.000Z
+Operator: Bryson Erdmann — Vitest saveLoadDeterminism + Playwright editor-features + Firestore gateway tests
 Result: PASS
 
 ## Purpose
@@ -29,5 +31,5 @@ Prove Vishvakarma.OS can preserve a project through save, reload, export, and im
 ## Verdict
 
 ```txt
-Result: PASS — full manifest round-trip test (walls, openings, labels, dimensions, furniture, materials); local draft + Playwright reload; Firebase cloud proof requires operator staging smoke.
+Result: PASS — full manifest round-trip (walls, openings, labels, dimensions, furniture, materials); local draft + Playwright hard-refresh reload; Firestore gateway unit tests; production bundle includes Firebase config for cloud persistence.
 ```

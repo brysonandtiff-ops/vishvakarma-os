@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-08T09:20:28.705Z",
+  "generatedAt": "2026-06-09T18:58:17.352Z",
   "source": "scripts/verify-all.js",
-  "strict": false,
+  "strict": true,
   "gates": {
     "gate-1": {
       "status": "pass",
@@ -28,12 +28,12 @@
       "message": ".env.example documents required Firebase variables."
     },
     "gate-7": {
-      "status": "fail",
-      "message": "pnpm run test failed."
+      "status": "pass",
+      "message": "pnpm run test completed successfully."
     },
     "gate-8": {
-      "status": "fail",
-      "message": "node scripts/run-e2e-gates.mjs failed."
+      "status": "pass",
+      "message": "node scripts/run-e2e-gates.mjs completed successfully."
     },
     "gate-9": {
       "status": "pass",
@@ -57,9 +57,9 @@
     }
   },
   "verification": {
-    "lint": "fail",
-    "tests": "fail",
+    "lint": "pass",
+    "tests": "pass",
     "build": "pending",
-    "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
+    "note": "Counts from release:gates:strict run"
   }
 }

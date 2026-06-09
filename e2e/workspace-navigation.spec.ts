@@ -10,7 +10,7 @@ import {
 const sidebarLinks = [
   { name: 'Blueprint Editor', path: '/editor', testId: 'editor-top-bar' },
   { name: 'Projects', path: '/projects', heading: /your projects/i },
-  { name: 'Profile', path: '/profile', heading: /account/i },
+  { name: 'Profile', path: '/profile', heading: /profile/i },
   { name: 'Spec Center', path: '/spec-center', heading: /spec center/i },
   { name: 'Registry', path: '/registry', heading: /registry center/i },
   { name: 'Change Requests', path: '/change-requests', heading: /change request/i },
@@ -42,26 +42,37 @@ test.describe('workspace navigation (e2e local access)', () => {
     });
   }
 
-  test('mobile sheet drawer navigates to projects', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await gotoWorkspaceShell(page, '/projects');
-    await page.getByRole('button', { name: /open navigation/i }).click();
-    await page.getByRole('link', { name: 'Spec Center', exact: true }).click();
-    await expect(page).toHaveURL(/\/spec-center$/);
-    await expect(page.getByRole('heading', { name: /spec center/i }).first()).toBeVisible();
-  });
-
   test('command palette jumps to profile and spec center', async ({ page }) => {
-    await dismissEditorOverlays(page);
-    await page.keyboard.press('Control+K');
-    await expect(page.getByPlaceholder(/jump to a workspace/i)).toBeVisible({ timeout: 15_000 });
-    await page.getByPlaceholder(/jump to a workspace/i).fill('Profile');
+    await gotoWorkspaceShell(page, '/projects');
+
+    const openPalette = async () => {
+      await page.keyboard.press('Control+K');
+      const input = page.getByPlaceholder(/jump to a workspace/i);
+      await expect(input).toBeVisible({ timeout: 15_000 });
+      return input;
+    };
+
+    const paletteInput = await openPalette();
+    await paletteInput.fill('Profile');
     await page.getByRole('option', { name: /profile/i }).click();
     await expect(page).toHaveURL(/\/profile$/);
 
-    await page.keyboard.press('Control+K');
-    await page.getByPlaceholder(/jump to a workspace/i).fill('Spec Center');
+    const paletteInputAgain = await openPalette();
+    await paletteInputAgain.fill('Spec Center');
     await page.getByRole('option', { name: /spec center/i }).click();
     await expect(page).toHaveURL(/\/spec-center$/);
+  });
+
+  test('mobile sheet drawer navigates to spec center', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await gotoWorkspaceShell(page, '/projects');
+    const declineAnalytics = page.getByRole('button', { name: /decline/i });
+    if (await declineAnalytics.isVisible().catch(() => false)) {
+      await declineAnalytics.click();
+    }
+    await page.getByRole('button', { name: /open navigation/i }).click({ force: true });
+    await page.getByRole('link', { name: 'Spec Center', exact: true }).click();
+    await expect(page).toHaveURL(/\/spec-center$/);
+    await expect(page.getByRole('heading', { name: /spec center/i }).first()).toBeVisible({ timeout: 30_000 });
   });
 });

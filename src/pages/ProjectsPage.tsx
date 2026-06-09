@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, Loader2, PenTool, Plus, Trash2 } from 'lucide-react';
+import { FolderOpen, Loader2, MoreHorizontal, PenTool, Plus } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +15,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { deleteProject, getProjects } from '@/db/api';
 import { backendStatus } from '@/backend/backendConfig';
@@ -21,7 +28,17 @@ import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localPro
 import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
 import type { Project } from '@/types';
+import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
+
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - Date.parse(iso);
+  const days = Math.floor(diff / 86_400_000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days} days ago`;
+  return new Date(iso).toLocaleDateString();
+}
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
@@ -141,26 +158,24 @@ export default function ProjectsPage() {
   return (
     <AppLayout>
       <PageMeta title="Projects" description="Open and manage your Vishvakarma.OS floor plans." />
-      <div className="mx-auto max-w-4xl p-6 md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="vish-marketing-section-label text-[10px] uppercase tracking-[0.24em] text-primary">
-              Project Proof
-            </p>
-            <h1 className="mt-2 text-2xl font-bold text-foreground md:text-3xl">Your projects</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {backendStatus.isConfigured
-                ? `Cloud projects sync via ${cloudLabel}.`
-                : 'Local Draft mode — projects and auto-saved drafts are stored in this browser.'}
-            </p>
-          </div>
-          <Button asChild className="touch-target">
-            <Link to="/editor">
-              <Plus className="mr-2 h-4 w-4" />
-              New in editor
-            </Link>
-          </Button>
-        </div>
+      <div className="mx-auto max-w-6xl p-6 md:p-8">
+        <WorkspacePageHeader
+          eyebrow="Workspace"
+          title="Your projects"
+          description={
+            backendStatus.isConfigured
+              ? `Cloud projects sync via ${cloudLabel}.`
+              : 'Local Draft mode — projects and auto-saved drafts are stored in this browser.'
+          }
+          actions={
+            <Button asChild className="touch-target">
+              <Link to="/editor">
+                <Plus className="mr-2 h-4 w-4" />
+                New in editor
+              </Link>
+            </Button>
+          }
+        />
 
         {loading && (
           <div className="mt-12 flex flex-col items-center gap-3 text-muted-foreground">
@@ -194,81 +209,91 @@ export default function ProjectsPage() {
 
         {!loading && !error && projects.length > 0 && (
           <>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Input
-              placeholder="Search projects…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-xs"
-              aria-label="Search projects"
-            />
-            <Button
-              variant={showArchived ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setShowArchived((v) => !v)}
-            >
-              {showArchived ? 'Hide archived' : 'Show archived'}
-            </Button>
-          </div>
-          <ul className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto">
-            {filteredProjects.map((project) => {
-              const isDraft = project.id.startsWith('local-draft-');
-              return (
-                <li
-                  key={project.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/50 p-4"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-foreground">
-                      {project.name}
+            <div className="flex flex-wrap items-center gap-3">
+              <Input
+                placeholder="Search projects…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-xs"
+                aria-label="Search projects"
+              />
+              <Button
+                variant={showArchived ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowArchived((v) => !v)}
+              >
+                {showArchived ? 'Hide archived' : 'Show archived'}
+              </Button>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProjects.map((project) => {
+                const isDraft = project.id.startsWith('local-draft-');
+                const thumb = projectThumbnailDataUrl(project.manifest);
+                return (
+                  <article
+                    key={project.id}
+                    className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
+                  >
+                    <div className="relative aspect-[4/3] border-b border-border/60 bg-muted/30">
+                      {thumb ? (
+                        <img src={thumb} alt="" className="h-full w-full object-contain p-3" />
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                          <PenTool className="h-8 w-8 opacity-40" />
+                          <span className="text-xs">Empty plan</span>
+                        </div>
+                      )}
                       {isDraft && (
-                        <span className="ml-2 rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        <span className="absolute left-3 top-3 rounded-full border border-primary/30 bg-background/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
                           Draft
                         </span>
                       )}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {project.manifest.walls.length} walls · {project.manifest.openings.length} openings ·{' '}
-                      {new Date(project.updated_at).toLocaleDateString()}
-                      {!backendStatus.isConfigured && ' · Local browser'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="touch-target" onClick={() => openProject(project)}>
-                      <PenTool className="mr-1.5 h-3.5 w-3.5" />
-                      Open
-                    </Button>
-                    <Button size="sm" variant="outline" className="touch-target" onClick={() => duplicateProject(project)}>
-                      Duplicate
-                    </Button>
-                    <Button size="sm" variant="ghost" className="touch-target" onClick={() => void toggleArchive(project)}>
-                      {project.description?.includes('[archived]') ? 'Restore' : 'Archive'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="touch-target text-destructive hover:text-destructive"
-                      disabled={deletingId === project.id}
-                      onClick={() => setPendingDelete(project)}
-                      aria-label={`Delete ${project.name}`}
-                    >
-                      {deletingId === project.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <h2 className="truncate font-semibold text-foreground">{project.name}</h2>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {project.manifest.walls.length} walls · {project.manifest.openings.length} openings
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {formatRelativeTime(project.updated_at)}
+                        {!backendStatus.isConfigured && ' · Local'}
+                      </p>
+                      <div className="mt-4 flex items-center gap-2">
+                        <Button size="sm" className="touch-target flex-1" onClick={() => openProject(project)}>
+                          Open
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="touch-target px-2" aria-label={`More actions for ${project.name}`}>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => duplicateProject(project)}>Duplicate</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => void toggleArchive(project)}>
+                              {project.description?.includes('[archived]') ? 'Restore' : 'Archive'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              disabled={deletingId === project.id}
+                              onClick={() => setPendingDelete(project)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </>
         )}
       </div>
 
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="vish-dialog-chrome">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete project?</AlertDialogTitle>
             <AlertDialogDescription>

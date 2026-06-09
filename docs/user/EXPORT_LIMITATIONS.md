@@ -7,9 +7,10 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 | Format | Status | Use for |
 |--------|--------|---------|
 | **JSON** | Full round-trip | Backup, import, cloud sync, Project Proof |
-| **PNG** | Partial raster | Quick share / thumbnail (walls only) |
-| **PDF** | Visual floor plan | Rasterized plan with walls, labels, dimensions + title block |
+| **PNG** | Visual raster | Walls, openings, labels, dimensions (matches PDF plan content) |
+| **PDF** | Visual floor plan | Rasterized plan with walls, openings, labels, dimensions + title block |
 | **DXF** | Basic geometry | Simple CAD import (LINE entities only) |
+| **SVG** | Vector floor plan | Walls, openings, labels, dimensions — same builder as PNG/PDF rasterization |
 
 ## JSON (recommended)
 
@@ -23,10 +24,10 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 
 | Included | Not included |
 |----------|----------------|
-| Wall centerlines (scaled stroke) | Doors and windows |
-| Cream paper background | Labels and dimension lines |
-| | Grid overlay |
-| | Room fills or furniture |
+| Wall centerlines (scaled stroke) | Grid overlay |
+| Door/window markers on walls | Room fills or furniture |
+| Labels and dimension lines | |
+| Cream paper background | |
 
 **Not suitable for:** Construction documents, client CAD handoff, or dimensioned plans.
 
@@ -40,7 +41,7 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 - Rasterized 2D floor plan with walls, labels, and dimension lines
 - A4 landscape (default) or Letter sizing
 
-**Limitations:** Opening markers not drawn on raster; not a CAD vector export. Use DXF or JSON for CAD handoff.
+**Limitations:** Raster export only — not a CAD vector export. Use DXF or JSON for CAD handoff.
 
 ## DXF
 
@@ -63,10 +64,9 @@ Vishvakarma.OS **Export Package** uses the live `ProjectManifest` from the edito
 
 ## Tier gating (UI)
 
-In **Export Package** dialog, PDF and DXF buttons are disabled on **Starter** tier in code (`tier === 'starter'`). JSON and PNG remain available. Studio/Enterprise tiers enable all four buttons in the current build.
+In **Export Package** dialog, PDF and DXF buttons are disabled on **Starter** tier in code (`tier === 'starter'`). JSON, PNG, and SVG remain available. Studio/Enterprise tiers enable all format buttons in the current build.
 
 ## Future improvements
 
-- PNG: openings on raster
 - PDF: vector floor plan page with scale bar
 - DXF: proper blocks for doors/windows, unit metadata, room polylines

@@ -1,6 +1,6 @@
 {
   "name": "vishvakarma-os",
-  "version": "0.0.1",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.0",
@@ -19,6 +19,8 @@
     "test:e2e": "node scripts/run-e2e-gates.mjs",
     "test:e2e:auth": "pnpm exec playwright test --project=auth-gate",
     "test:e2e:app": "pnpm exec playwright test --project=app-smoke",
+    "test:e2e:cross-browser": "node scripts/run-cross-browser-gates.mjs",
+    "test:e2e:a11y": "node scripts/run-local-preview-playwright.mjs --project=accessibility-audit",
     "test:screenshots": "node scripts/run-screenshot-pack.mjs",
     "capture:page-references": "node scripts/run-page-reference-pack.mjs",
     "assets:apple-touch-icon": "node scripts/generate-apple-touch-icon.mjs",
@@ -110,6 +112,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@ast-grep/cli": "^0.39.5",
     "@biomejs/biome": "2.4.5",
     "@playwright/test": "^1.56.1",

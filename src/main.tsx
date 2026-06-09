@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "./styles/vish-tokens.css";
 import "./vish-theme.css";
 import "./ipad-workspace.css";
 import "./styles/vish-mockup-system.css";

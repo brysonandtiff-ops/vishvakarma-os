@@ -8,9 +8,9 @@
 /*
   Vishvakarma.OS — Professional Workstation Design System
   --------------------------------------------------------
-  Primary palette: neutral grays + muted accent blue (#4a90e2)
-  Workspace (canvas + toolbars): always dark (#1e1e1e range)
-  Panels (properties, dialogs, governance): light (#f8f9fa range)
+  Brand: cream blueprint canvas, black tool rails, warm gold accents (BRAND_LOCK.md)
+  Runtime overrides: vish-theme.css (cream canvas) + vish-tokens.css (canonical map)
+  Panels (properties, dialogs, governance): light cream/white range
   All colors MUST be HSL.
 */
 
@@ -248,8 +248,8 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  width: 52px;
-  height: 48px;
+  width: var(--vish-tool-button-width, 58px);
+  min-height: var(--vish-tool-button-height, 56px);
   color: hsl(var(--ws-text-dim));
   background-color: transparent;
   border: 1px solid transparent;
@@ -382,7 +382,8 @@
 .ws-status-bar {
   display: flex;
   align-items: center;
-  height: 22px;
+  min-height: var(--vish-status-bar-height, 30px);
+  height: var(--vish-status-bar-height, 30px);
   padding: 0 12px;
   gap: 16px;
   background: hsl(var(--ws-statusbar));

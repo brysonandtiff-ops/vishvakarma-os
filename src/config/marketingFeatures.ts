@@ -1,2 +1,2 @@
-/** Set true when pricing is ready for public launch (or VITE_PRICING_PAGE_ENABLED for screenshot builds). */
+/** Public `/pricing` route + nav links — `VITE_PRICING_PAGE_ENABLED=true` in env (default on in .env.example). */
 export const PRICING_PAGE_ENABLED = import.meta.env.VITE_PRICING_PAGE_ENABLED === 'true';

@@ -36,7 +36,7 @@ const specContent = `## Required UI Regions
 2. Tool Dock (64px) — Drawing tools
 3. Canvas (flexible) — 2D blueprint
 4. Properties Panel (320px) — Materials & solar
-5. Status Bar (top) — Project info
+5. Status Bar (bottom) — Tool hints, coordinates, wall/opening counts
 
 ## Tool List
 
@@ -146,7 +146,7 @@ export default function SpecCenterPage() {
               variant="outline"
               className="shrink-0"
               disabled={!backendStatus.isConfigured}
-              title={backendStatus.isConfigured ? undefined : 'Requires Firebase cloud backend'}
+              title={backendStatus.isConfigured ? undefined : 'Sign in with Firebase to create specs — go to Account Access'}
               onClick={() => setNewSpecOpen(true)}
             >
               <Plus className="mr-1.5 h-3.5 w-3.5" />

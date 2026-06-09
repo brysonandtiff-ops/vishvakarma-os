@@ -9,7 +9,7 @@ export default function AnalyticsConsentBanner() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-lg flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/95 p-4 shadow-lg backdrop-blur">
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-foreground/80">
         Vishvakarma.OS uses optional privacy-respecting analytics to improve the editor. No tracking until you opt in.
       </p>
       <div className="flex gap-2">

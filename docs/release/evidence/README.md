@@ -8,7 +8,7 @@ This folder stores production-launch evidence generated from the current codebas
 |---|---|---:|
 | `latest-ci-run.md` | Records the latest GitHub Actions run and artifact status | Yes |
 | `security-headers.md` | Records deployed response headers and CSP/HSTS proof | Yes |
-| `supabase-production-check.md` | Proves Supabase env, auth URLs, migrations, and storage/RLS assumptions are configured | Yes |
+| `firebase-production-check.md` | Proves Firebase env, auth URLs, and Firestore rules are configured | Yes |
 | `save-load-proof.md` | Proves project save, reload, export, and import behaviour | Yes |
 | `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
 | `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
@@ -28,10 +28,10 @@ This folder stores production-launch evidence generated from the current codebas
 Use this header in every evidence file:
 
 ```txt
-Generated from commit: <sha>
-Deployment URL: <url>
-Generated at: <timestamp>
-Operator: <name>
+Generated from commit: {git commit SHA}
+Deployment URL: {production URL}
+Generated at: {ISO-8601 timestamp}
+Operator: {operator name}
 Result: PASS / FAIL / PARTIAL
 ```
 
@@ -47,7 +47,7 @@ Before public release, attach:
 
 1. latest green CI run,
 2. deployed security header proof,
-3. Supabase production proof,
+3. Firebase production proof,
 4. save/load determinism proof,
 5. 2D/3D parity proof,
 6. iPad touch audit,

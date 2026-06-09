@@ -72,4 +72,15 @@ describe('FloorPlanEngine', () => {
     expect(engine.getDimensionVisibility()).toBe(false);
     expect(engine.buildManifest().dimensionVisibility).toBe(false);
   });
+
+  it('manages lighting fixtures', () => {
+    const engine = FloorPlanEngine.getInstance();
+    engine.addFixture({ id: 'fx1', type: 'point', position: { x: 100, y: 200 }, intensity: 1 });
+    expect(engine.buildManifest().fixtures).toHaveLength(1);
+    engine.updateFixture('fx1', { type: 'spot', intensity: 1.5 });
+    expect(engine.buildManifest().fixtures?.[0].type).toBe('spot');
+    expect(engine.buildManifest().fixtures?.[0].intensity).toBe(1.5);
+    engine.removeFixture('fx1');
+    expect(engine.buildManifest().fixtures).toHaveLength(0);
+  });
 });

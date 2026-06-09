@@ -28,7 +28,7 @@ The ToolRail shows **base drafting tools** on every mode plus **mode-specific to
 
 | Control | Location | Status |
 |---------|----------|--------|
-| Real-time collaboration | Collaboration bar | Requires Supabase Realtime |
+| Real-time collaboration | Collaboration bar | Requires Firebase Realtime (v2) |
 | Compass orientation pill | Canvas overlay | Read-only preview in some builds |
 
 Each tool reads/writes **`FloorPlanEngine` manifest only** — no parallel geometry state.

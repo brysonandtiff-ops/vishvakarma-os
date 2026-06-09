@@ -1,9 +1,9 @@
 # Next Steps & Roadmap
 ## Vishvakarma.OS v1.1.0 → v2.0.0
 
-**Current Status**: v1.1.0 feature polish complete locally; production requires Firebase env + evidence gate sign-off  
+**Current Status**: v1.2.0 UI polish + public readiness audit complete locally; push to main for fresh CI artifact  
 **Build**: GREEN locally — Vitest + Playwright + 13-gate manifest  
-**Last Updated**: 2026-06-08
+**Last Updated**: 2026-06-09
 
 > **Gate numbering**: Authoritative system is **13 gates** in `src/governance/gates/gate-manifest.json`. Legacy `docs/RELEASE.md` 10-gate numbers are deprecated.
 
@@ -39,7 +39,8 @@
 - [x] **Gate 11 — iPad touch audit** — Playwright tablet viewports
 - [x] **Gate 12 — Performance** — stressTest benchmarks + evidence doc
 - [ ] Physical iPad Air 2020 session (operator)
-- [ ] Cross-browser manual smoke (Chrome, Safari, Firefox)
+- [x] Cross-browser automated smoke (Firefox + WebKit via Playwright)
+- [ ] Cross-browser manual supplement (operator — see `docs/release/OPERATOR_CHECKLIST.md`)
 
 ### 1.2 Automated Tests (Gate 7–8)
 - [x] Vitest suite
@@ -60,13 +61,19 @@
 - [x] Visual PDF export
 - [x] Evidence gates 9–12 automated proof
 
-### v1.2.0 (Minor) — In progress
+### v1.2.0 (Minor) ✅
 - [x] Custom materials, furniture UX, multi-project
-- [ ] Lighting fixtures in 3D (MEP fixture manifest wired; 3D lights pending)
-- [ ] Texture upload to Firebase Storage
+- [x] Lighting fixtures in 3D — MEP tool cycles fixtures; Viewport3D point/spot/ceiling lights
+- [x] Texture upload to Firebase Storage — CustomMaterialDialog + `storageUpload.ts`
+- [x] Export fidelity — shared `floorPlanSvg.ts`; PNG/PDF include openings, labels, dimensions
+- [x] Editor polish — status bar dimension toggle, export dialog, save badges, governance CTAs
+- [x] Multi-floor scaffold — `FloorSwitcher`, `floorHelpers`, per-floor canvas filtering
+- [x] Cross-browser E2E smoke (Firefox + WebKit)
+- [x] WCAG accessibility audit (axe-playwright)
+- [x] Operator checklist, video tutorial scripts, expanded API reference
 
 ### v2.0.0 (Major) — Scaffolded
-- [ ] Multi-story (`manifest.floors[]`, `wall.floorIndex`) — types + `docs/v2/ARCHITECTURE.md`
+- [x] Multi-story scaffold (`manifest.floors[]`, `wall.floorIndex`, `FloorSwitcher`) — full 3D stacking in v2
 - [ ] Terrain modeling
 - [ ] Real-time collaboration at scale
 - [ ] DXF/DWG export extension
@@ -93,7 +100,7 @@
 ### Low Priority
 - [ ] Vite 5.x migration
 - [ ] Storybook for editor components
-- [ ] WCAG 2.1 AA audit (axe-playwright)
+- [x] WCAG 2.1 AA audit scaffold (axe-playwright — `pnpm run test:e2e:a11y`)
 
 ---
 
@@ -121,12 +128,13 @@
 ### User ✅
 - [x] Getting Started, Tool Reference, FAQ
 - [x] Keyboard shortcuts (`docs/user/KEYBOARD_SHORTCUTS.md`)
-- [ ] Video tutorials
+- [x] Video tutorial script outlines (`docs/user/VIDEO_TUTORIAL_SCRIPTS.md`)
+- [ ] Video tutorials (recorded)
 
 ### Developer ✅
 - [x] Architecture (`docs/README.md`, `docs/v2/ARCHITECTURE.md`)
 - [x] CONTRIBUTING.md, DEPLOYMENT.md
-- [ ] Standalone API reference doc
+- [x] Standalone API reference doc (`docs/developer/API.md`)
 
 ### Governance ✅
 - [x] SPEC, REGISTRY, RELEASE, CHANGELOG, MIGRATION, SECURITY

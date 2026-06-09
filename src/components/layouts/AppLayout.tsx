@@ -14,7 +14,6 @@ import {
   History,
   Menu,
   LogOut,
-  ShieldCheck,
   Search,
   PanelLeftClose,
   PanelLeftOpen,
@@ -144,14 +143,10 @@ function SidebarContent({
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="vish-wordmark truncate text-[11px] font-bold tracking-[0.28em]">
+              <p className="vish-wordmark truncate text-[11px] font-bold tracking-[0.24em]">
                 VISHVAKARMA.OS
               </p>
               <p className="font-technical text-[9px] uppercase tracking-[0.22em] text-ws-text-faint">विश्वकर्मा · Divine Architecture</p>
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-[8px] uppercase tracking-[0.18em] text-primary/85">
-                <ShieldCheck className="h-3 w-3" />
-                Governance locked
-              </div>
             </div>
           )}
         </div>
@@ -239,7 +234,7 @@ function SidebarContent({
             <div className="space-y-2">
               <div className="flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2 py-1">
                 <div className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_10px_hsl(142_60%_45%/0.75)]" />
-                <p className="text-[10px] text-ws-text-dim">Governance active · {mode}</p>
+                <p className="text-[10px] text-ws-text-dim">Session · {mode}</p>
               </div>
               <div className="vish-shell-account flex items-center justify-between gap-2 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2 py-2">
                 <div className="min-w-0">

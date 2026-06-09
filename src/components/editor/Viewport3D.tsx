@@ -3,8 +3,8 @@
 import { Component, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement } from '@/types';
+import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material } from '@/types';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -200,7 +200,9 @@ interface Viewport3DProps {
   openings: Opening[];
   lighting: LightingConfig;
   furniture?: FurnitureItem[];
+  materials?: Material[];
   mepSymbols?: MepSymbol[];
+  fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
   walkMode?: boolean;
   presentationLock?: boolean;
@@ -251,6 +253,42 @@ function MepMarker({ symbol }: { symbol: MepSymbol }) {
       <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.25} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
     </mesh>
+  );
+}
+
+function FixtureLight({ fixture }: { fixture: FixtureItem }) {
+  const { x, z } = canvasToWorld(fixture.position);
+  const intensity = (fixture.intensity ?? 1) * 0.65;
+  const warm = '#D4AF37';
+  const height = fixture.type === 'ceiling' ? 2.4 : fixture.type === 'spot' ? 2.35 : 2.1;
+
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[x, height, z]}>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <sphereGeometry args={[0.07, 10, 10]} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <meshStandardMaterial color={warm} emissive={warm} emissiveIntensity={0.45} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {fixture.type === 'spot' ? (
+        // @ts-expect-error - React Three Fiber JSX types
+        <spotLight
+          position={[x, height, z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          angle={0.55}
+          penumbra={0.4}
+          intensity={intensity}
+          color={warm}
+          distance={12}
+          castShadow
+        />
+      ) : (
+        // @ts-expect-error - React Three Fiber JSX types
+        <pointLight position={[x, height, z]} intensity={intensity} color={warm} distance={fixture.type === 'ceiling' ? 14 : 10} />
+      )}
+    </>
   );
 }
 
@@ -305,7 +343,33 @@ function LandscapeMarker({ element }: { element: LandscapeElement }) {
   );
 }
 
-function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
+function TexturedWallMaterial({
+  textureUrl,
+  color,
+  roughness,
+  metalness,
+}: {
+  textureUrl: string;
+  color: string;
+  roughness: number;
+  metalness: number;
+}) {
+  const texture = useTexture(textureUrl);
+  return (
+    // @ts-expect-error - React Three Fiber JSX types
+    <meshStandardMaterial map={texture} color={color} roughness={roughness} metalness={metalness} />
+  );
+}
+
+function WallMesh({
+  wall,
+  openings,
+  customMaterials = [],
+}: {
+  wall: Wall;
+  openings: Opening[];
+  customMaterials?: Material[];
+}) {
   const length = Math.sqrt(
     Math.pow(wall.end.x - wall.start.x, 2) + Math.pow(wall.end.y - wall.start.y, 2)
   );
@@ -320,7 +384,7 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
 
   // Get openings for this wall
   const wallOpenings = openings.filter((o) => o.wallId === wall.id);
-  const { color, roughness, metalness } = getMaterialVisual(wall.material);
+  const { color, roughness, metalness, textureUrl } = getMaterialVisual(wall.material, customMaterials);
 
   return (
     <>
@@ -333,8 +397,12 @@ function WallMesh({ wall, openings }: { wall: Wall; openings: Opening[] }) {
       >
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100, wall.height / 100, wall.thickness / 100]} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+        {textureUrl ? (
+          <TexturedWallMaterial textureUrl={textureUrl} color={color} roughness={roughness} metalness={metalness} />
+        ) : (
+          // @ts-expect-error - React Three Fiber JSX types
+          <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
+        )}
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       
@@ -541,7 +609,9 @@ export default function Viewport3D({
   openings,
   lighting,
   furniture = [],
+  materials = [],
   mepSymbols = [],
+  fixtures = [],
   landscapeElements = [],
   walkMode = false,
   presentationLock = false,
@@ -592,7 +662,7 @@ export default function Viewport3D({
             <Floor />
 
             {walls.map((wall) => (
-              <WallMesh key={wall.id} wall={wall} openings={openings} />
+              <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} />
             ))}
 
             {furniture.map((item) => (
@@ -601,6 +671,10 @@ export default function Viewport3D({
 
             {mepSymbols.map((symbol) => (
               <MepMarker key={symbol.id} symbol={symbol} />
+            ))}
+
+            {fixtures.map((fixture) => (
+              <FixtureLight key={fixture.id} fixture={fixture} />
             ))}
 
             {landscapeElements.map((element) => (

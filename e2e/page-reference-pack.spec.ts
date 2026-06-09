@@ -243,7 +243,7 @@ test.describe('page reference pack', () => {
     await shot(page, 'workspace', '21-projects-populated.png');
 
     await page.goto('/profile');
-    await expect(page.getByRole('heading', { name: /account/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /profile/i })).toBeVisible();
     await shot(page, 'workspace', '22-profile.png');
 
     // ── Governance ─────────────────────────────────────────────────────────

@@ -31,7 +31,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | Stage | Command | Result |
 |---|---|---|
 | **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
-| **Tests** | `pnpm run test` | Vitest unit/integration suite (454 tests) |
+| **Tests** | `pnpm run test` | Vitest unit/integration suite (457 tests, 47 files) |
 | **E2E** | `pnpm run test:e2e` | Playwright auth-gate + app-smoke |
 | **Build** | `pnpm run build` | Production build → `dist/` |
 | **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
@@ -44,20 +44,21 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | Component | Status | Evidence |
 |---|---|---|
 | **Lint pipeline** | ✅ Verified | `pnpm run lint` — Biome + `tsgo` + ast-grep |
-| **Test suite** | ✅ Verified | `pnpm run test` — Vitest + Playwright E2E |
+| **Test suite** | ✅ Verified | `pnpm run test` — 457 Vitest tests (47 files) + Playwright E2E |
 | **Production build** | ✅ Verified | `pnpm run build` → `dist/` |
-| **2D Blueprint Editor** | ✅ Built | Wall/door/window drawing, opening drag handles, labels (`T`), dimensions (`⇧M`), furniture (`F`), room detect, snap-to-grid, undo/redo |
-| **3D Viewport** | ✅ Built | React Three Fiber — wall extrusion, furniture boxes, solar lighting, WebGL error boundary |
+| **2D Blueprint Editor** | ✅ Built | Wall/door/window drawing, gold endpoint snap ring, opening drag handles, labels (`T`), dimensions (`⇧M` / ⇧D toggle), furniture (`F`), MEP + lighting fixtures, room detect, snap-to-grid, undo/redo (50 states) |
+| **3D Viewport** | ✅ Built | React Three Fiber — wall extrusion, semi-transparent red doors + gold windows, fixture lights, furniture boxes, solar lighting, custom texture materials, WebGL error boundary |
 | **ToolRail** | ✅ Built + Tested | Select, Wall, Door, Window, Measure, Text, Dimension, Room, MEP, Furniture, Landscape, Vastu |
 | **Properties Panel** | ✅ Built | Wall/opening inspector, label font/color editor, room area display |
 | **Solar Timeline** | ✅ Built | Sun azimuth/elevation sliders, intensity control |
-| **Material Picker** | ✅ Built | Presets + custom materials via `CustomMaterialDialog` |
-| **Visual PDF export** | ✅ Built | Rasterized floor plan with labels and dimensions (A4/Letter) |
+| **Material Picker** | ✅ Built | Presets + custom materials via `CustomMaterialDialog`; optional Firebase texture upload |
+| **Export Package** | ✅ Built | JSON · PNG · PDF (recommended) · DXF · SVG — shared `floorPlanSvg` builder for visual formats |
+| **Visual PDF export** | ✅ Built | Rasterized floor plan with openings, labels, and dimensions (A4/Letter) |
 | **Projects page** | ✅ Built | Search, archive, duplicate, cloud + local project list |
 | **Keyboard Shortcuts** | ✅ Built | `KeyboardShortcuts.tsx` (4 KB) — shortcut reference dialog |
 | **App Layout** | ✅ Built | `AppLayout.tsx` — responsive sidebar (desktop) + Sheet drawer (mobile), grouped nav sections, active indicators |
-| **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes (pricing route feature-flagged) — see Application Routes |
-| **World Records** | ✅ Built | `WorldRecordsPage.tsx` — self-verified gate-count claim, measurement artifact, honesty disclaimer |
+| **All 15 Routes** | ✅ Built | Public marketing + private editor/governance routes — `/pricing` when `VITE_PRICING_PAGE_ENABLED=true` (default in `.env.example`) — see Application Routes |
+| **World Records** | ✅ Built | `WorldRecordsPage.tsx` — 12 metric gates (gates 1–12), 13-gate release pipeline, measurement artifact, honesty disclaimer |
 | **Workspace Command Palette** | ✅ Built | `WorkspaceCommandPalette.tsx` — quick navigation across editor and governance routes |
 | **Analytics Consent** | ✅ Built | Opt-in banner pattern via `AnalyticsConsentBanner.tsx` |
 | **Extended ToolRail** | ✅ Built | Room, Vastu, MEP, Furniture, Landscape tools wired to canvas + 3D |
@@ -111,14 +112,17 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 - Custom materials, furniture placement with drag, room auto-detect with area
 - Undo / redo with full history stack
 - Save and load via Firebase Firestore or local draft recovery
-- Export: JSON · PNG · **visual PDF** · DXF · Import from JSON/SVG
+- Gold corner-join snap ring when wall endpoints align during preview
+- Export: JSON · PNG · **visual PDF** · DXF · **SVG** · Import from JSON/SVG
 - Load sample project for instant onboarding
 
 ### 3D Model Chamber
 - Live React Three Fiber viewport — updates as you draw in 2D
+- Semi-transparent red doors (`#C85A54`) and gold windows (`#D4A13D`) on extruded walls
 - OrbitControls for pan, orbit, zoom
 - Directional sun lighting with azimuth and elevation control (solar timeline)
-- Material presets: paint, wood, concrete
+- Material presets: paint, wood, concrete; optional custom texture maps
+- MEP lighting fixtures render as point/spot lights in 3D
 - **WebGL error boundary**: two-layer defence (pre-flight capability check + React error boundary) — if WebGL is unavailable the app continues running with a graceful fallback panel; no blank page, no crash
 
 ### Governance OS
@@ -472,6 +476,7 @@ Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 | [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance quick-start |
 | [`docs/REGISTRY.md`](docs/REGISTRY.md) | Registry documentation |
 | [`docs/README.md`](docs/README.md) | Extended architecture overview |
+| [`docs/PRODUCT_CAPABILITIES.md`](docs/PRODUCT_CAPABILITIES.md) | Audited 5-section capability brief (launch copy source of truth) |
 | [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_CLAIM.md) | Self-verified gate-count claim |
 | [`docs/world-record/GUINNESS_APPLICATION.md`](docs/world-record/GUINNESS_APPLICATION.md) | GWR application draft |
 | [`docs/v2/ARCHITECTURE.md`](docs/v2/ARCHITECTURE.md) | v2.0 architecture notes |
@@ -483,6 +488,13 @@ Full operator guide: [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md)
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contributor guide |
 
 ---
+
+## Changelog — v1.2 polish (2026-06-08)
+
+- MEP lighting fixtures (point/spot/ceiling) in 2D + 3D; dimension visibility chip (⇧D)
+- Custom material texture upload via Firebase Storage; export fidelity (openings in PNG/PDF/SVG)
+- SVG export in Export Package dialog; pricing page flag (`VITE_PRICING_PAGE_ENABLED=true`)
+- Product capability audit — [`docs/PRODUCT_CAPABILITIES.md`](docs/PRODUCT_CAPABILITIES.md)
 
 ## Changelog — v1.1.1 (2026-06-08)
 

@@ -1,8 +1,10 @@
-# Vishvakarma.OS v1.0.0 Documentation
+# Vishvakarma.OS Documentation
 
 ## Overview
 
 Vishvakarma.OS is an iPad-first, browser-native architectural blueprint and live 3D studio with strict governance framework. The system provides a unified workspace for 2D blueprint editing with real-time 3D visualization, material application, and solar lighting simulation.
+
+**Product capabilities (audited):** [PRODUCT_CAPABILITIES.md](./PRODUCT_CAPABILITIES.md)
 
 ## Architecture
 

@@ -3,10 +3,12 @@ import { routeMep } from '@/core/simulations/tvashtar';
 import { computeVayuField } from '@/core/simulations/vayuCFD';
 import type { ProjectManifest } from '@/types';
 
+const PANEL_CARD = 'rounded-xl border border-primary/20 bg-black/20 px-4 py-3 text-xs shadow-sm';
+
 export function TvashtarPanel({ manifest }: { manifest: ProjectManifest }) {
   const route = routeMep(manifest.walls, { x: 80, y: 80 }, { x: 400, y: 320 });
   return (
-    <div className="space-y-2 px-4 py-3 text-xs">
+    <div className={`${PANEL_CARD} space-y-2`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Tvashtar MEP</p>
       <p>Route cost: {Math.round(route.cost)}</p>
       <p className={route.success ? 'text-success' : 'text-warning'}>
@@ -19,7 +21,7 @@ export function TvashtarPanel({ manifest }: { manifest: ProjectManifest }) {
 export function AgniThermalPanel({ manifest }: { manifest: ProjectManifest }) {
   const thermal = analyzeThermal(manifest);
   return (
-    <div className="space-y-2 px-4 py-3 text-xs">
+    <div className={`${PANEL_CARD} space-y-2`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Agni Thermal</p>
       <p className="text-lg font-bold">{thermal.overallComfort}% comfort</p>
       {thermal.rooms.map((r) => (
@@ -34,7 +36,7 @@ export function AgniThermalPanel({ manifest }: { manifest: ProjectManifest }) {
 export function VayuJalaPanel({ manifest }: { manifest: ProjectManifest }) {
   const cfd = computeVayuField(manifest.walls, manifest.lighting.sunAzimuth);
   return (
-    <div className="space-y-2 px-4 py-3 text-xs">
+    <div className={`${PANEL_CARD} space-y-2`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Vayu CFD</p>
       <p>Cross-vent score: {cfd.crossVentScore}%</p>
       <p className="text-muted-foreground">CPU solver · {cfd.vectors.length} vectors</p>
@@ -44,7 +46,7 @@ export function VayuJalaPanel({ manifest }: { manifest: ProjectManifest }) {
 
 export function PanchatattvaPanel() {
   return (
-    <div className="px-4 py-3 text-xs text-muted-foreground">
+    <div className={`${PANEL_CARD} text-muted-foreground`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Panchatattva</p>
       <p className="mt-1">Five-element balance scoring with room labels.</p>
       <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
@@ -56,7 +58,7 @@ export function PanchatattvaPanel() {
 
 export function AkashaCastPanel() {
   return (
-    <div className="px-4 py-3 text-xs text-muted-foreground">
+    <div className={`${PANEL_CARD} text-muted-foreground`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Akasha Cast</p>
       <p className="mt-1">Cloud render queue for high-fidelity previews.</p>
       <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">

@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles, WifiOff } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 
 const ONBOARDING_STEPS = [
@@ -20,7 +21,15 @@ const ONBOARDING_STEPS = [
   },
 ] as const;
 
-export default function OnboardingPanel({ onLoadSample, onNewProject }: { onLoadSample: () => void; onNewProject: () => void }) {
+export default function OnboardingPanel({
+  onLoadSample,
+  onNewProject,
+  showLocalDraftNotice = false,
+}: {
+  onLoadSample: () => void;
+  onNewProject: () => void;
+  showLocalDraftNotice?: boolean;
+}) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
       <div className="pointer-events-auto w-full max-w-lg overflow-hidden rounded-3xl border border-primary/30 bg-black/85 shadow-2xl backdrop-blur-xl" data-testid="first-run-welcome">
@@ -34,6 +43,22 @@ export default function OnboardingPanel({ onLoadSample, onNewProject }: { onLoad
             <p className="text-[11px] text-ws-text-faint">Draw in 2D, preview in 3D, and keep proof visible while you work.</p>
           </div>
         </div>
+
+        {showLocalDraftNotice && (
+          <div className="mx-5 mt-4 flex items-start gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs text-ws-text-dim">
+            <WifiOff className="mt-0.5 h-4 w-4 shrink-0 text-primary/80" />
+            <div>
+              <p className="font-semibold text-ws-text">Local Draft — connect Firebase to sync</p>
+              <p className="mt-1 leading-relaxed">
+                Projects save in this browser until Firebase is configured.{' '}
+                <Link to="/auth" className="text-primary underline-offset-2 hover:underline">
+                  Sign in
+                </Link>{' '}
+                when cloud save is ready.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid gap-3 px-5 py-4 text-xs text-ws-text-dim sm:grid-cols-3">
           {ONBOARDING_STEPS.map((step, index) => (

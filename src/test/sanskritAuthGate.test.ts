@@ -58,7 +58,7 @@ describe('Sanskrit auth gate design', () => {
     expect(appLayout).toContain('vish-shell-brand');
     expect(appLayout).toContain('vish-shell-logo');
     expect(appLayout).toContain('vish-shell-nav-active');
-    expect(appLayout).toContain('Governance locked');
+    expect(appLayout).toContain('Protected workspace');
     expect(appLayout).toContain('विश्वकर्मा · Divine Architecture');
     expect(styles).toContain('.vish-workspace-sidebar');
     expect(styles).toContain('.vish-shell-nav-active');

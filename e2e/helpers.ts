@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 export async function resetWorkspacePrefs(page: Page) {
   await page.addInitScript(() => {
     window.localStorage.removeItem('vishvakarma:workspace:prefs');
-    window.localStorage.removeItem('vishvakarma.os.onboardingDismissed.v1');
+    window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
   });
 }
 
@@ -24,6 +24,11 @@ export async function dismissEditorOverlays(page: Page) {
   const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
   if (await recoveryDiscard.isVisible().catch(() => false)) {
     await recoveryDiscard.click();
+  }
+
+  const declineAnalytics = page.getByRole('button', { name: /decline/i });
+  if (await declineAnalytics.isVisible().catch(() => false)) {
+    await declineAnalytics.click();
   }
 }
 

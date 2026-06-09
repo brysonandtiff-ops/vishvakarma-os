@@ -1,6 +1,12 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
 import type { ToolType, WorkspaceMode } from '@/types';
+import {
+  ensureDefaultFloors,
+  filterOpeningsByFloor,
+  filterWallsByFloor,
+  getActiveFloorIndex,
+} from '@/utils/floorHelpers';
 
 export function useFloorPlanEngine() {
   const engine = getFloorPlanEngine();
@@ -9,10 +15,25 @@ export function useFloorPlanEngine() {
   const setTool = useCallback((tool: ToolType) => engine.setTool(tool), [engine]);
   const setWorkspaceMode = useCallback((mode: WorkspaceMode) => engine.setWorkspaceMode(mode), [engine]);
 
+  const manifest = useMemo(() => ensureDefaultFloors(snapshot.manifest), [snapshot.manifest]);
+  const activeFloorIndex = getActiveFloorIndex(manifest);
+  const floors = manifest.floors ?? [];
+  const walls = useMemo(
+    () => filterWallsByFloor(manifest.walls, activeFloorIndex),
+    [manifest.walls, activeFloorIndex],
+  );
+  const openings = useMemo(
+    () => filterOpeningsByFloor(manifest.openings, manifest.walls, activeFloorIndex),
+    [manifest.openings, manifest.walls, activeFloorIndex],
+  );
+
   return {
     ...snapshot,
-    walls: snapshot.manifest.walls,
-    openings: snapshot.manifest.openings,
+    manifest,
+    floors,
+    activeFloorIndex,
+    walls,
+    openings,
     labels: snapshot.manifest.labels ?? [],
     dimensions: snapshot.manifest.dimensions ?? [],
     rooms: snapshot.manifest.rooms ?? [],

@@ -5,6 +5,7 @@ import {
 } from '@/core/projectModel';
 import { VersionControlHooks } from '@/modules/versionControlHooks';
 import { calculateProjectCostItems } from '@/utils/costEstimate';
+import { createFloor, ensureDefaultFloors, getActiveFloorIndex } from '@/utils/floorHelpers';
 import { detectRoomAtPoint, detectRoomFromWalls } from '@/utils/roomCalculations';
 import type {
   CostItem,
@@ -206,11 +207,11 @@ export class FloorPlanEngine {
 
   loadManifest(manifest: ProjectManifest, projectName?: string): void {
     this.skipVersionSnapshot = true;
-    const normalized = {
+    const normalized = ensureDefaultFloors({
       ...manifest,
       version: manifest.version || PROJECT_SPEC_VERSION,
       costItems: calculateProjectCostItems(manifest),
-    };
+    });
     this.manifest = normalized;
     this.session = {
       ...this.session,
@@ -286,7 +287,29 @@ export class FloorPlanEngine {
   }
 
   addWall(wall: Wall): void {
-    this.touchManifest({ walls: [...this.manifest.walls, wall] });
+    const floorIndex = getActiveFloorIndex(this.manifest);
+    this.touchManifest({
+      walls: [...this.manifest.walls, { ...wall, floorIndex: wall.floorIndex ?? floorIndex }],
+    });
+  }
+
+  setActiveFloorIndex(index: number): void {
+    const floors = this.manifest.floors ?? [];
+    if (index < 0 || index >= floors.length) return;
+    if (getActiveFloorIndex(this.manifest) === index) return;
+    this.touchManifest({ activeFloorIndex: index }, 'Switch floor');
+    this.touchSession({ selectedWallId: undefined, selectedOpeningId: undefined });
+  }
+
+  addFloor(name?: string): void {
+    const floors = this.manifest.floors ?? [];
+    const nextIndex = floors.length;
+    const lastElevation = floors[floors.length - 1]?.elevation ?? 0;
+    const nextFloor = createFloor(name ?? `Level ${nextIndex + 1}`, lastElevation + 3, nextIndex);
+    this.touchManifest(
+      { floors: [...floors, nextFloor], activeFloorIndex: nextIndex },
+      'Add floor',
+    );
   }
 
   updateWall(wallId: string, updates: Partial<Wall>): void {

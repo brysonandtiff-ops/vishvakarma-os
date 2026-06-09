@@ -1,33 +1,7 @@
+import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
 import { buildTextPdf, buildVisualPdf } from '@/utils/minimalPdf';
 import type { ProjectManifest } from '@/types';
 import { summarizeProjectManifest } from '@/core/projectModel';
-
-function buildFloorPlanSvg(manifest: ProjectManifest): string {
-  const walls = manifest.walls
-    .map(
-      (w) =>
-        `<line x1="${w.start.x}" y1="${w.start.y}" x2="${w.end.x}" y2="${w.end.y}" stroke="#2c1810" stroke-width="${Math.max(w.thickness, 4)}" stroke-linecap="square" />`,
-    )
-    .join('');
-
-  const labels = (manifest.labels ?? [])
-    .map(
-      (l) =>
-        `<text x="${l.position.x}" y="${l.position.y}" fill="${l.color ?? '#2c1810'}" font-size="${l.fontSize ?? 14}" font-family="sans-serif">${l.text}</text>`,
-    )
-    .join('');
-
-  const dimensions = (manifest.dimensions ?? [])
-    .map((d) => {
-      const length = Math.hypot(d.end.x - d.start.x, d.end.y - d.start.y);
-      const midX = (d.start.x + d.end.x) / 2;
-      const midY = (d.start.y + d.end.y) / 2;
-      return `<line x1="${d.start.x}" y1="${d.start.y}" x2="${d.end.x}" y2="${d.end.y}" stroke="#B8941F" stroke-width="2" /><text x="${midX}" y="${midY - 6}" fill="#2c1810" font-size="11" text-anchor="middle">${Math.round(length)}px</text>`;
-    })
-    .join('');
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="100%" height="100%" fill="#f5f1e8"/>${walls}${dimensions}${labels}</svg>`;
-}
 
 async function rasterizeManifestToJpeg(manifest: ProjectManifest): Promise<Uint8Array> {
   const svg = buildFloorPlanSvg(manifest);

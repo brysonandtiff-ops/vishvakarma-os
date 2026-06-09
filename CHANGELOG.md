@@ -2,6 +2,20 @@
 
 All notable changes to Vishvakarma.OS are documented in this file.
 
+## [1.2.0] - 2026-06-09
+
+### Added
+- Multi-floor scaffold: `floorHelpers`, `FloorSwitcher` UI, per-floor wall filtering
+- Cross-browser Playwright smoke (Firefox + WebKit) — `pnpm run test:e2e:cross-browser`
+- WCAG accessibility audit — `pnpm run test:e2e:a11y` with `@axe-core/playwright`
+- Expanded developer API reference (`docs/developer/API.md`)
+- Video tutorial script outlines (`docs/user/VIDEO_TUTORIAL_SCRIPTS.md`)
+- Operator launch checklist (`docs/release/OPERATOR_CHECKLIST.md`)
+
+### Changed
+- `package.json` version synced to `1.1.1` (display version in `appVersion.ts`)
+- Playwright config: `cross-browser-firefox`, `cross-browser-webkit`, `accessibility-audit` projects
+
 ## [1.1.1] - 2026-06-08
 
 ### Added

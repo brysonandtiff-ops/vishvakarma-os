@@ -96,7 +96,7 @@ export function buildWorldRecordsFromMeasurement(
         title:
           'Most enforced pre-release compliance gates in a browser-native architectural floor plan editor',
         metricLabel: 'Pre-release compliance gates',
-        metricValue: '12 gates (run pnpm run record:measure)',
+        metricValue: '12 metric gates — 13 total pipeline (run pnpm run record:measure)',
         status: 'proposed',
         reproduceCommand: 'pnpm run record:measure',
         limitations: [WORLD_RECORD_HONESTY_DISCLAIMER, 'Measurement artifact not generated yet.'],

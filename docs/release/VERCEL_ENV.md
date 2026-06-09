@@ -17,7 +17,8 @@ The app is **Firebase-only**. Supabase variables are no longer used by the runti
 
 | Variable | Purpose |
 |----------|---------|
-| `VITE_FIREBASE_STORAGE_BUCKET` | Future file uploads |
+| `VITE_PRICING_PAGE_ENABLED` | Set to `true` to expose `/pricing` and nav links (launch copy ready) |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Custom material texture uploads |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase SDK completeness |
 
 ## Remove from Vercel (legacy)

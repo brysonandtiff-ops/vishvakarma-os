@@ -166,4 +166,4 @@
 1. Push and confirm **GitHub Actions** verify + e2e + release-gates jobs green
 2. Configure **Firebase staging** on Vercel; run manual cloud save + auth checklist
 3. Raise **Vitest coverage** on `src/pages/*` and `src/db/api.ts` to clear CI threshold
-4. Enable **`PRICING_PAGE_ENABLED`** when pricing copy is launch-ready
+4. ~~Enable **`PRICING_PAGE_ENABLED`** when pricing copy is launch-ready~~ — **Done** (`VITE_PRICING_PAGE_ENABLED=true` in `.env.example`; set on Vercel for production)

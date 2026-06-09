@@ -7,12 +7,13 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
 import { getToolDefaults } from '@/components/editor/toolDefaults';
-import type { ToolType, Wall, Opening, Label as TextLabel, Room } from '@/types';
+import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 
 interface PropertiesPanelProps {
   currentTool: ToolType;
   selectedWall?: Wall;
   selectedLabel?: TextLabel;
+  selectedFixture?: FixtureItem;
   selectedRoom?: Room;
   openings: Opening[];
   onWallUpdate: (wallId: string, updates: Partial<Wall>) => void;
@@ -21,6 +22,8 @@ interface PropertiesPanelProps {
   onOpeningDelete: (openingId: string) => void;
   onLabelUpdate?: (labelId: string, updates: Partial<TextLabel>) => void;
   onLabelDelete?: (labelId: string) => void;
+  onFixtureUpdate?: (fixtureId: string, updates: Partial<FixtureItem>) => void;
+  onFixtureDelete?: (fixtureId: string) => void;
   morePanel?: React.ReactNode;
 }
 
@@ -69,6 +72,7 @@ export default function PropertiesPanel({
   currentTool,
   selectedWall,
   selectedLabel,
+  selectedFixture,
   selectedRoom,
   openings,
   onWallUpdate,
@@ -77,9 +81,54 @@ export default function PropertiesPanel({
   onOpeningDelete,
   onLabelUpdate,
   onLabelDelete,
+  onFixtureUpdate,
+  onFixtureDelete,
   morePanel,
 }: PropertiesPanelProps) {
   const [moreOpen, setMoreOpen] = useState(false);
+
+  if (!selectedWall && selectedFixture && onFixtureUpdate) {
+    return (
+      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+        <div className="ws-pane-header shrink-0">
+          <span className="ws-pane-label">Lighting Fixture</span>
+        </div>
+        <div className="space-y-4 px-4 py-4">
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Type</Label>
+            <select
+              className="vish-mockup-input h-9 w-full text-xs"
+              value={selectedFixture.type}
+              onChange={(e) => onFixtureUpdate(selectedFixture.id, { type: e.target.value as FixtureItem['type'] })}
+              aria-label="Fixture type"
+            >
+              <option value="point">Point light</option>
+              <option value="spot">Spot light</option>
+              <option value="ceiling">Ceiling light</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Intensity</Label>
+              <span className="font-mono text-[11px] text-ws-text">{(selectedFixture.intensity ?? 1).toFixed(1)}</span>
+            </div>
+            <Slider
+              min={0}
+              max={2}
+              step={0.1}
+              value={[selectedFixture.intensity ?? 1]}
+              onValueChange={([v]) => onFixtureUpdate(selectedFixture.id, { intensity: v })}
+            />
+          </div>
+          {onFixtureDelete && (
+            <Button variant="destructive" size="sm" className="w-full" onClick={() => onFixtureDelete(selectedFixture.id)}>
+              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete fixture
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (

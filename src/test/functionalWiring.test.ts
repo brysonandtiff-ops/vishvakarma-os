@@ -70,6 +70,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain("navigate('/auth'");
     expect(routeGuard).toContain("state: { from: location.pathname }");
     expect(routeGuard).toContain('allowLocalAccess');
+    expect(routeGuard).toContain('isE2eAuthGateBuild');
     expect(routeGuard).toContain('showServiceConfigBanner');
     expect(routeGuard).toContain('import.meta.env.PROD');
     expect(routeGuard).toContain('if (loading && !publicRoute)');

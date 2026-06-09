@@ -50,7 +50,7 @@ export default function DraftRecoveryDialog({
 
     <Dialog open={open} onOpenChange={handleOpenChange}>
 
-      <DialogContent className="max-w-[calc(100%-2rem)] rounded-3xl md:max-w-md">
+      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl md:max-w-md">
 
         <DialogHeader>
 

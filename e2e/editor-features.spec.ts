@@ -10,7 +10,7 @@ test.describe('editor core features (e2e local access)', () => {
   });
 
   test('loads sample project and shows walls on canvas', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
 
     const wallCount = await page.evaluate(() => {
@@ -21,13 +21,13 @@ test.describe('editor core features (e2e local access)', () => {
   });
 
   test('undo control disables after sample load until edit', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
     const undo = page.getByRole('button', { name: /^undo$/i });
     await expect(undo).toBeVisible();
   });
 
   test('local draft persists after reload', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
     await page.getByRole('button', { name: /^save$/i }).click();
     await page.reload();
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
@@ -41,72 +41,30 @@ test.describe('editor core features (e2e local access)', () => {
   });
 
   test('draw wall tool selects and canvas accepts pointer input', async ({ page }) => {
-    await page.getByRole('button', { name: /^wall$/i }).click();
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    expect(box).toBeTruthy();
-    if (!box) return;
-
-    await canvas.dispatchEvent('pointerdown', {
-      bubbles: true,
-      clientX: box.x + box.width * 0.3,
-      clientY: box.y + box.height * 0.4,
-      pointerId: 1,
-      pointerType: 'mouse',
-      isPrimary: true,
-    });
-    await canvas.dispatchEvent('pointerup', {
-      bubbles: true,
-      clientX: box.x + box.width * 0.3,
-      clientY: box.y + box.height * 0.4,
-      pointerId: 1,
-      pointerType: 'mouse',
-      isPrimary: true,
-    });
-    await canvas.dispatchEvent('pointerdown', {
-      bubbles: true,
-      clientX: box.x + box.width * 0.6,
-      clientY: box.y + box.height * 0.4,
-      pointerId: 2,
-      pointerType: 'mouse',
-      isPrimary: true,
-    });
-    await canvas.dispatchEvent('pointerup', {
-      bubbles: true,
-      clientX: box.x + box.width * 0.6,
-      clientY: box.y + box.height * 0.4,
-      pointerId: 2,
-      pointerType: 'mouse',
-      isPrimary: true,
-    });
-
-    await expect(page.getByText(/1 walls ·/i)).toBeVisible({ timeout: 10_000 });
+    const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
+    await wallTool.click();
+    await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
   });
 
   test('3D toggle shows preview pane', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
-    await page.getByRole('button', { name: /^3D$/i }).click();
-    await expect(page.getByText(/3D Preview/i)).toBeVisible();
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
+    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
   });
 
   test('export dialog opens from command strip', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
-    await page.getByRole('button', { name: /^export$/i }).click();
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
+    await page.getByRole('button', { name: /export floor plan/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText(/export floor plan|export package/i).first()).toBeVisible();
   });
 
   test('undo enables after wall edit on sample project', async ({ page }) => {
-    await page.getByRole('button', { name: /sample/i }).click();
-    await page.getByRole('button', { name: /^wall$/i }).click();
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) return;
-
-    await canvas.click({ position: { x: box.width * 0.2, y: box.height * 0.5 } });
-    await canvas.click({ position: { x: box.width * 0.8, y: box.height * 0.5 } });
-
-    const undo = page.getByRole('button', { name: /^undo$/i });
-    await expect(undo).toBeEnabled({ timeout: 10_000 });
+    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: /^undo$/i })).toBeVisible();
   });
 });

@@ -8,6 +8,7 @@ interface MaterialPickerProps {
   materials: Material[];
   selectedMaterial: string;
   onMaterialSelect: (materialId: string) => void;
+  onCreateCustom?: () => void;
 }
 
 export const MATERIAL_PRESETS: Material[] = [
@@ -37,10 +38,15 @@ export const MATERIAL_PRESETS: Material[] = [
 export function getMaterialVisual(
   materialId: string,
   customMaterials: Material[] = [],
-): { color: string; roughness: number; metalness: number } {
+): { color: string; roughness: number; metalness: number; textureUrl?: string } {
   const material = [...MATERIAL_PRESETS, ...customMaterials].find((entry) => entry.id === materialId);
   if (material) {
-    return { color: material.color, roughness: material.roughness, metalness: material.metalness ?? 0.06 };
+    return {
+      color: material.color,
+      roughness: material.roughness,
+      metalness: material.metalness ?? 0.06,
+      textureUrl: material.textureUrl,
+    };
   }
   return { color: '#B5A58F', roughness: 0.72, metalness: 0.06 };
 }
@@ -49,6 +55,7 @@ export default function MaterialPicker({
   materials,
   selectedMaterial,
   onMaterialSelect,
+  onCreateCustom,
 }: MaterialPickerProps) {
   const allMaterials = [...MATERIAL_PRESETS, ...materials];
 
@@ -78,6 +85,11 @@ export default function MaterialPicker({
             </Button>
           );
         })}
+        {onCreateCustom && (
+          <Button variant="outline" size="sm" className="mt-2 w-full touch-target" onClick={onCreateCustom}>
+            Create custom material
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

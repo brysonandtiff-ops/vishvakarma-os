@@ -43,7 +43,7 @@ export default function ImportFloorPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100%-2rem)] rounded-3xl border-primary/30 bg-stone-50 md:max-w-md">
+      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl border-primary/30 md:max-w-md">
         <DialogHeader className="items-center text-center">
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
             आयात · Import

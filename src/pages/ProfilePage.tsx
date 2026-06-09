@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, Mail, Shield } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,10 +23,13 @@ export default function ProfilePage() {
     <AppLayout>
       <PageMeta title="Profile" description="Your Vishvakarma.OS account and workspace mode." />
       <div className="mx-auto max-w-lg p-6 md:p-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-primary">Protected Workspace</p>
-        <h1 className="mt-2 text-2xl font-bold text-foreground">Account</h1>
+        <WorkspacePageHeader
+          eyebrow="Account"
+          title="Profile"
+          description="Workspace session, backend mode, and sign-out controls."
+        />
 
-        <div className="mt-8 space-y-4 rounded-2xl border border-border bg-card/50 p-6">
+        <div className="space-y-4 rounded-2xl border border-border bg-card/80 p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             <div>
@@ -61,8 +65,8 @@ export default function ProfilePage() {
           <Button variant="outline" asChild className="touch-target">
             <Link to="/projects">View projects</Link>
           </Button>
-          <Button variant="destructive" className="touch-target" onClick={() => void handleSignOut()}>
-            <LogOut className="mr-2 h-4 w-4" />
+          <Button variant="destructive" onClick={() => void handleSignOut()} className="touch-target gap-2">
+            <LogOut className="h-4 w-4" />
             Sign out
           </Button>
         </div>

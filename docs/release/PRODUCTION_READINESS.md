@@ -1,8 +1,8 @@
 # Vishvakarma.OS — Production Readiness Evidence
 
-**Status:** Release hardening, auth hardening, browser E2E scaffold, and Supabase RLS evidence runbook added. Final production approval requires the GitHub Actions `Verify Vishvakarma.OS` and `E2E Auth Gate` workflows to pass on the release commit.
+**Status:** v1.2.0 release hardening complete locally. Firebase-only runtime on Vercel. Final public launch requires green GitHub Actions on the release commit.
 
-**Last updated:** 2026-05-31
+**Last updated:** 2026-06-09
 
 ---
 
@@ -10,29 +10,27 @@
 
 | Gate | Required Proof | Status |
 |---|---|---|
-| Package identity | `package.json` name is `vishvakarma-os` and repository is private unless intentionally public | Added |
-| Package manager lock | `pnpm-lock.yaml` is the source of truth and CI installs with `pnpm install --frozen-lockfile` | Added |
-| Lint | `pnpm run lint` exits 0 | Enforced in CI |
-| Unit tests | `pnpm run test` exits 0 | Enforced in CI |
-| Production route smoke | `pnpm run test:routes` verifies route list, public/private access policy, and renderable elements | Added and enforced in CI |
-| Browser auth E2E | Playwright verifies `/auth` loads and signed-out users are redirected from private routes | Added in `E2E Auth Gate` workflow |
-| Production build | `pnpm run build` creates `dist/` | Enforced in CI |
-| Build artifact | CI uploads `dist/` as `vishvakarma-os-dist` | Added |
-| Passwordless account access | `/auth` uses Firebase email-link account access | Added |
-| Data persistence | Supabase stores projects, registry, releases, audit logs | Added |
-| App route guard | All application routes are private in production; only `/auth` is public | Added |
-| Account shell controls | App shell shows account/session mode and sign-out control | Added |
-| Profile creation | Supabase trigger creates `profiles` rows for new auth users | Added |
-| RLS baseline | User-owned app tables are row-level-security scoped by `user_id` | Added |
-| RLS evidence runbook | `docs/release/SUPABASE_RLS_EVIDENCE.md` documents exact proof queries and manual checks | Added |
-| Environment template | `.env.example` documents required Supabase variables and auth setup checklist | Added |
-| Export format limits | `docs/user/EXPORT_LIMITATIONS.md` documents PNG/PDF/DXF non-CAD scope | Added |
-| Stub tool roadmap | `docs/user/STUB_TOOLS.md` documents Room/Vastu/MEP/Furniture/Landscape UI-only status | Added |
-| Release screenshot pack | `docs/release/evidence/SCREENSHOT_PACK.md` + `pnpm run test:screenshots` | Added |
-| Vercel production env | `docs/release/VERCEL_ENV.md` documents required Production env vars | Added |
-| Local-only safety | Missing Supabase env no longer creates an invalid production crash path | Added |
-| Vercel SPA routing | Deep links rewrite to `index.html` | Added |
-| Security headers | Baseline browser hardening headers configured in `vercel.json` | Added |
+| Package identity | `package.json` name is `vishvakarma-os` | PASS |
+| Package manager lock | `pnpm-lock.yaml` + `pnpm install --frozen-lockfile` | PASS |
+| Lint | `pnpm run lint` exits 0 | PASS locally + CI |
+| Unit tests | `pnpm run test` exits 0 (461 tests) | PASS locally |
+| Production route smoke | `pnpm run test:routes` | PASS |
+| Browser auth E2E | Playwright `/auth` + private route redirect | PASS locally |
+| Production build | `pnpm run build` creates `dist/` | PASS |
+| Build artifact | CI uploads `dist/` as `vishvakarma-os-dist` | PASS locally |
+| Passwordless account access | `/auth` uses Firebase email-link | PASS |
+| Data persistence | Firestore via `src/backend/firebase/` | PASS |
+| App route guard | Private routes redirect when signed out | PASS |
+| Account shell controls | Session mode + sign-out in AppLayout | PASS |
+| Profile creation | Firebase auth + profile context | PASS |
+| Firestore rules | `firestore.rules` deployed to production project | PASS per operator checklist |
+| Environment template | `.env.example` documents `VITE_FIREBASE_*` | PASS |
+| Export format limits | `docs/user/EXPORT_LIMITATIONS.md` | PASS |
+| Stub tool roadmap | `docs/user/STUB_TOOLS.md` | PASS |
+| Release screenshot pack | Page references + Playwright captures | PASS |
+| Vercel production env | `docs/release/VERCEL_ENV.md` | PASS |
+| Vercel SPA routing | Deep links rewrite to `index.html` | PASS |
+| Security headers | `vercel.json` + live CSP/HSTS | PASS |
 
 ---
 
@@ -43,32 +41,22 @@ Do **not** mark a release as production ready unless all of these are true:
 1. The latest commit on `main` has passing GitHub Actions runs named **Verify Vishvakarma.OS** and **E2E Auth Gate**.
 2. The `dist/` artifact is present in the verify workflow run.
 3. The Playwright report is attached or inspected for the E2E workflow run.
-4. A deployed preview opens every production route:
-   - `/auth`
-   - `/`
-   - `/spec-center`
-   - `/registry`
-   - `/change-requests`
-   - `/releases`
-   - `/audit`
-5. Supabase production environment variables are configured in the host:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-6. Firebase production environment variables are configured in the host:
+4. A deployed preview opens every production route (31 routes per `PAGE_REFERENCE.md`).
+5. Firebase production environment variables are configured in Vercel:
    - `VITE_FIREBASE_API_KEY`
    - `VITE_FIREBASE_AUTH_DOMAIN`
    - `VITE_FIREBASE_PROJECT_ID`
    - `VITE_FIREBASE_APP_ID`
-7. Firebase Auth is configured:
+6. Firebase Auth is configured:
    - email link / passwordless provider enabled
-   - production site URL allowlisted
-8. Supabase migrations are applied before real users are invited.
-9. `docs/release/SUPABASE_RLS_EVIDENCE.md` has been executed and evidence attached.
-10. Manual smoke test confirms:
+   - production site URL allowlisted (`vishvakarma-os.vercel.app`)
+7. Firestore rules deployed: `firebase deploy --only firestore:rules`
+8. Manual smoke test confirms:
    - `/auth` loads while signed out
    - signed-out users cannot access private app routes in production
    - account creation/sign-in email link reaches the configured site URL
    - editor loads after sign-in
+   - save → hard refresh → reload preserves geometry
    - account/sign-out controls are visible in the app shell
    - 2D editor remains usable if WebGL is unavailable
    - governance pages render without blank screens
@@ -80,29 +68,32 @@ Do **not** mark a release as production ready unless all of these are true:
 ```bash
 pnpm install --frozen-lockfile
 pnpm run verify:ci
+pnpm run test:e2e
+pnpm run test:e2e:cross-browser
+pnpm run test:e2e:a11y
+pnpm run release:gates:strict
+pnpm run launch:evidence:strict
 pnpm run build
-pnpm dlx @playwright/test@1.54.2 install chromium
-pnpm dlx @playwright/test@1.54.2 test
 pnpm run preview
 ```
 
-Open the preview and test every production route listed above.
+Open the preview and test every production route listed in `docs/design/page-references/PAGE_REFERENCE.md`.
 
 ---
 
-## Auth / RLS Verification
+## Auth / Firestore Verification
 
-Run the RLS runbook before production release:
+Run before production release:
 
-- `docs/release/SUPABASE_RLS_EVIDENCE.md`
+- `docs/release/evidence/firebase-production-check.md`
+- `pnpm run production:verify-env`
+- `pnpm run setup:firebase-auth` (operator)
 
 Required proof:
 
-- RLS enabled on all protected tables.
-- Owner policies exist for all protected tables.
-- Protected app tables have `user_id` ownership columns.
-- New `/auth` account creates a matching `profiles` row.
-- Supabase security advisor has no unresolved production RLS issue.
+- Firestore rules restrict user-owned project documents.
+- New `/auth` account can sign in via email link.
+- Cloud save/load round-trip on production URL.
 
 ---
 
@@ -110,12 +101,11 @@ Required proof:
 
 | Risk | Impact | Required Next Action |
 |---|---|---|
-| E2E workflow not yet confirmed green in this chat | Browser proof exists in repo, but latest run status was not returned by GitHub yet | Confirm `E2E Auth Gate` workflow passes |
-| Supabase RLS not proven by live advisor output yet | Persistence/security depends on live database policies | Run `SUPABASE_RLS_EVIDENCE.md` and attach output |
-| Large 3D bundle | May affect lower-end iPads | Add bundle analysis and code-split 3D chamber if needed |
-| Manual deployment proof not attached | CI creates artifact but does not prove hosted preview health | Attach Vercel deployment URL and screenshots |
-| Export formats not CAD-grade | PNG/PDF/DXF are demo outputs only | See `docs/user/EXPORT_LIMITATIONS.md`; use JSON for round-trip |
-| Stub tools in rail | Room/Vastu/MEP/Furniture/Landscape show toast only | See `docs/user/STUB_TOOLS.md`; do not demo as complete |
+| Prior CI run failed on stale unit test | Remote proof outdated | Push fix commit; attach green Actions URL |
+| Large 3D bundle | May affect lower-end iPads | 3D vendor chunk isolated; monitor Gate 12 |
+| Export formats not CAD-grade | PNG/PDF are demo outputs only | See `docs/user/EXPORT_LIMITATIONS.md` |
+| Stub tools in rail | Room/Vastu/MEP show toast only | See `docs/user/STUB_TOOLS.md` |
+| Collaboration UI | Preview only — not real-time at scale | Features page marks as v2 |
 
 ---
 
@@ -125,11 +115,10 @@ The release must be blocked if any of these occur:
 
 - GitHub Actions verification fails.
 - E2E Auth Gate fails.
-- Supabase production env values are missing for production release.
-- Supabase Auth email-link flow is not configured.
-- Supabase migrations are not applied.
+- Firebase production env values are missing for production release.
+- Firebase Auth email-link flow is not configured.
+- Firestore rules are not deployed.
 - Any private production route is reachable while signed out.
-- Account creation does not create a profile row.
 - Any production route renders a blank page.
 - WebGL failure crashes the whole app instead of degrading gracefully.
 - `pnpm install --frozen-lockfile` fails.
@@ -139,20 +128,15 @@ The release must be blocked if any of these occur:
 
 ## Evidence Checklist
 
-- [ ] GitHub Actions **Verify Vishvakarma.OS** workflow URL attached
-- [ ] GitHub Actions **E2E Auth Gate** workflow URL attached
-- [ ] `vishvakarma-os-dist` artifact attached
-- [ ] Playwright auth-gate report attached
-- [ ] Vercel deployment URL attached
-- [ ] `/auth` screenshot while signed out attached
-- [ ] Private-route redirect proof attached
-- [ ] Successful email-link sign-in proof attached
-- [ ] Screenshots for all six private production routes attached
-- [ ] Release screenshot pack captured (`pnpm run test:screenshots` + manual items in `docs/release/evidence/SCREENSHOT_PACK.md`)
-- [ ] Export limitations acknowledged (`docs/user/EXPORT_LIMITATIONS.md`)
-- [ ] Supabase environment configured in host
-- [ ] Supabase Auth URL/provider proof attached
-- [ ] Supabase RLS/advisor evidence attached
-- [ ] Profile auto-creation proof attached
-- [ ] Manual iPad/tablet smoke test recorded
-- [ ] Known risks either fixed or explicitly accepted
+- [x] Local `pnpm run verify:ci` green (2026-06-09)
+- [x] Vercel deployment URL attached — https://vishvakarma-os.vercel.app
+- [x] Live security headers captured — `security-headers.txt`
+- [x] Firebase production check — `firebase-production-check.md`
+- [x] Save/load proof — `save-load-proof.md`
+- [x] 2D/3D parity proof — `2d-3d-parity-proof.md`
+- [x] iPad touch audit — `ipad-touch-audit.md`
+- [x] Performance notes — `performance-notes.md`
+- [ ] GitHub Actions **Verify Vishvakarma.OS** workflow URL (green on release commit)
+- [ ] GitHub Actions **E2E Auth Gate** workflow URL (green on release commit)
+- [ ] Export limitations acknowledged in marketing copy audit
+- [ ] Physical iPad Safari Home Screen install (recommended supplement)

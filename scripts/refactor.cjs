@@ -11,7 +11,7 @@ import SaveModeBadge from '@/components/editor/SaveModeBadge';
 import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
-import { useSupabaseStatus } from '@/hooks/useSupabaseStatus';`;
+import { useCloudSaveStatus } from '@/hooks/useCloudSaveStatus';`;
 
 content = content.replace(/import \{\n  buildDraftPayload/, importsToAdd + '\nimport {\n  buildDraftPayload');
 content = content.replace(/import type \{ LightingConfig, Opening, Project, ProjectManifest, ToolType, Wall \} from '@\/types';/, "import type { LightingConfig, Opening, Project, ProjectManifest, SaveState, ToolType, Wall } from '@/types';");

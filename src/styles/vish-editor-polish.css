@@ -8,6 +8,7 @@
     hsl(var(--ws-canvas));
 }
 
+.vish-workspace-shell .vish-editor-topbar,
 .vish-workspace-shell header.bg-ws-menubar {
   position: relative;
   min-height: 3.35rem;
@@ -18,6 +19,7 @@
     0 10px 26px hsl(0 0% 0% / 0.28);
 }
 
+.vish-workspace-shell .vish-editor-topbar::after,
 .vish-workspace-shell header.bg-ws-menubar::after {
   content: 'ॐ वास्तु · शिल्प · प्रमाण';
   position: absolute;
@@ -127,7 +129,32 @@
   text-shadow: 0 0 18px hsl(43 90% 62% / 0.2);
 }
 
+.vish-editor-file-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid hsl(var(--ws-border) / 0.65);
+  background: hsl(var(--ws-menubar));
+  padding: 0.35rem 0.75rem;
+}
+
+.vish-dialog-chrome [data-slot='dialog-header'] {
+  border-bottom: 1px solid hsl(var(--border));
+  padding-bottom: 1rem;
+}
+
+.vish-dialog-chrome [data-slot='dialog-header']::before {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: -1.5rem -1.5rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.15), hsl(var(--primary)), hsl(var(--primary) / 0.15));
+}
+
 @media (max-width: 900px) {
+  .vish-workspace-shell .vish-editor-topbar::after,
   .vish-workspace-shell header.bg-ws-menubar::after {
     display: none;
   }

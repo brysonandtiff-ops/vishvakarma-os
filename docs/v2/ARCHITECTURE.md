@@ -4,7 +4,8 @@
 
 - `BuildingFloor` entries in `manifest.floors[]`
 - `wall.floorIndex` scopes geometry per level
-- Floor switcher UI in editor toolbar (planned)
+- Floor switcher UI in editor toolbar (`FloorSwitcher.tsx` — scaffolded in v1.2.0)
+- Per-floor 2D canvas filtering via `floorHelpers.ts` (3D vertical stacking planned)
 
 ## Terrain modeling
 

@@ -1,7 +1,8 @@
 # iPad / Touch Target Audit
 
-Generated at: 2026-05-31T12:00:00.000Z
-Operator: Playwright iPad viewport + coarse-pointer touch audit
+Generated from commit: `616d152ce659b8f7d7ed7098dbfc86c30a8e1296`
+Generated at: 2026-06-09T14:38:46.000Z
+Operator: Bryson Erdmann — Playwright iPad viewport + coarse-pointer touch audit
 Result: PASS
 
 ## Minimum 44x44 px target

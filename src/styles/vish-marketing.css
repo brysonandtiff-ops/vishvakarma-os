@@ -15,7 +15,15 @@
   font-weight: 700;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: hsl(var(--vish-gold-muted));
+  color: hsl(var(--vish-gold));
+}
+
+.vish-marketing-page .vish-devanagari-accent {
+  color: hsl(var(--vish-gold));
+}
+
+.vish-marketing-page .vish-text-body {
+  color: hsl(var(--vish-text-muted));
 }
 
 .vish-features-toggle button[data-active='true'] {
@@ -37,4 +45,15 @@
   background: hsl(0 0% 4% / 0.75);
   border-radius: 1rem;
   padding: 1.75rem;
+}
+
+.vish-marketing-page .vish-gold-button,
+.vish-marketing-page a.bg-primary {
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.vish-marketing-page .vish-gold-button:hover,
+.vish-marketing-page a.bg-primary:hover {
+  box-shadow: 0 0 24px hsl(var(--primary) / 0.35);
+  transform: translateY(-1px);
 }

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import type {
   DimensionAnnotation,
+  FixtureItem,
   FurnitureItem,
   Label,
   LandscapeElement,
@@ -37,6 +38,7 @@ interface BlueprintCanvasProps {
   rooms?: Room[];
   furniture?: FurnitureItem[];
   mepSymbols?: MepSymbol[];
+  fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
   northOrientation?: number;
   currentTool: ToolType;
@@ -56,7 +58,10 @@ interface BlueprintCanvasProps {
   selectedLabelId?: string;
   onLabelSelect?: (labelId: string | undefined) => void;
   onMepSymbolAdd?: (symbol: MepSymbol) => void;
+  onFixtureAdd?: (fixture: FixtureItem) => void;
   onLandscapeAdd?: (element: LandscapeElement) => void;
+  selectedFixtureId?: string;
+  onFixtureSelect?: (fixtureId: string | undefined) => void;
   onPointerCanvasMove?: (point: Point2D) => void;
   onWallSelect: (wallId: string | undefined) => void;
   onOpeningSelect?: (openingId: string | undefined) => void;
@@ -73,6 +78,15 @@ const FURNITURE_PRESETS = [
 ] as const;
 
 const MEP_TYPES: MepSymbol['type'][] = ['outlet', 'switch', 'hvac', 'panel'];
+const FIXTURE_TYPES: FixtureItem['type'][] = ['point', 'spot', 'ceiling'];
+type MepPlacement =
+  | { kind: 'mep'; type: MepSymbol['type'] }
+  | { kind: 'fixture'; type: FixtureItem['type'] };
+
+const MEP_PLACEMENT_CYCLE: MepPlacement[] = [
+  ...MEP_TYPES.map((type) => ({ kind: 'mep' as const, type })),
+  ...FIXTURE_TYPES.map((type) => ({ kind: 'fixture' as const, type })),
+];
 const LANDSCAPE_TYPES = ['tree', 'shrub', 'path'] as const;
 
 const MEP_COLORS: Record<MepSymbol['type'], string> = {
@@ -120,6 +134,7 @@ export default function BlueprintCanvas({
   rooms = [],
   furniture = [],
   mepSymbols = [],
+  fixtures = [],
   landscapeElements = [],
   northOrientation = 0,
   currentTool,
@@ -137,6 +152,9 @@ export default function BlueprintCanvas({
   onFurnitureAdd,
   onFurnitureUpdate,
   onMepSymbolAdd,
+  onFixtureAdd,
+  selectedFixtureId,
+  onFixtureSelect,
   selectedLabelId,
   onLabelSelect,
   onLandscapeAdd,
@@ -170,7 +188,7 @@ export default function BlueprintCanvas({
   const [dragFurniturePosition, setDragFurniturePosition] = useState<Point2D | null>(null);
   const [dimensionStart, setDimensionStart] = useState<Point2D | null>(null);
   const [furniturePresetIndex, setFurniturePresetIndex] = useState(0);
-  const [mepTypeIndex, setMepTypeIndex] = useState(0);
+  const [mepPlacementIndex, setMepPlacementIndex] = useState(0);
   const [landscapeTypeIndex, setLandscapeTypeIndex] = useState(0);
 
   const snapToGrid = useCallback(
@@ -265,6 +283,14 @@ export default function BlueprintCanvas({
     [furniture],
   );
 
+  const getFixtureAtPoint = useCallback(
+    (point: Point2D, mode: InputMode) => fixtures.find((fixture) => {
+      const radius = 10 + getHitArea(mode, 2);
+      return Math.hypot(point.x - fixture.position.x, point.y - fixture.position.y) <= radius;
+    }),
+    [fixtures],
+  );
+
   const placeOpening = (point: Point2D, mode: InputMode) => {
     if (currentTool !== 'door' && currentTool !== 'window') return;
 
@@ -337,6 +363,16 @@ export default function BlueprintCanvas({
       const label = getLabelAtPoint(point);
       if (label) {
         onLabelSelect?.(label.id);
+        onFixtureSelect?.(undefined);
+        onOpeningSelect?.(undefined);
+        onWallSelect(undefined);
+        return;
+      }
+
+      const fixture = getFixtureAtPoint(point, mode);
+      if (fixture) {
+        onFixtureSelect?.(fixture.id);
+        onLabelSelect?.(undefined);
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
         return;
@@ -344,6 +380,7 @@ export default function BlueprintCanvas({
 
       onOpeningSelect?.(undefined);
       onLabelSelect?.(undefined);
+      onFixtureSelect?.(undefined);
       onWallSelect(getWallAtPoint(point, getHitArea(mode, 5))?.id);
       return;
     }
@@ -394,13 +431,22 @@ export default function BlueprintCanvas({
     }
 
     if (currentTool === 'mep') {
-      const type = MEP_TYPES[mepTypeIndex % MEP_TYPES.length];
-      onMepSymbolAdd?.({
-        id: `mep-${Date.now()}`,
-        type,
-        position: point,
-      });
-      setMepTypeIndex((index) => (index + 1) % MEP_TYPES.length);
+      const placement = MEP_PLACEMENT_CYCLE[mepPlacementIndex % MEP_PLACEMENT_CYCLE.length];
+      if (placement.kind === 'mep') {
+        onMepSymbolAdd?.({
+          id: `mep-${Date.now()}`,
+          type: placement.type,
+          position: point,
+        });
+      } else {
+        onFixtureAdd?.({
+          id: `fixture-${Date.now()}`,
+          type: placement.type,
+          position: point,
+          intensity: 1,
+        });
+      }
+      setMepPlacementIndex((index) => (index + 1) % MEP_PLACEMENT_CYCLE.length);
       return;
     }
 
@@ -669,6 +715,32 @@ export default function BlueprintCanvas({
       ctx.fillText(symbol.type.slice(0, 1).toUpperCase(), symbol.position.x, symbol.position.y + 3);
     }
 
+    for (const fixture of fixtures) {
+      const { x, y } = fixture.position;
+      const selected = fixture.id === selectedFixtureId;
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = selected ? 'rgba(212, 175, 55, 0.45)' : 'rgba(212, 175, 55, 0.25)';
+      ctx.fill();
+      ctx.strokeStyle = selected ? '#D4AF37' : '#b48c3c';
+      ctx.lineWidth = selected ? 2 : 1.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y - 6);
+      ctx.lineTo(x - 4, y + 2);
+      ctx.lineTo(x + 4, y + 2);
+      ctx.closePath();
+      ctx.fillStyle = '#D4AF37';
+      ctx.fill();
+      ctx.strokeStyle = '#5c4b2a';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#3d2914';
+      ctx.font = '7px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(fixture.type.slice(0, 1).toUpperCase(), x, y + 14);
+    }
+
     for (const element of landscapeElements) {
       if (element.type === 'tree') {
         ctx.beginPath();
@@ -735,7 +807,7 @@ export default function BlueprintCanvas({
     if (isDrawing && startPoint && currentPoint) {
       drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
     }
-  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
+  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
 
   return (
     <div className="relative">
