@@ -101,6 +101,12 @@ async function main() {
   const updated = await updateConfig(token, current);
   console.log('[PASS] Updated authorized domains:', updated.authorizedDomains ?? []);
   console.log('[PASS] Updated email sign-in:', updated.signIn?.email ?? {});
+
+  const PRODUCTION_DOMAIN = 'vishvakarma-os.vercel.app';
+  if (!(updated.authorizedDomains ?? []).includes(PRODUCTION_DOMAIN)) {
+    throw new Error(Production domain missing after update: );
+  }
+  console.log('[PASS] Production domain verified:', PRODUCTION_DOMAIN);
 }
 
 main().catch((error) => {

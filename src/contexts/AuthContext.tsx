@@ -210,6 +210,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await loadProfile(nextUser);
         } catch (error) {
           console.error('[Vishvakarma.OS] Firebase OAuth redirect sign-in failed:', error);
+          if (mounted) {
+            setEmailLinkError(
+              error instanceof Error ? error.message : 'Google sign-in redirect failed. Try again.'
+            );
+          }
         } finally {
           if (mounted) {
             setLoading(false);
@@ -219,6 +224,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch((error) => {
         if (!mounted) return;
         console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', error);
+        setEmailLinkError(
+          error instanceof Error ? error.message : 'Google sign-in redirect failed. Try again.'
+        );
         setLoading(false);
       });
 
