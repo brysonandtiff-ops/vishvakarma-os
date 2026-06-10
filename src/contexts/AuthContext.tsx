@@ -9,7 +9,13 @@ import {
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
 import { firebaseAuth } from '@/backend/firebase/firebaseClient';
-import { signInWithAppleFirebase, signInWithGoogleFirebase, formatAuthError } from '@/backend/firebase/firebaseOAuthGateway';
+import {
+  clearOAuthRedirectPending,
+  consumeOAuthRedirectPending,
+  formatAuthError,
+  signInWithAppleFirebase,
+  signInWithGoogleFirebase,
+} from '@/backend/firebase/firebaseOAuthGateway';
 import { ensureFirestoreProfile, getFirestoreProfile } from '@/backend/firebase/firestoreProfileGateway';
 import type { Profile } from '@/types';
 import { onAuthStateChanged, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
@@ -193,31 +199,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void getRedirectResult(firebaseAuth)
       .then(async (credential) => {
-        try {
-          const entry = {
-            sessionId: 'd4817d',
-            location: 'AuthContext.tsx:getRedirectResult',
-            message: 'redirect result resolved',
-            data: { hasUser: Boolean(credential?.user), host: window.location.hostname },
-            hypothesisId: 'D',
-            timestamp: Date.now(),
-          };
-          const existing = JSON.parse(window.localStorage.getItem('vish-debug-d4817d') ?? '[]') as unknown[];
-          window.localStorage.setItem(
-            'vish-debug-d4817d',
-            JSON.stringify(Array.isArray(existing) ? [...existing, entry].slice(-20) : [entry])
-          );
-          fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd4817d' },
-            body: JSON.stringify(entry),
-          }).catch(() => {});
-        } catch {
-          // ignore debug persistence failures
-        }
-        if (!mounted || !credential?.user) {
+        if (!mounted) {
           return;
         }
+
+        if (!credential?.user) {
+          if (consumeOAuthRedirectPending() && mounted) {
+            setEmailLinkError(
+              'Google sign-in could not finish in this browser. Open this page in Chrome or Safari (not the Cursor embedded preview), then try again.'
+            );
+          }
+          return;
+        }
+
+        clearOAuthRedirectPending();
 
         try {
           const nextSession = await syncSessionFromFirebaseUser(
@@ -246,9 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch((error) => {
         if (!mounted) return;
         const code = (error as { code?: string })?.code ?? '';
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'AuthContext.tsx:getRedirectResult',message:'redirect result error',data:{code,message:error instanceof Error?error.message:String(error)},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
+        clearOAuthRedirectPending();
         if (code === 'auth/no-auth-event') {
           setLoading(false);
           return;

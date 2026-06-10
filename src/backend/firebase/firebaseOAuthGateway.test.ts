@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { formatAuthError, isWebKitBrowser, shouldPreferRedirectFlow } from './firebaseOAuthGateway';
+import {
+  clearOAuthRedirectPending,
+  consumeOAuthRedirectPending,
+  formatAuthError,
+  isEmbeddedAuthBrowser,
+  isWebKitBrowser,
+  markOAuthRedirectPending,
+  shouldPreferRedirectFlow,
+} from './firebaseOAuthGateway';
 
 describe('isWebKitBrowser', () => {
   it('detects desktop Safari', () => {
@@ -29,6 +37,35 @@ describe('isWebKitBrowser', () => {
     const ua =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0';
     expect(isWebKitBrowser(ua)).toBe(false);
+  });
+});
+
+describe('isEmbeddedAuthBrowser', () => {
+  it('detects Cursor embedded preview', () => {
+    const ua =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Cursor/1.0 Chrome/120.0.0.0 Safari/537.36';
+    expect(isEmbeddedAuthBrowser(ua)).toBe(true);
+  });
+
+  it('does not treat Chrome as embedded', () => {
+    const ua =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    expect(isEmbeddedAuthBrowser(ua)).toBe(false);
+  });
+
+  it('does not treat Playwright HeadlessChrome as embedded', () => {
+    const ua =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.0.0 Safari/537.36';
+    expect(isEmbeddedAuthBrowser(ua)).toBe(false);
+  });
+});
+
+describe('oauth redirect pending marker', () => {
+  it('tracks a recent redirect attempt', () => {
+    clearOAuthRedirectPending();
+    markOAuthRedirectPending();
+    expect(consumeOAuthRedirectPending()).toBe(true);
+    expect(consumeOAuthRedirectPending()).toBe(false);
   });
 });
 

@@ -8,6 +8,7 @@ import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
+import { isEmbeddedAuthBrowser } from '@/backend/firebase/firebaseOAuthGateway';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
@@ -103,6 +104,14 @@ export default function AuthPage() {
   const signInHeadline = getSignInHeadline(winner);
   const signInHelperLine = getSignInHelperLine(winner);
   const workspaceStatusLabel = isConfigured ? 'Protected Workspace' : 'Local Draft';
+  const embeddedAuthBrowser = useMemo(
+    () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
+    []
+  );
+  const externalAuthUrl = useMemo(
+    () => (typeof window !== 'undefined' ? window.location.href : '/auth'),
+    []
+  );
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -347,12 +356,22 @@ export default function AuthPage() {
             </AuthStatusBanner>
           )}
 
+          {showGoogleSignIn && embeddedAuthBrowser && (
+            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-embedded-browser-warning">
+              Google sign-in does not work in the Cursor embedded preview.{' '}
+              <a href={externalAuthUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                Open in Chrome or Safari
+              </a>{' '}
+              to sign in.
+            </AuthStatusBanner>
+          )}
+
           {showGoogleSignIn && (
             <div className="space-y-4">
               <button
                 type="button"
                 className="vish-gold-button vish-gold-button--with-icon"
-                disabled={submitting || !isConfigured || showConfigRequired}
+                disabled={submitting || !isConfigured || showConfigRequired || embeddedAuthBrowser}
                 onClick={() => void handleGoogleSignIn()}
               >
                 <span className="vish-gold-button__icon">

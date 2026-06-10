@@ -21,38 +21,37 @@ type AuthErrorContext = {
   usedRedirect?: boolean;
 };
 
-const DEBUG_LOG_KEY = 'vish-debug-d4817d';
+const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
 
-function persistOAuthDebugLog(
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-  hypothesisId: string
-) {
-  const entry = {
-    sessionId: 'd4817d',
-    location,
-    message,
-    data,
-    hypothesisId,
-    timestamp: Date.now(),
-  };
-
+export function markOAuthRedirectPending() {
   try {
-    const existing = JSON.parse(window.localStorage.getItem(DEBUG_LOG_KEY) ?? '[]') as unknown[];
-    const next = Array.isArray(existing) ? [...existing, entry].slice(-20) : [entry];
-    window.localStorage.setItem(DEBUG_LOG_KEY, JSON.stringify(next));
+    sessionStorage.setItem(OAUTH_REDIRECT_PENDING_KEY, String(Date.now()));
   } catch {
     // ignore storage failures
   }
+}
 
-  // #region agent log
-  fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd4817d' },
-    body: JSON.stringify(entry),
-  }).catch(() => {});
-  // #endregion
+export function clearOAuthRedirectPending() {
+  try {
+    sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function consumeOAuthRedirectPending(maxAgeMs = 120_000): boolean {
+  try {
+    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
+    sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
+    if (!raw) {
+      return false;
+    }
+
+    const started = Number(raw);
+    return Number.isFinite(started) && Date.now() - started < maxAgeMs;
+  } catch {
+    return false;
+  }
 }
 
 export function formatAuthError(error: unknown, context: AuthErrorContext = {}): Error {
@@ -111,8 +110,16 @@ export function shouldPreferRedirectFlow() {
   return true;
 }
 
-function isEmbeddedBrowser(userAgent: string) {
-  return /Cursor|Electron|VSCode|HeadlessChrome/i.test(userAgent);
+export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
+  // Do not match HeadlessChrome — Playwright and CI browsers use it; only block IDE embedded previews.
+  return /Cursor|Electron|VSCode/i.test(userAgent);
+}
+
+function formatEmbeddedBrowserError(): Error {
+  const url = typeof window !== 'undefined' ? window.location.href : '/auth';
+  return new Error(
+    `Google sign-in does not work in embedded IDE browsers (Cursor, VS Code). Open this page in Chrome or Safari: ${url}`
+  );
 }
 
 function shouldFallbackToRedirect(error: unknown) {
@@ -139,31 +146,18 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
     throw new Error('Firebase Auth is not initialized.');
   }
 
+  if (isEmbeddedAuthBrowser()) {
+    throw formatEmbeddedBrowserError();
+  }
+
   const preferRedirect = shouldPreferRedirectFlow();
-  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-  persistOAuthDebugLog(
-    'firebaseOAuthGateway.ts:signInWithProvider',
-    'oauth flow start',
-    {
-      preferRedirect,
-      isProd: import.meta.env.PROD,
-      host: window.location.hostname,
-      embedded: isEmbeddedBrowser(userAgent),
-    },
-    'A'
-  );
 
   if (preferRedirect) {
     try {
+      markOAuthRedirectPending();
       await signInWithRedirect(firebaseAuth, provider);
     } catch (error) {
-      const authError = error as AuthError;
-      persistOAuthDebugLog(
-        'firebaseOAuthGateway.ts:redirect',
-        'redirect sign-in failed',
-        { code: authError?.code ?? '', message: error instanceof Error ? error.message : String(error) },
-        'B'
-      );
+      clearOAuthRedirectPending();
       throw formatAuthError(error, { usedRedirect: true });
     }
     return { session: null, redirecting: true };
@@ -182,18 +176,12 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
 
     return { session, redirecting: false };
   } catch (error) {
-    const authError = error as AuthError;
-    // #region agent log
-    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:popup',message:'popup sign-in failed',data:{code:authError?.code??'',willFallback:shouldFallbackToRedirect(error)},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     if (shouldFallbackToRedirect(error)) {
       try {
+        markOAuthRedirectPending();
         await signInWithRedirect(firebaseAuth, provider);
       } catch (redirectError) {
-        const redirectAuthError = redirectError as AuthError;
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:popup-fallback',message:'redirect fallback failed',data:{popupCode:authError?.code??'',redirectCode:redirectAuthError?.code??''},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
+        clearOAuthRedirectPending();
         throw formatAuthError(redirectError, { usedRedirect: true });
       }
       return { session: null, redirecting: true };
