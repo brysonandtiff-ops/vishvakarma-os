@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
+const htmlReportFolder = process.env.PLAYWRIGHT_HTML_REPORT ?? 'playwright-report';
 
 const authGateServerEnv = {
   ...process.env,
@@ -20,6 +21,61 @@ const appSmokeServerEnv = {
   VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
 };
 
+const AUTH_GATE_MATCH = [
+  '**/auth-gate.spec.ts',
+  '**/auth-private-routes.spec.ts',
+  '**/ipad-production-readiness.spec.ts',
+];
+
+const APP_SMOKE_MATCH = [
+  '**/ipad-editor-layout.spec.ts',
+  '**/governance-smoke.spec.ts',
+  '**/editor-features.spec.ts',
+  '**/marketing-pages.spec.ts',
+  '**/workspace-navigation.spec.ts',
+  '**/projects-profile.spec.ts',
+  '**/optimization.spec.ts',
+  '**/ai-designer.spec.ts',
+  '**/collaboration-sync.spec.ts',
+  '**/compliance-gate.spec.ts',
+];
+
+const BROWSERS = [
+  { slug: 'chromium', device: 'Desktop Chrome' as const },
+  { slug: 'firefox', device: 'Desktop Firefox' as const },
+  { slug: 'webkit', device: 'Desktop Safari' as const },
+];
+
+const browserMatrixProjects = BROWSERS.flatMap((browser) => [
+  {
+    name: `auth-gate-${browser.slug}`,
+    testMatch: AUTH_GATE_MATCH,
+    use: { ...devices[browser.device] },
+    webServer: {
+      command: 'pnpm run preview:e2e',
+      url: previewUrl,
+      reuseExistingServer,
+      timeout: 300_000,
+      env: authGateServerEnv,
+    },
+  },
+  {
+    name: `app-smoke-${browser.slug}`,
+    testMatch: APP_SMOKE_MATCH,
+    use: { ...devices[browser.device], hasTouch: true },
+    webServer: {
+      command: 'pnpm run preview:e2e:local',
+      url: previewUrl,
+      reuseExistingServer,
+      timeout: 300_000,
+      env: appSmokeServerEnv,
+    },
+  },
+]);
+
+const chromiumAuthGate = browserMatrixProjects.find((project) => project.name === 'auth-gate-chromium')!;
+const chromiumAppSmoke = browserMatrixProjects.find((project) => project.name === 'app-smoke-chromium')!;
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
@@ -31,7 +87,7 @@ export default defineConfig({
   retries: 1,
   workers: 1,
   reporter: process.env.CI
-    ? [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
+    ? [['list'], ['html', { outputFolder: htmlReportFolder, open: 'never' }]]
     : [['list']],
   use: {
     baseURL: previewUrl,
@@ -40,42 +96,9 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   projects: [
-    {
-      name: 'auth-gate',
-      testMatch: [
-        '**/auth-gate.spec.ts',
-        '**/auth-private-routes.spec.ts',
-        '**/ipad-production-readiness.spec.ts',
-      ],
-      use: { ...devices['Desktop Chrome'] },
-      webServer: {
-        command: 'pnpm run preview:e2e',
-        url: previewUrl,
-        reuseExistingServer,
-        timeout: 300_000,
-        env: authGateServerEnv,
-      },
-    },
-    {
-      name: 'app-smoke',
-      testMatch: [
-        '**/ipad-editor-layout.spec.ts',
-        '**/governance-smoke.spec.ts',
-        '**/editor-features.spec.ts',
-        '**/marketing-pages.spec.ts',
-        '**/workspace-navigation.spec.ts',
-        '**/projects-profile.spec.ts',
-        '**/optimization.spec.ts',
-      ],
-      use: { ...devices['Desktop Chrome'], hasTouch: true },
-      webServer: {
-        command: 'pnpm run preview:e2e:local',
-        url: previewUrl,
-        reuseExistingServer,
-        timeout: 300_000,
-        env: appSmokeServerEnv,
-      },
-    },
+    ...browserMatrixProjects,
+    { ...chromiumAuthGate, name: 'auth-gate' },
+    { ...chromiumAppSmoke, name: 'app-smoke' },
     {
       name: 'screenshot-pack',
       testMatch: ['**/release-screenshot-pack.spec.ts', '**/marketing-asset-pack.spec.ts'],
@@ -92,30 +115,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1194, height: 834 },
         hasTouch: true,
-      },
-    },
-    {
-      name: 'cross-browser-firefox',
-      testMatch: ['**/cross-browser-smoke.spec.ts'],
-      use: { ...devices['Desktop Firefox'], hasTouch: true },
-      webServer: {
-        command: 'pnpm run preview:e2e:local',
-        url: previewUrl,
-        reuseExistingServer,
-        timeout: 300_000,
-        env: appSmokeServerEnv,
-      },
-    },
-    {
-      name: 'cross-browser-webkit',
-      testMatch: ['**/cross-browser-smoke.spec.ts'],
-      use: { ...devices['Desktop Safari'], hasTouch: true },
-      webServer: {
-        command: 'pnpm run preview:e2e:local',
-        url: previewUrl,
-        reuseExistingServer,
-        timeout: 300_000,
-        env: appSmokeServerEnv,
       },
     },
     {

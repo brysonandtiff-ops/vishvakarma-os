@@ -80,7 +80,7 @@ pnpm run test:firebase-auth              # quota-safe config check (no live emai
 
 ## Cross-Browser Smoke
 
-Automated via `pnpm run test:e2e:cross-browser` (Firefox + WebKit).
+Automated via `pnpm run test:e2e:cross-browser` (full auth-gate + app-smoke on Chromium, Firefox, and WebKit). CI runs the same matrix in parallel.
 
 Manual supplement (optional):
 

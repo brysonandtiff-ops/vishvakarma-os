@@ -2,7 +2,7 @@
  * Headless Playwright check: production /auth Google OAuth starts without Firebase errors.
  * Run: pnpm run verify:production-auth-flow
  */
-import { webkit, chromium } from '@playwright/test';
+import { webkit, chromium, firefox } from '@playwright/test';
 
 const PRODUCTION_AUTH =
   process.env.PRODUCTION_AUTH_URL ?? 'https://vishvakarma-os.vercel.app/auth';
@@ -60,6 +60,7 @@ async function testBrowser(name, launcher) {
 
 await testBrowser('webkit', webkit);
 await testBrowser('chromium', chromium);
+await testBrowser('firefox', firefox);
 
 const failed = results.filter((r) => !r.pass);
 if (failed.length > 0) {

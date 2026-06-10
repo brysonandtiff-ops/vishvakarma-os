@@ -49,6 +49,13 @@ export function formatAuthError(error: unknown): Error {
   return error instanceof Error ? error : new Error(message);
 }
 
+export function isWebKitBrowser(userAgent: string): boolean {
+  return (
+    /iPad|iPhone|iPod/i.test(userAgent) ||
+    (/Safari/i.test(userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Firefox/i.test(userAgent))
+  );
+}
+
 function shouldPreferRedirectFlow() {
   if (typeof window === 'undefined') {
     return false;
@@ -60,6 +67,10 @@ function shouldPreferRedirectFlow() {
   }
 
   const userAgent = navigator.userAgent;
+  if (isWebKitBrowser(userAgent)) {
+    return true;
+  }
+
   return /iPad|iPhone|iPod|Android|Mobile/i.test(userAgent);
 }
 

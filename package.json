@@ -7,6 +7,12 @@
   "engines": {
     "node": ">=20"
   },
+  "browserslist": [
+    "Chrome >= 90",
+    "Firefox >= 88",
+    "Safari >= 14",
+    "iOS >= 14"
+  ],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
@@ -25,7 +31,7 @@
     "marketing:assets": "node scripts/run-local-preview-playwright.mjs --project=screenshot-pack marketing-asset-pack.spec.ts",
     "capture:page-references": "node scripts/run-page-reference-pack.mjs",
     "assets:apple-touch-icon": "node scripts/generate-apple-touch-icon.mjs",
-    "test:e2e:install": "pnpm exec playwright install --with-deps",
+    "test:e2e:install": "pnpm exec playwright install --with-deps chromium firefox webkit",
     "lint": "pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure",
     "lint:types": "tsgo -p tsconfig.check.json",
     "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",

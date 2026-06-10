@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dismissEditorOverlays, resetWorkspacePrefs } from './helpers';
+import { dismissEditorOverlays, expect3DPreviewPane, resetWorkspacePrefs } from './helpers';
 
 test.describe('editor core features (e2e local access)', () => {
   test.setTimeout(90_000);
@@ -52,7 +52,7 @@ test.describe('editor core features (e2e local access)', () => {
   test('3D toggle shows preview pane', async ({ page }) => {
     await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
     await page.getByRole('button', { name: /toggle 3d view/i }).click();
-    await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
+    await expect3DPreviewPane(page);
   });
 
   test('export dialog opens from command strip', async ({ page }) => {

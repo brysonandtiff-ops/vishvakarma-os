@@ -1,22 +1,19 @@
 #!/usr/bin/env node
-/** Cross-browser smoke with stable preview; WebKit skipped on Windows (Playwright limitation). */
+/** Full auth-gate + app-smoke matrix on chromium, firefox, and webkit. */
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const args = ['--project=cross-browser-firefox'];
 
-if (process.platform !== 'win32') {
-  args.push('--project=cross-browser-webkit');
-} else {
-  console.log('Note: WebKit cross-browser smoke is skipped on Windows; run on Linux/macOS or in CI for Safari coverage.');
-}
-
-const child = spawn('node', ['scripts/run-local-preview-playwright.mjs', ...args], {
+const child = spawn('node', ['scripts/run-e2e-gates.mjs'], {
   cwd: root,
   stdio: 'inherit',
   shell: true,
+  env: {
+    ...process.env,
+    PLAYWRIGHT_BROWSERS: 'all',
+  },
 });
 
 child.on('exit', (code) => process.exit(code ?? 1));

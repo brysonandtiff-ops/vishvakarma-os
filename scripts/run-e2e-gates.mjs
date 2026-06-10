@@ -5,6 +5,28 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const previewPort = process.env.PLAYWRIGHT_PREVIEW_PORT ?? '4173';
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${previewPort}`;
+const ALL_BROWSERS = ['chromium', 'firefox', 'webkit'];
+
+function parseBrowsers() {
+  const raw = process.env.PLAYWRIGHT_BROWSERS ?? 'chromium';
+  if (raw === 'all') {
+    return ALL_BROWSERS;
+  }
+
+  const selected = raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const invalid = selected.filter((browser) => !ALL_BROWSERS.includes(browser));
+  if (invalid.length > 0) {
+    throw new Error(`Unknown PLAYWRIGHT_BROWSERS value(s): ${invalid.join(', ')}`);
+  }
+
+  return selected.length > 0 ? selected : ['chromium'];
+}
+
+const browsers = parseBrowsers();
 
 const baseEnv = {
   ...process.env,
@@ -69,7 +91,7 @@ function runPlaywrightAsync(project, env) {
     child.on('error', reject);
     child.on('exit', (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`Playwright exited with code ${code}`));
+      else reject(new Error(`Playwright exited with code ${code} for project ${project}`));
     });
   });
 }
@@ -104,12 +126,25 @@ async function runPlaywrightProject(project, env) {
   }
 }
 
+console.log(`[e2e] Browsers: ${browsers.join(', ')}`);
+
 freePreviewPort();
 run('pnpm exec vite build --mode e2e', { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
-await runPlaywrightProject('auth-gate', { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
+
+for (const browser of browsers) {
+  console.log(`[e2e] auth-gate-${browser}`);
+  await runPlaywrightProject(`auth-gate-${browser}`, { VITE_E2E_ALLOW_LOCAL_ACCESS: '' });
+}
 
 run(
   'pnpm exec vite build --mode e2e-local',
   { VITE_E2E_ALLOW_LOCAL_ACCESS: 'true', VITE_ALLOW_LOCAL_DEMO: 'true' },
 );
-await runPlaywrightProject('app-smoke', { VITE_E2E_ALLOW_LOCAL_ACCESS: 'true', VITE_ALLOW_LOCAL_DEMO: 'true' });
+
+for (const browser of browsers) {
+  console.log(`[e2e] app-smoke-${browser}`);
+  await runPlaywrightProject(`app-smoke-${browser}`, {
+    VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+    VITE_ALLOW_LOCAL_DEMO: 'true',
+  });
+}

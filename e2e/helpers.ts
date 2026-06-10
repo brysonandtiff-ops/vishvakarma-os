@@ -1,4 +1,12 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
+
+/** 3D pane may render WebGL or a graceful fallback in headless WebKit/Firefox. */
+export async function expect3DPreviewPane(page: Page) {
+  await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
+  const fallback = page.getByText('3D Preview Unavailable');
+  const canvas = page.locator('.bg-ws-canvas canvas').first();
+  await expect(fallback.or(canvas)).toBeVisible({ timeout: 15_000 });
+}
 
 export async function resetWorkspacePrefs(page: Page) {
   await page.addInitScript(() => {

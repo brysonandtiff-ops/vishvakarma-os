@@ -34,8 +34,8 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 |---|---|---|
 | **Lint** | `pnpm run lint` | Biome + tsgo + ast-grep |
 | **Tests** | `pnpm run test` | Vitest — 461 tests (48 files) |
-| **E2E** | `pnpm run test:e2e` | Playwright — 60 tests (21 auth-gate + 39 app-smoke) |
-| **Cross-browser** | `pnpm run test:e2e:cross-browser` | Firefox smoke (WebKit on Linux/macOS CI) |
+| **E2E** | `pnpm run test:e2e` | Playwright — ~60 tests on Chromium (auth-gate + app-smoke) |
+| **Cross-browser** | `pnpm run test:e2e:cross-browser` | Full E2E matrix on Chromium, Firefox, and WebKit (CI runs all three in parallel) |
 | **A11y** | `pnpm run test:e2e:a11y` | axe-playwright WCAG 2.1 AA scan |
 | **Build** | `pnpm run build` | Production build → `dist/` |
 | **Verify** | `pnpm run verify:ci` | lint → coverage → routes → build |
@@ -363,8 +363,8 @@ pnpm run dev                    # Vite dev server on 127.0.0.1
 pnpm run build                  # Production build → dist/
 pnpm run preview                # Serve dist/ locally on :4173
 pnpm run test                   # Vitest unit/integration suite
-pnpm run test:e2e               # Playwright auth-gate + app-smoke (60 tests)
-pnpm run test:e2e:cross-browser # Firefox + WebKit smoke
+pnpm run test:e2e               # Playwright auth-gate + app-smoke on Chromium
+pnpm run test:e2e:cross-browser # Full auth-gate + app-smoke on Chromium, Firefox, WebKit
 pnpm run test:e2e:a11y          # WCAG 2.1 AA axe audit
 pnpm run test:coverage          # Vitest with v8 coverage report
 pnpm run lint                   # tsgo + Biome + ast-grep

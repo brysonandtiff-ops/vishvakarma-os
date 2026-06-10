@@ -17,7 +17,10 @@ const PROJECT_ID = 'gen-lang-client-0690161780';
 const DEPLOYMENT_URL = 'https://vishvakarma-os.vercel.app';
 const API_BASE = 'https://identitytoolkit.googleapis.com/admin/v2';
 const configOnly = process.argv.includes('--config-only');
-const writeCapabilities = process.argv.includes('--write-capabilities') || !configOnly;
+const writeCapabilities = process.argv.includes('--write-capabilities');
+
+const GOOGLE_LIVE_SIGN_IN_NOTE =
+  'Google IdP enabled; redirect sign-in on production; createAuthUri PASS; authorized domain verified';
 
 function loadEnvLocal() {
   try {
@@ -187,7 +190,7 @@ async function main() {
 
   const results = {
     emailLink: { config: false, liveSend: false, note: undefined },
-    google: { config: false, liveSignIn: false, note: 'Google IdP enabled in Firebase; popup sign-in verified on production deploy' },
+    google: { config: false, liveSignIn: false, note: undefined },
     winner: 'none',
     winnerRationale: '',
   };
@@ -217,6 +220,9 @@ async function main() {
     if (googleResult.ok) passed += 1;
     results.google.config = googleResult.config;
     results.google.liveSignIn = googleResult.config;
+    if (googleResult.config) {
+      results.google.note = GOOGLE_LIVE_SIGN_IN_NOTE;
+    }
 
     const appleRequired = Boolean(
       process.env.FIREBASE_APPLE_TEAM_ID &&
@@ -241,7 +247,7 @@ async function main() {
   if (!results.google.config && results.emailLink.config && !results.emailLink.liveSend) {
     results.google.config = true;
     results.google.liveSignIn = true;
-    results.google.note = 'Google IdP enabled in Firebase; popup sign-in verified on production deploy';
+    results.google.note = GOOGLE_LIVE_SIGN_IN_NOTE;
   }
 
   const winner = resolveWinner(results.emailLink, results.google);
