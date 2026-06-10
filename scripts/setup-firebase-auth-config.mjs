@@ -13,6 +13,7 @@ import { spawnSync } from 'child_process';
 const PROJECT_ID = 'gen-lang-client-0690161780';
 const DOMAINS = [
   'localhost',
+  '127.0.0.1',
   'vishvakarma-os.vercel.app',
   'gen-lang-client-0690161780.firebaseapp.com',
 ];
