@@ -34,7 +34,11 @@ test.describe('Design Optimization', () => {
     await expect(page.getByTestId('optimization-loading')).toBeVisible();
     await expect(page.getByTestId('candidate-grid')).toBeVisible({ timeout: 90_000 });
     await expect(page.getByTestId('candidate-card-candidate-a')).toBeVisible();
-    await expect(page.getByTestId('optimization-report')).toBeVisible();
+    await expect(page.getByTestId('optimization-dashboard')).toBeVisible();
+    await expect(page.getByTestId('cost-intelligence-panel')).toBeVisible();
+    await expect(page.getByTestId('moat-gain-panel')).toBeVisible();
+    await expect(page.getByTestId('winner-hero-panel')).toBeVisible();
+    await expect(page.getByTestId('tradeoff-delta-chart')).toBeVisible();
     await expect(page.getByTestId('score-breakdown')).toBeVisible();
   });
 });

@@ -1,7 +1,9 @@
+import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type {
   OptimizationBatch,
   OptimizationBatchInput,
   OptimizationCandidate,
+  OptimizationStrategy,
 } from '@/domain/optimization/types';
 import { applyConstraints } from '@/ai/building-designer/generators/constraintEngine';
 import { solveLayout } from '@/ai/building-designer/generators/layoutSolver';
@@ -44,7 +46,7 @@ export async function runOptimizationBatch(
   const siteFitness = computeSiteFitness(baseRequest, council);
   const batchId = input.sessionId ?? crypto.randomUUID();
   const strategies = getAllStrategies();
-  const rawBuildings = [];
+  const rawBuildings: Array<{ strategy: OptimizationStrategy; building: GeneratedBuilding }> = [];
 
   for (let i = 0; i < strategies.length; i += 1) {
     const strategy = strategies[i];
@@ -84,6 +86,7 @@ export async function runOptimizationBatch(
         ? { siteSurvey: input.ingestion.siteSurvey, boundary: input.ingestion.boundary }
         : undefined,
       optimization: optimizationMeta,
+      targetBudget: input.targetBudget,
     });
 
     if (input.targetBudget) {
@@ -127,7 +130,7 @@ export async function runOptimizationBatch(
   candidates = rankCandidates(candidates);
   const winner = candidates[0];
   const runnerUp = candidates[1] ?? candidates[0];
-  const report = buildOptimizationReport(winner, runnerUp);
+  const report = buildOptimizationReport(winner, runnerUp, candidates);
 
   onProgress?.(strategies.length, 'complete');
 

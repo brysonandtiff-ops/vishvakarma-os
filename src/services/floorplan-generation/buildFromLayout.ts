@@ -27,6 +27,7 @@ export interface BuildFromLayoutInput {
   uploadedDocuments?: CopilotManifestMetadata['uploadedDocuments'];
   ingestion?: { siteSurvey?: CopilotManifestMetadata['siteSurvey']; boundary?: CopilotManifestMetadata['boundary'] };
   optimization?: OptimizationManifestMetadata;
+  targetBudget?: number;
 }
 
 export function buildGeneratedBuildingFromLayout(input: BuildFromLayoutInput): GeneratedBuilding {
@@ -60,7 +61,13 @@ export function buildGeneratedBuildingFromLayout(input: BuildFromLayoutInput): G
     optimization: input.optimization,
   });
 
-  const costSummary = buildCostSummary(manifest);
+  const costSummary = buildCostSummary(manifest, {
+    materialList,
+    schedules,
+    request: input.request,
+    council: input.council,
+    targetBudget: input.targetBudget,
+  });
   const complianceReport = runComplianceAuditFromManifest(manifest, {
     id: input.sessionId,
     name: manifest.name,

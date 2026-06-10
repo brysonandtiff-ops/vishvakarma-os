@@ -6,6 +6,26 @@ Describe the user value this PR adds.
 
 -
 
+## Build gate (system contract)
+
+If this PR touches generation, compliance, cost, or optimization core:
+
+```ts
+BUILD_GATE = {
+  touchesCore: false,
+  modifiesPipeline: false,
+  affectsCompliance: false,
+  affectsCostModel: false,
+  requiresRevalidation: false,
+  valuationImpact: { from: '$X', to: '$Y', reason: '...' }, // required when affectsCostModel
+}
+```
+
+- `touchesCore=true` → architecture approval required
+- `affectsCompliance=true` → full regression + `pnpm run test:anchors`
+- `affectsCostModel=true` → anchor suite + valuation impact reason
+- Behavior changes must update: `system-map.json`, `src/core-contract/`, `tests/anchors/`, version bump
+
 ## Build doctrine
 
 Complete these fields before review:

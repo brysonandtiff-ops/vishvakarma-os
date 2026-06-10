@@ -9,6 +9,7 @@ import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
 import type { OptimizationManifestMetadata } from '@/domain/optimization/types';
 import { createProjectManifest } from '@/core/projectModel';
 import { validateManifest } from '@/core/manifestSchema';
+import { stampSystemMetadata } from '@/core-contract/systemVersions';
 import type { Label, ProjectManifest, Room } from '@/types';
 
 export interface AIDesignerMetadata {
@@ -68,14 +69,14 @@ export function buildManifestFromFloorPlan(
     ...manifest,
     labels,
     rooms,
-    metadata: {
+    metadata: stampSystemMetadata({
       ...manifest.metadata,
       aiDesigner: meta as unknown as Record<string, unknown>,
       ...(meta.copilot ? { copilot: meta.copilot as unknown as Record<string, unknown> } : {}),
       ...(meta.optimization
         ? { optimization: meta.optimization as unknown as Record<string, unknown> }
         : {}),
-    },
+    }),
   };
 
   const validation = validateManifest(enriched);

@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "description": "Authoritative system graph — drift detector source of truth. Must align with src/core-contract/system.schema.ts SYSTEM_VERSIONS.",
+  "modules": {
+    "INPUT": {
+      "version": "1.0.0",
+      "tier": "immutable_core",
+      "ownership": "user-uploads",
+      "spec": null
+    },
+    "ARCHITECTURE_COPILOT": {
+      "version": "2.0.0",
+      "tier": "immutable_core",
+      "ownership": "src/services/floorplan-generation/",
+      "spec": "docs/specs/ARCHITECTURE_COPILOT_v2.md"
+    },
+    "OPTIMIZATION_ENGINE": {
+      "version": "1.3.0",
+      "tier": "immutable_core",
+      "ownership": "src/services/optimization/",
+      "spec": "docs/specs/DESIGN_OPTIMIZATION_ENGINE.md"
+    },
+    "COMPLIANCE_GATE": {
+      "version": "1.0.0",
+      "tier": "immutable_core",
+      "ownership": "src/modules/compliance/",
+      "spec": "docs/specs/ARCHITECTURE_COPILOT_v2.md"
+    },
+    "PERMIT_PACKAGE_EXPORT": {
+      "version": "1.0.0",
+      "tier": "extension",
+      "ownership": "src/modules/permit/",
+      "spec": "docs/specs/ARCHITECTURE_COPILOT_v2.md"
+    },
+    "COST_INTELLIGENCE": {
+      "version": "0.9.0",
+      "tier": "extension",
+      "ownership": "src/services/cost-estimation/",
+      "spec": "docs/specs/CONSTRUCTION_COST_INTELLIGENCE.md"
+    }
+  },
+  "allowed_edges": [
+    "INPUT→ARCHITECTURE_COPILOT",
+    "ARCHITECTURE_COPILOT→OPTIMIZATION_ENGINE",
+    "OPTIMIZATION_ENGINE→COMPLIANCE_GATE",
+    "COMPLIANCE_GATE→PERMIT_PACKAGE_EXPORT",
+    "GENERATED_BUILDING→COST_INTELLIGENCE",
+    "OPTIMIZATION_ENGINE→COST_INTELLIGENCE"
+  ],
+  "forbidden_edges": [
+    "COST_INTELLIGENCE→layoutSolver",
+    "COST_INTELLIGENCE→constraintEngine",
+    "COST_INTELLIGENCE→adjacencySolver",
+    "COST_INTELLIGENCE→ARCHITECTURE_COPILOT",
+    "COMPLIANCE_GATE→layoutSolver"
+  ],
+  "explicit_routes": [
+    {
+      "id": "BUDGET_OPTIMIZATION",
+      "from": "OPTIMIZATION_ENGINE",
+      "to": "layoutSolver",
+      "tier": "experimental",
+      "description": "Budget optimizer reshapes layout when targetBudget is set — explicit cost→layout route, not default pipeline.",
+      "requires": ["targetBudget"]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "anchorId": "compliance-gold-standard",
+  "module": "COMPLIANCE_GATE",
+  "moduleVersion": "1.0.0",
+  "ruleIds": [
+    "ncc-bedroom-size",
+    "ncc-bedroom-egress",
+    "ncc-habitable-height",
+    "access-door-width",
+    "access-circulation-width",
+    "energy-thermal-comfort",
+    "energy-glazing-ratio",
+    "zoning-setback",
+    "zoning-coverage",
+    "fire-egress-path",
+    "fire-smoke-alarm-zone",
+    "zoning-council-conditions"
+  ],
+  "categoryCount": 5,
+  "overallStatusClasses": ["pass", "warning", "fail"]
+}

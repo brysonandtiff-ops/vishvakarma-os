@@ -4,5 +4,6 @@ export interface MaterialListRow {
   item: string;
   quantity: number;
   unit: string;
+  sku?: string;
   notes?: string;
 }

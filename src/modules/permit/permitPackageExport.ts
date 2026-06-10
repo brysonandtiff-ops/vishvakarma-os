@@ -77,12 +77,27 @@ function buildMaterialListPdf(building: GeneratedBuilding): Uint8Array {
 }
 
 function buildCostEstimatePdf(building: GeneratedBuilding): Uint8Array {
+  const intel = building.costSummary.intelligence;
   const lines = [
-    `Estimated total: $${building.costSummary.total.toLocaleString()}`,
+    `Expected cost: $${building.costSummary.total.toLocaleString()}`,
     '',
+    ...(intel
+      ? [
+          '--- COST SCENARIOS ---',
+          `Best case: $${intel.scenarios.bestCase.toLocaleString()}`,
+          `Worst case: $${intel.scenarios.worstCase.toLocaleString()}`,
+          `Median: $${intel.scenarios.median.toLocaleString()}`,
+          `Confidence: ${intel.confidence.score}/100`,
+          `Risk: ${intel.risk.level}`,
+          `Region: ${intel.regionLabel}`,
+          '',
+        ]
+      : []),
+    '--- BREAKDOWN ---',
     ...building.costSummary.items.map((item) => `  ${item.label}: $${item.amount.toLocaleString()}`),
     '',
     'Indicative estimate only — not a fixed-price quote.',
+    'Engage a quantity surveyor or builder for formal pricing.',
   ];
   return buildTextPdf(`${building.manifest.name} — Cost Estimate`, lines);
 }

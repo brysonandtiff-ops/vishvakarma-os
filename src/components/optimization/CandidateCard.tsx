@@ -52,7 +52,11 @@ export default function CandidateCard({
           <p className="font-semibold">{candidate.label}</p>
           <p className="text-2xl font-bold text-primary">{candidate.overallScore}</p>
           <p className="text-xs text-muted-foreground">
-            ${candidate.building.costSummary.total.toLocaleString()} · Compliance {compliance}
+            ${candidate.building.costSummary.total.toLocaleString()}
+            {candidate.building.costSummary.intelligence
+              ? ` (${candidate.building.costSummary.intelligence.confidence.score}% conf)`
+              : ''}{' '}
+            · Compliance {compliance}
           </p>
         </div>
       </button>

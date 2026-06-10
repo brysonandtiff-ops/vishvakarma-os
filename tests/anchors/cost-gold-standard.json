@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "anchorId": "cost-gold-standard",
+  "module": "COST_INTELLIGENCE",
+  "moduleVersion": "0.9.0",
+  "input": {
+    "councilText": "Sydney NSW council",
+    "regionId": "au-nsw-sydney"
+  },
+  "structuralExpectations": {
+    "breakdownLineCount": 5,
+    "scenarioOrdering": "bestCase < expected < worstCase",
+    "medianEqualsExpected": true,
+    "confidenceScoreMin": 1,
+    "riskLevels": ["low", "medium", "high"]
+  }
+}

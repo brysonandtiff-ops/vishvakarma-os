@@ -20,6 +20,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'structure',
     item: 'Timber wall framing',
+    sku: 'SKU-TIMBER-FRAMING',
     quantity: Math.ceil(totalWallLength * 2.4),
     unit: 'lm',
     notes: 'Stud walls at 450mm centres',
@@ -29,6 +30,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'structure',
     item: 'Concrete slab (100mm)',
+    sku: 'SKU-CONCRETE-SLAB-100',
     quantity: Math.round(
       floorPlan.rooms.reduce((sum, r) => sum + pxToM(r.width) * pxToM(r.depth), 0) * 10,
     ) / 10,
@@ -42,6 +44,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'openings',
     item: 'External doors',
+    sku: 'SKU-EXTERNAL-DOOR',
     quantity: doorCount,
     unit: 'ea',
   });
@@ -50,6 +53,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'openings',
     item: 'Aluminium windows',
+    sku: 'SKU-ALU-WINDOW',
     quantity: windowCount,
     unit: 'ea',
   });
@@ -58,6 +62,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'finish',
     item: 'Internal plasterboard',
+    sku: 'SKU-PLASTERBOARD',
     quantity: Math.ceil(totalWallLength * 2.4 * 2),
     unit: 'm²',
   });
@@ -66,6 +71,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'roof',
     item: 'Colorbond roofing',
+    sku: 'SKU-COLORBOND-ROOF',
     quantity: Math.round(
       floorPlan.rooms.reduce((sum, r) => sum + pxToM(r.width) * pxToM(r.depth), 0) * 1.15 * 10,
     ) / 10,
@@ -76,6 +82,7 @@ export function generateMaterialList(
     id: nextId(),
     category: 'site',
     item: 'Driveway concrete',
+    sku: 'SKU-DRIVEWAY-CONCRETE',
     quantity: requestDrivewayArea(floorPlan),
     unit: 'm²',
   });

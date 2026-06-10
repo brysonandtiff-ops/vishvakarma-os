@@ -1,3 +1,4 @@
+import type { CostMoatReport } from '@/domain/cost/types';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { Parcel } from '@/domain/parcels/parcel';
 import type { CopilotIngestionResult } from '@/domain/copilot/copilotSession';
@@ -94,6 +95,23 @@ export interface TradeoffItem {
   detail: string;
 }
 
+export type ValueImpactBand = 'foundation' | 'defensible';
+export type ValueImpactLabel = '$1M–3M' | '$3M–8M';
+
+export interface MoatGainReport {
+  score: number;
+  compositeScore: number;
+  decisionLift: number;
+  winnerMargin: number;
+  strategyDiversity: number;
+  permitConfidence: number;
+  explainabilityIndex: number;
+  valueImpactBand: ValueImpactBand;
+  valueImpactLabel: ValueImpactLabel;
+  costMoat?: CostMoatReport;
+  summary: string;
+}
+
 export interface OptimizationReport {
   winnerId: string;
   runnerUpId: string;
@@ -104,6 +122,7 @@ export interface OptimizationReport {
   estimatedCost: number;
   complianceConfidence: number;
   permitReady: boolean;
+  moatGain: MoatGainReport;
   generatedAt: string;
 }
 
@@ -125,4 +144,30 @@ export interface OptimizationManifestMetadata {
   overallScore: number;
   rank: number;
   generatedAt: string;
+  promotedAt?: string;
+}
+
+export interface OptimizationCandidateSummary {
+  id: string;
+  label: string;
+  overallScore: number;
+  rank: number;
+  estimatedCost: number;
+  costBestCase?: number;
+  costWorstCase?: number;
+  costMedian?: number;
+  costConfidence?: number;
+  costRiskLevel?: 'low' | 'medium' | 'high';
+  permitReady: boolean;
+}
+
+export interface OptimizationBatchRecord {
+  id: string;
+  userId: string;
+  input: OptimizationBatchInput;
+  winnerId: string;
+  moatGain: MoatGainReport;
+  candidateSummaries: OptimizationCandidateSummary[];
+  promotedProjectId?: string;
+  createdAt: string;
 }

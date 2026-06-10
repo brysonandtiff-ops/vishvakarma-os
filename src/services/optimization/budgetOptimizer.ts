@@ -1,3 +1,8 @@
+/**
+ * EXPLICIT_ROUTE: BUDGET_OPTIMIZATION (experimental)
+ * Cost signals reshape layout only when targetBudget is set — not default pipeline.
+ * See system-map.json explicit_routes.BUDGET_OPTIMIZATION.
+ */
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { OptimizationManifestMetadata, OptimizationStrategy } from '@/domain/optimization/types';
@@ -41,6 +46,7 @@ function generateCandidate(
     council: input.council,
     sessionId: input.sessionId,
     optimization: input.optimization,
+    targetBudget: input.targetBudget,
   });
 }
 

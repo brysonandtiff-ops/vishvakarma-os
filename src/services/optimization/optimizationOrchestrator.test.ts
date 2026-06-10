@@ -29,6 +29,14 @@ describe('optimizationOrchestrator', () => {
     const ranks = batch.candidates.map((c) => c.rank).sort();
     expect(ranks).toEqual([1, 2, 3, 4, 5]);
     expect(batch.report.winnerLabel).toBeTruthy();
-    expect(batch.report.tradeoffs.length).toBeGreaterThan(0);
+    expect(batch.report.tradeoffs.length).toBe(6);
+    expect(batch.report.moatGain.score).toBeGreaterThan(0);
+    expect(batch.report.moatGain.compositeScore).toBeGreaterThan(0);
+    expect(batch.report.moatGain.valueImpactLabel).toBeTruthy();
+    const winner = batch.candidates.find((c) => c.id === batch.winnerId);
+    expect(winner?.building.costSummary.intelligence).toBeDefined();
+    expect(winner?.building.costSummary.intelligence?.scenarios.bestCase).toBeLessThan(
+      winner?.building.costSummary.intelligence?.scenarios.expected ?? 0,
+    );
   }, 60_000);
 });

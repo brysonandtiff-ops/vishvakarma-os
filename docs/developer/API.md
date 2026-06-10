@@ -18,6 +18,47 @@ When Firebase env vars are missing, read operations return empty arrays and writ
 
 ---
 
+## Optimization Batches — `src/db/api.ts`
+
+| Function | Parameters | Returns | Description |
+|----------|------------|---------|-------------|
+| `saveOptimizationBatch(batch)` | `OptimizationBatch` | `Promise<OptimizationBatchRecord>` | Persist lean batch summary + moat gain (Firestore or localStorage) |
+| `getOptimizationBatches(limit?)` | `limit` default 20 | `Promise<OptimizationBatchRecord[]>` | Recent optimization runs for current user |
+| `linkOptimizationBatchToProject(batchId, projectId, details?)` | batch id, project id, optional metadata | `Promise<OptimizationBatchRecord \| null>` | Link winner save to batch; writes audit log when configured |
+
+### Firestore collection: `optimization_batches`
+
+```typescript
+interface OptimizationBatchRecord {
+  id: string;
+  userId: string;
+  input: { prompt: string; targetBudget?: number; lifestyleGoals?: string[]; sessionId?: string };
+  winnerId: string;
+  moatGain: MoatGainReport;
+  candidateSummaries: Array<{
+    id: string;
+    label: string;
+    overallScore: number;
+    rank: number;
+    estimatedCost: number;
+    costBestCase?: number;
+    costWorstCase?: number;
+    costMedian?: number;
+    costConfidence?: number;
+    costRiskLevel?: 'low' | 'medium' | 'high';
+    permitReady: boolean;
+  }>;
+  promotedProjectId?: string;
+  createdAt: string;
+}
+```
+
+Local fallback key: `optimization-batch-history` (max 20 records).
+
+Gateway: `src/backend/firebase/firestoreOptimizationGateway.ts`
+
+---
+
 ## Specs
 
 | Function | Parameters | Returns | Description |
@@ -86,6 +127,7 @@ When Firebase env vars are missing, read operations return empty arrays and writ
 | `backendConfig.ts` | Reads `VITE_FIREBASE_*`, exposes `backendStatus.isConfigured` |
 | `fetchWithRetry.ts` | Exponential backoff for Firestore REST calls |
 | `firebase/firestoreProjectGateway.ts` | Low-level project CRUD |
+| `firebase/firestoreOptimizationGateway.ts` | Optimization batch persistence |
 | `firebase/firestoreGovernanceGateway.ts` | Specs, registry, releases, audit, route manifest |
 | `firebase/firestoreProfileGateway.ts` | User profile reads/writes |
 | `firebase/firebaseAuthGateway.ts` | Email link + OAuth session helpers |

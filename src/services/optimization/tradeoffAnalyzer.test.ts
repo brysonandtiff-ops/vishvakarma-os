@@ -36,8 +36,8 @@ describe('tradeoffAnalyzer', () => {
     ]);
 
     const tradeoffs = analyzeTradeoffs(winner, runner);
-    const energy = tradeoffs.find((t) => t.dimension === 'Energy performance');
-    const cost = tradeoffs.find((t) => t.dimension === 'Construction cost');
+    const energy = tradeoffs.find((t) => t.dimension === 'Energy');
+    const cost = tradeoffs.find((t) => t.dimension === 'Cost');
     const privacy = tradeoffs.find((t) => t.dimension === 'Privacy');
 
     expect(energy?.direction).toBe('improves');

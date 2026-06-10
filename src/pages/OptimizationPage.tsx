@@ -1,18 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
-import CandidateComparisonGrid from '@/components/optimization/CandidateComparisonGrid';
+import OptimizationBatchHistory from '@/components/optimization/OptimizationBatchHistory';
+import OptimizationDashboard from '@/components/optimization/OptimizationDashboard';
 import OptimizationIntakeForm, {
   type OptimizationIntakeValues,
 } from '@/components/optimization/OptimizationIntakeForm';
-import OptimizationReportPanel from '@/components/optimization/OptimizationReportPanel';
-import ScoreBreakdownPanel from '@/components/optimization/ScoreBreakdownPanel';
-import TradeoffPanel from '@/components/optimization/TradeoffPanel';
-import type { OptimizationBatch, OptimizationBatchInput } from '@/domain/optimization/types';
+import { backendStatus } from '@/backend/backendConfig';
+import type { OptimizationBatch, OptimizationBatchInput, OptimizationBatchRecord } from '@/domain/optimization/types';
+import { createLocalProject } from '@/editor/localProject';
+import { upsertLocalProject } from '@/editor/localProjects';
+import {
+  createProject,
+  getOptimizationBatches,
+  linkOptimizationBatchToProject,
+  saveOptimizationBatch,
+} from '@/db/api';
+import { downloadOptimizationReportPdf } from '@/modules/optimization/optimizationReportExport';
+import { downloadPermitPackage } from '@/modules/permit/permitPackageExport';
 import { generateOptimizationBatch } from '@/modules/optimization/optimizationModule';
 import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
 import { toast } from 'sonner';
@@ -36,7 +45,9 @@ export default function OptimizationPage() {
     lifestyleGoals: locationState.batchInput?.lifestyleGoals?.join(', ') ?? '',
   });
   const [batch, setBatch] = useState<OptimizationBatch | null>(null);
+  const [batchHistory, setBatchHistory] = useState<OptimizationBatchRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [stage, setStage] = useState<PipelineStage | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [compareId, setCompareId] = useState<string | null>(null);
@@ -49,23 +60,37 @@ export default function OptimizationPage() {
     }
   });
 
-  const runBatch = useCallback(async (input: OptimizationBatchInput) => {
-    setLoading(true);
-    setBatch(null);
-    setStage('extracting');
-    try {
-      const result = await generateOptimizationBatch(input, (_idx, s) => setStage(s));
-      setBatch(result);
-      setSelectedId(result.winnerId);
-      toast.success('5 design candidates generated and ranked');
-    } catch (error) {
-      console.error(error);
-      toast.error(error instanceof Error ? error.message : 'Optimization failed');
-    } finally {
-      setLoading(false);
-      setStage(null);
-    }
+  const loadHistory = useCallback(async () => {
+    const records = await getOptimizationBatches();
+    setBatchHistory(records);
   }, []);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
+
+  const runBatch = useCallback(
+    async (input: OptimizationBatchInput) => {
+      setLoading(true);
+      setBatch(null);
+      setStage('extracting');
+      try {
+        const result = await generateOptimizationBatch(input, (_idx, s) => setStage(s));
+        setBatch(result);
+        setSelectedId(result.winnerId);
+        await saveOptimizationBatch(result);
+        await loadHistory();
+        toast.success('5 design candidates generated and ranked');
+      } catch (error) {
+        console.error(error);
+        toast.error(error instanceof Error ? error.message : 'Optimization failed');
+      } finally {
+        setLoading(false);
+        setStage(null);
+      }
+    },
+    [loadHistory],
+  );
 
   const buildInput = useCallback(
     (values: OptimizationIntakeValues): OptimizationBatchInput => ({
@@ -97,9 +122,14 @@ export default function OptimizationPage() {
     [batch, selectedId],
   );
 
-  const compareCandidate = useMemo(
-    () => batch?.candidates.find((c) => c.id === compareId) ?? null,
-    [batch, compareId],
+  const runnerUp = useMemo(
+    () => batch?.candidates.find((c) => c.id === batch.runnerUpId) ?? batch?.candidates[1],
+    [batch],
+  );
+
+  const winner = useMemo(
+    () => batch?.candidates.find((c) => c.id === batch?.winnerId) ?? null,
+    [batch],
   );
 
   const toggleFavorite = (id: string) => {
@@ -121,15 +151,86 @@ export default function OptimizationPage() {
     });
   };
 
+  const handleSaveWinnerProject = async () => {
+    if (!batch || !winner) return;
+
+    setSaving(true);
+    try {
+      const manifest = {
+        ...winner.building.manifest,
+        metadata: {
+          ...winner.building.manifest.metadata,
+          optimization: {
+            batchId: batch.id,
+            candidateId: winner.id,
+            objective: winner.objective,
+            overallScore: winner.overallScore,
+            rank: winner.rank,
+            generatedAt: batch.createdAt,
+            promotedAt: new Date().toISOString(),
+          },
+          ...(winner.building.costSummary.intelligence
+            ? {
+                costIntelligence: {
+                  expected: winner.building.costSummary.intelligence.scenarios.expected,
+                  bestCase: winner.building.costSummary.intelligence.scenarios.bestCase,
+                  worstCase: winner.building.costSummary.intelligence.scenarios.worstCase,
+                  confidence: winner.building.costSummary.intelligence.confidence.score,
+                },
+              }
+            : {}),
+        },
+      };
+      const projectName = `${winner.label} — ${manifest.name}`;
+
+      const project = backendStatus.isConfigured
+        ? await createProject(projectName, manifest.description, manifest)
+        : createLocalProject(projectName, manifest.description, manifest);
+
+      if (!backendStatus.isConfigured) {
+        upsertLocalProject(project);
+      }
+
+      await linkOptimizationBatchToProject(batch.id, project.id, {
+        candidateId: winner.id,
+        moatGain: batch.report.moatGain,
+      });
+      await loadHistory();
+      toast.success(`Saved winner as project: ${projectName}`);
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : 'Failed to save project');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExportPermit = async () => {
+    if (!winner) return;
+    const result = await downloadPermitPackage(winner.building);
+    if (!result.allowed) {
+      toast.error(result.reason ?? 'Permit export blocked');
+    } else {
+      toast.success('Permit package downloaded');
+    }
+  };
+
+  const handleExportPdf = () => {
+    if (!batch) return;
+    downloadOptimizationReportPdf(batch);
+    toast.success('Optimization report downloaded');
+  };
+
   return (
     <AppLayout>
       <PageMeta title="Design Optimization" description="Compare and rank AI-generated design candidates" />
       <WorkspacePageShell>
         <WorkspacePageHeader
           title="Design Battle"
-          subtitle="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
-          icon={Sparkles}
+          description="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
         />
+
+        <OptimizationBatchHistory records={batchHistory} />
 
         {!batch && !loading && (
           <OptimizationIntakeForm
@@ -150,35 +251,23 @@ export default function OptimizationPage() {
           </div>
         )}
 
-        {batch && (
-          <div className="space-y-6">
-            <OptimizationReportPanel batch={batch} />
-
-            <CandidateComparisonGrid
-              candidates={batch.candidates}
-              winnerId={batch.winnerId}
-              favorites={favorites}
-              selectedId={selectedId}
-              compareId={compareId}
-              onSelect={setSelectedId}
-              onFavorite={toggleFavorite}
-              onPromote={handlePromote}
-              onCompare={(id) => setCompareId(compareId === id ? null : id)}
-            />
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <ScoreBreakdownPanel candidate={selectedCandidate} />
-              {compareCandidate && compareCandidate.id !== selectedId ? (
-                <ScoreBreakdownPanel candidate={compareCandidate} />
-              ) : (
-                <TradeoffPanel tradeoffs={batch.report.tradeoffs} />
-              )}
-            </div>
-
-            {compareCandidate && compareCandidate.id !== selectedId && (
-              <TradeoffPanel tradeoffs={batch.report.tradeoffs} />
-            )}
-          </div>
+        {batch && runnerUp && (
+          <OptimizationDashboard
+            batch={batch}
+            selectedCandidate={selectedCandidate}
+            runnerUp={runnerUp}
+            favorites={favorites}
+            selectedId={selectedId}
+            compareId={compareId}
+            saving={saving}
+            onSelect={setSelectedId}
+            onFavorite={toggleFavorite}
+            onPromote={handlePromote}
+            onCompare={(id) => setCompareId(compareId === id ? null : id)}
+            onSaveProject={() => void handleSaveWinnerProject()}
+            onExportPermit={() => void handleExportPermit()}
+            onExportPdf={handleExportPdf}
+          />
         )}
       </WorkspacePageShell>
     </AppLayout>

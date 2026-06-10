@@ -1,6 +1,6 @@
 # Design Optimization Engine
 
-**Version:** Phase 3 · **Status:** Implemented
+**Version:** Phase 3 + Phase 4 · **Status:** Implemented
 
 ## Overview
 
@@ -18,7 +18,7 @@ OptimizationBatchInput
       applyConstraints(strategy) → solveLayout(strategy) → buildGeneratedBuildingFromLayout
       → optional budgetOptimizer
   → scoringEngine (8 categories + overall)
-  → rankCandidates → tradeoffAnalyzer → OptimizationReport
+  → rankCandidates → tradeoffAnalyzer → moatGainAnalyzer → OptimizationReport
 ```
 
 ## Domain Types
@@ -31,7 +31,9 @@ Location: `src/domain/optimization/`
 | `OptimizationStrategy` | Per-objective layout/constraint configuration |
 | `OptimizationCandidate` | Scored design with rank |
 | `OptimizationBatch` | Full batch with winner, runner-up, site fitness |
-| `OptimizationReport` | Performance dashboard export payload |
+| `OptimizationReport` | Performance dashboard export payload (includes `moatGain`) |
+| `MoatGainReport` | Decision moat score, value impact band, explainability signals |
+| `OptimizationBatchRecord` | Lean Firestore/local persistence record |
 | `SiteFitnessScore` | Site-level fitness (solar, slope, setbacks, open space) |
 
 ## Strategy Profiles
@@ -61,21 +63,69 @@ Each score includes an `OptimizationExplanation` with `summary` and `metrics`. N
 
 Weighted overall score uses per-objective weight profiles.
 
+### Primary display dimensions (Phase 4)
+
+The dashboard and PDF present **6 primary dimensions** via `displayDimensions.ts` (internal 8-category scoring unchanged):
+
+| Display | Source |
+|---------|--------|
+| Compliance | `compliance` |
+| Cost | `construction_cost` |
+| Energy | 60% `energy` + 40% `natural_light` |
+| Privacy | `privacy` |
+| Resale | `resale` |
+| Buildability | 60% `buildability` + 40% `circulation` |
+
+## Cost Intelligence (Phase 6 cross-reference)
+
+Winner candidates include `costSummary.intelligence` with scenario bands. `MoatGainReport.costMoat` adds $5M–15M / $10M–25M value bands. See [`CONSTRUCTION_COST_INTELLIGENCE.md`](CONSTRUCTION_COST_INTELLIGENCE.md).
+
+## Moat Gain (Phase 4)
+
+`analyzeMoatGain()` computes a 0–100 moat score from:
+
+- Decision lift (winner vs batch median)
+- Winner margin (winner vs runner-up)
+- Strategy diversity (score spread across 5 candidates)
+- Permit confidence (compliance when permit-ready)
+- Explainability index (% scores with metrics)
+
+| Moat score | Value band | Label |
+|------------|------------|-------|
+| 0–44 | `foundation` | $1M–3M |
+| 45–100 | `defensible` | $3M–8M |
+
 ## UI
 
 - Route: `/optimization` (private)
 - Components: `src/components/optimization/`
 - Copilot integration: "Compare 5 designs" CTA on review step navigates to `/optimization`
 
+### Phase 4 Dashboard (`OptimizationDashboard`)
+
+- **Winner hero** — recommended winner, confidence meter, primary CTAs
+- **Moat Gain panel** — moat score, value impact band ($1M–3M → $3M–8M)
+- **Charts** — 6-dimension bar comparison, radar profile, tradeoff delta chart, site fitness
+- **Batch history** — recent runs from Firestore or localStorage
+
 ### Actions
 
-- **Compare** — side-by-side score breakdown
+- **Compare** — side-by-side score breakdown (6 primary dimensions)
 - **Favorite** — persisted in localStorage
-- **Promote to Project** — loads manifest into editor
+- **Promote to Editor** — loads manifest into editor
+- **Save as Project** — creates Firestore/local project with optimization metadata
+- **Export Permit Package** — compliance-gated ZIP for winner
+- **Export Report PDF** — includes moat gain and 6-dimension breakdown
+
+## Persistence
+
+Collection: `optimization_batches` (Firestore) or `optimization-batch-history` (localStorage fallback).
+
+API: `saveOptimizationBatch`, `getOptimizationBatches`, `linkOptimizationBatchToProject` in `src/db/api.ts`.
 
 ## Export
 
-`downloadOptimizationReportPdf(batch)` — PDF with winner, runner-up, tradeoffs, risk areas, all candidates.
+`downloadOptimizationReportPdf(batch)` — PDF with moat gain, winner 6-dimension scores, tradeoffs, risk areas, all candidates.
 
 ## Non-Regression Guarantees
 
@@ -102,6 +152,7 @@ Optimization metadata stored at `manifest.metadata.optimization`:
   "objective": "family_focused",
   "overallScore": 89,
   "rank": 1,
-  "generatedAt": "ISO-8601"
+  "generatedAt": "ISO-8601",
+  "promotedAt": "ISO-8601 (optional, set on Save as Project)"
 }
 ```

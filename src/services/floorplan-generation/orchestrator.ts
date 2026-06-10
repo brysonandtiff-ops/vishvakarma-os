@@ -13,18 +13,9 @@ import { validateBuildingRequest } from '@/ai/building-designer/validators/build
 import { analyzeLot } from '@/services/lot-analysis/lotAnalysis';
 import { mergeCopilotRequirements } from '@/services/copilot/ingestion/requirementMerger';
 import { buildGeneratedBuildingFromLayout } from '@/services/floorplan-generation/buildFromLayout';
+import type { PipelineStage } from '@/core-contract/pipeline.schema';
 
-export type PipelineStage =
-  | 'ingesting'
-  | 'extracting'
-  | 'constraints'
-  | 'concept'
-  | 'layout'
-  | 'floorplan'
-  | 'schedules'
-  | 'compliance'
-  | 'complete'
-  | 'error';
+export type { PipelineStage };
 
 export interface OrchestratorInput {
   prompt: string;

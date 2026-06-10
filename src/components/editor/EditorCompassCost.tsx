@@ -8,12 +8,14 @@ import type { CostItem } from '@/types';
 interface EditorCompassCostProps {
   northOrientation: number;
   costItems: CostItem[];
+  costRange?: { bestCase: number; worstCase: number; confidence: number };
   onNorthChange: (degrees: number) => void;
 }
 
 export default function EditorCompassCost({
   northOrientation,
   costItems,
+  costRange,
   onNorthChange,
 }: EditorCompassCostProps) {
   const [compassOpen, setCompassOpen] = useState(false);
@@ -54,7 +56,11 @@ export default function EditorCompassCost({
         type="button"
         className="vish-canvas-overlay-pill gap-1.5"
         aria-label={`Cost estimate ${totalCost}`}
-        title={costItems.map((item) => `${item.label}: $${item.amount}`).join('\n') || 'No cost items yet'}
+        title={
+          costRange
+            ? `Expected $${totalCost.toLocaleString()} · Range $${costRange.bestCase.toLocaleString()}–$${costRange.worstCase.toLocaleString()} · ${costRange.confidence}% confidence`
+            : costItems.map((item) => `${item.label}: $${item.amount}`).join('\n') || 'No cost items yet'
+        }
       >
         <DollarSign className="h-3.5 w-3.5 text-primary" />
         {totalCost > 0 ? `$${totalCost.toLocaleString()}` : 'Cost'}

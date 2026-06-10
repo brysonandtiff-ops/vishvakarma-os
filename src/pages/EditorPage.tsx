@@ -748,6 +748,7 @@ function EditorWorkspace() {
                 <EditorCompassCost
                   northOrientation={northOrientation}
                   costItems={costItems}
+                  costRange={engine.getManifest().metadata.costIntelligence}
                   onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
                 />
                 <RemoteCursorsOverlay

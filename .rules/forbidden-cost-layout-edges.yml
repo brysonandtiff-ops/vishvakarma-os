@@ -1,0 +1,15 @@
+id: cost-intelligence-no-layout-solver
+message: COST_INTELLIGENCE must not import layout/constraint solvers (see system-map.json forbidden_edges)
+severity: error
+language: TypeScript
+files:
+  - src/services/cost-estimation/**
+note: |
+  Cost intelligence is read-only downstream. Use explicit BUDGET_OPTIMIZATION route in optimization layer instead.
+  Spec: docs/specs/SYSTEM_CONTRACT_LAYER.md
+
+rule:
+  any:
+    - pattern: import $$$ from '@/ai/building-designer/generators/layoutSolver'
+    - pattern: import $$$ from '@/ai/building-designer/generators/constraintEngine'
+    - pattern: import $$$ from '@/ai/building-designer/generators/adjacencySolver'

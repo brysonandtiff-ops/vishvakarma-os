@@ -196,6 +196,15 @@ export interface ProjectManifest {
     archived?: boolean;
     aiDesigner?: Record<string, unknown>;
     copilot?: Record<string, unknown>;
+    optimization?: Record<string, unknown>;
+    costIntelligence?: {
+      bestCase: number;
+      worstCase: number;
+      confidence: number;
+      expected: number;
+    };
+    systemVersions?: Record<string, string>;
+    systemMapVersion?: string;
   };
 }
 
@@ -277,7 +286,7 @@ export interface Release {
 export interface AuditLog {
   id: string;
   action: string;
-  entity_type: 'project' | 'spec' | 'registry' | 'change_request' | 'release';
+  entity_type: 'project' | 'spec' | 'registry' | 'change_request' | 'release' | 'optimization_batch';
   entity_id?: string;
   details?: Record<string, unknown>;
   timestamp: string;

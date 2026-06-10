@@ -1,15 +1,47 @@
 import type { OptimizationBatch } from '@/domain/optimization/types';
+import { toDisplayScoresForCandidate } from '@/services/optimization/displayDimensions';
 import { buildTextPdf } from '@/utils/minimalPdf';
 
 export function buildOptimizationReportPdfBytes(batch: OptimizationBatch): Uint8Array {
   const { report, candidates, siteFitness } = batch;
   const winner = candidates.find((c) => c.id === report.winnerId);
   const runnerUp = candidates.find((c) => c.id === report.runnerUpId);
+  const winnerDisplay = winner ? toDisplayScoresForCandidate(winner) : [];
 
   const lines: string[] = [
     'DESIGN OPTIMIZATION REPORT',
     `Generated: ${report.generatedAt}`,
     '',
+    '--- MOAT GAIN ---',
+    `Decision Score: ${report.moatGain.score}/100`,
+    `Composite Score: ${report.moatGain.compositeScore}/100`,
+    `Decision Value: ${report.moatGain.valueImpactLabel} (${report.moatGain.valueImpactBand})`,
+    `Decision Lift: +${report.moatGain.decisionLift} pts`,
+    `Winner Margin: +${report.moatGain.winnerMargin} pts`,
+    report.moatGain.summary,
+    ...(report.moatGain.costMoat
+      ? [
+          '',
+          '--- COST MOAT ---',
+          `Cost Moat Score: ${report.moatGain.costMoat.score}/100`,
+          `Cost Value: ${report.moatGain.costMoat.valueImpactLabel}`,
+          `Cost Confidence: ${report.moatGain.costMoat.costConfidence}%`,
+          `Pricing Defensibility: ${report.moatGain.costMoat.pricingDefensibility}%`,
+          report.moatGain.costMoat.summary,
+        ]
+      : []),
+    '',
+    ...(winner?.building.costSummary.intelligence
+      ? [
+          '--- COST INTELLIGENCE (Winner) ---',
+          `Expected: $${winner.building.costSummary.intelligence.scenarios.expected.toLocaleString()}`,
+          `Best: $${winner.building.costSummary.intelligence.scenarios.bestCase.toLocaleString()}`,
+          `Worst: $${winner.building.costSummary.intelligence.scenarios.worstCase.toLocaleString()}`,
+          `Confidence: ${winner.building.costSummary.intelligence.confidence.score}/100`,
+          `Risk: ${winner.building.costSummary.intelligence.risk.level}`,
+          '',
+        ]
+      : []),
     '--- SITE FITNESS ---',
     `Overall Site Fitness: ${siteFitness.overall}/100`,
     `Solar Orientation: ${siteFitness.solarOrientation}/100`,
@@ -21,6 +53,9 @@ export function buildOptimizationReportPdfBytes(batch: OptimizationBatch): Uint8
     `Estimated Cost: $${report.estimatedCost.toLocaleString()}`,
     `Compliance Confidence: ${report.complianceConfidence}%`,
     `Permit Ready: ${report.permitReady ? 'Yes' : 'No'}`,
+    '',
+    '--- WINNER PRIMARY DIMENSIONS (6) ---',
+    ...winnerDisplay.map((s) => `  ${s.label}: ${s.score}/100`),
     '',
     '--- RUNNER-UP ---',
     `${report.runnerUpLabel} (Score: ${runnerUp?.overallScore ?? 'N/A'}/100)`,

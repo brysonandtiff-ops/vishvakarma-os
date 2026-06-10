@@ -74,9 +74,30 @@ export default function AIDesignerResultsPanel({
   }
 
   if (tab === 'cost') {
+    const intel = building.costSummary.intelligence;
     return (
-      <div className="space-y-2 rounded-xl border border-border/60 bg-muted/20 p-4 text-sm">
-        <p className="font-semibold">Estimated total: ${building.costSummary.total.toLocaleString()}</p>
+      <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4 text-sm">
+        <p className="font-semibold">Expected: ${building.costSummary.total.toLocaleString()}</p>
+        {intel && (
+          <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <div>
+              <p className="text-muted-foreground">Best</p>
+              <p className="font-medium">${intel.scenarios.bestCase.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Worst</p>
+              <p className="font-medium">${intel.scenarios.worstCase.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Median</p>
+              <p className="font-medium">${intel.scenarios.median.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Confidence</p>
+              <p className="font-medium">{intel.confidence.score}%</p>
+            </div>
+          </div>
+        )}
         <ul className="space-y-1 text-muted-foreground">
           {building.costSummary.items.map((item) => (
             <li key={item.id} className="flex justify-between gap-4">
@@ -85,6 +106,11 @@ export default function AIDesignerResultsPanel({
             </li>
           ))}
         </ul>
+        {intel && (
+          <p className="text-xs text-muted-foreground">
+            {intel.regionLabel} · {intel.risk.level} risk · {intel.confidence.summary}
+          </p>
+        )}
       </div>
     );
   }

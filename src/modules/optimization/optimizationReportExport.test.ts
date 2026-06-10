@@ -14,5 +14,7 @@ describe('optimizationReportExport', () => {
     const text = new TextDecoder().decode(bytes);
     expect(text).toContain('OPTIMIZATION REPORT');
     expect(text).toContain(batch.report.winnerLabel);
+    expect(text).toContain('MOAT GAIN');
+    expect(text).toContain('WINNER PRIMARY DIMENSIONS');
   }, 60_000);
 });

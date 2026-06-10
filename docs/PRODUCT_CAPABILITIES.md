@@ -170,20 +170,54 @@ Spec: [`docs/specs/ARCHITECTURE_COPILOT_v2.md`](specs/ARCHITECTURE_COPILOT_v2.md
 
 ---
 
-## 7. Design Optimization Engine (Phase 3)
+## 7. Design Optimization Engine (Phase 3 + Phase 4)
 
 Multi-candidate design optimization and decision engine:
 
 - **Generate**: 5 strategy-driven candidates (Family Focused, Budget Optimized, Energy Optimized, Premium Lifestyle, Maximum Resale Value)
-- **Score**: 8 explainable categories (0–100) plus weighted overall score — compliance, cost, natural light, energy, circulation, privacy, resale, buildability
+- **Score**: 8 internal explainable categories (0–100) plus weighted overall; dashboard shows 6 primary dimensions (compliance, cost, energy, privacy, resale, buildability)
+- **Moat Gain**: decision lift, winner margin, strategy diversity, permit confidence, explainability — maps to value impact band ($1M–3M or $3M–8M)
 - **Site fitness**: solar orientation, slope, setbacks, open-space quality
 - **Budget intelligence**: iterative cost reduction when target budget is set
-- **Battle view**: `/optimization` — card comparison, score breakdown, tradeoffs, favorites
-- **Export**: optimization report PDF with winner, runner-up, and risk areas
+- **Optimization dashboard**: `/optimization` — winner hero, Recharts comparison, tradeoff deltas, moat panel, batch history
+- **Winner workflow**: promote to editor, save as project, export permit package (compliance-gated), export report PDF
+- **Persistence**: optimization batch history in Firestore (`optimization_batches`) or localStorage fallback
 
 Entry: Sidebar → **Design Optimization** · Copilot review step → **Compare 5 designs**
 
 Spec: [`docs/specs/DESIGN_OPTIMIZATION_ENGINE.md`](specs/DESIGN_OPTIMIZATION_ENGINE.md)
+
+---
+
+## 8. Construction Cost Intelligence (Phase 6)
+
+Priced construction cost engine for Copilot and Optimization pipelines:
+
+- **Material database**: AU residential SKU catalog with labor hours per unit
+- **Labor cost engine**: Trade rates (carpentry, concrete, glazing, roofing, plaster, site)
+- **Supplier pricing**: 3-tier supplier competition (budget / standard / premium)
+- **Regional index**: AU-only v1 — Sydney, Melbourne, Brisbane metro + regional tiers
+- **Scenarios**: Expected, best case, worst case, median with category breakdown
+- **Confidence score**: Catalog coverage, supplier coverage, regional match, freshness
+- **Risk analysis**: Low/medium/high with explainable drivers
+- **Cost moat**: Extends Moat Gain with $5M–15M / $10M–25M value bands
+
+Entry: Copilot cost tab · Optimization dashboard `CostIntelligencePanel`
+
+Spec: [`docs/specs/CONSTRUCTION_COST_INTELLIGENCE.md`](specs/CONSTRUCTION_COST_INTELLIGENCE.md)
+
+---
+
+## 9. System Contract Layer
+
+Contract-first architecture preventing drift between generation engines:
+
+- **Contracts**: `src/core-contract/` — pipeline, compliance, cost, output schemas
+- **System graph**: `system-map.json` — allowed/forbidden data flow edges
+- **Regression anchors**: `tests/anchors/` — structural gold standards
+- **Build gates**: PR `BUILD_GATE` declaration + `pnpm run contract:gates`
+
+Spec: [`docs/specs/SYSTEM_CONTRACT_LAYER.md`](specs/SYSTEM_CONTRACT_LAYER.md)
 
 ---
 

@@ -22,12 +22,23 @@ import {
   updateFirestoreSpec,
 } from '@/backend/firebase/firestoreGovernanceGateway';
 import {
+  createFirestoreOptimizationBatch,
+  getFirestoreOptimizationBatches,
+  linkFirestoreOptimizationBatchToProject,
+} from '@/backend/firebase/firestoreOptimizationGateway';
+import {
   createFirestoreProject,
   deleteFirestoreProject,
   getFirestoreProject,
   getFirestoreProjects,
   updateFirestoreProject,
 } from '@/backend/firebase/firestoreProjectGateway';
+import type { OptimizationBatch, OptimizationBatchRecord } from '@/domain/optimization/types';
+import {
+  getOptimizationBatchHistoryLocally,
+  linkOptimizationBatchToProjectLocally,
+  saveOptimizationBatchLocally,
+} from '@/services/optimization/optimizationBatchStorage';
 import type {
   Project,
   Spec,
@@ -97,6 +108,44 @@ export async function deleteProject(id: string): Promise<void> {
   assertConfigured();
   await deleteFirestoreProject(id);
   await createAuditLog('project_deleted', 'project', id, {});
+}
+
+// ============================================================================
+// OPTIMIZATION BATCHES
+// ============================================================================
+
+export async function saveOptimizationBatch(
+  batch: OptimizationBatch,
+): Promise<OptimizationBatchRecord> {
+  if (backendStatus.isConfigured) {
+    return createFirestoreOptimizationBatch(batch);
+  }
+  return saveOptimizationBatchLocally(batch);
+}
+
+export async function getOptimizationBatches(limit = 20): Promise<OptimizationBatchRecord[]> {
+  if (backendStatus.isConfigured) {
+    return getFirestoreOptimizationBatches(limit);
+  }
+  return getOptimizationBatchHistoryLocally(limit);
+}
+
+export async function linkOptimizationBatchToProject(
+  batchId: string,
+  projectId: string,
+  details: Record<string, unknown> = {},
+): Promise<OptimizationBatchRecord | null> {
+  if (backendStatus.isConfigured) {
+    const record = await linkFirestoreOptimizationBatchToProject(batchId, projectId);
+    await createAuditLog('optimization_winner_promoted', 'optimization_batch', batchId, {
+      projectId,
+      ...details,
+    });
+    return record;
+  }
+
+  const record = linkOptimizationBatchToProjectLocally(batchId, projectId);
+  return record;
 }
 
 // ============================================================================

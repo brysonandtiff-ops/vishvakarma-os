@@ -1,0 +1,9 @@
+{
+  "systemMapVersion": "1.0.0",
+  "modules": {
+    "ARCHITECTURE_COPILOT": "2.0.0",
+    "OPTIMIZATION_ENGINE": "1.3.0",
+    "COST_INTELLIGENCE": "0.9.0",
+    "COMPLIANCE_GATE": "1.0.0"
+  }
+}

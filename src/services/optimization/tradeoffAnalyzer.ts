@@ -1,20 +1,10 @@
 import type {
   OptimizationCandidate,
   OptimizationReport,
-  OptimizationScoreCategory,
   TradeoffItem,
 } from '@/domain/optimization/types';
-
-const CATEGORY_LABELS: Record<Exclude<OptimizationScoreCategory, 'overall'>, string> = {
-  compliance: 'Compliance',
-  construction_cost: 'Construction cost',
-  natural_light: 'Natural light',
-  energy: 'Energy performance',
-  circulation: 'Circulation',
-  privacy: 'Privacy',
-  resale: 'Resale appeal',
-  buildability: 'Buildability',
-};
+import { PRIMARY_DIMENSIONS, PRIMARY_DIMENSION_LABELS, toDisplayScores } from '@/services/optimization/displayDimensions';
+import { analyzeMoatGain } from '@/services/optimization/moatGainAnalyzer';
 
 const DELTA_THRESHOLD = 5;
 
@@ -22,15 +12,15 @@ export function analyzeTradeoffs(
   winner: OptimizationCandidate,
   runnerUp: OptimizationCandidate,
 ): TradeoffItem[] {
-  const items: TradeoffItem[] = [];
-  const winnerScores = new Map(winner.scores.map((s) => [s.category, s]));
-  const runnerScores = new Map(runnerUp.scores.map((s) => [s.category, s]));
+  const winnerDisplay = toDisplayScores(winner.scores);
+  const runnerDisplay = toDisplayScores(runnerUp.scores);
+  const winnerMap = new Map(winnerDisplay.map((s) => [s.dimension, s]));
+  const runnerMap = new Map(runnerDisplay.map((s) => [s.dimension, s]));
 
-  for (const [category, label] of Object.entries(CATEGORY_LABELS) as Array<
-    [Exclude<OptimizationScoreCategory, 'overall'>, string]
-  >) {
-    const w = winnerScores.get(category)?.score ?? 0;
-    const r = runnerScores.get(category)?.score ?? 0;
+  return PRIMARY_DIMENSIONS.map((dimension) => {
+    const label = PRIMARY_DIMENSION_LABELS[dimension];
+    const w = winnerMap.get(dimension)?.score ?? 0;
+    const r = runnerMap.get(dimension)?.score ?? 0;
     const delta = w - r;
 
     let direction: TradeoffItem['direction'];
@@ -45,17 +35,17 @@ export function analyzeTradeoffs(
           ? `${label} improves by ${delta} points (${w} vs ${r}).`
           : `${label} is ${Math.abs(delta)} points lower (${w} vs ${r}).`;
 
-    items.push({ dimension: label, direction, detail });
-  }
-
-  return items;
+    return { dimension: label, direction, detail };
+  });
 }
 
 export function identifyRiskAreas(candidate: OptimizationCandidate): string[] {
   const risks: string[] = [];
-  const compliance = candidate.scores.find((s) => s.category === 'compliance');
-  const cost = candidate.scores.find((s) => s.category === 'construction_cost');
-  const buildability = candidate.scores.find((s) => s.category === 'buildability');
+  const display = toDisplayScores(candidate.scores);
+  const compliance = display.find((s) => s.dimension === 'compliance');
+  const cost = display.find((s) => s.dimension === 'cost');
+  const buildability = display.find((s) => s.dimension === 'buildability');
+  const energy = display.find((s) => s.dimension === 'energy');
 
   if (candidate.building.complianceReport.blocked) {
     risks.push('Compliance failures block permit export.');
@@ -67,11 +57,24 @@ export function identifyRiskAreas(candidate: OptimizationCandidate): string[] {
     risks.push('Construction cost exceeds target or batch median.');
   }
 
+  const intelligence = candidate.building.costSummary.intelligence;
+  if (intelligence) {
+    const { scenarios, confidence, risk } = intelligence;
+    risks.push(
+      `Cost band: $${scenarios.bestCase.toLocaleString()} – $${scenarios.worstCase.toLocaleString()} (expected $${scenarios.expected.toLocaleString()}).`,
+    );
+    if (confidence.score < 60) {
+      risks.push(`Low cost confidence (${confidence.score}/100) — ${confidence.summary}`);
+    }
+    if (risk.level === 'high') {
+      risks.push(`High cost risk — ${risk.drivers[0]}`);
+    }
+  }
+
   if (buildability && buildability.score < 55) {
     risks.push('High construction complexity may increase build timeline.');
   }
 
-  const energy = candidate.scores.find((s) => s.category === 'energy');
   if (energy && energy.score < 50) {
     risks.push('Low thermal comfort score — consider glazing or insulation upgrades.');
   }
@@ -82,8 +85,10 @@ export function identifyRiskAreas(candidate: OptimizationCandidate): string[] {
 export function buildOptimizationReport(
   winner: OptimizationCandidate,
   runnerUp: OptimizationCandidate,
+  allCandidates: OptimizationCandidate[],
 ): OptimizationReport {
   const complianceScore = winner.scores.find((s) => s.category === 'compliance')?.score ?? 0;
+  const permitReady = !winner.building.complianceReport.blocked;
 
   return {
     winnerId: winner.id,
@@ -94,7 +99,14 @@ export function buildOptimizationReport(
     riskAreas: identifyRiskAreas(winner),
     estimatedCost: winner.building.costSummary.total,
     complianceConfidence: complianceScore,
-    permitReady: !winner.building.complianceReport.blocked,
+    permitReady,
+    moatGain: analyzeMoatGain(
+      allCandidates,
+      winner,
+      runnerUp,
+      permitReady,
+      winner.building.costSummary.intelligence,
+    ),
     generatedAt: new Date().toISOString(),
   };
 }
