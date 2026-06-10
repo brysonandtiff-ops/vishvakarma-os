@@ -39,7 +39,6 @@ export default function AuthPage() {
     requestAccessLink,
     completeEmailLinkSignIn,
     signInWithGoogle,
-    signInWithApple,
   } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -112,11 +111,11 @@ export default function AuthPage() {
     });
   };
 
-  const handleOAuth = async (provider: 'google' | 'apple') => {
+  const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
     setSubmitting(true);
-    const result = provider === 'google' ? await signInWithGoogle() : await signInWithApple();
+    const result = await signInWithGoogle();
     setSubmitting(false);
     if (result.error) {
       setError(result.error.message);
@@ -308,17 +307,9 @@ export default function AuthPage() {
             type="button"
             className="vish-oauth-button"
             disabled={submitting || !isConfigured}
-            onClick={() => void handleOAuth('google')}
+            onClick={() => void handleGoogleSignIn()}
           >
             Continue with Google
-          </button>
-          <button
-            type="button"
-            className="vish-oauth-button mt-2"
-            disabled={submitting || !isConfigured}
-            onClick={() => void handleOAuth('apple')}
-          >
-            Continue with Apple
           </button>
 
           <button

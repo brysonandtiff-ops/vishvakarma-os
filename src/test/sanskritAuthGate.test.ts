@@ -43,9 +43,9 @@ describe('Sanskrit auth gate design', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
     expect(authPage).toContain('Continue with Google');
-    expect(authPage).toContain('Continue with Apple');
+    expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).toContain('signInWithGoogle');
-    expect(authPage).toContain('signInWithApple');
+    expect(authPage).not.toContain('signInWithApple');
   });
 
   it('keeps the premium workspace shell treatment after login', () => {
