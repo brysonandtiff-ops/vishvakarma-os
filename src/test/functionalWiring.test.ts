@@ -111,5 +111,6 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(authPage).toContain('Send secure access link');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
+    expect(appLayout).toContain('PrototypeDisclaimerBadge');
   });
 });

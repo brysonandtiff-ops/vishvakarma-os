@@ -1,7 +1,7 @@
 import systemMap from '../../system-map.json';
 import type { SystemMapContract } from '@/core-contract/system.schema';
 
-const map = systemMap as SystemMapContract;
+const map = systemMap as unknown as SystemMapContract;
 
 const allowedEdges = new Set(map.allowed_edges);
 const forbiddenEdges = new Set(map.forbidden_edges);

@@ -1,0 +1,28 @@
+import {
+  PROTOTYPE_BADGE,
+  PROTOTYPE_MODULE_TEXT,
+  type PrototypeModuleVariant,
+} from '@/constants/prototypeDisclaimer';
+
+export function PrototypeDisclaimerBadge() {
+  return (
+    <div
+      className="pointer-events-none fixed bottom-16 left-3 z-50 max-w-[min(100vw-1.5rem,20rem)] text-[11px] tracking-wide text-primary/60 lg:bottom-3"
+      data-testid="prototype-disclaimer-badge"
+      aria-hidden="true"
+    >
+      {PROTOTYPE_BADGE}
+    </div>
+  );
+}
+
+export function PrototypeModuleNotice({ variant }: { variant: PrototypeModuleVariant }) {
+  return (
+    <p
+      className="rounded-lg border border-border/40 px-3 py-2 text-xs text-muted-foreground"
+      data-testid={`prototype-notice-${variant}`}
+    >
+      {PROTOTYPE_MODULE_TEXT[variant]}
+    </p>
+  );
+}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Download, RefreshCw, XCircle } from 'lucide-react';
+import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import { Button } from '@/components/ui/button';
 import { runComplianceAuditFromManifest } from '@/modules/compliance/complianceModule';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
@@ -63,6 +64,8 @@ export function CompliancePanel({
           <RefreshCw className="h-3 w-3" /> Re-run
         </Button>
       </div>
+
+      <PrototypeModuleNotice variant="compliance" />
 
       <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-white/65 px-3 py-2">
         <StatusIcon status={report.overall} />

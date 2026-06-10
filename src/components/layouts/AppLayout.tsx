@@ -29,6 +29,7 @@ import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/component
 import { WorkspaceNotifications } from '@/components/workspace/WorkspaceNotifications';
 import { loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
 import { getCommandPaletteShortcutLabel } from '@/utils/commandPaletteShortcut';
+import { PrototypeDisclaimerBadge } from '@/components/common/PrototypeDisclaimer';
 import '@/styles/vish-workspace-shell.css';
 
 function openCommandPalette() {
@@ -326,6 +327,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
           {children}
         </div>
       </main>
+      <PrototypeDisclaimerBadge />
     </div>
     </GovernanceNavContext.Provider>
   );

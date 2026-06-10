@@ -1,3 +1,4 @@
+import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import MetricPill from '@/components/common/MetricPill';
 import CostScenarioChart from '@/components/optimization/CostScenarioChart';
 import type { CostIntelligenceReport } from '@/domain/cost/types';
@@ -40,6 +41,8 @@ export default function CostIntelligencePanel({
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Expected</p>
         </div>
       </div>
+
+      <PrototypeModuleNotice variant="cost" />
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <MetricPill value={`$${scenarios.bestCase.toLocaleString()}`} label="Best Case" />

@@ -42,6 +42,7 @@ function mockReport(overrides: Partial<OptimizationReport> = {}): OptimizationRe
     riskAreas: ['Construction cost exceeds target or batch median.'],
     estimatedCost: 420_000,
     complianceConfidence: 95,
+    approvalConfidence: 82,
     permitReady: true,
     moatGain: {
       score: 60,

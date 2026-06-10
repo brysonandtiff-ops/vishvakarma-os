@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
+import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
 import OptimizationBatchHistory from '@/components/optimization/OptimizationBatchHistory';
@@ -298,6 +299,8 @@ export default function OptimizationPage() {
           title="Design Battle"
           description="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
         />
+
+        <PrototypeModuleNotice variant="optimization" />
 
         <OptimizationBatchHistory records={batchHistory} />
 

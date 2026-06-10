@@ -13,6 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import AIDesignerResultsPanel, { type ResultTab } from '@/components/editor/ai-designer/AIDesignerResultsPanel';
 import CopilotReviewStep from '@/components/editor/ai-designer/CopilotReviewStep';
 import CopilotUploadStep from '@/components/editor/ai-designer/CopilotUploadStep';
@@ -391,6 +392,7 @@ export default function AIDesignerDialog({
 
           {wizardStep === 'deliverables' && result && (
             <div className="space-y-3">
+              <PrototypeModuleNotice variant="copilot" />
               <div className="flex flex-wrap gap-2">
                 {RESULT_TABS.map(({ key, label }) => (
                   <Button key={key} size="sm" variant={tab === key ? 'default' : 'outline'} onClick={() => setTab(key)}>

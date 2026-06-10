@@ -1,4 +1,3 @@
-import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import type { CopilotDocumentKind } from '@/domain/copilot/copilotSession';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { Parcel } from '@/domain/parcels/parcel';

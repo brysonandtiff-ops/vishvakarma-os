@@ -14,6 +14,7 @@ const report: OptimizationReport = {
   riskAreas: [],
   estimatedCost: 400_000,
   complianceConfidence: 100,
+  approvalConfidence: 87,
   permitReady: true,
   moatGain: {
     score: 55,
@@ -37,7 +38,7 @@ const candidate = (id: string): OptimizationCandidate => ({
   building: {
     complianceReport: { blocked: false, overall: 'pass', results: [] },
     costSummary: { total: 400_000, items: [] },
-  } as OptimizationCandidate['building'],
+  } as unknown as OptimizationCandidate['building'],
   scores: [
     { category: 'resale', score: 85, weight: 0.14, explanation: { summary: '', metrics: {} } },
     { category: 'overall', score: 88, weight: 1, explanation: { summary: '', metrics: {} } },

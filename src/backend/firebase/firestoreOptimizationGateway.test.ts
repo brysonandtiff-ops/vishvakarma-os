@@ -54,6 +54,7 @@ function mockBatch(): OptimizationBatch {
       riskAreas: [],
       estimatedCost: 420_000,
       complianceConfidence: 100,
+      approvalConfidence: 87,
       permitReady: true,
       moatGain: {
         score: 62,
