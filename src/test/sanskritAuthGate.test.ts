@@ -72,9 +72,19 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('auth-trust-pillar-gates');
     expect(authPage).toContain('auth-trust-pillar-records');
     expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence');
+    expect(authPage).toContain('WORLD_RECORD_HONESTY_DISCLAIMER');
+    expect(authPage).toContain('destination="/releases"');
+    expect(authPage).toContain('destination="/world-records"');
+    expect(authPage).toContain('items-stretch');
+    expect(authPage).toContain('Sign in to open Releases and inspect gate snapshots.');
+    expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry at /world-records.');
     expect(authPage).toContain('vish-gold-pill');
     expect(authPage).toContain('getSignInHelperLine');
     expect(trustPillar).toContain('vish-auth-feature-card');
+    expect(trustPillar).toContain('vish-auth-feature-card__footer');
+    expect(trustPillar).toContain('vish-auth-feature-card__metric');
+    expect(trustPillar).toContain('aria-label');
+    expect(trustPillar).toContain('ChevronRight');
     expect(trustPillar).toContain('vish-gold-pill');
   });
 
@@ -112,6 +122,8 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('.vish-auth-access-card');
     expect(styles).toContain('.vish-auth-feature-card:hover');
     expect(styles).toContain('.vish-auth-feature-card__title');
+    expect(styles).toContain('.vish-auth-feature-card__footer');
+    expect(styles).toContain('.vish-auth-feature-card__metric');
     expect(styles).toContain('.vish-auth-feature-card:focus-visible');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');

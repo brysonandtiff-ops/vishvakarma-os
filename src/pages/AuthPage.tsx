@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AlertTriangle, BookOpen, Download, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
+import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -408,16 +409,19 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className="grid w-full gap-3 md:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
+        <div className="grid w-full items-stretch gap-3 md:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
           <AuthTrustPillar
             icon={Shield}
             badge="Release evidence"
             title={`${WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence`}
-            description="In-repo pre-release checks before every ship — not a Guinness title claim."
+            description="Automated pre-release checks in-repo — evidence, not a Guinness claim."
+            metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
+            metricLabel="gates"
+            destination="/releases"
             testId="auth-trust-pillar-gates"
             onLearnMore={() =>
               toast.message('Release evidence', {
-                description: 'Open Releases after sign-in to inspect gate snapshots.',
+                description: 'Sign in to open Releases and inspect gate snapshots.',
               })
             }
           />
@@ -425,11 +429,12 @@ export default function AuthPage() {
             icon={Trophy}
             badge="Self-Verified"
             title="World Records Registry"
-            description="SHA-256 proof ledger with reproducible measurements — unlocks in your workspace."
+            description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}. SHA-256 proof ledger.`}
+            destination="/world-records"
             testId="auth-trust-pillar-records"
             onLearnMore={() =>
               toast.message('World Records', {
-                description: 'Open World Records after sign-in to view the registry.',
+                description: 'Sign in to view the Self-Verified Candidate registry at /world-records.',
               })
             }
           />

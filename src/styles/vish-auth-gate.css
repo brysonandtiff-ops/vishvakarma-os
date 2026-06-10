@@ -250,9 +250,10 @@
 }
 
 .vish-auth-feature-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  min-height: 7.5rem;
+  min-height: 8.75rem;
   padding: 1rem 1.1rem;
   border-radius: 0.875rem;
   border: 1px solid hsl(var(--vish-gold-muted) / 0.3);
@@ -294,9 +295,37 @@
   color: hsl(43 72% 66%);
 }
 
+.vish-auth-feature-card__header-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.vish-auth-feature-card__metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.vish-auth-feature-card__metric-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+  color: hsl(43 72% 66%);
+}
+
+.vish-auth-feature-card__metric-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-text-dim));
+}
+
 .vish-auth-feature-card__title {
   margin-top: 0.85rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.35;
   color: hsl(var(--ws-text));
@@ -307,6 +336,35 @@
   font-size: 0.75rem;
   line-height: 1.5;
   color: hsl(var(--ws-text-dim));
+}
+
+.vish-auth-feature-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.625rem;
+  line-height: 1.3;
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-auth-feature-card__footer-label {
+  flex-shrink: 0;
+}
+
+.vish-auth-feature-card__footer-destination {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.5625rem;
+  color: hsl(43 65% 58% / 0.85);
+}
+
+.vish-auth-feature-card__footer-chevron {
+  height: 0.75rem;
+  width: 0.75rem;
+  flex-shrink: 0;
+  color: hsl(43 65% 52% / 0.7);
 }
 
 .vish-logo-tile-animated,

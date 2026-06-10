@@ -29,6 +29,8 @@ test.describe('Authentication and Private Route Gate', () => {
     await expect(page.getByTestId('auth-trust-pillars')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('auth-trust-pillar-gates')).toBeVisible();
     await expect(page.getByTestId('auth-trust-pillar-records')).toBeVisible();
+    await expect(page.getByTestId('auth-trust-pillar-gates')).toContainText('/releases');
+    await expect(page.getByTestId('auth-trust-pillar-records')).toContainText('/world-records');
 
     await page.setViewportSize({ width: 1080, height: 810 });
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
