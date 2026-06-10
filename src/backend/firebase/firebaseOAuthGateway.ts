@@ -17,7 +17,7 @@ export type OAuthSignInResult = {
   redirecting: boolean;
 };
 
-function formatAuthError(error: unknown): Error {
+export function formatAuthError(error: unknown): Error {
   const authError = error as AuthError;
   const code = authError?.code ?? '';
   const message = error instanceof Error ? error.message : String(error);
@@ -88,7 +88,51 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
   }
 
   if (shouldPreferRedirectFlow()) {
-    await signInWithRedirect(firebaseAuth, provider);
+    // #region agent log
+    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
+      body: JSON.stringify({
+        sessionId: '83489a',
+        runId: 'pre-fix',
+        hypothesisId: 'A',
+        location: 'firebaseOAuthGateway.ts:redirect-start',
+        message: 'Using redirect OAuth flow',
+        data: {
+          hostname: window.location.hostname,
+          origin: window.location.origin,
+          isProd: import.meta.env.PROD,
+          providerId: provider.providerId,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+    try {
+      await signInWithRedirect(firebaseAuth, provider);
+    } catch (error) {
+      const authError = error as AuthError;
+      // #region agent log
+      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
+        body: JSON.stringify({
+          sessionId: '83489a',
+          runId: 'pre-fix',
+          hypothesisId: 'A',
+          location: 'firebaseOAuthGateway.ts:redirect-failed',
+          message: 'signInWithRedirect threw',
+          data: {
+            code: authError?.code ?? 'unknown',
+            errorMessage: error instanceof Error ? error.message : String(error),
+            hostname: window.location.hostname,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      throw error;
+    }
     return { session: null, redirecting: true };
   }
 

@@ -147,6 +147,26 @@ export default function AuthPage() {
     setSubmitting(true);
     const result = await signInWithGoogle();
     setSubmitting(false);
+    // #region agent log
+    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
+      body: JSON.stringify({
+        sessionId: '83489a',
+        runId: 'pre-fix',
+        hypothesisId: 'C',
+        location: 'AuthPage.tsx:handleGoogleSignIn',
+        message: 'Google sign-in handler finished',
+        data: {
+          hasError: Boolean(result.error),
+          errorMessage: result.error?.message ?? null,
+          redirecting: Boolean(result.redirecting),
+          hostname: window.location.hostname,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
     if (result.error) {
       setError(result.error.message);
       return;

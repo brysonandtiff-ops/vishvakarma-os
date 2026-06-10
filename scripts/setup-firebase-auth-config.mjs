@@ -104,7 +104,7 @@ async function main() {
 
   const PRODUCTION_DOMAIN = 'vishvakarma-os.vercel.app';
   if (!(updated.authorizedDomains ?? []).includes(PRODUCTION_DOMAIN)) {
-    throw new Error(Production domain missing after update: );
+    throw new Error(`Production domain missing after update: ${PRODUCTION_DOMAIN}`);
   }
   console.log('[PASS] Production domain verified:', PRODUCTION_DOMAIN);
 }
