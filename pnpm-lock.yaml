@@ -301,7 +301,7 @@ importers:
         specifier: ^3.4.11
         version: 3.4.17
       tsx:
-        specifier: ^4.20.5
+        specifier: ^4.22.4
         version: 4.22.4
       typescript:
         specifier: ~5.9.3
