@@ -121,8 +121,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Verify production Google OAuth flow
+        run: pnpm run verify:production-auth-flow
 
       - name: Run Playwright tests
         env:
