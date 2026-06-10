@@ -45,6 +45,7 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('showEmailSignIn');
     expect(authPage).toContain('showGoogleSignIn');
     expect(authPage).toContain('Continue with Google');
+    expect(authPage).toContain('vish-gold-button--with-icon');
     expect(authPage).toContain('Send secure access link');
     expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).not.toContain('signInWithApple');
@@ -57,8 +58,10 @@ describe('Sanskrit auth gate design', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
     expect(authPage).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('vish-logo-tile-animated');
-    expect(authPage).toContain('vish-access-logo');
+    expect(authPage).toContain('vish-auth-logo-hero');
+    expect(authPage).toContain('vish-auth-logo-wrap');
+    expect(authPage).toContain('vish-auth-logo-img');
+    expect(authPage).toContain('vish-auth-wordmark-divider');
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
     expect(authPage).toContain('auth-trust-pillars');
@@ -103,6 +106,9 @@ describe('Sanskrit auth gate design', () => {
     expect(routeGuard).toContain('SanskritRainBackground');
     expect(routeGuard).toContain('preset="boot"');
     expect(routeGuard).toContain('vish-boot-aurora');
+    expect(styles).toContain('.vish-auth-logo-hero');
+    expect(styles).toContain('.vish-auth-logo-wrap');
+    expect(styles).toContain('@keyframes vish-auth-logo-breathe');
     expect(styles).toContain('.vish-auth-aurora');
     expect(styles).toContain('@keyframes vish-auth-aurora-drift');
   });

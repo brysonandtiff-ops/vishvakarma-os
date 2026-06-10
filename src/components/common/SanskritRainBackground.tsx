@@ -131,12 +131,12 @@ const PRESET_DEFAULTS: Record<
 > = {
   auth: {
     density: 120,
-    opacity: 0.12,
+    opacity: 0.17,
     streamCount: 9,
-    trailFade: 0.12,
+    trailFade: 0.1,
     speedMin: 0.3,
     speedMax: 1.4,
-    trailBg: '11, 15, 10',
+    trailBg: '0, 0, 0',
     vignetteCenter: 0.48,
     emberCount: 12,
   },

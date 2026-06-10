@@ -70,6 +70,25 @@
   cursor: not-allowed;
 }
 
+.vish-gold-button--with-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.vish-gold-button__icon {
+  display: inline-flex;
+  height: 1.125rem;
+  width: 1.125rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: hsl(0 0% 100% / 0.92);
+  padding: 0.125rem;
+}
+
 .vish-oauth-button {
   display: flex;
   width: 100%;
@@ -104,13 +123,13 @@
   position: relative;
   width: min(100%, 26rem);
   border-radius: 1.25rem;
-  border: 1px solid hsl(var(--vish-card-border));
+  border: 1px solid hsl(43 40% 35% / 0.22);
   background:
-    linear-gradient(165deg, hsl(var(--vish-card)), hsl(0 0% 5%));
+    linear-gradient(165deg, hsl(0 0% 5%), hsl(0 0% 3%));
   box-shadow:
-    0 32px 80px hsl(0 0% 0% / 0.55),
-    0 0 0 1px hsl(43 65% 52% / 0.08),
-    inset 0 1px 0 hsl(43 90% 72% / 0.08);
+    0 32px 80px hsl(0 0% 0% / 0.65),
+    0 0 0 1px hsl(43 65% 52% / 0.1),
+    inset 0 1px 0 hsl(43 90% 72% / 0.1);
   padding: 2rem 1.75rem 1.5rem;
 }
 
@@ -120,7 +139,9 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 0%, hsl(43 90% 60% / 0.12), transparent 55%);
+  background:
+    radial-gradient(circle at 50% 0%, hsl(43 90% 60% / 0.18), transparent 52%),
+    linear-gradient(180deg, hsl(43 90% 62% / 0.06), transparent 28%);
 }
 
 .vish-auth-card-mockup > * {
