@@ -110,7 +110,10 @@ export default function AuthPage() {
 
     if (result.error) {
       setError(result.error.message);
+      return;
     }
+
+    navigate(returnPath, { replace: true });
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {

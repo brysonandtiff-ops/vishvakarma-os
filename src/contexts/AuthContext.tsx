@@ -124,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (result.status === 'completed') {
       setEmailLinkState('idle');
+      setLoading(false);
       return { error: null };
     }
 
@@ -178,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (result.status === 'completed') {
             setEmailLinkState('idle');
+            setLoading(false);
           }
         })
         .catch((error) => {
