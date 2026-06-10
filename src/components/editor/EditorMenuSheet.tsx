@@ -7,6 +7,7 @@ import {
   Plus,
   Save,
   Package,
+  Sparkles,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface EditorMenuSheetProps {
   onImport: () => void;
   onExport: () => void;
   onLoadSample: () => void;
+  onAIDesigner?: () => void;
   onToggle3D: () => void;
   onToggleGrid: () => void;
   show3DView: boolean;
@@ -59,6 +61,7 @@ export default function EditorMenuSheet({
   onImport,
   onExport,
   onLoadSample,
+  onAIDesigner,
   onToggle3D,
   onToggleGrid,
   show3DView,
@@ -86,6 +89,7 @@ export default function EditorMenuSheet({
           <MenuAction icon={Download} label="Import floor plan" onClick={() => run(onImport)} />
           <MenuAction icon={FileDown} label="Export floor plan" onClick={() => run(onExport)} />
           <MenuAction icon={Package} label="Load sample blueprint" onClick={() => run(onLoadSample)} />
+          {onAIDesigner && <MenuAction icon={Sparkles} label="AI Building Designer" onClick={() => run(onAIDesigner)} />}
           <p className="mt-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-ws-text-faint">View</p>
           <MenuAction icon={Box} label={show3DView ? 'Hide 3D view' : 'Show 3D view'} active={show3DView} onClick={() => run(onToggle3D)} />
           <MenuAction icon={Grid3x3} label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={() => run(onToggleGrid)} />

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
-import { Box, FolderOpen, Loader2, Save } from 'lucide-react';
+import { Box, FolderOpen, Loader2, Save, Sparkles } from 'lucide-react';
 import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import EditorTopBar from '@/components/editor/EditorTopBar';
@@ -27,6 +27,7 @@ import EditorMenuSheet from '@/components/editor/EditorMenuSheet';
 import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
 import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
+import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
 import { VastuPanel } from '@/components/editor/panels/VastuPanel';
@@ -60,7 +61,7 @@ import {
   type LocalDraftPayload,
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
-import { isLocalProjectId } from '@/editor/localProject';
+import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
 import { upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -131,6 +132,7 @@ function EditorWorkspace() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [aiDesignerOpen, setAiDesignerOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editorMenuOpen, setEditorMenuOpen] = useState(false);
@@ -493,6 +495,32 @@ function EditorWorkspace() {
     toast.success(`Imported ${manifest.name}`);
   };
 
+  const handleAIDesignerOpenInEditor = useCallback(
+    (manifest: ProjectManifest, name: string) => {
+      clearLocalDraft();
+      setCurrentProject(null);
+      setDemoProjectName(name);
+      applyManifest({ ...manifest, name });
+      setHasUnsavedChanges(true);
+      setSaveState('local-draft');
+      toast.success(`Loaded AI design: ${name}`);
+    },
+    [applyManifest],
+  );
+
+  const handleAIDesignerSaveProject = useCallback(
+    async (manifest: ProjectManifest, name: string) => {
+      const project = backendStatus.isConfigured
+        ? await createProject(name, manifest.description, manifest)
+        : createLocalProject(name, manifest.description, manifest);
+      if (!backendStatus.isConfigured) {
+        upsertLocalProject(project);
+      }
+      handleProjectCreated(project);
+    },
+    [handleProjectCreated],
+  );
+
   const handleExportJSON = () => {
     try {
       const manifest = buildManifest();
@@ -544,6 +572,9 @@ function EditorWorkspace() {
       </Button>
       <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
         Sample
+      </Button>
+      <Button variant="ghost" size="sm" data-testid="editor-ai-designer" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setAiDesignerOpen(true)}>
+        <Sparkles className="h-3.5 w-3.5" /> AI
       </Button>
       <KeyboardShortcuts />
     </>
@@ -784,6 +815,7 @@ function EditorWorkspace() {
         onImport={() => setImportDialogOpen(true)}
         onExport={() => setExportDialogOpen(true)}
         onLoadSample={() => void loadSampleProject()}
+        onAIDesigner={() => setAiDesignerOpen(true)}
         onToggle3D={() => engine.setShow3D(!show3DView)}
         onToggleGrid={() => engine.setGridVisible(!gridVisible)}
         show3DView={show3DView}
@@ -796,7 +828,18 @@ function EditorWorkspace() {
         onDiscard={discardLocalDraft}
         onDismiss={() => setRecoveryDialogOpen(false)}
       />
-      <NewProjectDialog open={newProjectOpen} onOpenChange={setNewProjectOpen} onProjectCreated={handleProjectCreated} />
+      <NewProjectDialog
+        open={newProjectOpen}
+        onOpenChange={setNewProjectOpen}
+        onProjectCreated={handleProjectCreated}
+        onOpenAIDesigner={() => setAiDesignerOpen(true)}
+      />
+      <AIDesignerDialog
+        open={aiDesignerOpen}
+        onOpenChange={setAiDesignerOpen}
+        onOpenInEditor={handleAIDesignerOpenInEditor}
+        onSaveProject={handleAIDesignerSaveProject}
+      />
       <ImportFloorPlanDialog
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}

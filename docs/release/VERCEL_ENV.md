@@ -13,6 +13,15 @@ The app is **Firebase-only**. Supabase variables are no longer used by the runti
 | `VITE_FIREBASE_PROJECT_ID` | Same |
 | `VITE_FIREBASE_APP_ID` | Same |
 
+## Server-only (AI Building Designer — never prefix with `VITE_`)
+
+| Variable | Purpose |
+|----------|---------|
+| `GEMINI_API_KEY` | Google AI Studio key for `/api/ai/extract-requirements` (requirements extraction only) |
+| `GEMINI_MODEL` | Optional model id (default `gemini-2.0-flash`) |
+
+These are read by Vercel serverless functions only and are **not** bundled into the SPA.
+
 ## Recommended (optional but useful)
 
 | Variable | Purpose |

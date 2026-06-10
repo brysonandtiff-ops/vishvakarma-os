@@ -50,6 +50,7 @@
     "deploy:vercel": "bash scripts/deploy-vercel.sh"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -116,8 +117,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.2",
     "@ast-grep/cli": "^0.39.5",
+    "@axe-core/playwright": "^4.10.2",
     "@biomejs/biome": "2.4.5",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/container-queries": "^0.1.1",

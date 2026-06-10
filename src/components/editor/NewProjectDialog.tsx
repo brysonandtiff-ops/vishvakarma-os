@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -18,10 +18,12 @@ export default function NewProjectDialog({
   open,
   onOpenChange,
   onProjectCreated,
+  onOpenAIDesigner,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onProjectCreated: (project: Project) => void;
+  onOpenAIDesigner?: () => void;
 }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -84,6 +86,20 @@ export default function NewProjectDialog({
               disabled={submitting}
             />
           </div>
+          {onOpenAIDesigner && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full gap-2"
+              onClick={() => {
+                onOpenChange(false);
+                onOpenAIDesigner();
+              }}
+            >
+              <Sparkles className="h-4 w-4" />
+              Design with AI
+            </Button>
+          )}
           <div className="space-y-2">
             <Label>Template</Label>
             <div className="flex flex-wrap gap-2">

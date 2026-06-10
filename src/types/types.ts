@@ -184,6 +184,7 @@ export interface ProjectManifest {
     created: string;
     modified: string;
     author?: string;
+    aiDesigner?: Record<string, unknown>;
   };
 }
 
