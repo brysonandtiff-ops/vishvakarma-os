@@ -44,7 +44,8 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 | Complete email link | Session established via Firebase SDK | `signInWithEmailLink` + `onAuthStateChanged` | PASS — CODE |
 | Refresh after sign-in | Session survives page reload | SDK persistence + snapshot sync | PASS — CODE |
 | Cross-device email link | Re-enter email on `/auth` | `needs_email` prompt on AuthPage | PASS — CODE |
-| Google / Apple OAuth | Popup or redirect sign-in | Buttons on AuthPage when Console providers enabled | PASS — CODE |
+| Google OAuth | Popup or redirect sign-in | `firebase deploy --only auth` + google.com IdP enabled | PASS — verified 2026-06-10 |
+| Apple OAuth | Popup or redirect sign-in | Requires Apple Developer credentials — operator env vars | SKIP — pending FIREBASE_APPLE_* |
 | Signed-out private route | Redirect to `/auth` | E2E + live CSP | PASS |
 | Signed-in editor | `/editor` loads workspace | Production bundle includes Firebase | PASS |
 | Sign out | Session cleared | App shell sign-out control | PASS — CODE |

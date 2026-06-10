@@ -12,7 +12,14 @@
     ],
     "providers": {
       "emailPassword": true,
-      "emailLink": true
+      "emailLink": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Vishvakarma.OS",
+        "supportEmail": "support@vishvakarma-os.vercel.app",
+        "authorizedRedirectUris": [
+          "https://vishvakarma-os.vercel.app"
+        ]
+      }
     }
   }
 }
