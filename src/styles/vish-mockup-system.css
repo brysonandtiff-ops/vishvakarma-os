@@ -98,58 +98,7 @@
   border-color: hsl(var(--ws-border) / 0.5);
 }
 
-.vish-mode-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: 9999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: hsl(var(--ws-text-dim));
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 0.45rem 0.85rem;
-  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
-}
-
-.vish-mode-tab:hover:not(:disabled) {
-  color: hsl(var(--ws-text));
-  background: hsl(var(--ws-hover));
-}
-
-.vish-mode-tab.active {
-  border-color: hsl(43 65% 52% / 0.5);
-  background: hsl(43 49% 18% / 0.85);
-  color: hsl(43 72% 66%);
-  box-shadow: 0 0 18px hsl(43 65% 52% / 0.15);
-}
-
-.vish-mode-tab:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.vish-tool-section-label {
-  width: 100%;
-  padding: 0.5rem 0 0.25rem;
-  text-align: center;
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: hsl(43 55% 48% / 0.75);
-  user-select: none;
-}
-
-.vish-canvas-stage {
-  background-color: hsl(var(--ws-canvas-surface));
-  background-image:
-    linear-gradient(hsl(0 0% 0% / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(0 0% 0% / 0.04) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
+/* Editor chrome (mode tabs, topbar, tool rail) → vish-editor-chrome.css */
 
 .vish-auth-card-mockup {
   position: relative;
@@ -198,53 +147,11 @@
   outline-offset: 1px;
 }
 
-.vish-editor-topbar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 3rem;
-  padding: 0 0.75rem;
-  background: linear-gradient(90deg, hsl(0 0% 6%), hsl(220 14% 10%), hsl(0 0% 6%));
-  border-bottom: 1px solid hsl(var(--ws-border));
-  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
-}
-
-.vish-editor-topbar-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: 0.5rem;
-}
-
-.vish-editor-topbar-center {
-  display: flex;
-  justify-content: center;
-  max-width: min(100%, 34rem);
-}
-
-.vish-mode-tab-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.15rem;
-  border-radius: 9999px;
-  border: 1px solid hsl(var(--ws-border));
-  background: hsl(0 0% 5% / 0.85);
-  padding: 0.2rem;
-}
-
-.vish-tool-rail .architect-tool-button.active {
-  position: relative;
-  border-color: hsl(43 65% 52% / 0.65);
-  box-shadow:
-    inset 3px 0 0 hsl(43 65% 52%),
-    0 0 16px hsl(43 65% 52% / 0.12);
-}
-
-.vish-tool-rail .architect-tool-button.stub,
-.vish-tool-rail .architect-tool-button--soon {
-  opacity: 0.38;
-  cursor: not-allowed;
+.vish-gov-card-dark {
+  border-color: hsl(43 40% 35% / 0.22);
+  background:
+    linear-gradient(165deg, hsl(220 14% 13%), hsl(220 14% 10%));
+  color: hsl(var(--ws-text));
 }
 
 .vish-canvas-overlay-pill--soon {
@@ -269,17 +176,9 @@
   box-shadow: 0 8px 24px hsl(0 0% 0% / 0.25);
 }
 
-.vish-gov-card-dark {
-  border-color: hsl(43 40% 35% / 0.22);
-  background:
-    linear-gradient(165deg, hsl(220 14% 13%), hsl(220 14% 10%));
-  color: hsl(var(--ws-text));
-}
-
 @media (prefers-reduced-motion: reduce) {
   .vish-gold-button,
-  .vish-oauth-button,
-  .vish-mode-tab {
+  .vish-oauth-button {
     transition: none;
   }
 }

@@ -1,10 +1,8 @@
 /**
  * Multi-User Governance Module
- * 
- * Extends governance system for multi-user collaboration.
- * Handles conflict detection, merge strategies, and coordinated undo/redo.
- * 
- * Part of STEP 8 - Collaboration & Multi-User Editing
+ *
+ * Audit logging for multi-user collaboration sessions.
+ * Conflict resolution is handled by the Yjs CRDT layer — LWW merge paths are deprecated.
  */
 
 import type { ProjectManifest } from '@/types';
@@ -18,7 +16,7 @@ export interface MultiUserOperation {
   userName: string;
   operation: string;
   elementId?: string;
-  elementType?: 'wall' | 'opening';
+  elementType?: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation';
   timestamp: number;
   payload: unknown;
   applied: boolean;
@@ -32,7 +30,7 @@ export interface ConflictDetectionResult {
 export interface Conflict {
   type: 'concurrent-edit' | 'deleted-element' | 'duplicate-id';
   elementId: string;
-  elementType: 'wall' | 'opening';
+  elementType: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation';
   operation1: MultiUserOperation;
   operation2: MultiUserOperation;
   description: string;
@@ -179,56 +177,48 @@ export class MultiUserGovernance {
   }
 
   /**
-   * Resolve conflict using merge strategy
+   * @deprecated CRDT layer converges edits; retained for audit compatibility only.
    */
   resolveConflict(conflict: Conflict): MultiUserOperation {
+    console.warn('[multiUserGovernance] LWW conflict resolution is deprecated; CRDT handles merge.', conflict.type);
     const { operation1, operation2 } = conflict;
+    const first = operation1.timestamp <= operation2.timestamp ? operation1 : operation2;
+    const last = operation1.timestamp >= operation2.timestamp ? operation1 : operation2;
 
-    switch (this.mergeStrategy.type) {
-      case 'last-write-wins':
-        return operation2.timestamp > operation1.timestamp ? operation2 : operation1;
-
-      case 'first-write-wins':
-        return operation1.timestamp < operation2.timestamp ? operation1 : operation2;
-
-      case 'manual':
-        // Manual resolution required
-        console.warn('Manual conflict resolution required:', conflict);
-        return operation2; // Default to last operation
-
-      default:
-        return operation2;
+    if (this.mergeStrategy.type === 'first-write-wins') {
+      return first;
     }
+
+    return last;
   }
 
   /**
-   * Apply operation with conflict resolution
+   * Log operation application. Structural conflicts are resolved by Yjs, not LWW.
    */
   applyOperation(operation: MultiUserOperation): {
     success: boolean;
     conflicts: Conflict[];
     resolvedOperation?: MultiUserOperation;
   } {
-    // Detect conflicts
     const conflictResult = this.detectConflicts(operation);
+    this.markOperationApplied(operation.id);
 
     if (conflictResult.hasConflict) {
-      // Resolve conflicts
-      const resolvedOperation = this.resolveConflict(conflictResult.conflicts[0]);
-
-      return {
-        success: true,
-        conflicts: conflictResult.conflicts,
-        resolvedOperation,
-      };
+      logGovernanceEvent({
+        type: 'crdt-conflict-audit',
+        metadata: {
+          elementId: operation.elementId,
+          elementType: operation.elementType,
+          conflictCount: conflictResult.conflicts.length,
+        },
+        timestamp: Date.now(),
+      });
     }
-
-    // No conflicts, apply operation
-    this.markOperationApplied(operation.id);
 
     return {
       success: true,
-      conflicts: [],
+      conflicts: conflictResult.conflicts,
+      resolvedOperation: operation,
     };
   }
 

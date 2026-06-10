@@ -1,24 +1,22 @@
-/* Vishvakarma.OS — authenticated workspace mantra / yantra polish
-   Scope: visual-only polish for the editor shell. No geometry, save/load, or backend logic. */
+/* Vishvakarma.OS — scoped mantra / yantra polish for authenticated workspace shell */
 
-.ws-surface,
-.bg-ws-canvas {
+.vish-workspace-shell .bg-ws-canvas {
   position: relative;
   background:
-    radial-gradient(circle at 18% 18%, hsl(39 85% 52% / 0.12), transparent 28rem),
-    radial-gradient(circle at 82% 12%, hsl(43 96% 70% / 0.08), transparent 24rem),
-    radial-gradient(circle at 50% 88%, hsl(18 78% 38% / 0.08), transparent 30rem),
+    radial-gradient(circle at 18% 18%, hsl(var(--ws-active) / 0.12), transparent 28rem),
+    radial-gradient(circle at 82% 12%, hsl(var(--ws-active) / 0.08), transparent 24rem),
+    radial-gradient(circle at 50% 88%, hsl(var(--ws-active) / 0.08), transparent 30rem),
     hsl(var(--ws-canvas));
 }
 
-.bg-ws-canvas::before {
+.vish-workspace-shell .bg-ws-canvas::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    conic-gradient(from 45deg at 50% 50%, transparent 0 12%, hsl(43 92% 62% / 0.045) 12% 13%, transparent 13% 37%, hsl(43 92% 62% / 0.045) 37% 38%, transparent 38% 100%),
-    radial-gradient(circle at 50% 50%, transparent 0 22%, hsl(43 90% 62% / 0.045) 22.2% 22.6%, transparent 23% 100%);
+    conic-gradient(from 45deg at 50% 50%, transparent 0 12%, hsl(var(--ws-active) / 0.045) 12% 13%, transparent 13% 37%, hsl(var(--ws-active) / 0.045) 37% 38%, transparent 38% 100%),
+    radial-gradient(circle at 50% 50%, transparent 0 22%, hsl(var(--ws-active) / 0.045) 22.2% 22.6%, transparent 23% 100%);
   background-size: 18rem 18rem, 28rem 28rem;
   background-position: center;
   opacity: 0.72;
@@ -26,146 +24,66 @@
   z-index: 0;
 }
 
-.bg-ws-canvas > * {
+.vish-workspace-shell .bg-ws-canvas > * {
   position: relative;
   z-index: 1;
 }
 
-.bg-ws-menubar,
-.ws-menubar {
+.vish-workspace-shell .bg-ws-menubar,
+.vish-workspace-shell .ws-menubar {
   background:
-    linear-gradient(180deg, hsl(39 28% 14% / 0.92), hsl(var(--ws-menubar)) 65%),
+    linear-gradient(180deg, hsl(var(--ws-active-bg) / 0.92), hsl(var(--ws-menubar)) 65%),
     hsl(var(--ws-menubar));
-  border-color: hsl(43 58% 42% / 0.24) !important;
+  border-color: hsl(var(--ws-active) / 0.24) !important;
   box-shadow:
-    inset 0 -1px 0 hsl(43 86% 68% / 0.08),
+    inset 0 -1px 0 hsl(var(--ws-active) / 0.08),
     0 12px 36px hsl(0 0% 0% / 0.18);
 }
 
-.bg-ws-menubar::after {
-  content: 'ॐ विश्वकर्मणे नमः · मन्त्र · यन्त्र · वास्तु · प्रमाण';
-  pointer-events: none;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  max-width: min(42vw, 38rem);
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  white-space: nowrap;
-  font-family: 'IBM Plex Mono', 'Noto Sans Devanagari', serif;
-  font-size: 9px;
-  letter-spacing: 0.32em;
-  color: hsl(43 92% 72% / 0.16);
-  text-transform: uppercase;
-}
-
-.architect-tool-dock,
-.ws-toolbar {
-  background:
-    linear-gradient(180deg, hsl(39 30% 15% / 0.64), hsl(var(--ws-toolbar))),
-    hsl(var(--ws-toolbar));
-  border-color: hsl(43 56% 44% / 0.18) !important;
-  box-shadow:
-    inset -1px 0 0 hsl(43 90% 68% / 0.06),
-    14px 0 40px hsl(0 0% 0% / 0.18);
-}
-
-.architect-tool-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.architect-tool-button::after {
-  content: '';
-  position: absolute;
-  inset: auto 8px 5px;
-  height: 1px;
-  transform: scaleX(0);
-  transform-origin: center;
-  background: linear-gradient(90deg, transparent, hsl(43 100% 76% / 0.74), transparent);
-  transition: transform 160ms ease;
-}
-
-.architect-tool-button:hover::after,
-.architect-tool-button.active::after {
-  transform: scaleX(1);
-}
-
-.architect-tool-button.active {
-  background:
-    radial-gradient(circle at 50% 0%, hsl(43 94% 70% / 0.18), transparent 70%),
-    hsl(var(--ws-active-bg));
-  box-shadow:
-    0 0 0 2px hsl(var(--ws-active-ring)),
-    0 0 14px hsl(var(--ws-active) / 0.34),
-    inset 0 1px 0 hsl(var(--ws-active) / 0.22);
-}
-
-.ws-pane-header {
-  background:
-    linear-gradient(180deg, hsl(39 26% 18% / 0.28), transparent),
-    hsl(var(--ws-toolbar));
-  border-color: hsl(43 60% 45% / 0.16) !important;
-  box-shadow: inset 0 -1px 0 hsl(43 90% 68% / 0.06);
-}
-
-.ws-pane-label::before {
+.vish-workspace-shell .ws-pane-label::before {
   content: 'ॐ';
   margin-right: 0.5rem;
-  color: hsl(43 92% 68% / 0.72);
+  color: hsl(var(--ws-active) / 0.72);
   font-family: 'Noto Sans Devanagari', serif;
 }
 
-.ws-pane-stat {
-  color: hsl(43 72% 68% / 0.72) !important;
+.vish-workspace-shell .ws-pane-stat {
+  color: hsl(var(--ws-active) / 0.72) !important;
 }
 
-.architect-canvas,
-.blueprint-grid,
-.blueprint-grid-major {
+.vish-workspace-shell .architect-canvas,
+.vish-workspace-shell .blueprint-grid,
+.vish-workspace-shell .blueprint-grid-major {
   background-color: hsl(var(--ws-canvas));
   background-image:
-    radial-gradient(circle at center, hsl(43 78% 56% / 0.08) 1px, transparent 1px),
+    radial-gradient(circle at center, hsl(var(--ws-active) / 0.08) 1px, transparent 1px),
     radial-gradient(circle, hsl(var(--ws-grid-line)) 1px, transparent 1px);
   background-size: 100px 100px, 20px 20px;
   box-shadow:
-    inset 0 0 0 1px hsl(43 78% 48% / 0.08),
-    inset 0 0 90px hsl(39 88% 30% / 0.08);
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.08),
+    inset 0 0 90px hsl(var(--ws-active) / 0.08);
 }
 
-.ws-panel-light {
+.vish-workspace-shell .ws-panel-light {
   background:
     linear-gradient(145deg, hsl(42 52% 98% / 0.98), hsl(39 38% 91% / 0.95));
-  border-color: hsl(39 46% 48% / 0.2) !important;
+  border-color: hsl(var(--ws-border) / 0.2) !important;
   box-shadow:
     -24px 0 50px hsl(0 0% 0% / 0.18),
-    inset 1px 0 0 hsl(43 100% 88% / 0.18);
+    inset 1px 0 0 hsl(var(--ws-active) / 0.18);
 }
 
-.ws-panel-light [data-testid='project-proof-panel'] {
-  border-color: hsl(43 82% 52% / 0.3) !important;
+.vish-workspace-shell .ws-panel-light [data-testid='project-proof-panel'] {
+  border-color: hsl(var(--ws-active) / 0.3) !important;
   background:
-    linear-gradient(145deg, hsl(43 80% 92% / 0.78), hsl(0 0% 100% / 0.82)),
-    radial-gradient(circle at 20% 0%, hsl(43 100% 68% / 0.16), transparent 12rem);
+    linear-gradient(145deg, hsl(var(--ws-active) / 0.12), hsl(0 0% 100% / 0.82)),
+    radial-gradient(circle at 20% 0%, hsl(var(--ws-active) / 0.16), transparent 12rem);
   box-shadow:
-    0 16px 38px hsl(39 45% 20% / 0.12),
-    inset 0 1px 0 hsl(43 100% 96% / 0.45);
+    0 16px 38px hsl(var(--vish-shadow)),
+    inset 0 1px 0 hsl(var(--ws-active) / 0.2);
 }
 
-.ws-status-bar,
-.ws-statusbar {
-  background:
-    linear-gradient(180deg, hsl(var(--ws-statusbar)), hsl(39 30% 9% / 0.98));
-  border-color: hsl(43 55% 44% / 0.18) !important;
-  box-shadow: 0 -10px 32px hsl(0 0% 0% / 0.22);
-}
-
-.ws-status-item.active {
-  color: hsl(43 90% 72%) !important;
-  text-shadow: 0 0 16px hsl(43 92% 62% / 0.22);
-}
-
-.vish-editor-mantra-watermark {
+.vish-workspace-shell .vish-editor-mantra-watermark {
   pointer-events: none;
   position: absolute;
   right: 1.2rem;
@@ -177,22 +95,18 @@
   font-size: 10px;
   letter-spacing: 0.22em;
   line-height: 1.8;
-  color: hsl(43 94% 70% / 0.16);
+  color: hsl(var(--ws-active) / 0.16);
 }
 
 @media (max-width: 900px) {
-  .bg-ws-menubar::after {
-    display: none;
-  }
-
-  .ws-panel-light {
-    box-shadow: inset 1px 0 0 hsl(43 100% 88% / 0.1);
+  .vish-workspace-shell .ws-panel-light {
+    box-shadow: inset 1px 0 0 hsl(var(--ws-active) / 0.1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .architect-tool-button,
-  .architect-tool-button::after {
+  .vish-workspace-shell .architect-tool-button,
+  .vish-workspace-shell .architect-tool-button::after {
     transition: none !important;
   }
 }

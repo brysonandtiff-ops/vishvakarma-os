@@ -36,6 +36,9 @@ describe('AI Building Designer', () => {
     expect(validateManifest(building.manifest).valid).toBe(true);
     expect(building.costSummary.total).toBeGreaterThan(0);
     expect(building.schedules.rooms.length).toBeGreaterThan(5);
+    expect(building.conceptDesign.styleSummary).toBeTruthy();
+    expect(building.materialList.length).toBeGreaterThan(0);
+    expect(building.complianceReport.results.length).toBe(12);
   });
 
   it('generates deterministic floor plan components', () => {

@@ -133,6 +133,14 @@ export interface CeilingZone {
   type: 'flat' | 'tray' | 'coffered' | 'vaulted';
 }
 
+export interface Roof {
+  id: string;
+  footprint: Point2D[];
+  pitch: number;
+  material: string;
+  floorIndex?: number;
+}
+
 export interface ViewportCameraState {
   position: [number, number, number];
   target: [number, number, number];
@@ -180,17 +188,32 @@ export interface ProjectManifest {
   floors?: BuildingFloor[];
   activeFloorIndex?: number;
   terrain?: TerrainPatch[];
+  roofs?: Roof[];
   metadata: {
     created: string;
     modified: string;
     author?: string;
+    archived?: boolean;
     aiDesigner?: Record<string, unknown>;
+    copilot?: Record<string, unknown>;
   };
 }
 
 // ============================================================================
 // DATABASE TYPES
 // ============================================================================
+
+export interface CollabSnapshot {
+  state: string;
+  updatedAt: string;
+  revision: number;
+}
+
+export interface ProjectCollaborator {
+  userId: string;
+  role: 'owner' | 'editor' | 'viewer';
+  invitedAt: string;
+}
 
 export interface Project {
   id: string;
@@ -199,6 +222,9 @@ export interface Project {
   manifest: ProjectManifest;
   created_at: string;
   updated_at: string;
+  ownerId?: string;
+  collaborators?: string[];
+  collabSnapshot?: CollabSnapshot;
 }
 
 export interface Spec {

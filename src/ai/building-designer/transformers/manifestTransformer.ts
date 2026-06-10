@@ -5,6 +5,7 @@ import type {
   SitePlan,
 } from '@/domain/buildings/generatedBuilding';
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
+import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
 import { createProjectManifest } from '@/core/projectModel';
 import { validateManifest } from '@/core/manifestSchema';
 import type { Label, ProjectManifest, Room } from '@/types';
@@ -26,7 +27,8 @@ export function buildManifestFromFloorPlan(
     sitePlan: SitePlan;
     schedules: BuildingSchedules;
     architectureMap: ArchitectureMapGraph;
-  }
+    copilot?: CopilotManifestMetadata;
+  },
 ): ProjectManifest {
   const labels: Label[] = floorPlan.rooms.map((room) => ({
     id: `label-${room.id}`,
@@ -67,6 +69,7 @@ export function buildManifestFromFloorPlan(
     metadata: {
       ...manifest.metadata,
       aiDesigner: meta as unknown as Record<string, unknown>,
+      ...(meta.copilot ? { copilot: meta.copilot as unknown as Record<string, unknown> } : {}),
     },
   };
 

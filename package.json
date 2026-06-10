@@ -22,6 +22,7 @@
     "test:e2e:cross-browser": "node scripts/run-cross-browser-gates.mjs",
     "test:e2e:a11y": "node scripts/run-local-preview-playwright.mjs --project=accessibility-audit",
     "test:screenshots": "node scripts/run-screenshot-pack.mjs",
+    "marketing:assets": "node scripts/run-local-preview-playwright.mjs --project=screenshot-pack marketing-asset-pack.spec.ts",
     "capture:page-references": "node scripts/run-page-reference-pack.mjs",
     "assets:apple-touch-icon": "node scripts/generate-apple-touch-icon.mjs",
     "test:e2e:install": "pnpm exec playwright install --with-deps",
@@ -47,7 +48,9 @@
     "production:evidence": "node scripts/production/generate-evidence.mjs",
     "production:manual-evidence": "node scripts/production/generate-manual-evidence.mjs",
     "record:measure": "node scripts/world-record/measure-record.mjs",
-    "deploy:vercel": "bash scripts/deploy-vercel.sh"
+    "deploy:vercel": "bash scripts/deploy-vercel.sh",
+    "collab:server": "node --import tsx server/collab/presenceServer.ts",
+    "collab:server:dev": "node --import tsx --watch server/collab/presenceServer.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -91,7 +94,9 @@
     "eventsource-parser": "^3.0.6",
     "firebase": "^12.13.0",
     "input-otp": "^1.4.2",
+    "jszip": "^3.10.1",
     "ky": "^1.13.0",
+    "lib0": "^0.2.117",
     "lucide-react": "^0.576.0",
     "motion": "^12.23.25",
     "next-themes": "^0.4.6",
@@ -114,6 +119,10 @@
     "three": "catalog:",
     "vaul": "^1.1.2",
     "video-react": "^0.16.0",
+    "ws": "^8.21.0",
+    "y-indexeddb": "^9.0.12",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.31",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -125,6 +134,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jszip": "^3.4.1",
     "@types/node": "^24.2.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -138,6 +148,7 @@
     "jsdom": "^28.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.11",
+    "tsx": "^4.22.4",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.2.10",
     "vite-plugin-svgr": "^4.5.0",

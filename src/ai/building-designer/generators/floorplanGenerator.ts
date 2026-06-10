@@ -61,10 +61,10 @@ function isExteriorWall(
   for (const other of rooms) {
     if (other.id === room.id) continue;
     const ob = roomBounds(other);
-    if (onNorth && Math.abs(other.bottom - b.top) < 4 && rangesOverlap(b.left, b.right, ob.left, ob.right)) return false;
-    if (onSouth && Math.abs(other.top - b.bottom) < 4 && rangesOverlap(b.left, b.right, ob.left, ob.right)) return false;
-    if (onWest && Math.abs(other.right - b.left) < 4 && rangesOverlap(b.top, b.bottom, ob.top, ob.bottom)) return false;
-    if (onEast && Math.abs(other.left - b.right) < 4 && rangesOverlap(b.top, b.bottom, ob.top, ob.bottom)) return false;
+    if (onNorth && Math.abs(ob.bottom - b.top) < 4 && rangesOverlap(b.left, b.right, ob.left, ob.right)) return false;
+    if (onSouth && Math.abs(ob.top - b.bottom) < 4 && rangesOverlap(b.left, b.right, ob.left, ob.right)) return false;
+    if (onWest && Math.abs(ob.right - b.left) < 4 && rangesOverlap(b.top, b.bottom, ob.top, ob.bottom)) return false;
+    if (onEast && Math.abs(ob.left - b.right) < 4 && rangesOverlap(b.top, b.bottom, ob.top, ob.bottom)) return false;
   }
 
   return true;

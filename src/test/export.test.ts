@@ -4,6 +4,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ExportModule, exportProjectJSON, exportProjectSVG } from '@/modules/export';
+import { bootstrapClientGovernanceState, configureEnforcement } from '@/governance/core/enforcer';
 import { initializeGovernanceLock } from '@/modules/governanceLock';
 import type { ProjectManifest } from '@/types';
 
@@ -11,6 +12,9 @@ describe('ExportModule', () => {
   let manifest: ProjectManifest;
 
   beforeEach(() => {
+    bootstrapClientGovernanceState();
+    configureEnforcement({ mode: 'development', enableAutoRepair: true, blockOnFailure: false });
+
     // Initialize governance lock for export validation
     initializeGovernanceLock({
       enforceValidation: true,
@@ -197,6 +201,39 @@ describe('ExportModule', () => {
 
       expect(result.success).toBe(true);
       expect(result.mimeType).toBe('image/svg+xml');
+    });
+  });
+
+  describe('Compliance gate', () => {
+    it('blocks JSON export when building compliance fails', async () => {
+      const failingManifest: ProjectManifest = {
+        ...manifest,
+        metadata: {
+          ...manifest.metadata,
+          aiDesigner: {
+            sitePlan: {
+              parcelBoundary: [
+                { x: 0, y: 0 },
+                { x: 80, y: 0 },
+                { x: 80, y: 80 },
+                { x: 0, y: 80 },
+              ],
+              buildingFootprint: [
+                { x: 0, y: 0 },
+                { x: 100, y: 0 },
+                { x: 100, y: 40 },
+                { x: 0, y: 40 },
+              ],
+              setbacks: { front: 3, side: 1.5, rear: 3 },
+              orientation: 'north',
+            },
+          },
+        },
+      };
+
+      const result = await ExportModule.exportJSON(failingManifest, { format: 'json' });
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Building compliance failed|Governance enforcement failed/i);
     });
   });
 

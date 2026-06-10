@@ -125,32 +125,6 @@
   box-shadow: 0 0 32px hsl(var(--vish-gold) / 0.2);
 }
 
-.vish-video-card {
-  border: 1px solid hsl(var(--vish-gold-muted) / 0.35);
-  background: hsl(0 0% 4% / 0.85);
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-.vish-video-thumb {
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(145deg, hsl(0 0% 8%), hsl(0 0% 3%));
-  display: grid;
-  place-items: center;
-}
-
-.vish-play-glow {
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 9999px;
-  border: 1px solid hsl(var(--vish-gold) / 0.5);
-  background: hsl(var(--vish-gold) / 0.2);
-  box-shadow: 0 0 24px hsl(var(--vish-gold) / 0.5);
-  display: grid;
-  place-items: center;
-  color: hsl(var(--vish-gold));
-}
-
 .vish-warm-404 {
   min-height: 100vh;
   background: hsl(var(--vish-warm-404-bg));

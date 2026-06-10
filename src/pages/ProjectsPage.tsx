@@ -4,6 +4,7 @@ import { FolderOpen, Loader2, MoreHorizontal, PenTool, Plus } from 'lucide-react
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,11 @@ import { isLocalProjectId } from '@/editor/localProject';
 import type { Project } from '@/types';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
+
+function isProjectArchived(project: Project): boolean {
+  if (project.manifest.metadata.archived) return true;
+  return project.description?.includes('[archived]') ?? false;
+}
 
 function formatRelativeTime(iso: string): string {
   const diff = Date.now() - Date.parse(iso);
@@ -104,14 +110,16 @@ export default function ProjectsPage() {
 
   const filteredProjects = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return projects.filter((project) => {
-      if (!showArchived && project.description?.includes('[archived]')) return false;
-      if (!query) return true;
-      return (
-        project.name.toLowerCase().includes(query) ||
-        (project.description ?? '').toLowerCase().includes(query)
-      );
-    });
+    return projects
+      .filter((project) => {
+        if (!showArchived && isProjectArchived(project)) return false;
+        if (!query) return true;
+        return (
+          project.name.toLowerCase().includes(query) ||
+          (project.description ?? '').toLowerCase().includes(query)
+        );
+      })
+      .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
   }, [projects, searchQuery, showArchived]);
 
   const duplicateProject = (project: Project) => {
@@ -137,20 +145,31 @@ export default function ProjectsPage() {
   };
 
   const toggleArchive = async (project: Project) => {
-    const archived = project.description?.includes('[archived]');
+    const archived = isProjectArchived(project);
+    const nextManifest = {
+      ...project.manifest,
+      metadata: {
+        ...project.manifest.metadata,
+        archived: !archived,
+        modified: new Date().toISOString(),
+      },
+    };
     const nextDescription = archived
       ? (project.description ?? '').replace('[archived]', '').trim()
-      : `${project.description ?? ''} [archived]`.trim();
+      : project.description;
+
     if (isLocalProjectId(project.id)) {
       setProjects((prev) =>
         prev.map((entry) =>
-          entry.id === project.id ? { ...entry, description: nextDescription } : entry,
+          entry.id === project.id
+            ? { ...entry, manifest: nextManifest, description: nextDescription || undefined }
+            : entry,
         ),
       );
       toast.success(archived ? 'Project restored' : 'Project archived');
       return;
     }
-    toast.info('Archive tag updated locally — cloud sync requires save in editor.');
+    toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
   const cloudLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
@@ -158,7 +177,7 @@ export default function ProjectsPage() {
   return (
     <AppLayout>
       <PageMeta title="Projects" description="Open and manage your Vishvakarma.OS floor plans." />
-      <div className="mx-auto max-w-6xl p-6 md:p-8">
+      <WorkspacePageShell>
         <WorkspacePageHeader
           eyebrow="Workspace"
           title="Your projects"
@@ -166,6 +185,16 @@ export default function ProjectsPage() {
             backendStatus.isConfigured
               ? `Cloud projects sync via ${cloudLabel}.`
               : 'Local Draft mode — projects and auto-saved drafts are stored in this browser.'
+          }
+          stats={
+            <>
+              <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums text-foreground">
+                {projects.length} project{projects.length === 1 ? '' : 's'}
+              </span>
+              <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
+                {cloudLabel}
+              </span>
+            </>
           }
           actions={
             <Button asChild className="touch-target">
@@ -271,7 +300,7 @@ export default function ProjectsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => duplicateProject(project)}>Duplicate</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => void toggleArchive(project)}>
-                              {project.description?.includes('[archived]') ? 'Restore' : 'Archive'}
+                              {isProjectArchived(project) ? 'Restore' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
@@ -290,7 +319,7 @@ export default function ProjectsPage() {
             </div>
           </>
         )}
-      </div>
+      </WorkspacePageShell>
 
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent className="vish-dialog-chrome">

@@ -1,28 +1,61 @@
-import { useState } from 'react';
-import { Loader2, Sparkles } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { FileDown, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import AIDesignerResultsPanel from '@/components/editor/ai-designer/AIDesignerResultsPanel';
+import AIDesignerResultsPanel, { type ResultTab } from '@/components/editor/ai-designer/AIDesignerResultsPanel';
+import CopilotReviewStep from '@/components/editor/ai-designer/CopilotReviewStep';
+import CopilotUploadStep from '@/components/editor/ai-designer/CopilotUploadStep';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
-import { generateFromPrompt } from '@/modules/ai-designer/buildingDesignerModule';
+import type {
+  CopilotDocumentKind,
+  CopilotIngestionResult,
+  CopilotSession,
+  CopilotUploadedDocument,
+} from '@/domain/copilot/copilotSession';
+import { createCopilotSession } from '@/domain/copilot/copilotSession';
+import { generateFromCopilotSession } from '@/modules/ai-designer/buildingDesignerModule';
+import { mergeCopilotRequirements } from '@/services/copilot/ingestion/requirementMerger';
+import { ingestCopilotDocuments } from '@/services/copilot/ingestion/documentParsers';
+import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
+import { downloadComplianceReportPdf } from '@/modules/compliance/complianceReportExport';
+import { downloadPermitPackage } from '@/modules/permit/permitPackageExport';
 import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
 import type { Project, ProjectManifest } from '@/types';
 
 const STAGE_LABELS: Record<PipelineStage, string> = {
+  ingesting: 'Ingesting site documents…',
   extracting: 'Extracting requirements…',
   constraints: 'Applying constraints…',
+  concept: 'Generating concept design…',
   layout: 'Solving room layout…',
   floorplan: 'Generating floor plan…',
   schedules: 'Building schedules…',
+  compliance: 'Running compliance audit…',
   complete: 'Complete',
   error: 'Error',
 };
 
-type ResultTab = 'site' | 'schedules' | 'map' | 'cost';
+type WizardStep = 'upload' | 'review' | 'generate' | 'deliverables';
+
+const RESULT_TABS: { key: ResultTab; label: string }[] = [
+  { key: 'concept', label: 'Concept' },
+  { key: 'site', label: 'Site' },
+  { key: 'schedules', label: 'Schedules' },
+  { key: 'map', label: 'Map' },
+  { key: 'materials', label: 'Materials' },
+  { key: 'cost', label: 'Cost' },
+  { key: 'compliance', label: 'Compliance' },
+];
 
 export default function AIDesignerDialog({
   open,
@@ -37,32 +70,108 @@ export default function AIDesignerDialog({
   onSaveProject?: (manifest: ProjectManifest, projectName: string) => Promise<Project | void>;
   initialPrompt?: string;
 }) {
-  const [prompt, setPrompt] = useState(initialPrompt);
+  const [session, setSession] = useState<CopilotSession>(() => createCopilotSession(initialPrompt));
+  const [wizardStep, setWizardStep] = useState<WizardStep>('upload');
+  const [filesById, setFilesById] = useState<Map<string, File>>(new Map());
+  const [filesByKind, setFilesByKind] = useState<Map<CopilotDocumentKind, File>>(new Map());
+  const [ingestion, setIngestion] = useState<CopilotIngestionResult | null>(null);
+  const [previewRequest, setPreviewRequest] = useState<BuildingRequest | null>(null);
   const [parcelArea, setParcelArea] = useState('');
+  const [parsing, setParsing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [exportingPermit, setExportingPermit] = useState(false);
   const [stage, setStage] = useState<PipelineStage | null>(null);
   const [result, setResult] = useState<GeneratedBuilding | null>(null);
-  const [tab, setTab] = useState<ResultTab>('site');
+  const [tab, setTab] = useState<ResultTab>('concept');
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error('Describe the home you want to design');
+  const designBrief = session.designBrief;
+
+  const setDesignBrief = (value: string) => {
+    setSession((s) => ({ ...s, designBrief: value, updatedAt: new Date().toISOString() }));
+  };
+
+  const handleUpload = (kind: CopilotDocumentKind, file: File, doc: CopilotUploadedDocument) => {
+    setSession((s) => ({
+      ...s,
+      documents: [...s.documents.filter((d) => d.kind !== kind), doc],
+      updatedAt: new Date().toISOString(),
+    }));
+    setFilesById((prev) => new Map(prev).set(doc.id, file));
+    setFilesByKind((prev) => new Map(prev).set(kind, file));
+  };
+
+  const handleRemove = (kind: CopilotDocumentKind) => {
+    setSession((s) => {
+      const removed = s.documents.find((d) => d.kind === kind);
+      if (removed) {
+        setFilesById((prev) => {
+          const next = new Map(prev);
+          next.delete(removed.id);
+          return next;
+        });
+      }
+      return {
+        ...s,
+        documents: s.documents.filter((d) => d.kind !== kind),
+        updatedAt: new Date().toISOString(),
+      };
+    });
+    setFilesByKind((prev) => {
+      const next = new Map(prev);
+      next.delete(kind);
+      return next;
+    });
+  };
+
+  const handleParseAndReview = async () => {
+    if (!designBrief.trim() && session.documents.length === 0) {
+      toast.error('Add a design brief or upload site documents');
       return;
     }
 
+    setParsing(true);
+    try {
+      const parsed = await ingestCopilotDocuments(session.documents, filesById, designBrief.trim());
+      setIngestion(parsed);
+      const merged = await mergeCopilotRequirements(designBrief.trim() || 'Modern family home', parsed);
+      setPreviewRequest(merged.request);
+      setParcelArea(String(merged.request.parcel.area));
+      setWizardStep('review');
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : 'Failed to parse documents');
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const handleGenerate = async () => {
     setGenerating(true);
     setResult(null);
-    setStage('extracting');
+    setStage('ingesting');
+    setWizardStep('generate');
 
     try {
-      const { building } = await generateFromPrompt({
-        prompt: prompt.trim(),
-        parcelOverride: parcelArea ? { area: Number(parcelArea) } : undefined,
+      const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
+      const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
+
+      const { building } = await generateFromCopilotSession({
+        prompt: designBrief.trim() || 'Modern family home',
+        parcelOverride,
+        ingestion: mergedIngestion,
+        sessionId: session.id,
+        uploadedDocuments: session.documents.map((d) => ({
+          id: d.id,
+          kind: d.kind,
+          fileName: d.fileName,
+        })),
         onStage: setStage,
       });
+
       setResult(building);
-      setTab('site');
-      toast.success('Building design generated');
+      setTab('concept');
+      setWizardStep('deliverables');
+      toast.success('Architecture Copilot design complete');
     } catch (error) {
       console.error(error);
       setStage('error');
@@ -72,86 +181,176 @@ export default function AIDesignerDialog({
     }
   };
 
-  const projectName = result?.manifest.name ?? 'AI Designed Home';
+  const handleExportPermit = async () => {
+    if (!result) return;
+    setExportingPermit(true);
+    try {
+      const exportResult = await downloadPermitPackage(result);
+      if (!exportResult.allowed) {
+        toast.error(exportResult.reason ?? 'Permit export blocked');
+        return;
+      }
+      toast.success('Permit package downloaded');
+    } catch {
+      toast.error('Permit package export failed');
+    } finally {
+      setExportingPermit(false);
+    }
+  };
+
+  const projectName = result?.manifest.name ?? 'Copilot Design';
+
+  const stepTitle = useMemo(() => {
+    switch (wizardStep) {
+      case 'upload':
+        return 'Upload site inputs';
+      case 'review':
+        return 'Review parsed inputs';
+      case 'generate':
+        return 'Generating building';
+      case 'deliverables':
+        return 'Deliverables';
+      default:
+        return '';
+    }
+  }, [wizardStep]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="vish-dialog-chrome max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-2xl">
         <DialogHeader>
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
-            AI · Building Designer
+            Architecture Copilot
           </div>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Design with AI
+            AI Architecture Copilot
           </DialogTitle>
           <DialogDescription>
-            Describe your home — site plan, floor plan, schedules, 3D model, and cost estimate are generated automatically.
+            Upload site survey, boundary plan, and council requirements — receive concept design, floor plan, 3D
+            model, material list, cost estimate, compliance report, and permit package.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="ai-prompt">Design brief</Label>
-            <Textarea
-              id="ai-prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="4-bedroom modern home on 600m² corner block with double garage"
-              rows={3}
-              disabled={generating}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ai-parcel">Parcel area m² (optional)</Label>
-            <Input
-              id="ai-parcel"
-              type="number"
-              value={parcelArea}
-              onChange={(e) => setParcelArea(e.target.value)}
-              placeholder="600"
-              disabled={generating}
-            />
-          </div>
+        <div className="flex gap-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          {(['upload', 'review', 'generate', 'deliverables'] as WizardStep[]).map((step, i) => (
+            <span
+              key={step}
+              className={wizardStep === step ? 'text-primary' : ''}
+            >
+              {i + 1}. {step}
+            </span>
+          ))}
+        </div>
 
-          {generating && stage && (
+        <p className="text-xs font-medium text-foreground">{stepTitle}</p>
+
+        <div className="space-y-4">
+          {(wizardStep === 'upload' || wizardStep === 'review') && (
+            <div className="space-y-2">
+              <Label htmlFor="copilot-brief">Design brief</Label>
+              <Textarea
+                id="copilot-brief"
+                value={designBrief}
+                onChange={(e) => setDesignBrief(e.target.value)}
+                placeholder="4-bedroom modern home on 600m² corner block with double garage"
+                rows={3}
+                disabled={parsing || generating}
+              />
+            </div>
+          )}
+
+          {wizardStep === 'upload' && (
+            <CopilotUploadStep
+              documents={session.documents}
+              filesByKind={filesByKind}
+              onUpload={handleUpload}
+              onRemove={handleRemove}
+              disabled={parsing || generating}
+            />
+          )}
+
+          {wizardStep === 'review' && ingestion && previewRequest && (
+            <CopilotReviewStep
+              ingestion={ingestion}
+              request={previewRequest}
+              parcelArea={parcelArea}
+              onParcelAreaChange={setParcelArea}
+            />
+          )}
+
+          {(wizardStep === 'generate' || generating) && stage && (
             <p className="text-xs text-muted-foreground">{STAGE_LABELS[stage]}</p>
           )}
 
-          {result && (
+          {wizardStep === 'deliverables' && result && (
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
-                {(['site', 'schedules', 'map', 'cost'] as ResultTab[]).map((key) => (
+                {RESULT_TABS.map(({ key, label }) => (
                   <Button key={key} size="sm" variant={tab === key ? 'default' : 'outline'} onClick={() => setTab(key)}>
-                    {key === 'site' ? 'Site plan' : key === 'schedules' ? 'Schedules' : key === 'map' ? 'Architecture map' : 'Cost'}
+                    {label}
                   </Button>
                 ))}
               </div>
               <AIDesignerResultsPanel building={result} tab={tab} />
               <p className="text-xs text-muted-foreground">
-                {result.floorPlan.rooms.length} rooms · {result.floorPlan.walls.length} walls · ${result.costSummary.total.toLocaleString()} est.
+                {result.floorPlan.rooms.length} rooms · {result.floorPlan.walls.length} walls · $
+                {result.costSummary.total.toLocaleString()} est. · Compliance {result.complianceReport.overall}
               </p>
             </div>
           )}
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-row">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating || parsing}>
             Cancel
           </Button>
-          {!result ? (
-            <Button onClick={handleGenerate} disabled={generating}>
-              {generating ? (
+
+          {wizardStep === 'upload' && (
+            <Button onClick={handleParseAndReview} disabled={parsing}>
+              {parsing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating…
+                  Parsing…
                 </>
               ) : (
-                'Generate design'
+                'Review inputs'
               )}
             </Button>
-          ) : (
+          )}
+
+          {wizardStep === 'review' && (
             <>
+              <Button variant="outline" onClick={() => setWizardStep('upload')} disabled={generating}>
+                Back
+              </Button>
+              <Button onClick={handleGenerate} disabled={generating}>
+                Generate design
+              </Button>
+            </>
+          )}
+
+          {wizardStep === 'deliverables' && result && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => downloadComplianceReportPdf(result.complianceReport)}
+              >
+                Compliance PDF
+              </Button>
+              <Button variant="outline" onClick={handleExportPermit} disabled={exportingPermit}>
+                {exportingPermit ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Exporting…
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Permit package
+                  </>
+                )}
+              </Button>
               {onSaveProject && (
                 <Button
                   variant="outline"

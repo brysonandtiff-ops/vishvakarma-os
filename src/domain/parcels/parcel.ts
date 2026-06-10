@@ -1,3 +1,5 @@
+import type { Point2D } from '@/types';
+
 export interface Parcel {
   width: number;
   depth: number;
@@ -5,6 +7,8 @@ export interface Parcel {
   slope: number;
   orientation: string;
   cornerLot?: boolean;
+  boundaryPolygon?: Point2D[];
+  surveyNotes?: string;
 }
 
 export function createParcel(input: Partial<Parcel> & { area?: number }): Parcel {
@@ -19,5 +23,7 @@ export function createParcel(input: Partial<Parcel> & { area?: number }): Parcel
     slope: input.slope ?? 0,
     orientation: input.orientation ?? 'N',
     cornerLot: input.cornerLot ?? false,
+    boundaryPolygon: input.boundaryPolygon,
+    surveyNotes: input.surveyNotes,
   };
 }

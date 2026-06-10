@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { dismissEditorOverlays, resetWorkspacePrefs } from './helpers';
 
-test.describe('AI Building Designer', () => {
+test.describe('Architecture Copilot', () => {
   test.setTimeout(120_000);
 
   test.beforeEach(async ({ page }) => {
@@ -24,14 +24,29 @@ test.describe('AI Building Designer', () => {
         }),
       });
     });
+    await page.route('**/api/ai/parse-site-documents', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          council: {
+            setbacks: { front: 6, side: 1.5, rear: 3 },
+            maxCoverageRatio: 0.4,
+            specialConditions: [],
+          },
+        }),
+      });
+    });
   });
 
-  test('generates design and loads walls in editor', async ({ page }) => {
+  test('generates design via copilot wizard and loads walls in editor', async ({ page }) => {
     await page.getByTestId('editor-ai-designer').click();
-    await expect(page.getByRole('dialog')).toContainText('Design with AI');
+    await expect(page.getByRole('dialog')).toContainText('AI Architecture Copilot');
     await page.getByLabel('Design brief').fill('4-bedroom modern home on 600m² corner block with double garage');
+    await page.getByRole('button', { name: 'Review inputs' }).click();
     await page.getByRole('button', { name: 'Generate design' }).click();
     await expect(page.getByRole('button', { name: 'Open in editor' })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole('button', { name: 'Permit package' })).toBeVisible();
     await page.getByRole('button', { name: 'Open in editor' }).click();
     await expect(page.getByText(/Walls:\s*[1-9]/i)).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();

@@ -5,3 +5,4 @@ export * from '@/domain/buildings/generatedBuilding';
 export * from '@/domain/rooms/roomType';
 export * from '@/domain/rooms/adjacencyRule';
 export * from '@/domain/schedules/scheduleTypes';
+export * from '@/domain/copilot';

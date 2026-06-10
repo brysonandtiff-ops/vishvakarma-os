@@ -7,9 +7,11 @@
  * Part of STEP 8 - Collaboration & Multi-User Editing
  */
 
+export type ElementLockType = 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation';
+
 export interface ElementLock {
   elementId: string;
-  elementType: 'wall' | 'opening';
+  elementType: ElementLockType;
   userId: string;
   userName: string;
   acquiredAt: number;
@@ -51,7 +53,7 @@ export class ElementLockingSystem {
    */
   acquireLock(
     elementId: string,
-    elementType: 'wall' | 'opening',
+    elementType: ElementLockType,
     userId: string,
     userName: string
   ): LockResult {
@@ -104,7 +106,7 @@ export class ElementLockingSystem {
    */
   releaseLock(
     elementId: string,
-    elementType: 'wall' | 'opening',
+    elementType: ElementLockType,
     userId: string
   ): boolean {
     const lockKey = this.getLockKey(elementId, elementType);
@@ -125,7 +127,7 @@ export class ElementLockingSystem {
   /**
    * Check if element is locked
    */
-  isLocked(elementId: string, elementType: 'wall' | 'opening'): boolean {
+  isLocked(elementId: string, elementType: ElementLockType): boolean {
     const lockKey = this.getLockKey(elementId, elementType);
     const lock = this.locks.get(lockKey);
 
@@ -147,7 +149,7 @@ export class ElementLockingSystem {
    */
   isLockedBy(
     elementId: string,
-    elementType: 'wall' | 'opening',
+    elementType: ElementLockType,
     userId: string
   ): boolean {
     const lockKey = this.getLockKey(elementId, elementType);
@@ -169,7 +171,7 @@ export class ElementLockingSystem {
   /**
    * Get lock for element
    */
-  getLock(elementId: string, elementType: 'wall' | 'opening'): ElementLock | null {
+  getLock(elementId: string, elementType: ElementLockType): ElementLock | null {
     const lockKey = this.getLockKey(elementId, elementType);
     const lock = this.locks.get(lockKey);
 
@@ -237,7 +239,7 @@ export class ElementLockingSystem {
    */
   extendLock(
     elementId: string,
-    elementType: 'wall' | 'opening',
+    elementType: ElementLockType,
     userId: string
   ): boolean {
     const lockKey = this.getLockKey(elementId, elementType);
@@ -275,7 +277,7 @@ export class ElementLockingSystem {
   /**
    * Get lock key
    */
-  private getLockKey(elementId: string, elementType: 'wall' | 'opening'): string {
+  private getLockKey(elementId: string, elementType: ElementLockType): string {
     return `${elementType}:${elementId}`;
   }
 
@@ -334,7 +336,7 @@ export function getLockingSystem(): ElementLockingSystem {
 
 export function acquireElementLock(
   elementId: string,
-  elementType: 'wall' | 'opening',
+  elementType: ElementLockType,
   userId: string,
   userName: string
 ): LockResult {
@@ -344,16 +346,35 @@ export function acquireElementLock(
 
 export function releaseElementLock(
   elementId: string,
-  elementType: 'wall' | 'opening',
+  elementType: ElementLockType,
   userId: string
 ): boolean {
   const system = getLockingSystem();
   return system.releaseLock(elementId, elementType, userId);
 }
 
+export function setSoftLockHint(
+  elementId: string,
+  elementType: ElementLockType,
+  userId: string,
+  userName: string
+): void {
+  const system = getLockingSystem();
+  system.acquireLock(elementId, elementType, userId, userName);
+}
+
+export function clearSoftLockHint(
+  elementId: string,
+  elementType: ElementLockType,
+  userId: string
+): void {
+  const system = getLockingSystem();
+  system.releaseLock(elementId, elementType, userId);
+}
+
 export function isElementLocked(
   elementId: string,
-  elementType: 'wall' | 'opening'
+  elementType: ElementLockType
 ): boolean {
   const system = getLockingSystem();
   return system.isLocked(elementId, elementType);
@@ -361,7 +382,7 @@ export function isElementLocked(
 
 export function getElementLock(
   elementId: string,
-  elementType: 'wall' | 'opening'
+  elementType: ElementLockType
 ): ElementLock | null {
   const system = getLockingSystem();
   return system.getLock(elementId, elementType);

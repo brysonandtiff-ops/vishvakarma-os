@@ -2,19 +2,17 @@
 // Vishvakarma.OS — iPad-first blueprint editor workspace
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
-import { Box, FolderOpen, Loader2, Save, Sparkles } from 'lucide-react';
+import { Box } from 'lucide-react';
 import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import EditorTopBar from '@/components/editor/EditorTopBar';
 import RadialToolMenu from '@/components/editor/RadialToolMenu';
-import KeyboardShortcuts from '@/components/editor/KeyboardShortcuts';
 import MaterialPicker from '@/components/editor/MaterialPicker';
 import CustomMaterialDialog from '@/components/editor/CustomMaterialDialog';
 import FurniturePicker from '@/components/editor/FurniturePicker';
@@ -31,6 +29,8 @@ import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
 import { VastuPanel } from '@/components/editor/panels/VastuPanel';
+import { ComplianceBanner } from '@/components/editor/panels/ComplianceBanner';
+import { CompliancePanel, useComplianceReport } from '@/components/editor/panels/CompliancePanel';
 import {
   AgniThermalPanel,
   AkashaCastPanel,
@@ -39,7 +39,6 @@ import {
   VayuJalaPanel,
 } from '@/components/editor/panels/SimulationPanels';
 import EditorPhasePills from '@/components/editor/EditorPhasePills';
-import EditorCommandStrip from '@/components/editor/EditorCommandStrip';
 import OpenProjectDialog from '@/components/editor/OpenProjectDialog';
 import ProjectProofPanel from '@/components/editor/ProjectProofPanel';
 import FloorSwitcher from '@/components/editor/FloorSwitcher';
@@ -48,6 +47,8 @@ import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
 import EditorCompassCost from '@/components/editor/EditorCompassCost';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
+import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
+import type { Presence } from '@/collaboration/types';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -68,6 +69,8 @@ import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 import { shouldIgnoreKeyboardShortcuts } from '@/utils/keyboardShortcuts';
+import { enforce } from '@/governance/core/enforcer';
+import { getFailFindings } from '@/services/compliance/complianceGate';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -108,7 +111,11 @@ function EditorWorkspace() {
     setWorkspaceMode,
   } = useFloorPlanEngine();
 
-  const broadcastCollaborationCursor = useCollaborationCursorBroadcast(session.currentTool);
+  const [collabPresences, setCollabPresences] = useState<Presence[]>([]);
+  const broadcastCollaborationCursor = useCollaborationCursorBroadcast(
+    session.currentTool,
+    engine.getManifest().camera
+  );
   const currentTool = session.currentTool;
   const show3DView = session.show3DView;
   const gridVisible = session.gridVisible;
@@ -524,6 +531,11 @@ function EditorWorkspace() {
   const handleExportJSON = () => {
     try {
       const manifest = buildManifest();
+      const enforcementResult = enforce(manifest);
+      if (!enforcementResult.success) {
+        toast.error(`Export blocked: ${enforcementResult.errors.join('; ')}`);
+        return;
+      }
       const dataStr = serializeProjectManifest(manifest);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
@@ -552,6 +564,11 @@ function EditorWorkspace() {
   const showRadialMenu = currentTool === 'wall' || currentTool === 'door' || currentTool === 'window';
 
   const manifest = buildManifest();
+  const complianceReport = useComplianceReport(manifest, {
+    projectId: currentProject?.id,
+    projectName,
+  });
+  const complianceFailSummary = getFailFindings(complianceReport)[0]?.message;
 
   const fileStrip = (
     <>
@@ -562,27 +579,18 @@ function EditorWorkspace() {
         onFloorChange={(index) => engine.setActiveFloorIndex(index)}
         onAddFloor={() => engine.addFloor()}
       />
-      <EditorCollaborationBar projectName={projectName} />
+      <EditorCollaborationBar
+        projectId={currentProject?.id}
+        projectName={projectName}
+        manifest={manifest}
+        onPresenceChange={setCollabPresences}
+      />
       <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
-      <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setLoadDialogOpen(true)}>
-        <FolderOpen className="h-3.5 w-3.5" /> Open
-      </Button>
-      <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={handleSaveProject} disabled={savingProject}>
-        {savingProject ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
-      </Button>
-      <Button variant="ghost" size="sm" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={loadSampleProject}>
-        Sample
-      </Button>
-      <Button variant="ghost" size="sm" data-testid="editor-ai-designer" className="touch-target h-7 min-h-[44px] gap-1.5 text-ws-text-dim hover:bg-ws-hover hover:text-ws-text" onClick={() => setAiDesignerOpen(true)}>
-        <Sparkles className="h-3.5 w-3.5" /> AI
-      </Button>
-      <KeyboardShortcuts />
     </>
   );
 
   const morePanel = (
     <>
-      <EditorCommandStrip wallCount={walls.length} openingCount={openings.length} />
       {workspaceMode === 'mep' && <TvashtarPanel manifest={manifest} />}
       {(workspaceMode === 'draft' || currentTool === 'vastu') && <VastuPanel manifest={manifest} />}
       <VayuJalaPanel manifest={manifest} />
@@ -598,6 +606,20 @@ function EditorWorkspace() {
         cloudConnected={cloudSave.connected}
         cloudSaveLabel={cloudSave.label}
         snapEnabled={snapEnabled}
+        complianceStatus={complianceReport.overall}
+        complianceSummary={
+          complianceReport.blocked
+            ? 'Export blocked — resolve failures'
+            : complianceReport.overall === 'warning'
+              ? 'Advisory warnings present'
+              : 'NCC audit passing'
+        }
+      />
+      <div className="mx-4 h-px bg-border" />
+      <CompliancePanel
+        manifest={manifest}
+        projectId={currentProject?.id}
+        projectName={projectName}
       />
       <div className="mx-4 h-px bg-border" />
       <div className="px-4 py-3">
@@ -644,6 +666,11 @@ function EditorWorkspace() {
           onNewProject={() => setNewProjectOpen(true)}
           onExport={() => setExportDialogOpen(true)}
           onImport={() => setImportDialogOpen(true)}
+          onOpenProject={() => setLoadDialogOpen(true)}
+          onSaveProject={() => void handleSaveProject()}
+          onLoadSample={() => void loadSampleProject()}
+          onOpenAIDesigner={() => setAiDesignerOpen(true)}
+          savingProject={savingProject}
           onOpenEditorMenu={() => setEditorMenuOpen(true)}
           onOpenGovernance={openNav}
           onUndo={handleUndo}
@@ -652,6 +679,7 @@ function EditorWorkspace() {
           canRedo={canRedo}
           fileStrip={fileStrip}
         />
+        <ComplianceBanner report={complianceReport} />
 
         <div className="flex flex-1 overflow-hidden">
           <ToolRail
@@ -714,6 +742,10 @@ function EditorWorkspace() {
                   northOrientation={northOrientation}
                   costItems={costItems}
                   onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
+                />
+                <RemoteCursorsOverlay
+                  presences={collabPresences}
+                  currentUserId={user?.id}
                 />
                 <EditorPhasePills />
                 <RadialToolMenu
@@ -854,6 +886,8 @@ function EditorWorkspace() {
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}
+        exportBlocked={complianceReport.blocked}
+        exportBlockReason={complianceFailSummary}
       />
       <CustomMaterialDialog
         open={customMaterialOpen}

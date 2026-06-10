@@ -9,6 +9,7 @@
  */
 
 import { getGovernanceLock } from '@/modules/governanceLock';
+import { runComplianceAuditFromManifest } from '@/modules/compliance/complianceModule';
 import type { ProjectManifest } from '@/types';
 import { generateSystemSpecHash } from '@/governance/core/specHash';
 
@@ -41,6 +42,7 @@ export interface EnforcementResult {
     auditSuite: CheckResult;
     specHash: CheckResult;
     manifestValidation: CheckResult;
+    buildingCompliance: CheckResult;
     performanceCheck: CheckResult;
   };
   repairs: RepairAction[];
@@ -339,6 +341,49 @@ function validateProjectManifest(manifest: ProjectManifest): CheckResult {
 }
 
 // ============================================================================
+// BUILDING COMPLIANCE
+// ============================================================================
+
+function validateBuildingCompliance(manifest: ProjectManifest): CheckResult {
+  const startTime = performance.now();
+
+  try {
+    const report = runComplianceAuditFromManifest(manifest, {
+      id: manifest.metadata?.author,
+      name: manifest.name,
+    });
+    const elapsed = performance.now() - startTime;
+
+    if (report.overall === 'fail') {
+      const failMessages = report.results
+        .flatMap((r) => r.findings.filter((f) => f.status === 'fail').map((f) => f.message));
+      return {
+        passed: false,
+        message: `Building compliance failed: ${failMessages.slice(0, 3).join('; ')}`,
+        details: { report, failMessages },
+        timestamp: Date.now(),
+      };
+    }
+
+    const warnMessages = report.results
+      .flatMap((r) => r.findings.filter((f) => f.status === 'warning').map((f) => f.message));
+
+    return {
+      passed: true,
+      message: `Building compliance passed (${elapsed.toFixed(2)}ms)`,
+      details: { report, warnMessages },
+      timestamp: Date.now(),
+    };
+  } catch (error) {
+    return {
+      passed: false,
+      message: `Building compliance error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      timestamp: Date.now(),
+    };
+  }
+}
+
+// ============================================================================
 // PERFORMANCE CHECK
 // ============================================================================
 
@@ -516,6 +561,7 @@ export function enforce(manifest?: ProjectManifest): EnforcementResult {
       auditSuite: { passed: true, message: 'Skipped', timestamp: Date.now() },
       specHash: { passed: true, message: 'Skipped', timestamp: Date.now() },
       manifestValidation: { passed: true, message: 'Skipped', timestamp: Date.now() },
+      buildingCompliance: { passed: true, message: 'Skipped', timestamp: Date.now() },
       performanceCheck: { passed: true, message: 'Skipped', timestamp: Date.now() },
     },
     repairs: [],
@@ -558,6 +604,19 @@ export function enforce(manifest?: ProjectManifest): EnforcementResult {
     if (!result.checks.manifestValidation.passed) {
       result.success = false;
       result.errors.push(result.checks.manifestValidation.message);
+    }
+
+    result.checks.buildingCompliance = validateBuildingCompliance(manifest);
+    if (!result.checks.buildingCompliance.passed) {
+      result.success = false;
+      result.errors.push(result.checks.buildingCompliance.message);
+    } else if (
+      result.checks.buildingCompliance.details &&
+      Array.isArray((result.checks.buildingCompliance.details as { warnMessages?: string[] }).warnMessages) &&
+      ((result.checks.buildingCompliance.details as { warnMessages: string[] }).warnMessages.length > 0)
+    ) {
+      const warns = (result.checks.buildingCompliance.details as { warnMessages: string[] }).warnMessages;
+      result.warnings.push(...warns.slice(0, 5));
     }
   }
   

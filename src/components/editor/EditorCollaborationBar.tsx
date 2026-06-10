@@ -2,52 +2,101 @@ import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
-import { connectToRoom, disconnectFromRoom, getCollaborationEngine, broadcastCursor } from '@/modules/collaborationEngine';
-import type { Point2D } from '@/types';
+import { getFloorPlanEngine } from '@/core/floorPlanEngine';
+import {
+  connectToRoom,
+  disconnectFromRoom,
+  getCollaborationEngine,
+  broadcastCursor,
+} from '@/modules/collaborationEngine';
+import type { Presence } from '@/collaboration/types';
+import type { Point2D, ProjectManifest, ViewportCameraState } from '@/types';
+import CollaboratorAvatars from './collaboration/CollaboratorAvatars';
+import FollowViewportToggle from './collaboration/FollowViewportToggle';
 
 interface EditorCollaborationBarProps {
+  projectId?: string;
   projectName: string;
+  manifest: ProjectManifest;
+  onPresenceChange?: (presences: Presence[]) => void;
+  onFollowViewport?: (viewport: ViewportCameraState) => void;
 }
 
-export default function EditorCollaborationBar({ projectName }: EditorCollaborationBarProps) {
+export default function EditorCollaborationBar({
+  projectId,
+  projectName,
+  manifest,
+  onPresenceChange,
+  onFollowViewport,
+}: EditorCollaborationBarProps) {
   const { user } = useAuth();
   const [onlineCount, setOnlineCount] = useState(0);
   const [active, setActive] = useState(false);
+  const [users, setUsers] = useState(() => getCollaborationEngine().getOnlineUsers());
+  const [presences, setPresences] = useState<Presence[]>([]);
   const backendReady = backendStatus.isConfigured;
 
   useEffect(() => {
-    if (!backendReady || !user) {
+    if (!backendReady || !user || !projectId) {
       setActive(false);
       setOnlineCount(0);
+      setUsers([]);
+      setPresences([]);
       return;
     }
 
     const engine = getCollaborationEngine();
-    const roomId = `project-${projectName.trim().toLowerCase().replace(/\s+/g, '-') || 'workspace'}`;
+    const floorPlanEngine = getFloorPlanEngine();
     const userId = user.id;
     const userName = user.email?.split('@')[0] ?? 'Architect';
 
-    void connectToRoom(roomId, userId, userName).then(() => {
+    void connectToRoom(projectId, userId, userName, {
+      initialManifest: manifest,
+      onManifestChange: (nextManifest, isRemote) => {
+        const bridge = engine.getCollabSession().getBridge();
+        if (bridge) {
+          floorPlanEngine.setCollabBridge(bridge);
+        }
+        if (isRemote) {
+          floorPlanEngine.applyRemoteManifest(nextManifest);
+        }
+      },
+    }).then(() => {
+      const bridge = engine.getCollabSession().getBridge();
+      if (bridge) {
+        floorPlanEngine.setCollabBridge(bridge);
+      }
       setActive(engine.isConnected());
       setOnlineCount(engine.getOnlineUsers().length);
+      setUsers(engine.getOnlineUsers());
+    });
+
+    const presenceUnsub = engine.getCollabSession().subscribePresence((nextPresences) => {
+      setPresences(nextPresences);
+      onPresenceChange?.(nextPresences);
     });
 
     const interval = window.setInterval(() => {
       setOnlineCount(engine.getOnlineUsers().length);
+      setUsers(engine.getOnlineUsers());
       setActive(engine.isConnected());
     }, 3000);
 
     return () => {
       window.clearInterval(interval);
+      presenceUnsub();
+      floorPlanEngine.setCollabBridge(null);
       void disconnectFromRoom();
     };
-  }, [backendReady, projectName, user]);
+  }, [backendReady, onPresenceChange, projectId, user]);
 
-  const label = backendReady
-    ? active
-      ? `Collaboration active · ${onlineCount} online`
-      : 'Connecting collaboration…'
-    : 'Local session';
+  const label = !projectId
+    ? 'Save project to collaborate'
+    : backendReady
+      ? active
+        ? `Collaboration active · ${onlineCount} online`
+        : 'Connecting collaboration…'
+      : 'Local session';
 
   return (
     <div
@@ -55,16 +104,24 @@ export default function EditorCollaborationBar({ projectName }: EditorCollaborat
       data-testid="editor-collaboration-bar"
     >
       <Users className="h-3 w-3 text-primary" />
+      <CollaboratorAvatars users={users} />
+      <FollowViewportToggle
+        presences={presences}
+        onFollow={(presence) => onFollowViewport?.(presence.viewport)}
+      />
       {label}
     </div>
   );
 }
 
-export function useCollaborationCursorBroadcast(currentTool: string) {
+export function useCollaborationCursorBroadcast(
+  currentTool: string,
+  viewport?: ViewportCameraState
+) {
   const backendReady = backendStatus.isConfigured;
 
   return (point: Point2D) => {
     if (!backendReady) return;
-    broadcastCursor(point.x, point.y, currentTool);
+    broadcastCursor(point.x, point.y, currentTool, viewport);
   };
 }

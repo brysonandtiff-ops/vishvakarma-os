@@ -97,7 +97,7 @@ export default function NewProjectDialog({
               }}
             >
               <Sparkles className="h-4 w-4" />
-              Design with AI
+              Start with Architecture Copilot
             </Button>
           )}
           <div className="space-y-2">

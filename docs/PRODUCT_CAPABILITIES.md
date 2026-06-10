@@ -155,6 +155,21 @@ Quality enforcement: Biome, TypeScript (`tsgo`), ast-grep structural rules.
 
 ---
 
+## 6. Architecture Copilot (v2.0)
+
+Autonomous building design from site inputs:
+
+- **Upload**: site survey, boundary plan (DXF/PDF/image), council requirements, design brief
+- **Generate**: concept design, floor plan, 3D manifest, schedules, material list, cost estimate
+- **Compliance**: automated NCC stub audit (12 rules) with export gate
+- **Export**: compliance report PDF and permit package ZIP (8 documents + manifest.json)
+
+Entry: Editor menu → **Architecture Copilot** · New Project → **Start with Architecture Copilot**
+
+Spec: [`docs/specs/ARCHITECTURE_COPILOT_v2.md`](specs/ARCHITECTURE_COPILOT_v2.md)
+
+---
+
 ## Related docs
 
 - [README.md](../README.md) — build state and routes

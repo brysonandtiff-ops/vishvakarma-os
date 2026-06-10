@@ -14,8 +14,11 @@
 
 ## Real-time collaboration
 
-- `collaborationEngine.ts` + Firebase Realtime DB or Liveblocks
-- Manifest patch CRDT on `FloorPlanEngine.touchManifest`
+- Yjs CRDT on `ProjectManifest` via `src/collaboration/crdt/manifestBridge.ts`
+- `CollabSession` + Firebase-authenticated `server/collab/presenceServer.ts` (y-websocket relay)
+- Awareness-driven presence (cursor, viewport, focused entity) in editor overlay
+- Firestore `collabSnapshot` checkpoints + optional RTDB recovery channel
+- `collaborationEngine.ts` facade preserves local-only fallback when `VITE_COLLAB_WS_URL` is unset
 
 ## Industry exports
 

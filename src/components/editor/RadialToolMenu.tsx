@@ -1,4 +1,5 @@
-import { DoorOpen, MousePointer2, Ruler, Square } from 'lucide-react';
+import { MousePointer2 } from 'lucide-react';
+import { RADIAL_TOOL_IDS, TOOL_META } from '@/editor/toolMeta';
 import type { ToolType } from '@/types';
 
 interface RadialToolMenuProps {
@@ -8,13 +9,6 @@ interface RadialToolMenuProps {
   currentTool: ToolType;
   onSelectTool: (tool: ToolType) => void;
 }
-
-const radialTools: Array<{ id: ToolType; label: string; icon: typeof Square }> = [
-  { id: 'wall', label: 'Wall', icon: Square },
-  { id: 'door', label: 'Door', icon: DoorOpen },
-  { id: 'window', label: 'Window', icon: Square },
-  { id: 'measure', label: 'Measure', icon: Ruler },
-];
 
 export default function RadialToolMenu({ visible, x, y, currentTool, onSelectTool }: RadialToolMenuProps) {
   if (!visible) return null;
@@ -34,19 +28,20 @@ export default function RadialToolMenu({ visible, x, y, currentTool, onSelectToo
         >
           <MousePointer2 className="h-4 w-4" />
         </button>
-        {radialTools.map((tool, index) => {
-          const angle = (index / radialTools.length) * Math.PI * 2 - Math.PI / 2;
+        {RADIAL_TOOL_IDS.map((toolId, index) => {
+          const angle = (index / RADIAL_TOOL_IDS.length) * Math.PI * 2 - Math.PI / 2;
           const radius = 44;
           const left = 56 + Math.cos(angle) * radius;
           const top = 56 + Math.sin(angle) * radius;
-          const Icon = tool.icon;
-          const active = currentTool === tool.id;
+          const meta = TOOL_META[toolId];
+          const Icon = meta.icon;
+          const active = currentTool === toolId;
 
           return (
             <button
-              key={tool.id}
+              key={toolId}
               type="button"
-              aria-label={tool.label}
+              aria-label={meta.label}
               aria-pressed={active}
               className={`vish-radial-tool-btn pointer-events-auto absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border text-[8px] font-semibold uppercase tracking-wide ${
                 active
@@ -54,7 +49,7 @@ export default function RadialToolMenu({ visible, x, y, currentTool, onSelectToo
                   : 'border-ws-border bg-ws-menubar text-ws-text-dim hover:border-primary/40 hover:text-ws-text'
               }`}
               style={{ left, top }}
-              onClick={() => onSelectTool(tool.id)}
+              onClick={() => onSelectTool(toolId)}
             >
               <Icon className="h-3.5 w-3.5" />
             </button>

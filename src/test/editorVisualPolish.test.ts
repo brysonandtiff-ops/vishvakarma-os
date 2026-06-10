@@ -9,30 +9,30 @@ function read(path: string) {
 }
 
 describe('Blueprint editor visual polish', () => {
-  it('wires the editor polish and mockup stylesheets through app startup', () => {
+  it('wires the editor chrome and mockup stylesheets through app startup', () => {
     const main = read('src/main.tsx');
 
     expect(main).toContain('./styles/vish-tokens.css');
-    expect(main).toContain('./styles/vish-editor-polish.css');
+    expect(main).toContain('./styles/vish-editor-chrome.css');
     expect(main).toContain('./styles/vish-mockup-system.css');
+    expect(main).toContain('./styles/vish-editor-mantra.css');
   });
 
   it('keeps premium Vishvakarma workspace styling targeted to existing editor surfaces', () => {
-    const styles = read('src/styles/vish-editor-polish.css');
+    const styles = read('src/styles/vish-editor-chrome.css');
     const mockup = read('src/styles/vish-mockup-system.css');
 
     expect(styles).toContain('.vish-workspace-shell .bg-ws-canvas');
     expect(styles).toContain('ॐ वास्तु · शिल्प · प्रमाण');
-    expect(styles).toContain('.vish-workspace-shell .vish-editor-topbar');
+    expect(styles).toContain('.vish-editor-topbar');
     expect(styles).toContain('.vish-workspace-shell .ws-pane-header');
     expect(styles).toContain('.vish-workspace-shell .architect-tool-dock');
-    expect(styles).toContain('.vish-workspace-shell .architect-tool-button.active');
+    expect(styles).toContain('.architect-tool-button.active');
     expect(styles).toContain('.vish-workspace-shell .blueprint-grid');
     expect(styles).toContain('.vish-workspace-shell .architect-canvas');
     expect(styles).toContain('.vish-workspace-shell .ws-panel-dark');
-    expect(styles).toContain('.vish-workspace-shell .ws-status-bar');
-    expect(mockup).toContain('.vish-editor-topbar');
-    expect(mockup).toContain('.vish-canvas-stage');
+    expect(styles).toContain('.ws-status-bar');
+    expect(mockup).toContain('.vish-auth-card-mockup');
   });
 
   it('does not alter the editor drawing/event wiring while adding visual polish', () => {

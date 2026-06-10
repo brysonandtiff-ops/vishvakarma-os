@@ -85,9 +85,9 @@ export default function FeaturesPage() {
         </h1>
         <p className="mt-3 vish-text-body">Step-by-step interactive guides open the editor with contextual hints</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <MetricPill value="5" label="capability areas" />
+          <MetricPill value={String(FEATURE_MODULES.filter((m) => m.ready).length)} label="ready now" />
           <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" />
-          <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="interactive guides" />
+          <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" />
         </div>
         <div className="vish-features-toggle mt-10 flex gap-2">
           <button
@@ -100,7 +100,7 @@ export default function FeaturesPage() {
                 : 'border-border text-foreground/80 hover:border-primary/30 hover:text-foreground'
             }`}
           >
-            Interactive Guides
+            Getting Started
           </button>
           <button
             type="button"

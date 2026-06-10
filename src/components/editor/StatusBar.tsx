@@ -1,37 +1,7 @@
-import {
-  Compass,
-  DoorOpen,
-  Magnet,
-  MousePointer2,
-  PenLine,
-  Ruler,
-  Sofa,
-  Square,
-  SquareDashed,
-  TreePine,
-  Type,
-  Zap,
-  MoveHorizontal,
-  Eye,
-  EyeOff,
-} from 'lucide-react';
+import { Eye, EyeOff, Magnet } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';
+import { STATUS_TOOL_HINTS, TOOL_META } from '@/editor/toolMeta';
 import type { ToolType } from '@/types';
-
-const TOOL_ICONS: Record<ToolType, typeof MousePointer2> = {
-  select: MousePointer2,
-  wall: PenLine,
-  door: DoorOpen,
-  window: SquareDashed,
-  measure: Ruler,
-  text: Type,
-  dimension: MoveHorizontal,
-  room: Square,
-  vastu: Compass,
-  mep: Zap,
-  furniture: Sofa,
-  landscape: TreePine,
-};
 
 export default function StatusBar({
   currentTool,
@@ -50,28 +20,14 @@ export default function StatusBar({
   dimensionVisibility: boolean;
   onToggleDimensions: () => void;
 }) {
-  const toolHints: Record<ToolType, string> = {
-    select: 'Select — tap to inspect, drag handles to adjust',
-    wall: 'Wall — tap start, tap end. Snap joins corners.',
-    door: 'Door — tap a wall to place a door.',
-    window: 'Window — tap a wall to place a window.',
-    measure: 'Measure — hover or tap walls to inspect dimensions.',
-    text: 'Label — tap to place a room label.',
-    dimension: 'Dimension — tap start point, then end point.',
-    room: 'Room — tap enclosed area to detect and label rooms.',
-    vastu: 'Vastu — harmony compass overlay; adjust north in sidebar.',
-    mep: 'MEP — tap canvas to cycle MEP symbols and lighting fixtures.',
-    furniture: 'Furniture — tap canvas to place furniture.',
-    landscape: 'Landscape — tap canvas to place garden elements.',
-  };
-
-  const ToolIcon = TOOL_ICONS[currentTool] ?? MousePointer2;
-  const hint = toolHints[currentTool];
+  const meta = TOOL_META[currentTool];
+  const ToolIcon = meta?.icon;
+  const hint = STATUS_TOOL_HINTS[currentTool];
 
   return (
     <div className="ws-status-bar">
       <div className="ws-status-item active min-w-0 max-w-[min(28rem,42vw)]">
-        <ToolIcon className="h-3 w-3 shrink-0" aria-hidden />
+        {ToolIcon && <ToolIcon className="h-3 w-3 shrink-0" aria-hidden />}
         <span className="truncate" title={hint}>
           {hint}
         </span>

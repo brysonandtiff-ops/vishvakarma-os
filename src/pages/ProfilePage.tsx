@@ -3,6 +3,7 @@ import { LogOut, Mail, Shield } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,14 +23,19 @@ export default function ProfilePage() {
   return (
     <AppLayout>
       <PageMeta title="Profile" description="Your Vishvakarma.OS account and workspace mode." />
-      <div className="mx-auto max-w-lg p-6 md:p-8">
+      <WorkspacePageShell className="max-w-2xl">
         <WorkspacePageHeader
           eyebrow="Account"
           title="Profile"
           description="Workspace session, backend mode, and sign-out controls."
+          stats={
+            <span className="rounded-full border border-dashed border-border/70 bg-muted/30 px-3 py-1 text-xs font-semibold text-foreground">
+              {saveLabel} · session {mode}
+            </span>
+          }
         />
 
-        <div className="space-y-4 rounded-2xl border border-border bg-card/80 p-6 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-dashed border-border/70 bg-card/80 p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             <div>
@@ -70,7 +76,7 @@ export default function ProfilePage() {
             Sign out
           </Button>
         </div>
-      </div>
+      </WorkspacePageShell>
     </AppLayout>
   );
 }

@@ -1,6 +1,10 @@
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import type { RoomType } from '@/domain/rooms/roomType';
 import type { RoomScheduleRow, WallScheduleRow, WindowScheduleRow } from '@/domain/schedules/scheduleTypes';
+import type { ConceptDesign } from '@/domain/copilot/conceptDesign';
+import type { MaterialListRow } from '@/domain/copilot/materialList';
+import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
+import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { Opening, Point2D, ProjectManifest, Wall } from '@/types';
 
 export interface RoomPlacement {
@@ -64,4 +68,8 @@ export interface GeneratedBuilding {
   architectureMap: ArchitectureMapGraph;
   manifest: ProjectManifest;
   costSummary: CostSummary;
+  conceptDesign: ConceptDesign;
+  materialList: MaterialListRow[];
+  complianceReport: ComplianceAuditReport;
+  copilot?: CopilotManifestMetadata;
 }

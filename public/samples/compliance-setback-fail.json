@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "name": "Compliance Setback Fail",
+  "description": "Fixture with building footprint outside parcel for compliance gate E2E",
+  "walls": [
+    {
+      "id": "wall-1",
+      "start": { "x": 200, "y": 200 },
+      "end": { "x": 600, "y": 200 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "wall-2",
+      "start": { "x": 600, "y": 200 },
+      "end": { "x": 600, "y": 500 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "wall-3",
+      "start": { "x": 600, "y": 500 },
+      "end": { "x": 200, "y": 500 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "wall-4",
+      "start": { "x": 200, "y": 500 },
+      "end": { "x": 200, "y": 200 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    }
+  ],
+  "openings": [
+    {
+      "id": "door-1",
+      "type": "door",
+      "wallId": "wall-1",
+      "position": 0.5,
+      "width": 90,
+      "height": 210
+    }
+  ],
+  "materials": [],
+  "floorMaterial": "material-wood",
+  "lighting": {
+    "sunAzimuth": 180,
+    "sunElevation": 45,
+    "timeOfDay": 12,
+    "intensity": 1
+  },
+  "gridSize": 20,
+  "snapToGrid": true,
+  "metadata": {
+    "created": "2026-06-09T00:00:00Z",
+    "modified": "2026-06-09T00:00:00Z",
+    "author": "Vishvakarma.OS",
+    "aiDesigner": {
+      "sitePlan": {
+        "parcelBoundary": [
+          { "x": 0, "y": 0 },
+          { "x": 100, "y": 0 },
+          { "x": 100, "y": 100 },
+          { "x": 0, "y": 100 }
+        ],
+        "buildingFootprint": [
+          { "x": 10, "y": 10 },
+          { "x": 110, "y": 10 },
+          { "x": 110, "y": 50 },
+          { "x": 10, "y": 50 }
+        ],
+        "setbacks": { "front": 3, "side": 1.5, "rear": 3 },
+        "orientation": "north"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "collab": {
+      "$projectId": {
+        "state": {
+          ".read": "auth != null",
+          ".write": false
+        }
+      }
+    }
+  }
+}

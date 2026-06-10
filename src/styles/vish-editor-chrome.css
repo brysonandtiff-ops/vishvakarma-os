@@ -1,0 +1,442 @@
+/* Vishvakarma.OS — consolidated editor chrome (tool rail, top bar, status bar, mode tabs)
+   Scoped polish under .vish-workspace-shell; base rules apply globally in editor routes. */
+
+/* ── Tool rail & buttons ── */
+
+.architect-tool-dock {
+  background: hsl(var(--ws-toolbar));
+  border-right: 1px solid hsl(var(--ws-border));
+}
+
+.vish-workspace-shell .architect-tool-dock {
+  background:
+    linear-gradient(180deg, hsl(var(--ws-toolbar)), hsl(var(--ws-sidebar))),
+    radial-gradient(circle at 50% 0%, hsl(var(--ws-active) / 0.12), transparent 9rem);
+  box-shadow: inset -1px 0 0 hsl(var(--ws-active) / 0.1);
+}
+
+.architect-tool-button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+  width: var(--vish-tool-button-width, 58px);
+  min-height: var(--vish-tool-button-height, 56px);
+  color: hsl(var(--ws-text-dim));
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.architect-tool-button::after {
+  content: '';
+  position: absolute;
+  inset: auto 8px 5px;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: center;
+  background: linear-gradient(90deg, transparent, hsl(var(--ws-active) / 0.74), transparent);
+  transition: transform 160ms ease;
+}
+
+.architect-tool-button:hover {
+  color: hsl(var(--ws-text));
+  background-color: hsl(var(--ws-hover));
+  border-color: hsl(var(--ws-border-subtle));
+}
+
+.architect-tool-button:hover::after,
+.architect-tool-button.active::after {
+  transform: scaleX(1);
+}
+
+.architect-tool-button:focus-visible {
+  outline: 2px solid hsl(var(--ws-active));
+  outline-offset: 1px;
+}
+
+.architect-tool-button.active {
+  color: hsl(var(--ws-active));
+  background:
+    radial-gradient(circle at 50% 0%, hsl(var(--ws-active) / 0.18), transparent 70%),
+    linear-gradient(135deg, hsl(var(--ws-active-bg)), hsl(var(--ws-active-bg) / 0.8));
+  border-color: hsl(var(--ws-active) / 0.6);
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active-ring)),
+    0 0 14px hsl(var(--ws-active) / 0.34),
+    inset 0 1px 0 hsl(var(--ws-active) / 0.22);
+}
+
+.vish-workspace-shell .architect-tool-button.active {
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active-ring)),
+    0 0 18px hsl(var(--ws-active) / 0.18),
+    inset 0 1px 0 hsl(var(--ws-active) / 0.18);
+}
+
+.vish-tool-rail .architect-tool-button.active {
+  border-color: hsl(var(--ws-active) / 0.65);
+  box-shadow:
+    inset 3px 0 0 hsl(var(--ws-active)),
+    0 0 16px hsl(var(--ws-active) / 0.12);
+}
+
+.vish-tool-rail .architect-tool-button.stub,
+.vish-tool-rail .architect-tool-button--soon {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.vish-tool-rail {
+  width: var(--vish-tool-rail-width, 72px);
+}
+
+.high-contrast .architect-tool-button.active {
+  outline: 2px solid hsl(var(--ws-active));
+}
+
+.vish-tool-section-label {
+  width: 100%;
+  padding: 0.5rem 0 0.25rem;
+  text-align: center;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-text-faint) / 0.75);
+  user-select: none;
+}
+
+/* ── Mode tabs (workspace modes) ── */
+
+.vish-mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--ws-text-dim));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.85rem;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.vish-mode-tab:hover:not(:disabled) {
+  color: hsl(var(--ws-text));
+  background: hsl(var(--ws-hover));
+}
+
+.vish-mode-tab.active {
+  border-color: hsl(var(--ws-active) / 0.5);
+  background: hsl(var(--ws-active-bg) / 0.85);
+  color: hsl(var(--ws-active));
+  box-shadow: 0 0 18px hsl(var(--ws-active) / 0.15);
+}
+
+.vish-mode-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vish-mode-tab-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(var(--ws-menubar) / 0.85);
+  padding: 0.2rem;
+}
+
+/* Phase pills — distinct from workspace mode tabs */
+.vish-phase-pill-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--ws-border) / 0.6);
+  background: hsl(var(--ws-menubar) / 0.75);
+  padding: 0.15rem;
+  backdrop-filter: blur(8px);
+}
+
+.vish-phase-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--ws-text-dim));
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.vish-phase-pill:hover {
+  color: hsl(var(--ws-text));
+  background: hsl(var(--ws-hover));
+}
+
+.vish-phase-pill.active {
+  border-color: hsl(var(--ws-active) / 0.35);
+  background: hsl(var(--ws-active-bg) / 0.6);
+  color: hsl(var(--ws-active));
+}
+
+/* Tablet mode badge */
+.vish-editor-mode-badge {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(var(--ws-menubar));
+  color: hsl(var(--ws-text));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.75rem;
+}
+
+/* ── Editor top bar ── */
+
+.vish-editor-topbar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 3rem;
+  background:
+    linear-gradient(90deg, hsl(var(--ws-menubar)), hsl(var(--ws-toolbar)), hsl(var(--ws-menubar)));
+  border-bottom: 1px solid hsl(var(--ws-border));
+  box-shadow:
+    inset 0 -1px 0 hsl(var(--ws-active) / 0.13),
+    0 10px 26px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell .vish-editor-topbar {
+  min-height: 3.35rem;
+}
+
+.vish-editor-topbar-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.5rem;
+  padding: 0 0.75rem;
+  min-height: 3rem;
+}
+
+.vish-editor-topbar-center {
+  display: flex;
+  justify-content: center;
+  max-width: min(100%, 34rem);
+}
+
+.vish-workspace-shell .vish-editor-topbar::after {
+  content: 'ॐ वास्तु · शिल्प · प्रमाण';
+  position: absolute;
+  right: 0.85rem;
+  bottom: -1.05rem;
+  z-index: 5;
+  border: 1px solid hsl(var(--ws-active) / 0.24);
+  border-radius: 9999px;
+  background: hsl(var(--ws-menubar) / 0.92);
+  color: hsl(var(--ws-active) / 0.78);
+  font-family: 'IBM Plex Mono', 'Noto Sans Devanagari', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+  text-transform: uppercase;
+  pointer-events: none;
+  box-shadow: 0 10px 28px hsl(0 0% 0% / 0.25);
+}
+
+.vish-editor-file-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid hsl(var(--ws-border) / 0.65);
+  background: hsl(var(--ws-menubar));
+  padding: 0.35rem 0.75rem;
+}
+
+/* ── Status bar ── */
+
+.ws-status-bar {
+  display: flex;
+  align-items: center;
+  min-height: var(--vish-status-bar-height, 32px);
+  height: var(--vish-status-bar-height, 32px);
+  padding: 0 12px;
+  gap: 16px;
+  background:
+    linear-gradient(180deg, hsl(var(--ws-statusbar)), hsl(var(--ws-menubar)));
+  border-top: 1px solid hsl(var(--ws-border));
+  font-family: 'IBM Plex Mono', 'SF Mono', monospace;
+  font-size: 10px;
+  color: hsl(var(--ws-text-faint));
+  white-space: nowrap;
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: 0 -10px 32px hsl(0 0% 0% / 0.22);
+}
+
+.ws-status-bar .ws-status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: hsl(var(--ws-text-dim));
+}
+
+.ws-status-bar .ws-status-item.active {
+  color: hsl(var(--ws-active));
+  text-shadow: 0 0 16px hsl(var(--ws-active) / 0.22);
+}
+
+.ws-status-bar .ws-status-divider {
+  width: 1px;
+  height: 10px;
+  background: hsl(var(--ws-border));
+  flex-shrink: 0;
+}
+
+/* ── Canvas stage polish (shell-scoped) ── */
+
+.vish-workspace-shell .bg-ws-canvas {
+  background:
+    radial-gradient(circle at 20% 0%, hsl(var(--ws-active) / 0.075), transparent 26rem),
+    radial-gradient(circle at 100% 24%, hsl(var(--ws-active) / 0.055), transparent 24rem),
+    hsl(var(--ws-canvas));
+}
+
+.vish-canvas-stage {
+  background-color: hsl(var(--ws-canvas-surface));
+  background-image:
+    linear-gradient(hsl(0 0% 0% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 0% / 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.vish-dialog-chrome [data-slot='dialog-header'] {
+  border-bottom: 1px solid hsl(var(--border));
+  padding-bottom: 1rem;
+}
+
+.vish-dialog-chrome [data-slot='dialog-header']::before {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: -1.5rem -1.5rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.15), hsl(var(--primary)), hsl(var(--primary) / 0.15));
+}
+
+.vish-workspace-shell .ws-pane-header {
+  min-height: 2.15rem;
+  background:
+    linear-gradient(90deg, hsl(var(--ws-toolbar)), hsl(var(--ws-menubar))),
+    radial-gradient(circle at 12% 50%, hsl(var(--ws-active) / 0.13), transparent 9rem);
+  border-bottom-color: hsl(var(--ws-active) / 0.25);
+  box-shadow: inset 0 1px 0 hsl(var(--ws-active) / 0.08);
+}
+
+.vish-workspace-shell .ws-pane-label {
+  color: hsl(var(--ws-active) / 0.92);
+  letter-spacing: 0.16em;
+}
+
+.vish-workspace-shell .ws-pane-stat {
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-workspace-shell .blueprint-grid,
+.vish-workspace-shell .blueprint-grid-major,
+.vish-workspace-shell .architect-canvas {
+  background-blend-mode: screen, normal;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.08),
+    inset 0 0 80px hsl(var(--ws-active) / 0.045),
+    0 24px 70px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell .ws-panel-light {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(var(--ws-active) / 0.2), transparent 14rem),
+    hsl(0 0% 100%);
+  border-left-color: hsl(var(--ws-border) / 0.32);
+  box-shadow: -18px 0 40px hsl(0 0% 0% / 0.18);
+}
+
+.vish-workspace-shell .ws-panel-dark,
+.vish-workspace-shell .vish-dark-panel {
+  background:
+    linear-gradient(180deg, hsl(var(--ws-panel)), hsl(var(--ws-menubar)));
+  border-left-color: hsl(var(--ws-border) / 0.28);
+  box-shadow: -18px 0 40px hsl(0 0% 0% / 0.28);
+}
+
+.vish-workspace-shell .ws-panel-light .ws-panel-label,
+.vish-workspace-shell .ws-panel-light p[class*='uppercase'] {
+  letter-spacing: 0.14em;
+}
+
+/* Immersive editor FAB reposition */
+.vish-workspace-shell[data-immersive='true'] .vish-mobile-nav-fab {
+  bottom: auto;
+  top: calc(0.75rem + var(--vish-safe-top));
+  left: calc(0.75rem + var(--vish-safe-left));
+}
+
+@media (pointer: coarse), (hover: none) {
+  :root {
+    --vish-tool-button-width: 64px;
+    --vish-tool-button-height: 58px;
+    --vish-tool-rail-width: 86px;
+  }
+
+  .architect-tool-button {
+    border-radius: 12px;
+  }
+
+  .ws-status-bar {
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 900px) {
+  .vish-workspace-shell .vish-editor-topbar::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .architect-tool-button,
+  .architect-tool-button::after,
+  .vish-mode-tab {
+    transition: none !important;
+  }
+
+  .vish-workspace-shell * {
+    scroll-behavior: auto !important;
+  }
+}

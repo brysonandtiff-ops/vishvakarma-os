@@ -6,7 +6,6 @@ import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import '@/styles/vish-auth-gate.css';
 
 const SANSKRIT_MATRIX_COLUMNS = [
   'ॐ श्री विश्वकर्मणे नमः',

@@ -1,10 +1,15 @@
+import type { CopilotDocumentKind } from '@/domain/copilot/copilotSession';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { Parcel } from '@/domain/parcels/parcel';
+import type { CopilotIngestionResult } from '@/domain/copilot/copilotSession';
 import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
 
 export interface BuildingDesignerInput {
   prompt: string;
   parcelOverride?: Partial<Parcel>;
+  ingestion?: CopilotIngestionResult;
+  sessionId?: string;
+  uploadedDocuments?: Array<{ id: string; kind: CopilotDocumentKind; fileName: string }>;
   onStage?: (stage: PipelineStage) => void;
 }
 

@@ -1,65 +1,70 @@
 import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
-
-const TIERS = [
-  {
-    name: 'Starter',
-    price: 'Free forever',
-    desc: 'For homeowners and students exploring their first floor plan',
-    cta: 'Start Free →',
-    to: '/auth',
-    popular: false,
-    features: [
-      '1 active project',
-      '2D drafting tools',
-      'Sacred 3D View (Standard mode)',
-      'PNG export',
-      'Local Draft recovery',
-    ],
-  },
-  {
-    name: 'Studio',
-    price: '$99/month',
-    desc: 'For professional practices shipping client-ready deliverables',
-    cta: 'Start 14-Day Free Trial →',
-    to: '/auth',
-    popular: true,
-    features: [
-      'Unlimited projects',
-      'Full 2D + Sacred 3D View',
-      'Export Package (JSON, PNG, PDF, DXF, SVG)',
-      'Cloud Save (Firebase)',
-      'Project Proof governance',
-      'Vastu Harmony (preview)',
-    ],
-  },
-  {
-    name: 'Enterprise',
-    price: '$249/month',
-    desc: 'For firms needing SSO, API access, and unlimited seats',
-    cta: 'Contact Sales →',
-    to: 'mailto:sales@vishvakarma.os?subject=Enterprise%20inquiry',
-    popular: false,
-    external: true,
-    features: [
-      'Everything in Studio',
-      'SSO / SAML authentication',
-      'API access',
-      'Dedicated onboarding',
-      'Custom template library',
-      'Collaboration (planned)',
-    ],
-  },
-] as const;
-
-const FAQ = [
-  { q: 'Can I use Vishvakarma.OS without Firebase?', a: 'Yes. Local Draft mode stores projects in your browser with full editor access.' },
-  { q: 'Which export formats are included?', a: 'JSON, PNG, PDF, DXF, and SVG — all generated from the same floor plan manifest.' },
-  { q: 'Is there an iPad app?', a: 'The web app is iPad-first. Capacitor native wrapper is planned for v2.' },
-] as const;
+import { EXPORT_FORMATS_LABEL, EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PricingPage() {
+  const { user } = useAuth();
+  const workspaceTo = user ? '/editor' : '/auth';
+
+  const TIERS = [
+    {
+      name: 'Starter',
+      price: 'Free forever',
+      desc: 'For homeowners and students exploring their first floor plan',
+      cta: user ? 'Open Editor →' : 'Start Free →',
+      to: workspaceTo,
+      popular: false,
+      features: [
+        '1 active project',
+        '2D drafting tools',
+        'Sacred 3D View (Standard mode)',
+        `PNG export (+ ${EXPORT_FORMAT_COUNT - 1} more in Studio)`,
+        'Local Draft recovery',
+      ],
+    },
+    {
+      name: 'Studio',
+      price: '$99/month',
+      desc: 'For professional practices shipping client-ready deliverables',
+      cta: user ? 'Open Editor →' : 'Start 14-Day Free Trial →',
+      to: workspaceTo,
+      popular: true,
+      features: [
+        'Unlimited projects',
+        'Full 2D + Sacred 3D View',
+        `Export Package (${EXPORT_FORMATS_LABEL})`,
+        'Cloud Save (Firebase)',
+        'Project Proof governance',
+        'Vastu Harmony (preview)',
+      ],
+    },
+    {
+      name: 'Enterprise',
+      price: '$249/month',
+      desc: 'For firms needing SSO, API access, and unlimited seats',
+      cta: 'Contact Sales →',
+      to: 'mailto:sales@vishvakarma.os?subject=Enterprise%20inquiry',
+      popular: false,
+      external: true,
+      features: [
+        'Everything in Studio',
+        'SSO / SAML authentication',
+        'API access',
+        'Dedicated onboarding',
+        'Custom template library',
+        'Collaboration (planned)',
+      ],
+    },
+  ] as const;
+
+  const FAQ = [
+    { q: 'Can I use Vishvakarma.OS without Firebase?', a: 'Yes. Local Draft mode stores projects in your browser with full editor access.' },
+    { q: 'Which export formats are included?', a: `${EXPORT_FORMATS_LABEL} — all generated from the same floor plan manifest.` },
+    { q: 'Is there an iPad app?', a: 'The web app is iPad-first. Capacitor native wrapper is planned for v2.' },
+  ] as const;
+
   return (
     <MarketingLayout>
       <PageMeta title="Pricing" description="Professional-grade tools. Fair, predictable pricing." />

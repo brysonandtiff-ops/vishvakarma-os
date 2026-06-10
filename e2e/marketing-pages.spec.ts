@@ -17,7 +17,7 @@ test.describe('marketing pages', () => {
 
   test('features page loads and guide opens editor', async ({ page }) => {
     await page.goto('/features');
-    await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Getting Started' })).toBeVisible();
     await page.getByRole('button', { name: /your first floor plan/i }).click();
     await expect(page).toHaveURL(/\/editor$/);
   });

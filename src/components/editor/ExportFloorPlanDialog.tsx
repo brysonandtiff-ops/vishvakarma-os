@@ -26,6 +26,8 @@ export default function ExportFloorPlanDialog({
   wallCount,
   openingCount,
   tier = 'studio',
+  exportBlocked = false,
+  exportBlockReason,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
@@ -35,6 +37,8 @@ export default function ExportFloorPlanDialog({
   wallCount: number;
   openingCount: number;
   tier?: 'starter' | 'studio' | 'enterprise';
+  exportBlocked?: boolean;
+  exportBlockReason?: string;
 }) {
   const canPdf = tier !== 'starter';
   const canDxf = tier !== 'starter';
@@ -114,13 +118,20 @@ export default function ExportFloorPlanDialog({
           </p>
         </div>
 
+        {exportBlocked && (
+          <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive" data-testid="export-blocked-message">
+            Export blocked — resolve building compliance failures before exporting.
+            {exportBlockReason ? ` ${exportBlockReason}` : ''}
+          </p>
+        )}
+
         <DialogFooter className="flex flex-col gap-3 sm:items-center">
           <div className="flex flex-wrap justify-center gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button variant="outline" onClick={exportPng} title={FORMAT_CHIPS.png}>PNG</Button>
-          <Button variant="outline" onClick={exportSvg} title={FORMAT_CHIPS.svg}>SVG</Button>
+          <Button variant="outline" disabled={exportBlocked} onClick={exportPng} title={FORMAT_CHIPS.png}>PNG</Button>
+          <Button variant="outline" disabled={exportBlocked} onClick={exportSvg} title={FORMAT_CHIPS.svg}>SVG</Button>
           <Button
-            disabled={!canPdf}
+            disabled={!canPdf || exportBlocked}
             className="bg-primary text-primary-foreground"
             title={FORMAT_CHIPS.pdf}
             onClick={() => {
@@ -134,7 +145,7 @@ export default function ExportFloorPlanDialog({
             <Badge variant="secondary" className="ml-1.5 bg-primary-foreground/15 text-[9px] text-primary-foreground">Recommended</Badge>
           </Button>
           <Button
-            disabled={!canDxf}
+            disabled={!canDxf || exportBlocked}
             variant="outline"
             title={FORMAT_CHIPS.dxf}
             onClick={() => {
@@ -149,6 +160,8 @@ export default function ExportFloorPlanDialog({
           </Button>
           <Button
             variant="outline"
+            disabled={exportBlocked}
+            data-testid="export-json-button"
             onClick={() => {
               onExportJSON();
               onOpenChange(false);

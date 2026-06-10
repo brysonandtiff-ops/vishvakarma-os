@@ -146,7 +146,7 @@ function SidebarContent({
               <p className="vish-wordmark truncate text-[11px] font-bold tracking-[0.24em]">
                 VISHVAKARMA.OS
               </p>
-              <p className="font-technical text-[9px] uppercase tracking-[0.22em] text-ws-text-faint">विश्वकर्मा · Divine Architecture</p>
+              <p className="font-technical text-[10px] uppercase tracking-[0.22em] text-ws-text-faint">Architecture workstation</p>
             </div>
           )}
         </div>
@@ -177,7 +177,7 @@ function SidebarContent({
             >
               <Search className="h-4 w-4 shrink-0 opacity-70" />
               <span className="min-w-0 truncate text-xs">Search workspace…</span>
-              <kbd className="ml-auto rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[9px] font-medium tracking-widest text-ws-text-faint">
+              <kbd className="ml-auto rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-ws-text-faint">
                 {paletteShortcut}
               </kbd>
             </button>
@@ -191,7 +191,7 @@ function SidebarContent({
               return (
                 <div key={group} className={collapsed ? 'space-y-1' : 'space-y-1'}>
                   {!collapsed && (
-                    <p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
+                    <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-widest text-ws-text-faint">
                       {groupLabels[group]}
                     </p>
                   )}
@@ -239,7 +239,7 @@ function SidebarContent({
               <div className="vish-shell-account flex items-center justify-between gap-2 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-[10px] font-medium text-ws-text">{accountLabel}</p>
-                  <p className="text-[9px] text-ws-text-faint">Protected workspace</p>
+                  <p className="text-[10px] text-ws-text-faint">Workspace account</p>
                 </div>
                 <Button
                   type="button"
@@ -295,18 +295,18 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
       )}
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        {!immersive && (
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="vish-mobile-nav-fab fixed left-4 bottom-4 z-40 h-12 w-12 min-h-[44px] min-w-[44px] rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover lg:hidden touch-target"
-              aria-label="Open navigation"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-        )}
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`vish-mobile-nav-fab fixed z-40 h-12 w-12 min-h-[44px] min-w-[44px] rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover touch-target ${
+              immersive ? 'lg:hidden' : 'left-4 bottom-4 lg:hidden'
+            }`}
+            aria-label="Open navigation"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0 border-r-0 bg-ws-sidebar">
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>

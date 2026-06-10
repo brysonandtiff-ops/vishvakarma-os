@@ -10,6 +10,20 @@ service cloud.firestore {
       return isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
 
+    function isCollaborator() {
+      return isSignedIn()
+        && resource.data.collaborators != null
+        && request.auth.uid in resource.data.collaborators;
+    }
+
+    function canReadProject() {
+      return isOwner() || isCollaborator();
+    }
+
+    function canEditProject() {
+      return isOwner() || isCollaborator();
+    }
+
     function isOwnerOnCreate() {
       return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
     }
@@ -26,9 +40,15 @@ service cloud.firestore {
     }
 
     match /projects/{docId} {
-      allow read: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow read: if canReadProject();
       allow create: if isOwnerOnCreate();
-      allow update, delete: if isOwner();
+      allow update: if canEditProject();
+      allow delete: if isOwner();
+
+      match /collaborators/{userId} {
+        allow read: if canReadProject();
+        allow write: if isOwner();
+      }
     }
 
     match /specs/{docId} {

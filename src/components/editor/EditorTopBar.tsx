@@ -1,22 +1,34 @@
 import type { ReactNode } from 'react';
 import {
   Box,
+  ChevronDown,
   FileDown,
+  FolderOpen,
   Grid3x3,
   Leaf,
+  Loader2,
+  Lock,
   Menu,
   MoreHorizontal,
   PenLine,
   Plus,
   Redo2,
   Route,
+  Save,
+  Sparkles,
   Sofa,
   Undo2,
+  Upload,
   Wind,
   Eye,
-  Lock,
-  Upload,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import type { WorkspaceMode } from '@/types';
 
@@ -26,6 +38,7 @@ interface EditorTopBarProps {
   workspaceMode: WorkspaceMode;
   zenMode?: boolean;
   presentationLock?: boolean;
+  savingProject?: boolean;
   onWorkspaceModeChange: (mode: WorkspaceMode) => void;
   onToggleZen?: () => void;
   onTogglePresentationLock?: () => void;
@@ -35,6 +48,10 @@ interface EditorTopBarProps {
   onNewProject: () => void;
   onExport: () => void;
   onImport: () => void;
+  onOpenProject?: () => void;
+  onSaveProject?: () => void;
+  onLoadSample?: () => void;
+  onOpenAIDesigner?: () => void;
   onOpenEditorMenu?: () => void;
   onOpenGovernance?: () => void;
   onUndo?: () => void;
@@ -83,12 +100,39 @@ function IconButton({
   );
 }
 
+function ModeTabs({
+  workspaceMode,
+  onWorkspaceModeChange,
+}: {
+  workspaceMode: WorkspaceMode;
+  onWorkspaceModeChange: (mode: WorkspaceMode) => void;
+}) {
+  return (
+    <div className="vish-mode-tab-group max-w-full overflow-x-auto" role="tablist" aria-label="Editor modes">
+      {MODES.map((mode) => (
+        <button
+          key={mode.id}
+          type="button"
+          role="tab"
+          aria-selected={workspaceMode === mode.id}
+          className={`vish-mode-tab shrink-0 ${workspaceMode === mode.id ? 'active' : ''}`}
+          onClick={() => onWorkspaceModeChange(mode.id)}
+        >
+          <mode.icon className="h-3 w-3" />
+          {mode.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function EditorTopBar({
   projectName,
   show3DView,
   workspaceMode,
   zenMode = false,
   presentationLock = false,
+  savingProject = false,
   onWorkspaceModeChange,
   onToggleZen,
   onTogglePresentationLock,
@@ -98,6 +142,10 @@ export default function EditorTopBar({
   onNewProject,
   onExport,
   onImport,
+  onOpenProject,
+  onSaveProject,
+  onLoadSample,
+  onOpenAIDesigner,
   onOpenEditorMenu,
   onOpenGovernance,
   onUndo,
@@ -106,6 +154,8 @@ export default function EditorTopBar({
   canRedo = false,
   fileStrip,
 }: EditorTopBarProps) {
+  const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
+
   return (
     <header className="vish-editor-topbar shrink-0" data-testid="editor-top-bar">
       <div className="vish-editor-topbar-grid">
@@ -115,6 +165,32 @@ export default function EditorTopBar({
               <Menu className="h-4 w-4" />
             </IconButton>
           )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="vish-editor-mode-badge touch-target"
+                aria-label={`Workspace mode: ${activeMode.label}`}
+                data-testid="editor-mode-badge"
+              >
+                <activeMode.icon className="h-3.5 w-3.5" />
+                {activeMode.label}
+                <ChevronDown className="h-3 w-3 opacity-70" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44">
+              {MODES.map((mode) => (
+                <DropdownMenuItem
+                  key={mode.id}
+                  onClick={() => onWorkspaceModeChange(mode.id)}
+                  className={workspaceMode === mode.id ? 'bg-primary/10 text-primary' : ''}
+                >
+                  <mode.icon className="mr-2 h-4 w-4" />
+                  {mode.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="vish-logo-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
@@ -122,21 +198,7 @@ export default function EditorTopBar({
         </div>
 
         <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
-          <div className="vish-mode-tab-group max-w-full overflow-x-auto" role="tablist" aria-label="Editor modes">
-            {MODES.map((mode) => (
-              <button
-                key={mode.id}
-                type="button"
-                role="tab"
-                aria-selected={workspaceMode === mode.id}
-                className={`vish-mode-tab shrink-0 ${workspaceMode === mode.id ? 'active' : ''}`}
-                onClick={() => onWorkspaceModeChange(mode.id)}
-              >
-                <mode.icon className="h-3 w-3" />
-                {mode.label}
-              </button>
-            ))}
-          </div>
+          <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
         </div>
 
         <div className="flex min-w-0 items-center justify-end gap-1 justify-self-end">
@@ -146,15 +208,62 @@ export default function EditorTopBar({
           <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
             <Redo2 className="h-4 w-4" />
           </IconButton>
-          <IconButton label="New project" onClick={onNewProject}>
-            <Plus className="h-4 w-4" />
-          </IconButton>
-          <IconButton label="Import floor plan" onClick={onImport}>
-            <Upload className="h-4 w-4" />
-          </IconButton>
-          <IconButton label="Export floor plan" onClick={onExport}>
-            <FileDown className="h-4 w-4" />
-          </IconButton>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="Project actions"
+                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
+              >
+                <FolderOpen className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={onNewProject}>
+                <Plus className="mr-2 h-4 w-4" />
+                New project
+              </DropdownMenuItem>
+              {onOpenProject && (
+                <DropdownMenuItem onClick={onOpenProject}>
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Open…
+                </DropdownMenuItem>
+              )}
+              {onSaveProject && (
+                <DropdownMenuItem onClick={onSaveProject} disabled={savingProject}>
+                  {savingProject ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  Save
+                </DropdownMenuItem>
+              )}
+              {onLoadSample && (
+                <DropdownMenuItem onClick={onLoadSample}>Load sample</DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onImport}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExport}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Export
+              </DropdownMenuItem>
+              {onOpenAIDesigner && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onOpenAIDesigner} data-testid="editor-ai-designer">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Architecture Copilot
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D}>
             <Box className="h-4 w-4" />
           </IconButton>
@@ -164,14 +273,29 @@ export default function EditorTopBar({
           <IconButton label="Zen mode" active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
           </IconButton>
-          <IconButton label="Presentation lock" active={presentationLock} onClick={() => onTogglePresentationLock?.()}>
-            <Lock className="h-4 w-4" />
-          </IconButton>
-          {onOpenGovernance && (
-            <IconButton label="Open governance navigation" onClick={onOpenGovernance}>
-              <MoreHorizontal className="h-4 w-4" />
-            </IconButton>
-          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="More editor actions"
+                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={() => onTogglePresentationLock?.()}>
+                <Lock className="mr-2 h-4 w-4" />
+                {presentationLock ? 'Unlock presentation' : 'Presentation lock'}
+              </DropdownMenuItem>
+              {onOpenGovernance && (
+                <DropdownMenuItem onClick={onOpenGovernance}>
+                  Governance & workspace…
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       {fileStrip && <div className="vish-editor-file-strip">{fileStrip}</div>}

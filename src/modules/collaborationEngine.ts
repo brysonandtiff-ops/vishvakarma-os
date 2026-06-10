@@ -1,11 +1,14 @@
 /**
  * Collaboration Engine Module
  *
- * In-process collaboration delivery for local and connected sessions.
- * Remote realtime transport is deferred until a Firebase-backed channel is added.
+ * Facade over CollabSession for presence, messaging, and Yjs-backed manifest sync.
  */
 
 import { backendStatus } from '@/backend/backendConfig';
+import { resolveFirebaseSessionForFirestore } from '@/backend/firebase/firebaseAuthGateway';
+import { CollabSession } from '@/collaboration/sync/CollabSession';
+import type { Presence } from '@/collaboration/types';
+import type { ProjectManifest } from '@/types';
 
 export interface User {
   id: string;
@@ -29,7 +32,7 @@ export interface OperationMessage extends CollaborationMessage {
   data: {
     operation: string;
     elementId?: string;
-    elementType?: 'wall' | 'opening';
+    elementType?: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation';
     payload: unknown;
   };
 }
@@ -40,6 +43,7 @@ export interface CursorMessage extends CollaborationMessage {
     x: number;
     y: number;
     tool?: string;
+    viewport?: Presence['viewport'];
   };
 }
 
@@ -47,7 +51,7 @@ export interface LockMessage extends CollaborationMessage {
   type: 'lock' | 'unlock';
   data: {
     elementId: string;
-    elementType: 'wall' | 'opening';
+    elementType: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation';
   };
 }
 
@@ -70,9 +74,8 @@ export interface ChatMessage extends CollaborationMessage {
 
 export type CollaborationCallback = (message: CollaborationMessage) => void;
 
-/**
- * Collaboration Engine Class
- */
+type ManifestChangeHandler = (manifest: ProjectManifest, isRemote: boolean) => void;
+
 export class CollaborationEngine {
   private static instance: CollaborationEngine | null = null;
   private users: Map<string, User> = new Map();
@@ -81,14 +84,14 @@ export class CollaborationEngine {
   private connected = false;
   private roomId: string | null = null;
   private heartbeatInterval: number | null = null;
+  private session = CollabSession.getInstance();
+  private manifestHandler: ManifestChangeHandler | null = null;
+  private presenceUnsub: (() => void) | null = null;
+  private sessionUnsub: (() => void) | null = null;
+  private userColor = '#3b82f6';
 
-  private constructor() {
-    // Private constructor for singleton
-  }
+  private constructor() {}
 
-  /**
-   * Get singleton instance
-   */
   static getInstance(): CollaborationEngine {
     if (!this.instance) {
       this.instance = new CollaborationEngine();
@@ -96,10 +99,12 @@ export class CollaborationEngine {
     return this.instance;
   }
 
-  /**
-   * Connect to collaboration room
-   */
-  async connect(roomId: string, userId: string, userName: string): Promise<void> {
+  async connect(
+    roomId: string,
+    userId: string,
+    userName: string,
+    options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
+  ): Promise<void> {
     if (this.connected) {
       console.warn('Already connected to collaboration room');
       return;
@@ -108,41 +113,58 @@ export class CollaborationEngine {
     this.roomId = roomId;
     this.currentUserId = userId;
     this.connected = true;
+    this.userColor = this.generateUserColor();
+    this.manifestHandler = options?.onManifestChange ?? null;
 
-    // Generate random color for user
-    const color = this.generateUserColor();
-
-    // Add current user
     this.users.set(userId, {
       id: userId,
       name: userName,
-      color,
+      color: this.userColor,
       isOnline: true,
       lastSeen: Date.now(),
     });
 
-    // Send presence message
-    this.broadcastPresence('online', userName, color);
+    this.broadcastPresence('online', userName, this.userColor);
+
+    const getIdToken = async () => {
+      const session = await resolveFirebaseSessionForFirestore();
+      return session.idToken;
+    };
+
+    await this.session.connect({
+      wsUrl: import.meta.env.VITE_COLLAB_WS_URL ?? 'ws://127.0.0.1:1234',
+      projectId: roomId,
+      userId,
+      userName,
+      getIdToken,
+      initialManifest: options?.initialManifest,
+      onManifestChange: (manifest, isRemote) => {
+        this.manifestHandler?.(manifest, isRemote);
+      },
+      onPresenceChange: (presences) => {
+        this.syncUsersFromPresences(presences, userName);
+      },
+    });
+
+    this.sessionUnsub = this.session.subscribe((message) => {
+      this.handleRemoteMessage(message);
+    });
+
+    this.presenceUnsub = this.session.subscribePresence((presences) => {
+      this.syncUsersFromPresences(presences, userName);
+    });
 
     if (!backendStatus.isConfigured) {
       console.warn('[Collaboration] Backend not configured — using local session delivery only.');
     }
 
-    // Start heartbeat
     this.startHeartbeat();
-
     console.log(`Connected to room ${roomId} as ${userName}`);
   }
 
-  /**
-   * Disconnect from collaboration room
-   */
   async disconnect(): Promise<void> {
-    if (!this.connected) {
-      return;
-    }
+    if (!this.connected) return;
 
-    // Send offline presence
     if (this.currentUserId) {
       const user = this.users.get(this.currentUserId);
       if (user) {
@@ -150,25 +172,33 @@ export class CollaborationEngine {
       }
     }
 
-    // Stop heartbeat
     this.stopHeartbeat();
+    this.presenceUnsub?.();
+    this.sessionUnsub?.();
+    this.presenceUnsub = null;
+    this.sessionUnsub = null;
+    await this.session.disconnect();
 
-    // Clear state
     this.connected = false;
     this.roomId = null;
     this.currentUserId = null;
     this.users.clear();
-
+    this.manifestHandler = null;
     console.log('Disconnected from collaboration room');
   }
 
-  /**
-   * Broadcast operation to other users
-   */
+  getCollabSession(): CollabSession {
+    return this.session;
+  }
+
+  applyManifestPartial(partial: Partial<ProjectManifest>, label = 'Edit'): void {
+    this.session.applyPartial(partial, label);
+  }
+
   broadcastOperation(
     operation: string,
     elementId: string | undefined,
-    elementType: 'wall' | 'opening' | undefined,
+    elementType: OperationMessage['data']['elementType'],
     payload: unknown
   ): void {
     if (!this.connected || !this.currentUserId) {
@@ -180,49 +210,47 @@ export class CollaborationEngine {
       type: 'operation',
       userId: this.currentUserId,
       timestamp: Date.now(),
-      data: {
-        operation,
-        elementId,
-        elementType,
-        payload,
-      },
+      data: { operation, elementId, elementType, payload },
     };
 
     this.broadcast(message);
   }
 
-  /**
-   * Broadcast cursor position
-   */
-  broadcastCursor(x: number, y: number, tool?: string): void {
-    if (!this.connected || !this.currentUserId) {
-      return;
-    }
+  broadcastCursor(x: number, y: number, tool?: string, viewport?: Presence['viewport']): void {
+    if (!this.connected || !this.currentUserId) return;
 
     const message: CursorMessage = {
       type: 'cursor',
       userId: this.currentUserId,
       timestamp: Date.now(),
-      data: { x, y, tool },
+      data: { x, y, tool, viewport },
     };
 
-    // Update local user cursor
     const user = this.users.get(this.currentUserId);
     if (user) {
       user.cursor = { x, y };
       user.activeTool = tool;
+      user.lastSeen = Date.now();
     }
+
+    this.session.updatePresence({
+      userId: this.currentUserId,
+      name: user?.name ?? 'Architect',
+      color: user?.color ?? this.userColor,
+      cursor: { x, y },
+      activeTool: tool,
+      ...(viewport ? { viewport } : {}),
+      lastSeen: Date.now(),
+    });
 
     this.broadcast(message);
   }
 
-  /**
-   * Broadcast lock acquisition
-   */
-  broadcastLock(elementId: string, elementType: 'wall' | 'opening'): void {
-    if (!this.connected || !this.currentUserId) {
-      return;
-    }
+  broadcastLock(
+    elementId: string,
+    elementType: LockMessage['data']['elementType']
+  ): void {
+    if (!this.connected || !this.currentUserId) return;
 
     const message: LockMessage = {
       type: 'lock',
@@ -231,16 +259,15 @@ export class CollaborationEngine {
       data: { elementId, elementType },
     };
 
+    this.session.updatePresence({ focusedEntityId: elementId });
     this.broadcast(message);
   }
 
-  /**
-   * Broadcast lock release
-   */
-  broadcastUnlock(elementId: string, elementType: 'wall' | 'opening'): void {
-    if (!this.connected || !this.currentUserId) {
-      return;
-    }
+  broadcastUnlock(
+    elementId: string,
+    elementType: LockMessage['data']['elementType']
+  ): void {
+    if (!this.connected || !this.currentUserId) return;
 
     const message: LockMessage = {
       type: 'unlock',
@@ -249,16 +276,12 @@ export class CollaborationEngine {
       data: { elementId, elementType },
     };
 
+    this.session.updatePresence({ focusedEntityId: undefined });
     this.broadcast(message);
   }
 
-  /**
-   * Broadcast chat message
-   */
   broadcastChat(message: string): void {
-    if (!this.connected || !this.currentUserId) {
-      return;
-    }
+    if (!this.connected || !this.currentUserId) return;
 
     const user = this.users.get(this.currentUserId);
     if (!user) return;
@@ -267,70 +290,38 @@ export class CollaborationEngine {
       type: 'chat',
       userId: this.currentUserId,
       timestamp: Date.now(),
-      data: {
-        message,
-        userName: user.name,
-      },
+      data: { message, userName: user.name },
     };
 
     this.broadcast(chatMessage);
   }
 
-  /**
-   * Subscribe to collaboration messages
-   */
   subscribe(callback: CollaborationCallback): () => void {
     this.callbacks.add(callback);
-
-    // Return unsubscribe function
-    return () => {
-      this.callbacks.delete(callback);
-    };
+    return () => this.callbacks.delete(callback);
   }
 
-  /**
-   * Get all online users
-   */
   getOnlineUsers(): User[] {
-    return Array.from(this.users.values()).filter(u => u.isOnline);
+    return Array.from(this.users.values()).filter((u) => u.isOnline);
   }
 
-  /**
-   * Get user by ID
-   */
   getUser(userId: string): User | undefined {
     return this.users.get(userId);
   }
 
-  /**
-   * Get current user ID
-   */
   getCurrentUserId(): string | null {
     return this.currentUserId;
   }
 
-  /**
-   * Check if connected
-   */
   isConnected(): boolean {
     return this.connected;
   }
 
-  /**
-   * Get room ID
-   */
   getRoomId(): string | null {
     return this.roomId;
   }
 
-  /**
-   * Broadcast presence message
-   */
-  private broadcastPresence(
-    status: 'online' | 'offline',
-    name: string,
-    color: string
-  ): void {
+  private broadcastPresence(status: 'online' | 'offline', name: string, color: string): void {
     if (!this.currentUserId) return;
 
     const message: PresenceMessage = {
@@ -343,17 +334,13 @@ export class CollaborationEngine {
     this.broadcast(message);
   }
 
-  /**
-   * Broadcast message to subscribers and remote peers
-   */
   private broadcast(message: CollaborationMessage): void {
+    this.session.broadcast(message);
     this.deliverToCallbacks(message);
   }
 
   private handleRemoteMessage(message: CollaborationMessage): void {
-    if (message.userId === this.currentUserId) {
-      return;
-    }
+    if (message.userId === this.currentUserId) return;
 
     if (message.type === 'presence') {
       const presenceData = (message as PresenceMessage).data;
@@ -385,6 +372,45 @@ export class CollaborationEngine {
     this.deliverToCallbacks(message);
   }
 
+  private syncUsersFromPresences(presences: Presence[], localName: string): void {
+    const remoteIds = new Set(presences.map((p) => p.userId));
+
+    for (const presence of presences) {
+      const existing = this.users.get(presence.userId);
+      this.users.set(presence.userId, {
+        id: presence.userId,
+        name: presence.name,
+        color: presence.color,
+        cursor: presence.cursor,
+        activeTool: presence.activeTool,
+        isOnline: true,
+        lastSeen: presence.lastSeen,
+      });
+      if (!existing) {
+        this.deliverToCallbacks({
+          type: 'presence',
+          userId: presence.userId,
+          timestamp: Date.now(),
+          data: { status: 'online', name: presence.name, color: presence.color },
+        });
+      }
+    }
+
+    if (this.currentUserId) {
+      const local = this.users.get(this.currentUserId);
+      if (local) {
+        local.isOnline = true;
+        local.name = localName;
+      }
+    }
+
+    for (const [id, user] of this.users.entries()) {
+      if (id !== this.currentUserId && !remoteIds.has(id)) {
+        user.isOnline = false;
+      }
+    }
+  }
+
   private deliverToCallbacks(message: CollaborationMessage): void {
     this.callbacks.forEach((callback) => {
       try {
@@ -395,9 +421,6 @@ export class CollaborationEngine {
     });
   }
 
-  /**
-   * Start heartbeat to keep connection alive
-   */
   private startHeartbeat(): void {
     this.heartbeatInterval = window.setInterval(() => {
       if (this.currentUserId) {
@@ -405,21 +428,18 @@ export class CollaborationEngine {
         if (user) {
           user.lastSeen = Date.now();
         }
+        this.session.updatePresence({ lastSeen: Date.now() });
       }
 
-      // Check for stale users (offline for > 30 seconds)
       const now = Date.now();
-      this.users.forEach(user => {
+      this.users.forEach((user) => {
         if (user.isOnline && now - user.lastSeen > 30000) {
           user.isOnline = false;
         }
       });
-    }, 5000); // Every 5 seconds
+    }, 5000);
   }
 
-  /**
-   * Stop heartbeat
-   */
   private stopHeartbeat(): void {
     if (this.heartbeatInterval !== null) {
       clearInterval(this.heartbeatInterval);
@@ -427,45 +447,33 @@ export class CollaborationEngine {
     }
   }
 
-  /**
-   * Generate random color for user
-   */
   private generateUserColor(): string {
     const colors = [
-      '#ef4444', // red
-      '#f59e0b', // amber
-      '#10b981', // emerald
-      '#3b82f6', // blue
-      '#8b5cf6', // violet
-      '#ec4899', // pink
-      '#06b6d4', // cyan
-      '#84cc16', // lime
+      '#ef4444',
+      '#f59e0b',
+      '#10b981',
+      '#3b82f6',
+      '#8b5cf6',
+      '#ec4899',
+      '#06b6d4',
+      '#84cc16',
     ];
-
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  /**
-   * Simulate receiving a message (for testing)
-   */
   simulateMessage(message: CollaborationMessage): void {
     this.handleRemoteMessage(message);
   }
 
-  /**
-   * Reset instance (for testing)
-   */
   static resetInstance(): void {
     if (this.instance) {
-      this.instance.disconnect();
+      void this.instance.disconnect();
+      CollabSession.resetInstance();
       this.instance = null;
     }
   }
 }
 
-/**
- * Convenience functions
- */
 export function getCollaborationEngine(): CollaborationEngine {
   return CollaborationEngine.getInstance();
 }
@@ -473,10 +481,11 @@ export function getCollaborationEngine(): CollaborationEngine {
 export async function connectToRoom(
   roomId: string,
   userId: string,
-  userName: string
+  userName: string,
+  options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
 ): Promise<void> {
   const engine = getCollaborationEngine();
-  await engine.connect(roomId, userId, userName);
+  await engine.connect(roomId, userId, userName, options);
 }
 
 export async function disconnectFromRoom(): Promise<void> {
@@ -487,14 +496,19 @@ export async function disconnectFromRoom(): Promise<void> {
 export function broadcastOperation(
   operation: string,
   elementId?: string,
-  elementType?: 'wall' | 'opening',
+  elementType?: OperationMessage['data']['elementType'],
   payload?: unknown
 ): void {
   const engine = getCollaborationEngine();
   engine.broadcastOperation(operation, elementId, elementType, payload);
 }
 
-export function broadcastCursor(x: number, y: number, tool?: string): void {
+export function broadcastCursor(
+  x: number,
+  y: number,
+  tool?: string,
+  viewport?: Presence['viewport']
+): void {
   const engine = getCollaborationEngine();
-  engine.broadcastCursor(x, y, tool);
+  engine.broadcastCursor(x, y, tool, viewport);
 }

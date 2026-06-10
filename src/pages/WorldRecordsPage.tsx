@@ -86,6 +86,17 @@ export default function WorldRecordsPage() {
               Governance OS
             </Badge>
           </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums">
+              {records.length} record{records.length === 1 ? '' : 's'}
+            </span>
+            <span className="rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success tabular-nums">
+              {verifiedCount} verified
+            </span>
+            <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums">
+              {proposedCount} proposed
+            </span>
+          </div>
         </div>
 
         <ScrollArea className="flex-1">

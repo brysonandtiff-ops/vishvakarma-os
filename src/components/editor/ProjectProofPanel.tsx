@@ -1,5 +1,12 @@
 import { CheckCircle2 } from 'lucide-react';
+import type { ComplianceStatus } from '@/rules/types';
 import type { SaveState } from '@/types';
+
+function complianceBadge(status: ComplianceStatus) {
+  if (status === 'pass') return { label: 'Pass', className: 'border-success/30 bg-success/10 text-success' };
+  if (status === 'warning') return { label: 'Warn', className: 'border-warning/30 bg-warning/10 text-warning' };
+  return { label: 'Fail', className: 'border-destructive/30 bg-destructive/10 text-destructive' };
+}
 
 export default function ProjectProofPanel({
   projectName,
@@ -10,6 +17,8 @@ export default function ProjectProofPanel({
   cloudConnected,
   cloudSaveLabel,
   snapEnabled,
+  complianceStatus,
+  complianceSummary,
 }: {
   projectName: string;
   wallCount: number;
@@ -19,6 +28,8 @@ export default function ProjectProofPanel({
   cloudConnected: boolean | null;
   cloudSaveLabel?: string;
   snapEnabled: boolean;
+  complianceStatus?: ComplianceStatus;
+  complianceSummary?: string;
 }) {
   const hasGeometry = wallCount > 0 || openingCount > 0;
   const proofRows = [
@@ -42,6 +53,16 @@ export default function ProjectProofPanel({
       value: cloudConnected ? (cloudSaveLabel ?? 'Cloud Save') : 'Local Draft mode',
       ok: true,
     },
+    ...(complianceStatus
+      ? [
+          {
+            label: 'Building compliance',
+            value: complianceSummary ?? 'Live NCC audit',
+            ok: complianceStatus !== 'fail',
+            badge: complianceBadge(complianceStatus),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -68,8 +89,16 @@ export default function ProjectProofPanel({
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{row.label}</p>
               <p className="mt-0.5 text-xs text-foreground">{row.value}</p>
             </div>
-            <span className={`mt-0.5 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${row.ok ? 'border-success/30 bg-success/10 text-success' : 'border-warning/30 bg-warning/10 text-warning'}`}>
-              {row.ok ? 'OK' : 'Next'}
+            <span
+              className={`mt-0.5 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${
+                'badge' in row && row.badge
+                  ? row.badge.className
+                  : row.ok
+                    ? 'border-success/30 bg-success/10 text-success'
+                    : 'border-warning/30 bg-warning/10 text-warning'
+              }`}
+            >
+              {'badge' in row && row.badge ? row.badge.label : row.ok ? 'OK' : 'Next'}
             </span>
           </div>
         ))}

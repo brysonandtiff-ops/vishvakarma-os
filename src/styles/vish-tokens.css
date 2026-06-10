@@ -22,7 +22,7 @@
   --vish-tool-rail-width: 72px;
   --vish-tool-button-width: 58px;
   --vish-tool-button-height: 56px;
-  --vish-status-bar-height: 30px;
+  --vish-status-bar-height: 32px;
 }
 
 @media (min-width: 1194px) {
@@ -30,6 +30,14 @@
     --vish-tool-rail-width: 86px;
     --vish-tool-button-width: 62px;
     --vish-tool-button-height: 60px;
+  }
+}
+
+@media (pointer: coarse), (hover: none) {
+  :root {
+    --vish-tool-button-width: 64px;
+    --vish-tool-button-height: 58px;
+    --vish-tool-rail-width: 86px;
   }
 }
 

@@ -7,6 +7,7 @@ import { VersionControlHooks } from '@/modules/versionControlHooks';
 import { calculateProjectCostItems } from '@/utils/costEstimate';
 import { createFloor, ensureDefaultFloors, getActiveFloorIndex } from '@/utils/floorHelpers';
 import { detectRoomAtPoint, detectRoomFromWalls } from '@/utils/roomCalculations';
+import type { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
 import type {
   CostItem,
   DimensionAnnotation,
@@ -67,7 +68,9 @@ export class FloorPlanEngine {
   private listeners = new Set<() => void>();
   private revision = 0;
   private skipVersionSnapshot = false;
+  private skipVersionSnapshotForRemote = false;
   private cachedSnapshot: FloorPlanSnapshot | null = null;
+  private collabBridge: ManifestCollabBridge | null = null;
 
   private constructor() {
     this.manifest = createEmptyProjectManifest('Untitled Project');
@@ -178,7 +181,33 @@ export class FloorPlanEngine {
     return this.manifest.lighting;
   }
 
+  setCollabBridge(bridge: ManifestCollabBridge | null): void {
+    this.collabBridge = bridge;
+  }
+
+  applyRemoteManifest(manifest: ProjectManifest): void {
+    this.skipVersionSnapshotForRemote = true;
+    this.manifest = {
+      ...manifest,
+      costItems: calculateProjectCostItems(manifest),
+    };
+    this.skipVersionSnapshotForRemote = false;
+    this.notify();
+  }
+
   private touchManifest(partial: Partial<ProjectManifest>, snapshotLabel = 'Edit'): void {
+    if (this.collabBridge?.isActive()) {
+      this.collabBridge.applyPartial(partial, snapshotLabel);
+      const nextManifest = this.collabBridge.toManifest();
+      this.manifest = nextManifest;
+      if (!this.skipVersionSnapshot && !this.skipVersionSnapshotForRemote) {
+        this.versionControl.saveVersion(this.manifest, snapshotLabel);
+        this.versionControl.updateCurrentManifest(this.manifest);
+      }
+      this.notify();
+      return;
+    }
+
     const nextManifest = {
       ...this.manifest,
       ...partial,

@@ -233,57 +233,7 @@
   background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
 }
 
-/* ══════════════════════════════════════════════════════
-   TOOL RAIL — workstation dark
-   ══════════════════════════════════════════════════════ */
-
-.architect-tool-dock {
-  background: hsl(var(--ws-toolbar));
-  border-right: 1px solid hsl(var(--ws-border));
-}
-
-.architect-tool-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  width: var(--vish-tool-button-width, 58px);
-  min-height: var(--vish-tool-button-height, 56px);
-  color: hsl(var(--ws-text-dim));
-  background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
-  cursor: pointer;
-  outline: none;
-  flex-shrink: 0;
-}
-
-.architect-tool-button:hover {
-  color: hsl(var(--ws-text));
-  background-color: hsl(var(--ws-hover));
-  border-color: hsl(var(--ws-border-subtle));
-}
-
-.architect-tool-button:focus-visible {
-  outline: 2px solid hsl(var(--ws-active));
-  outline-offset: 1px;
-}
-
-.architect-tool-button.active {
-  color: hsl(var(--ws-active));
-  background-color: hsl(var(--ws-active-bg));
-  border-color: hsl(var(--ws-active) / 0.6);
-  box-shadow:
-    0 0 0 2px hsl(var(--ws-active-ring)),
-    0 0 8px hsl(var(--ws-active) / 0.25),
-    inset 0 1px 0 hsl(var(--ws-active) / 0.15);
-}
-
-.high-contrast .architect-tool-button.active {
-  outline: 2px solid hsl(var(--ws-active));
-}
+/* Tool rail, status bar, mode tabs → vish-editor-chrome.css */
 
 /* ══════════════════════════════════════════════════════
    MEASUREMENT / DIMENSION TEXT
@@ -344,76 +294,7 @@
   background: hsl(var(--ws-hover));
 }
 
-/* ══════════════════════════════════════════════════════
-   WORKSTATION MODE SIDEBAR
-   ══════════════════════════════════════════════════════ */
-
-.ws-mode-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  width: 100%;
-  padding: 10px 0;
-  color: hsl(var(--ws-text-faint));
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: color 0.12s, background 0.12s;
-  border-left: 2px solid transparent;
-}
-
-.ws-mode-button:hover {
-  color: hsl(var(--ws-text));
-  background: hsl(var(--ws-hover));
-}
-
-.ws-mode-button.active {
-  color: hsl(var(--ws-active));
-  background: hsl(var(--ws-active-bg));
-  border-left-color: hsl(var(--ws-active));
-}
-
-/* ══════════════════════════════════════════════════════
-   STATUS BAR
-   ══════════════════════════════════════════════════════ */
-
-.ws-status-bar {
-  display: flex;
-  align-items: center;
-  min-height: var(--vish-status-bar-height, 30px);
-  height: var(--vish-status-bar-height, 30px);
-  padding: 0 12px;
-  gap: 16px;
-  background: hsl(var(--ws-statusbar));
-  border-top: 1px solid hsl(var(--ws-border));
-  font-family: 'IBM Plex Mono', 'SF Mono', monospace;
-  font-size: 10px;
-  color: hsl(var(--ws-text-faint));
-  white-space: nowrap;
-  overflow: hidden;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.ws-status-bar .ws-status-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: hsl(var(--ws-text-dim));
-}
-
-.ws-status-bar .ws-status-item.active {
-  color: hsl(var(--ws-active));
-}
-
-.ws-status-bar .ws-status-divider {
-  width: 1px;
-  height: 10px;
-  background: hsl(var(--ws-border));
-  flex-shrink: 0;
-}
+/* Mode sidebar + status bar → vish-editor-chrome.css */
 
 /* ══════════════════════════════════════════════════════
    LIGHT PROPERTIES PANEL

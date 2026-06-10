@@ -469,6 +469,26 @@ Actions:
 
 ---
 
+## v2.0 Feature Registry (Architecture Copilot)
+
+### Architecture Copilot (`feature-architecture-copilot`)
+
+**Type**: feature  
+**Status**: active  
+**Spec**: `docs/specs/ARCHITECTURE_COPILOT_v2.md`
+
+End-to-end autonomous building design from site survey, boundary plan, council requirements, and design brief. Produces concept design, floor plan, 3D manifest, schedules, material list, cost estimate, and compliance report.
+
+### Permit Package Export (`feature-permit-package-export`)
+
+**Type**: feature  
+**Status**: active  
+**Spec**: `docs/specs/ARCHITECTURE_COPILOT_v2.md`
+
+Compliance-gated ZIP export containing cover sheet, site plan, floor plan, elevations placeholder, schedules, material list, cost estimate, compliance report, and manifest.json.
+
+---
+
 ## Sample Project Validation
 
 **Sample Project**: `public/samples/sample-house-01.json`

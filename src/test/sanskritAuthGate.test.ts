@@ -9,10 +9,15 @@ function read(path: string) {
 }
 
 describe('Sanskrit auth gate design', () => {
+  it('loads auth gate stylesheet through app startup', () => {
+    const main = read('src/main.tsx');
+    expect(main).toContain('./styles/vish-auth-gate.css');
+  });
+
   it('keeps the animated Sanskrit matrix and mandala layers on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
-    expect(authPage).toContain("@/styles/vish-auth-gate.css");
+    expect(authPage).toContain('vish-auth-gate');
     expect(authPage).toContain('SANSKRIT_MATRIX_COLUMNS');
     expect(authPage).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(authPage).toContain('मन्त्र यन्त्र वास्तु रचना');
@@ -58,8 +63,8 @@ describe('Sanskrit auth gate design', () => {
     expect(appLayout).toContain('vish-shell-brand');
     expect(appLayout).toContain('vish-shell-logo');
     expect(appLayout).toContain('vish-shell-nav-active');
-    expect(appLayout).toContain('Protected workspace');
-    expect(appLayout).toContain('विश्वकर्मा · Divine Architecture');
+    expect(appLayout).toContain('Workspace account');
+    expect(appLayout).toContain('Architecture workstation');
     expect(styles).toContain('.vish-workspace-sidebar');
     expect(styles).toContain('.vish-shell-nav-active');
     expect(styles).toContain('.vish-shell-account');
