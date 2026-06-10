@@ -22,7 +22,10 @@ Use this asset for:
 - onboarding panels
 - presentation/deck references
 
-Browser favicon is intentionally left without the old generated SVG reference until a properly exported `.png`, `.webp`, or `.ico` logo file is committed as a binary asset.
+Favicon and PWA install icons are **derived** from the official logo (inline WebP artwork), not separate artwork:
+
+- Run `pnpm run assets:pwa-icons` after changing `public/brand/vishvakarma-official-logo.svg`
+- Outputs: `public/icons/icon.svg`, `public/icons/apple-touch-icon.svg`, `public/brand/vishvakarma-apple-touch-icon.png`
 
 Do not replace the official logo with:
 

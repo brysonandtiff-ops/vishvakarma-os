@@ -31,6 +31,7 @@
     "marketing:assets": "node scripts/run-local-preview-playwright.mjs --project=screenshot-pack marketing-asset-pack.spec.ts",
     "capture:page-references": "node scripts/run-page-reference-pack.mjs",
     "assets:apple-touch-icon": "node scripts/generate-apple-touch-icon.mjs",
+    "assets:pwa-icons": "node scripts/sync-pwa-icon-svgs.mjs && node scripts/generate-apple-touch-icon.mjs",
     "test:e2e:install": "pnpm exec playwright install --with-deps chromium firefox webkit",
     "lint": "pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure",
     "lint:types": "tsgo -p tsconfig.check.json",

@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 
 const repoRoot = resolve(process.cwd());
 const officialLogoPath = '/brand/vishvakarma-official-logo.svg';
+const pwaIconPath = '/icons/icon.svg';
 
 function read(path: string) {
   return readFileSync(resolve(repoRoot, path), 'utf8');
@@ -37,15 +38,24 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
     expect(appLayout).toContain('official user-supplied logo');
   });
 
-  it('uses the official logo for browser and PWA metadata', () => {
+  it('derives self-contained PWA icon SVGs from the official logo artwork', () => {
+    for (const iconPath of ['public/icons/icon.svg', 'public/icons/apple-touch-icon.svg']) {
+      const icon = read(iconPath);
+      expect(icon).toContain('data:image/webp;base64');
+      expect(icon).not.toContain('href="/brand/');
+    }
+
+    expect(existsSync(resolve(repoRoot, 'public/brand/vishvakarma-apple-touch-icon.png'))).toBe(true);
+  });
+
+  it('uses derived icon assets for browser and PWA metadata', () => {
     const index = read('index.html');
     const manifest = read('public/manifest.webmanifest');
 
-    expect(index).toContain(`href="${officialLogoPath}"`);
-    expect(manifest).toContain(`"src": "${officialLogoPath}"`);
-    expect(index).not.toContain('/icons/icon.svg');
-    expect(index).not.toContain('/icons/apple-touch-icon.svg');
-    expect(manifest).not.toContain('/icons/icon.svg');
-    expect(manifest).not.toContain('/icons/apple-touch-icon.svg');
+    expect(index).toContain(`href="${pwaIconPath}"`);
+    expect(manifest).toContain(`"src": "${pwaIconPath}"`);
+    expect(index).toContain('/brand/vishvakarma-apple-touch-icon.png');
+    expect(index).not.toContain(`href="${officialLogoPath}"`);
+    expect(manifest).not.toContain(`"src": "${officialLogoPath}"`);
   });
 });
