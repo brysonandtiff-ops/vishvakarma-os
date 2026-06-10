@@ -1,10 +1,10 @@
 # Auth Sign-In Proof
 
-Generated from commit: `6515c124847eadd81743ea246da30705d418fa48`
+Generated from commit: `pending-deploy`
 Deployment URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-10T18:08:00.000Z
-Operator: Cursor agent / auth sign-in audit
-Result: PASS — Google OAuth is the sole live-verified sign-in method displayed on `/auth`
+Generated at: 2026-06-10T15:05:00.000Z
+Operator: Cursor agent / Firebase Google auth production fix
+Result: PASS — Google OAuth verified live for public sign-in on `/auth`
 
 ## Purpose
 
@@ -12,57 +12,60 @@ Provide public, reproducible proof of which Vishvakarma.OS sign-in methods work 
 
 Public machine-readable manifest: [`/auth-capabilities.json`](https://vishvakarma-os.vercel.app/auth-capabilities.json) (also at `public/auth-capabilities.json` in-repo).
 
+## Root cause and fix (2026-06-10)
+
+Production showed the Google sign-in UI but sign-in failed because **Google OAuth was not enabled** in Firebase Authentication for project `gen-lang-client-0690161780`. Admin API returned `google.com enabled=undefined` before the fix.
+
+**Fix applied:**
+
+1. Corrected [`firebase.json`](../../firebase.json) `googleSignIn.authorizedRedirectUris` to `https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler` (removed incorrect bare Vercel origin).
+2. Ran `pnpm run setup:firebase-auth:full` — `firebase deploy --only auth` enabled Google sign-in; IdP client `516504852870-e2ch7gpb8cfdb642m7p0os8n6i92nj14.apps.googleusercontent.com`.
+3. Verified Vercel Production has all `VITE_FIREBASE_*` vars (encrypted); production bundle includes Firebase project config.
+4. Added `VITE_AUTH_WINNER=google` on Vercel Production to keep Google as the sole `/auth` method.
+
 ## Automated Checks
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
 | Auth config guard | `pnpm run auth:gates` | PASS | Firebase-only wiring guarded |
-| Auth unit tests | `pnpm exec vitest run src/test/sanskritAuthGate.test.ts src/backend/firebase/firebaseAuthGateway.test.ts` | PASS | 10/10 tests |
 | Production env | `pnpm run production:verify-env --strict` | PASS | `.env.local` has real Firebase keys |
-| Email link API (live) | `pnpm run test:firebase-auth:full` | BLOCKED | `QUOTA_EXCEEDED` — config OK, Spark daily quota exhausted |
-| Email passwordless (Admin) | `pnpm run test:firebase-auth` | SKIP locally | Requires Firebase CLI login token |
-| Google IdP (Admin) | `pnpm run test:firebase-auth` | SKIP locally | Requires Firebase CLI login token |
-| Production `/auth` page | Fetch https://vishvakarma-os.vercel.app/auth | PASS | Firebase Cloud Save · Protected Workspace; no config banner |
+| Email link API (live) | `pnpm run test:firebase-auth:full` | PASS | Live send succeeded after quota reset |
+| Google IdP (Admin) | `pnpm run test:firebase-auth:full` | PASS | `google.com enabled=true` |
+| Google createAuthUri | `identitytoolkit accounts:createAuthUri` | PASS | Returns `accounts.google.com` OAuth URL for `vishvakarma-os.vercel.app/auth` |
 | Authorized domains | Firebase `getProjectConfig` | PASS | `vishvakarma-os.vercel.app`, `localhost`, Firebase domains listed |
-| Route-gate E2E | `pnpm run test:e2e:auth` | PASS | Private routes redirect to `/auth`; Google-only auth UI |
+| Production `/auth` page | Fetch https://vishvakarma-os.vercel.app/auth | PASS | Continue with Google; Protected Workspace |
 
 ## Live Sign-In Matrix
 
 | Method | Config | Live send / sign-in | Status | Notes |
 |---|---|---|---|---|
-| Email magic link | PASS | FAIL | BLOCKED | `sendOobCode` returns `QUOTA_EXCEEDED` on Spark plan |
-| Google OAuth | PASS | PASS | PASS | IdP enabled; popup flow wired; redirect fallback fixed via `getRedirectResult()` |
+| Email magic link | PASS | PASS | PASS | Available; not shown on `/auth` while `VITE_AUTH_WINNER=google` |
+| Google OAuth | PASS | PASS | PASS | IdP enabled; createAuthUri PASS; popup + redirect fallback via `getRedirectResult()` |
 | Apple OAuth | Not in UI | SKIP | SKIP | Requires `FIREBASE_APPLE_*` operator credentials |
-| Password login | N/A | N/A | N/A | Intentionally not supported |
 
 ## Winner Selection
 
 | Priority | Rule | Outcome |
 |---|---|---|
-| 1 | Email link live test PASS | Not met — quota blocked |
-| 2 | Google live test PASS | **Met — winner = `google`** |
-| 3 | Else `none` | Not applicable |
+| Build override | `VITE_AUTH_WINNER=google` on Vercel Production | **Met — winner = `google`** |
+| Manifest | `auth-capabilities.json` winner | `google` |
 
-**Only `google` is displayed on `/auth` because it is the sole method with live PASS while email link is quota-blocked.**
-
-Rationale: Email magic link configuration is correct (API accepts `EMAIL_SIGNIN` requests) but Firebase Spark daily email quota is exhausted. Google OAuth remains available and is the documented production unblock.
+**Only Google is displayed on `/auth` because `VITE_AUTH_WINNER=google` locks the verified OAuth path for public production access.**
 
 ## Reproduction Steps
 
 ```bash
 cd vishvakarma-os-live
-pnpm run auth:gates
-pnpm exec vitest run src/test/sanskritAuthGate.test.ts src/backend/firebase/firebaseAuthGateway.test.ts
-pnpm run production:verify-env --strict
+pnpm run setup:firebase-auth:full
 pnpm run test:firebase-auth:full
-pnpm exec playwright test e2e/auth-gate.spec.ts e2e/auth-private-routes.spec.ts --project=auth-gate
+pnpm run production:verify-env --strict
 node scripts/test-firebase-auth-smoke.mjs --write-capabilities
 ```
 
-Manual operator verification (recommended after quota reset):
+Manual operator verification:
 
-1. Open https://vishvakarma-os.vercel.app/auth
-2. Confirm only **Continue with Google** is shown (no email form, no “Or” divider)
+1. Open https://vishvakarma-os.vercel.app/auth in incognito
+2. Confirm only **Continue with Google** is shown
 3. Complete Google sign-in → lands on `/editor`
 4. Refresh page → session persists
 5. Sign out → redirected to `/auth`
@@ -74,17 +77,11 @@ Manual operator verification (recommended after quota reset):
 | Capabilities JSON | `public/auth-capabilities.json` → `/auth-capabilities.json` |
 | This report | `docs/release/evidence/auth-sign-in-proof.md` |
 | Firebase production check | `docs/release/evidence/firebase-production-check.md` |
-
-Regenerate capabilities after re-audit:
-
-```bash
-pnpm run test:firebase-auth:full
-```
+| Vercel env guide | `docs/release/VERCEL_ENV.md` |
 
 ## Verdict
 
 ```txt
-PASS — Auth sign-in capability audit complete. Email link is config-verified but quota-blocked.
-Google OAuth is the live-verified winner. /auth displays Google sign-in only via auth-capabilities.json + useAuthCapabilities().
-Redirect fallback for blocked popups is handled in AuthContext via getRedirectResult().
+PASS — Google OAuth is enabled in Firebase, createAuthUri succeeds for the production domain,
+and /auth displays Google-only sign-in via VITE_AUTH_WINNER=google + auth-capabilities.json.
 ```

@@ -3,6 +3,7 @@ import {
   OAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  type AuthError,
 } from 'firebase/auth';
 import { backendStatus } from '@/backend/backendConfig';
 import { firebaseAuth } from '@/backend/firebase/firebaseClient';
@@ -10,6 +11,33 @@ import {
   buildFirebaseSessionFromIdToken,
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
+
+function formatAuthError(error: unknown): Error {
+  const authError = error as AuthError;
+  const code = authError?.code ?? '';
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (code === 'auth/unauthorized-domain') {
+    return new Error(
+      'This site domain is not authorized in Firebase. Add vishvakarma-os.vercel.app under Authentication → Settings → Authorized domains.'
+    );
+  }
+  if (code === 'auth/operation-not-allowed') {
+    return new Error(
+      'Google sign-in is not enabled for this Firebase project. Enable Google under Authentication → Sign-in method.'
+    );
+  }
+  if (message.includes('redirect_uri_mismatch')) {
+    return new Error(
+      'Google OAuth redirect URI mismatch. Ensure https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler is registered on the Firebase OAuth web client.'
+    );
+  }
+  if (code === 'auth/popup-closed-by-user') {
+    return new Error('Google sign-in was cancelled. Try again when ready.');
+  }
+
+  return error instanceof Error ? error : new Error(message);
+}
 
 async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) {
   if (!backendStatus.isConfigured) {
@@ -38,7 +66,7 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) 
       await signInWithRedirect(firebaseAuth, provider);
       return null;
     }
-    throw error;
+    throw formatAuthError(error);
   }
 }
 

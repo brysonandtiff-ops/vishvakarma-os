@@ -27,6 +27,7 @@ These are read by Vercel serverless functions only and are **not** bundled into 
 | Variable | Purpose |
 |----------|---------|
 | `VITE_PRICING_PAGE_ENABLED` | Set to `true` to expose `/pricing` and nav links (launch copy ready) |
+| `VITE_AUTH_WINNER` | Optional override: `google`, `email`, or `none` — locks which sign-in method `/auth` displays (Production uses `google`) |
 | `VITE_FIREBASE_STORAGE_BUCKET` | Custom material texture uploads |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase SDK completeness |
 
@@ -47,7 +48,14 @@ Delete these if still present — they are ignored by the current app and can ca
    - Add your production domain (e.g. `vishvakarma-os.vercel.app`)
    - Add `localhost` for local dev
    - Add Vercel preview domain pattern if testing preview deploys
-3. **Firestore Database**
+3. **Google OAuth (required for Continue with Google on production)**
+   - Firebase Console → Authentication → Sign-in method → **Google** → Enable
+   - Or run `pnpm run setup:firebase-auth:full` (applies [`firebase.json`](../../firebase.json) auth block)
+   - [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials?project=gen-lang-client-0690161780) → Web client used by Firebase:
+     - **Authorized JavaScript origins:** `https://vishvakarma-os.vercel.app` (and `http://localhost:5173` for local dev)
+     - **Authorized redirect URIs:** `https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler` (do **not** use bare `https://vishvakarma-os.vercel.app` — Vercel does not host Firebase’s auth handler)
+   - **Browser API key** → HTTP referrers: `https://vishvakarma-os.vercel.app/*` (if referrer restrictions are enabled)
+4. **Firestore Database**
    - Create database (production mode)
    - Deploy rules from this repo (see below)
 
