@@ -6,3 +6,4 @@ export * from '@/domain/rooms/roomType';
 export * from '@/domain/rooms/adjacencyRule';
 export * from '@/domain/schedules/scheduleTypes';
 export * from '@/domain/copilot';
+export * from '@/domain/optimization';

@@ -6,6 +6,7 @@ import { defaultWorkspacePrefs, loadWorkspacePrefs, saveWorkspacePrefs } from '@
 const lockedPaths = [
   '/editor',
   '/projects',
+  '/optimization',
   '/profile',
   '/spec-center',
   '/registry',

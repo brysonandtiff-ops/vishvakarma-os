@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileDown, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,6 +84,8 @@ export default function AIDesignerDialog({
   const [stage, setStage] = useState<PipelineStage | null>(null);
   const [result, setResult] = useState<GeneratedBuilding | null>(null);
   const [tab, setTab] = useState<ResultTab>('concept');
+  const [targetBudget, setTargetBudget] = useState('');
+  const navigate = useNavigate();
 
   const designBrief = session.designBrief;
 
@@ -181,6 +184,28 @@ export default function AIDesignerDialog({
     }
   };
 
+  const handleCompareDesigns = () => {
+    const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
+    const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
+    onOpenChange(false);
+    navigate('/optimization', {
+      state: {
+        batchInput: {
+          prompt: designBrief.trim() || 'Modern family home',
+          targetBudget: targetBudget ? Number(targetBudget) : undefined,
+          parcelOverride,
+          ingestion: mergedIngestion,
+          sessionId: session.id,
+          uploadedDocuments: session.documents.map((d) => ({
+            id: d.id,
+            kind: d.kind,
+            fileName: d.fileName,
+          })),
+        },
+      },
+    });
+  };
+
   const handleExportPermit = async () => {
     if (!result) return;
     setExportingPermit(true);
@@ -271,12 +296,26 @@ export default function AIDesignerDialog({
           )}
 
           {wizardStep === 'review' && ingestion && previewRequest && (
-            <CopilotReviewStep
-              ingestion={ingestion}
-              request={previewRequest}
-              parcelArea={parcelArea}
-              onParcelAreaChange={setParcelArea}
-            />
+            <>
+              <CopilotReviewStep
+                ingestion={ingestion}
+                request={previewRequest}
+                parcelArea={parcelArea}
+                onParcelAreaChange={setParcelArea}
+              />
+              <div className="space-y-2">
+                <Label htmlFor="copilot-budget">Target budget (AUD, optional)</Label>
+                <input
+                  id="copilot-budget"
+                  type="number"
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  value={targetBudget}
+                  onChange={(e) => setTargetBudget(e.target.value)}
+                  placeholder="450000"
+                  disabled={generating}
+                />
+              </div>
+            </>
           )}
 
           {(wizardStep === 'generate' || generating) && stage && (
@@ -323,6 +362,9 @@ export default function AIDesignerDialog({
             <>
               <Button variant="outline" onClick={() => setWizardStep('upload')} disabled={generating}>
                 Back
+              </Button>
+              <Button variant="outline" onClick={handleCompareDesigns} disabled={generating} data-testid="compare-5-designs">
+                Compare 5 designs
               </Button>
               <Button onClick={handleGenerate} disabled={generating}>
                 Generate design

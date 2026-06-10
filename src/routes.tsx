@@ -12,6 +12,7 @@ import ChangeRequestsPage from './pages/ChangeRequestsPage';
 import ReleasesPage from './pages/ReleasesPage';
 import AuditLogPage from './pages/AuditLogPage';
 import WorldRecordsPage from './pages/WorldRecordsPage';
+import OptimizationPage from './pages/OptimizationPage';
 import AuthPage from './pages/AuthPage';
 import NotFoundPage from './pages/NotFound';
 import type { ReactNode } from 'react';
@@ -84,6 +85,13 @@ const routes: RouteConfig[] = [
     name: 'Projects',
     path: '/projects',
     element: <ProjectsPage />,
+    visible: true,
+    access: 'private',
+  },
+  {
+    name: 'Design Optimization',
+    path: '/optimization',
+    element: <OptimizationPage />,
     visible: true,
     access: 'private',
   },

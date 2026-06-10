@@ -21,6 +21,7 @@ import {
   User,
   UserCircle,
   Trophy,
+  Sparkles,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCallback, useEffect, useState, createContext, useContext } from 'react';
@@ -48,6 +49,7 @@ export function useGovernanceNav() {
 const allNav = [
   { name: 'Blueprint Editor', path: '/editor', icon: PenTool, group: 'EDITOR' },
   { name: 'Projects', path: '/projects', icon: FolderOpen, group: 'EDITOR' },
+  { name: 'Design Optimization', path: '/optimization', icon: Sparkles, group: 'EDITOR' },
   { name: 'Profile', path: '/profile', icon: User, group: 'EDITOR' },
   { name: 'Spec Center',      path: '/spec-center',      icon: FileText,       group: 'GOVERNANCE' },
   { name: 'Registry',         path: '/registry',         icon: Database,       group: 'GOVERNANCE' },

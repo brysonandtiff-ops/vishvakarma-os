@@ -6,6 +6,7 @@ import type {
 } from '@/domain/buildings/generatedBuilding';
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
+import type { OptimizationManifestMetadata } from '@/domain/optimization/types';
 import { createProjectManifest } from '@/core/projectModel';
 import { validateManifest } from '@/core/manifestSchema';
 import type { Label, ProjectManifest, Room } from '@/types';
@@ -28,6 +29,7 @@ export function buildManifestFromFloorPlan(
     schedules: BuildingSchedules;
     architectureMap: ArchitectureMapGraph;
     copilot?: CopilotManifestMetadata;
+    optimization?: OptimizationManifestMetadata;
   },
 ): ProjectManifest {
   const labels: Label[] = floorPlan.rooms.map((room) => ({
@@ -70,6 +72,9 @@ export function buildManifestFromFloorPlan(
       ...manifest.metadata,
       aiDesigner: meta as unknown as Record<string, unknown>,
       ...(meta.copilot ? { copilot: meta.copilot as unknown as Record<string, unknown> } : {}),
+      ...(meta.optimization
+        ? { optimization: meta.optimization as unknown as Record<string, unknown> }
+        : {}),
     },
   };
 

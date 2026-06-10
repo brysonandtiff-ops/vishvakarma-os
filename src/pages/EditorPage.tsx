@@ -479,14 +479,6 @@ function EditorWorkspace() {
     toast.success(`Loaded: ${project.name}`);
   }, [applyManifest]);
 
-  useEffect(() => {
-    const pending = (location.state as { loadProject?: Project } | null)?.loadProject;
-    if (pending) {
-      handleLoadProject(pending);
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, handleLoadProject]);
-
   const handleProjectCreated = (project: Project) => {
     void loadProjects();
     handleLoadProject(project);
@@ -514,6 +506,21 @@ function EditorWorkspace() {
     },
     [applyManifest],
   );
+
+  useEffect(() => {
+    const state = location.state as {
+      loadProject?: Project;
+      loadManifest?: ProjectManifest;
+      projectName?: string;
+    } | null;
+    if (state?.loadProject) {
+      handleLoadProject(state.loadProject);
+      window.history.replaceState({}, document.title);
+    } else if (state?.loadManifest) {
+      handleAIDesignerOpenInEditor(state.loadManifest, state.projectName ?? state.loadManifest.name);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor]);
 
   const handleAIDesignerSaveProject = useCallback(
     async (manifest: ProjectManifest, name: string) => {

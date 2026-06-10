@@ -65,6 +65,7 @@ export default defineConfig({
         '**/marketing-pages.spec.ts',
         '**/workspace-navigation.spec.ts',
         '**/projects-profile.spec.ts',
+        '**/optimization.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'], hasTouch: true },
       webServer: {

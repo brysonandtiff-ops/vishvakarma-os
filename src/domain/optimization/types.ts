@@ -1,0 +1,128 @@
+import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
+import type { Parcel } from '@/domain/parcels/parcel';
+import type { CopilotIngestionResult } from '@/domain/copilot/copilotSession';
+import type { RoomType } from '@/domain/rooms/roomType';
+
+export type OptimizationObjective =
+  | 'family_focused'
+  | 'budget_optimized'
+  | 'energy_optimized'
+  | 'premium_lifestyle'
+  | 'resale_value';
+
+export type OptimizationScoreCategory =
+  | 'compliance'
+  | 'construction_cost'
+  | 'natural_light'
+  | 'energy'
+  | 'circulation'
+  | 'privacy'
+  | 'resale'
+  | 'buildability'
+  | 'overall';
+
+export interface OptimizationExplanation {
+  summary: string;
+  metrics: Record<string, number>;
+  deltas?: Record<string, number>;
+}
+
+export interface OptimizationScore {
+  category: OptimizationScoreCategory;
+  score: number;
+  weight: number;
+  explanation: OptimizationExplanation;
+}
+
+export interface OptimizationStrategy {
+  id: string;
+  objective: OptimizationObjective;
+  label: string;
+  layoutSeed: number;
+  roomSizeBias: Partial<Record<RoomType, number>>;
+  roomPriority: Partial<Record<RoomType, number>>;
+  adjacencyMultipliers: Array<{ roomA: RoomType; roomB: RoomType; multiplier: number }>;
+  injectExtras?: string[];
+  dropOptionalExtras?: boolean;
+  compactFootprint?: boolean;
+  northernLivingBias?: boolean;
+  wetAreaStacking?: boolean;
+}
+
+export interface OptimizationCandidate {
+  id: string;
+  label: string;
+  objective: OptimizationObjective;
+  building: GeneratedBuilding;
+  scores: OptimizationScore[];
+  overallScore: number;
+  rank: number;
+}
+
+export interface SiteFitnessSubScore {
+  key: string;
+  label: string;
+  score: number;
+  explanation: OptimizationExplanation;
+}
+
+export interface SiteFitnessScore {
+  overall: number;
+  solarOrientation: number;
+  slopeSuitability: number;
+  accessEfficiency: number;
+  setbackUtilization: number;
+  openSpaceQuality: number;
+  explanations: SiteFitnessSubScore[];
+}
+
+export interface OptimizationBatchInput {
+  prompt: string;
+  targetBudget?: number;
+  lifestyleGoals?: string[];
+  parcelOverride?: Partial<Parcel>;
+  ingestion?: CopilotIngestionResult;
+  sessionId?: string;
+  uploadedDocuments?: Array<{ id: string; kind: string; fileName: string }>;
+}
+
+export type TradeoffDirection = 'improves' | 'worsens' | 'unchanged';
+
+export interface TradeoffItem {
+  dimension: string;
+  direction: TradeoffDirection;
+  detail: string;
+}
+
+export interface OptimizationReport {
+  winnerId: string;
+  runnerUpId: string;
+  winnerLabel: string;
+  runnerUpLabel: string;
+  tradeoffs: TradeoffItem[];
+  riskAreas: string[];
+  estimatedCost: number;
+  complianceConfidence: number;
+  permitReady: boolean;
+  generatedAt: string;
+}
+
+export interface OptimizationBatch {
+  id: string;
+  input: OptimizationBatchInput;
+  siteFitness: SiteFitnessScore;
+  candidates: OptimizationCandidate[];
+  winnerId: string;
+  runnerUpId: string;
+  report: OptimizationReport;
+  createdAt: string;
+}
+
+export interface OptimizationManifestMetadata {
+  batchId: string;
+  candidateId: string;
+  objective: OptimizationObjective;
+  overallScore: number;
+  rank: number;
+  generatedAt: string;
+}

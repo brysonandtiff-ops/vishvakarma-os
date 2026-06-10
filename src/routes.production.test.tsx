@@ -12,6 +12,7 @@ const expectedRoutePaths = [
   '/404',
   '/editor',
   '/projects',
+  '/optimization',
   '/profile',
   '/spec-center',
   '/registry',
@@ -33,6 +34,7 @@ const expectedPublicRoutePaths = [
 const expectedPrivateRoutePaths = [
   '/editor',
   '/projects',
+  '/optimization',
   '/profile',
   '/spec-center',
   '/registry',

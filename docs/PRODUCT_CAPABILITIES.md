@@ -170,6 +170,23 @@ Spec: [`docs/specs/ARCHITECTURE_COPILOT_v2.md`](specs/ARCHITECTURE_COPILOT_v2.md
 
 ---
 
+## 7. Design Optimization Engine (Phase 3)
+
+Multi-candidate design optimization and decision engine:
+
+- **Generate**: 5 strategy-driven candidates (Family Focused, Budget Optimized, Energy Optimized, Premium Lifestyle, Maximum Resale Value)
+- **Score**: 8 explainable categories (0–100) plus weighted overall score — compliance, cost, natural light, energy, circulation, privacy, resale, buildability
+- **Site fitness**: solar orientation, slope, setbacks, open-space quality
+- **Budget intelligence**: iterative cost reduction when target budget is set
+- **Battle view**: `/optimization` — card comparison, score breakdown, tradeoffs, favorites
+- **Export**: optimization report PDF with winner, runner-up, and risk areas
+
+Entry: Sidebar → **Design Optimization** · Copilot review step → **Compare 5 designs**
+
+Spec: [`docs/specs/DESIGN_OPTIMIZATION_ENGINE.md`](specs/DESIGN_OPTIMIZATION_ENGINE.md)
+
+---
+
 ## Related docs
 
 - [README.md](../README.md) — build state and routes

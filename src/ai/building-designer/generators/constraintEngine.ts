@@ -1,4 +1,5 @@
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
+import type { OptimizationStrategy } from '@/domain/optimization/types';
 import { MIN_ROOM_SIZE_M, type RoomType } from '@/domain/rooms/roomType';
 import { buildableFootprintM } from '@/services/zoning/zoningRules';
 
@@ -16,7 +17,7 @@ export interface ConstraintResult {
   footprintDepthM: number;
 }
 
-export function buildRoomSpecs(request: BuildingRequest): RoomSpec[] {
+export function buildRoomSpecs(request: BuildingRequest, strategy?: OptimizationStrategy): RoomSpec[] {
   const specs: RoomSpec[] = [];
   let bedroomCount = 0;
   let bathroomCount = 0;
@@ -71,21 +72,44 @@ export function buildRoomSpecs(request: BuildingRequest): RoomSpec[] {
     }
   }
 
-  if (request.extras?.some((e) => /study|office/i.test(e))) {
+  const extras = [...(request.extras ?? [])];
+  if (strategy?.injectExtras) {
+    for (const extra of strategy.injectExtras) {
+      if (!extras.some((e) => e.toLowerCase().includes(extra.toLowerCase()))) {
+        extras.push(extra);
+      }
+    }
+  }
+
+  if (!strategy?.dropOptionalExtras && extras.some((e) => /study|office/i.test(e))) {
     add('Study', 'Study');
+  } else if (strategy?.injectExtras?.some((e) => /study|office/i.test(e))) {
+    add('Study', 'Study');
+  }
+
+  if (strategy?.roomSizeBias) {
+    for (const room of specs) {
+      const bias = strategy.roomSizeBias[room.type];
+      if (bias) {
+        room.widthM = Math.max(2, room.widthM * bias);
+        room.depthM = Math.max(2, room.depthM * bias);
+      }
+    }
   }
 
   return specs;
 }
 
-export function applyConstraints(request: BuildingRequest): ConstraintResult {
-  const rooms = buildRoomSpecs(request);
+export function applyConstraints(request: BuildingRequest, strategy?: OptimizationStrategy): ConstraintResult {
+  const rooms = buildRoomSpecs(request, strategy);
   const { width, depth } = buildableFootprintM(request.parcel.width, request.parcel.depth);
   const totalArea = rooms.reduce((sum, r) => sum + r.widthM * r.depthM, 0);
   const footprintArea = width * depth;
+  const areaThreshold = strategy?.compactFootprint ? 1.05 : 1.15;
+  const targetFill = strategy?.compactFootprint ? 0.88 : 0.95;
 
-  if (totalArea > footprintArea * 1.15) {
-    const scale = Math.sqrt((footprintArea * 0.95) / totalArea);
+  if (totalArea > footprintArea * areaThreshold) {
+    const scale = Math.sqrt((footprintArea * targetFill) / totalArea);
     for (const room of rooms) {
       room.widthM = Math.max(2, room.widthM * scale);
       room.depthM = Math.max(2, room.depthM * scale);

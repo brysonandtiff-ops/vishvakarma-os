@@ -75,6 +75,31 @@ interface CopilotManifestMetadata {
 - Editor menu → **Architecture Copilot**
 - New Project dialog → **Start with Architecture Copilot**
 - 4-step wizard: Upload → Review → Generate → Deliverables
+- Review step → **Compare 5 designs** (navigates to `/optimization` without replacing single-design flow)
+
+## Optimization extension (Phase 3)
+
+Architecture Copilot remains the single-design path. The **Design Optimization Engine** is an additive layer:
+
+- Generates 5 candidates via strategy profiles forked at `applyConstraints` / `solveLayout`
+- Scores and ranks candidates with explainable metrics
+- Stores `manifest.metadata.optimization` alongside `metadata.copilot`
+- Does not change `runBuildingDesignerPipeline()` contract or permit export gate
+
+See [`DESIGN_OPTIMIZATION_ENGINE.md`](DESIGN_OPTIMIZATION_ENGINE.md).
+
+### Optimization manifest metadata
+
+```typescript
+interface OptimizationManifestMetadata {
+  batchId: string;
+  candidateId: string;
+  objective: OptimizationObjective;
+  overallScore: number;
+  rank: number;
+  generatedAt: string;
+}
+```
 
 ## Related modules
 
@@ -83,6 +108,8 @@ interface CopilotManifestMetadata {
 - `src/modules/compliance/complianceModule.ts`
 - `src/modules/permit/permitPackageExport.ts`
 - `src/components/editor/ai-designer/AIDesignerDialog.tsx`
+- `src/services/optimization/optimizationOrchestrator.ts`
+- `src/pages/OptimizationPage.tsx`
 
 ## Registry
 
@@ -90,6 +117,7 @@ interface CopilotManifestMetadata {
 |----|------|------|
 | `feature-architecture-copilot` | feature | Architecture Copilot |
 | `feature-permit-package-export` | feature | Permit Package Export |
+| `feature-design-optimization` | feature | Design Optimization Engine |
 
 ## Stop-ship conditions
 

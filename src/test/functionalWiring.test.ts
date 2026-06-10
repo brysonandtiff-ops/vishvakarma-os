@@ -21,6 +21,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/404',
       '/editor',
       '/projects',
+      '/optimization',
       '/profile',
       '/spec-center',
       '/registry',
