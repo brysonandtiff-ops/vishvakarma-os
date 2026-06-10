@@ -70,6 +70,8 @@ export function RouteGuard({ children }: RouteGuardProps) {
       <div className="vish-boot-stage vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-6">
         <SanskritRainBackground preset="boot" className="pointer-events-none absolute inset-0" />
 
+        <div className="vish-boot-aurora pointer-events-none absolute inset-0" aria-hidden="true" />
+
         <div className="vish-boot-yantra pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="vish-boot-scanline pointer-events-none absolute inset-x-0 top-0 h-px" aria-hidden="true" />
 

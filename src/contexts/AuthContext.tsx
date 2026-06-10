@@ -12,7 +12,7 @@ import { firebaseAuth } from '@/backend/firebase/firebaseClient';
 import { signInWithAppleFirebase, signInWithGoogleFirebase } from '@/backend/firebase/firebaseOAuthGateway';
 import { ensureFirestoreProfile, getFirestoreProfile } from '@/backend/firebase/firestoreProfileGateway';
 import type { Profile } from '@/types';
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
 
 type FirebaseAuthUser = {
   id: string;
@@ -188,6 +188,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', error);
         });
     }
+
+    void getRedirectResult(firebaseAuth)
+      .then(async (credential) => {
+        if (!mounted || !credential?.user) {
+          return;
+        }
+
+        try {
+          const nextSession = await syncSessionFromFirebaseUser(
+            credential.user.uid,
+            credential.user.email ?? '',
+            true
+          );
+          const nextUser = firebaseUserFromSession(nextSession);
+
+          setSession(nextSession);
+          setUser(nextUser);
+          setEmailLinkState('idle');
+          setEmailLinkError(null);
+          await loadProfile(nextUser);
+        } catch (error) {
+          console.error('[Vishvakarma.OS] Firebase OAuth redirect sign-in failed:', error);
+        } finally {
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', error);
+        setLoading(false);
+      });
 
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (!mounted) return;

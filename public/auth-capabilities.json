@@ -1,0 +1,17 @@
+{
+  "testedAt": "2026-06-10T10:14:01.924Z",
+  "commitSha": "6515c124847eadd81743ea246da30705d418fa48",
+  "deploymentUrl": "https://vishvakarma-os.vercel.app",
+  "emailLink": {
+    "config": true,
+    "liveSend": false,
+    "liveSendNote": "QUOTA_EXCEEDED — Spark daily email sign-in quota exhausted; API config verified"
+  },
+  "google": {
+    "config": true,
+    "liveSignIn": true,
+    "liveSignInNote": "Google IdP enabled in Firebase; popup sign-in verified on production deploy"
+  },
+  "winner": "google",
+  "winnerRationale": "Email magic link is blocked by daily quota or failed live send; Google OAuth is the verified live sign-in path."
+}

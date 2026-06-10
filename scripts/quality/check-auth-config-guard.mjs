@@ -25,6 +25,7 @@ const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendCo
 
 const authRequired = [
   'onAuthStateChanged',
+  'getRedirectResult',
   'requestFirebaseAccessLink',
   'completeFirebaseEmailLinkSignIn',
   'completeEmailLinkSignIn',

@@ -51,6 +51,42 @@
   z-index: 0;
 }
 
+.vish-auth-aurora,
+.vish-boot-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 22% 38%, hsl(43 90% 62% / 0.22), transparent 42%),
+    radial-gradient(ellipse at 78% 28%, hsl(39 80% 54% / 0.16), transparent 38%),
+    radial-gradient(ellipse at 50% 82%, hsl(15 88% 44% / 0.12), transparent 44%);
+  animation: vish-auth-aurora-drift 18s ease-in-out infinite;
+}
+
+.vish-auth-aurora {
+  opacity: 0.45;
+}
+
+.vish-boot-aurora {
+  opacity: 0.28;
+}
+
+@keyframes vish-auth-aurora-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  33% {
+    transform: translate3d(1.5%, -1%, 0) scale(1.03);
+    opacity: 1;
+  }
+  66% {
+    transform: translate3d(-1%, 1.5%, 0) scale(0.98);
+    opacity: 0.75;
+  }
+}
+
 .vish-mandala-aura {
   display: grid;
   place-items: center;
@@ -401,6 +437,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vish-auth-aurora,
+  .vish-boot-aurora,
   .vish-mandala-ring-outer,
   .vish-mandala-ring-mid,
   .vish-mandala-ring-inner,

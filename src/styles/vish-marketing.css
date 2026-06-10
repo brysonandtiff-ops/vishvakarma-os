@@ -3,6 +3,13 @@
   min-height: 100vh;
 }
 
+.vish-sanskrit-rain-canvas--marketing {
+  opacity: 0.52;
+  mix-blend-mode: screen;
+  filter: saturate(1.1);
+  z-index: 0;
+}
+
 .vish-marketing-hero-title {
   font-size: clamp(2.25rem, 5vw, 3.75rem);
   font-weight: 800;

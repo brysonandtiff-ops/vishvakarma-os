@@ -5,6 +5,7 @@ import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateMa
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
@@ -15,6 +16,18 @@ function getReturnPath(state: unknown) {
   }
 
   return '/editor';
+}
+
+function getSignInHeadline(winner: 'email' | 'google' | 'none') {
+  if (winner === 'google') {
+    return 'Sign in with Google';
+  }
+
+  if (winner === 'email') {
+    return 'Sign in with a secure email link';
+  }
+
+  return 'Sign-in temporarily unavailable';
 }
 
 export default function AuthPage() {
@@ -29,6 +42,7 @@ export default function AuthPage() {
     completeEmailLinkSignIn,
     signInWithGoogle,
   } = useAuth();
+  const { loading: capabilitiesLoading, winner } = useAuthCapabilities();
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -45,6 +59,10 @@ export default function AuthPage() {
     location.state !== null &&
     'message' in location.state &&
     (location.state as { message: unknown }).message === 'password-reset-unavailable';
+  const showEmailSignIn = !capabilitiesLoading && winner === 'email';
+  const showGoogleSignIn = !capabilitiesLoading && winner === 'google';
+  const showSignInUnavailable = !capabilitiesLoading && winner === 'none';
+  const signInHeadline = getSignInHeadline(winner);
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -117,6 +135,8 @@ export default function AuthPage() {
     <main className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
       <SanskritRainBackground preset="auth" className="pointer-events-none absolute inset-0" />
 
+      <div className="vish-auth-aurora pointer-events-none absolute inset-0" aria-hidden="true" />
+
       <div className="vish-yantra-grid pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div className="vish-mandala-aura pointer-events-none absolute inset-0" aria-hidden="true">
@@ -139,7 +159,7 @@ export default function AuthPage() {
             </div>
             <h1 className="vish-wordmark text-lg font-bold tracking-[0.28em] text-primary">VISHVAKARMA.OS</h1>
             <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
-            <p className="mt-3 text-sm text-muted-foreground">Sign in with a secure email link</p>
+            <p className="mt-3 text-sm text-muted-foreground">{signInHeadline}</p>
             <p className="mt-1 text-[10px] text-muted-foreground">
               Firebase Cloud Save
               {isConfigured ? ' · Protected Workspace' : ' · Local Draft mode until configured'}
@@ -172,13 +192,26 @@ export default function AuthPage() {
             </div>
           )}
 
-          {completingEmailLink && (
+          {showSignInUnavailable && isConfigured && !showConfigRequired && (
+            <div className="mb-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+              <div>
+                <p className="font-semibold text-destructive">Sign-in unavailable</p>
+                <p className="text-muted-foreground">
+                  No verified sign-in method is available. See{' '}
+                  <code className="rounded bg-muted px-1 text-xs">docs/release/evidence/auth-sign-in-proof.md</code>.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {completingEmailLink && showEmailSignIn && (
             <p role="status" className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
               Completing secure sign-in…
             </p>
           )}
 
-          {needsEmailForLink && (
+          {needsEmailForLink && showEmailSignIn && (
             <div className="mb-4 flex gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div>
@@ -197,93 +230,106 @@ export default function AuthPage() {
             </p>
           )}
 
-          <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="space-y-4">
-            <label className="block space-y-1.5">
-              <span className="vish-bilingual-label">
-                Email <span>- ई-पत्र</span>
-              </span>
-              <input
-                type="email"
-                autoComplete="email"
-                placeholder="architect@firm.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                disabled={!isConfigured || submitting || showConfigRequired}
-                className="vish-mockup-input"
-              />
-            </label>
+          {showEmailSignIn && (
+            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="space-y-4">
+              <label className="block space-y-1.5">
+                <span className="vish-bilingual-label">
+                  Email <span>- ई-पत्र</span>
+                </span>
+                <input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="architect@firm.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  disabled={!isConfigured || submitting || showConfigRequired}
+                  className="vish-mockup-input"
+                />
+              </label>
 
-            <p className="text-[10px] leading-relaxed text-muted-foreground">
-              No password required — we email you a one-time secure link to open the protected workspace.
-            </p>
-
-            {passwordResetNotice && (
-              <p role="status" className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
-                Password reset is not available — request a new secure access link below instead.
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                No password required — we email you a one-time secure link to open the protected workspace.
               </p>
-            )}
 
-            {message && (
-              <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
-                {message}
-              </p>
-            )}
+              {passwordResetNotice && (
+                <p role="status" className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
+                  Password reset is not available — request a new secure access link below instead.
+                </p>
+              )}
 
-            <button
-              type="submit"
-              className="vish-gold-button"
-              disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
-            >
-              {needsEmailForLink
-                ? submitting
-                  ? 'Completing sign-in…'
-                  : 'Complete sign-in'
-                : submitting
-                  ? 'Sending access link…'
-                  : 'Send secure access link'}
-            </button>
+              {message && (
+                <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
+                  {message}
+                </p>
+              )}
 
-            <p className="text-center text-[11px] text-muted-foreground">
               <button
-                type="button"
-                className="text-primary hover:underline"
-                onClick={() =>
-                  toast.message('New account', {
-                    description: 'Enter your email above — the same secure link creates your account on first sign-in.',
-                  })
-                }
+                type="submit"
+                className="vish-gold-button"
+                disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
               >
-                New here? Use your email above
+                {needsEmailForLink
+                  ? submitting
+                    ? 'Completing sign-in…'
+                    : 'Complete sign-in'
+                  : submitting
+                    ? 'Sending access link…'
+                    : 'Send secure access link'}
               </button>
-              {' · '}
-              <button type="button" className="text-primary hover:underline" onClick={() => navigate('/reset-password')}>
-                Access help
-              </button>
-            </p>
 
-            {allowLocalWorkspace && (
+              <p className="text-center text-[11px] text-muted-foreground">
+                <button
+                  type="button"
+                  className="text-primary hover:underline"
+                  onClick={() =>
+                    toast.message('New account', {
+                      description: 'Enter your email above — the same secure link creates your account on first sign-in.',
+                    })
+                  }
+                >
+                  New here? Use your email above
+                </button>
+              </p>
+
+              {allowLocalWorkspace && (
+                <button
+                  type="button"
+                  className="vish-oauth-button"
+                  onClick={() => navigate('/editor')}
+                >
+                  Enter local workspace · स्थानीय कार्यस्थान
+                </button>
+              )}
+            </form>
+          )}
+
+          {showGoogleSignIn && (
+            <div className="space-y-4">
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                Use your Google account to open the protected workspace. This is the verified sign-in method for
+                production.
+              </p>
+
               <button
                 type="button"
                 className="vish-oauth-button"
-                onClick={() => navigate('/editor')}
+                disabled={submitting || !isConfigured || showConfigRequired}
+                onClick={() => void handleGoogleSignIn()}
               >
-                Enter local workspace · स्थानीय कार्यस्थान
+                Continue with Google
               </button>
-            )}
-          </form>
 
-          <p className="my-4 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Or
-          </p>
-
-          <button
-            type="button"
-            className="vish-oauth-button"
-            disabled={submitting || !isConfigured}
-            onClick={() => void handleGoogleSignIn()}
-          >
-            Continue with Google
-          </button>
+              {allowLocalWorkspace && (
+                <button
+                  type="button"
+                  className="vish-oauth-button"
+                  onClick={() => navigate('/editor')}
+                >
+                  Enter local workspace · स्थानीय कार्यस्थान
+                </button>
+              )}
+            </div>
+          )}
 
           <button
             type="button"

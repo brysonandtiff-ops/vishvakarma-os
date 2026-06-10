@@ -27,13 +27,33 @@ describe('Sanskrit auth gate design', () => {
     expect(rainBackground).toContain('BOOT_MANTRAS');
     expect(rainBackground).toContain('prefers-reduced-motion');
     expect(rainBackground).toContain('MantraStream');
+    expect(rainBackground).toContain('EmberParticle');
+    expect(rainBackground).toContain('visibilitychange');
     expect(rainBackground).toContain('fadeTrail');
+    expect(authPage).toContain('vish-auth-aurora');
     expect(authPage).toContain('vish-mandala-aura');
     expect(authPage).toContain('vish-mandala-ring-outer');
     expect(authPage).toContain('vish-auth-card-mockup');
   });
 
-  it('keeps mockup auth card copy and magic-link flow intact', () => {
+  it('shows only the verified auth winner from capabilities manifest', () => {
+    const authPage = read('src/pages/AuthPage.tsx');
+    const capabilities = read('src/backend/authCapabilities.ts');
+    const manifest = read('public/auth-capabilities.json');
+
+    expect(authPage).toContain('useAuthCapabilities');
+    expect(authPage).toContain('showEmailSignIn');
+    expect(authPage).toContain('showGoogleSignIn');
+    expect(authPage).toContain('Continue with Google');
+    expect(authPage).toContain('Send secure access link');
+    expect(authPage).not.toContain('Continue with Apple');
+    expect(authPage).not.toContain('signInWithApple');
+    expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
+    expect(manifest).toContain('"winner"');
+    expect(authPage).not.toContain('type="password"');
+  });
+
+  it('keeps trust pillars and workspace branding on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
 
     expect(authPage).toContain('OFFICIAL_LOGO_SRC');
@@ -41,21 +61,15 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('vish-access-logo');
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
-    expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Send secure access link');
-    expect(authPage).toContain('Continue with Google');
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system');
-    expect(authPage).not.toContain('type="password"');
   });
 
-  it('enables OAuth providers when backend is configured', () => {
-    const authPage = read('src/pages/AuthPage.tsx');
+  it('handles OAuth redirect completion in AuthContext', () => {
+    const authContext = read('src/contexts/AuthContext.tsx');
 
-    expect(authPage).toContain('Continue with Google');
-    expect(authPage).not.toContain('Continue with Apple');
-    expect(authPage).toContain('signInWithGoogle');
-    expect(authPage).not.toContain('signInWithApple');
+    expect(authContext).toContain('getRedirectResult');
+    expect(authContext).toContain('signInWithGoogle');
   });
 
   it('keeps the premium workspace shell treatment after login', () => {
@@ -88,5 +102,8 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('animation: none !important');
     expect(routeGuard).toContain('SanskritRainBackground');
     expect(routeGuard).toContain('preset="boot"');
+    expect(routeGuard).toContain('vish-boot-aurora');
+    expect(styles).toContain('.vish-auth-aurora');
+    expect(styles).toContain('@keyframes vish-auth-aurora-drift');
   });
 });

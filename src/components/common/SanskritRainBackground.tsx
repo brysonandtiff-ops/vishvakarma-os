@@ -37,6 +37,8 @@ const BASE_GLYPHS = [
   '॥',
 ] as const;
 
+const DEPTH_VALUES = [0.6, 1, 1.6] as const;
+
 function extractGlyphsFromMantras(mantras: readonly string[]): string[] {
   const chars = new Set<string>();
   for (const mantra of mantras) {
@@ -56,7 +58,6 @@ export const GLYPHS = [
 ];
 
 const FONT_FAMILY = "'Noto Sans Devanagari', 'IBM Plex Mono', serif";
-const TRAIL_BG = '11, 15, 10';
 
 type ColorTier = 'gold' | 'ember' | 'bright';
 
@@ -78,6 +79,7 @@ type GlyphDrop = {
   phase: number;
   rotation: number;
   tier: ColorTier;
+  depth: number;
 };
 
 type MantraStream = {
@@ -88,9 +90,20 @@ type MantraStream = {
   charSpacing: number;
   fontSize: number;
   baseOpacity: number;
+  laneIndex: number;
 };
 
-type Preset = 'auth' | 'boot';
+type EmberParticle = {
+  x: number;
+  y: number;
+  speed: number;
+  size: number;
+  opacity: number;
+  phase: number;
+  driftAmp: number;
+};
+
+export type Preset = 'auth' | 'boot' | 'marketing';
 
 type Props = {
   density?: number;
@@ -111,15 +124,21 @@ const PRESET_DEFAULTS: Record<
     trailFade: number;
     speedMin: number;
     speedMax: number;
+    trailBg: string;
+    vignetteCenter: number;
+    emberCount: number;
   }
 > = {
   auth: {
     density: 120,
     opacity: 0.12,
-    streamCount: 8,
-    trailFade: 0.14,
+    streamCount: 9,
+    trailFade: 0.12,
     speedMin: 0.3,
     speedMax: 1.4,
+    trailBg: '11, 15, 10',
+    vignetteCenter: 0.48,
+    emberCount: 12,
   },
   boot: {
     density: 90,
@@ -128,6 +147,20 @@ const PRESET_DEFAULTS: Record<
     trailFade: 0.12,
     speedMin: 0.25,
     speedMax: 1.1,
+    trailBg: '11, 15, 10',
+    vignetteCenter: 0.52,
+    emberCount: 8,
+  },
+  marketing: {
+    density: 70,
+    opacity: 0.09,
+    streamCount: 5,
+    trailFade: 0.1,
+    speedMin: 0.25,
+    speedMax: 1.0,
+    trailBg: '6, 6, 6',
+    vignetteCenter: 0.62,
+    emberCount: 6,
   },
 };
 
@@ -152,6 +185,10 @@ function pickTier(): ColorTier {
   return 'gold';
 }
 
+function pickDepth(): number {
+  return DEPTH_VALUES[Math.floor(Math.random() * DEPTH_VALUES.length)];
+}
+
 function streamOpacityEnvelope(charY: number, height: number): number {
   const topFade = Math.min(1, (charY + 40) / (height * 0.12));
   const bottomFade = Math.min(1, (height - charY) / (height * 0.15));
@@ -174,12 +211,17 @@ export default function SanskritRainBackground({
   const speedMax = speedMaxProp ?? presetDefaults?.speedMax ?? 1.4;
   const trailFade = presetDefaults?.trailFade ?? 0.14;
   const streamCount = presetDefaults?.streamCount ?? 6;
+  const trailBg = presetDefaults?.trailBg ?? '11, 15, 10';
+  const vignetteCenter = presetDefaults?.vignetteCenter ?? 0.55;
+  const emberCount = presetDefaults?.emberCount ?? 8;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dropsRef = useRef<GlyphDrop[]>([]);
   const streamsRef = useRef<MantraStream[]>([]);
+  const embersRef = useRef<EmberParticle[]>([]);
   const rafRef = useRef<number | null>(null);
   const reducedMotionRef = useRef(false);
+  const visibleRef = useRef(true);
 
   const glyphPool = useMemo(() => GLYPHS, []);
   const mantraPool = useMemo(
@@ -211,52 +253,80 @@ export default function SanskritRainBackground({
 
     const createDrop = (w: number, h: number): GlyphDrop => {
       const baseX = Math.random() * w;
+      const depth = pickDepth();
+      const baseSpeed = speedMin + Math.random() * (speedMax - speedMin);
       return {
         x: baseX,
         y: Math.random() * h,
         baseX,
-        speed: speedMin + Math.random() * (speedMax - speedMin),
+        speed: baseSpeed * depth,
         char: randGlyph(),
-        opacity: Math.random() * opacity,
-        size: 14 + Math.random() * 18,
+        opacity: Math.random() * opacity * (0.5 + depth * 0.35),
+        size: (14 + Math.random() * 18) * depth,
         driftAmp: 0.5 + Math.random() * 2,
         phase: Math.random() * Math.PI * 2,
         rotation: (Math.random() - 0.5) * 0.3,
         tier: pickTier(),
+        depth,
       };
     };
 
     const resetDrop = (d: GlyphDrop, w: number) => {
+      const depth = pickDepth();
       d.baseX = Math.random() * w;
       d.x = d.baseX;
       d.y = -20;
-      d.speed = speedMin + Math.random() * (speedMax - speedMin);
+      d.depth = depth;
+      d.speed = (speedMin + Math.random() * (speedMax - speedMin)) * depth;
       d.char = randGlyph();
-      d.opacity = Math.random() * opacity;
+      d.opacity = Math.random() * opacity * (0.5 + depth * 0.35);
+      d.size = (14 + Math.random() * 18) * depth;
       d.tier = pickTier();
     };
 
     const createStreams = (w: number, h: number, count: number): MantraStream[] => {
       const isBoot = preset === 'boot';
+      const isMarketing = preset === 'marketing';
+      const laneSpread = isBoot ? 15 : isMarketing ? 18 : 12.5;
+      const laneStart = isBoot ? 8 : isMarketing ? 6 : 5;
+
       return Array.from({ length: count }, (_, index) => {
-        const lanePct = isBoot ? 8 + index * 15 : 5 + index * 12.5;
+        const lanePct = laneStart + index * laneSpread;
         const mantra = mantraPool[index % mantraPool.length];
         const chars = [...mantra].filter((c) => c.trim());
-        const charSpacing = isBoot ? 18 : 20;
+        const charSpacing = isBoot ? 18 : isMarketing ? 19 : 20;
         return {
           x: (lanePct / 100) * w,
           y: -chars.length * charSpacing - Math.random() * h * 0.4,
-          speed: 0.35 + Math.random() * (isBoot ? 0.25 : 0.35),
+          speed: 0.35 + Math.random() * (isBoot ? 0.25 : isMarketing ? 0.2 : 0.35),
           chars,
           charSpacing,
-          fontSize: isBoot ? 11.5 : 13,
-          baseOpacity: isBoot ? 0.38 : 0.52,
+          fontSize: isBoot ? 11.5 : isMarketing ? 12 : 13,
+          baseOpacity: isBoot ? 0.38 : isMarketing ? 0.42 : 0.52,
+          laneIndex: index,
         };
       });
     };
 
     const resetStream = (s: MantraStream, h: number) => {
       s.y = -s.chars.length * s.charSpacing - Math.random() * h * 0.3;
+    };
+
+    const createEmber = (w: number, h: number): EmberParticle => ({
+      x: Math.random() * w,
+      y: h + Math.random() * 40,
+      speed: 0.15 + Math.random() * 0.35,
+      size: 2 + Math.random() * 4,
+      opacity: 0.2 + Math.random() * 0.35,
+      phase: Math.random() * Math.PI * 2,
+      driftAmp: 0.3 + Math.random() * 1.2,
+    });
+
+    const resetEmber = (e: EmberParticle, w: number, h: number) => {
+      e.x = Math.random() * w;
+      e.y = h + Math.random() * 30;
+      e.speed = 0.15 + Math.random() * 0.35;
+      e.opacity = 0.2 + Math.random() * 0.35;
     };
 
     const resize = () => {
@@ -281,10 +351,19 @@ export default function SanskritRainBackground({
           ? Math.max(2, streamCount - 2)
           : streamCount;
 
+      const effectiveEmberCount = reducedMotionRef.current
+        ? 0
+        : mobileQuery.matches
+          ? Math.max(3, Math.round(emberCount * 0.6))
+          : emberCount;
+
       dropsRef.current = Array.from({ length: effectiveDensity }, () =>
         createDrop(displayWidth, displayHeight)
       );
       streamsRef.current = createStreams(displayWidth, displayHeight, effectiveStreamCount);
+      embersRef.current = Array.from({ length: effectiveEmberCount }, () =>
+        createEmber(displayWidth, displayHeight)
+      );
 
       if (reducedMotionRef.current) {
         draw();
@@ -315,7 +394,10 @@ export default function SanskritRainBackground({
     const drawStreams = () => {
       const isBoot = preset === 'boot';
 
-      for (const stream of streamsRef.current) {
+      streamsRef.current.forEach((stream) => {
+        const shimmerX = Math.sin(time * 0.0008 + stream.laneIndex) * 6;
+        const drawX = stream.x + shimmerX;
+
         stream.chars.forEach((char, index) => {
           const charY = stream.y + index * stream.charSpacing;
           if (charY < -stream.charSpacing || charY > displayHeight + stream.charSpacing) {
@@ -331,9 +413,35 @@ export default function SanskritRainBackground({
           ctx.font = `${stream.fontSize}px ${FONT_FAMILY}`;
           ctx.fillStyle = `rgba(${rgb}, ${alpha})`;
           applyGlow(tier);
-          ctx.fillText(char, stream.x, charY);
+          ctx.fillText(char, drawX, charY);
           ctx.restore();
         });
+      });
+    };
+
+    const drawEmbers = () => {
+      for (const ember of embersRef.current) {
+        const fadeTop = Math.min(1, (displayHeight - ember.y) / (displayHeight * 0.35));
+        const pulse = 0.65 + 0.35 * Math.sin(time * 0.003 + ember.phase);
+        const alpha = ember.opacity * fadeTop * pulse;
+        if (alpha <= 0.02) continue;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(
+          ember.x + Math.sin(time * 0.0012 + ember.phase) * ember.driftAmp,
+          ember.y,
+          ember.size,
+          0,
+          Math.PI * 2
+        );
+        ctx.fillStyle = `rgba(255, 220, 140, ${alpha})`;
+        if (glow) {
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = '#D6B25E';
+        }
+        ctx.fill();
+        ctx.restore();
       }
     };
 
@@ -342,16 +450,16 @@ export default function SanskritRainBackground({
       const cy = displayHeight / 2;
       const maxR = Math.max(displayWidth, displayHeight) * 0.72;
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-      grad.addColorStop(0, `rgba(${TRAIL_BG}, 0.55)`);
-      grad.addColorStop(0.55, `rgba(${TRAIL_BG}, 0.08)`);
-      grad.addColorStop(1, `rgba(${TRAIL_BG}, 0)`);
+      grad.addColorStop(0, `rgba(${trailBg}, ${vignetteCenter})`);
+      grad.addColorStop(0.55, `rgba(${trailBg}, 0.08)`);
+      grad.addColorStop(1, `rgba(${trailBg}, 0)`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, displayWidth, displayHeight);
     };
 
     const fadeTrail = () => {
       const fade = mobileQuery.matches ? 0.18 : trailFade;
-      ctx.fillStyle = `rgba(${TRAIL_BG}, ${fade})`;
+      ctx.fillStyle = `rgba(${trailBg}, ${fade})`;
       ctx.fillRect(0, 0, displayWidth, displayHeight);
     };
 
@@ -374,6 +482,13 @@ export default function SanskritRainBackground({
           resetStream(stream, displayHeight);
         }
       }
+
+      for (const ember of embersRef.current) {
+        ember.y -= ember.speed;
+        if (ember.y < -10) {
+          resetEmber(ember, displayWidth, displayHeight);
+        }
+      }
     };
 
     const draw = () => {
@@ -393,11 +508,17 @@ export default function SanskritRainBackground({
       }
 
       if (!reducedMotionRef.current) {
+        drawEmbers();
         drawVignette();
       }
     };
 
     const loop = (now: number) => {
+      if (!visibleRef.current) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+
       time = now;
       if (!reducedMotionRef.current) {
         update();
@@ -411,22 +532,43 @@ export default function SanskritRainBackground({
       resize();
     };
 
+    const onVisibilityChange = () => {
+      visibleRef.current = !document.hidden;
+    };
+
+    visibleRef.current = !document.hidden;
     resize();
     rafRef.current = requestAnimationFrame(loop);
 
     window.addEventListener('resize', resize);
     motionQuery.addEventListener('change', onMotionChange);
     mobileQuery.addEventListener('change', resize);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       window.removeEventListener('resize', resize);
       motionQuery.removeEventListener('change', onMotionChange);
       mobileQuery.removeEventListener('change', resize);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [density, speedMin, speedMax, opacity, glow, glyphPool, mantraPool, preset, streamCount, trailFade]);
+  }, [
+    density,
+    speedMin,
+    speedMax,
+    opacity,
+    glow,
+    glyphPool,
+    mantraPool,
+    preset,
+    streamCount,
+    trailFade,
+    trailBg,
+    vignetteCenter,
+    emberCount,
+  ]);
 
   return (
     <canvas

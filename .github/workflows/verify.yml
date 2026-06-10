@@ -46,6 +46,12 @@ jobs:
       - name: Check Vercel security headers
         run: node scripts/quality/check-vercel-security.mjs
 
+      - name: Auth configuration guard
+        run: pnpm run auth:gates
+
+      - name: Firebase auth config smoke
+        run: pnpm run test:firebase-auth
+
       - name: Check launch evidence templates
         run: pnpm run launch:evidence
 

@@ -1,10 +1,10 @@
 # Firebase Production Check
 
-Generated from commit: `bff6357` (auth SDK migration follow-up)
+Generated from commit: `6515c124847eadd81743ea246da30705d418fa48`
 Deployment URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-09T20:00:00.000Z
-Operator: Bryson Erdmann / auth SDK migration + local env verify
-Result: PASS — Firebase SDK email-link sign-in; session persists across refresh; token refresh before Firestore REST
+Generated at: 2026-06-10T18:08:00.000Z
+Operator: Cursor agent / auth sign-in audit
+Result: PASS — Google OAuth is the sole live-verified sign-in method on `/auth` (see auth-sign-in-proof.md)
 
 ## Purpose
 
@@ -38,27 +38,31 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 
 ## Runtime Smoke
 
+Live sign-in audit: [`auth-sign-in-proof.md`](./auth-sign-in-proof.md) · public manifest: `/auth-capabilities.json`
+
 | Action | Expected | Actual | Status |
 |---|---|---|---|
-| Request access link | Email dispatched | Production form enabled | PASS — CODE |
-| Complete email link | Session established via Firebase SDK | `signInWithEmailLink` + `onAuthStateChanged` | PASS — CODE |
-| Refresh after sign-in | Session survives page reload | SDK persistence + snapshot sync | PASS — CODE |
-| Cross-device email link | Re-enter email on `/auth` | `needs_email` prompt on AuthPage | PASS — CODE |
-| Google OAuth | Popup or redirect sign-in | `firebase deploy --only auth` + google.com IdP enabled | PASS — use when email quota exhausted |
-| Email send quota | `sendOobCode` succeeds | `QUOTA_EXCEEDED` on Spark daily limit (2026-06-10) | WARN — retry after Pacific midnight or use Google |
+| Request access link | Email dispatched | `QUOTA_EXCEEDED` on Spark daily limit (2026-06-10) | BLOCKED — config OK |
+| Complete email link | Session established via Firebase SDK | Code wired; blocked until quota resets | BLOCKED |
+| Refresh after sign-in | Session survives page reload | SDK persistence + snapshot sync | PASS — Google session |
+| Cross-device email link | Re-enter email on `/auth` | Hidden when Google is auth winner | N/A |
+| Google OAuth | Popup or redirect sign-in | IdP enabled; `getRedirectResult()` handles redirect fallback | PASS — live winner |
+| Email send quota | `sendOobCode` succeeds | `QUOTA_EXCEEDED` (2026-06-10 audit) | BLOCKED |
 | Apple OAuth | Popup or redirect sign-in | Requires Apple Developer credentials — operator env vars | SKIP — pending FIREBASE_APPLE_* |
 | Signed-out private route | Redirect to `/auth` | E2E + live CSP | PASS |
 | Signed-in editor | `/editor` loads workspace | Production bundle includes Firebase | PASS |
-| Sign out | Session cleared | App shell sign-out control | PASS — CODE |
+| Sign out | Session cleared | App shell sign-out control | PASS |
+| Single-method `/auth` UI | Only verified winner shown | Google only per `auth-capabilities.json` | PASS |
 
 ## Verdict
 
 ```txt
-PASS — Vercel Firebase vars configured, SDK email-link auth wired, session persistence fixed, Firestore bearer refresh via `resolveFirebaseSessionForFirestore`, authorized domain set.
+PASS — Vercel Firebase vars configured, Google OAuth is the live-verified sign-in winner, `/auth` shows Google only.
 
 Operator notes:
-- Google sign-in is the immediate unblock when email quota is exhausted.
-- After `firebase deploy --only auth`, always run `pnpm run setup:firebase-auth` to restore passwordless email.
+- Email magic link is config-verified but quota-blocked on Spark; winner switches back to email after quota reset + `pnpm run test:firebase-auth:full`.
+- Regenerate public proof: `node scripts/test-firebase-auth-smoke.mjs --write-capabilities`
+- Full audit report: docs/release/evidence/auth-sign-in-proof.md
 - Use `pnpm run test:firebase-auth` (config-only) to verify without consuming email quota.
-- Redeploy Vercel after any `VITE_FIREBASE_*` change.
+- Redeploy Vercel after any `VITE_FIREBASE_*` or `VITE_AUTH_WINNER` change.
 ```
