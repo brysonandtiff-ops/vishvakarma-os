@@ -250,13 +250,63 @@
 }
 
 .vish-auth-feature-card {
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  display: block;
+  width: 100%;
+  min-height: 7.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.875rem;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.3);
+  background: hsl(0 0% 4% / 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
 .vish-auth-feature-card:hover {
   transform: translateY(-2px);
   border-color: hsl(43 90% 66% / 0.42);
   background: hsl(43 60% 72% / 0.08);
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
+}
+
+.vish-auth-feature-card:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.55);
+  outline-offset: 2px;
+}
+
+.vish-auth-feature-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.vish-auth-feature-card__icon {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(43 65% 52% / 0.25);
+  background: hsl(43 65% 52% / 0.1);
+  color: hsl(43 72% 66%);
+}
+
+.vish-auth-feature-card__title {
+  margin-top: 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: hsl(var(--ws-text));
+}
+
+.vish-auth-feature-card__description {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: hsl(var(--ws-text-dim));
 }
 
 .vish-logo-tile-animated,

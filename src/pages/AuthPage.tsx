@@ -7,6 +7,7 @@ import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
+import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
 function getReturnPath(state: unknown) {
@@ -28,6 +29,18 @@ function getSignInHeadline(winner: 'email' | 'google' | 'none') {
   }
 
   return 'Sign-in temporarily unavailable';
+}
+
+function getSignInHelperLine(winner: 'email' | 'google' | 'none') {
+  if (winner === 'google') {
+    return 'Open your protected workspace with a verified Google account.';
+  }
+
+  if (winner === 'email') {
+    return 'We email a one-time secure link — no password stored.';
+  }
+
+  return 'Sign-in methods are being verified.';
 }
 
 function GoogleMarkIcon() {
@@ -86,6 +99,8 @@ export default function AuthPage() {
   const showGoogleSignIn = !capabilitiesLoading && winner === 'google';
   const showSignInUnavailable = !capabilitiesLoading && winner === 'none';
   const signInHeadline = getSignInHeadline(winner);
+  const signInHelperLine = getSignInHelperLine(winner);
+  const workspaceStatusLabel = isConfigured ? 'Protected Workspace' : 'Local Draft';
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -179,7 +194,7 @@ export default function AuthPage() {
 
       <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
 
-      <div className="relative z-10 flex w-full max-w-lg flex-col items-center justify-center gap-6 px-2">
+      <div className="relative z-10 flex w-full max-w-xl flex-col items-center justify-center gap-6 px-2">
         <div className="vish-auth-card-mockup w-full" data-testid="auth-mockup-card">
           <div className="mb-6 flex flex-col items-center text-center">
             <div className="vish-auth-logo-hero">
@@ -200,9 +215,11 @@ export default function AuthPage() {
             <div className="vish-auth-wordmark-divider" aria-hidden="true" />
             <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
             <p className="mt-3 text-sm font-medium text-stone-100">{signInHeadline}</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              Firebase Cloud Save
-              {isConfigured ? ' · Protected Workspace' : ' · Local Draft mode until configured'}
+            <div className="mt-2">
+              <span className="vish-gold-pill">{workspaceStatusLabel}</span>
+            </div>
+            <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
+              {capabilitiesLoading ? 'Checking verified sign-in methods…' : signInHelperLine}
             </p>
           </div>
 
@@ -343,12 +360,14 @@ export default function AuthPage() {
             </form>
           )}
 
+          {capabilitiesLoading && (
+            <p role="status" className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-center text-sm text-stone-200">
+              Loading sign-in options…
+            </p>
+          )}
+
           {showGoogleSignIn && (
             <div className="space-y-4">
-              <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-                Verified production sign-in — open your protected workspace with Google.
-              </p>
-
               <button
                 type="button"
                 className="vish-gold-button vish-gold-button--with-icon"
@@ -389,23 +408,31 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className="grid w-full gap-3 sm:grid-cols-2" data-testid="auth-trust-pillars">
-          <div className="vish-auth-feature-card rounded-xl border border-primary/20 bg-card/30 p-3 text-center backdrop-blur-sm">
-            <Shield className="mx-auto mb-2 h-4 w-4 text-primary" aria-hidden="true" />
-            <p className="text-[11px] font-semibold text-foreground">
-              {WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system
-            </p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              In-repo pre-release gates enforced before ship — not a Guinness title claim.
-            </p>
-          </div>
-          <div className="vish-auth-feature-card rounded-xl border border-primary/20 bg-card/30 p-3 text-center backdrop-blur-sm">
-            <Trophy className="mx-auto mb-2 h-4 w-4 text-primary" aria-hidden="true" />
-            <p className="text-[11px] font-semibold text-foreground">Self-Verified Candidate</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              World Records registry with SHA-256 proof — open after sign-in at /world-records.
-            </p>
-          </div>
+        <div className="grid w-full gap-3 md:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
+          <AuthTrustPillar
+            icon={Shield}
+            badge="Release evidence"
+            title={`${WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence`}
+            description="In-repo pre-release checks before every ship — not a Guinness title claim."
+            testId="auth-trust-pillar-gates"
+            onLearnMore={() =>
+              toast.message('Release evidence', {
+                description: 'Open Releases after sign-in to inspect gate snapshots.',
+              })
+            }
+          />
+          <AuthTrustPillar
+            icon={Trophy}
+            badge="Self-Verified"
+            title="World Records Registry"
+            description="SHA-256 proof ledger with reproducible measurements — unlocks in your workspace."
+            testId="auth-trust-pillar-records"
+            onLearnMore={() =>
+              toast.message('World Records', {
+                description: 'Open World Records after sign-in to view the registry.',
+              })
+            }
+          />
         </div>
       </div>
     </main>

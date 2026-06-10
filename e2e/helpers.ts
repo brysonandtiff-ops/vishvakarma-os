@@ -15,6 +15,20 @@ export async function resetWorkspacePrefs(page: Page) {
   });
 }
 
+export async function gotoAppPath(page: Page, path: string) {
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
+  if (path.startsWith('/editor')) {
+    await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
+  }
+}
+
+export async function dismissConsentIfPresent(page: Page) {
+  const declineAnalytics = page.getByRole('button', { name: /decline/i });
+  if (await declineAnalytics.isVisible().catch(() => false)) {
+    await declineAnalytics.click({ force: true, timeout: 5_000 }).catch(() => {});
+  }
+}
+
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});

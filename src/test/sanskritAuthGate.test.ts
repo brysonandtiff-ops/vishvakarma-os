@@ -58,6 +58,7 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps trust pillars and workspace branding on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
+    const trustPillar = read('src/components/auth/AuthTrustPillar.tsx');
 
     expect(authPage).toContain('OFFICIAL_LOGO_SRC');
     expect(authPage).toContain('vish-auth-logo-hero');
@@ -66,8 +67,15 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('vish-auth-wordmark-divider');
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
+    expect(authPage).toContain('AuthTrustPillar');
     expect(authPage).toContain('auth-trust-pillars');
-    expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-gate release evidence system');
+    expect(authPage).toContain('auth-trust-pillar-gates');
+    expect(authPage).toContain('auth-trust-pillar-records');
+    expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence');
+    expect(authPage).toContain('vish-gold-pill');
+    expect(authPage).toContain('getSignInHelperLine');
+    expect(trustPillar).toContain('vish-auth-feature-card');
+    expect(trustPillar).toContain('vish-gold-pill');
   });
 
   it('handles OAuth redirect completion in AuthContext', () => {
@@ -103,6 +111,8 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('@keyframes vish-mandala-drift');
     expect(styles).toContain('.vish-auth-access-card');
     expect(styles).toContain('.vish-auth-feature-card:hover');
+    expect(styles).toContain('.vish-auth-feature-card__title');
+    expect(styles).toContain('.vish-auth-feature-card:focus-visible');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');
     expect(routeGuard).toContain('SanskritRainBackground');
