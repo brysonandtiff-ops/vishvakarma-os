@@ -17,7 +17,11 @@ export type OAuthSignInResult = {
   redirecting: boolean;
 };
 
-export function formatAuthError(error: unknown): Error {
+type AuthErrorContext = {
+  usedRedirect?: boolean;
+};
+
+export function formatAuthError(error: unknown, context: AuthErrorContext = {}): Error {
   const authError = error as AuthError;
   const code = authError?.code ?? '';
   const message = error instanceof Error ? error.message : String(error);
@@ -37,6 +41,11 @@ export function formatAuthError(error: unknown): Error {
     );
   }
   if (code === 'auth/internal-error') {
+    if (context.usedRedirect) {
+      return new Error(
+        'Google sign-in could not complete in this browser. Open the app in Chrome or Safari (not an embedded preview), allow cookies, and confirm this domain is listed under Firebase Authentication → Authorized domains.'
+      );
+    }
     return new Error(
       'Google sign-in could not open securely in this browser. Retrying with a full-page redirect…'
     );
@@ -60,22 +69,17 @@ export function isWebKitBrowser(userAgent: string): boolean {
   );
 }
 
-function shouldPreferRedirectFlow() {
+export function shouldPreferRedirectFlow() {
   if (typeof window === 'undefined') {
     return false;
   }
 
-  // Popup OAuth is unreliable on production hosts, Safari, and tablet browsers.
-  if (import.meta.env.PROD) {
-    return true;
-  }
+  // Popup OAuth is unreliable in production, Safari, tablets, and embedded IDE browsers.
+  return true;
+}
 
-  const userAgent = navigator.userAgent;
-  if (isWebKitBrowser(userAgent)) {
-    return true;
-  }
-
-  return /iPad|iPhone|iPod|Android|Mobile/i.test(userAgent);
+function isEmbeddedBrowser(userAgent: string) {
+  return /Cursor|Electron|VSCode|HeadlessChrome/i.test(userAgent);
 }
 
 function shouldFallbackToRedirect(error: unknown) {
@@ -102,11 +106,21 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
     throw new Error('Firebase Auth is not initialized.');
   }
 
-  if (shouldPreferRedirectFlow()) {
+  const preferRedirect = shouldPreferRedirectFlow();
+  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  // #region agent log
+  fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:signInWithProvider',message:'oauth flow start',data:{preferRedirect,isProd:import.meta.env.PROD,host:typeof window!=='undefined'?window.location.hostname:'',embedded:isEmbeddedBrowser(userAgent)},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+
+  if (preferRedirect) {
     try {
       await signInWithRedirect(firebaseAuth, provider);
     } catch (error) {
-      throw formatAuthError(error);
+      const authError = error as AuthError;
+      // #region agent log
+      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:redirect',message:'redirect sign-in failed',data:{code:authError?.code??'',message:error instanceof Error?error.message:String(error)},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      throw formatAuthError(error, { usedRedirect: true });
     }
     return { session: null, redirecting: true };
   }
@@ -124,8 +138,20 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
 
     return { session, redirecting: false };
   } catch (error) {
+    const authError = error as AuthError;
+    // #region agent log
+    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:popup',message:'popup sign-in failed',data:{code:authError?.code??'',willFallback:shouldFallbackToRedirect(error)},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     if (shouldFallbackToRedirect(error)) {
-      await signInWithRedirect(firebaseAuth, provider);
+      try {
+        await signInWithRedirect(firebaseAuth, provider);
+      } catch (redirectError) {
+        const redirectAuthError = redirectError as AuthError;
+        // #region agent log
+        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:popup-fallback',message:'redirect fallback failed',data:{popupCode:authError?.code??'',redirectCode:redirectAuthError?.code??''},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        throw formatAuthError(redirectError, { usedRedirect: true });
+      }
       return { session: null, redirecting: true };
     }
 

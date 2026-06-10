@@ -193,6 +193,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void getRedirectResult(firebaseAuth)
       .then(async (credential) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'AuthContext.tsx:getRedirectResult',message:'redirect result resolved',data:{hasUser:Boolean(credential?.user),host:window.location.hostname},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
         if (!mounted || !credential?.user) {
           return;
         }
@@ -224,12 +227,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch((error) => {
         if (!mounted) return;
         const code = (error as { code?: string })?.code ?? '';
+        // #region agent log
+        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'AuthContext.tsx:getRedirectResult',message:'redirect result error',data:{code,message:error instanceof Error?error.message:String(error)},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
         if (code === 'auth/no-auth-event') {
           setLoading(false);
           return;
         }
         console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', error);
-        setEmailLinkError(formatAuthError(error).message);
+        setEmailLinkError(formatAuthError(error, { usedRedirect: true }).message);
         setLoading(false);
       });
 

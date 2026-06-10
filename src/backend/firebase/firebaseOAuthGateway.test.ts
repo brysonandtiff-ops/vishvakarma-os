@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isWebKitBrowser } from './firebaseOAuthGateway';
+import { formatAuthError, isWebKitBrowser, shouldPreferRedirectFlow } from './firebaseOAuthGateway';
 
 describe('isWebKitBrowser', () => {
   it('detects desktop Safari', () => {
@@ -29,5 +29,19 @@ describe('isWebKitBrowser', () => {
     const ua =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0';
     expect(isWebKitBrowser(ua)).toBe(false);
+  });
+});
+
+describe('shouldPreferRedirectFlow', () => {
+  it('prefers redirect in browser environments', () => {
+    expect(shouldPreferRedirectFlow()).toBe(true);
+  });
+});
+
+describe('formatAuthError', () => {
+  it('describes redirect failures without implying another retry', () => {
+    const message = formatAuthError({ code: 'auth/internal-error' }, { usedRedirect: true }).message;
+    expect(message).toContain('could not complete');
+    expect(message).not.toContain('Retrying');
   });
 });
