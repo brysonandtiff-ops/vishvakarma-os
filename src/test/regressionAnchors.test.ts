@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { validateManifest } from '@/core/manifestSchema';
 import {
   COMPLIANCE_RULE_IDS,
   SYSTEM_MAP_VERSION,
   SYSTEM_VERSIONS,
   assertSystemVersionsMatchMap,
+  clearRecordedSystemFlows,
   loadAnchor,
   type SystemMapContract,
 } from '@/core-contract';
@@ -20,6 +21,10 @@ import { runOptimizationBatch } from '@/services/optimization/optimizationOrches
 import type { ProjectManifest } from '@/types';
 
 describe('regression anchors', () => {
+  afterEach(() => {
+    clearRecordedSystemFlows();
+  });
+
   it('locks system-map.json against SYSTEM_VERSIONS', () => {
     const map = JSON.parse(
       readFileSync(join(process.cwd(), 'system-map.json'), 'utf8'),
@@ -250,6 +255,7 @@ describe('regression anchors', () => {
         likelihoodClasses: string[];
         hasExplanationMetrics: boolean;
         winnerHasCouncilAssessment: boolean;
+        minCandidatesWithBlockers: number;
       };
     }>('council-gold-standard.json');
 
@@ -277,10 +283,15 @@ describe('regression anchors', () => {
       }
     }
 
+    const candidatesWithBlockers = batch.candidates.filter(
+      (c) => (c.building.councilAssessment?.blockers.length ?? 0) > 0,
+    ).length;
+    expect(candidatesWithBlockers).toBeGreaterThanOrEqual(exp.minCandidatesWithBlockers);
+
     const winner = batch.candidates.find((c) => c.id === batch.winnerId);
     if (exp.winnerHasCouncilAssessment) {
       expect(winner?.building.councilAssessment).toBeDefined();
     }
-    expect(batch.report.approvalConfidence).toBeGreaterThanOrEqual(exp.approvalScoreMin);
+    expect(batch.report.approvalConfidence).toBe(winner?.building.councilAssessment?.approvalScore);
   }, 90_000);
 });
