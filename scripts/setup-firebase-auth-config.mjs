@@ -11,14 +11,47 @@ import { join } from 'path';
 import { spawnSync } from 'child_process';
 
 const PROJECT_ID = 'gen-lang-client-0690161780';
-const DOMAINS = [
+const BASE_DOMAINS = [
   'localhost',
   '127.0.0.1',
   'vishvakarma-os.vercel.app',
   'gen-lang-client-0690161780.firebaseapp.com',
 ];
 
-function getAccessToken() {
+function parseExtraDomains() {
+  const extras = new Set();
+  const addDomainIndex = process.argv.indexOf('--add-domain');
+  if (addDomainIndex !== -1) {
+    const value = process.argv[addDomainIndex + 1]?.trim();
+    if (value) extras.add(value);
+  }
+
+  for (const arg of process.argv.slice(2)) {
+    if (arg.startsWith('--add-domain=')) {
+      const value = arg.slice('--add-domain='.length).trim();
+      if (value) extras.add(value);
+    }
+  }
+
+  if (process.env.VERCEL_URL?.trim()) {
+    extras.add(process.env.VERCEL_URL.trim());
+  }
+
+  if (process.env.VERCEL_BRANCH_URL?.trim()) {
+    extras.add(process.env.VERCEL_BRANCH_URL.trim());
+  }
+
+  if (process.env.FIREBASE_EXTRA_AUTHORIZED_DOMAINS?.trim()) {
+    for (const domain of process.env.FIREBASE_EXTRA_AUTHORIZED_DOMAINS.split(',')) {
+      const trimmed = domain.trim();
+      if (trimmed) extras.add(trimmed);
+    }
+  }
+
+  return [...extras];
+}
+
+function readFirebaseToolsToken() {
   const configPaths = [
     join(process.env.APPDATA ?? '', 'configstore', 'firebase-tools.json'),
     join(process.env.HOME ?? process.env.USERPROFILE ?? '', '.config', 'configstore', 'firebase-tools.json'),
@@ -29,13 +62,38 @@ function getAccessToken() {
       const raw = readFileSync(path, 'utf8');
       const parsed = JSON.parse(raw);
       const tokens = parsed?.tokens;
-      if (tokens?.access_token) {
-        const expires = tokens.expires_at ?? 0;
-        if (Date.now() < expires - 60_000) return tokens.access_token;
-      }
+      if (!tokens?.access_token) continue;
+      return {
+        path,
+        accessToken: tokens.access_token,
+        expiresAt: tokens.expires_at ?? 0,
+      };
     } catch {
       // try next path
     }
+  }
+
+  return null;
+}
+
+function refreshFirebaseToolsToken() {
+  spawnSync(
+    'npx',
+    ['-y', 'firebase-tools@latest', 'projects:list', '--project', PROJECT_ID],
+    { encoding: 'utf8', shell: true, stdio: 'ignore' },
+  );
+  return readFirebaseToolsToken();
+}
+
+function getAccessToken() {
+  let token = readFirebaseToolsToken();
+  if (token && Date.now() < token.expiresAt - 60_000) {
+    return token.accessToken;
+  }
+
+  token = refreshFirebaseToolsToken();
+  if (token && Date.now() < token.expiresAt - 60_000) {
+    return token.accessToken;
   }
 
   const result = spawnSync('npx', ['-y', 'firebase-tools@latest', 'login:ci', '--no-localhost'], {
@@ -60,9 +118,9 @@ async function getConfig(token) {
   return res.json();
 }
 
-async function updateConfig(token, current) {
+async function updateConfig(token, current, extraDomains) {
   const existing = new Set(current.authorizedDomains ?? []);
-  for (const domain of DOMAINS) existing.add(domain);
+  for (const domain of [...BASE_DOMAINS, ...extraDomains]) existing.add(domain);
 
   const body = {
     name: `projects/${PROJECT_ID}/config`,
@@ -93,12 +151,16 @@ async function updateConfig(token, current) {
 
 async function main() {
   console.log(`[setup] Firebase project: ${PROJECT_ID}`);
+  const extraDomains = parseExtraDomains();
+  if (extraDomains.length > 0) {
+    console.log('[setup] Extra domains to authorize:', extraDomains);
+  }
   const token = getAccessToken();
   const current = await getConfig(token);
   console.log('[setup] Current authorized domains:', current.authorizedDomains ?? []);
   console.log('[setup] Current email sign-in:', current.signIn?.email ?? {});
 
-  const updated = await updateConfig(token, current);
+  const updated = await updateConfig(token, current, extraDomains);
   console.log('[PASS] Updated authorized domains:', updated.authorizedDomains ?? []);
   console.log('[PASS] Updated email sign-in:', updated.signIn?.email ?? {});
 

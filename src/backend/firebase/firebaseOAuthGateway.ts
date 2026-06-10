@@ -23,8 +23,12 @@ export function formatAuthError(error: unknown): Error {
   const message = error instanceof Error ? error.message : String(error);
 
   if (code === 'auth/unauthorized-domain') {
+    const host =
+      typeof window !== 'undefined' && window.location.hostname
+        ? window.location.hostname
+        : 'this deployment host';
     return new Error(
-      'This site domain is not authorized in Firebase. Add vishvakarma-os.vercel.app under Authentication → Settings → Authorized domains.'
+      `This site domain is not authorized in Firebase. Add ${host} under Authentication → Settings → Authorized domains, or run: pnpm run setup:firebase-auth -- --add-domain ${host}`
     );
   }
   if (code === 'auth/operation-not-allowed') {
