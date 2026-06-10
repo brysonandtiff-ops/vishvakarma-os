@@ -52,7 +52,15 @@ export function buildOptimizationReportPdfBytes(batch: OptimizationBatch): Uint8
     `${report.winnerLabel} (Score: ${winner?.overallScore ?? 'N/A'}/100)`,
     `Estimated Cost: $${report.estimatedCost.toLocaleString()}`,
     `Compliance Confidence: ${report.complianceConfidence}%`,
+    `Approval Likelihood: ${report.approvalConfidence}%`,
     `Permit Ready: ${report.permitReady ? 'Yes' : 'No'}`,
+    ...(winner?.building.councilAssessment?.recommendedAdjustments.length
+      ? [
+          '',
+          '--- RECOMMENDED COUNCIL ADJUSTMENTS ---',
+          ...winner.building.councilAssessment.recommendedAdjustments.map((a) => `• ${a}`),
+        ]
+      : []),
     '',
     '--- WINNER PRIMARY DIMENSIONS (6) ---',
     ...winnerDisplay.map((s) => `  ${s.label}: ${s.score}/100`),

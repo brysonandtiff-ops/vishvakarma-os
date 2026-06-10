@@ -44,52 +44,10 @@
   mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
 }
 
-.vish-sanskrit-matrix,
-.vish-boot-sanskrit-rain {
-  overflow: hidden;
-  opacity: 0.24;
+.vish-sanskrit-rain-canvas {
+  opacity: 0.6;
   mix-blend-mode: screen;
-}
-
-.vish-sanskrit-column,
-.vish-boot-sanskrit-column {
-  position: absolute;
-  top: -120%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  width: 3.5rem;
-  color: hsl(43 96% 68% / 0.58);
-  font-family: 'IBM Plex Mono', 'Noto Sans Devanagari', serif;
-  font-size: 0.82rem;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  text-orientation: mixed;
-  writing-mode: vertical-rl;
-  text-shadow:
-    0 0 12px hsl(43 95% 62% / 0.45),
-    0 0 34px hsl(39 85% 45% / 0.22);
-  animation-name: vish-sanskrit-rain;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.vish-boot-sanskrit-column {
-  color: hsl(43 100% 72% / 0.38);
-  font-size: 0.72rem;
-  opacity: 0.82;
-}
-
-.vish-sanskrit-column span:nth-child(3n),
-.vish-boot-sanskrit-column span:nth-child(3n) {
-  color: hsl(50 100% 86% / 0.72);
-}
-
-@keyframes vish-sanskrit-rain {
-  0% { transform: translate3d(0, -12%, 0); opacity: 0; }
-  8% { opacity: 0.82; }
-  82% { opacity: 0.58; }
-  100% { transform: translate3d(0, 230%, 0); opacity: 0; }
+  z-index: 0;
 }
 
 .vish-mandala-aura {
@@ -428,14 +386,8 @@
 }
 
 @media (max-width: 900px) {
-  .vish-sanskrit-matrix,
-  .vish-boot-sanskrit-rain {
-    opacity: 0.16;
-  }
-
-  .vish-sanskrit-column,
-  .vish-boot-sanskrit-column {
-    font-size: 0.72rem;
+  .vish-sanskrit-rain-canvas {
+    opacity: 0.4;
   }
 
   .vish-auth-hero {
@@ -448,8 +400,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vish-sanskrit-column,
-  .vish-boot-sanskrit-column,
   .vish-mandala-ring-outer,
   .vish-mandala-ring-mid,
   .vish-mandala-ring-inner,

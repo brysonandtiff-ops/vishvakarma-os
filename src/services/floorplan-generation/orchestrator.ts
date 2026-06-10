@@ -17,13 +17,35 @@ import type { PipelineStage } from '@/core-contract/pipeline.schema';
 
 export type { PipelineStage };
 
+export type RequestOverride = Partial<
+  Pick<BuildingRequest, 'bedrooms' | 'bathrooms' | 'garageSpaces' | 'levels' | 'style' | 'extras'>
+>;
+
 export interface OrchestratorInput {
   prompt: string;
   parcelOverride?: Partial<Parcel>;
+  requestOverride?: RequestOverride;
   ingestion?: CopilotIngestionResult;
   sessionId?: string;
   uploadedDocuments?: CopilotManifestMetadata['uploadedDocuments'];
   onStage?: (stage: PipelineStage) => void;
+}
+
+export function mergeResolvedRequest(
+  base: BuildingRequest,
+  input: Pick<OrchestratorInput, 'requestOverride' | 'parcelOverride'>,
+): BuildingRequest {
+  let request = normalizeBuildingRequest({
+    ...base,
+    ...(input.requestOverride ?? {}),
+  });
+  if (input.parcelOverride) {
+    request = {
+      ...request,
+      parcel: { ...request.parcel, ...input.parcelOverride },
+    };
+  }
+  return analyzeLot(request);
 }
 
 export async function resolveBuildingRequest(
@@ -51,7 +73,8 @@ export async function runBuildingDesignerPipeline(input: OrchestratorInput): Pro
     input.onStage?.('extracting');
   }
 
-  const { request, council } = await resolveBuildingRequest(input);
+  const { request: resolved, council } = await resolveBuildingRequest(input);
+  const request = mergeResolvedRequest(resolved, input);
 
   const requestErrors = validateBuildingRequest(request);
   if (requestErrors.length) {
@@ -64,7 +87,6 @@ export async function runBuildingDesignerPipeline(input: OrchestratorInput): Pro
   input.onStage?.('layout');
   const { rooms, circulation } = solveLayout(constraints);
 
-  input.onStage?.('floorplan');
   const building = buildGeneratedBuildingFromLayout({
     request,
     constraints,
@@ -77,11 +99,9 @@ export async function runBuildingDesignerPipeline(input: OrchestratorInput): Pro
     ingestion: input.ingestion
       ? { siteSurvey: input.ingestion.siteSurvey, boundary: input.ingestion.boundary }
       : undefined,
+    onStage: input.onStage,
   });
 
-  input.onStage?.('concept');
-  input.onStage?.('schedules');
-  input.onStage?.('compliance');
   input.onStage?.('complete');
   return building;
 }

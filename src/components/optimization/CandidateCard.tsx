@@ -1,7 +1,15 @@
 import { Heart, Star, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import type { OptimizationCandidate } from '@/domain/optimization/types';
+import type { CouncilLikelihood } from '@/domain/council-intelligence/types';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
+
+const APPROVAL_VARIANT: Record<CouncilLikelihood, 'default' | 'secondary' | 'destructive'> = {
+  high: 'default',
+  medium: 'secondary',
+  low: 'destructive',
+};
 
 export default function CandidateCard({
   candidate,
@@ -24,6 +32,8 @@ export default function CandidateCard({
 }) {
   const thumb = projectThumbnailDataUrl(candidate.building.manifest);
   const compliance = candidate.building.complianceReport.overall;
+  const councilAssessment =
+    candidate.building.councilAssessment ?? candidate.building.copilot?.councilAssessment;
 
   return (
     <div
@@ -47,6 +57,15 @@ export default function CandidateCard({
           <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-xs font-bold">
             #{candidate.rank}
           </span>
+          {councilAssessment && (
+            <Badge
+              variant={APPROVAL_VARIANT[councilAssessment.likelihood]}
+              className="absolute bottom-2 left-2 text-[10px]"
+              data-testid={`approval-badge-${candidate.id}`}
+            >
+              Approval {councilAssessment.approvalScore}%
+            </Badge>
+          )}
         </div>
         <div className="space-y-1 p-4">
           <p className="font-semibold">{candidate.label}</p>

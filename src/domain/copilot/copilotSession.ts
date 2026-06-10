@@ -3,6 +3,7 @@ import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
 import type { CouncilRequirements } from '@/domain/copilot/councilRequirements';
+import type { CouncilAssessment } from '@/domain/council-intelligence/types';
 import type { Point2D } from '@/types';
 
 export type CopilotDocumentKind = 'siteSurvey' | 'boundaryPlan' | 'councilRequirements';
@@ -47,6 +48,7 @@ export interface CopilotManifestMetadata {
   boundary?: BoundaryPlanExtraction;
   uploadedDocuments: Array<{ id: string; kind: CopilotDocumentKind; fileName: string }>;
   generatedAt: string;
+  councilAssessment?: CouncilAssessment;
 }
 
 export interface CopilotSession {

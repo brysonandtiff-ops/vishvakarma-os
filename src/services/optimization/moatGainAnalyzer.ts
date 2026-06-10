@@ -83,6 +83,7 @@ export function analyzeMoatGain(
   runnerUp: OptimizationCandidate,
   permitReady: boolean,
   costIntelligence?: CostIntelligenceReport,
+  approvalScore?: number,
 ): MoatGainReport {
   const overallScores = candidates.map((c) => c.overallScore);
   const batchMedian = median(overallScores);
@@ -91,7 +92,15 @@ export function analyzeMoatGain(
 
   const complianceScore =
     winner.scores.find((s) => s.category === 'compliance')?.score ?? 0;
-  const permitConfidence = permitReady ? complianceScore : 0;
+  const councilApproval =
+    approvalScore ??
+    winner.building.councilAssessment?.approvalScore ??
+    winner.building.copilot?.councilAssessment?.approvalScore;
+  const permitConfidence = permitReady
+    ? councilApproval != null
+      ? Math.round(complianceScore * 0.4 + councilApproval * 0.6)
+      : complianceScore
+    : 0;
 
   const explainabilityScores = candidates.map(computeExplainabilityIndex);
   const explainabilityIndex = Math.round(

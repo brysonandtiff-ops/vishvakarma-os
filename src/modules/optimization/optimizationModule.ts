@@ -1,10 +1,12 @@
 import type { OptimizationBatch, OptimizationBatchInput } from '@/domain/optimization/types';
-import { runOptimizationBatch } from '@/services/optimization/optimizationOrchestrator';
-import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
+import {
+  runOptimizationBatch,
+  type OptimizationProgressStage,
+} from '@/services/optimization/optimizationOrchestrator';
 
 export async function generateOptimizationBatch(
   input: OptimizationBatchInput,
-  onProgress?: (candidateIndex: number, stage: PipelineStage) => void,
+  onProgress?: (candidateIndex: number, stage: OptimizationProgressStage) => void,
 ): Promise<OptimizationBatch> {
   return runOptimizationBatch(input, onProgress);
 }

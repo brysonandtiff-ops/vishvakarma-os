@@ -14,6 +14,7 @@ import { computeLaborCost } from '@/services/cost-estimation/laborCostEngine';
 import { resolveRegion } from '@/services/cost-estimation/regionalCostIndex';
 import { priceBomLines } from '@/services/cost-estimation/supplierPricingEngine';
 import type { ProjectManifest } from '@/types';
+import { assertAllowedFlow } from '@/core-contract/systemFlow';
 
 export interface CostIntelligenceInput {
   manifest: ProjectManifest;
@@ -77,6 +78,7 @@ function buildScenarioTotal(
 }
 
 export function buildCostIntelligence(input: CostIntelligenceInput): CostIntelligenceReport {
+  assertAllowedFlow('GENERATED_BUILDING', 'COST_INTELLIGENCE');
   const region = resolveRegion(input.request, input.council);
 
   const pricedBest = priceBomLines(input.materialList, region, 'best_price');

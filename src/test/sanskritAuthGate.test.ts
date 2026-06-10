@@ -14,15 +14,18 @@ describe('Sanskrit auth gate design', () => {
     expect(main).toContain('./styles/vish-auth-gate.css');
   });
 
-  it('keeps the animated Sanskrit matrix and mandala layers on the auth page', () => {
+  it('keeps the canvas Sanskrit rain and mandala layers on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
+    const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
 
     expect(authPage).toContain('vish-auth-gate');
-    expect(authPage).toContain('SANSKRIT_MATRIX_COLUMNS');
-    expect(authPage).toContain('ॐ श्री विश्वकर्मणे नमः');
-    expect(authPage).toContain('मन्त्र यन्त्र वास्तु रचना');
-    expect(authPage).toContain('vish-sanskrit-matrix');
-    expect(authPage).toContain('vish-sanskrit-column');
+    expect(authPage).toContain('SanskritRainBackground');
+    expect(authPage).toContain('preset="auth"');
+    expect(rainBackground).toContain('SANSKRIT_MATRIX_COLUMNS');
+    expect(rainBackground).toContain('ॐ श्री विश्वकर्मणे नमः');
+    expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
+    expect(rainBackground).toContain('BOOT_MANTRAS');
+    expect(rainBackground).toContain('prefers-reduced-motion');
     expect(authPage).toContain('vish-mandala-aura');
     expect(authPage).toContain('vish-mandala-ring-outer');
     expect(authPage).toContain('vish-auth-card-mockup');
@@ -72,14 +75,16 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps animation CSS premium, responsive, and reduced-motion safe', () => {
     const styles = read('src/styles/vish-auth-gate.css');
+    const routeGuard = read('src/components/common/RouteGuard.tsx');
 
-    expect(styles).toContain('.vish-sanskrit-matrix');
-    expect(styles).toContain('@keyframes vish-sanskrit-rain');
+    expect(styles).toContain('.vish-sanskrit-rain-canvas');
     expect(styles).toContain('.vish-mandala-ring');
     expect(styles).toContain('@keyframes vish-mandala-drift');
     expect(styles).toContain('.vish-auth-access-card');
     expect(styles).toContain('.vish-auth-feature-card:hover');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');
+    expect(routeGuard).toContain('SanskritRainBackground');
+    expect(routeGuard).toContain('preset="boot"');
   });
 });

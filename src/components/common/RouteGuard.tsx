@@ -4,6 +4,7 @@ import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/routes';
+import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
 interface RouteGuardProps {
   children: ReactNode;
@@ -27,15 +28,6 @@ const allowLocalAccess = isE2eAuthGateBuild
     (import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured));
 const showServiceConfigBanner =
   import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode && !isE2eLocalAccess;
-
-const BOOT_MANTRAS = [
-  'ॐ विश्वकर्मणे नमः',
-  'शिल्पं ज्योतिः प्रमाणम्',
-  'रचना सुरक्षा विश्वासः',
-  'धर्म वास्तु विज्ञानम्',
-  'सत्यं सौन्दर्यम् स्थिरम्',
-  'यन्त्र मन्त्र मण्डलम्',
-] as const;
 
 /** Paths that require an authenticated session before rendering. */
 export function isProtectedRoute(pathname: string): boolean {
@@ -76,23 +68,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
   if (loading && !publicRoute) {
     return (
       <div className="vish-boot-stage vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-6">
-        <div className="vish-boot-sanskrit-rain pointer-events-none absolute inset-0" aria-hidden="true">
-          {BOOT_MANTRAS.map((glyphs, index) => (
-            <span
-              key={glyphs}
-              className="vish-boot-sanskrit-column"
-              style={{
-                left: `${8 + index * 15}%`,
-                animationDelay: `${index * -2.8}s`,
-                animationDuration: `${16 + index * 2.2}s`,
-              }}
-            >
-              {Array.from({ length: 8 }, (_, lineIndex) => (
-                <span key={`${glyphs}-${lineIndex}`}>{glyphs}</span>
-              ))}
-            </span>
-          ))}
-        </div>
+        <SanskritRainBackground preset="boot" className="pointer-events-none absolute inset-0" />
 
         <div className="vish-boot-yantra pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="vish-boot-scanline pointer-events-none absolute inset-x-0 top-0 h-px" aria-hidden="true" />

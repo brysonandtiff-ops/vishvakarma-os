@@ -49,6 +49,12 @@ jobs:
       - name: Check launch evidence templates
         run: pnpm run launch:evidence
 
+      - name: System contract gates
+        run: pnpm run contract:gates
+
+      - name: Regression anchors
+        run: pnpm run test:anchors
+
       - name: Unit tests
         run: pnpm run test:coverage
 

@@ -27,6 +27,8 @@ export default function WinnerHeroPanel({
 }) {
   const { report } = batch;
   const confidence = Math.min(100, report.moatGain.score + report.moatGain.winnerMargin);
+  const councilAssessment =
+    winner.building.councilAssessment ?? winner.building.copilot?.councilAssessment;
 
   return (
     <div
@@ -43,9 +45,19 @@ export default function WinnerHeroPanel({
             Runner-up: {report.runnerUpLabel} · Confidence {confidence}%
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-bold text-primary">{winner.overallScore}</p>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Overall Score</p>
+        <div className="flex gap-4 text-right">
+          {councilAssessment && (
+            <div data-testid="winner-approval-score">
+              <p className="text-3xl font-bold text-primary">{councilAssessment.approvalScore}%</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                Approval Likelihood
+              </p>
+            </div>
+          )}
+          <div>
+            <p className="text-3xl font-bold text-primary">{winner.overallScore}</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Overall Score</p>
+          </div>
         </div>
       </div>
 

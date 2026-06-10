@@ -7,6 +7,7 @@ import {
   SYSTEM_MAP_VERSION,
   SYSTEM_VERSIONS,
   assertSystemVersionsMatchMap,
+  loadAnchor,
   type SystemMapContract,
 } from '@/core-contract';
 import { DEFAULT_BUILDING_REQUEST } from '@/domain/buildings/buildingRequest';
@@ -18,18 +19,12 @@ import { runBuildingDesignerPipeline } from '@/services/floorplan-generation/orc
 import { runOptimizationBatch } from '@/services/optimization/optimizationOrchestrator';
 import type { ProjectManifest } from '@/types';
 
-const ANCHOR_ROOT = join(process.cwd(), 'tests', 'anchors');
-
-function readAnchor<T>(fileName: string): T {
-  return JSON.parse(readFileSync(join(ANCHOR_ROOT, fileName), 'utf8')) as T;
-}
-
 describe('regression anchors', () => {
   it('locks system-map.json against SYSTEM_VERSIONS', () => {
     const map = JSON.parse(
       readFileSync(join(process.cwd(), 'system-map.json'), 'utf8'),
     ) as SystemMapContract;
-    const anchor = readAnchor<{ systemMapVersion: string; modules: Record<string, string> }>(
+    const anchor = loadAnchor<{ systemMapVersion: string; modules: Record<string, string> }>(
       'system-versions.json',
     );
 
@@ -43,7 +38,7 @@ describe('regression anchors', () => {
   });
 
   it('copilot gold standard — structural output class', async () => {
-    const anchor = readAnchor<{
+    const anchor = loadAnchor<{
       input: { prompt: string };
       structuralExpectations: {
         bedroomsMin: number;
@@ -79,7 +74,7 @@ describe('regression anchors', () => {
   }, 60_000);
 
   it('compliance gold standard — rule set and category rollup', async () => {
-    const anchor = readAnchor<{
+    const anchor = loadAnchor<{
       ruleIds: string[];
       categoryCount: number;
       overallStatusClasses: string[];
@@ -101,7 +96,7 @@ describe('regression anchors', () => {
   }, 60_000);
 
   it('cost gold standard — scenario bands and region', () => {
-    const anchor = readAnchor<{
+    const anchor = loadAnchor<{
       input: { councilText: string; regionId: string };
       structuralExpectations: {
         breakdownLineCount: number;
@@ -202,7 +197,7 @@ describe('regression anchors', () => {
   });
 
   it('optimization gold standard — batch structure and moat', async () => {
-    const anchor = readAnchor<{
+    const anchor = loadAnchor<{
       input: { prompt: string; targetBudget: number; councilText: string };
       structuralExpectations: {
         candidateCount: number;
@@ -243,5 +238,49 @@ describe('regression anchors', () => {
     if (exp.winnerHasCostIntelligence) {
       expect(winner?.building.costSummary.intelligence).toBeDefined();
     }
+  }, 90_000);
+
+  it('council gold standard — approval assessment on batch candidates', async () => {
+    const anchor = loadAnchor<{
+      input: { prompt: string; targetBudget: number; councilText: string };
+      structuralExpectations: {
+        candidateCount: number;
+        approvalScoreMin: number;
+        approvalScoreMax: number;
+        likelihoodClasses: string[];
+        hasExplanationMetrics: boolean;
+        winnerHasCouncilAssessment: boolean;
+      };
+    }>('council-gold-standard.json');
+
+    const batch = await runOptimizationBatch({
+      prompt: anchor.input.prompt,
+      targetBudget: anchor.input.targetBudget,
+      ingestion: {
+        mergedPrompt: anchor.input.prompt,
+        council: parseCouncilText(anchor.input.councilText),
+      },
+      sessionId: 'anchor-council',
+    });
+
+    const exp = anchor.structuralExpectations;
+    expect(batch.candidates).toHaveLength(exp.candidateCount);
+
+    for (const candidate of batch.candidates) {
+      const assessment = candidate.building.councilAssessment;
+      expect(assessment).toBeDefined();
+      expect(assessment!.approvalScore).toBeGreaterThanOrEqual(exp.approvalScoreMin);
+      expect(assessment!.approvalScore).toBeLessThanOrEqual(exp.approvalScoreMax);
+      expect(exp.likelihoodClasses).toContain(assessment!.likelihood);
+      if (exp.hasExplanationMetrics) {
+        expect(Object.keys(assessment!.explanation.metrics).length).toBeGreaterThan(0);
+      }
+    }
+
+    const winner = batch.candidates.find((c) => c.id === batch.winnerId);
+    if (exp.winnerHasCouncilAssessment) {
+      expect(winner?.building.councilAssessment).toBeDefined();
+    }
+    expect(batch.report.approvalConfidence).toBeGreaterThanOrEqual(exp.approvalScoreMin);
   }, 90_000);
 });

@@ -11,7 +11,8 @@ export type SystemModuleId =
   | 'OPTIMIZATION_ENGINE'
   | 'COMPLIANCE_GATE'
   | 'PERMIT_PACKAGE_EXPORT'
-  | 'COST_INTELLIGENCE';
+  | 'COST_INTELLIGENCE'
+  | 'COUNCIL_INTELLIGENCE';
 
 export type ModuleTier = 'immutable_core' | 'extension' | 'experimental';
 
@@ -23,6 +24,7 @@ export const SYSTEM_VERSIONS: Record<
   OPTIMIZATION_ENGINE: '1.3.0',
   COST_INTELLIGENCE: '0.9.0',
   COMPLIANCE_GATE: '1.0.0',
+  COUNCIL_INTELLIGENCE: '1.0.0',
 };
 
 export const MODULE_TIERS: Record<SystemModuleId, ModuleTier> = {
@@ -32,6 +34,7 @@ export const MODULE_TIERS: Record<SystemModuleId, ModuleTier> = {
   COMPLIANCE_GATE: 'immutable_core',
   PERMIT_PACKAGE_EXPORT: 'extension',
   COST_INTELLIGENCE: 'extension',
+  COUNCIL_INTELLIGENCE: 'extension',
 };
 
 export type SystemEdge = string;

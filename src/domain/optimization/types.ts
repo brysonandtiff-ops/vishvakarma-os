@@ -1,3 +1,4 @@
+import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import type { CostMoatReport } from '@/domain/cost/types';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type { Parcel } from '@/domain/parcels/parcel';
@@ -77,11 +78,16 @@ export interface SiteFitnessScore {
   explanations: SiteFitnessSubScore[];
 }
 
+export type OptimizationRequestOverride = Partial<
+  Pick<BuildingRequest, 'bedrooms' | 'bathrooms' | 'garageSpaces' | 'levels' | 'style' | 'extras'>
+>;
+
 export interface OptimizationBatchInput {
   prompt: string;
   targetBudget?: number;
   lifestyleGoals?: string[];
   parcelOverride?: Partial<Parcel>;
+  requestOverride?: OptimizationRequestOverride;
   ingestion?: CopilotIngestionResult;
   sessionId?: string;
   uploadedDocuments?: Array<{ id: string; kind: string; fileName: string }>;
@@ -121,6 +127,7 @@ export interface OptimizationReport {
   riskAreas: string[];
   estimatedCost: number;
   complianceConfidence: number;
+  approvalConfidence: number;
   permitReady: boolean;
   moatGain: MoatGainReport;
   generatedAt: string;
@@ -129,6 +136,7 @@ export interface OptimizationReport {
 export interface OptimizationBatch {
   id: string;
   input: OptimizationBatchInput;
+  resolvedRequest: BuildingRequest;
   siteFitness: SiteFitnessScore;
   candidates: OptimizationCandidate[];
   winnerId: string;

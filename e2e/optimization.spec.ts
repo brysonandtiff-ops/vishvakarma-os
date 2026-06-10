@@ -25,20 +25,38 @@ test.describe('Design Optimization', () => {
     });
   });
 
-  test('generates and displays 5 optimization candidates', async ({ page }) => {
+  test('generates and displays 5 optimization candidates with explainability UI', async ({ page }) => {
     await page.goto('/optimization');
-    await page.getByTestId('optimization-prompt').fill('4-bedroom modern home on 600m² corner block');
-    await page.getByTestId('optimization-budget').fill('450000');
-    await page.getByTestId('optimization-submit').click();
+    await page.getByTestId('constraint-prompt').fill('4-bedroom modern home on 600m² corner block');
+    await page.getByTestId('constraint-budget').fill('450000');
+    await page.getByTestId('constraint-regenerate').click();
 
     await expect(page.getByTestId('optimization-loading')).toBeVisible();
+    await expect(page.getByTestId('system-flow-hud')).toBeVisible();
+    await expect(page.getByTestId('compute-overlay')).toBeVisible();
     await expect(page.getByTestId('candidate-grid')).toBeVisible({ timeout: 90_000 });
     await expect(page.getByTestId('candidate-card-candidate-a')).toBeVisible();
     await expect(page.getByTestId('optimization-dashboard')).toBeVisible();
+    await expect(page.getByTestId('decision-explainer')).toBeVisible();
     await expect(page.getByTestId('cost-intelligence-panel')).toBeVisible();
     await expect(page.getByTestId('moat-gain-panel')).toBeVisible();
     await expect(page.getByTestId('winner-hero-panel')).toBeVisible();
     await expect(page.getByTestId('tradeoff-delta-chart')).toBeVisible();
     await expect(page.getByTestId('score-breakdown')).toBeVisible();
+  });
+
+  test('regenerates after constraint edit', async ({ page }) => {
+    await page.goto('/optimization');
+    await page.getByTestId('constraint-prompt').fill('4-bedroom modern home on 600m² corner block');
+    await page.getByTestId('constraint-regenerate').click();
+    await expect(page.getByTestId('optimization-dashboard')).toBeVisible({ timeout: 90_000 });
+
+    await page.getByTestId('constraint-budget').fill('500000');
+    await expect(page.getByTestId('constraints-dirty')).toBeVisible();
+    await page.getByTestId('constraint-regenerate').click();
+
+    await expect(page.getByTestId('optimization-loading')).toBeVisible();
+    await expect(page.getByTestId('optimization-dashboard')).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByTestId('decision-explainer')).toBeVisible();
   });
 });

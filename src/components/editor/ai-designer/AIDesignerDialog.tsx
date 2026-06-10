@@ -16,6 +16,13 @@ import { toast } from 'sonner';
 import AIDesignerResultsPanel, { type ResultTab } from '@/components/editor/ai-designer/AIDesignerResultsPanel';
 import CopilotReviewStep from '@/components/editor/ai-designer/CopilotReviewStep';
 import CopilotUploadStep from '@/components/editor/ai-designer/CopilotUploadStep';
+import ComputeOverlay from '@/components/system-intelligence/ComputeOverlay';
+import SystemFlowHUD from '@/components/system-intelligence/SystemFlowHUD';
+import {
+  pipelineStageToComputeStatus,
+  pipelineStageToMacro,
+  type MacroStep,
+} from '@/components/system-intelligence/pipelineStageLabels';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type {
   CopilotDocumentKind,
@@ -155,22 +162,7 @@ export default function AIDesignerDialog({
     setWizardStep('generate');
 
     try {
-      const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
-      const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
-
-      const { building } = await generateFromCopilotSession({
-        prompt: designBrief.trim() || 'Modern family home',
-        parcelOverride,
-        ingestion: mergedIngestion,
-        sessionId: session.id,
-        uploadedDocuments: session.documents.map((d) => ({
-          id: d.id,
-          kind: d.kind,
-          fileName: d.fileName,
-        })),
-        onStage: setStage,
-      });
-
+      const building = await runCopilotGeneration();
       setResult(building);
       setTab('concept');
       setWizardStep('deliverables');
@@ -184,9 +176,62 @@ export default function AIDesignerDialog({
     }
   };
 
+  const runCopilotGeneration = async () => {
+    const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
+    const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
+    const requestOverride = previewRequest
+      ? {
+          bedrooms: previewRequest.bedrooms,
+          bathrooms: previewRequest.bathrooms,
+          garageSpaces: previewRequest.garageSpaces,
+        }
+      : undefined;
+
+    const { building } = await generateFromCopilotSession({
+      prompt: designBrief.trim() || 'Modern family home',
+      parcelOverride,
+      requestOverride,
+      ingestion: mergedIngestion,
+      sessionId: session.id,
+      uploadedDocuments: session.documents.map((d) => ({
+        id: d.id,
+        kind: d.kind,
+        fileName: d.fileName,
+      })),
+      onStage: setStage,
+    });
+
+    return building;
+  };
+
+  const handleRegenerate = async () => {
+    setGenerating(true);
+    setStage('ingesting');
+    setWizardStep('generate');
+    try {
+      const building = await runCopilotGeneration();
+      setResult(building);
+      setWizardStep('deliverables');
+      toast.success('Design regenerated with updated constraints');
+    } catch (error) {
+      console.error(error);
+      setStage('error');
+      toast.error(error instanceof Error ? error.message : 'Regeneration failed');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleCompareDesigns = () => {
     const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
     const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
+    const requestOverride = previewRequest
+      ? {
+          bedrooms: previewRequest.bedrooms,
+          bathrooms: previewRequest.bathrooms,
+          garageSpaces: previewRequest.garageSpaces,
+        }
+      : undefined;
     onOpenChange(false);
     navigate('/optimization', {
       state: {
@@ -194,6 +239,7 @@ export default function AIDesignerDialog({
           prompt: designBrief.trim() || 'Modern family home',
           targetBudget: targetBudget ? Number(targetBudget) : undefined,
           parcelOverride,
+          requestOverride,
           ingestion: mergedIngestion,
           sessionId: session.id,
           uploadedDocuments: session.documents.map((d) => ({
@@ -239,6 +285,9 @@ export default function AIDesignerDialog({
         return '';
     }
   }, [wizardStep]);
+
+  const deliverablesMacroStep: MacroStep = 'Export';
+  const generateMacroStep: MacroStep = stage ? pipelineStageToMacro(stage) : 'Generate';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -302,6 +351,9 @@ export default function AIDesignerDialog({
                 request={previewRequest}
                 parcelArea={parcelArea}
                 onParcelAreaChange={setParcelArea}
+                onRequestChange={(patch) =>
+                  setPreviewRequest((prev) => (prev ? { ...prev, ...patch } : prev))
+                }
               />
               <div className="space-y-2">
                 <Label htmlFor="copilot-budget">Target budget (AUD, optional)</Label>
@@ -319,7 +371,22 @@ export default function AIDesignerDialog({
           )}
 
           {(wizardStep === 'generate' || generating) && stage && (
-            <p className="text-xs text-muted-foreground">{STAGE_LABELS[stage]}</p>
+            <div className="relative space-y-3 rounded-xl border border-border/60 p-4">
+              <ComputeOverlay
+                status={pipelineStageToComputeStatus(stage)}
+                className="absolute right-4 top-4"
+              />
+              <p className="text-xs text-muted-foreground pr-28">{STAGE_LABELS[stage]}</p>
+              <SystemFlowHUD variant="macro" activeStep={generateMacroStep} />
+            </div>
+          )}
+
+          {wizardStep === 'deliverables' && result && !generating && (
+            <SystemFlowHUD
+              variant="macro"
+              activeStep={deliverablesMacroStep}
+              completedSteps={['Input', 'Generate', 'Optimize', 'CostModel', 'Compliance']}
+            />
           )}
 
           {wizardStep === 'deliverables' && result && (
@@ -374,6 +441,16 @@ export default function AIDesignerDialog({
 
           {wizardStep === 'deliverables' && result && (
             <>
+              <Button variant="outline" onClick={() => void handleRegenerate()} disabled={generating}>
+                {generating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Regenerating…
+                  </>
+                ) : (
+                  'Regenerate'
+                )}
+              </Button>
               <Button
                 variant="outline"
                 onClick={() => downloadComplianceReportPdf(result.complianceReport)}

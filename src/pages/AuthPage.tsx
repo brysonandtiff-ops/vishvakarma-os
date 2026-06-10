@@ -6,17 +6,7 @@ import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-const SANSKRIT_MATRIX_COLUMNS = [
-  'ॐ श्री विश्वकर्मणे नमः',
-  'धर्म अर्थ शिल्प विज्ञान',
-  'मन्त्र यन्त्र वास्तु रचना',
-  'ॐ ह्रीं क्लीं सौः',
-  'विद्या कर्म ज्योति रूपम्',
-  'स्थिरं सौन्दर्यम् शुभम्',
-  'रचना प्रमाणं सुरक्षा',
-  'सत्यं शिल्पं प्रकाशः',
-] as const;
+import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
 function getReturnPath(state: unknown) {
   if (typeof state === 'object' && state !== null && 'from' in state) {
@@ -125,23 +115,7 @@ export default function AuthPage() {
 
   return (
     <main className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <div className="vish-sanskrit-matrix pointer-events-none absolute inset-0" aria-hidden="true">
-        {SANSKRIT_MATRIX_COLUMNS.map((glyphs, index) => (
-          <span
-            key={glyphs}
-            className="vish-sanskrit-column"
-            style={{
-              left: `${5 + index * 12.5}%`,
-              animationDelay: `${index * -3.2}s`,
-              animationDuration: `${18 + index * 2.4}s`,
-            }}
-          >
-            {Array.from({ length: 9 }, (_, lineIndex) => (
-              <span key={`${glyphs}-${lineIndex}`}>{glyphs}</span>
-            ))}
-          </span>
-        ))}
-      </div>
+      <SanskritRainBackground preset="auth" className="pointer-events-none absolute inset-0" />
 
       <div className="vish-yantra-grid pointer-events-none absolute inset-0" aria-hidden="true" />
 

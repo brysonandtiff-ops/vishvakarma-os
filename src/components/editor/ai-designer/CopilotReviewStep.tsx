@@ -8,28 +8,65 @@ export default function CopilotReviewStep({
   request,
   parcelArea,
   onParcelAreaChange,
+  onRequestChange,
 }: {
   ingestion: CopilotIngestionResult;
   request: BuildingRequest;
   parcelArea: string;
   onParcelAreaChange: (value: string) => void;
+  onRequestChange: (patch: Partial<Pick<BuildingRequest, 'bedrooms' | 'bathrooms' | 'garageSpaces'>>) => void;
 }) {
   return (
     <div className="space-y-4 text-sm">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground">Program</p>
-          <p>
-            {request.bedrooms} bed · {request.bathrooms} bath · {request.garageSpaces} car · {request.style}
-          </p>
+        <div className="space-y-2">
+          <Label htmlFor="review-bedrooms">Bedrooms</Label>
+          <Input
+            id="review-bedrooms"
+            type="number"
+            min={1}
+            max={8}
+            value={request.bedrooms}
+            onChange={(e) => onRequestChange({ bedrooms: Number(e.target.value) })}
+            data-testid="copilot-bedrooms"
+          />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-2">
+          <Label htmlFor="review-bathrooms">Bathrooms</Label>
+          <Input
+            id="review-bathrooms"
+            type="number"
+            min={1}
+            max={6}
+            value={request.bathrooms}
+            onChange={(e) => onRequestChange({ bathrooms: Number(e.target.value) })}
+            data-testid="copilot-bathrooms"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="review-garage">Garage spaces</Label>
+          <Input
+            id="review-garage"
+            type="number"
+            min={0}
+            max={4}
+            value={request.garageSpaces}
+            onChange={(e) => onRequestChange({ garageSpaces: Number(e.target.value) })}
+            data-testid="copilot-garage"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="review-style">Style</Label>
+          <p className="rounded-md border border-input px-3 py-2 text-muted-foreground">{request.style}</p>
+        </div>
+        <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="review-parcel">Parcel area m²</Label>
           <Input
             id="review-parcel"
             type="number"
             value={parcelArea}
             onChange={(e) => onParcelAreaChange(e.target.value)}
+            data-testid="copilot-parcel"
           />
         </div>
       </div>

@@ -208,16 +208,34 @@ Spec: [`docs/specs/CONSTRUCTION_COST_INTELLIGENCE.md`](specs/CONSTRUCTION_COST_I
 
 ---
 
-## 9. System Contract Layer
+## 9. System Contract Layer (Hardened)
 
 Contract-first architecture preventing drift between generation engines:
 
 - **Contracts**: `src/core-contract/` — pipeline, compliance, cost, output schemas
 - **System graph**: `system-map.json` — allowed/forbidden data flow edges
-- **Regression anchors**: `tests/anchors/` — structural gold standards
-- **Build gates**: PR `BUILD_GATE` declaration + `pnpm run contract:gates`
+- **Runtime guard**: `assertAllowedFlow()` at orchestration boundaries
+- **Regression anchors**: `tests/anchors/` — structural gold standards via `anchorRunner.ts`
+- **Build gates**: `build-gate.manifest.ts` + `pnpm run contract:gates` (enforced in GitHub CI)
+- **Anchor CI**: `pnpm run test:anchors` in `verify.yml`
 
 Spec: [`docs/specs/SYSTEM_CONTRACT_LAYER.md`](specs/SYSTEM_CONTRACT_LAYER.md)
+
+---
+
+## 10. Council Intelligence (Phase 7)
+
+Council approval likelihood scoring from real pipeline signals:
+
+- **Approval score**: 0–100 with high / medium / low likelihood bands
+- **Signals**: setbacks, coverage, height, heritage overlay, special conditions, compliance findings
+- **Pipeline**: computed in `buildFromLayout` when council requirements are ingested
+- **Optimization integration**: `approvalConfidence` on report; moat gain blends permit confidence
+- **UI**: Approval % badge on candidate cards, winner hero, optimization report panel
+
+Entry: Optimization battle view (when council doc ingested via Copilot)
+
+Spec: [`docs/specs/COUNCIL_INTELLIGENCE.md`](specs/COUNCIL_INTELLIGENCE.md)
 
 ---
 

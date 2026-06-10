@@ -17,9 +17,10 @@ export default function OptimizationReportPanel({ batch }: { batch: Optimization
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <MetricPill value={String(report.estimatedCost.toLocaleString())} label="Est. Cost" />
         <MetricPill value={`${report.complianceConfidence}%`} label="Compliance" />
+        <MetricPill value={`${report.approvalConfidence}%`} label="Approval" />
         <MetricPill value={String(siteFitness.overall)} label="Site Fitness" />
         <MetricPill value={report.permitReady ? 'Ready' : 'Blocked'} label="Permit" />
       </div>

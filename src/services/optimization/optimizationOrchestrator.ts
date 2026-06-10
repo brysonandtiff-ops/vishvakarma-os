@@ -11,6 +11,7 @@ import { validateBuildingRequest } from '@/ai/building-designer/validators/build
 import { buildGeneratedBuildingFromLayout } from '@/services/floorplan-generation/buildFromLayout';
 import {
   resolveBuildingRequest,
+  mergeResolvedRequest,
   type PipelineStage,
 } from '@/services/floorplan-generation/orchestrator';
 import { optimizeForBudget } from '@/services/optimization/budgetOptimizer';
@@ -22,13 +23,16 @@ import {
 import { getAllStrategies } from '@/services/optimization/strategyProfiles';
 import { computeSiteFitness } from '@/services/optimization/siteFitness';
 import { buildOptimizationReport } from '@/services/optimization/tradeoffAnalyzer';
+import { assertAllowedFlow } from '@/core-contract/systemFlow';
+
+export type OptimizationProgressStage = PipelineStage | 'scoring';
 
 export async function runOptimizationBatch(
   input: OptimizationBatchInput,
-  onProgress?: (candidateIndex: number, stage: PipelineStage) => void,
+  onProgress?: (candidateIndex: number, stage: OptimizationProgressStage) => void,
 ): Promise<OptimizationBatch> {
   onProgress?.(0, 'extracting');
-  const { request: baseRequest, council } = await resolveBuildingRequest({
+  const { request: resolved, council } = await resolveBuildingRequest({
     prompt: input.prompt,
     parcelOverride: input.parcelOverride,
     ingestion: input.ingestion,
@@ -38,9 +42,18 @@ export async function runOptimizationBatch(
     >[0]['uploadedDocuments'],
   });
 
+  const baseRequest = mergeResolvedRequest(resolved, {
+    requestOverride: input.requestOverride,
+    parcelOverride: input.parcelOverride,
+  });
+
   const requestErrors = validateBuildingRequest(baseRequest);
   if (requestErrors.length) {
     throw new Error(requestErrors.join('; '));
+  }
+
+  if (input.ingestion) {
+    assertAllowedFlow('ARCHITECTURE_COPILOT', 'OPTIMIZATION_ENGINE');
   }
 
   const siteFitness = computeSiteFitness(baseRequest, council);
@@ -61,7 +74,6 @@ export async function runOptimizationBatch(
     const constraints = applyConstraints(request, strategy);
     const { rooms, circulation } = solveLayout(constraints, strategy);
 
-    onProgress?.(i, 'floorplan');
     const optimizationMeta = {
       batchId,
       candidateId: strategy.id,
@@ -87,6 +99,8 @@ export async function runOptimizationBatch(
         : undefined,
       optimization: optimizationMeta,
       targetBudget: input.targetBudget,
+      siteFitnessSetbackUtilization: siteFitness.setbackUtilization,
+      onStage: (stage) => onProgress?.(i, stage),
     });
 
     if (input.targetBudget) {
@@ -105,8 +119,9 @@ export async function runOptimizationBatch(
     }
 
     rawBuildings.push({ strategy, building });
-    onProgress?.(i, 'compliance');
   }
+
+  onProgress?.(strategies.length, 'scoring');
 
   const scoringContext = buildBatchScoringContext(
     rawBuildings.map((r) => r.building),
@@ -137,6 +152,7 @@ export async function runOptimizationBatch(
   return {
     id: batchId,
     input,
+    resolvedRequest: baseRequest,
     siteFitness,
     candidates,
     winnerId: winner.id,

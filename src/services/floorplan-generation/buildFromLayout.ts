@@ -3,6 +3,9 @@ import type { GeneratedBuilding, RoomPlacement } from '@/domain/buildings/genera
 import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
 import type { CouncilRequirements } from '@/domain/copilot/councilRequirements';
 import type { OptimizationManifestMetadata } from '@/domain/optimization/types';
+import type { PipelineStage } from '@/core-contract/pipeline.schema';
+import { assertAllowedFlow } from '@/core-contract/systemFlow';
+import { assessCouncilCompliance } from '@/services/council-intelligence/councilEngine';
 import { buildArchitectureMap } from '@/ai/building-designer/generators/architectureMapGenerator';
 import { generateConceptDesign } from '@/ai/building-designer/generators/conceptDesignGenerator';
 import { generateFloorPlan } from '@/ai/building-designer/generators/floorplanGenerator';
@@ -28,13 +31,20 @@ export interface BuildFromLayoutInput {
   ingestion?: { siteSurvey?: CopilotManifestMetadata['siteSurvey']; boundary?: CopilotManifestMetadata['boundary'] };
   optimization?: OptimizationManifestMetadata;
   targetBudget?: number;
+  siteFitnessSetbackUtilization?: number;
+  onStage?: (stage: PipelineStage) => void;
 }
 
 export function buildGeneratedBuildingFromLayout(input: BuildFromLayoutInput): GeneratedBuilding {
+  input.onStage?.('floorplan');
   const floorPlan = generateFloorPlan(input.rooms, input.circulation);
   const sitePlan = generateSitePlan(input.request, input.rooms, input.council);
   const architectureMap = buildArchitectureMap(input.constraints.rooms);
+
+  input.onStage?.('concept');
   const conceptDesign = generateConceptDesign(input.request, floorPlan, architectureMap);
+
+  input.onStage?.('schedules');
   const schedules = generateSchedules(floorPlan);
   const materialList = generateMaterialList(floorPlan, schedules);
 
@@ -68,10 +78,48 @@ export function buildGeneratedBuildingFromLayout(input: BuildFromLayoutInput): G
     council: input.council,
     targetBudget: input.targetBudget,
   });
+
+  input.onStage?.('compliance');
   const complianceReport = runComplianceAuditFromManifest(manifest, {
     id: input.sessionId,
     name: manifest.name,
   });
+
+  if (input.optimization) {
+    assertAllowedFlow('OPTIMIZATION_ENGINE', 'COMPLIANCE_GATE');
+  }
+
+  let councilAssessment = input.council
+    ? assessCouncilCompliance(
+        {
+          request: input.request,
+          sitePlan,
+          floorPlan,
+          schedules,
+          architectureMap,
+          manifest,
+          costSummary,
+          conceptDesign,
+          materialList,
+          complianceReport,
+          copilot: copilotMeta,
+        },
+        input.council,
+        { siteFitnessSetbackUtilization: input.siteFitnessSetbackUtilization },
+      )
+    : undefined;
+
+  if (councilAssessment && input.council) {
+    const councilSource = input.optimization ? 'OPTIMIZATION_ENGINE' : 'ARCHITECTURE_COPILOT';
+    assertAllowedFlow(councilSource, 'COUNCIL_INTELLIGENCE');
+    if (input.optimization) {
+      assertAllowedFlow('COUNCIL_INTELLIGENCE', 'OPTIMIZATION_ENGINE');
+    }
+    if (copilotMeta) {
+      copilotMeta.councilAssessment = councilAssessment;
+      manifest.metadata.copilot = copilotMeta as unknown as Record<string, unknown>;
+    }
+  }
 
   const building: GeneratedBuilding = {
     request: input.request,
@@ -85,6 +133,7 @@ export function buildGeneratedBuildingFromLayout(input: BuildFromLayoutInput): G
     materialList,
     complianceReport,
     copilot: copilotMeta,
+    councilAssessment,
   };
 
   const errors = validateGeneratedBuilding(building);

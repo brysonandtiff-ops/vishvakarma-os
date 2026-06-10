@@ -6,6 +6,20 @@ function mockBatch(): OptimizationBatch {
   return {
     id: 'batch-1',
     input: { prompt: '4-bed modern home', targetBudget: 450_000 },
+    resolvedRequest: {
+      style: 'modern',
+      bedrooms: 4,
+      bathrooms: 2,
+      garageSpaces: 2,
+      levels: 1,
+      parcel: {
+        width: 24.5,
+        depth: 24.5,
+        area: 600,
+        slope: 0,
+        orientation: 'north',
+      },
+    },
     siteFitness: {
       overall: 80,
       solarOrientation: 85,

@@ -37,12 +37,21 @@
       "tier": "extension",
       "ownership": "src/services/cost-estimation/",
       "spec": "docs/specs/CONSTRUCTION_COST_INTELLIGENCE.md"
+    },
+    "COUNCIL_INTELLIGENCE": {
+      "version": "1.0.0",
+      "tier": "extension",
+      "ownership": "src/services/council-intelligence/",
+      "spec": "docs/specs/COUNCIL_INTELLIGENCE.md"
     }
   },
   "allowed_edges": [
     "INPUT→ARCHITECTURE_COPILOT",
     "ARCHITECTURE_COPILOT→OPTIMIZATION_ENGINE",
+    "ARCHITECTURE_COPILOT→COUNCIL_INTELLIGENCE",
     "OPTIMIZATION_ENGINE→COMPLIANCE_GATE",
+    "OPTIMIZATION_ENGINE→COUNCIL_INTELLIGENCE",
+    "COUNCIL_INTELLIGENCE→OPTIMIZATION_ENGINE",
     "COMPLIANCE_GATE→PERMIT_PACKAGE_EXPORT",
     "GENERATED_BUILDING→COST_INTELLIGENCE",
     "OPTIMIZATION_ENGINE→COST_INTELLIGENCE"

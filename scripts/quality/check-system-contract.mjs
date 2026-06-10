@@ -16,7 +16,7 @@ const anchor = JSON.parse(readFileSync(anchorPath, 'utf8'));
 const schemaSource = readFileSync(schemaPath, 'utf8');
 
 const versionMatch = schemaSource.match(
-  /SYSTEM_VERSIONS[\s\S]*?ARCHITECTURE_COPILOT:\s*'([^']+)'[\s\S]*?OPTIMIZATION_ENGINE:\s*'([^']+)'[\s\S]*?COST_INTELLIGENCE:\s*'([^']+)'[\s\S]*?COMPLIANCE_GATE:\s*'([^']+)'/,
+  /SYSTEM_VERSIONS[\s\S]*?ARCHITECTURE_COPILOT:\s*'([^']+)'[\s\S]*?OPTIMIZATION_ENGINE:\s*'([^']+)'[\s\S]*?COST_INTELLIGENCE:\s*'([^']+)'[\s\S]*?COMPLIANCE_GATE:\s*'([^']+)'[\s\S]*?COUNCIL_INTELLIGENCE:\s*'([^']+)'/,
 );
 
 if (!versionMatch) {
@@ -29,6 +29,7 @@ const expected = {
   OPTIMIZATION_ENGINE: versionMatch[2],
   COST_INTELLIGENCE: versionMatch[3],
   COMPLIANCE_GATE: versionMatch[4],
+  COUNCIL_INTELLIGENCE: versionMatch[5],
 };
 
 const errors = [];

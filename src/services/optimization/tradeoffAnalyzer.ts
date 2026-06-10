@@ -53,6 +53,17 @@ export function identifyRiskAreas(candidate: OptimizationCandidate): string[] {
     risks.push('Compliance warnings may require surveyor review.');
   }
 
+  const councilAssessment =
+    candidate.building.councilAssessment ?? candidate.building.copilot?.councilAssessment;
+  if (councilAssessment) {
+    if (councilAssessment.likelihood === 'low') {
+      risks.push(`Low council approval likelihood (${councilAssessment.approvalScore}%).`);
+    }
+    for (const blocker of councilAssessment.blockers.slice(0, 2)) {
+      risks.push(`Council blocker: ${blocker}`);
+    }
+  }
+
   if (cost && cost.score < 60) {
     risks.push('Construction cost exceeds target or batch median.');
   }
@@ -88,6 +99,10 @@ export function buildOptimizationReport(
   allCandidates: OptimizationCandidate[],
 ): OptimizationReport {
   const complianceScore = winner.scores.find((s) => s.category === 'compliance')?.score ?? 0;
+  const approvalConfidence =
+    winner.building.councilAssessment?.approvalScore ??
+    winner.building.copilot?.councilAssessment?.approvalScore ??
+    complianceScore;
   const permitReady = !winner.building.complianceReport.blocked;
 
   return {
@@ -99,6 +114,7 @@ export function buildOptimizationReport(
     riskAreas: identifyRiskAreas(winner),
     estimatedCost: winner.building.costSummary.total,
     complianceConfidence: complianceScore,
+    approvalConfidence,
     permitReady,
     moatGain: analyzeMoatGain(
       allCandidates,
@@ -106,6 +122,7 @@ export function buildOptimizationReport(
       runnerUp,
       permitReady,
       winner.building.costSummary.intelligence,
+      approvalConfidence,
     ),
     generatedAt: new Date().toISOString(),
   };

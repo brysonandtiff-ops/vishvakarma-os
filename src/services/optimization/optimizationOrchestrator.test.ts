@@ -35,6 +35,11 @@ describe('optimizationOrchestrator', () => {
     expect(batch.report.moatGain.valueImpactLabel).toBeTruthy();
     const winner = batch.candidates.find((c) => c.id === batch.winnerId);
     expect(winner?.building.costSummary.intelligence).toBeDefined();
+    expect(winner?.building.councilAssessment).toBeDefined();
+    expect(batch.report.approvalConfidence).toBeGreaterThan(0);
+    for (const candidate of batch.candidates) {
+      expect(candidate.building.councilAssessment?.approvalScore).toBeGreaterThan(0);
+    }
     expect(winner?.building.costSummary.intelligence?.scenarios.bestCase).toBeLessThan(
       winner?.building.costSummary.intelligence?.scenarios.expected ?? 0,
     );

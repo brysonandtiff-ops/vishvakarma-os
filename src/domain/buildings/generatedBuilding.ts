@@ -5,6 +5,7 @@ import type { ConceptDesign } from '@/domain/copilot/conceptDesign';
 import type { MaterialListRow } from '@/domain/copilot/materialList';
 import type { CostIntelligenceReport } from '@/domain/cost/types';
 import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
+import type { CouncilAssessment } from '@/domain/council-intelligence/types';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { Opening, Point2D, ProjectManifest, Wall } from '@/types';
 
@@ -74,4 +75,5 @@ export interface GeneratedBuilding {
   materialList: MaterialListRow[];
   complianceReport: ComplianceAuditReport;
   copilot?: CopilotManifestMetadata;
+  councilAssessment?: CouncilAssessment;
 }

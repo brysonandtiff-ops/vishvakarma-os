@@ -9,16 +9,23 @@ import SiteFitnessPanel from '@/components/optimization/SiteFitnessPanel';
 import TradeoffDeltaChart from '@/components/optimization/TradeoffDeltaChart';
 import TradeoffPanel from '@/components/optimization/TradeoffPanel';
 import WinnerHeroPanel from '@/components/optimization/WinnerHeroPanel';
+import CouncilApprovalPanel from '@/components/system-intelligence/CouncilApprovalPanel';
+import DecisionExplainerPanel from '@/components/system-intelligence/DecisionExplainerPanel';
+import SystemFlowHUD from '@/components/system-intelligence/SystemFlowHUD';
+import type { MacroStep } from '@/components/system-intelligence/pipelineStageLabels';
 import type { OptimizationBatch, OptimizationCandidate } from '@/domain/optimization/types';
 
 export default function OptimizationDashboard({
   batch,
   selectedCandidate,
   runnerUp,
+  winner,
   favorites,
   selectedId,
   compareId,
   saving,
+  regenerating,
+  activeMacroStep,
   onSelect,
   onFavorite,
   onPromote,
@@ -30,10 +37,13 @@ export default function OptimizationDashboard({
   batch: OptimizationBatch;
   selectedCandidate: OptimizationCandidate | null;
   runnerUp: OptimizationCandidate;
+  winner: OptimizationCandidate;
   favorites: Set<string>;
   selectedId: string | null;
   compareId: string | null;
   saving?: boolean;
+  regenerating?: boolean;
+  activeMacroStep: MacroStep;
   onSelect: (id: string) => void;
   onFavorite: (id: string) => void;
   onPromote: (candidate: OptimizationCandidate) => void;
@@ -42,22 +52,41 @@ export default function OptimizationDashboard({
   onExportPermit: () => void;
   onExportPdf: () => void;
 }) {
-  const winner = batch.candidates.find((c) => c.id === batch.winnerId);
-  if (!winner) return null;
+  const completedMacro: MacroStep[] = [
+    'Input',
+    'Generate',
+    'Optimize',
+    'CostModel',
+    'Compliance',
+  ];
 
   return (
     <div className="space-y-6" data-testid="optimization-dashboard">
+      <SystemFlowHUD
+        variant="macro"
+        activeStep={activeMacroStep}
+        completedSteps={regenerating ? undefined : completedMacro}
+      />
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <WinnerHeroPanel
-          batch={batch}
-          winner={winner}
-          onPromote={() => onPromote(winner)}
-          onSaveProject={onSaveProject}
-          onExportPermit={onExportPermit}
-          onExportPdf={onExportPdf}
-          saving={saving}
-        />
-        <MoatGainPanel moatGain={batch.report.moatGain} />
+        <div className="space-y-4">
+          <WinnerHeroPanel
+            batch={batch}
+            winner={winner}
+            onPromote={() => onPromote(winner)}
+            onSaveProject={onSaveProject}
+            onExportPermit={onExportPermit}
+            onExportPdf={onExportPdf}
+            saving={saving}
+          />
+          <DecisionExplainerPanel winner={winner} runnerUp={runnerUp} report={batch.report} />
+        </div>
+        <div className="space-y-4">
+          <MoatGainPanel moatGain={batch.report.moatGain} />
+          {winner.building.councilAssessment && (
+            <CouncilApprovalPanel assessment={winner.building.councilAssessment} />
+          )}
+        </div>
       </div>
 
       <CostIntelligencePanel intelligence={winner.building.costSummary.intelligence} />
