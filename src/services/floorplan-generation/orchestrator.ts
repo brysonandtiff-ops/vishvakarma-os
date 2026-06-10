@@ -105,3 +105,10 @@ export async function runBuildingDesignerPipeline(input: OrchestratorInput): Pro
   input.onStage?.('complete');
   return building;
 }
+
+export async function runPlanningIntelligencePipeline(
+  input: import('@/planning/types').PlanningIntelligenceInput,
+) {
+  const { runPlanningIntelligencePipeline: run } = await import('@/planning/planningPipeline');
+  return run(input);
+}

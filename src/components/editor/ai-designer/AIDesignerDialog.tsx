@@ -17,6 +17,7 @@ import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import AIDesignerResultsPanel, { type ResultTab } from '@/components/editor/ai-designer/AIDesignerResultsPanel';
 import CopilotReviewStep from '@/components/editor/ai-designer/CopilotReviewStep';
 import CopilotUploadStep from '@/components/editor/ai-designer/CopilotUploadStep';
+import PlanningShortlistPanel from '@/components/editor/ai-designer/PlanningShortlistPanel';
 import ComputeOverlay from '@/components/system-intelligence/ComputeOverlay';
 import SystemFlowHUD from '@/components/system-intelligence/SystemFlowHUD';
 import {
@@ -38,6 +39,7 @@ import { ingestCopilotDocuments } from '@/services/copilot/ingestion/documentPar
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import { downloadComplianceReportPdf } from '@/modules/compliance/complianceReportExport';
 import { downloadPermitPackage } from '@/modules/permit/permitPackageExport';
+import type { PlanExplanation, PlanningProgress, PlanScore } from '@/planning/types';
 import type { PipelineStage } from '@/services/floorplan-generation/orchestrator';
 import type { Project, ProjectManifest } from '@/types';
 
@@ -58,6 +60,7 @@ type WizardStep = 'upload' | 'review' | 'generate' | 'deliverables';
 
 const RESULT_TABS: { key: ResultTab; label: string }[] = [
   { key: 'concept', label: 'Concept' },
+  { key: 'whyPlan', label: 'Why this plan' },
   { key: 'site', label: 'Site' },
   { key: 'schedules', label: 'Schedules' },
   { key: 'map', label: 'Map' },
@@ -93,6 +96,11 @@ export default function AIDesignerDialog({
   const [result, setResult] = useState<GeneratedBuilding | null>(null);
   const [tab, setTab] = useState<ResultTab>('concept');
   const [targetBudget, setTargetBudget] = useState('');
+  const [planningProgress, setPlanningProgress] = useState<PlanningProgress | null>(null);
+  const [shortlist, setShortlist] = useState<GeneratedBuilding[]>([]);
+  const [rankedScores, setRankedScores] = useState<PlanScore[]>([]);
+  const [explanation, setExplanation] = useState<PlanExplanation | null>(null);
+  const [selectingRunnerUp, setSelectingRunnerUp] = useState(false);
   const navigate = useNavigate();
 
   const designBrief = session.designBrief;
@@ -159,25 +167,30 @@ export default function AIDesignerDialog({
   const handleGenerate = async () => {
     setGenerating(true);
     setResult(null);
+    setShortlist([]);
+    setRankedScores([]);
+    setExplanation(null);
+    setPlanningProgress(null);
     setStage('ingesting');
     setWizardStep('generate');
 
     try {
       const building = await runCopilotGeneration();
       setResult(building);
-      setTab('concept');
+      setTab('whyPlan');
       setWizardStep('deliverables');
-      toast.success('Architecture Copilot design complete');
+      toast.success(`Selected ${building.planning?.selectedCandidateId ?? 'best plan'} from planning intelligence`);
     } catch (error) {
       console.error(error);
       setStage('error');
       toast.error(error instanceof Error ? error.message : 'Generation failed');
     } finally {
       setGenerating(false);
+      setPlanningProgress(null);
     }
   };
 
-  const runCopilotGeneration = async () => {
+  const runCopilotGeneration = async (selectedCandidateId?: string) => {
     const mergedIngestion = ingestion ?? { mergedPrompt: designBrief.trim() };
     const parcelOverride = parcelArea ? { area: Number(parcelArea) } : undefined;
     const requestOverride = previewRequest
@@ -188,7 +201,7 @@ export default function AIDesignerDialog({
         }
       : undefined;
 
-    const { building } = await generateFromCopilotSession({
+    const generation = await generateFromCopilotSession({
       prompt: designBrief.trim() || 'Modern family home',
       parcelOverride,
       requestOverride,
@@ -200,10 +213,68 @@ export default function AIDesignerDialog({
         fileName: d.fileName,
       })),
       onStage: setStage,
+      onPlanningProgress: setPlanningProgress,
+      candidateCount: 20,
+      fullBuildTopK: 3,
+      useWorker: false,
+      selectedCandidateId,
     });
 
-    return building;
+    setShortlist(generation.shortlist ?? []);
+    setRankedScores(generation.rankedScores ?? []);
+    setExplanation(generation.explanation ?? generation.building.planning?.explanation ?? null);
+
+    return generation.building;
   };
+
+  const handleSelectRunnerUp = async (candidateId: string) => {
+    if (!result?.planning || candidateId === result.planning.selectedCandidateId) return;
+
+    const runnerUp = shortlist.find((_, index) => rankedScores[index]?.candidateId === candidateId);
+    if (runnerUp) {
+      setResult({
+        ...runnerUp,
+        planning: {
+          ...result.planning,
+          selectedCandidateId: candidateId,
+          explanation: buildRunnerUpExplanation(explanation, candidateId, rankedScores),
+        },
+        shortlistBuildings: shortlist,
+      });
+      setTab('whyPlan');
+      toast.success(`Using ${candidateId} instead`);
+      return;
+    }
+
+    setSelectingRunnerUp(true);
+    setStage('layout');
+    setWizardStep('generate');
+    try {
+      const building = await runCopilotGeneration(candidateId);
+      setResult(building);
+      setWizardStep('deliverables');
+      toast.success(`Using ${candidateId} instead`);
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : 'Failed to switch plan');
+    } finally {
+      setSelectingRunnerUp(false);
+      setPlanningProgress(null);
+    }
+  };
+
+  function buildRunnerUpExplanation(
+    base: PlanExplanation | null,
+    candidateId: string,
+    scores: PlanScore[],
+  ): PlanExplanation {
+    const score = scores.find((s) => s.candidateId === candidateId);
+    return {
+      summary: `You selected ${candidateId}${score ? ` (score ${Math.round(score.total)}/100)` : ''} over the auto-selected winner.`,
+      winningReasons: base?.winningReasons ?? ['User override'],
+      tradeoffs: [`Auto-selected plan was ${result?.planning?.selectedCandidateId ?? 'plan-1'}`],
+    };
+  }
 
   const handleRegenerate = async () => {
     setGenerating(true);
@@ -371,13 +442,24 @@ export default function AIDesignerDialog({
             </>
           )}
 
-          {(wizardStep === 'generate' || generating) && stage && (
-            <div className="relative space-y-3 rounded-xl border border-border/60 p-4">
+          {(wizardStep === 'generate' || generating || selectingRunnerUp) && (stage || planningProgress) && (
+            <div className="relative space-y-3 rounded-xl border border-border/60 p-4" data-testid="planning-progress">
               <ComputeOverlay
-                status={pipelineStageToComputeStatus(stage)}
+                status={
+                  planningProgress?.phase === 'scoring' || planningProgress?.phase === 'selecting'
+                    ? 'scoring'
+                    : pipelineStageToComputeStatus(stage ?? 'layout')
+                }
                 className="absolute right-4 top-4"
               />
-              <p className="text-xs text-muted-foreground pr-28">{STAGE_LABELS[stage]}</p>
+              <p className="text-xs text-muted-foreground pr-28">
+                {planningProgress?.message ??
+                  (planningProgress
+                    ? `Evaluating option ${planningProgress.current} of ${planningProgress.total}…`
+                    : stage
+                      ? STAGE_LABELS[stage]
+                      : 'Planning…')}
+              </p>
               <SystemFlowHUD variant="macro" activeStep={generateMacroStep} />
             </div>
           )}
@@ -393,6 +475,14 @@ export default function AIDesignerDialog({
           {wizardStep === 'deliverables' && result && (
             <div className="space-y-3">
               <PrototypeModuleNotice variant="copilot" />
+              {shortlist.length > 0 && result.planning && (
+                <PlanningShortlistPanel
+                  shortlist={shortlist}
+                  rankedScores={result.planning.rankedScores.slice(0, shortlist.length)}
+                  selectedId={result.planning.selectedCandidateId}
+                  onSelectCandidate={(id) => void handleSelectRunnerUp(id)}
+                />
+              )}
               <div className="flex flex-wrap gap-2">
                 {RESULT_TABS.map(({ key, label }) => (
                   <Button key={key} size="sm" variant={tab === key ? 'default' : 'outline'} onClick={() => setTab(key)}>
@@ -402,6 +492,8 @@ export default function AIDesignerDialog({
               </div>
               <AIDesignerResultsPanel building={result} tab={tab} />
               <p className="text-xs text-muted-foreground">
+                {result.planning?.candidateCount ?? 0} plans evaluated ·{' '}
+                {result.planning?.selectedCandidateId ?? 'plan-1'} selected ·{' '}
                 {result.floorPlan.rooms.length} rooms · {result.floorPlan.walls.length} walls · $
                 {result.costSummary.total.toLocaleString()} est. · Compliance {result.complianceReport.overall}
               </p>

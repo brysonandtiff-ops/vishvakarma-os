@@ -45,7 +45,18 @@ test.describe('Architecture Copilot', () => {
     await page.getByLabel('Design brief').fill('4-bedroom modern home on 600m² corner block with double garage');
     await page.getByRole('button', { name: 'Review inputs' }).click();
     await page.getByRole('button', { name: 'Generate design' }).click();
-    await expect(page.getByRole('button', { name: 'Open in editor' })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole('button', { name: 'Open in editor' })).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByRole('button', { name: 'Why this plan' })).toBeVisible();
+    await page.getByRole('button', { name: 'Why this plan' }).click();
+    await expect(page.getByTestId('plan-explanation')).toBeVisible();
+    await expect(page.getByTestId('planning-shortlist')).toBeVisible();
+
+    const runnerUpButton = page.getByRole('button', { name: 'Use this plan' }).first();
+    if (await runnerUpButton.isVisible()) {
+      await runnerUpButton.click();
+      await expect(page.getByTestId('plan-explanation')).toContainText(/You selected plan-/);
+    }
+
     await expect(page.getByRole('button', { name: 'Permit package' })).toBeVisible();
     await page.getByRole('button', { name: 'Open in editor' }).click();
     await expect(page.getByText(/Walls:\s*[1-9]/i)).toBeVisible({ timeout: 30_000 });

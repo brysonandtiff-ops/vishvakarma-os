@@ -1,6 +1,12 @@
 import type { SitePlan } from '@/domain/buildings/generatedBuilding';
 
-export default function SitePlanPreview({ sitePlan }: { sitePlan: SitePlan }) {
+export default function SitePlanPreview({
+  sitePlan,
+  compact = false,
+}: {
+  sitePlan: SitePlan;
+  compact?: boolean;
+}) {
   const points = sitePlan.parcelBoundary;
   const footprint = sitePlan.buildingFootprint;
   if (points.length < 3) return null;
@@ -18,7 +24,12 @@ export default function SitePlanPreview({ sitePlan }: { sitePlan: SitePlan }) {
     pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x - minX + pad} ${p.y - minY + pad}`).join(' ') + ' Z';
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-48 w-full rounded-xl border border-border/60 bg-muted/30" role="img" aria-label="Site plan preview">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className={`w-full rounded-xl border border-border/60 bg-muted/30 ${compact ? 'h-24' : 'h-48'}`}
+      role="img"
+      aria-label="Site plan preview"
+    >
       <path d={toPath(points)} fill="none" stroke="currentColor" strokeWidth={2} className="text-primary/60" />
       <path d={toPath(footprint)} fill="currentColor" fillOpacity={0.12} stroke="currentColor" strokeWidth={1.5} className="text-foreground/70" />
       <text x={pad} y={14} className="fill-muted-foreground text-[10px]">

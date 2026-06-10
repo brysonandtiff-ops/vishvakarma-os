@@ -7,6 +7,7 @@ import type { CostIntelligenceReport } from '@/domain/cost/types';
 import type { CopilotManifestMetadata } from '@/domain/copilot/copilotSession';
 import type { CouncilAssessment } from '@/domain/council-intelligence/types';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
+import type { PlanningMetadata } from '@/planning/types';
 import type { Opening, Point2D, ProjectManifest, Wall } from '@/types';
 
 export interface RoomPlacement {
@@ -76,4 +77,6 @@ export interface GeneratedBuilding {
   complianceReport: ComplianceAuditReport;
   copilot?: CopilotManifestMetadata;
   councilAssessment?: CouncilAssessment;
+  planning?: PlanningMetadata;
+  shortlistBuildings?: GeneratedBuilding[];
 }

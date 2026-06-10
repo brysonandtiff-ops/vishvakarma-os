@@ -487,6 +487,14 @@ End-to-end autonomous building design from site survey, boundary plan, council r
 
 Compliance-gated ZIP export containing cover sheet, site plan, floor plan, elevations placeholder, schedules, material list, cost estimate, compliance report, and manifest.json.
 
+### Planning Intelligence (`feature-planning-intelligence`)
+
+**Type**: feature  
+**Status**: active  
+**Spec**: `docs/specs/PLANNING_INTELLIGENCE_v1.md`
+
+Multi-candidate planning for Architecture Copilot: generate 20–100 layout variants, score on compliance/adjacency/zoning/program/cost/circulation, auto-select the best plan, and explain the decision with structured evidence. Includes Web Worker batching, shortlist UI, and runner-up override.
+
 ---
 
 ## Sample Project Validation

@@ -1,6 +1,7 @@
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import ArchitectureMapView from '@/components/editor/ai-designer/ArchitectureMapView';
 import ComplianceReportPanel from '@/components/editor/ai-designer/ComplianceReportPanel';
+import PlanExplanationPanel from '@/components/editor/ai-designer/PlanExplanationPanel';
 import SitePlanPreview from '@/components/editor/ai-designer/SitePlanPreview';
 
 export type ResultTab =
@@ -10,7 +11,8 @@ export type ResultTab =
   | 'map'
   | 'materials'
   | 'cost'
-  | 'compliance';
+  | 'compliance'
+  | 'whyPlan';
 
 export default function AIDesignerResultsPanel({
   building,
@@ -44,6 +46,26 @@ export default function AIDesignerResultsPanel({
 
   if (tab === 'compliance') {
     return <ComplianceReportPanel report={building.complianceReport} />;
+  }
+
+  if (tab === 'whyPlan') {
+    const planning = building.planning;
+    if (!planning?.explanation) {
+      return (
+        <p className="rounded-xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+          Planning intelligence data is not available for this design.
+        </p>
+      );
+    }
+
+    return (
+      <PlanExplanationPanel
+        explanation={planning.explanation}
+        rankedScores={planning.rankedScores}
+        selectedId={planning.selectedCandidateId}
+        candidateCount={planning.candidateCount}
+      />
+    );
   }
 
   if (tab === 'materials') {

@@ -118,6 +118,11 @@ interface OptimizationManifestMetadata {
 | `feature-architecture-copilot` | feature | Architecture Copilot |
 | `feature-permit-package-export` | feature | Permit Package Export |
 | `feature-design-optimization` | feature | Design Optimization Engine |
+| `feature-planning-intelligence` | feature | Planning Intelligence (v2.1) |
+
+## v2.1 — Planning Intelligence
+
+Architecture Copilot now runs **Planning Intelligence** by default: 20+ layout candidates, multi-dimensional scoring, auto-selection, and a **Why this plan** explanation tab. See `docs/specs/PLANNING_INTELLIGENCE_v1.md`.
 
 ## Stop-ship conditions
 
