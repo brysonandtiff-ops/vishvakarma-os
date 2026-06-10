@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dismissEditorOverlays, iPadLandscape } from './helpers';
+import { dismissEditorOverlays, iPadLandscape, loadSampleProject, openProjectActionsMenu, saveProject } from './helpers';
 
 test.describe('projects and profile (e2e local access)', () => {
   test.use({ viewport: iPadLandscape });
@@ -28,12 +28,13 @@ test.describe('projects and profile (e2e local access)', () => {
 
   test('local draft appears on projects after sample load', async ({ page }) => {
     await dismissEditorOverlays(page);
-    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'New project' }).click();
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /new project/i }).click();
     await page.getByLabel('Project Name').fill('E2E Draft');
     await page.getByRole('button', { name: /create project/i }).click();
-    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Sample' }).click();
+    await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    await page.getByTestId('editor-top-bar').getByRole('button', { name: 'Save' }).click();
+    await saveProject(page);
     await expect(page.getByText(/project saved locally/i)).toBeVisible({ timeout: 15_000 });
     await page.goto('/projects');
     await expect(page.getByRole('heading', { name: 'E2E Draft', exact: true })).toBeVisible({ timeout: 15_000 });

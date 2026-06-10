@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { dismissEditorOverlays } from './helpers';
+import { dismissEditorOverlays, loadSampleProject, openProjectActionsMenu } from './helpers';
 
 const ROOT = join(process.cwd(), 'docs/design/page-references');
 const DIRS = {
@@ -46,31 +46,23 @@ async function dismissWorkspaceNotifications(page: Page) {
 async function loadSampleBlueprint(page: Page) {
   await dismissWorkspaceNotifications(page);
 
-  const sampleResponse = page
-    .waitForResponse(
-      (response) => response.url().includes('sample-house-01.json') && response.status() === 200,
-      { timeout: 30_000 },
-    )
-    .catch(() => null);
-
   const onboardingVisible = await page.getByTestId('first-run-welcome').isVisible().catch(() => false);
   if (onboardingVisible) {
     await clickDom(page, /load demo blueprint/i);
-  } else {
-    await clickDom(page, /^sample$/i);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
+    await page.waitForFunction(
+      () => {
+        const bar = document.querySelector('.ws-status-bar');
+        const text = bar?.textContent ?? '';
+        const match = text.match(/Walls:\s*(\d+)/i);
+        return Boolean(match && Number(match[1]) > 0);
+      },
+      { timeout: 30_000 },
+    );
+    return;
   }
 
-  await sampleResponse;
-  await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
-  await page.waitForFunction(
-    () => {
-      const bar = document.querySelector('.ws-status-bar');
-      const text = bar?.textContent ?? '';
-      const match = text.match(/Walls:\s*(\d+)/i);
-      return Boolean(match && Number(match[1]) > 0);
-    },
-    { timeout: 30_000 },
-  );
+  await loadSampleProject(page);
 }
 
 async function seedDraftRecovery(page: Page) {
@@ -198,12 +190,14 @@ test.describe('page reference pack', () => {
     await shot(page, 'editor', '13-3d-cinematic.png');
 
     // ── Editor: dialogs ────────────────────────────────────────────────────
-    await clickForce(page, /export floor plan/i);
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /^export$/i }).click();
     await expect(page.getByText(/Export Package/i)).toBeVisible();
     await shot(page, 'editor', '14-export-dialog.png');
     await page.keyboard.press('Escape');
 
-    await clickForce(page, /new project/i);
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /new project/i }).click();
     await expect(page.getByRole('heading', { name: /create new project/i })).toBeVisible();
     await shot(page, 'editor', '15-new-project-dialog.png');
     await page.keyboard.press('Escape');

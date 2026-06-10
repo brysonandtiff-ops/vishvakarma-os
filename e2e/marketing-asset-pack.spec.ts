@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { loadSampleProject, openProjectActionsMenu } from './helpers';
 
 const OUT_DIR = join(process.cwd(), 'public/marketing');
 
@@ -9,11 +10,6 @@ async function dismissWelcome(page: import('@playwright/test').Page) {
   if (await dismiss.first().isVisible().catch(() => false)) {
     await dismiss.first().click();
   }
-}
-
-async function loadSampleProject(page: import('@playwright/test').Page) {
-  await page.getByRole('button', { name: /project actions/i }).click();
-  await page.getByRole('menuitem', { name: /load sample/i }).click();
 }
 
 test.describe('marketing asset pack', () => {
@@ -39,7 +35,7 @@ test.describe('marketing asset pack', () => {
 
     await page.locator('.bg-ws-canvas').first().screenshot({ path: join(OUT_DIR, 'product-3d.png') });
 
-    await page.getByRole('button', { name: /project actions/i }).click();
+    await openProjectActionsMenu(page);
     await page.getByRole('menuitem', { name: /^export$/i }).click();
     await expect(page.getByText(/Export Package/i)).toBeVisible();
     await page.getByRole('dialog').screenshot({ path: join(OUT_DIR, 'product-export.png') });

@@ -29,6 +29,43 @@ export async function dismissConsentIfPresent(page: Page) {
   }
 }
 
+export async function openProjectActionsMenu(page: Page) {
+  await page.getByRole('button', { name: /project actions/i }).click();
+}
+
+export async function loadSampleProject(page: Page) {
+  await openProjectActionsMenu(page);
+  await page.getByRole('menuitem', { name: /load sample/i }).click();
+  await page.getByTestId('blueprint-canvas').waitFor({ state: 'visible', timeout: 30_000 });
+  await page
+    .waitForFunction(
+      () => {
+        const bar = document.querySelector('.ws-status-bar');
+        const text = bar?.textContent ?? '';
+        const match = text.match(/Walls:\s*(\d+)/i);
+        return Boolean(match && Number(match[1]) > 0);
+      },
+      { timeout: 30_000 },
+    )
+    .catch(() => {});
+}
+
+export async function saveProject(page: Page) {
+  await openProjectActionsMenu(page);
+  await page.getByRole('menuitem', { name: /^save$/i }).click();
+}
+
+export async function openExportDialog(page: Page) {
+  await openProjectActionsMenu(page);
+  await page.getByRole('menuitem', { name: /^export$/i }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+}
+
+export async function openAIDesigner(page: Page) {
+  await openProjectActionsMenu(page);
+  await page.getByTestId('editor-ai-designer').click();
+}
+
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
