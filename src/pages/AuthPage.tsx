@@ -151,6 +151,12 @@ export default function AuthPage() {
       setError(result.error.message);
       return;
     }
+
+    if (result.redirecting) {
+      setMessage('Redirecting to Google…');
+      return;
+    }
+
     navigate(returnPath, { replace: true });
   };
 

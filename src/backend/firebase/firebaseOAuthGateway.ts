@@ -12,6 +12,11 @@ import {
   type FirebaseSessionSnapshot,
 } from '@/backend/firebase/firebaseAuthGateway';
 
+export type OAuthSignInResult = {
+  session: FirebaseSessionSnapshot | null;
+  redirecting: boolean;
+};
+
 function formatAuthError(error: unknown): Error {
   const authError = error as AuthError;
   const code = authError?.code ?? '';
@@ -27,6 +32,11 @@ function formatAuthError(error: unknown): Error {
       'Google sign-in is not enabled for this Firebase project. Enable Google under Authentication → Sign-in method.'
     );
   }
+  if (code === 'auth/internal-error') {
+    return new Error(
+      'Google sign-in could not open securely in this browser. Retrying with a full-page redirect…'
+    );
+  }
   if (message.includes('redirect_uri_mismatch')) {
     return new Error(
       'Google OAuth redirect URI mismatch. Ensure https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler is registered on the Firebase OAuth web client.'
@@ -39,13 +49,47 @@ function formatAuthError(error: unknown): Error {
   return error instanceof Error ? error : new Error(message);
 }
 
-async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) {
+function shouldPreferRedirectFlow() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  // Popup OAuth is unreliable on production hosts, Safari, and tablet browsers.
+  if (import.meta.env.PROD) {
+    return true;
+  }
+
+  const userAgent = navigator.userAgent;
+  return /iPad|iPhone|iPod|Android|Mobile/i.test(userAgent);
+}
+
+function shouldFallbackToRedirect(error: unknown) {
+  const authError = error as AuthError;
+  const code = authError?.code ?? '';
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+
+  return (
+    code === 'auth/internal-error' ||
+    code === 'auth/popup-blocked' ||
+    code === 'auth/cancelled-popup-request' ||
+    message.includes('popup') ||
+    message.includes('blocked') ||
+    message.includes('cross-origin')
+  );
+}
+
+async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider): Promise<OAuthSignInResult> {
   if (!backendStatus.isConfigured) {
     throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
   }
 
   if (!firebaseAuth) {
     throw new Error('Firebase Auth is not initialized.');
+  }
+
+  if (shouldPreferRedirectFlow()) {
+    await signInWithRedirect(firebaseAuth, provider);
+    return { session: null, redirecting: true };
   }
 
   try {
@@ -59,13 +103,13 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) 
       idToken
     );
 
-    return session;
+    return { session, redirecting: false };
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (message.includes('popup') || message.includes('blocked')) {
+    if (shouldFallbackToRedirect(error)) {
       await signInWithRedirect(firebaseAuth, provider);
-      return null;
+      return { session: null, redirecting: true };
     }
+
     throw formatAuthError(error);
   }
 }

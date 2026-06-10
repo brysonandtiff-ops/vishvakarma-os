@@ -36,8 +36,8 @@ interface AuthContextType {
   emailLinkError: string | null;
   requestAccessLink: (email: string) => Promise<{ error: Error | null }>;
   completeEmailLinkSignIn: (email: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signInWithApple: () => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null; redirecting?: boolean }>;
+  signInWithApple: () => Promise<{ error: Error | null; redirecting?: boolean }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -284,11 +284,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
       }
 
-      const nextSession = await signInWithGoogleFirebase();
-      if (nextSession) {
-        setSession(nextSession);
-        setUser(firebaseUserFromSession(nextSession));
-        await loadProfile(firebaseUserFromSession(nextSession));
+      const result = await signInWithGoogleFirebase();
+      if (result.redirecting) {
+        return { error: null, redirecting: true };
+      }
+
+      if (result.session) {
+        setSession(result.session);
+        setUser(firebaseUserFromSession(result.session));
+        await loadProfile(firebaseUserFromSession(result.session));
       }
       return { error: null };
     } catch (error) {
@@ -302,11 +306,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
       }
 
-      const nextSession = await signInWithAppleFirebase();
-      if (nextSession) {
-        setSession(nextSession);
-        setUser(firebaseUserFromSession(nextSession));
-        await loadProfile(firebaseUserFromSession(nextSession));
+      const result = await signInWithAppleFirebase();
+      if (result.redirecting) {
+        return { error: null, redirecting: true };
+      }
+
+      if (result.session) {
+        setSession(result.session);
+        setUser(firebaseUserFromSession(result.session));
+        await loadProfile(firebaseUserFromSession(result.session));
       }
       return { error: null };
     } catch (error) {
