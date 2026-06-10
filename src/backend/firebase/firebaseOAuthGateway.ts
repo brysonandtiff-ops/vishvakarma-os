@@ -34,6 +34,10 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider) 
     return session;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code: unknown }).code) : '';
+    // #region agent log
+    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseOAuthGateway.ts:signInWithProvider',message:'oauth sign-in error',data:{code,messagePreview:message.slice(0,120)},timestamp:Date.now(),hypothesisId:'H-E'})}).catch(()=>{});
+    // #endregion
     if (message.includes('popup') || message.includes('blocked')) {
       await signInWithRedirect(firebaseAuth, provider);
       return null;

@@ -27,15 +27,22 @@ function hasBrowserStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
-function normalizeFirebaseAuthError(error: unknown) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' && error !== null && 'code' in error
-        ? String((error as { code: unknown }).code)
-        : undefined;
+function getFirebaseAuthErrorCode(error: unknown) {
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    return String((error as { code: unknown }).code).replace('auth/', '');
+  }
 
-  const code = message?.replace('auth/', '') ?? '';
+  if (error instanceof Error) {
+    const match = error.message.match(/\(auth\/([^)]+)\)/);
+    if (match?.[1]) return match[1];
+  }
+
+  return '';
+}
+
+function normalizeFirebaseAuthError(error: unknown) {
+  const code = getFirebaseAuthErrorCode(error);
+  const message = error instanceof Error ? error.message : code ? `auth/${code}` : undefined;
 
   switch (code) {
     case 'EMAIL_NOT_FOUND':
@@ -51,6 +58,13 @@ function normalizeFirebaseAuthError(error: unknown) {
       );
     case 'TOO_MANY_ATTEMPTS_TRY_LATER':
       return new Error('Too many access-link attempts. Try again later.');
+    case 'UNAUTHORIZED_DOMAIN':
+      return new Error(
+        'This domain is not authorized for Firebase sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.'
+      );
+    case 'INVALID_CONTINUE_URI':
+    case 'MISSING_CONTINUE_URI':
+      return new Error('Firebase email-link redirect URL is misconfigured. Contact support or try again from the production URL.');
     default:
       return new Error(message ? `Firebase auth failed: ${message}` : 'Firebase auth request failed.');
   }
@@ -156,14 +170,21 @@ export async function requestFirebaseAccessLink(email: string, redirectTo: strin
   const normalizedEmail = email.trim().toLowerCase();
 
   try {
+    const actionUrl = getEmailLinkUrl(redirectTo);
     await sendSignInLinkToEmail(firebaseAuth, normalizedEmail, {
-      url: getEmailLinkUrl(redirectTo),
+      url: actionUrl,
       handleCodeInApp: true,
     });
 
     writePendingEmailForSignIn(normalizedEmail);
+    // #region agent log
+    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:requestFirebaseAccessLink',message:'sendSignInLinkToEmail success',data:{actionUrl,origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-B'})}).catch(()=>{});
+    // #endregion
     return { error: null };
   } catch (error) {
+    // #region agent log
+    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:requestFirebaseAccessLink',message:'sendSignInLinkToEmail error',data:{code:getFirebaseAuthErrorCode(error),origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-B'})}).catch(()=>{});
+    // #endregion
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
       if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
@@ -191,7 +212,11 @@ export async function completeFirebaseEmailLinkSignIn(
     return { status: 'idle' };
   }
 
-  if (!isSignInWithEmailLink(firebaseAuth, emailLink)) {
+  const isEmailLink = isSignInWithEmailLink(firebaseAuth, emailLink);
+  // #region agent log
+  if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'email link callback check',data:{isEmailLink,hasOob:isFirebaseEmailLinkCallback(),hasPending:Boolean(readPendingEmailForSignIn()),origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
+  // #endregion
+  if (!isEmailLink) {
     return { status: 'idle' };
   }
 
@@ -209,8 +234,14 @@ export async function completeFirebaseEmailLinkSignIn(
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
+    // #region agent log
+    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'signInWithEmailLink success',data:{hasUid:Boolean(firebaseAuth.currentUser?.uid)},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
+    // #endregion
     return { status: 'completed' };
   } catch (error) {
+    // #region agent log
+    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'signInWithEmailLink error',data:{code:getFirebaseAuthErrorCode(error)},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
+    // #endregion
     return { status: 'error', error: normalizeFirebaseAuthError(error) };
   }
 }

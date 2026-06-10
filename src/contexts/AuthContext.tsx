@@ -192,6 +192,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (!mounted) return;
 
+      // #region agent log
+      if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'AuthContext.tsx:onAuthStateChanged',message:'auth state changed',data:{hasUser:Boolean(firebaseUser?.uid),isConfigured:backendStatus.isConfigured},timestamp:Date.now(),hypothesisId:'H-C'})}).catch(()=>{});
+      // #endregion
+
       if (!firebaseUser) {
         clearFirebaseSessionSnapshot();
         setSession(null);
