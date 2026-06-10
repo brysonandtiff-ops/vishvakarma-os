@@ -191,25 +191,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void getRedirectResult(firebaseAuth)
       .then(async (credential) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
-          body: JSON.stringify({
-            sessionId: '83489a',
-            runId: 'pre-fix',
-            hypothesisId: 'B',
-            location: 'AuthContext.tsx:getRedirectResult',
-            message: 'getRedirectResult resolved',
-            data: {
-              hasUser: Boolean(credential?.user),
-              hostname: typeof window !== 'undefined' ? window.location.hostname : 'ssr',
-              href: typeof window !== 'undefined' ? window.location.href : 'ssr',
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
         if (!mounted || !credential?.user) {
           return;
         }
@@ -230,9 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error('[Vishvakarma.OS] Firebase OAuth redirect sign-in failed:', error);
           if (mounted) {
-            setEmailLinkError(
-              error instanceof Error ? error.message : 'Google sign-in redirect failed. Try again.'
-            );
+            setEmailLinkError(formatAuthError(error).message);
           }
         } finally {
           if (mounted) {
@@ -243,25 +222,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch((error) => {
         if (!mounted) return;
         const code = (error as { code?: string })?.code ?? '';
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
-          body: JSON.stringify({
-            sessionId: '83489a',
-            runId: 'post-fix',
-            hypothesisId: 'B',
-            location: 'AuthContext.tsx:getRedirectResult-catch',
-            message: 'getRedirectResult rejected',
-            data: {
-              code: code || 'unknown',
-              errorMessage: error instanceof Error ? error.message : String(error),
-              surfaced: code !== 'auth/no-auth-event',
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
         if (code === 'auth/no-auth-event') {
           setLoading(false);
           return;

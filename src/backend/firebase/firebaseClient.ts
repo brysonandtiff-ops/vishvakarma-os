@@ -54,29 +54,6 @@ if (firebaseConfig) {
   } catch {
     firebaseAuth = getAuth(firebaseApp);
   }
-  // #region agent log
-  if (typeof window !== 'undefined') {
-    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '83489a' },
-      body: JSON.stringify({
-        sessionId: '83489a',
-        runId: 'pre-fix',
-        hypothesisId: 'E',
-        location: 'firebaseClient.ts:init',
-        message: 'Firebase client initialized',
-        data: {
-          hostname: window.location.hostname,
-          origin: window.location.origin,
-          authDomain: firebaseConfig.authDomain,
-          projectId: firebaseConfig.projectId,
-          isProd: import.meta.env.PROD,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-  }
-  // #endregion
 } else {
   console.warn(
     '[Vishvakarma.OS] Firebase is not configured. Auth is running in local-only mode. ' +
