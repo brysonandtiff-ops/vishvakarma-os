@@ -21,6 +21,40 @@ type AuthErrorContext = {
   usedRedirect?: boolean;
 };
 
+const DEBUG_LOG_KEY = 'vish-debug-d4817d';
+
+function persistOAuthDebugLog(
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+  hypothesisId: string
+) {
+  const entry = {
+    sessionId: 'd4817d',
+    location,
+    message,
+    data,
+    hypothesisId,
+    timestamp: Date.now(),
+  };
+
+  try {
+    const existing = JSON.parse(window.localStorage.getItem(DEBUG_LOG_KEY) ?? '[]') as unknown[];
+    const next = Array.isArray(existing) ? [...existing, entry].slice(-20) : [entry];
+    window.localStorage.setItem(DEBUG_LOG_KEY, JSON.stringify(next));
+  } catch {
+    // ignore storage failures
+  }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd4817d' },
+    body: JSON.stringify(entry),
+  }).catch(() => {});
+  // #endregion
+}
+
 export function formatAuthError(error: unknown, context: AuthErrorContext = {}): Error {
   const authError = error as AuthError;
   const code = authError?.code ?? '';
@@ -41,13 +75,12 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
     );
   }
   if (code === 'auth/internal-error') {
-    if (context.usedRedirect) {
-      return new Error(
-        'Google sign-in could not complete in this browser. Open the app in Chrome or Safari (not an embedded preview), allow cookies, and confirm this domain is listed under Firebase Authentication → Authorized domains.'
-      );
-    }
+    const host =
+      typeof window !== 'undefined' && window.location.hostname
+        ? window.location.hostname
+        : 'this deployment host';
     return new Error(
-      'Google sign-in could not open securely in this browser. Retrying with a full-page redirect…'
+      `Google sign-in could not complete in this browser. Use Chrome or Safari (not an embedded IDE preview), allow cookies, and add ${host} under Firebase Authentication → Authorized domains.`
     );
   }
   if (message.includes('redirect_uri_mismatch')) {
@@ -108,18 +141,29 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
 
   const preferRedirect = shouldPreferRedirectFlow();
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-  // #region agent log
-  fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:signInWithProvider',message:'oauth flow start',data:{preferRedirect,isProd:import.meta.env.PROD,host:typeof window!=='undefined'?window.location.hostname:'',embedded:isEmbeddedBrowser(userAgent)},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
+  persistOAuthDebugLog(
+    'firebaseOAuthGateway.ts:signInWithProvider',
+    'oauth flow start',
+    {
+      preferRedirect,
+      isProd: import.meta.env.PROD,
+      host: window.location.hostname,
+      embedded: isEmbeddedBrowser(userAgent),
+    },
+    'A'
+  );
 
   if (preferRedirect) {
     try {
       await signInWithRedirect(firebaseAuth, provider);
     } catch (error) {
       const authError = error as AuthError;
-      // #region agent log
-      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'firebaseOAuthGateway.ts:redirect',message:'redirect sign-in failed',data:{code:authError?.code??'',message:error instanceof Error?error.message:String(error)},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
+      persistOAuthDebugLog(
+        'firebaseOAuthGateway.ts:redirect',
+        'redirect sign-in failed',
+        { code: authError?.code ?? '', message: error instanceof Error ? error.message : String(error) },
+        'B'
+      );
       throw formatAuthError(error, { usedRedirect: true });
     }
     return { session: null, redirecting: true };

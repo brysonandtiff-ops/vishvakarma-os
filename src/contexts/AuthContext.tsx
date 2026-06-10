@@ -193,9 +193,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void getRedirectResult(firebaseAuth)
       .then(async (credential) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d4817d'},body:JSON.stringify({sessionId:'d4817d',location:'AuthContext.tsx:getRedirectResult',message:'redirect result resolved',data:{hasUser:Boolean(credential?.user),host:window.location.hostname},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
+        try {
+          const entry = {
+            sessionId: 'd4817d',
+            location: 'AuthContext.tsx:getRedirectResult',
+            message: 'redirect result resolved',
+            data: { hasUser: Boolean(credential?.user), host: window.location.hostname },
+            hypothesisId: 'D',
+            timestamp: Date.now(),
+          };
+          const existing = JSON.parse(window.localStorage.getItem('vish-debug-d4817d') ?? '[]') as unknown[];
+          window.localStorage.setItem(
+            'vish-debug-d4817d',
+            JSON.stringify(Array.isArray(existing) ? [...existing, entry].slice(-20) : [entry])
+          );
+          fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'd4817d' },
+            body: JSON.stringify(entry),
+          }).catch(() => {});
+        } catch {
+          // ignore debug persistence failures
+        }
         if (!mounted || !credential?.user) {
           return;
         }
@@ -216,7 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error('[Vishvakarma.OS] Firebase OAuth redirect sign-in failed:', error);
           if (mounted) {
-            setEmailLinkError(formatAuthError(error).message);
+            setEmailLinkError(formatAuthError(error, { usedRedirect: true }).message);
           }
         } finally {
           if (mounted) {

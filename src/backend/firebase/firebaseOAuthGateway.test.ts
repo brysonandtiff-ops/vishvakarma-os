@@ -39,9 +39,10 @@ describe('shouldPreferRedirectFlow', () => {
 });
 
 describe('formatAuthError', () => {
-  it('describes redirect failures without implying another retry', () => {
-    const message = formatAuthError({ code: 'auth/internal-error' }, { usedRedirect: true }).message;
+  it('describes internal OAuth failures with actionable guidance', () => {
+    const message = formatAuthError({ code: 'auth/internal-error' }).message;
     expect(message).toContain('could not complete');
     expect(message).not.toContain('Retrying');
+    expect(message).toContain('Authorized domains');
   });
 });
