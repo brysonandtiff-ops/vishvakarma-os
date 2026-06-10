@@ -25,7 +25,7 @@ export default function FeatureCard({
     <Wrapper
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`vish-feature-grid-card group flex h-full flex-col rounded-xl border border-border/50 bg-card/60 p-5 text-left transition-colors hover:border-primary/35 hover:bg-card/90 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`vish-feature-grid-card vish-glass-panel--interactive group flex h-full flex-col rounded-xl p-5 text-left ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         {Icon && (
@@ -39,8 +39,8 @@ export default function FeatureCard({
           </span>
         )}
       </div>
-      <h3 className="mt-4 font-semibold text-foreground">{title}</h3>
-      {description && <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{description}</p>}
+      <h3 className="mt-4 font-semibold vish-text-heading">{title}</h3>
+      {description && <p className="mt-2 flex-1 text-sm leading-relaxed vish-text-body">{description}</p>}
       {footer && <div className="mt-4 border-t border-border/40 pt-3">{footer}</div>}
     </Wrapper>
   );

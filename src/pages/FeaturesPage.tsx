@@ -14,6 +14,7 @@ import PageMeta from '@/components/common/PageMeta';
 import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
+import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 
 const INTERACTIVE_GUIDES = [
   {
@@ -80,10 +81,11 @@ export default function FeaturesPage() {
     <MarketingLayout>
       <PageMeta title="Features & Guides" description="Learn Vishvakarma.OS with interactive guides and feature reference." />
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-8">
-        <h1 className="text-3xl font-bold vish-text-heading md:text-4xl">
-          Feature guides &amp; Project Proof reference
-        </h1>
-        <p className="mt-3 vish-text-body">Step-by-step interactive guides open the editor with contextual hints</p>
+        <MarketingPageHeader
+          devanagari="मन्त्र यन्त्र वास्तु रचना"
+          title="Feature guides & Project Proof reference"
+          description="Step-by-step interactive guides open the editor with contextual hints"
+        />
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <MetricPill value={String(FEATURE_MODULES.filter((m) => m.ready).length)} label="ready now" />
           <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" />

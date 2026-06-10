@@ -4,6 +4,7 @@ import "./index.css";
 import "./styles/vish-tokens.css";
 import "./vish-theme.css";
 import "./styles/vish-sacred-tokens.css";
+import "./styles/vish-sacred-layers.css";
 import "./styles/vish-marketing.css";
 import "./styles/vish-workspace-shell.css";
 import "./styles/vish-editor-chrome.css";

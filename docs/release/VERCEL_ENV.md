@@ -22,11 +22,29 @@ The app is **Firebase-only**. Supabase variables are no longer used by the runti
 
 These are read by Vercel serverless functions only and are **not** bundled into the SPA.
 
+## Stripe Billing (server-only — never prefix with `VITE_`)
+
+Required when `VITE_STRIPE_BILLING_ENABLED=true`:
+
+| Variable | Purpose |
+|----------|---------|
+| `STRIPE_SECRET_KEY` | Stripe secret key (test or live) |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret from Stripe webhook endpoint |
+| `STRIPE_PRICE_STUDIO_MONTHLY` | Price ID for Studio **$499/mo** — run `pnpm run setup:stripe` |
+| `STRIPE_PRICE_ENTERPRISE_MONTHLY` | Price ID for Enterprise **$1,000/mo** — run `pnpm run setup:stripe` |
+| `FIREBASE_PROJECT_ID` | Firebase project id (same as `VITE_FIREBASE_PROJECT_ID`) |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Service account JSON string for webhook Firestore writes |
+| `APP_URL` | Optional production origin fallback for checkout redirect URLs |
+
+See [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and local testing.
+
 ## Recommended (optional but useful)
 
 | Variable | Purpose |
 |----------|---------|
 | `VITE_PRICING_PAGE_ENABLED` | Set to `true` to expose `/pricing` and nav links (launch copy ready) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe live publishable key (`pk_live_...`) for Studio checkout |
+| `VITE_STRIPE_BILLING_ENABLED` | Set to `true` to show Stripe checkout / manage billing on `/pricing` and `/profile` |
 | `VITE_AUTH_WINNER` | Optional override: `google`, `email`, or `none` — locks which sign-in method `/auth` displays (Production uses `google`) |
 | `VITE_FIREBASE_STORAGE_BUCKET` | Custom material texture uploads |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase SDK completeness |
@@ -105,6 +123,17 @@ If you had production data in Supabase, follow [`FIREBASE_CUTOVER.md`](./FIREBAS
 3. `/auth` — request email link or OAuth sign-in
 4. `/editor` — create project, save, reload, confirm cloud save badge shows **Firebase Cloud Save**
 5. `/registry`, `/releases`, `/audit-log` — pages load (empty until Firestore has data)
+6. `/pricing` — loads when `VITE_PRICING_PAGE_ENABLED=true`; Studio checkout redirects to Stripe when Stripe env is set
+7. Complete a live Studio checkout and confirm Profile shows **Studio** with active/trialing subscription status
+
+## Stripe billing verification
+
+```bash
+pnpm run verify:stripe-billing
+pnpm run verify:stripe-billing --strict
+```
+
+After configuring live Stripe keys on Vercel, run one Studio checkout and confirm webhook delivery in Stripe Dashboard → Developers → Webhooks.
 
 ## Promote an admin user
 

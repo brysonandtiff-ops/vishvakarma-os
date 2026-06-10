@@ -92,6 +92,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
   it('loads Sanskrit boot/auth styles at app startup', () => {
     const main = read('src/main.tsx');
 
+    expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-gate.css');
     expect(main).toContain('bootstrapClientGovernanceState');
     expect(main).toContain('blockOnFailure: false');

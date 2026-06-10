@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AlertTriangle, BookOpen, Download, Shield, Trophy } from 'lucide-react';
+import { BookOpen, Download, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
@@ -8,6 +8,7 @@ import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
+import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
@@ -212,12 +213,18 @@ export default function AuthPage() {
                 />
               </div>
             </div>
-            <h1 className="vish-wordmark text-lg font-bold tracking-[0.28em] text-primary">VISHVAKARMA.OS</h1>
+            <h1 className="vish-wordmark vish-auth-wordmark-breathe text-lg font-bold tracking-[0.28em] text-primary">
+              VISHVAKARMA.OS
+            </h1>
             <div className="vish-auth-wordmark-divider" aria-hidden="true" />
             <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
             <p className="mt-3 text-sm font-medium text-stone-100">{signInHeadline}</p>
             <div className="mt-2">
-              <span className="vish-gold-pill">{workspaceStatusLabel}</span>
+              <span
+                className={`vish-gold-pill ${isConfigured ? 'vish-gold-pill--live' : ''}`}
+              >
+                {workspaceStatusLabel}
+              </span>
             </div>
             <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
               {capabilitiesLoading ? 'Checking verified sign-in methods…' : signInHelperLine}
@@ -225,67 +232,46 @@ export default function AuthPage() {
           </div>
 
           {showConfigRequired && (
-            <div className="mb-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-              <div>
-                <p className="font-semibold text-destructive">Service configuration required</p>
-                <p className="text-muted-foreground">
-                  Production deploy is missing backend environment variables. Set Vercel vars per{' '}
-                  <code className="rounded bg-muted px-1 text-xs">docs/release/VERCEL_ENV.md</code>.
-                </p>
-              </div>
-            </div>
+            <AuthStatusBanner variant="error" title="Service configuration required" role="alert">
+              Production deploy is missing backend environment variables. Set Vercel vars per{' '}
+              <code className="rounded bg-muted px-1 text-xs">docs/release/VERCEL_ENV.md</code>.
+            </AuthStatusBanner>
           )}
 
           {allowLocalWorkspace && (
-            <div className="mb-4 flex gap-3 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-              <div>
-                <p className="font-semibold">Local workspace available</p>
-                <p className="text-muted-foreground">
-                  Auth is disabled until real Firebase environment variables are
-                  configured. Current mode: {mode}.
-                </p>
-              </div>
-            </div>
+            <AuthStatusBanner variant="warning" title="Local workspace available">
+              Auth is disabled until real Firebase environment variables are configured. Current mode: {mode}.
+            </AuthStatusBanner>
           )}
 
           {showSignInUnavailable && isConfigured && !showConfigRequired && (
-            <div className="mb-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-              <div>
-                <p className="font-semibold text-destructive">Sign-in unavailable</p>
-                <p className="text-muted-foreground">
-                  No verified sign-in method is available. See{' '}
-                  <code className="rounded bg-muted px-1 text-xs">docs/release/evidence/auth-sign-in-proof.md</code>.
-                </p>
-              </div>
-            </div>
+            <AuthStatusBanner variant="error" title="Sign-in unavailable" role="alert">
+              No verified sign-in method is available. See{' '}
+              <code className="rounded bg-muted px-1 text-xs">docs/release/evidence/auth-sign-in-proof.md</code>.
+            </AuthStatusBanner>
           )}
 
           {completingEmailLink && showEmailSignIn && (
-            <p role="status" className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
-              Completing secure sign-in…
-            </p>
+            <AuthStatusBanner variant="info">Completing secure sign-in…</AuthStatusBanner>
           )}
 
           {needsEmailForLink && showEmailSignIn && (
-            <div className="mb-4 flex gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <div>
-                <p className="font-semibold text-stone-100">Confirm your email to finish sign-in</p>
-                <p className="text-muted-foreground">
-                  This link was opened in a new browser or device. Enter the email address that received the secure
-                  access link.
-                </p>
-              </div>
-            </div>
+            <AuthStatusBanner variant="info" title="Confirm your email to finish sign-in">
+              This link was opened in a new browser or device. Enter the email address that received the secure access
+              link.
+            </AuthStatusBanner>
           )}
 
           {(emailLinkError || error) && (
-            <p role="alert" className="mb-4 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <AuthStatusBanner variant="error" role="alert" className="vish-auth-status--compact">
               {emailLinkError ?? error}
-            </p>
+            </AuthStatusBanner>
+          )}
+
+          {passwordResetNotice && (
+            <AuthStatusBanner variant="info" data-testid="auth-password-reset-notice">
+              Password reset is not available — request a new secure access link below instead.
+            </AuthStatusBanner>
           )}
 
           {showEmailSignIn && (
@@ -309,16 +295,10 @@ export default function AuthPage() {
                 No password required — we email you a one-time secure link to open the protected workspace.
               </p>
 
-              {passwordResetNotice && (
-                <p role="status" className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-stone-200">
-                  Password reset is not available — request a new secure access link below instead.
-                </p>
-              )}
-
               {message && (
-                <p role="status" className="rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
+                <AuthStatusBanner variant="success" className="mb-0">
                   {message}
-                </p>
+                </AuthStatusBanner>
               )}
 
               <button
@@ -362,9 +342,9 @@ export default function AuthPage() {
           )}
 
           {capabilitiesLoading && (
-            <p role="status" className="mb-4 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-center text-sm text-stone-200">
+            <AuthStatusBanner variant="info" className="text-center">
               Loading sign-in options…
-            </p>
+            </AuthStatusBanner>
           )}
 
           {showGoogleSignIn && (
@@ -418,6 +398,8 @@ export default function AuthPage() {
             metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
             metricLabel="gates"
             destination="/releases"
+            variant="gates"
+            staggerClass="vish-stagger-2"
             testId="auth-trust-pillar-gates"
             onLearnMore={() =>
               toast.message('Release evidence', {
@@ -431,6 +413,8 @@ export default function AuthPage() {
             title="World Records Registry"
             description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}. SHA-256 proof ledger.`}
             destination="/world-records"
+            variant="records"
+            staggerClass="vish-stagger-3"
             testId="auth-trust-pillar-records"
             onLearnMore={() =>
               toast.message('World Records', {

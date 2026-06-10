@@ -46,6 +46,7 @@ describe('Blueprint editor visual polish', () => {
     expect(viewport).toContain('prefers-reduced-motion');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
+    expect(editor).toContain('vish-editor-mantra-watermark');
     expect(editor).toContain('showOnboarding && !welcomeOpen');
     expect(editor).toContain('<OnboardingPanel');
     expect(editor).toContain('<StatusBar');
@@ -60,6 +61,10 @@ describe('Blueprint editor visual polish', () => {
     const proofPanel = read('src/components/editor/ProjectProofPanel.tsx');
     const editor = read('src/pages/EditorPage.tsx');
 
+    const welcome = read('src/components/editor/WelcomeOverlay.tsx');
+    expect(welcome).toContain('vish-gold-action');
+    expect(welcome).toContain('vish-editor-overlay-backdrop');
+    expect(onboarding).toContain('vish-gold-action');
     expect(onboarding).toContain('data-testid="first-run-welcome"');
     expect(onboarding).toContain('Build your first verified blueprint');
     expect(onboarding).toContain('Load Demo Blueprint');

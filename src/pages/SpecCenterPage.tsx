@@ -186,7 +186,7 @@ export default function SpecCenterPage() {
               </div>
             )}
             {/* Blueprint Editor Spec — Featured */}
-            <Card className="overflow-hidden border-2 border-primary/60 shadow-md">
+            <Card className="vish-gov-card-dark overflow-hidden border-2 border-primary/60 shadow-md">
               <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-6 py-3">
                 <ShieldCheck className="h-4 w-4 text-primary" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary">

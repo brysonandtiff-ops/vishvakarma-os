@@ -87,13 +87,13 @@ export default function WorldRecordsPage() {
             </Badge>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums">
+            <span className="rounded border border-border bg-card px-3 py-1.5 text-xs font-semibold tabular-nums shadow-sm">
               {records.length} record{records.length === 1 ? '' : 's'}
             </span>
-            <span className="rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success tabular-nums">
+            <span className="rounded border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success tabular-nums shadow-sm">
               {verifiedCount} verified
             </span>
-            <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums">
+            <span className="rounded border border-border bg-card px-3 py-1.5 text-xs font-semibold tabular-nums shadow-sm">
               {proposedCount} proposed
             </span>
           </div>

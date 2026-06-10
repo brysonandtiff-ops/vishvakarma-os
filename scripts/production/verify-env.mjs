@@ -17,6 +17,15 @@ const FIREBASE_KEYS = [
   'VITE_FIREBASE_APP_ID',
 ];
 
+const STRIPE_KEYS = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_PRICE_STUDIO_MONTHLY',
+  'STRIPE_PRICE_ENTERPRISE_MONTHLY',
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_SERVICE_ACCOUNT_JSON',
+];
+
 async function fileExists(path) {
   try {
     await access(path, constants.R_OK);
@@ -65,6 +74,11 @@ async function main() {
   const envExample = await readFile(envExamplePath, 'utf-8');
   let passed = true;
   passed = checkKeys(envExample, FIREBASE_KEYS, '.env.example (Firebase)') && passed;
+  passed = checkKeys(envExample, ['VITE_STRIPE_BILLING_ENABLED', ...STRIPE_KEYS], '.env.example (Stripe billing)') && passed;
+
+  if (envExample.includes('VITE_STRIPE_BILLING_ENABLED=true')) {
+    console.warn('[WARN] .env.example documents Stripe billing keys; ensure server secrets are set before enabling in production');
+  }
 
   if (strict && (await fileExists(envLocalPath))) {
     const envLocal = await readFile(envLocalPath, 'utf-8');

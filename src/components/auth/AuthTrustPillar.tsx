@@ -11,6 +11,8 @@ interface AuthTrustPillarProps {
   metricLabel?: string;
   destination?: string;
   actionLabel?: string;
+  variant?: 'gates' | 'records';
+  staggerClass?: string;
 }
 
 export default function AuthTrustPillar({
@@ -24,6 +26,8 @@ export default function AuthTrustPillar({
   metricLabel,
   destination,
   actionLabel = 'Opens after sign-in',
+  variant,
+  staggerClass = '',
 }: AuthTrustPillarProps) {
   const ariaLabel = destination
     ? `${title}. ${actionLabel} at ${destination}.`
@@ -35,7 +39,7 @@ export default function AuthTrustPillar({
       data-testid={testId}
       onClick={onLearnMore}
       aria-label={ariaLabel}
-      className="vish-auth-feature-card flex h-full w-full flex-col text-left"
+      className={`vish-auth-feature-card vish-fade-rise flex h-full w-full flex-col text-left ${variant ? `vish-auth-feature-card--${variant}` : ''} ${staggerClass}`.trim()}
     >
       <div className="vish-auth-feature-card__header">
         <span className="vish-auth-feature-card__icon" aria-hidden="true">

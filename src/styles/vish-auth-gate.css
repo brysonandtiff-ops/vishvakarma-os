@@ -50,16 +50,7 @@
   z-index: 0;
 }
 
-.vish-yantra-grid,
-.vish-boot-yantra {
-  background:
-    conic-gradient(from 45deg at 50% 50%, transparent 0 12%, hsl(43 90% 62% / 0.08) 12% 13%, transparent 13% 37%, hsl(43 90% 62% / 0.08) 37% 38%, transparent 38% 100%),
-    radial-gradient(circle at center, transparent 0 24%, hsl(43 90% 62% / 0.08) 24.2% 24.6%, transparent 25% 100%);
-  background-size: 18rem 18rem, 22rem 22rem;
-  background-position: center;
-  opacity: 0.38;
-  mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
-}
+/* yantra, aurora, mandala, orb → vish-sacred-layers.css */
 
 .vish-sanskrit-rain-canvas {
   opacity: 0.72;
@@ -87,114 +78,6 @@
 
 .vish-auth-gate .vish-auth-orb {
   opacity: 0.48;
-}
-
-.vish-auth-aurora,
-.vish-boot-aurora {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse at 22% 38%, hsl(43 90% 62% / 0.22), transparent 42%),
-    radial-gradient(ellipse at 78% 28%, hsl(39 80% 54% / 0.16), transparent 38%),
-    radial-gradient(ellipse at 50% 82%, hsl(15 88% 44% / 0.12), transparent 44%);
-  animation: vish-auth-aurora-drift 18s ease-in-out infinite;
-}
-
-.vish-auth-aurora {
-  opacity: 0.45;
-}
-
-.vish-boot-aurora {
-  opacity: 0.28;
-}
-
-@keyframes vish-auth-aurora-drift {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.85;
-  }
-  33% {
-    transform: translate3d(1.5%, -1%, 0) scale(1.03);
-    opacity: 1;
-  }
-  66% {
-    transform: translate3d(-1%, 1.5%, 0) scale(0.98);
-    opacity: 0.75;
-  }
-}
-
-.vish-mandala-aura {
-  display: grid;
-  place-items: center;
-  opacity: 0.76;
-}
-
-.vish-mandala-ring {
-  position: absolute;
-  border-radius: 9999px;
-  border: 1px solid hsl(43 78% 62% / 0.2);
-  box-shadow:
-    inset 0 0 36px hsl(39 85% 48% / 0.08),
-    0 0 52px hsl(39 85% 48% / 0.1);
-}
-
-.vish-mandala-ring::before,
-.vish-mandala-ring::after {
-  content: '';
-  position: absolute;
-  inset: 8%;
-  border-radius: inherit;
-  border: 1px dashed hsl(43 78% 66% / 0.16);
-}
-
-.vish-mandala-ring::after {
-  inset: 22%;
-  border-style: solid;
-  opacity: 0.65;
-}
-
-.vish-mandala-ring-outer {
-  width: min(78vw, 52rem);
-  aspect-ratio: 1;
-  animation: vish-mandala-drift 38s linear infinite;
-}
-
-.vish-mandala-ring-mid {
-  width: min(58vw, 39rem);
-  aspect-ratio: 1;
-  animation: vish-mandala-drift 32s linear infinite reverse;
-}
-
-.vish-mandala-ring-inner {
-  width: min(38vw, 25rem);
-  aspect-ratio: 1;
-  animation: vish-mandala-pulse 6s ease-in-out infinite;
-}
-
-@keyframes vish-mandala-drift {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes vish-mandala-pulse {
-  0%, 100% { transform: scale(0.96); opacity: 0.42; }
-  50% { transform: scale(1.04); opacity: 0.78; }
-}
-
-.vish-auth-orb {
-  background:
-    radial-gradient(circle, hsl(43 96% 72% / 0.12), transparent 70%),
-    conic-gradient(from 45deg, transparent, hsl(39 85% 58% / 0.1), transparent, hsl(43 100% 80% / 0.08), transparent);
-  filter: blur(0.2px);
-  opacity: 0.86;
-  animation: vish-orb-breathe 9s ease-in-out infinite;
-}
-
-@keyframes vish-orb-breathe {
-  0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.62; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.92; }
 }
 
 .vish-auth-hero {
@@ -250,17 +133,41 @@
 }
 
 .vish-auth-feature-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 8.75rem;
+  min-height: 9.25rem;
   padding: 1rem 1.1rem;
   border-radius: 0.875rem;
   border: 1px solid hsl(var(--vish-gold-muted) / 0.3);
   background: hsl(0 0% 4% / 0.7);
   backdrop-filter: blur(8px);
   cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.vish-auth-feature-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from 0deg, transparent, hsl(43 90% 66% / 0.35), transparent 35%, transparent);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.vish-auth-feature-card:hover::before {
+  opacity: 1;
+  animation: vish-border-shimmer 4s linear infinite;
 }
 
 .vish-auth-feature-card:hover {
@@ -268,6 +175,26 @@
   border-color: hsl(43 90% 66% / 0.42);
   background: hsl(43 60% 72% / 0.08);
   box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
+}
+
+.vish-auth-feature-card--gates {
+  --vish-feature-accent: 142 55% 48%;
+}
+
+.vish-auth-feature-card--records {
+  --vish-feature-accent: 38 82% 52%;
+}
+
+.vish-auth-feature-card--gates .vish-auth-feature-card__icon {
+  border-color: hsl(var(--vish-feature-accent) / 0.35);
+  background: hsl(var(--vish-feature-accent) / 0.12);
+  color: hsl(var(--vish-feature-accent));
+}
+
+.vish-auth-feature-card--records .vish-auth-feature-card__icon {
+  border-color: hsl(var(--vish-feature-accent) / 0.35);
+  background: hsl(var(--vish-feature-accent) / 0.12);
+  color: hsl(var(--vish-feature-accent));
 }
 
 .vish-auth-feature-card:focus-visible {
@@ -293,6 +220,12 @@
   border: 1px solid hsl(43 65% 52% / 0.25);
   background: hsl(43 65% 52% / 0.1);
   color: hsl(43 72% 66%);
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.vish-auth-feature-card:hover .vish-auth-feature-card__icon {
+  transform: scale(1.04);
+  box-shadow: 0 0 18px hsl(43 90% 62% / 0.22);
 }
 
 .vish-auth-feature-card__header-meta {
@@ -365,6 +298,73 @@
   width: 0.75rem;
   flex-shrink: 0;
   color: hsl(43 65% 52% / 0.7);
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.vish-auth-feature-card:hover .vish-auth-feature-card__footer-chevron {
+  transform: translateX(2px);
+  color: hsl(43 72% 66%);
+}
+
+.vish-auth-status {
+  border-radius: 0.875rem;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.22);
+  background: hsl(0 0% 4% / 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.vish-auth-status--error {
+  border-color: hsl(var(--destructive) / 0.4);
+  background: hsl(var(--destructive) / 0.1);
+}
+
+.vish-auth-status--error .vish-auth-status__icon,
+.vish-auth-status--error .vish-auth-status__title {
+  color: hsl(var(--destructive));
+}
+
+.vish-auth-status--warning {
+  border-color: hsl(var(--warning) / 0.4);
+  background: hsl(var(--warning) / 0.1);
+}
+
+.vish-auth-status--warning .vish-auth-status__icon {
+  color: hsl(var(--warning));
+}
+
+.vish-auth-status--success {
+  border-color: hsl(var(--success) / 0.4);
+  background: hsl(var(--success) / 0.1);
+  color: hsl(var(--success));
+}
+
+.vish-auth-status--info {
+  border-color: hsl(43 65% 52% / 0.35);
+  background: hsl(43 65% 52% / 0.1);
+}
+
+.vish-auth-status--info .vish-auth-status__icon,
+.vish-auth-status--info .vish-auth-status__title {
+  color: hsl(43 72% 66%);
+}
+
+.vish-auth-status--compact .vish-auth-status__icon {
+  display: none;
+}
+
+.vish-auth-wordmark-breathe {
+  animation: vish-auth-wordmark-breathe 4.8s ease-in-out infinite;
+}
+
+@keyframes vish-auth-wordmark-breathe {
+  0%, 100% {
+    letter-spacing: 0.28em;
+    text-shadow: 0 0 18px hsl(var(--vish-gold) / 0.22);
+  }
+  50% {
+    letter-spacing: 0.32em;
+    text-shadow: 0 0 24px hsl(var(--vish-gold) / 0.36);
+  }
 }
 
 .vish-logo-tile-animated,
@@ -696,7 +696,7 @@
     0 0 0 1px hsl(43 100% 88% / 0.1),
     0 24px 70px hsl(0 0% 0% / 0.38),
     0 0 48px hsl(43 90% 58% / 0.24);
-  animation: vish-boot-logo-rise 2.8s ease-in-out infinite;
+  animation: vish-boot-logo-rise 3.2s ease-in-out infinite;
 }
 
 .vish-boot-swan {
@@ -742,6 +742,22 @@
     opacity: 0.55;
   }
 
+  .vish-auth-gate .vish-mandala-aura {
+    opacity: 0.34;
+  }
+
+  .vish-auth-gate .vish-auth-orb {
+    opacity: 0.32;
+  }
+
+  .vish-auth-gate .vish-auth-aurora {
+    opacity: 0.12;
+  }
+
+  .vish-auth-feature-card {
+    min-height: 8.5rem;
+  }
+
   .vish-auth-hero {
     padding: 1.35rem;
   }
@@ -774,8 +790,13 @@
   }
 
   .vish-auth-feature-card,
+  .vish-auth-feature-card::before,
+  .vish-auth-feature-card__icon,
+  .vish-auth-feature-card__footer-chevron,
+  .vish-auth-wordmark-breathe,
   .vish-auth-submit,
   .vish-auth-submit::before {
+    animation: none !important;
     transition: none;
   }
 }

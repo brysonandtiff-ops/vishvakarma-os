@@ -259,7 +259,7 @@ export default function ReleasesPage() {
             </div>
 
             {/* Build Status Hero */}
-            <div className={`rounded-xl border-2 p-6 shadow-md ${
+            <div className={`vish-gov-card-dark rounded-xl border-2 p-6 shadow-md ${
               buildStatus === 'GREEN' ? 'border-success/40 bg-success/5' :
               buildStatus === 'YELLOW' ? 'border-warning/40 bg-warning/5' :
               'border-destructive/40 bg-destructive/5'

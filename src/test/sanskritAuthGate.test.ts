@@ -11,6 +11,7 @@ function read(path: string) {
 describe('Sanskrit auth gate design', () => {
   it('loads auth gate stylesheet through app startup', () => {
     const main = read('src/main.tsx');
+    expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-gate.css');
   });
 
@@ -79,8 +80,13 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('Sign in to open Releases and inspect gate snapshots.');
     expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry at /world-records.');
     expect(authPage).toContain('vish-gold-pill');
+    expect(authPage).toContain('vish-gold-pill--live');
+    expect(authPage).toContain('AuthStatusBanner');
+    expect(authPage).toContain('auth-password-reset-notice');
+    expect(authPage).toContain('variant="gates"');
     expect(authPage).toContain('getSignInHelperLine');
     expect(trustPillar).toContain('vish-auth-feature-card');
+    expect(trustPillar).toContain('vish-auth-feature-card--');
     expect(trustPillar).toContain('vish-auth-feature-card__footer');
     expect(trustPillar).toContain('vish-auth-feature-card__metric');
     expect(trustPillar).toContain('aria-label');
@@ -114,13 +120,16 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps animation CSS premium, responsive, and reduced-motion safe', () => {
     const styles = read('src/styles/vish-auth-gate.css');
+    const layers = read('src/styles/vish-sacred-layers.css');
     const routeGuard = read('src/components/common/RouteGuard.tsx');
 
     expect(styles).toContain('.vish-sanskrit-rain-canvas');
-    expect(styles).toContain('.vish-mandala-ring');
-    expect(styles).toContain('@keyframes vish-mandala-drift');
+    expect(layers).toContain('.vish-mandala-ring');
+    expect(layers).toContain('@keyframes vish-mandala-drift');
     expect(styles).toContain('.vish-auth-access-card');
     expect(styles).toContain('.vish-auth-feature-card:hover');
+    expect(styles).toContain('.vish-auth-feature-card--gates');
+    expect(styles).toContain('.vish-auth-status');
     expect(styles).toContain('.vish-auth-feature-card__title');
     expect(styles).toContain('.vish-auth-feature-card__footer');
     expect(styles).toContain('.vish-auth-feature-card__metric');
@@ -130,10 +139,11 @@ describe('Sanskrit auth gate design', () => {
     expect(routeGuard).toContain('SanskritRainBackground');
     expect(routeGuard).toContain('preset="boot"');
     expect(routeGuard).toContain('vish-boot-aurora');
+    expect(routeGuard).toContain('vish-fade-rise');
     expect(styles).toContain('.vish-auth-logo-hero');
     expect(styles).toContain('.vish-auth-logo-wrap');
     expect(styles).toContain('@keyframes vish-auth-logo-breathe');
-    expect(styles).toContain('.vish-auth-aurora');
-    expect(styles).toContain('@keyframes vish-auth-aurora-drift');
+    expect(layers).toContain('.vish-auth-aurora');
+    expect(layers).toContain('@keyframes vish-auth-aurora-drift');
   });
 });

@@ -1,23 +1,75 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, Mail, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { CreditCard, LogOut, Mail, Shield } from 'lucide-react';
+import { toast } from 'sonner';
 import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
+import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
+import { useBilling } from '@/hooks/useBilling';
+import { billingPlanLabel } from '@/types/billing';
+import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
+import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
 
 export default function ProfilePage() {
   const { user, profile, mode, signOut, isConfigured } = useAuth();
+  const {
+    billing,
+    isPaid,
+    isEnterprise,
+    isStudio,
+    idToken,
+    enabled: billingEnabled,
+    refreshBilling,
+    loading: billingLoading,
+  } = useBilling();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [billingActionLoading, setBillingActionLoading] = useState<CheckoutPlan | 'portal' | null>(null);
+  const stripeEnabled = STRIPE_BILLING_ENABLED && billingEnabled;
 
   const providerLabel = 'Firebase';
   const saveLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
+  const planLabel = billingPlanLabel(billing);
+
+  useEffect(() => {
+    if (searchParams.get('checkout') !== 'success') return;
+    toast.success('Subscription updated', {
+      description: 'Your billing status will refresh in a moment.',
+    });
+    void refreshBilling();
+    setSearchParams({}, { replace: true });
+  }, [refreshBilling, searchParams, setSearchParams]);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
+  };
+
+  const handleCheckout = async (plan: CheckoutPlan) => {
+    if (!idToken) return;
+    setBillingActionLoading(plan);
+    try {
+      await startCheckout(idToken, plan);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Checkout failed');
+      setBillingActionLoading(null);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    if (!idToken) return;
+    setBillingActionLoading('portal');
+    try {
+      await openBillingPortal(idToken);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Billing portal failed');
+      setBillingActionLoading(null);
+    }
   };
 
   return (
@@ -31,6 +83,7 @@ export default function ProfilePage() {
           stats={
             <span className="rounded-full border border-dashed border-border/70 bg-muted/30 px-3 py-1 text-xs font-semibold text-foreground">
               {saveLabel} · session {mode}
+              {stripeEnabled && !billingLoading ? ` · ${planLabel}` : ''}
             </span>
           }
         />
@@ -48,6 +101,23 @@ export default function ProfilePage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</p>
               <p className="mt-1 text-sm text-foreground">{profile.full_name}</p>
+            </div>
+          )}
+
+          {stripeEnabled && user && (
+            <div className="flex items-start gap-3">
+              <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan</p>
+                <p className="mt-1 text-sm text-foreground">
+                  {billingLoading ? 'Loading billing…' : planLabel}
+                </p>
+                {billing?.trialEnd && billing.status === 'trialing' && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Trial ends {new Date(billing.trialEnd).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -71,6 +141,45 @@ export default function ProfilePage() {
           <Button variant="outline" asChild className="touch-target">
             <Link to="/projects">View projects</Link>
           </Button>
+          {stripeEnabled && user && !isPaid && (
+            <>
+              <Button
+                className="touch-target"
+                disabled={billingActionLoading !== null || billingLoading}
+                onClick={() => void handleCheckout('studio')}
+              >
+                {billingActionLoading === 'studio' ? 'Redirecting…' : 'Upgrade to Studio'}
+              </Button>
+              <Button
+                variant="outline"
+                className="touch-target"
+                disabled={billingActionLoading !== null || billingLoading}
+                onClick={() => void handleCheckout('enterprise')}
+              >
+                {billingActionLoading === 'enterprise' ? 'Redirecting…' : 'Upgrade to Enterprise'}
+              </Button>
+            </>
+          )}
+          {stripeEnabled && user && isStudio && !isEnterprise && (
+            <Button
+              variant="outline"
+              className="touch-target"
+              disabled={billingActionLoading !== null || billingLoading}
+              onClick={() => void handleCheckout('enterprise')}
+            >
+              {billingActionLoading === 'enterprise' ? 'Redirecting…' : 'Upgrade to Enterprise'}
+            </Button>
+          )}
+          {stripeEnabled && user && isPaid && (
+            <Button
+              variant="outline"
+              className="touch-target"
+              disabled={billingActionLoading !== null || billingLoading}
+              onClick={() => void handleManageBilling()}
+            >
+              {billingActionLoading === 'portal' ? 'Redirecting…' : 'Manage billing'}
+            </Button>
+          )}
           <Button variant="destructive" onClick={() => void handleSignOut()} className="touch-target gap-2">
             <LogOut className="h-4 w-4" />
             Sign out

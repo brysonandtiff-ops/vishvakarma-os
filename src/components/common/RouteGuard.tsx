@@ -87,7 +87,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official swan logo" className="vish-boot-swan h-full w-full rounded-3xl object-cover" />
           </div>
 
-          <div className="relative z-20 mt-[-3.5rem] space-y-3">
+          <div className="vish-fade-rise vish-stagger-2 relative z-20 mt-[-3.5rem] space-y-3">
             <p className="vish-wordmark text-xl font-bold tracking-[0.46em] text-stone-100">VISHVAKARMA.OS</p>
             <div className="mx-auto h-px w-48 bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
             <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/70">Checking secure session</p>

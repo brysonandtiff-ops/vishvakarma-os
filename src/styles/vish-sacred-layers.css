@@ -1,0 +1,158 @@
+/* Vishvakarma.OS — shared sacred decorative layers (auth, marketing, boot) */
+
+.vish-yantra-grid,
+.vish-boot-yantra {
+  background:
+    conic-gradient(from 45deg at 50% 50%, transparent 0 12%, hsl(43 90% 62% / 0.08) 12% 13%, transparent 13% 37%, hsl(43 90% 62% / 0.08) 37% 38%, transparent 38% 100%),
+    radial-gradient(circle at center, transparent 0 24%, hsl(43 90% 62% / 0.08) 24.2% 24.6%, transparent 25% 100%);
+  background-size: 18rem 18rem, 22rem 22rem;
+  background-position: center;
+  opacity: 0.38;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
+}
+
+.vish-sacred-aurora,
+.vish-auth-aurora,
+.vish-boot-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 22% 38%, hsl(43 90% 62% / 0.22), transparent 42%),
+    radial-gradient(ellipse at 78% 28%, hsl(39 80% 54% / 0.16), transparent 38%),
+    radial-gradient(ellipse at 50% 82%, hsl(15 88% 44% / 0.12), transparent 44%);
+  animation: vish-auth-aurora-drift 18s ease-in-out infinite;
+}
+
+.vish-sacred-aurora--marketing,
+.vish-sacred-stage .vish-sacred-aurora {
+  opacity: 0.18;
+}
+
+.vish-auth-aurora {
+  opacity: 0.45;
+}
+
+.vish-boot-aurora {
+  opacity: 0.28;
+}
+
+@keyframes vish-auth-aurora-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  33% {
+    transform: translate3d(1.5%, -1%, 0) scale(1.03);
+    opacity: 1;
+  }
+  66% {
+    transform: translate3d(-1%, 1.5%, 0) scale(0.98);
+    opacity: 0.75;
+  }
+}
+
+.vish-sacred-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at center, transparent 0 42%, hsl(0 0% 0% / 0.22) 72%, hsl(0 0% 0% / 0.58) 100%);
+}
+
+.vish-sacred-vignette--light {
+  background:
+    radial-gradient(circle at center, transparent 0 48%, hsl(0 0% 0% / 0.12) 78%, hsl(0 0% 0% / 0.38) 100%);
+}
+
+.vish-mandala-aura {
+  display: grid;
+  place-items: center;
+  opacity: 0.76;
+}
+
+.vish-mandala-ring {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1px solid hsl(43 78% 62% / 0.2);
+  box-shadow:
+    inset 0 0 36px hsl(39 85% 48% / 0.08),
+    0 0 52px hsl(39 85% 48% / 0.1);
+}
+
+.vish-mandala-ring::before,
+.vish-mandala-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: inherit;
+  border: 1px dashed hsl(43 78% 66% / 0.16);
+}
+
+.vish-mandala-ring::after {
+  inset: 22%;
+  border-style: solid;
+  opacity: 0.65;
+}
+
+.vish-mandala-ring-outer {
+  width: min(78vw, 52rem);
+  aspect-ratio: 1;
+  animation: vish-mandala-drift 38s linear infinite;
+}
+
+.vish-mandala-ring-mid {
+  width: min(58vw, 39rem);
+  aspect-ratio: 1;
+  animation: vish-mandala-drift 32s linear infinite reverse;
+}
+
+.vish-mandala-ring-inner {
+  width: min(38vw, 25rem);
+  aspect-ratio: 1;
+  animation: vish-mandala-pulse 6s ease-in-out infinite;
+}
+
+.vish-mandala-ring-static {
+  width: min(62vw, 36rem);
+  aspect-ratio: 1;
+  opacity: 0.42;
+}
+
+@keyframes vish-mandala-drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vish-mandala-pulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.42; }
+  50% { transform: scale(1.04); opacity: 0.78; }
+}
+
+.vish-auth-orb {
+  background:
+    radial-gradient(circle, hsl(43 96% 72% / 0.12), transparent 70%),
+    conic-gradient(from 45deg, transparent, hsl(39 85% 58% / 0.1), transparent, hsl(43 100% 80% / 0.08), transparent);
+  filter: blur(0.2px);
+  opacity: 0.86;
+  animation: vish-orb-breathe 9s ease-in-out infinite;
+}
+
+@keyframes vish-orb-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.96); opacity: 0.62; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.92; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-sacred-aurora,
+  .vish-auth-aurora,
+  .vish-boot-aurora,
+  .vish-mandala-ring-outer,
+  .vish-mandala-ring-mid,
+  .vish-mandala-ring-inner,
+  .vish-auth-orb {
+    animation: none !important;
+  }
+}

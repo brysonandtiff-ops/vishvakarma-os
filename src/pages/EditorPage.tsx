@@ -23,6 +23,7 @@ import { createProject, getProjects, updateProject } from '@/db/api';
 import DraftRecoveryDialog from '@/components/editor/DraftRecoveryDialog';
 import EditorMenuSheet from '@/components/editor/EditorMenuSheet';
 import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
+import { usePlanTier } from '@/hooks/usePlanTier';
 import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
 import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
@@ -84,6 +85,7 @@ export default function EditorPage() {
 
 function EditorWorkspace() {
   const location = useLocation();
+  const planTier = usePlanTier();
   const { openNav } = useGovernanceNav();
   const {
     walls,
@@ -704,6 +706,9 @@ function EditorWorkspace() {
                   setMousePos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
                 }}
               >
+                <p className="vish-editor-mantra-watermark" aria-hidden="true">
+                  ॐ वास्तु · शिल्प · प्रमाण
+                </p>
                 <AppErrorBoundary title="Blueprint canvas error">
                 <BlueprintCanvas
                   walls={walls}
@@ -894,6 +899,7 @@ function EditorWorkspace() {
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}
+        tier={planTier}
         exportBlocked={complianceReport.blocked}
         exportBlockReason={complianceFailSummary}
       />

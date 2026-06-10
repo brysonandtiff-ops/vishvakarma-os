@@ -55,7 +55,53 @@
     inset 0 1px 0 hsl(var(--vish-gold) / 0.12);
 }
 
+.vish-glass-panel--interactive {
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.vish-glass-panel--interactive:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--vish-gold-glow) / 0.42);
+  box-shadow:
+    0 28px 72px hsl(0 0% 0% / 0.48),
+    0 0 48px hsl(var(--vish-gold) / 0.12),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.16);
+}
+
+@keyframes vish-fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vish-border-shimmer {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vish-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.vish-fade-rise {
+  animation: vish-fade-rise 520ms ease-out both;
+}
+
+.vish-stagger-1 { animation-delay: 80ms; }
+.vish-stagger-2 { animation-delay: 160ms; }
+.vish-stagger-3 { animation-delay: 240ms; }
+.vish-stagger-4 { animation-delay: 320ms; }
+
+.vish-gold-action,
 .vish-gold-cta {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,14 +120,32 @@
   box-shadow:
     0 0 28px hsl(var(--vish-gold) / 0.45),
     0 8px 24px hsl(0 0% 0% / 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
+.vish-gold-action::before,
+.vish-gold-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-110%);
+  background: linear-gradient(90deg, transparent, hsl(43 100% 88% / 0.22), transparent);
+  transition: transform 360ms ease;
+  pointer-events: none;
+}
+
+.vish-gold-action:hover:not(:disabled),
 .vish-gold-cta:hover {
   transform: translateY(-1px);
+  filter: saturate(1.06) brightness(1.03);
   box-shadow:
     0 0 36px hsl(var(--vish-gold) / 0.55),
     0 12px 28px hsl(0 0% 0% / 0.4);
+}
+
+.vish-gold-action:hover:not(:disabled)::before,
+.vish-gold-cta:hover::before {
+  transform: translateX(110%);
 }
 
 .vish-gold-cta-outline {
@@ -148,5 +212,16 @@
 @media (prefers-reduced-motion: reduce) {
   .vish-sacred-stage::before {
     animation: none;
+  }
+
+  .vish-fade-rise,
+  .vish-glass-panel--interactive {
+    animation: none;
+    transition: none;
+  }
+
+  .vish-gold-action::before,
+  .vish-gold-cta::before {
+    transition: none;
   }
 }

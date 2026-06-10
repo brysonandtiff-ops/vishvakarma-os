@@ -400,6 +400,47 @@
   letter-spacing: 0.14em;
 }
 
+.vish-editor-overlay-backdrop {
+  background: hsl(0 0% 0% / 0.48);
+  backdrop-filter: blur(6px);
+  animation: vish-overlay-in 280ms ease-out both;
+}
+
+.vish-workspace-shell .vish-editor-icon-btn {
+  border-color: hsl(var(--ws-border) / 0.45);
+  transition:
+    color 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.vish-workspace-shell .vish-editor-icon-btn:hover {
+  border-color: hsl(var(--ws-active) / 0.55);
+  background: hsl(var(--ws-hover));
+  color: hsl(var(--ws-text));
+  box-shadow: 0 0 12px hsl(var(--ws-active) / 0.18);
+}
+
+.vish-workspace-shell .architect-tool-button.active {
+  animation: vish-tool-active-pulse 3.6s ease-in-out infinite;
+}
+
+@keyframes vish-tool-active-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px hsl(var(--ws-active-ring)),
+      0 0 18px hsl(var(--ws-active) / 0.18),
+      inset 0 1px 0 hsl(var(--ws-active) / 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px hsl(var(--ws-active-ring)),
+      0 0 24px hsl(var(--ws-active) / 0.28),
+      inset 0 1px 0 hsl(var(--ws-active) / 0.28);
+  }
+}
+
 /* Immersive editor FAB reposition */
 .vish-workspace-shell[data-immersive='true'] .vish-mobile-nav-fab {
   bottom: auto;
@@ -430,6 +471,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vish-editor-overlay-backdrop,
+  .vish-workspace-shell .architect-tool-button.active {
+    animation: none !important;
+  }
+
   .architect-tool-button,
   .architect-tool-button::after,
   .vish-mode-tab {

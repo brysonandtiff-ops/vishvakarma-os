@@ -103,9 +103,61 @@
   }
 }
 
+.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
+.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border']:hover,
+.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border:hover {
+  transform: translateY(-1px);
+  border-color: hsl(43 72% 58% / 0.42);
+  box-shadow: 0 12px 28px hsl(0 0% 0% / 0.22);
+}
+
+.vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active'] {
+  position: relative;
+}
+
+.vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0.65rem 0.2rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, hsl(43 72% 58%), transparent);
+  animation: vish-gov-tab-glow 2.8s ease-in-out infinite;
+}
+
+@keyframes vish-gov-tab-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.vish-workspace-shell .gov-page-header ~ * .border-dashed:hover {
+  border-color: hsl(43 50% 52% / 0.5);
+  background:
+    radial-gradient(circle at center, hsl(43 80% 82% / 0.12), transparent 16rem),
+    hsl(var(--vish-chrome) / 0.88);
+}
+
+.vish-workspace-shell .vish-gov-card-dark {
+  animation: vish-fade-rise 480ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vish-workspace-shell .gov-page-header,
   .vish-workspace-shell .gov-page-header * {
     scroll-behavior: auto !important;
+  }
+
+  .vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']::after,
+  .vish-workspace-shell .vish-gov-card-dark {
+    animation: none !important;
+  }
+
+  .vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
+  .vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
+    transition: none;
   }
 }

@@ -26,6 +26,8 @@ describe('Governance visual polish', () => {
     expect(styles).toContain(".vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']");
     expect(styles).toContain('.vish-workspace-shell .gov-page-header ~ * .border-dashed');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(styles).toContain('.vish-gov-card-dark');
+    expect(styles).toContain('@keyframes vish-gov-tab-glow');
   });
 
   it('keeps the governance pages using the shared page header contract', () => {
@@ -67,9 +69,11 @@ describe('Governance visual polish', () => {
     const audit = read('src/pages/AuditLogPage.tsx');
     const worldRecords = read('src/pages/WorldRecordsPage.tsx');
 
+    expect(spec).toContain('vish-gov-card-dark');
     expect(spec).toContain('Spec Center');
     expect(registry).toContain('Registry Center');
     expect(changes).toContain('Change Requests');
+    expect(releases).toContain('vish-gov-card-dark');
     expect(releases).toContain('Release Center');
     expect(audit).toContain('Audit Log');
     expect(worldRecords).toContain('World Record Registry');
