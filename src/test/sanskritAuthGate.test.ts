@@ -26,6 +26,8 @@ describe('Sanskrit auth gate design', () => {
     expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
     expect(rainBackground).toContain('BOOT_MANTRAS');
     expect(rainBackground).toContain('prefers-reduced-motion');
+    expect(rainBackground).toContain('MantraStream');
+    expect(rainBackground).toContain('fadeTrail');
     expect(authPage).toContain('vish-mandala-aura');
     expect(authPage).toContain('vish-mandala-ring-outer');
     expect(authPage).toContain('vish-auth-card-mockup');
