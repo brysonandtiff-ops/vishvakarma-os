@@ -1,6 +1,6 @@
 {
-  "testedAt": "2026-06-10T15:29:59.983Z",
-  "commitSha": "e3fc438c709c9f71d971c02abe9117ad3f927fea",
+  "testedAt": "2026-06-10T15:31:36.478Z",
+  "commitSha": "ac1ba8e",
   "deploymentUrl": "https://vishvakarma-os.vercel.app",
   "emailLink": {
     "config": true,
@@ -10,7 +10,7 @@
   "google": {
     "config": true,
     "liveSignIn": true,
-    "liveSignInNote": "Google IdP enabled; redirect sign-in on production (e3fc438); createAuthUri PASS; vishvakarma-os.vercel.app re-synced to authorized domains"
+    "liveSignInNote": "Google IdP enabled; redirect sign-in on production; createAuthUri PASS; authorized domain verified"
   },
   "winner": "google",
   "winnerRationale": "Email magic link is blocked by daily quota or failed live send; Google OAuth is the verified live sign-in path."
