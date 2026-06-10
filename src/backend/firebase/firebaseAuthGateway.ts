@@ -56,6 +56,11 @@ function normalizeFirebaseAuthError(error: unknown) {
       return new Error(
         'Firebase email-link sign-in is not enabled. Enable Email/Password and email-link sign-in in Firebase Authentication.'
       );
+    case 'QUOTA_EXCEEDED':
+    case 'quota-exceeded':
+      return new Error(
+        'Daily email sign-in limit reached. Use Continue with Google, or try email again tomorrow.'
+      );
     case 'TOO_MANY_ATTEMPTS_TRY_LATER':
       return new Error('Too many access-link attempts. Try again later.');
     case 'UNAUTHORIZED_DOMAIN':
@@ -177,14 +182,8 @@ export async function requestFirebaseAccessLink(email: string, redirectTo: strin
     });
 
     writePendingEmailForSignIn(normalizedEmail);
-    // #region agent log
-    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:requestFirebaseAccessLink',message:'sendSignInLinkToEmail success',data:{actionUrl,origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-B'})}).catch(()=>{});
-    // #endregion
     return { error: null };
   } catch (error) {
-    // #region agent log
-    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:requestFirebaseAccessLink',message:'sendSignInLinkToEmail error',data:{code:getFirebaseAuthErrorCode(error),origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-B'})}).catch(()=>{});
-    // #endregion
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
       if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
@@ -213,9 +212,6 @@ export async function completeFirebaseEmailLinkSignIn(
   }
 
   const isEmailLink = isSignInWithEmailLink(firebaseAuth, emailLink);
-  // #region agent log
-  if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'email link callback check',data:{isEmailLink,hasOob:isFirebaseEmailLinkCallback(),hasPending:Boolean(readPendingEmailForSignIn()),origin:typeof window!=='undefined'?window.location.origin:null},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
-  // #endregion
   if (!isEmailLink) {
     return { status: 'idle' };
   }
@@ -234,14 +230,8 @@ export async function completeFirebaseEmailLinkSignIn(
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    // #region agent log
-    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'signInWithEmailLink success',data:{hasUid:Boolean(firebaseAuth.currentUser?.uid)},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
-    // #endregion
     return { status: 'completed' };
   } catch (error) {
-    // #region agent log
-    if (import.meta.env.DEV) fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e8c938'},body:JSON.stringify({sessionId:'e8c938',location:'firebaseAuthGateway.ts:completeFirebaseEmailLinkSignIn',message:'signInWithEmailLink error',data:{code:getFirebaseAuthErrorCode(error)},timestamp:Date.now(),hypothesisId:'H-D'})}).catch(()=>{});
-    // #endregion
     return { status: 'error', error: normalizeFirebaseAuthError(error) };
   }
 }

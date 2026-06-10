@@ -44,7 +44,8 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 | Complete email link | Session established via Firebase SDK | `signInWithEmailLink` + `onAuthStateChanged` | PASS — CODE |
 | Refresh after sign-in | Session survives page reload | SDK persistence + snapshot sync | PASS — CODE |
 | Cross-device email link | Re-enter email on `/auth` | `needs_email` prompt on AuthPage | PASS — CODE |
-| Google OAuth | Popup or redirect sign-in | `firebase deploy --only auth` + google.com IdP enabled | PASS — verified 2026-06-10 |
+| Google OAuth | Popup or redirect sign-in | `firebase deploy --only auth` + google.com IdP enabled | PASS — use when email quota exhausted |
+| Email send quota | `sendOobCode` succeeds | `QUOTA_EXCEEDED` on Spark daily limit (2026-06-10) | WARN — retry after Pacific midnight or use Google |
 | Apple OAuth | Popup or redirect sign-in | Requires Apple Developer credentials — operator env vars | SKIP — pending FIREBASE_APPLE_* |
 | Signed-out private route | Redirect to `/auth` | E2E + live CSP | PASS |
 | Signed-in editor | `/editor` loads workspace | Production bundle includes Firebase | PASS |
@@ -55,5 +56,9 @@ Template verification: `pnpm run production:verify-env` passes against `.env.exa
 ```txt
 PASS — Vercel Firebase vars configured, SDK email-link auth wired, session persistence fixed, Firestore bearer refresh via `resolveFirebaseSessionForFirestore`, authorized domain set.
 
-Operator note: enable Google and Apple providers in Firebase Console → Authentication → Sign-in method when OAuth buttons should work in production. Redeploy Vercel after any `VITE_FIREBASE_*` change.
+Operator notes:
+- Google sign-in is the immediate unblock when email quota is exhausted.
+- After `firebase deploy --only auth`, always run `pnpm run setup:firebase-auth` to restore passwordless email.
+- Use `pnpm run test:firebase-auth` (config-only) to verify without consuming email quota.
+- Redeploy Vercel after any `VITE_FIREBASE_*` change.
 ```

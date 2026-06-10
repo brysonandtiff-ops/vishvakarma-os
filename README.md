@@ -344,7 +344,11 @@ Vishvakarma.OS uses **Firebase Auth + Firestore** for persistence:
 npx -y firebase-tools@latest login          # or Firebase MCP auth flow
 npx -y firebase-tools@latest deploy --only firestore:rules
 pnpm run setup:firebase-auth                # email link + authorized domains
+pnpm run setup:firebase-auth:full           # deploy auth + restore passwordless email
+pnpm run test:firebase-auth                 # quota-safe config check (no live email send)
 ```
+
+**Important:** After `firebase deploy --only auth`, always run `pnpm run setup:firebase-auth` — the deploy can reset email to password-required mode.
 
 Auth on production enables **Email link (passwordless)** with authorized domains: `vishvakarma-os.vercel.app`, `localhost`, and default Firebase hosting domains.
 
@@ -375,6 +379,8 @@ pnpm run verify                 # lint + auth/flawless gates + launch evidence +
 pnpm run production:evidence    # Generate production evidence bundle
 pnpm run production:verify-env  # Check .env.example / .env.local Firebase keys
 pnpm run setup:firebase-auth    # Configure email link + authorized domains
+pnpm run test:firebase-auth     # Quota-safe Firebase auth config smoke test
+pnpm run test:firebase-auth:full  # Includes live email send (consumes daily quota)
 ```
 
 The linter enforces:

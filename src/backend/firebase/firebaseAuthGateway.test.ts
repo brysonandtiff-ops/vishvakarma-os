@@ -3,6 +3,7 @@ import {
   buildFirebaseSessionFromIdToken,
   clearFirebaseSessionSnapshot,
   readFirebaseSessionSnapshot,
+  requestFirebaseAccessLink,
   resolveFirebaseSessionForFirestore,
 } from './firebaseAuthGateway';
 
@@ -10,6 +11,14 @@ const storage = new Map<string, string>();
 
 vi.mock('@/backend/backendConfig', () => ({
   backendStatus: { isConfigured: true, mode: 'connected' as const },
+}));
+
+const sendSignInLinkToEmail = vi.fn();
+
+vi.mock('firebase/auth', () => ({
+  isSignInWithEmailLink: vi.fn(() => false),
+  sendSignInLinkToEmail: (...args: unknown[]) => sendSignInLinkToEmail(...args),
+  signInWithEmailLink: vi.fn(),
 }));
 
 vi.mock('@/backend/firebase/firebaseClient', () => ({
@@ -38,6 +47,7 @@ describe('firebaseAuthGateway session snapshot', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     clearFirebaseSessionSnapshot();
+    sendSignInLinkToEmail.mockReset();
   });
 
   it('persists SDK-backed sessions without a REST refresh token', async () => {
@@ -81,5 +91,15 @@ describe('firebaseAuthGateway session snapshot', () => {
     );
 
     expect(readFirebaseSessionSnapshot()).toBeNull();
+  });
+
+  it('maps QUOTA_EXCEEDED to a user-facing email quota message', async () => {
+    sendSignInLinkToEmail.mockRejectedValue({ code: 'auth/quota-exceeded' });
+
+    const result = await requestFirebaseAccessLink('architect@firm.com', 'https://vishvakarma-os.vercel.app/auth');
+
+    expect(result.error?.message).toBe(
+      'Daily email sign-in limit reached. Use Continue with Google, or try email again tomorrow.'
+    );
   });
 });

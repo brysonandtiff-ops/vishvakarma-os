@@ -34,7 +34,10 @@ Commands:
 ```bash
 pnpm run production:verify-env --strict
 pnpm run production:evidence
+pnpm run test:firebase-auth              # quota-safe config check (no live email send)
 ```
+
+**Auth deploy ritual:** After any `firebase deploy --only auth`, always run `pnpm run setup:firebase-auth` to restore passwordless email (`passwordRequired: false`). Prefer `pnpm run setup:firebase-auth:full` for email + OAuth deploys.
 
 ---
 

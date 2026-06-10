@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
  * Smoke-test Firebase auth configuration (email link + OAuth provider status).
- * Run: node scripts/test-firebase-auth-smoke.mjs
+ *
+ * Run:
+ *   node scripts/test-firebase-auth-smoke.mjs --config-only   # no live email send (default via pnpm)
+ *   node scripts/test-firebase-auth-smoke.mjs                 # includes live sendOobCode (consumes quota)
  */
 
 import { readFileSync } from 'fs';
@@ -9,6 +12,7 @@ import { join } from 'path';
 
 const PROJECT_ID = 'gen-lang-client-0690161780';
 const API_BASE = 'https://identitytoolkit.googleapis.com/admin/v2';
+const configOnly = process.argv.includes('--config-only');
 
 function loadEnvLocal() {
   try {
@@ -58,8 +62,15 @@ async function testEmailLink(apiKey) {
     }),
   });
   const body = await res.json();
+  const errorMessage = body.error?.message ?? '';
+
+  if (errorMessage.includes('QUOTA_EXCEEDED')) {
+    console.log('[WARN]', `Email link API (${continueUrl})`, errorMessage, '— config OK; quota resets daily or upgrade to Blaze');
+    return true;
+  }
+
   const ok = res.ok && !body.error;
-  console.log(ok ? '[PASS]' : '[FAIL]', `Email link API (${continueUrl})`, body.error?.message ?? `HTTP ${res.status}`);
+  console.log(ok ? '[PASS]' : '[FAIL]', `Email link API (${continueUrl})`, errorMessage || `HTTP ${res.status}`);
   return ok;
 }
 
@@ -96,7 +107,9 @@ async function main() {
   let passed = 0;
   let total = 0;
 
-  if (apiKey) {
+  if (configOnly) {
+    console.log('[INFO] --config-only: skipping live email send (quota-safe)');
+  } else if (apiKey) {
     total += 1;
     if (await testEmailLink(apiKey)) passed += 1;
   } else {
