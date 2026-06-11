@@ -1,3 +1,4 @@
+import { isCoOwnerEmail } from '@/config/coOwners';
 import { EXPORT_FORMAT_COUNT, EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
 import type { BillingStatus } from '@/types/billing';
 
@@ -87,6 +88,7 @@ export const STUDIO_TRIAL_LABEL = `${STUDIO_TRIAL_DAYS}-Day Free Trial`;
 export function resolveExportTier(options: {
   isConfigured: boolean;
   isSignedIn: boolean;
+  email?: string | null;
   billingPlan?: 'starter' | 'studio' | 'enterprise';
   billingStatus?: BillingStatus;
 }): 'starter' | 'studio' | 'enterprise' {
@@ -96,6 +98,10 @@ export function resolveExportTier(options: {
 
   if (!options.isSignedIn) {
     return 'starter';
+  }
+
+  if (isCoOwnerEmail(options.email)) {
+    return 'enterprise';
   }
 
   const plan = options.billingPlan ?? 'starter';

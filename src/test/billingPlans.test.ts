@@ -64,4 +64,26 @@ describe('billingPlans', () => {
       })
     ).toBe('enterprise');
   });
+
+  it('grants enterprise to co-owner emails without a billing record', () => {
+    expect(
+      resolveExportTier({
+        isConfigured: true,
+        isSignedIn: true,
+        email: 'ajkdentureventure@gmail.com',
+        billingPlan: 'starter',
+        billingStatus: 'none',
+      })
+    ).toBe('enterprise');
+  });
+
+  it('does not grant co-owner tier when signed out', () => {
+    expect(
+      resolveExportTier({
+        isConfigured: true,
+        isSignedIn: false,
+        email: 'ajkdentureventure@gmail.com',
+      })
+    ).toBe('starter');
+  });
 });

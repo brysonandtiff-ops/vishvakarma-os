@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getFirestoreBilling } from '@/backend/firebase/firestoreBillingGateway';
 import { backendStatus } from '@/backend/backendConfig';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
+import { isCoOwnerEmail } from '@/config/coOwners';
 import { useAuth } from '@/contexts/AuthContext';
 import type { BillingSubscription } from '@/types/billing';
 import {
@@ -9,6 +10,14 @@ import {
   isPaidSubscription,
   isStudioSubscription,
 } from '@/types/billing';
+
+function coOwnerBillingRecord(userId: string): BillingSubscription {
+  return {
+    id: userId,
+    plan: 'enterprise',
+    status: 'active',
+  };
+}
 
 export function useBilling() {
   const { user, session } = useAuth();
@@ -40,16 +49,22 @@ export function useBilling() {
     void refreshBilling();
   }, [refreshBilling]);
 
+  const isCoOwner = isCoOwnerEmail(user?.email);
+  const effectiveBilling = useMemo(() => {
+    if (!user || !isCoOwner) return billing;
+    return coOwnerBillingRecord(user.id);
+  }, [billing, isCoOwner, user]);
+
   return {
-    billing,
+    billing: effectiveBilling,
     loading,
     error,
     enabled: STRIPE_BILLING_ENABLED,
-    plan: billing?.plan ?? 'starter',
-    status: billing?.status ?? 'none',
-    isStudio: isStudioSubscription(billing),
-    isEnterprise: isEnterpriseSubscription(billing),
-    isPaid: isPaidSubscription(billing),
+    plan: effectiveBilling?.plan ?? 'starter',
+    status: effectiveBilling?.status ?? 'none',
+    isStudio: isStudioSubscription(effectiveBilling),
+    isEnterprise: isEnterpriseSubscription(effectiveBilling),
+    isPaid: isPaidSubscription(effectiveBilling),
     idToken: session?.idToken ?? null,
     refreshBilling,
   };

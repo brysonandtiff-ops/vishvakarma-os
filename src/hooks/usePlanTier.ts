@@ -10,6 +10,7 @@ export function usePlanTier(): PlanTier {
   return resolveExportTier({
     isConfigured: backendStatus.isConfigured,
     isSignedIn: Boolean(user),
+    email: user?.email,
     billingPlan: billing?.plan,
     billingStatus: billing?.status,
   });

@@ -144,6 +144,27 @@ export GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 node scripts/production/setup-admin.mjs admin@example.com
 ```
 
+## Promote a co-owner
+
+Co-owners need **admin** (governance writes) and **enterprise billing** (export tier + billing UI). The app also recognizes co-owner emails from `src/config/coOwners.ts` as a safety net on every login.
+
+**Prerequisite:** the co-owner must sign in on production once so Firebase Auth creates their account.
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+node scripts/production/setup-co-owner.mjs ajkdentureventure@gmail.com
+```
+
+Then ask them to **sign out and back in** so custom claims and billing refresh.
+
+**Verify:**
+
+1. Profile shows Enterprise plan
+2. Editor → Export Package enables PDF and DXF
+3. Spec Center / Registry / Releases allow create and edit
+
+To add another co-owner later, add their email to `src/config/coOwners.ts`, deploy, then run `setup-co-owner.mjs` with their email.
+
 ## Build settings (vercel.json)
 
 | Setting | Value |
