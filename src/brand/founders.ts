@@ -6,7 +6,7 @@ export const FOUNDER = {
 } as const;
 
 export const CO_OWNER = {
-  name: 'Angela',
+  name: 'Tiff',
   title: 'Co-owner',
 } as const;
 

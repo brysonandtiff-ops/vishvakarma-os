@@ -22,8 +22,7 @@ describe('FoundersAcknowledgment', () => {
     expect(block).toHaveAttribute('aria-label');
     expect(screen.getByText(new RegExp(`${STUDIO_NAME}`))).toBeInTheDocument();
     expect(screen.getByText(/Vishvakarma\.OS/)).toBeInTheDocument();
-    expect(screen.getByText(`${FOUNDER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
-    expect(screen.getByText(`${CO_OWNER.name} — ${CO_OWNER.title}`)).toBeInTheDocument();
+    expect(screen.getByText(`${FOUNDER.name} & ${CO_OWNER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
     expect(document.querySelector('.vish-marketing-founders')).toBeTruthy();
   });
 

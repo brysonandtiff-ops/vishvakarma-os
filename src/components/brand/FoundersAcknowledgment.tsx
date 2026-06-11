@@ -37,10 +37,7 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
           &copy; {year} {STUDIO_NAME} &middot; Vishvakarma.OS
         </p>
         <p className="vish-marketing-founders__credit">
-          {FOUNDER.name} — {FOUNDER.title}
-        </p>
-        <p className="vish-marketing-founders__credit">
-          {CO_OWNER.name} — {CO_OWNER.title}
+          {FOUNDER.name} & {CO_OWNER.name} — {FOUNDER.title}
         </p>
       </div>
     );
