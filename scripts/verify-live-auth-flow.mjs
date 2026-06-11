@@ -46,10 +46,20 @@ async function testDenyPath(page) {
   await page.waitForTimeout(1000);
 
   const googleButton = page.getByRole('button', { name: /continue with google/i });
-  const popupPromise = page.waitForEvent('popup', { timeout: 8_000 }).catch(() => null);
+  await googleButton.waitFor({ state: 'visible', timeout: 15_000 });
+
+  const popupPromise = page.waitForEvent('popup', { timeout: 15_000 }).catch(() => null);
+  const redirectPromise = page
+    .waitForURL(
+      (url) =>
+        url.href.includes('accounts.google.com') || url.href.includes('firebaseapp.com/__/auth/handler'),
+      { timeout: 12_000 }
+    )
+    .catch(() => null);
   await googleButton.click({ noWaitAfter: true });
   const popup = await popupPromise;
-  await page.waitForTimeout(3000);
+  await redirectPromise;
+  await page.waitForTimeout(1500);
 
   const popupUrl = popup?.url() ?? '';
   const reachedGoogle =
@@ -57,21 +67,28 @@ async function testDenyPath(page) {
     page.url().includes('firebaseapp.com/__/auth/handler') ||
     popupUrl.includes('accounts.google.com') ||
     popupUrl.includes('firebaseapp.com/__/auth/handler');
-  record('deny: OAuth flow started', reachedGoogle, popup ? `popup:${popupUrl.slice(0, 80)}` : page.url().slice(0, 100));
+  record(
+    'deny: OAuth flow started',
+    reachedGoogle,
+    popup ? `popup:${popupUrl.slice(0, 80)}` : page.url().slice(0, 100)
+  );
 
   if (popup) {
     await popup.close().catch(() => null);
-    await page.waitForTimeout(1000);
   } else if (reachedGoogle) {
     await page.goBack({ waitUntil: 'domcontentloaded' }).catch(() => null);
-    await page.waitForTimeout(2000);
   }
+
+  await page.goto(AUTH_URL, { waitUntil: 'networkidle', timeout: 30_000 });
+  await page.waitForTimeout(1000);
 
   const finalUrl = page.url();
   const stayedOnAuth = finalUrl.includes('/auth') && !finalUrl.includes('/editor');
   record('deny: returns to /auth (not /editor)', stayedOnAuth, finalUrl);
 
-  const canRetry = await googleButton.isVisible().catch(() => false);
+  const retryButton = page.getByRole('button', { name: /continue with google/i });
+  await retryButton.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => null);
+  const canRetry = await retryButton.isVisible().catch(() => false);
   record('deny: Google button still clickable', canRetry, canRetry ? 'visible' : 'missing');
 }
 
