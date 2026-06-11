@@ -103,10 +103,10 @@ describe('formatAuthError', () => {
     expect(message).not.toContain('Authorized domains');
   });
 
-  it('describes startup internal failures with domain guidance', () => {
+  it('describes startup internal failures with popup guidance', () => {
     const message = formatAuthError({ code: 'auth/internal-error' }).message;
     expect(message).toContain('could not start');
-    expect(message).toContain('Authorized domains');
+    expect(message).toContain('Allow popups');
   });
 
   it('describes popup-blocked failures with actionable guidance', () => {

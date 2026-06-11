@@ -96,12 +96,8 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
       );
     }
 
-    const host =
-      typeof window !== 'undefined' && window.location.hostname
-        ? window.location.hostname
-        : 'this deployment host';
     return new Error(
-      `Google sign-in could not start in this browser. Use Chrome or Safari (not an IDE embedded preview), allow cookies, and confirm ${host} is listed under Firebase Authentication → Authorized domains.`
+      'Google sign-in could not start. Allow popups for this site, disable ad blockers, and try again in Chrome or Safari (not an IDE embedded preview).'
     );
   }
   if (message.includes('redirect_uri_mismatch')) {
