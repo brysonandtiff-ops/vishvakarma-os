@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { CO_OWNER, FOUNDER, STUDIO_NAME } from '@/brand/founders';
+import { CO_OWNER, FOUNDER, PARTNER, STUDIO_NAME } from '@/brand/founders';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 
 describe('FoundersAcknowledgment', () => {
@@ -10,7 +10,7 @@ describe('FoundersAcknowledgment', () => {
     const block = screen.getByTestId('founders-acknowledgment-auth');
     expect(block).toHaveAttribute('aria-label');
     expect(screen.getByText(STUDIO_NAME)).toBeInTheDocument();
-    expect(screen.getByText(`${FOUNDER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
+    expect(screen.getByText(`${FOUNDER.name} & ${PARTNER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
     expect(screen.getByText(`${CO_OWNER.name} — ${CO_OWNER.title}`)).toBeInTheDocument();
     expect(document.querySelector('.vish-auth-founders-line')).toBeTruthy();
   });
@@ -22,7 +22,8 @@ describe('FoundersAcknowledgment', () => {
     expect(block).toHaveAttribute('aria-label');
     expect(screen.getByText(new RegExp(`${STUDIO_NAME}`))).toBeInTheDocument();
     expect(screen.getByText(/Vishvakarma\.OS/)).toBeInTheDocument();
-    expect(screen.getByText(`${FOUNDER.name} & ${CO_OWNER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
+    expect(screen.getByText(`${FOUNDER.name} & ${PARTNER.name} — ${FOUNDER.title}`)).toBeInTheDocument();
+    expect(screen.getByText(`${CO_OWNER.name} — ${CO_OWNER.title}`)).toBeInTheDocument();
     expect(document.querySelector('.vish-marketing-founders')).toBeTruthy();
   });
 
@@ -32,7 +33,7 @@ describe('FoundersAcknowledgment', () => {
     const block = screen.getByTestId('founders-acknowledgment-sidebar');
     expect(block).toHaveAttribute('aria-label');
     expect(screen.getByText(STUDIO_NAME)).toBeInTheDocument();
-    expect(screen.getByText(FOUNDER.name)).toBeInTheDocument();
+    expect(screen.getByText(`${FOUNDER.name} & ${PARTNER.name}`)).toBeInTheDocument();
     expect(screen.getByText(FOUNDER.title)).toBeInTheDocument();
     expect(screen.getByText(`${CO_OWNER.name} · ${CO_OWNER.title}`)).toBeInTheDocument();
     expect(document.querySelector('.vish-sidebar-founders')).toBeTruthy();

@@ -1,4 +1,4 @@
-import { CO_OWNER, FOUNDER, FOUNDERS_ARIA_LABEL, STUDIO_NAME } from '@/brand/founders';
+import { CO_OWNER, FOUNDER, FOUNDERS_ARIA_LABEL, PARTNER, STUDIO_NAME } from '@/brand/founders';
 
 type FoundersVariant = 'auth' | 'footer' | 'sidebar';
 
@@ -16,7 +16,7 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
       >
         <p className="vish-auth-founders-line__studio">{STUDIO_NAME}</p>
         <p className="vish-auth-founders-line__credit">
-          {FOUNDER.name} — {FOUNDER.title}
+          {FOUNDER.name} & {PARTNER.name} — {FOUNDER.title}
         </p>
         <p className="vish-auth-founders-line__credit">
           {CO_OWNER.name} — {CO_OWNER.title}
@@ -37,7 +37,10 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
           &copy; {year} {STUDIO_NAME} &middot; Vishvakarma.OS
         </p>
         <p className="vish-marketing-founders__credit">
-          {FOUNDER.name} & {CO_OWNER.name} — {FOUNDER.title}
+          {FOUNDER.name} & {PARTNER.name} — {FOUNDER.title}
+        </p>
+        <p className="vish-marketing-founders__credit">
+          {CO_OWNER.name} — {CO_OWNER.title}
         </p>
       </div>
     );
@@ -53,7 +56,7 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
         {STUDIO_NAME}
       </p>
       <p className="mt-1 text-[10px] leading-snug text-ws-text-faint">
-        {FOUNDER.name}
+        {FOUNDER.name} & {PARTNER.name}
         <span className="block text-[9px] leading-tight">{FOUNDER.title}</span>
       </p>
       <p className="mt-1 text-[10px] text-ws-text-faint">
