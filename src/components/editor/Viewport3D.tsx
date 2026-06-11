@@ -564,7 +564,7 @@ function SacredAtmosphere({ mode }: { mode: AtmospherePerformanceMode }) {
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <fog attach="fog" args={["#17120A", config.fogNear, config.fogFar]} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <hemisphereLight args={["#F2C45A", "#17120A", mode === 'standard' ? 0.32 : mode === 'premium' ? 0.42 : 0.5]} />
+      <hemisphereLight args={["#F2C45A", "#17120A", mode === 'standard' ? 0.42 : mode === 'premium' ? 0.52 : 0.58]} />
     </>
   );
 }
@@ -582,7 +582,7 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <ambientLight intensity={mode === 'standard' ? 0.34 : 0.38} />
+      <ambientLight intensity={mode === 'standard' ? 0.44 : 0.48} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <directionalLight
         position={[x, y, z]}

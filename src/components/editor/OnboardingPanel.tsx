@@ -32,7 +32,7 @@ export default function OnboardingPanel({
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
       <div
-        className="vish-glass-panel vish-glass-panel--interactive vish-fade-rise pointer-events-auto w-full max-w-lg overflow-hidden rounded-3xl"
+        className="vish-onboarding-modal vish-glass-panel vish-glass-panel--interactive vish-fade-rise pointer-events-auto w-full max-w-lg overflow-hidden rounded-3xl"
         data-testid="first-run-welcome"
       >
         <div className="flex items-center gap-3 border-b border-primary/20 px-5 py-4">

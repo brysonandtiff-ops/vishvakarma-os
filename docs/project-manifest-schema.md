@@ -4,6 +4,8 @@
 
 The Project Manifest is the single source of truth for all editor state in Vishvakarma.OS. It is stored as a JSONB column in the database and can be exported as a standalone JSON file.
 
+Pre-built demo and new-project templates are catalogued in `src/core/sampleCatalog.ts` (see `public/samples/` for static JSON showcases).
+
 ## Schema Version
 
 Current version: `1.0.0`

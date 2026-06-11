@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Download, Shield, Trophy } from 'lucide-react';
+import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
@@ -8,9 +8,15 @@ import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
-import { isEmbeddedAuthBrowser } from '@/backend/firebase/firebaseOAuthGateway';
+import {
+  getAuthPageUrl,
+  getEmbeddedAuthBrowserLabel,
+  isEmbeddedAuthBrowser,
+  isEmbeddedAuthErrorMessage,
+} from '@/backend/firebase/firebaseOAuthGateway';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
+import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
 function getReturnPath(state: unknown) {
@@ -108,10 +114,13 @@ export default function AuthPage() {
     () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
     []
   );
-  const externalAuthUrl = useMemo(
-    () => (typeof window !== 'undefined' ? window.location.href : '/auth'),
+  const embeddedBrowserLabel = useMemo(
+    () => (typeof navigator !== 'undefined' ? getEmbeddedAuthBrowserLabel() : 'embedded browser'),
     []
   );
+  const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
+  const showEmbeddedAuthRecovery =
+    embeddedAuthBrowser || Boolean((emailLinkError ?? error) && isEmbeddedAuthErrorMessage(emailLinkError ?? error ?? ''));
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -168,6 +177,17 @@ export default function AuthPage() {
     toast.message('Install as App', {
       description: 'Use your browser menu (Add to Home Screen / Install app) to install Vishvakarma.OS.',
     });
+  };
+
+  const handleCopyAuthUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(externalAuthUrl);
+      toast.success('Sign-in link copied', {
+        description: 'Paste into Chrome or Safari to complete Google sign-in.',
+      });
+    } catch {
+      toast.message('Copy this URL', { description: externalAuthUrl });
+    }
   };
 
   const handleGoogleSignIn = async () => {
@@ -323,17 +343,14 @@ export default function AuthPage() {
           )}
 
           {showGoogleSignIn && embeddedAuthBrowser && (
-            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-embedded-browser-warning">
-              Google sign-in does not work in the Cursor embedded preview.{' '}
-              <a
-                href={externalAuthUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="vish-auth-status__link"
-              >
-                Open in Chrome or Safari
-              </a>{' '}
-              to sign in.
+            <AuthStatusBanner
+              variant="warning"
+              title="OAuth blocked in embedded browser"
+              role="alert"
+              data-testid="auth-embedded-browser-warning"
+            >
+              Google sign-in cannot run inside {embeddedBrowserLabel}. Open this page in Chrome or Safari, allow
+              cookies for this site, then sign in.
             </AuthStatusBanner>
           )}
             </div>
@@ -412,6 +429,30 @@ export default function AuthPage() {
 
           {showGoogleSignIn && (
             <div className="vish-auth-form space-y-4">
+              {showEmbeddedAuthRecovery && (
+                <div className="vish-auth-embedded-recovery" data-testid="auth-open-in-browser-cta">
+                  <p className="vish-auth-embedded-recovery__title">Open in your system browser</p>
+                  <p className="vish-auth-embedded-recovery__body">
+                    Google OAuth is blocked here. Use Chrome or Safari for a one-time sign-in, then return to the app.
+                  </p>
+                  <div className="vish-auth-embedded-recovery__actions">
+                    <a
+                      href={externalAuthUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="vish-auth-open-browser-btn"
+                    >
+                      <ExternalLink className="h-4 w-4" aria-hidden />
+                      Open in Chrome or Safari
+                    </a>
+                    <button type="button" className="vish-auth-copy-url-btn" onClick={() => void handleCopyAuthUrl()}>
+                      <Copy className="h-3.5 w-3.5" aria-hidden />
+                      Copy URL
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {message && (
                 <AuthStatusBanner variant="info" loading className="vish-auth-status--inline">
                   {message}
@@ -459,6 +500,8 @@ export default function AuthPage() {
           </footer>
         </div>
 
+        <FoundersAcknowledgment variant="auth" />
+
         <section className="vish-auth-trust-section w-full" aria-labelledby="auth-trust-heading">
           <h2 id="auth-trust-heading" className="vish-auth-trust-heading">
             Trust &amp; evidence · विश्वास
@@ -469,8 +512,6 @@ export default function AuthPage() {
             badge="Release evidence"
             title={`${WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence`}
             description="Automated pre-release checks in-repo — evidence, not a Guinness claim."
-            metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
-            metricLabel="gates"
             destination="/releases"
             variant="gates"
             staggerClass="vish-stagger-2"

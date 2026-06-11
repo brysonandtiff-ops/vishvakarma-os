@@ -122,27 +122,36 @@ function checkRoutesGate() {
 // Gate 4: Sample Loads Successfully
 function checkSampleGate() {
   try {
-    const samplePath = path.join(process.cwd(), 'public', 'samples', 'sample-house-01.json');
-    const sampleContent = fs.readFileSync(samplePath, 'utf-8');
-    const sample = JSON.parse(sampleContent);
-    
-    const hasVersion = sample.version === '1.0.0';
-    const hasWalls = Array.isArray(sample.walls) && sample.walls.length > 0;
-    const hasOpenings = Array.isArray(sample.openings);
-    const hasLighting = sample.lighting && typeof sample.lighting === 'object';
-    
+    const samplesDir = path.join(process.cwd(), 'public', 'samples');
+    const sampleFiles = fs.readdirSync(samplesDir).filter((name) => name.endsWith('.json'));
+    const details = [];
+    let allPassed = true;
+
+    for (const file of sampleFiles) {
+      const samplePath = path.join(samplesDir, file);
+      const sampleContent = fs.readFileSync(samplePath, 'utf-8');
+      const sample = JSON.parse(sampleContent);
+
+      const hasVersion = sample.version === '1.0.0';
+      const hasWalls = Array.isArray(sample.walls) && sample.walls.length > 0;
+      const hasOpenings = Array.isArray(sample.openings);
+      const hasLighting = sample.lighting && typeof sample.lighting === 'object';
+      const passed = hasVersion && hasWalls && hasOpenings && hasLighting;
+
+      if (!passed) allPassed = false;
+      details.push(`${passed ? '✓' : '✗'} ${file} (walls: ${sample.walls?.length || 0})`);
+    }
+
+    const gateSamplePath = path.join(samplesDir, 'sample-house-01.json');
+    const gateSampleExists = fs.existsSync(gateSamplePath);
+
     return {
       name: 'Gate 4: Sample Loads Successfully',
-      passed: hasVersion && hasWalls && hasOpenings && hasLighting,
-      message: hasVersion && hasWalls && hasOpenings && hasLighting
-        ? '✓ sample-house-01.json validates'
+      passed: allPassed && gateSampleExists,
+      message: allPassed && gateSampleExists
+        ? `✓ ${sampleFiles.length} sample JSON file(s) validate`
         : '✗ Sample validation failed',
-      details: [
-        `Version: ${hasVersion ? '✓' : '✗'}`,
-        `Walls: ${hasWalls ? '✓' : '✗'} (${sample.walls?.length || 0})`,
-        `Openings: ${hasOpenings ? '✓' : '✗'} (${sample.openings?.length || 0})`,
-        `Lighting: ${hasLighting ? '✓' : '✗'}`
-      ]
+      details,
     };
   } catch (error) {
     return {

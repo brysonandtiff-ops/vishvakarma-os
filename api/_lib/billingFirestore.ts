@@ -40,6 +40,18 @@ function mapSubscriptionStatus(status: Stripe.Subscription.Status): BillingStatu
   }
 }
 
+function subscriptionCurrentPeriodEnd(subscription: Stripe.Subscription): number | null | undefined {
+  const items = subscription.items?.data ?? [];
+  if (items.length === 0) return undefined;
+
+  const periodEnds = items
+    .map((item) => item.current_period_end)
+    .filter((value): value is number => typeof value === 'number' && value > 0);
+
+  if (periodEnds.length === 0) return undefined;
+  return Math.max(...periodEnds);
+}
+
 function planFromSubscription(
   subscription: Stripe.Subscription,
   status: BillingStatus
@@ -99,7 +111,7 @@ export async function upsertBillingFromSubscription(
     status,
     stripeCustomerId: stripeCustomerId ?? (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id),
     stripeSubscriptionId: subscription.id,
-    currentPeriodEnd: isoFromUnix(subscription.current_period_end),
+    currentPeriodEnd: isoFromUnix(subscriptionCurrentPeriodEnd(subscription)),
     trialEnd: isoFromUnix(subscription.trial_end),
   });
 }

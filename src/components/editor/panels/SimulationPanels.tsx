@@ -3,7 +3,18 @@ import { routeMep } from '@/core/simulations/tvashtar';
 import { computeVayuField } from '@/core/simulations/vayuCFD';
 import type { ProjectManifest } from '@/types';
 
-const PANEL_CARD = 'rounded-xl border border-primary/20 bg-black/20 px-4 py-3 text-xs shadow-sm';
+const PANEL_CARD =
+  'rounded-xl border border-primary/20 bg-black/20 px-4 py-3 text-xs text-ws-text-dim shadow-sm';
+
+function ComingSoonBadge({ version = 'v1.2' }: { version?: string }) {
+  return (
+    <div className="vish-coming-soon-badge mt-2" role="status">
+      <span className="vish-coming-soon-badge__dot" aria-hidden />
+      <span className="vish-coming-soon-badge__label">Coming in {version}</span>
+      <span className="vish-coming-soon-badge__hint">Preview scaffold — not a broken panel</span>
+    </div>
+  );
+}
 
 export function TvashtarPanel({ manifest }: { manifest: ProjectManifest }) {
   const route = routeMep(manifest.walls, { x: 80, y: 80 }, { x: 400, y: 320 });
@@ -46,24 +57,20 @@ export function VayuJalaPanel({ manifest }: { manifest: ProjectManifest }) {
 
 export function PanchatattvaPanel() {
   return (
-    <div className={`${PANEL_CARD} text-muted-foreground`}>
+    <div className={`${PANEL_CARD} vish-coming-soon-panel`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Panchatattva</p>
-      <p className="mt-1">Five-element balance scoring with room labels.</p>
-      <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
-        Coming in v1.2
-      </span>
+      <p className="mt-1 text-ws-text-dim">Five-element balance scoring with room labels.</p>
+      <ComingSoonBadge />
     </div>
   );
 }
 
 export function AkashaCastPanel() {
   return (
-    <div className={`${PANEL_CARD} text-muted-foreground`}>
+    <div className={`${PANEL_CARD} vish-coming-soon-panel`}>
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Akasha Cast</p>
-      <p className="mt-1">Cloud render queue for high-fidelity previews.</p>
-      <span className="mt-2 inline-block rounded-full border border-primary/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
-        Coming in v1.2
-      </span>
+      <p className="mt-1 text-ws-text-dim">Cloud render queue for high-fidelity previews.</p>
+      <ComingSoonBadge />
     </div>
   );
 }

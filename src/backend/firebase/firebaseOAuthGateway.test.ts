@@ -59,6 +59,12 @@ describe('isEmbeddedAuthBrowser', () => {
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.0.0 Safari/537.36';
     expect(isEmbeddedAuthBrowser(ua)).toBe(false);
   });
+
+  it('detects Android WebView shells', () => {
+    const ua =
+      'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36; wv)';
+    expect(isEmbeddedAuthBrowser(ua)).toBe(true);
+  });
 });
 
 describe('oauth redirect pending marker', () => {

@@ -130,7 +130,7 @@ test.describe('page reference pack', () => {
     await shot(page, 'marketing', '01-landing.png', true);
 
     await page.goto('/features');
-    await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Getting Started' })).toBeVisible();
     await shot(page, 'marketing', '02-features-guides.png', true);
 
     await page.getByRole('button', { name: /all features/i }).click();

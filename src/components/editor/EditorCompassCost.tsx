@@ -22,7 +22,7 @@ export default function EditorCompassCost({
   const totalCost = sumCostItems(costItems);
 
   return (
-    <div className="pointer-events-auto absolute bottom-4 right-4 z-20 flex items-center gap-2" data-testid="editor-compass-cost">
+    <div className="vish-compass-cost-widget pointer-events-auto absolute bottom-4 right-4 z-20 flex items-center gap-2" data-testid="editor-compass-cost">
       <Popover open={compassOpen} onOpenChange={setCompassOpen}>
         <PopoverTrigger asChild>
           <button

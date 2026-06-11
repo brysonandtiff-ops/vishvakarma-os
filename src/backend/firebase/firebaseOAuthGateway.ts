@@ -90,6 +90,11 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
     );
   }
   if (code === 'auth/internal-error') {
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    if (isEmbeddedAuthBrowser(ua)) {
+      return formatEmbeddedBrowserError();
+    }
+
     if (context.usedRedirect) {
       return new Error(
         'Google sign-in did not finish. If you cancelled, try again. Otherwise open this page in Chrome or Safari (not an IDE embedded preview) and allow cookies for this site.'
@@ -144,15 +149,45 @@ export function shouldPreferRedirectFlow(
   return isWebKitBrowser(userAgent);
 }
 
+const EMBEDDED_AUTH_UA_PATTERN =
+  /Cursor|Electron|VSCode|vscode|Codeium|Windsurf|Obsidian|WebView|; wv\)|\bwv\b/i;
+
 export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
   // Do not match HeadlessChrome — Playwright and CI browsers use it; only block IDE embedded previews.
-  return /Cursor|Electron|VSCode/i.test(userAgent);
+  if (/HeadlessChrome/i.test(userAgent)) {
+    return false;
+  }
+
+  return EMBEDDED_AUTH_UA_PATTERN.test(userAgent);
+}
+
+export function getEmbeddedAuthBrowserLabel(
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+): string {
+  if (/Cursor/i.test(userAgent)) return 'Cursor embedded preview';
+  if (/VSCode|vscode/i.test(userAgent)) return 'VS Code embedded preview';
+  if (/Electron/i.test(userAgent)) return 'embedded app browser';
+  if (/WebView|; wv\)|\bwv\b/i.test(userAgent)) return 'in-app WebView';
+  return 'embedded browser';
+}
+
+export function getAuthPageUrl(path = '/auth') {
+  if (typeof window === 'undefined') {
+    return path;
+  }
+
+  return new URL(path, window.location.origin).href;
+}
+
+export function isEmbeddedAuthErrorMessage(message: string) {
+  return /embedded IDE browsers|embedded preview|embedded browser|OAuth blocked/i.test(message);
 }
 
 function formatEmbeddedBrowserError(): Error {
-  const url = typeof window !== 'undefined' ? window.location.href : '/auth';
+  const label = getEmbeddedAuthBrowserLabel();
+  const url = getAuthPageUrl();
   return new Error(
-    `Google sign-in does not work in embedded IDE browsers (Cursor, VS Code). Open this page in Chrome or Safari: ${url}`
+    `Google sign-in is blocked in ${label}. Open this page in Chrome or Safari (not an IDE preview): ${url}`
   );
 }
 
@@ -160,7 +195,8 @@ export function formatOAuthRedirectIncompleteMessage(
   userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : ''
 ): string {
   if (isEmbeddedAuthBrowser(userAgent)) {
-    return 'Google sign-in does not work in the Cursor embedded preview. Open this page in Chrome or Safari, then try again.';
+    const label = getEmbeddedAuthBrowserLabel(userAgent);
+    return `Google sign-in is blocked in the ${label}. Open this page in Chrome or Safari, allow cookies, then try again.`;
   }
 
   return 'Google sign-in did not complete. Try again in the same browser tab, allow cookies for this site, and disable extensions that block sign-in.';

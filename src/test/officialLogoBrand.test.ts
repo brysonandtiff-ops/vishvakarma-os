@@ -45,7 +45,14 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
       expect(icon).not.toContain('href="/brand/');
     }
 
-    expect(existsSync(resolve(repoRoot, 'public/brand/vishvakarma-apple-touch-icon.png'))).toBe(true);
+    for (const pngPath of [
+      'public/brand/vishvakarma-apple-touch-icon.png',
+      'public/icons/icon-192.png',
+      'public/icons/icon-512.png',
+      'public/icons/favicon-32.png',
+    ]) {
+      expect(existsSync(resolve(repoRoot, pngPath))).toBe(true);
+    }
   });
 
   it('uses derived icon assets for browser and PWA metadata', () => {
@@ -53,6 +60,10 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
     const manifest = read('public/manifest.webmanifest');
 
     expect(index).toContain(`href="${pwaIconPath}"`);
+    expect(index).toContain('/icons/icon-192.png');
+    expect(index).toContain('/icons/favicon-32.png');
+    expect(manifest).toContain('"/icons/icon-192.png"');
+    expect(manifest).toContain('"/icons/icon-512.png"');
     expect(manifest).toContain(`"src": "${pwaIconPath}"`);
     expect(index).toContain('/brand/vishvakarma-apple-touch-icon.png');
     expect(index).not.toContain(`href="${officialLogoPath}"`);

@@ -184,15 +184,17 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col">
-        <ToolDefaultsPanel currentTool={currentTool} />
+      <div className="vish-properties-panel vish-dark-panel flex h-full min-h-0 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <ToolDefaultsPanel currentTool={currentTool} />
+        </div>
         {morePanel && (
-          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="border-t border-ws-border">
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
             <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
-              More panels
+              Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent>{morePanel}</CollapsibleContent>
+            <CollapsibleContent className="max-h-[min(42vh,24rem)] overflow-y-auto">{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
       </div>
@@ -344,12 +346,12 @@ export default function PropertiesPanel({
         </div>
 
         {morePanel && (
-          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="border-t border-ws-border">
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
             <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
-              More panels
+              Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent>{morePanel}</CollapsibleContent>
+            <CollapsibleContent className="max-h-[min(42vh,24rem)] overflow-y-auto">{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
       </div>

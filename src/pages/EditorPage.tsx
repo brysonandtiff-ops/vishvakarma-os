@@ -26,6 +26,7 @@ import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
 import { usePlanTier } from '@/hooks/usePlanTier';
 import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
+import SamplePickerDialog from '@/components/editor/SamplePickerDialog';
 import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
@@ -66,6 +67,7 @@ import { buildProjectExportFilename, serializeProjectManifest } from '@/core/pro
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
 import { upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, isOnboardingDismissed } from '@/editor/onboardingMemory';
+import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
@@ -150,6 +152,8 @@ function EditorWorkspace() {
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | undefined>();
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
+  const [samplePickerOpen, setSamplePickerOpen] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
   const cloudSave = useCloudSaveStatus();
   const { user } = useAuth();
 
@@ -364,10 +368,10 @@ function EditorWorkspace() {
     snapEnabled,
   ]);
 
-  const loadSampleProject = async () => {
+  const loadSampleBySampleId = async (sampleId: string) => {
+    setLoadingSample(true);
     try {
-      const response = await fetch('/samples/sample-house-01.json');
-      const sampleManifest: ProjectManifest = await response.json();
+      const sampleManifest = await loadSampleById(sampleId);
       if (!currentProject) {
         setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
       }
@@ -385,11 +389,18 @@ function EditorWorkspace() {
             : 'cloud-saved'
           : 'local-draft',
       );
-      toast.success('Demo blueprint loaded with Project Proof active');
+      setSamplePickerOpen(false);
+      toast.success(`${sampleManifest.name} loaded with Project Proof active`);
     } catch (error) {
       console.error('Failed to load sample project:', error);
       toast.error('Failed to load sample project');
+    } finally {
+      setLoadingSample(false);
     }
+  };
+
+  const openSamplePicker = () => {
+    setSamplePickerOpen(true);
   };
 
   const restoreLocalDraft = () => {
@@ -599,13 +610,19 @@ function EditorWorkspace() {
   );
 
   const morePanel = (
-    <>
-      {workspaceMode === 'mep' && <TvashtarPanel manifest={manifest} />}
+    <div className="space-y-3 px-0 py-2">
+      {workspaceMode === 'mep' && (
+        <div className="px-4">
+          <TvashtarPanel manifest={manifest} />
+        </div>
+      )}
       {(workspaceMode === 'draft' || currentTool === 'vastu') && <VastuPanel manifest={manifest} />}
-      <VayuJalaPanel manifest={manifest} />
-      <AgniThermalPanel manifest={manifest} />
-      <PanchatattvaPanel />
-      <AkashaCastPanel />
+      <div className="space-y-3 px-4">
+        <VayuJalaPanel manifest={manifest} />
+        <AgniThermalPanel manifest={manifest} />
+        <PanchatattvaPanel />
+        <AkashaCastPanel />
+      </div>
       <ProjectProofPanel
         projectName={projectName}
         wallCount={walls.length}
@@ -654,7 +671,7 @@ function EditorWorkspace() {
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
         <SolarTimeline lighting={lighting} onLightingChange={(value) => engine.setLighting(value)} />
       </div>
-    </>
+    </div>
   );
 
   return (
@@ -677,7 +694,7 @@ function EditorWorkspace() {
           onImport={() => setImportDialogOpen(true)}
           onOpenProject={() => setLoadDialogOpen(true)}
           onSaveProject={() => void handleSaveProject()}
-          onLoadSample={() => void loadSampleProject()}
+          onLoadSample={openSamplePicker}
           onOpenAIDesigner={() => setAiDesignerOpen(true)}
           savingProject={savingProject}
           onOpenEditorMenu={() => setEditorMenuOpen(true)}
@@ -770,7 +787,7 @@ function EditorWorkspace() {
                 />
                 {showOnboarding && !welcomeOpen && (
                   <OnboardingPanel
-                    onLoadSample={loadSampleProject}
+                    onLoadSample={openSamplePicker}
                     onNewProject={() => setNewProjectOpen(true)}
                     showLocalDraftNotice={!backendStatus.isConfigured}
                   />
@@ -782,13 +799,13 @@ function EditorWorkspace() {
                     setWelcomeOpen(false);
                   }}
                   onNewProject={() => setNewProjectOpen(true)}
-                  onLoadSample={loadSampleProject}
+                  onLoadSample={openSamplePicker}
                 />
               </div>
             </section>
 
             {show3DView && (
-              <section className="flex w-80 shrink-0 flex-col border-l border-ws-border md:w-96">
+              <section className="vish-3d-viewport-pane flex w-80 shrink-0 flex-col border-l border-ws-border md:w-96">
                 <div className="ws-pane-header">
                   <span className="ws-pane-label">3D Preview</span>
                   <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Live sync</span>
@@ -859,7 +876,7 @@ function EditorWorkspace() {
         onSave={handleSaveProject}
         onImport={() => setImportDialogOpen(true)}
         onExport={() => setExportDialogOpen(true)}
-        onLoadSample={() => void loadSampleProject()}
+        onLoadSample={openSamplePicker}
         onAIDesigner={() => setAiDesignerOpen(true)}
         onToggle3D={() => engine.setShow3D(!show3DView)}
         onToggleGrid={() => engine.setGridVisible(!gridVisible)}
@@ -872,6 +889,12 @@ function EditorWorkspace() {
         onRestore={restoreLocalDraft}
         onDiscard={discardLocalDraft}
         onDismiss={() => setRecoveryDialogOpen(false)}
+      />
+      <SamplePickerDialog
+        open={samplePickerOpen}
+        onOpenChange={setSamplePickerOpen}
+        loading={loadingSample}
+        onSelect={loadSampleBySampleId}
       />
       <NewProjectDialog
         open={newProjectOpen}

@@ -694,10 +694,15 @@ export default function BlueprintCanvas({
       ctx.lineWidth = 1.5;
       ctx.fillRect(-width / 2, -depth / 2, width, depth);
       ctx.strokeRect(-width / 2, -depth / 2, width, depth);
-      ctx.fillStyle = '#3d2b1f';
-      ctx.font = '10px sans-serif';
+      ctx.font = 'bold 11px system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(item.type, 0, 4);
+      ctx.textBaseline = 'middle';
+      const label = item.type.charAt(0).toUpperCase() + item.type.slice(1);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(246, 241, 231, 0.92)';
+      ctx.strokeText(label, 0, 0);
+      ctx.fillStyle = '#2a1a0f';
+      ctx.fillText(label, 0, 0);
       ctx.restore();
     }
 

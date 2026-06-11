@@ -37,7 +37,7 @@ export default function LandingPage() {
         title="Vishvakarma.OS — iPad-Native Architecture Studio"
         description="Draw floor plans, inspect Sacred 3D View, export your Project Proof. Premium architecture studio in your browser."
       />
-      <section className="mx-auto max-w-6xl px-4 pb-8 pt-12 md:px-8 md:pt-20">
+      <section className="mx-auto max-w-6xl px-4 pb-12 pt-14 md:px-8 md:pb-16 md:pt-20">
         <p className="vish-marketing-section-label vish-devanagari-accent mb-4">ॐ श्री विश्वकर्मणे नमः</p>
         <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">
           iPad-native architecture studio.
@@ -46,7 +46,7 @@ export default function LandingPage() {
           <br />
           Export Package ready.
         </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed vish-text-body md:text-lg">
+        <p className="mt-8 max-w-2xl text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
           Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays,
           and professional Export Package delivery — Cloud Save when configured, Local Draft always available.
         </p>
@@ -58,7 +58,7 @@ export default function LandingPage() {
             ▷ See All Features
           </Link>
         </div>
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((stat) => (
             <MetricPill key={stat.label} value={stat.value} label={stat.label} />
           ))}

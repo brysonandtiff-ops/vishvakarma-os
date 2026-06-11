@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
+import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import {
   PenTool,
@@ -217,6 +218,7 @@ function SidebarContent({
         </ScrollArea>
 
         <div className={`shrink-0 border-t border-ws-border ${collapsed ? 'p-1.5' : 'px-3 py-3'}`}>
+          {!collapsed && <FoundersAcknowledgment variant="sidebar" />}
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>

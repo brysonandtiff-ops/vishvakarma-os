@@ -1,16 +1,33 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
+import MetricPill from '@/components/common/MetricPill';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { PRICING_TIERS, STUDIO_TRIAL_LABEL } from '@/config/billingPlans';
+import { EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBilling } from '@/hooks/useBilling';
 import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
 import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 type TierAction = 'link' | 'checkout' | 'portal';
+
+const TRUST_STATS = [
+  { value: 'Cloud', label: 'Firebase save' },
+  { value: '13', label: 'Release gates' },
+  { value: 'OS', label: 'Governance layer' },
+] as const;
+
+const STAGGER_CLASSES = ['vish-stagger-1', 'vish-stagger-2', 'vish-stagger-3'] as const;
 
 export default function PricingPage() {
   const { user } = useAuth();
@@ -117,47 +134,65 @@ export default function PricingPage() {
   );
 
   const FAQ = [
-    { q: 'Can I use Vishvakarma.OS without Firebase?', a: 'Yes. Local Draft mode stores projects in your browser with full editor access.' },
-    { q: 'Which export formats are included?', a: 'JSON, PNG, PDF, DXF, SVG — all generated from the same floor plan manifest.' },
-    { q: 'Is there an iPad app?', a: 'The web app is iPad-first. Capacitor native wrapper is planned for v2.' },
+    {
+      q: 'Do I need to sign in?',
+      a: 'Yes. Sign in with Google to open your protected workspace. Local Draft recovery keeps unsaved work in your browser between sessions.',
+    },
+    {
+      q: 'Which export formats are included?',
+      a: `Starter includes PNG export. Studio unlocks the full Export Package (${EXPORT_FORMATS_LABEL}) — all generated from one floor plan manifest.`,
+    },
+    {
+      q: 'Is there an iPad app?',
+      a: 'The web app is iPad-first with Apple Pencil support. A native Capacitor wrapper is planned for v2.',
+    },
   ] as const;
 
   return (
     <MarketingLayout>
       <PageMeta title="Pricing" description="Professional-grade tools. Fair, predictable pricing." />
-      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8">
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-14 md:px-8 md:pb-20 md:pt-20">
         <MarketingPageHeader
-          label="Pricing"
+          devanagari="मूल्य नियोजन"
+          hero
           title={
             <>
               Professional-grade tools.
               <br />
-              Fair, predictable pricing.
+              <span className="vish-hero-gold">Fair, predictable pricing.</span>
             </>
           }
           description="Start free. Upgrade when your practice demands it. Cancel anytime."
         />
 
-        <div className="mt-8 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          <span className="rounded-full border border-primary/25 px-3 py-1">Firebase Cloud Save</span>
-          <span className="rounded-full border border-primary/25 px-3 py-1">13 release gates</span>
-          <span className="rounded-full border border-primary/25 px-3 py-1">Governance OS</span>
+        <div className="vish-pricing-trust-row mt-10 grid gap-4 sm:grid-cols-3">
+          {TRUST_STATS.map((stat) => (
+            <MetricPill key={stat.label} value={stat.value} label={stat.label} />
+          ))}
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {tiers.map((tier) => (
+        <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-3 lg:gap-5">
+          {tiers.map((tier, index) => (
             <article
               key={tier.tier}
-              className={`vish-pricing-card relative ${tier.popular ? 'vish-pricing-popular' : ''}`}
+              className={`vish-pricing-card vish-fade-rise relative flex flex-col ${STAGGER_CLASSES[index]} ${tier.popular ? 'vish-pricing-popular' : ''}`}
             >
               {tier.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-primary-foreground">
+                <span className="vish-pricing-badge absolute -top-3 left-1/2 -translate-x-1/2">
                   Most Popular
                 </span>
               )}
-              <h2 className="text-xl font-bold vish-text-heading">{tier.name}</h2>
-              <p className="mt-2 text-2xl font-bold text-primary">{tier.priceLabel}</p>
-              <p className="mt-3 text-sm vish-text-body">{tier.desc}</p>
+              <div className="vish-pricing-card__header">
+                <p className="vish-marketing-section-label">{tier.tier}</p>
+                <h2 className="mt-2 text-2xl font-bold vish-text-heading">{tier.name}</h2>
+                <p className="vish-pricing-card__price mt-3">
+                  {tier.priceLabel}
+                  {tier.amountCents > 0 && (
+                    <span className="vish-pricing-card__period"> / month</span>
+                  )}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed vish-text-body">{tier.desc}</p>
+              </div>
               {tier.action === 'checkout' && tier.checkoutPlan ? (
                 <button
                   type="button"
@@ -181,11 +216,13 @@ export default function PricingPage() {
                   {tier.cta}
                 </Link>
               )}
-              <ul className="mt-6 space-y-2 text-sm vish-text-body">
+              <ul className="vish-pricing-card__features mt-6 flex-1 space-y-3 text-sm vish-text-body">
                 {tier.features.map((feature) => (
-                  <li key={feature} className="flex gap-2">
-                    <span className="text-primary">✓</span>
-                    {feature}
+                  <li key={feature} className="flex items-start gap-3">
+                    <span className="vish-pricing-check mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+                      <Check className="h-3 w-3" aria-hidden />
+                    </span>
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -193,16 +230,26 @@ export default function PricingPage() {
           ))}
         </div>
 
-        <div className="mt-16 rounded-2xl border border-border/60 bg-card/50 p-6 md:p-8">
-          <h2 className="text-lg font-semibold vish-text-heading">Frequently asked</h2>
-          <dl className="mt-6 space-y-4">
-            {FAQ.map((item) => (
-              <div key={item.q}>
-                <dt className="text-sm font-semibold text-foreground">{item.q}</dt>
-                <dd className="mt-1 text-sm vish-text-body">{item.a}</dd>
-              </div>
-            ))}
-          </dl>
+        <div className="mt-20 border-t border-primary/15 pt-16">
+          <div className="vish-pricing-faq vish-pricing-card">
+            <p className="vish-marketing-section-label">Frequently asked</p>
+            <Accordion type="single" collapsible className="mt-6">
+              {FAQ.map((item, index) => (
+                <AccordionItem
+                  key={item.q}
+                  value={`faq-${index}`}
+                  className="border-primary/20 last:border-b-0"
+                >
+                  <AccordionTrigger className="py-4 text-sm font-semibold vish-text-heading hover:no-underline hover:text-primary [&[data-state=open]]:text-primary">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed vish-text-body">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
       </section>
     </MarketingLayout>

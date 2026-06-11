@@ -8,7 +8,7 @@ export default function EditorPhasePills() {
 
   return (
     <div
-      className="pointer-events-auto absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
+      className="pointer-events-auto absolute bottom-16 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
       data-testid="editor-phase-pills"
     >
       <span className="vish-canvas-overlay-pill text-[10px]">Phase</span>

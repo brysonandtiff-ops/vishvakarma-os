@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -11,8 +11,15 @@ import { createProject } from '@/db/api';
 import { createLocalProject } from '@/editor/localProject';
 import { upsertLocalProject } from '@/editor/localProjects';
 import { createProjectManifest } from '@/core/projectModel';
-import { getFloorTemplate, TEMPLATE_IDS, type TemplateId } from '@/core/templates';
+import {
+  getFloorTemplate,
+  getNewProjectTemplates,
+  SAMPLE_CATEGORY_LABELS,
+  type SampleCategory,
+} from '@/core/sampleCatalog';
 import type { Project, ProjectManifest } from '@/types';
+
+const NEW_PROJECT_CATEGORY_ORDER: SampleCategory[] = ['residential', 'shapes'];
 
 export default function NewProjectDialog({
   open,
@@ -28,7 +35,16 @@ export default function NewProjectDialog({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [templateId, setTemplateId] = useState<TemplateId | 'blank'>('blank');
+  const [templateId, setTemplateId] = useState<string>('blank');
+  const projectTemplates = useMemo(() => getNewProjectTemplates(), []);
+
+  const groupedTemplates = useMemo(() => {
+    return NEW_PROJECT_CATEGORY_ORDER.map((category) => ({
+      category,
+      label: SAMPLE_CATEGORY_LABELS[category],
+      templates: projectTemplates.filter((entry) => entry.category === category),
+    })).filter((group) => group.templates.length > 0);
+  }, [projectTemplates]);
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -56,6 +72,7 @@ export default function NewProjectDialog({
       onOpenChange(false);
       setName('');
       setDescription('');
+      setTemplateId('blank');
       onProjectCreated(project);
     } catch (error) {
       console.error('Failed to create project:', error);
@@ -67,15 +84,15 @@ export default function NewProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl md:max-w-md">
+      <DialogContent className="vish-dialog-chrome max-h-[min(90vh,720px)] max-w-[calc(100%-2rem)] overflow-hidden rounded-3xl md:max-w-md">
         <DialogHeader>
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
             नूतन · New Project
           </div>
           <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>Start a new blueprint workspace with a clean canvas.</DialogDescription>
+          <DialogDescription>Start a new blueprint workspace with a clean canvas or floor plan template.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="max-h-[min(52vh,420px)] space-y-4 overflow-y-auto pr-1">
           <div className="space-y-2">
             <Label htmlFor="project-name">Project Name</Label>
             <Input
@@ -90,7 +107,7 @@ export default function NewProjectDialog({
             <Button
               type="button"
               variant="secondary"
-              className="w-full gap-2"
+              className="w-full gap-2 min-h-[44px]"
               onClick={() => {
                 onOpenChange(false);
                 onOpenAIDesigner();
@@ -100,24 +117,39 @@ export default function NewProjectDialog({
               Start with Architecture Copilot
             </Button>
           )}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Label>Template</Label>
             <div className="flex flex-wrap gap-2">
-              <Button type="button" size="sm" variant={templateId === 'blank' ? 'default' : 'outline'} onClick={() => setTemplateId('blank')}>
+              <Button
+                type="button"
+                size="sm"
+                variant={templateId === 'blank' ? 'default' : 'outline'}
+                className="min-h-[44px] touch-target"
+                onClick={() => setTemplateId('blank')}
+              >
                 Blank
               </Button>
-              {TEMPLATE_IDS.map((id) => (
-                <Button
-                  key={id}
-                  type="button"
-                  size="sm"
-                  variant={templateId === id ? 'default' : 'outline'}
-                  onClick={() => setTemplateId(id)}
-                >
-                  {id === 'studio' ? 'Studio' : id === '2bhk' ? '2BHK' : '3BHK'}
-                </Button>
-              ))}
             </div>
+            {groupedTemplates.map((group) => (
+              <div key={group.category} className="space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{group.label}</p>
+                <div className="flex flex-wrap gap-2">
+                  {group.templates.map((template) => (
+                    <Button
+                      key={template.id}
+                      type="button"
+                      size="sm"
+                      variant={templateId === template.id ? 'default' : 'outline'}
+                      className="min-h-[44px] touch-target"
+                      onClick={() => setTemplateId(template.id)}
+                      title={template.description}
+                    >
+                      {template.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
           <div className="space-y-2">
             <Label htmlFor="project-description">Description</Label>
@@ -132,10 +164,10 @@ export default function NewProjectDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting} className="min-h-[44px]">
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={submitting}>
+          <Button onClick={handleCreate} disabled={submitting} className="min-h-[44px]">
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

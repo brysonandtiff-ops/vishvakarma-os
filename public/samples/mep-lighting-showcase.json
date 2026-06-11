@@ -1,0 +1,208 @@
+{
+  "version": "1.0.0",
+  "name": "MEP & Lighting Showcase",
+  "description": "Two-room shell with every MEP symbol and fixture type",
+  "walls": [
+    {
+      "id": "w-n",
+      "start": {
+        "x": 220,
+        "y": 200
+      },
+      "end": {
+        "x": 660,
+        "y": 200
+      },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "w-e",
+      "start": {
+        "x": 660,
+        "y": 200
+      },
+      "end": {
+        "x": 660,
+        "y": 480
+      },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "w-s",
+      "start": {
+        "x": 660,
+        "y": 480
+      },
+      "end": {
+        "x": 220,
+        "y": 480
+      },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "w-w",
+      "start": {
+        "x": 220,
+        "y": 480
+      },
+      "end": {
+        "x": 220,
+        "y": 200
+      },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    },
+    {
+      "id": "mep-mid",
+      "start": {
+        "x": 440,
+        "y": 200
+      },
+      "end": {
+        "x": 440,
+        "y": 380
+      },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-concrete"
+    }
+  ],
+  "openings": [
+    {
+      "id": "op-door",
+      "type": "door",
+      "wallId": "w-s",
+      "position": 0.5,
+      "width": 90,
+      "height": 210
+    },
+    {
+      "id": "op-win-1",
+      "type": "window",
+      "wallId": "w-e",
+      "position": 0.5,
+      "width": 120,
+      "height": 120,
+      "sillHeight": 90
+    },
+    {
+      "id": "op-win-2",
+      "type": "window",
+      "wallId": "w-w",
+      "position": 0.5,
+      "width": 120,
+      "height": 120,
+      "sillHeight": 90
+    },
+    {
+      "id": "mep-d2",
+      "type": "door",
+      "wallId": "mep-mid",
+      "position": 0.5,
+      "width": 90,
+      "height": 210
+    }
+  ],
+  "materials": [],
+  "floorMaterial": "material-wood",
+  "lighting": {
+    "sunAzimuth": 180,
+    "sunElevation": 45,
+    "timeOfDay": 12,
+    "intensity": 1
+  },
+  "gridSize": 20,
+  "snapToGrid": true,
+  "metadata": {
+    "created": "2026-06-11T14:08:25.808Z",
+    "modified": "2026-06-11T14:08:25.808Z"
+  },
+  "labels": [
+    {
+      "id": "mep-l1",
+      "text": "Room A",
+      "position": {
+        "x": 330,
+        "y": 300
+      }
+    },
+    {
+      "id": "mep-l2",
+      "text": "Room B",
+      "position": {
+        "x": 530,
+        "y": 300
+      }
+    }
+  ],
+  "mepSymbols": [
+    {
+      "id": "mep-outlet",
+      "type": "outlet",
+      "position": {
+        "x": 320,
+        "y": 300
+      }
+    },
+    {
+      "id": "mep-switch",
+      "type": "switch",
+      "position": {
+        "x": 370,
+        "y": 300
+      }
+    },
+    {
+      "id": "mep-hvac",
+      "type": "hvac",
+      "position": {
+        "x": 420,
+        "y": 300
+      }
+    },
+    {
+      "id": "mep-panel",
+      "type": "panel",
+      "position": {
+        "x": 470,
+        "y": 300
+      }
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "fix-point",
+      "type": "point",
+      "position": {
+        "x": 600,
+        "y": 340
+      },
+      "intensity": 1
+    },
+    {
+      "id": "fix-spot",
+      "type": "spot",
+      "position": {
+        "x": 680,
+        "y": 340
+      },
+      "intensity": 1
+    },
+    {
+      "id": "fix-ceiling",
+      "type": "ceiling",
+      "position": {
+        "x": 760,
+        "y": 340
+      },
+      "intensity": 1
+    }
+  ]
+}

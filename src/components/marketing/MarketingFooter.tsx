@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,9 +23,7 @@ export function MarketingFooter() {
           )}
           <Link to={accountTo} className="hover:text-primary">{accountLabel}</Link>
         </nav>
-        <p className="text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Vishvakarma.OS. All rights reserved.
-        </p>
+        <FoundersAcknowledgment variant="footer" />
       </div>
     </footer>
   );

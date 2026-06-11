@@ -286,14 +286,14 @@
   align-items: center;
   min-height: var(--vish-status-bar-height, 32px);
   height: var(--vish-status-bar-height, 32px);
-  padding: 0 12px;
-  gap: 16px;
+  padding: 0 14px;
+  gap: 14px;
   background:
     linear-gradient(180deg, hsl(var(--ws-statusbar)), hsl(var(--ws-menubar)));
   border-top: 1px solid hsl(var(--ws-border));
   font-family: 'IBM Plex Mono', 'SF Mono', monospace;
   font-size: 10px;
-  color: hsl(var(--ws-text-faint));
+  color: hsl(var(--ws-text-dim));
   white-space: nowrap;
   overflow: hidden;
   flex-shrink: 0;
@@ -468,6 +468,110 @@
   .vish-workspace-shell .vish-editor-topbar::after {
     display: none;
   }
+}
+
+.vish-3d-viewport-pane {
+  resize: horizontal;
+  overflow: hidden;
+  min-width: 16rem;
+  max-width: min(52vw, 36rem);
+}
+
+.vish-onboarding-modal {
+  border-color: hsl(var(--ws-active) / 0.35);
+  box-shadow:
+    0 28px 72px hsl(0 0% 0% / 0.48),
+    0 0 40px hsl(var(--ws-active) / 0.12);
+}
+
+.vish-coming-soon-panel {
+  opacity: 0.92;
+}
+
+.vish-coming-soon-badge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.65rem;
+  border: 1px dashed hsl(var(--ws-active) / 0.35);
+  background: hsl(var(--ws-active) / 0.08);
+}
+
+.vish-coming-soon-badge__dot {
+  height: 0.45rem;
+  width: 0.45rem;
+  border-radius: 9999px;
+  background: hsl(var(--ws-active));
+  box-shadow: 0 0 8px hsl(var(--ws-active) / 0.45);
+}
+
+.vish-coming-soon-badge__label {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-active));
+}
+
+.vish-coming-soon-badge__hint {
+  font-size: 0.5625rem;
+  color: hsl(var(--ws-text-faint));
+}
+
+.vish-copilot-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vish-copilot-stepper__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.35);
+  padding: 0.25rem 0.55rem 0.25rem 0.3rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.vish-copilot-stepper__item--active {
+  border-color: hsl(var(--primary) / 0.45);
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+.vish-copilot-stepper__index {
+  display: inline-flex;
+  height: 1.1rem;
+  width: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: hsl(var(--background) / 0.8);
+  font-size: 0.5rem;
+}
+
+.vish-copilot-brief-card textarea {
+  border-color: hsl(var(--primary) / 0.22);
+}
+
+.vish-copilot-upload-slot {
+  min-height: 7.5rem;
+}
+
+.vish-copilot-dialog [data-slot='dialog-description'] {
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 
 @media (prefers-reduced-motion: reduce) {

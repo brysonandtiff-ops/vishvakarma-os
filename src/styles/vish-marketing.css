@@ -30,7 +30,13 @@
 }
 
 .vish-marketing-page .vish-text-body {
-  color: hsl(var(--vish-text-muted));
+  color: hsl(0 0% 78%);
+  line-height: 1.65;
+}
+
+.vish-marketing-page .vish-marketing-section-label {
+  color: hsl(var(--vish-gold-glow));
+  opacity: 0.95;
 }
 
 .vish-features-toggle button[data-active='true'] {
@@ -50,19 +56,181 @@
     inset 0 1px 0 hsl(var(--vish-gold) / 0.08);
 }
 
-.vish-marketing-nav {
-  transition: backdrop-filter 200ms ease, border-color 200ms ease;
+.vish-marketing-page .vish-stat-pill {
+  padding: 1.15rem 1.35rem;
+}
+
+.vish-marketing-page .vish-stat-pill p:last-child {
+  color: hsl(0 0% 82%);
+}
+
+.vish-marketing-page .vish-marketing-nav {
+  isolation: isolate;
+  color: hsl(var(--vish-text));
+  transition:
+    backdrop-filter 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+  box-shadow: 0 8px 32px hsl(0 0% 0% / 0.38);
 }
 
 .vish-sacred-stage .vish-marketing-nav {
   backdrop-filter: blur(16px);
 }
 
+.vish-marketing-page .vish-marketing-nav-wordmark {
+  color: hsl(var(--vish-gold-glow));
+  text-shadow: 0 0 14px hsl(var(--vish-gold) / 0.35);
+}
+
+.vish-marketing-nav-brand:hover .vish-marketing-nav-logo {
+  box-shadow: 0 0 20px hsl(var(--vish-gold) / 0.35);
+}
+
+.vish-marketing-nav-logo {
+  display: inline-flex;
+  border-radius: 0.875rem;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.45);
+  padding: 0.2rem;
+  background: hsl(0 0% 3% / 0.85);
+  box-shadow: inset 0 1px 0 hsl(var(--vish-gold) / 0.1);
+  transition: box-shadow 200ms ease;
+}
+
+.vish-marketing-page .vish-marketing-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: hsl(42 28% 90%);
+  -webkit-text-fill-color: hsl(42 28% 90%);
+  text-shadow: 0 1px 2px hsl(0 0% 0% / 0.45);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    -webkit-text-fill-color 160ms ease;
+}
+
+.vish-marketing-page .vish-marketing-nav-link:hover {
+  color: hsl(var(--vish-gold-glow));
+  -webkit-text-fill-color: hsl(var(--vish-gold-glow));
+  border-color: hsl(var(--vish-gold-muted) / 0.45);
+  background: hsl(var(--vish-gold) / 0.1);
+}
+
+.vish-marketing-page .vish-marketing-nav-link--active {
+  color: hsl(var(--vish-gold-glow));
+  -webkit-text-fill-color: hsl(var(--vish-gold-glow));
+  border-color: hsl(var(--vish-gold) / 0.5);
+  background: hsl(var(--vish-gold) / 0.14);
+  text-shadow: 0 0 10px hsl(var(--vish-gold) / 0.3);
+}
+
+.vish-marketing-page .vish-marketing-nav a.vish-gold-cta {
+  color: hsl(0 0% 8%);
+  -webkit-text-fill-color: hsl(0 0% 8%);
+  text-shadow: none;
+}
+
+.vish-marketing-nav-menu-btn {
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.4);
+  background: hsl(0 0% 4% / 0.75);
+  color: hsl(var(--vish-gold));
+}
+
+.vish-marketing-nav-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.35);
+  border-radius: 1rem;
+  background: hsl(0 0% 3% / 0.94);
+  padding: 0.85rem;
+  box-shadow: 0 16px 40px hsl(0 0% 0% / 0.35);
+}
+
+.vish-marketing-nav-mobile .vish-marketing-nav-link {
+  width: 100%;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  font-size: 0.7rem;
+}
+
+.vish-pricing-trust-row {
+  max-width: 48rem;
+}
+
 .vish-pricing-card {
   border: 1px solid hsl(var(--vish-gold-muted) / 0.35);
-  background: hsl(0 0% 4% / 0.75);
+  background: linear-gradient(165deg, hsl(0 0% 6% / 0.88), hsl(0 0% 3% / 0.94));
   border-radius: 1rem;
   padding: 1.75rem;
+  box-shadow:
+    0 12px 36px hsl(0 0% 0% / 0.3),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.08);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+.vish-pricing-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--vish-gold-muted) / 0.5);
+}
+
+.vish-pricing-card__price {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: hsl(var(--vish-gold));
+}
+
+.vish-pricing-card__period {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: hsl(0 0% 62%);
+}
+
+.vish-pricing-card__features {
+  border-top: 1px solid hsl(var(--vish-gold-muted) / 0.22);
+  padding-top: 1.25rem;
+}
+
+.vish-pricing-check {
+  border: 1px solid hsl(var(--vish-gold) / 0.35);
+  background: hsl(var(--vish-gold) / 0.12);
+  color: hsl(var(--vish-gold));
+}
+
+.vish-pricing-badge {
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--vish-gold-glow) / 0.55);
+  background: linear-gradient(135deg, hsl(31 63% 32%), hsl(var(--vish-gold)), hsl(43 74% 62%));
+  padding: 0.3rem 0.85rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(0 0% 8%);
+  box-shadow: 0 0 20px hsl(var(--vish-gold) / 0.4);
+}
+
+.vish-pricing-faq .vish-marketing-section-label {
+  margin-bottom: 0;
+}
+
+.vish-pricing-faq [data-state='open'] svg {
+  color: hsl(var(--vish-gold));
 }
 
 .vish-marketing-page .vish-gold-button,
@@ -74,4 +242,30 @@
 .vish-marketing-page a.bg-primary:hover {
   box-shadow: 0 0 24px hsl(var(--primary) / 0.35);
   transform: translateY(-1px);
+}
+
+.vish-marketing-founders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .vish-marketing-founders {
+    text-align: left;
+  }
+}
+
+.vish-marketing-founders__copyright {
+  margin: 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.vish-marketing-founders__credit {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: hsl(var(--muted-foreground) / 0.85);
 }

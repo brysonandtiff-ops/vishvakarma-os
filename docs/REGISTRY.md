@@ -499,7 +499,18 @@ Multi-candidate planning for Architecture Copilot: generate 20–100 layout vari
 
 ## Sample Project Validation
 
-**Sample Project**: `public/samples/sample-house-01.json`
+**Primary gate sample**: `public/samples/sample-house-01.json`
+
+**Template catalog**: see `src/core/sampleCatalog.ts` — starter, residential, shapes, interior, landscape, MEP, and full-feature showcases under `public/samples/` and builder templates in `src/core/templateBuilder.ts`.
+
+| Sample | Purpose |
+|--------|---------|
+| `sample-house-01.json` | Onboarding demo (Gate 4) |
+| `furniture-showcase.json` | All furniture types |
+| `landscape-garden.json` | Trees, shrubs, paths |
+| `mep-lighting-showcase.json` | MEP + fixture symbols |
+| `full-feature-showcase.json` | Combined feature demo |
+| `compliance-setback-fail.json` | Compliance E2E fixture |
 
 **Validation Requirements**:
 - Must validate against all schemas

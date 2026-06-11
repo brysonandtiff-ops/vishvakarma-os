@@ -60,7 +60,7 @@ function UploadSlot({
   });
 
   return (
-    <div className="rounded-xl border border-border/60 p-3">
+    <div className="vish-copilot-upload-slot rounded-xl border border-border/60 p-3">
       <div className="mb-2 flex items-center gap-2">
         <Icon className="h-4 w-4 text-primary" />
         <Label>{label}</Label>
@@ -75,7 +75,7 @@ function UploadSlot({
       ) : (
         <div
           {...getRootProps()}
-          className={`cursor-pointer rounded-lg border border-dashed p-4 text-center text-xs transition-colors ${
+          className={`cursor-pointer rounded-lg border border-dashed p-3 text-center text-xs transition-colors ${
             isDragActive ? 'border-primary bg-primary/5' : 'border-border/60 text-muted-foreground hover:border-primary/50'
           }`}
         >
@@ -106,7 +106,7 @@ export default function CopilotUploadStep({
   };
 
   return (
-    <div className="grid gap-3 sm:grid-cols-1">
+    <div className="grid gap-3 md:grid-cols-3">
       {UPLOAD_SLOTS.map((slot) => (
         <UploadSlot
           key={slot.kind}

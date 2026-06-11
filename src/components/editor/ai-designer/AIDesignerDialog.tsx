@@ -363,7 +363,7 @@ export default function AIDesignerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-2xl">
+      <DialogContent className="vish-dialog-chrome vish-copilot-dialog max-h-[85vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-3xl">
         <DialogHeader>
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
             Architecture Copilot
@@ -378,30 +378,38 @@ export default function AIDesignerDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <ol className="vish-copilot-stepper" aria-label="Copilot wizard steps">
           {(['upload', 'review', 'generate', 'deliverables'] as WizardStep[]).map((step, i) => (
-            <span
+            <li
               key={step}
-              className={wizardStep === step ? 'text-primary' : ''}
+              className={`vish-copilot-stepper__item ${wizardStep === step ? 'vish-copilot-stepper__item--active' : ''}`}
+              aria-current={wizardStep === step ? 'step' : undefined}
             >
-              {i + 1}. {step}
-            </span>
+              <span className="vish-copilot-stepper__index">{i + 1}</span>
+              <span className="vish-copilot-stepper__label">{step}</span>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <p className="text-xs font-medium text-foreground">{stepTitle}</p>
+        <p className="text-sm font-semibold text-foreground">{stepTitle}</p>
 
         <div className="space-y-4">
           {(wizardStep === 'upload' || wizardStep === 'review') && (
-            <div className="space-y-2">
-              <Label htmlFor="copilot-brief">Design brief</Label>
+            <div className="vish-copilot-brief-card space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <Label htmlFor="copilot-brief" className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                Design brief
+              </Label>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Describe bedrooms, style, site constraints, and budget goals. Uploads are optional.
+              </p>
               <Textarea
                 id="copilot-brief"
                 value={designBrief}
                 onChange={(e) => setDesignBrief(e.target.value)}
                 placeholder="4-bedroom modern home on 600m² corner block with double garage"
-                rows={3}
+                rows={4}
                 disabled={parsing || generating}
+                className="min-h-[6.5rem] resize-y bg-background/80"
               />
             </div>
           )}

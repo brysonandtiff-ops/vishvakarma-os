@@ -68,6 +68,9 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('vish-auth-wordmark-divider');
     expect(authPage).toContain('VISHVAKARMA.OS');
     expect(authPage).toContain('iPad-Native Architecture Suite');
+    expect(authPage).toContain('FoundersAcknowledgment');
+    expect(authPage).toContain('variant="auth"');
+    expect(read('src/brand/founders.ts')).toContain('TYRASIC CREATIONS');
     expect(authPage).toContain('AuthTrustPillar');
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('auth-trust-pillar-gates');
@@ -101,6 +104,15 @@ describe('Sanskrit auth gate design', () => {
     expect(authContext).toContain('signInWithGoogle');
   });
 
+  it('surfaces founders acknowledgment on marketing footer', () => {
+    const marketingFooter = read('src/components/marketing/MarketingFooter.tsx');
+    const marketingStyles = read('src/styles/vish-marketing.css');
+
+    expect(marketingFooter).toContain('FoundersAcknowledgment');
+    expect(marketingFooter).toContain('variant="footer"');
+    expect(marketingStyles).toContain('.vish-marketing-founders');
+  });
+
   it('keeps the premium workspace shell treatment after login', () => {
     const appLayout = read('src/components/layouts/AppLayout.tsx');
     const styles = read('src/styles/vish-workspace-shell.css');
@@ -111,6 +123,7 @@ describe('Sanskrit auth gate design', () => {
     expect(appLayout).toContain('vish-shell-brand');
     expect(appLayout).toContain('vish-shell-logo');
     expect(appLayout).toContain('vish-shell-nav-active');
+    expect(appLayout).toContain('FoundersAcknowledgment');
     expect(appLayout).toContain('Workspace account');
     expect(appLayout).toContain('Architecture workstation');
     expect(styles).toContain('.vish-workspace-sidebar');
@@ -134,6 +147,7 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('.vish-auth-feature-card__footer');
     expect(styles).toContain('.vish-auth-feature-card__metric');
     expect(styles).toContain('.vish-auth-feature-card:focus-visible');
+    expect(styles).toContain('.vish-auth-founders-line');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');
     expect(routeGuard).toContain('SanskritRainBackground');

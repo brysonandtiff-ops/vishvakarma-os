@@ -33,9 +33,14 @@ export async function openProjectActionsMenu(page: Page) {
   await page.getByRole('button', { name: /project actions/i }).click();
 }
 
-export async function loadSampleProject(page: Page) {
+export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {
   await openProjectActionsMenu(page);
   await page.getByRole('menuitem', { name: /load sample/i }).click();
+  await expect(page.getByRole('dialog', { name: /load sample blueprint/i })).toBeVisible({ timeout: 15_000 });
+  if (sampleName !== 'Sample House 01') {
+    await page.getByRole('button', { name: sampleName }).click();
+  }
+  await page.getByRole('button', { name: /load blueprint/i }).click();
   await page.getByTestId('blueprint-canvas').waitFor({ state: 'visible', timeout: 30_000 });
   await page
     .waitForFunction(
