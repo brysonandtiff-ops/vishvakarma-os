@@ -26,6 +26,17 @@
   animation: vish-pill-dot-pulse 2.4s ease-in-out infinite;
 }
 
+.vish-gold-pill--draft::before {
+  content: '';
+  display: inline-block;
+  height: 0.4rem;
+  width: 0.4rem;
+  border-radius: 9999px;
+  background: hsl(43 72% 58%);
+  box-shadow: 0 0 6px hsl(43 72% 58% / 0.45);
+  opacity: 0.85;
+}
+
 @keyframes vish-pill-dot-pulse {
   0%, 100% { opacity: 0.55; transform: scale(0.92); }
   50% { opacity: 1; transform: scale(1.08); }
@@ -104,6 +115,14 @@
   cursor: not-allowed;
 }
 
+.vish-gold-button:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.65);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 4px hsl(43 65% 52% / 0.16),
+    0 14px 36px hsl(39 80% 42% / 0.28);
+}
+
 .vish-gold-button--with-icon {
   display: inline-flex;
   align-items: center;
@@ -144,6 +163,11 @@
   background: hsl(0 0% 5%);
 }
 
+.vish-oauth-button:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.55);
+  outline-offset: 2px;
+}
+
 .vish-oauth-button--disabled,
 .vish-oauth-button:disabled {
   opacity: 0.45;
@@ -157,17 +181,32 @@
   position: relative;
   width: min(100%, 26rem);
   border-radius: 1.25rem;
-  border: 1px solid hsl(var(--vish-gold) / 0.28);
+  border: 1px solid hsl(var(--vish-gold) / 0.32);
   background:
-    linear-gradient(165deg, hsl(0 0% 6% / 0.88), hsl(0 0% 3% / 0.94));
-  backdrop-filter: blur(24px);
+    linear-gradient(165deg, hsl(0 0% 7% / 0.9), hsl(0 0% 2% / 0.96));
+  backdrop-filter: blur(28px) saturate(1.2);
   box-shadow:
     0 32px 80px hsl(0 0% 0% / 0.65),
-    0 0 44px hsl(var(--vish-gold) / 0.08),
-    0 0 0 1px hsl(43 65% 52% / 0.1),
-    inset 0 1px 0 hsl(43 90% 72% / 0.14);
+    0 0 56px hsl(var(--vish-gold) / 0.1),
+    0 0 0 1px hsl(43 65% 52% / 0.12),
+    inset 0 1px 0 hsl(43 90% 72% / 0.16),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.35);
   padding: 2rem 1.75rem 1.5rem;
-  animation: vish-fade-rise 520ms ease-out both;
+  animation: vish-auth-card-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  overflow: hidden;
+}
+
+@keyframes vish-auth-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .vish-auth-card-mockup::before {
@@ -177,8 +216,29 @@
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 0%, hsl(43 90% 60% / 0.18), transparent 52%),
-    linear-gradient(180deg, hsl(43 90% 62% / 0.06), transparent 28%);
+    radial-gradient(circle at 50% 0%, hsl(43 90% 60% / 0.22), transparent 52%),
+    linear-gradient(180deg, hsl(43 90% 62% / 0.08), transparent 28%);
+}
+
+.vish-auth-card-mockup::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background: linear-gradient(
+    165deg,
+    hsl(43 90% 72% / 0.22),
+    transparent 32%,
+    transparent 68%,
+    hsl(43 90% 62% / 0.12)
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.75;
 }
 
 .vish-auth-card-mockup > * {
@@ -203,6 +263,13 @@
 .vish-mockup-input:focus-visible {
   outline: 2px solid hsl(43 65% 52% / 0.45);
   outline-offset: 1px;
+  border-color: hsl(43 65% 52% / 0.35);
+  box-shadow: 0 0 0 3px hsl(43 65% 52% / 0.12);
+}
+
+.vish-mockup-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .vish-gov-card-dark {

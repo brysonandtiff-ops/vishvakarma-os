@@ -189,8 +189,22 @@ export default function AuthPage() {
     navigate(returnPath, { replace: true });
   };
 
+  const hasStatusBanners =
+    showConfigRequired ||
+    allowLocalWorkspace ||
+    (showSignInUnavailable && isConfigured && !showConfigRequired) ||
+    (completingEmailLink && showEmailSignIn) ||
+    (needsEmailForLink && showEmailSignIn) ||
+    Boolean(emailLinkError || error) ||
+    passwordResetNotice ||
+    capabilitiesLoading ||
+    (showGoogleSignIn && embeddedAuthBrowser);
+
   return (
-    <main className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+    <main
+      className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:py-10"
+      aria-labelledby="auth-page-title"
+    >
       <SanskritRainBackground preset="auth" className="pointer-events-none absolute inset-0" />
 
       <div className="vish-auth-aurora pointer-events-none absolute inset-0" aria-hidden="true" />
@@ -205,41 +219,58 @@ export default function AuthPage() {
 
       <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
 
-      <div className="relative z-10 flex w-full max-w-xl flex-col items-center justify-center gap-6 px-2">
+      <div className="vish-auth-shell relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-2 sm:gap-8">
         <div className="vish-auth-card-mockup w-full" data-testid="auth-mockup-card">
-          <div className="mb-6 flex flex-col items-center text-center">
+          <header className="vish-auth-card-header mb-6 flex flex-col items-center text-center">
             <div className="vish-auth-logo-hero">
               <div className="vish-auth-logo-mandala" aria-hidden="true">
                 <div className="vish-auth-logo-ring vish-auth-logo-ring-outer" />
+                <div className="vish-auth-logo-ring vish-auth-logo-ring-mid" />
                 <div className="vish-auth-logo-ring vish-auth-logo-ring-inner" />
                 <div className="vish-auth-logo-aura" />
+                <div className="vish-auth-logo-yantra" />
               </div>
               <div className="vish-auth-logo-wrap">
                 <img
                   src={OFFICIAL_LOGO_SRC}
                   alt="Vishvakarma.OS official user-supplied swan V logo"
                   className="vish-auth-logo-img"
+                  width={76}
+                  height={76}
+                  decoding="async"
                 />
               </div>
             </div>
-            <h1 className="vish-wordmark vish-auth-wordmark-breathe text-lg font-bold tracking-[0.28em] text-primary">
+            <h1
+              id="auth-page-title"
+              className="vish-wordmark vish-auth-wordmark vish-auth-wordmark-breathe text-lg font-bold tracking-[0.28em] text-primary sm:text-xl"
+            >
               VISHVAKARMA.OS
             </h1>
             <div className="vish-auth-wordmark-divider" aria-hidden="true" />
-            <p className="mt-2 text-xs text-primary/70">iPad-Native Architecture Suite</p>
-            <p className="mt-3 text-sm font-medium text-stone-100">{signInHeadline}</p>
-            <div className="mt-2">
+            <p className="vish-auth-card-tagline mt-2 text-xs text-primary/70">
+              iPad-Native Architecture Suite
+            </p>
+            <p
+              className="vish-auth-card-headline mt-3 text-sm font-medium text-stone-100 sm:text-base"
+              aria-live="polite"
+            >
+              {capabilitiesLoading ? 'Preparing sign-in…' : signInHeadline}
+            </p>
+            <div className="vish-auth-workspace-badge mt-2">
               <span
-                className={`vish-gold-pill ${isConfigured ? 'vish-gold-pill--live' : ''}`}
+                className={`vish-gold-pill ${isConfigured ? 'vish-gold-pill--live' : 'vish-gold-pill--draft'}`}
               >
                 {workspaceStatusLabel}
               </span>
             </div>
-            <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
+            <p className="vish-auth-card-helper mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-[0.8125rem]">
               {capabilitiesLoading ? 'Checking verified sign-in methods…' : signInHelperLine}
             </p>
-          </div>
+          </header>
 
+          {hasStatusBanners && (
+            <div className="vish-auth-status-stack" role="group" aria-label="Sign-in status">
           {showConfigRequired && (
             <AuthStatusBanner variant="error" title="Service configuration required" role="alert">
               Production deploy is missing backend environment variables. Set Vercel vars per{' '}
@@ -261,7 +292,9 @@ export default function AuthPage() {
           )}
 
           {completingEmailLink && showEmailSignIn && (
-            <AuthStatusBanner variant="info">Completing secure sign-in…</AuthStatusBanner>
+            <AuthStatusBanner variant="info" loading>
+              Completing secure sign-in…
+            </AuthStatusBanner>
           )}
 
           {needsEmailForLink && showEmailSignIn && (
@@ -283,8 +316,32 @@ export default function AuthPage() {
             </AuthStatusBanner>
           )}
 
+          {capabilitiesLoading && (
+            <AuthStatusBanner variant="info" loading className="text-center">
+              Loading sign-in options…
+            </AuthStatusBanner>
+          )}
+
+          {showGoogleSignIn && embeddedAuthBrowser && (
+            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-embedded-browser-warning">
+              Google sign-in does not work in the Cursor embedded preview.{' '}
+              <a
+                href={externalAuthUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="vish-auth-status__link"
+              >
+                Open in Chrome or Safari
+              </a>{' '}
+              to sign in.
+            </AuthStatusBanner>
+          )}
+            </div>
+          )}
+
+          <section className="vish-auth-actions" aria-label="Sign-in actions">
           {showEmailSignIn && (
-            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="space-y-4">
+            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="vish-auth-form space-y-4">
               <label className="block space-y-1.5">
                 <span className="vish-bilingual-label">
                   Email <span>- ई-पत्र</span>
@@ -292,20 +349,23 @@ export default function AuthPage() {
                 <input
                   type="email"
                   autoComplete="email"
+                  inputMode="email"
+                  spellCheck={false}
                   placeholder="architect@firm.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   disabled={!isConfigured || submitting || showConfigRequired}
                   className="vish-mockup-input"
+                  aria-describedby="auth-email-helper"
                 />
               </label>
 
-              <p className="text-[10px] leading-relaxed text-muted-foreground">
+              <p id="auth-email-helper" className="vish-auth-form-helper">
                 No password required — we email you a one-time secure link to open the protected workspace.
               </p>
 
               {message && (
-                <AuthStatusBanner variant="success" className="mb-0">
+                <AuthStatusBanner variant="success" className="vish-auth-status--inline">
                   {message}
                 </AuthStatusBanner>
               )}
@@ -327,7 +387,7 @@ export default function AuthPage() {
               <p className="text-center text-[11px] text-muted-foreground">
                 <button
                   type="button"
-                  className="text-primary hover:underline"
+                  className="vish-auth-inline-link"
                   onClick={() =>
                     toast.message('New account', {
                       description: 'Enter your email above — the same secure link creates your account on first sign-in.',
@@ -350,24 +410,14 @@ export default function AuthPage() {
             </form>
           )}
 
-          {capabilitiesLoading && (
-            <AuthStatusBanner variant="info" className="text-center">
-              Loading sign-in options…
-            </AuthStatusBanner>
-          )}
-
-          {showGoogleSignIn && embeddedAuthBrowser && (
-            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-embedded-browser-warning">
-              Google sign-in does not work in the Cursor embedded preview.{' '}
-              <a href={externalAuthUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                Open in Chrome or Safari
-              </a>{' '}
-              to sign in.
-            </AuthStatusBanner>
-          )}
-
           {showGoogleSignIn && (
-            <div className="space-y-4">
+            <div className="vish-auth-form space-y-4">
+              {message && (
+                <AuthStatusBanner variant="info" loading className="vish-auth-status--inline">
+                  {message}
+                </AuthStatusBanner>
+              )}
+
               <button
                 type="button"
                 className="vish-gold-button vish-gold-button--with-icon"
@@ -377,7 +427,7 @@ export default function AuthPage() {
                 <span className="vish-gold-button__icon">
                   <GoogleMarkIcon />
                 </span>
-                Continue with Google
+                {submitting ? 'Connecting to Google…' : 'Continue with Google'}
               </button>
 
               {allowLocalWorkspace && (
@@ -391,8 +441,9 @@ export default function AuthPage() {
               )}
             </div>
           )}
+          </section>
 
-          <div className="vish-auth-card-footer">
+          <footer className="vish-auth-card-footer">
             <button
               type="button"
               className="vish-auth-card-footer-link"
@@ -405,10 +456,14 @@ export default function AuthPage() {
               <Download className="h-3.5 w-3.5" />
               Install app · गृह-स्थापना
             </button>
-          </div>
+          </footer>
         </div>
 
-        <div className="grid w-full items-stretch gap-3 md:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
+        <section className="vish-auth-trust-section w-full" aria-labelledby="auth-trust-heading">
+          <h2 id="auth-trust-heading" className="vish-auth-trust-heading">
+            Trust &amp; evidence · विश्वास
+          </h2>
+          <div className="grid w-full items-stretch gap-3 sm:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
           <AuthTrustPillar
             icon={Shield}
             badge="Release evidence"
@@ -441,7 +496,8 @@ export default function AuthPage() {
               })
             }
           />
-        </div>
+          </div>
+        </section>
       </div>
     </main>
   );

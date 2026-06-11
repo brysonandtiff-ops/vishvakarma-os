@@ -38,13 +38,30 @@ async function testBrowser(name, launcher) {
   await googleButton.waitFor({ state: 'visible', timeout: 10_000 });
   record(`${name}: Google button visible`, true, 'Continue with Google');
 
+  const popupPromise = page.waitForEvent('popup', { timeout: 8_000 }).catch(() => null);
+  const redirectPromise = page
+    .waitForURL(
+      (url) =>
+        url.href.includes('accounts.google.com') || url.href.includes('firebaseapp.com/__/auth/handler'),
+      { timeout: 12_000 }
+    )
+    .catch(() => null);
   await googleButton.click();
-  await page.waitForTimeout(8000);
+  const popup = await popupPromise;
+  await redirectPromise;
+  await page.waitForTimeout(1500);
 
   const url = page.url();
+  const popupUrl = popup?.url() ?? '';
   const reachedGoogle =
-    url.includes('accounts.google.com') || url.includes('firebaseapp.com/__/auth/handler');
-  record(`${name}: OAuth redirect started`, reachedGoogle, url.slice(0, 120));
+    url.includes('accounts.google.com') ||
+    url.includes('firebaseapp.com/__/auth/handler') ||
+    popupUrl.includes('accounts.google.com') ||
+    popupUrl.includes('firebaseapp.com/__/auth/handler');
+  const oauthDetail = popup
+    ? `popup:${popupUrl.slice(0, 80)}`
+    : url.slice(0, 120);
+  record(`${name}: OAuth flow started`, reachedGoogle, oauthDetail);
 
   const postAlert = (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
   record(`${name}: no error after click`, postAlert === null, postAlert ?? 'none');

@@ -1,10 +1,23 @@
 .vish-auth-gate {
   isolation: isolate;
   background:
+    radial-gradient(ellipse 120% 80% at 50% 38%, hsl(43 90% 62% / 0.07), transparent 52%),
     radial-gradient(circle at 50% 42%, hsl(43 90% 62% / 0.05), transparent 28rem),
     radial-gradient(circle at 18% 24%, hsl(39 80% 54% / 0.06), transparent 22rem),
     radial-gradient(circle at 82% 34%, hsl(43 90% 72% / 0.04), transparent 20rem),
     linear-gradient(180deg, #000000 0%, #040404 48%, #000000 100%);
+  animation: vish-auth-gate-settle 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vish-auth-gate-settle {
+  from {
+    opacity: 0;
+    filter: brightness(0.92);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
 }
 
 .vish-boot-stage {
@@ -28,6 +41,12 @@
   background-size: 44px 44px;
   mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
   opacity: 0.7;
+  animation: vish-auth-grid-breathe 12s ease-in-out infinite;
+}
+
+@keyframes vish-auth-grid-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.78; }
 }
 
 .vish-auth-gate::after {
@@ -72,12 +91,17 @@
   opacity: 0.24;
 }
 
+.vish-auth-gate.vish-dark-stage {
+  color: hsl(42 35% 90%);
+}
+
 .vish-auth-gate .vish-mandala-aura {
-  opacity: 0.52;
+  opacity: 0.58;
+  filter: drop-shadow(0 0 48px hsl(43 90% 62% / 0.08));
 }
 
 .vish-auth-gate .vish-auth-orb {
-  opacity: 0.48;
+  opacity: 0.52;
 }
 
 .vish-auth-hero {
@@ -141,12 +165,54 @@
   padding: 1rem 1.1rem;
   border-radius: 0.875rem;
   border: 1px solid hsl(var(--vish-gold-muted) / 0.3);
-  background: hsl(0 0% 4% / 0.7);
-  backdrop-filter: blur(8px);
+  background:
+    linear-gradient(155deg, hsl(0 0% 6% / 0.82), hsl(0 0% 3% / 0.88));
+  backdrop-filter: blur(14px) saturate(1.15);
   cursor: pointer;
   overflow: hidden;
   isolation: isolate;
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
+  box-shadow:
+    0 4px 20px hsl(0 0% 0% / 0.22),
+    inset 0 1px 0 hsl(43 90% 72% / 0.06);
+}
+
+.vish-auth-feature-card__ambient {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, hsl(var(--vish-feature-accent, 43 90% 62%) / 0.14), transparent 42%),
+    radial-gradient(circle at 88% 88%, hsl(43 90% 62% / 0.06), transparent 38%);
+  opacity: 0.55;
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.vish-auth-feature-card__corner {
+  position: absolute;
+  width: 1.125rem;
+  height: 1.125rem;
+  pointer-events: none;
+  opacity: 0.42;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.vish-auth-feature-card__corner--tl {
+  top: 0.55rem;
+  left: 0.55rem;
+  border-top: 1px solid hsl(43 90% 66% / 0.45);
+  border-left: 1px solid hsl(43 90% 66% / 0.45);
+}
+
+.vish-auth-feature-card__corner--br {
+  right: 0.55rem;
+  bottom: 0.55rem;
+  border-right: 1px solid hsl(43 90% 66% / 0.35);
+  border-bottom: 1px solid hsl(43 90% 66% / 0.35);
 }
 
 .vish-auth-feature-card::before {
@@ -155,26 +221,62 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: conic-gradient(from 0deg, transparent, hsl(43 90% 66% / 0.35), transparent 35%, transparent);
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    hsl(43 90% 66% / 0.42),
+    hsl(var(--vish-feature-accent, 43 90% 62%) / 0.28),
+    transparent 35%,
+    transparent
+  );
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0;
-  transition: opacity 200ms ease;
+  transition: opacity 280ms ease;
   pointer-events: none;
+}
+
+.vish-auth-feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 0%, hsl(43 100% 88% / 0.04) 42%, transparent 58%);
+  transform: translateX(-120%);
+  transition: transform 600ms ease;
 }
 
 .vish-auth-feature-card:hover::before {
   opacity: 1;
-  animation: vish-border-shimmer 4s linear infinite;
+  animation: vish-border-shimmer 5s linear infinite;
+}
+
+.vish-auth-feature-card:hover::after {
+  transform: translateX(120%);
 }
 
 .vish-auth-feature-card:hover {
-  transform: translateY(-2px);
-  border-color: hsl(43 90% 66% / 0.42);
-  background: hsl(43 60% 72% / 0.08);
-  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.28);
+  transform: translateY(-3px);
+  border-color: hsl(43 90% 66% / 0.48);
+  background:
+    linear-gradient(155deg, hsl(43 50% 72% / 0.1), hsl(0 0% 4% / 0.82));
+  box-shadow:
+    0 14px 36px hsl(0 0% 0% / 0.34),
+    0 0 32px hsl(var(--vish-feature-accent, 43 90% 62%) / 0.12),
+    inset 0 1px 0 hsl(43 90% 72% / 0.1);
+}
+
+.vish-auth-feature-card:hover .vish-auth-feature-card__ambient {
+  opacity: 0.88;
+  transform: scale(1.04);
+}
+
+.vish-auth-feature-card:hover .vish-auth-feature-card__corner {
+  opacity: 0.85;
+  transform: scale(1.08);
 }
 
 .vish-auth-feature-card--gates {
@@ -198,8 +300,11 @@
 }
 
 .vish-auth-feature-card:focus-visible {
-  outline: 2px solid hsl(43 65% 52% / 0.55);
-  outline-offset: 2px;
+  outline: 2px solid hsl(43 65% 52% / 0.65);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 4px hsl(43 65% 52% / 0.14),
+    0 12px 32px hsl(0 0% 0% / 0.28);
 }
 
 .vish-auth-feature-card__header {
@@ -207,6 +312,15 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.vish-auth-feature-card__title,
+.vish-auth-feature-card__description,
+.vish-auth-feature-card__footer {
+  position: relative;
+  z-index: 1;
 }
 
 .vish-auth-feature-card__icon {
@@ -220,12 +334,20 @@
   border: 1px solid hsl(43 65% 52% / 0.25);
   background: hsl(43 65% 52% / 0.1);
   color: hsl(43 72% 66%);
-  transition: box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease;
+  position: relative;
+  z-index: 1;
 }
 
 .vish-auth-feature-card:hover .vish-auth-feature-card__icon {
-  transform: scale(1.04);
-  box-shadow: 0 0 18px hsl(43 90% 62% / 0.22);
+  transform: scale(1.06) translateY(-1px);
+  border-color: hsl(var(--vish-feature-accent, 43 90% 62%) / 0.45);
+  box-shadow:
+    0 0 22px hsl(var(--vish-feature-accent, 43 90% 62%) / 0.28),
+    inset 0 1px 0 hsl(43 100% 88% / 0.12);
 }
 
 .vish-auth-feature-card__header-meta {
@@ -246,6 +368,14 @@
   font-weight: 700;
   line-height: 1;
   color: hsl(43 72% 66%);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 16px hsl(43 90% 62% / 0.22);
+  transition: text-shadow 220ms ease, transform 220ms ease;
+}
+
+.vish-auth-feature-card:hover .vish-auth-feature-card__metric-value {
+  text-shadow: 0 0 22px hsl(var(--vish-feature-accent, 43 90% 62%) / 0.38);
+  transform: scale(1.03);
 }
 
 .vish-auth-feature-card__metric-label {
@@ -264,11 +394,19 @@
   color: hsl(var(--ws-text));
 }
 
+.vish-auth-feature-card:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
 .vish-auth-feature-card__description {
   margin-top: 0.4rem;
   font-size: 0.75rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: hsl(var(--ws-text-dim));
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .vish-auth-feature-card__footer {
@@ -298,24 +436,118 @@
   width: 0.75rem;
   flex-shrink: 0;
   color: hsl(43 65% 52% / 0.7);
-  transition: transform 160ms ease, color 160ms ease;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), color 220ms ease;
 }
 
 .vish-auth-feature-card:hover .vish-auth-feature-card__footer-chevron {
-  transform: translateX(2px);
-  color: hsl(43 72% 66%);
+  transform: translateX(4px);
+  color: hsl(43 72% 72%);
 }
 
 .vish-auth-status {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  padding: 0.85rem 0.95rem 0.85rem 1rem;
   border-radius: 0.875rem;
   border: 1px solid hsl(var(--vish-gold-muted) / 0.22);
-  background: hsl(0 0% 4% / 0.72);
-  backdrop-filter: blur(8px);
+  background: hsl(0 0% 4% / 0.78);
+  backdrop-filter: blur(10px) saturate(1.1);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.04),
+    0 8px 24px hsl(0 0% 0% / 0.18);
+}
+
+.vish-auth-status__accent {
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 0;
+  width: 3px;
+  border-radius: 9999px;
+  background: hsl(var(--vish-gold-muted) / 0.65);
+}
+
+.vish-auth-status__icon {
+  margin-top: 0.1rem;
+  height: 1rem;
+  width: 1rem;
+  flex-shrink: 0;
+}
+
+.vish-auth-status__icon--spin {
+  animation: vish-auth-status-spin 900ms linear infinite;
+}
+
+@keyframes vish-auth-status-spin {
+  to { transform: rotate(360deg); }
+}
+
+.vish-auth-status__content {
+  min-width: 0;
+  flex: 1;
+}
+
+.vish-auth-status__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.vish-auth-status__body {
+  color: hsl(var(--ws-text));
+}
+
+.vish-auth-status__body--titled {
+  margin-top: 0.2rem;
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-auth-status__link {
+  color: hsl(43 72% 68%);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 160ms ease;
+}
+
+.vish-auth-status__link:hover {
+  color: hsl(43 80% 76%);
+}
+
+.vish-auth-status__link:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.55);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
+}
+
+.vish-auth-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.vish-auth-status-stack .vish-auth-status {
+  margin-bottom: 0;
+}
+
+.vish-auth-status--inline {
+  margin-bottom: 0;
 }
 
 .vish-auth-status--error {
-  border-color: hsl(var(--destructive) / 0.4);
+  border-color: hsl(var(--destructive) / 0.38);
   background: hsl(var(--destructive) / 0.1);
+}
+
+.vish-auth-status--error .vish-auth-status__accent {
+  background: hsl(var(--destructive));
 }
 
 .vish-auth-status--error .vish-auth-status__icon,
@@ -324,23 +556,44 @@
 }
 
 .vish-auth-status--warning {
-  border-color: hsl(var(--warning) / 0.4);
+  border-color: hsl(var(--warning) / 0.38);
   background: hsl(var(--warning) / 0.1);
 }
 
-.vish-auth-status--warning .vish-auth-status__icon {
+.vish-auth-status--warning .vish-auth-status__accent {
+  background: hsl(var(--warning));
+}
+
+.vish-auth-status--warning .vish-auth-status__icon,
+.vish-auth-status--warning .vish-auth-status__title {
   color: hsl(var(--warning));
 }
 
 .vish-auth-status--success {
-  border-color: hsl(var(--success) / 0.4);
+  border-color: hsl(var(--success) / 0.38);
   background: hsl(var(--success) / 0.1);
+}
+
+.vish-auth-status--success .vish-auth-status__accent {
+  background: hsl(var(--success));
+}
+
+.vish-auth-status--success .vish-auth-status__icon,
+.vish-auth-status--success .vish-auth-status__title {
+  color: hsl(var(--success));
+}
+
+.vish-auth-status--success .vish-auth-status__body {
   color: hsl(var(--success));
 }
 
 .vish-auth-status--info {
   border-color: hsl(43 65% 52% / 0.35);
   background: hsl(43 65% 52% / 0.1);
+}
+
+.vish-auth-status--info .vish-auth-status__accent {
+  background: hsl(43 72% 58%);
 }
 
 .vish-auth-status--info .vish-auth-status__icon,
@@ -352,18 +605,137 @@
   display: none;
 }
 
+.vish-auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vish-auth-form {
+  width: 100%;
+}
+
+.vish-auth-form-helper {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-auth-inline-link {
+  color: hsl(43 72% 66%);
+  font-weight: 500;
+  transition: color 160ms ease;
+}
+
+.vish-auth-inline-link:hover {
+  color: hsl(43 80% 74%);
+  text-decoration: underline;
+}
+
+.vish-auth-inline-link:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.55);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
+}
+
+.vish-auth-shell {
+  width: min(100%, 42rem);
+}
+
+.vish-auth-trust-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vish-auth-trust-heading {
+  margin: 0;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-auth-workspace-badge {
+  display: flex;
+  justify-content: center;
+}
+
 .vish-auth-wordmark-breathe {
   animation: vish-auth-wordmark-breathe 4.8s ease-in-out infinite;
+}
+
+.vish-auth-wordmark {
+  background: linear-gradient(
+    180deg,
+    hsl(43 96% 78%) 0%,
+    hsl(var(--vish-gold)) 48%,
+    hsl(39 82% 52%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 12px hsl(var(--vish-gold) / 0.28));
+}
+
+.vish-auth-card-header > * {
+  animation: vish-auth-header-rise 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.vish-auth-card-header > *:nth-child(1) { animation-delay: 80ms; }
+.vish-auth-card-header > *:nth-child(2) { animation-delay: 160ms; }
+.vish-auth-card-header > *:nth-child(3) { animation-delay: 220ms; }
+.vish-auth-card-header > *:nth-child(4) { animation-delay: 280ms; }
+.vish-auth-card-header > *:nth-child(5) { animation-delay: 340ms; }
+.vish-auth-card-header > *:nth-child(6) { animation-delay: 400ms; }
+.vish-auth-card-header > *:nth-child(7) { animation-delay: 460ms; }
+
+.vish-auth-card-header .vish-auth-wordmark {
+  animation:
+    vish-auth-header-rise 680ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both,
+    vish-auth-wordmark-breathe 4.8s ease-in-out 840ms infinite;
+}
+
+@keyframes vish-auth-header-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.vish-auth-card-tagline {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.88;
+}
+
+.vish-auth-card-headline {
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 12px hsl(0 0% 0% / 0.35);
+}
+
+.vish-auth-card-helper {
+  opacity: 0.92;
 }
 
 @keyframes vish-auth-wordmark-breathe {
   0%, 100% {
     letter-spacing: 0.28em;
-    text-shadow: 0 0 18px hsl(var(--vish-gold) / 0.22);
+    filter: drop-shadow(0 0 14px hsl(var(--vish-gold) / 0.24));
   }
   50% {
     letter-spacing: 0.32em;
-    text-shadow: 0 0 24px hsl(var(--vish-gold) / 0.36);
+    filter: drop-shadow(0 0 26px hsl(var(--vish-gold) / 0.42));
   }
 }
 
@@ -429,9 +801,16 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 6.5rem;
-  height: 6.5rem;
+  width: 7.5rem;
+  height: 7.5rem;
   margin: 0 auto 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .vish-auth-logo-hero {
+    width: 8.25rem;
+    height: 8.25rem;
+  }
 }
 
 .vish-auth-logo-mandala {
@@ -439,11 +818,22 @@
   inset: 0;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 0 18px hsl(39 88% 54% / 0.16));
+  filter: drop-shadow(0 0 22px hsl(39 88% 54% / 0.22));
+  animation: vish-auth-mandala-glow 6s ease-in-out infinite;
+}
+
+@keyframes vish-auth-mandala-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 18px hsl(39 88% 54% / 0.16));
+  }
+  50% {
+    filter: drop-shadow(0 0 32px hsl(43 96% 68% / 0.32));
+  }
 }
 
 .vish-auth-logo-ring,
-.vish-auth-logo-aura {
+.vish-auth-logo-aura,
+.vish-auth-logo-yantra {
   position: absolute;
   border-radius: 9999px;
 }
@@ -463,27 +853,58 @@
   border: 1px dashed hsl(43 96% 72% / 0.16);
 }
 
+.vish-auth-logo-ring::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: repeating-conic-gradient(
+    from 0deg,
+    hsl(43 96% 72% / 0.22) 0deg 2deg,
+    transparent 2deg 15deg
+  );
+  mask: radial-gradient(circle, transparent 58%, black 60%, black 100%);
+  opacity: 0.55;
+}
+
 .vish-auth-logo-ring-outer {
-  width: 6.5rem;
-  height: 6.5rem;
-  animation: vish-mandala-drift 28s linear infinite;
+  width: 7rem;
+  height: 7rem;
+  animation: vish-mandala-drift 36s linear infinite;
+}
+
+.vish-auth-logo-ring-mid {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-color: hsl(43 90% 68% / 0.22);
+  animation: vish-mandala-drift 24s linear infinite reverse;
 }
 
 .vish-auth-logo-ring-inner {
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 4.25rem;
+  height: 4.25rem;
   border-color: hsl(43 100% 78% / 0.28);
   animation: vish-boot-pulse 4.2s ease-in-out infinite;
 }
 
 .vish-auth-logo-aura {
-  width: 5.25rem;
-  height: 5.25rem;
+  width: 5.75rem;
+  height: 5.75rem;
   background:
-    radial-gradient(circle, hsl(43 100% 74% / 0.2), transparent 64%),
-    conic-gradient(from 0deg, transparent, hsl(43 95% 66% / 0.14), transparent, hsl(18 86% 50% / 0.08), transparent);
+    radial-gradient(circle, hsl(43 100% 74% / 0.24), transparent 64%),
+    conic-gradient(from 0deg, transparent, hsl(43 95% 66% / 0.16), transparent, hsl(18 86% 50% / 0.1), transparent);
   filter: blur(0.5px);
   animation: vish-boot-aura 5.4s ease-in-out infinite;
+}
+
+.vish-auth-logo-yantra {
+  width: 6.25rem;
+  height: 6.25rem;
+  background:
+    conic-gradient(from 45deg at 50% 50%, transparent 0 11%, hsl(43 90% 62% / 0.12) 11% 12%, transparent 12% 100%),
+    radial-gradient(circle at center, transparent 0 34%, hsl(43 90% 62% / 0.08) 34.2% 34.8%, transparent 35% 100%);
+  opacity: 0.72;
+  animation: vish-mandala-drift 48s linear infinite;
 }
 
 .vish-auth-logo-wrap {
@@ -498,13 +919,25 @@
   border-radius: 1.35rem;
   padding: 0.35rem;
   background:
+    radial-gradient(circle at 30% 20%, hsl(43 100% 88% / 0.18), transparent 42%),
     radial-gradient(circle, hsl(43 100% 84% / 0.28), hsl(0 0% 0% / 0.55));
-  border: 1px solid hsl(43 90% 74% / 0.38);
+  border: 1px solid hsl(43 90% 74% / 0.42);
   box-shadow:
-    0 0 0 1px hsl(43 100% 88% / 0.08),
+    0 0 0 1px hsl(43 100% 88% / 0.1),
     0 16px 42px hsl(0 0% 0% / 0.45),
-    0 0 32px hsl(43 90% 58% / 0.22);
+    0 0 40px hsl(43 90% 58% / 0.26),
+    inset 0 1px 0 hsl(43 100% 88% / 0.14);
   animation: vish-auth-logo-breathe 3.2s ease-in-out infinite;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease;
+}
+
+.vish-auth-logo-hero:hover .vish-auth-logo-wrap {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 0 1px hsl(43 100% 88% / 0.14),
+    0 20px 48px hsl(0 0% 0% / 0.48),
+    0 0 52px hsl(43 90% 58% / 0.34),
+    inset 0 1px 0 hsl(43 100% 88% / 0.18);
 }
 
 .vish-auth-logo-wrap::after {
@@ -534,6 +967,32 @@
   height: 1px;
   width: min(100%, 12rem);
   background: linear-gradient(90deg, transparent, hsl(43 90% 62% / 0.55), transparent);
+  position: relative;
+  overflow: visible;
+}
+
+.vish-auth-wordmark-divider::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 40%;
+  height: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, hsl(43 100% 78% / 0.65), transparent);
+  filter: blur(1px);
+  animation: vish-auth-divider-shimmer 3.6s ease-in-out infinite;
+}
+
+@keyframes vish-auth-divider-shimmer {
+  0%, 100% {
+    opacity: 0.35;
+    width: 28%;
+  }
+  50% {
+    opacity: 0.85;
+    width: 52%;
+  }
 }
 
 .vish-auth-card-footer {
@@ -541,25 +1000,83 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem 0.75rem;
+  gap: 0.5rem 0.85rem;
   margin-top: 1.25rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid hsl(43 40% 35% / 0.18);
+  padding-top: 0.95rem;
+  border-top: 1px solid hsl(43 40% 35% / 0.22);
+  position: relative;
+}
+
+.vish-auth-card-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: min(60%, 8rem);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, hsl(43 90% 62% / 0.45), transparent);
 }
 
 .vish-auth-card-footer-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.06em;
   color: hsl(var(--ws-text-dim));
-  transition: color 160ms ease;
+  transition:
+    color 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease;
+}
+
+.vish-auth-card-footer-link::after {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.2rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.55;
+}
+
+.vish-auth-card-footer-link svg {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), color 220ms ease;
 }
 
 .vish-auth-card-footer-link:hover {
-  color: hsl(43 72% 66%);
+  color: hsl(43 72% 68%);
+  border-color: hsl(43 65% 52% / 0.28);
+  background: hsl(43 65% 52% / 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px hsl(0 0% 0% / 0.18);
+}
+
+.vish-auth-card-footer-link:hover::after {
+  transform: scaleX(1);
+}
+
+.vish-auth-card-footer-link:hover svg {
+  transform: translateY(-1px) scale(1.08);
+  color: hsl(43 80% 72%);
+}
+
+.vish-auth-card-footer-link:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.55);
+  outline-offset: 2px;
+  border-color: hsl(43 65% 52% / 0.35);
 }
 
 @keyframes vish-auth-logo-breathe {
@@ -755,7 +1272,11 @@
   }
 
   .vish-auth-feature-card {
-    min-height: 8.5rem;
+    min-height: 8.75rem;
+  }
+
+  .vish-auth-card-mockup {
+    padding: 1.65rem 1.35rem 1.35rem;
   }
 
   .vish-auth-hero {
@@ -768,6 +1289,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vish-auth-gate,
+  .vish-auth-gate::before,
   .vish-auth-aurora,
   .vish-boot-aurora,
   .vish-mandala-ring-outer,
@@ -775,11 +1298,17 @@
   .vish-mandala-ring-inner,
   .vish-auth-orb,
   .vish-logo-tile-animated,
+  .vish-auth-logo-mandala,
   .vish-auth-logo-ring-outer,
+  .vish-auth-logo-ring-mid,
   .vish-auth-logo-ring-inner,
+  .vish-auth-logo-yantra,
   .vish-auth-logo-aura,
   .vish-auth-logo-wrap,
   .vish-auth-logo-wrap::after,
+  .vish-auth-wordmark-divider::after,
+  .vish-auth-card-header > *,
+  .vish-auth-card-header .vish-auth-wordmark,
   .vish-boot-ring-outer,
   .vish-boot-ring-middle,
   .vish-boot-ring-inner,
@@ -791,12 +1320,25 @@
 
   .vish-auth-feature-card,
   .vish-auth-feature-card::before,
+  .vish-auth-feature-card::after,
+  .vish-auth-feature-card__ambient,
   .vish-auth-feature-card__icon,
   .vish-auth-feature-card__footer-chevron,
+  .vish-auth-feature-card__metric-value,
   .vish-auth-wordmark-breathe,
   .vish-auth-submit,
-  .vish-auth-submit::before {
+  .vish-auth-submit::before,
+  .vish-auth-status__icon--spin,
+  .vish-auth-card-footer-link,
+  .vish-auth-card-footer-link svg,
+  .vish-auth-card-footer-link::after {
     animation: none !important;
     transition: none;
+  }
+
+  .vish-auth-card-header > * {
+    filter: none;
+    opacity: 1;
+    transform: none;
   }
 }

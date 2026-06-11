@@ -1,5 +1,5 @@
-import { AlertTriangle, type LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { AlertTriangle, CheckCircle2, Info, Loader2, type LucideIcon } from 'lucide-react';
+import { useId, type ReactNode } from 'react';
 
 type AuthStatusVariant = 'error' | 'warning' | 'success' | 'info';
 
@@ -10,14 +10,15 @@ interface AuthStatusBannerProps {
   role?: 'alert' | 'status';
   icon?: LucideIcon;
   className?: string;
+  loading?: boolean;
   'data-testid'?: string;
 }
 
 const DEFAULT_ICONS: Record<AuthStatusVariant, LucideIcon> = {
   error: AlertTriangle,
   warning: AlertTriangle,
-  success: AlertTriangle,
-  info: AlertTriangle,
+  success: CheckCircle2,
+  info: Info,
 };
 
 export default function AuthStatusBanner({
@@ -27,20 +28,35 @@ export default function AuthStatusBanner({
   role = 'status',
   icon,
   className = '',
+  loading = false,
   'data-testid': testId,
 }: AuthStatusBannerProps) {
-  const Icon = icon ?? DEFAULT_ICONS[variant];
+  const titleId = useId();
+  const Icon = loading ? Loader2 : (icon ?? DEFAULT_ICONS[variant]);
+  const ariaLive = role === 'alert' ? 'assertive' : 'polite';
 
   return (
     <div
       role={role}
+      aria-live={ariaLive}
+      aria-atomic="true"
+      aria-labelledby={title ? titleId : undefined}
       data-testid={testId}
-      className={`vish-auth-status vish-auth-status--${variant} mb-4 flex gap-3 p-3 text-sm ${className}`.trim()}
+      data-variant={variant}
+      className={`vish-auth-status vish-auth-status--${variant} ${className}`.trim()}
     >
-      <Icon className="vish-auth-status__icon mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-      <div>
-        {title && <p className="vish-auth-status__title font-semibold">{title}</p>}
-        <div className={title ? 'vish-auth-status__body text-muted-foreground' : 'vish-auth-status__body'}>
+      <span className="vish-auth-status__accent" aria-hidden="true" />
+      <Icon
+        className={`vish-auth-status__icon ${loading ? 'vish-auth-status__icon--spin' : ''}`.trim()}
+        aria-hidden="true"
+      />
+      <div className="vish-auth-status__content">
+        {title && (
+          <p id={titleId} className="vish-auth-status__title">
+            {title}
+          </p>
+        )}
+        <div className={`vish-auth-status__body ${title ? 'vish-auth-status__body--titled' : ''}`.trim()}>
           {children}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { useId } from 'react';
 
 interface AuthTrustPillarProps {
   icon: LucideIcon;
@@ -29,9 +30,11 @@ export default function AuthTrustPillar({
   variant,
   staggerClass = '',
 }: AuthTrustPillarProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   const ariaLabel = destination
-    ? `${title}. ${actionLabel} at ${destination}.`
-    : `${title}. ${actionLabel}.`;
+    ? `${title}. ${description} ${actionLabel} at ${destination}.`
+    : `${title}. ${description} ${actionLabel}.`;
 
   return (
     <button
@@ -39,11 +42,16 @@ export default function AuthTrustPillar({
       data-testid={testId}
       onClick={onLearnMore}
       aria-label={ariaLabel}
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       className={`vish-auth-feature-card vish-fade-rise flex h-full w-full flex-col text-left ${variant ? `vish-auth-feature-card--${variant}` : ''} ${staggerClass}`.trim()}
     >
+      <span className="vish-auth-feature-card__ambient" aria-hidden="true" />
+      <span className="vish-auth-feature-card__corner vish-auth-feature-card__corner--tl" aria-hidden="true" />
+      <span className="vish-auth-feature-card__corner vish-auth-feature-card__corner--br" aria-hidden="true" />
       <div className="vish-auth-feature-card__header">
         <span className="vish-auth-feature-card__icon" aria-hidden="true">
-          <Icon className="h-5 w-5" />
+          <Icon className="h-5 w-5" strokeWidth={1.75} />
         </span>
         <div className="vish-auth-feature-card__header-meta">
           {metric && (
@@ -57,8 +65,12 @@ export default function AuthTrustPillar({
           <span className="vish-gold-pill">{badge}</span>
         </div>
       </div>
-      <p className="vish-auth-feature-card__title">{title}</p>
-      <p className="vish-auth-feature-card__description line-clamp-2">{description}</p>
+      <p id={titleId} className="vish-auth-feature-card__title">
+        {title}
+      </p>
+      <p id={descriptionId} className="vish-auth-feature-card__description">
+        {description}
+      </p>
       {destination && (
         <div className="vish-auth-feature-card__footer">
           <span className="vish-auth-feature-card__footer-label">{actionLabel}</span>

@@ -46,15 +46,23 @@ async function testDenyPath(page) {
   await page.waitForTimeout(1000);
 
   const googleButton = page.getByRole('button', { name: /continue with google/i });
+  const popupPromise = page.waitForEvent('popup', { timeout: 8_000 }).catch(() => null);
   await googleButton.click();
-  await page.waitForTimeout(5000);
+  const popup = await popupPromise;
+  await page.waitForTimeout(3000);
 
+  const popupUrl = popup?.url() ?? '';
   const reachedGoogle =
     page.url().includes('accounts.google.com') ||
-    page.url().includes('firebaseapp.com/__/auth/handler');
-  record('deny: OAuth redirect started', reachedGoogle, page.url().slice(0, 100));
+    page.url().includes('firebaseapp.com/__/auth/handler') ||
+    popupUrl.includes('accounts.google.com') ||
+    popupUrl.includes('firebaseapp.com/__/auth/handler');
+  record('deny: OAuth flow started', reachedGoogle, popup ? `popup:${popupUrl.slice(0, 80)}` : page.url().slice(0, 100));
 
-  if (reachedGoogle) {
+  if (popup) {
+    await popup.close().catch(() => null);
+    await page.waitForTimeout(1000);
+  } else if (reachedGoogle) {
     await page.goBack({ waitUntil: 'domcontentloaded' }).catch(() => null);
     await page.waitForTimeout(2000);
   }
