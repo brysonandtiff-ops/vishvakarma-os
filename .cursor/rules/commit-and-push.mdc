@@ -1,0 +1,17 @@
+---
+description: Always commit and push completed work to Git (Vercel deploys from main)
+alwaysApply: true
+---
+
+# Commit and push when done
+
+When you finish a task that changed files in `vishvakarma-os-live`:
+
+1. Run a quick sanity check (`pnpm run test` for touched areas, or `pnpm run lint:types` if only types changed).
+2. Commit all relevant changes with a concise message following repo style (`feat:`, `fix:`, `chore:`).
+3. Push to `origin main` (or the active feature branch if explicitly working on one).
+4. Do not skip push — Vercel production deploys from Git pushes to `main`.
+5. Never commit secrets (`.env`, API keys, credentials).
+6. Report the commit SHA and confirm push succeeded.
+
+Exception: if the user explicitly says not to commit/push in the same message, skip steps 2–3.
