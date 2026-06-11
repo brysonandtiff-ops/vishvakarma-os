@@ -13,6 +13,7 @@ import {
   clearOAuthRedirectPending,
   consumeOAuthRedirectPending,
   formatAuthError,
+  formatOAuthRedirectIncompleteMessage,
   signInWithAppleFirebase,
   signInWithGoogleFirebase,
 } from '@/backend/firebase/firebaseOAuthGateway';
@@ -205,9 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!credential?.user) {
           if (consumeOAuthRedirectPending() && mounted) {
-            setEmailLinkError(
-              'Google sign-in could not finish in this browser. Open this page in Chrome or Safari (not the Cursor embedded preview), then try again.'
-            );
+            setEmailLinkError(formatOAuthRedirectIncompleteMessage());
           }
           return;
         }

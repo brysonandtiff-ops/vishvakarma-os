@@ -74,12 +74,18 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
     );
   }
   if (code === 'auth/internal-error') {
+    if (context.usedRedirect) {
+      return new Error(
+        'Google sign-in did not finish. If you cancelled, try again. Otherwise open this page in Chrome or Safari (not an IDE embedded preview) and allow cookies for this site.'
+      );
+    }
+
     const host =
       typeof window !== 'undefined' && window.location.hostname
         ? window.location.hostname
         : 'this deployment host';
     return new Error(
-      `Google sign-in could not complete in this browser. Use Chrome or Safari (not an embedded IDE preview), allow cookies, and add ${host} under Firebase Authentication → Authorized domains.`
+      `Google sign-in could not start in this browser. Use Chrome or Safari (not an IDE embedded preview), allow cookies, and confirm ${host} is listed under Firebase Authentication → Authorized domains.`
     );
   }
   if (message.includes('redirect_uri_mismatch')) {
@@ -101,13 +107,15 @@ export function isWebKitBrowser(userAgent: string): boolean {
   );
 }
 
-export function shouldPreferRedirectFlow() {
-  if (typeof window === 'undefined') {
+export function shouldPreferRedirectFlow(
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+) {
+  if (isEmbeddedAuthBrowser(userAgent)) {
     return false;
   }
 
-  // Popup OAuth is unreliable in production, Safari, tablets, and embedded IDE browsers.
-  return true;
+  // Redirect is required on Safari/iOS where popups are unreliable or blocked.
+  return isWebKitBrowser(userAgent);
 }
 
 export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
@@ -120,6 +128,16 @@ function formatEmbeddedBrowserError(): Error {
   return new Error(
     `Google sign-in does not work in embedded IDE browsers (Cursor, VS Code). Open this page in Chrome or Safari: ${url}`
   );
+}
+
+export function formatOAuthRedirectIncompleteMessage(
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+): string {
+  if (isEmbeddedAuthBrowser(userAgent)) {
+    return 'Google sign-in does not work in the Cursor embedded preview. Open this page in Chrome or Safari, then try again.';
+  }
+
+  return 'Google sign-in did not complete. Try again in the same browser tab, allow cookies for this site, and disable extensions that block sign-in.';
 }
 
 function shouldFallbackToRedirect(error: unknown) {
@@ -146,7 +164,8 @@ async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider):
     throw new Error('Firebase Auth is not initialized.');
   }
 
-  if (isEmbeddedAuthBrowser()) {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  if (isEmbeddedAuthBrowser(ua)) {
     throw formatEmbeddedBrowserError();
   }
 
