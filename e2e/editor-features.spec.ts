@@ -73,4 +73,10 @@ test.describe('editor core features (e2e local access)', () => {
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole('button', { name: /^undo$/i })).toBeVisible();
   });
+
+  test('sample picker loads furniture showcase template', async ({ page }) => {
+    await loadSampleProject(page, 'Furniture Showcase');
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Furniture Showcase/i).first()).toBeVisible({ timeout: 15_000 });
+  });
 });

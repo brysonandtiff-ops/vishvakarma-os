@@ -49,6 +49,8 @@ async function loadSampleBlueprint(page: Page) {
   const onboardingVisible = await page.getByTestId('first-run-welcome').isVisible().catch(() => false);
   if (onboardingVisible) {
     await clickDom(page, /load demo blueprint/i);
+    await expect(page.getByRole('dialog', { name: /load sample blueprint/i })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('button', { name: /load blueprint/i }).click();
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
     await page.waitForFunction(
       () => {
