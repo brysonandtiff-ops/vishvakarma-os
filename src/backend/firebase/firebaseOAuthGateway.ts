@@ -54,6 +54,22 @@ export function consumeOAuthRedirectPending(maxAgeMs = 120_000): boolean {
   }
 }
 
+export function expireStaleOAuthRedirectPending(maxAgeMs = 120_000) {
+  try {
+    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
+    if (!raw) {
+      return;
+    }
+
+    const started = Number(raw);
+    if (!Number.isFinite(started) || Date.now() - started >= maxAgeMs) {
+      sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
+    }
+  } catch {
+    // ignore storage failures
+  }
+}
+
 export function formatAuthError(error: unknown, context: AuthErrorContext = {}): Error {
   const authError = error as AuthError;
   const code = authError?.code ?? '';
@@ -95,6 +111,20 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
   }
   if (code === 'auth/popup-closed-by-user') {
     return new Error('Google sign-in was cancelled. Try again when ready.');
+  }
+  if (code === 'auth/popup-blocked') {
+    const host =
+      typeof window !== 'undefined' && window.location.hostname
+        ? window.location.hostname
+        : 'this site';
+    return new Error(
+      `Google sign-in popup was blocked. Allow popups for ${host} in your browser settings, disable ad blockers or privacy extensions, then try again.`
+    );
+  }
+  if (code === 'auth/cancelled-popup-request') {
+    return new Error(
+      'Google sign-in popup was interrupted. Allow popups for this site and try again.'
+    );
   }
 
   return error instanceof Error ? error : new Error(message);
@@ -141,18 +171,15 @@ export function formatOAuthRedirectIncompleteMessage(
 }
 
 function shouldFallbackToRedirect(error: unknown) {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  if (!isWebKitBrowser(ua)) {
+    // Chrome/Firefox: redirect return fails on Vercel; surface popup errors instead.
+    return false;
+  }
+
   const authError = error as AuthError;
   const code = authError?.code ?? '';
-  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-
-  return (
-    code === 'auth/internal-error' ||
-    code === 'auth/popup-blocked' ||
-    code === 'auth/cancelled-popup-request' ||
-    message.includes('popup') ||
-    message.includes('blocked') ||
-    message.includes('cross-origin')
-  );
+  return code === 'auth/popup-blocked' || code === 'auth/cancelled-popup-request';
 }
 
 async function signInWithProvider(provider: GoogleAuthProvider | OAuthProvider): Promise<OAuthSignInResult> {

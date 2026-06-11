@@ -12,6 +12,7 @@ import { firebaseAuth } from '@/backend/firebase/firebaseClient';
 import {
   clearOAuthRedirectPending,
   consumeOAuthRedirectPending,
+  expireStaleOAuthRedirectPending,
   formatAuthError,
   formatOAuthRedirectIncompleteMessage,
   signInWithAppleFirebase,
@@ -198,6 +199,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
     }
 
+    expireStaleOAuthRedirectPending();
+
     void getRedirectResult(firebaseAuth)
       .then(async (credential) => {
         if (!mounted) {
@@ -207,6 +210,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!credential?.user) {
           if (consumeOAuthRedirectPending() && mounted) {
             setEmailLinkError(formatOAuthRedirectIncompleteMessage());
+          }
+          if (mounted) {
+            setLoading(false);
           }
           return;
         }
@@ -245,8 +251,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false);
           return;
         }
-        console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', error);
-        setEmailLinkError(formatAuthError(error, { usedRedirect: true }).message);
+        console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', { code, error });
+        if (mounted) {
+          setEmailLinkError(
+            code === 'auth/internal-error'
+              ? formatOAuthRedirectIncompleteMessage()
+              : formatAuthError(error, { usedRedirect: true }).message
+          );
+        }
         setLoading(false);
       });
 

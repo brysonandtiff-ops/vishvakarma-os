@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   clearOAuthRedirectPending,
   consumeOAuthRedirectPending,
+  expireStaleOAuthRedirectPending,
   formatAuthError,
   isEmbeddedAuthBrowser,
   isWebKitBrowser,
@@ -67,6 +68,17 @@ describe('oauth redirect pending marker', () => {
     expect(consumeOAuthRedirectPending()).toBe(true);
     expect(consumeOAuthRedirectPending()).toBe(false);
   });
+
+  it('expires stale redirect markers without consuming fresh ones', () => {
+    clearOAuthRedirectPending();
+    sessionStorage.setItem('vish-oauth-redirect-pending', String(Date.now() - 180_000));
+    expireStaleOAuthRedirectPending();
+    expect(sessionStorage.getItem('vish-oauth-redirect-pending')).toBeNull();
+
+    markOAuthRedirectPending();
+    expireStaleOAuthRedirectPending();
+    expect(consumeOAuthRedirectPending()).toBe(true);
+  });
 });
 
 describe('shouldPreferRedirectFlow', () => {
@@ -95,5 +107,11 @@ describe('formatAuthError', () => {
     const message = formatAuthError({ code: 'auth/internal-error' }).message;
     expect(message).toContain('could not start');
     expect(message).toContain('Authorized domains');
+  });
+
+  it('describes popup-blocked failures with actionable guidance', () => {
+    const message = formatAuthError({ code: 'auth/popup-blocked' }).message;
+    expect(message).toContain('popup was blocked');
+    expect(message).toContain('Allow popups');
   });
 });
