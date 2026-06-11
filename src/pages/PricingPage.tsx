@@ -166,8 +166,8 @@ export default function PricingPage() {
         />
 
         <div className="vish-pricing-trust-row mt-10 grid gap-4 sm:grid-cols-3">
-          {TRUST_STATS.map((stat) => (
-            <MetricPill key={stat.label} value={stat.value} label={stat.label} />
+          {TRUST_STATS.map((stat, index) => (
+            <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
           ))}
         </div>
 

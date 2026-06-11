@@ -41,7 +41,7 @@ export default function FeatureCard({
       </div>
       <h3 className="mt-4 font-semibold vish-text-heading">{title}</h3>
       {description && <p className="mt-2 flex-1 text-sm leading-relaxed vish-text-body">{description}</p>}
-      {footer && <div className="mt-4 border-t border-border/40 pt-3">{footer}</div>}
+      {footer && <div className="vish-feature-grid-card__footer mt-4 border-t pt-3">{footer}</div>}
     </Wrapper>
   );
 }

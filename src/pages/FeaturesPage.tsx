@@ -87,32 +87,31 @@ export default function FeaturesPage() {
           description="Step-by-step interactive guides open the editor with contextual hints"
         />
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <MetricPill value={String(FEATURE_MODULES.filter((m) => m.ready).length)} label="ready now" />
-          <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" />
-          <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" />
+          <MetricPill
+            value={String(FEATURE_MODULES.filter((m) => m.ready).length)}
+            label="ready now"
+            animate
+            staggerIndex={0}
+          />
+          <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" animate staggerIndex={1} />
+          <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" animate staggerIndex={2} />
         </div>
-        <div className="vish-features-toggle mt-10 flex gap-2">
+        <div className="vish-features-toggle mt-10" role="tablist" aria-label="Features page sections">
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === 'guides'}
             data-active={tab === 'guides'}
             onClick={() => setTab('guides')}
-            className={`rounded-lg border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-colors ${
-              tab === 'guides'
-                ? 'border-primary/50 bg-primary/15 text-primary'
-                : 'border-border text-foreground/80 hover:border-primary/30 hover:text-foreground'
-            }`}
           >
             Getting Started
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === 'features'}
             data-active={tab === 'features'}
             onClick={() => setTab('features')}
-            className={`rounded-lg border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-colors ${
-              tab === 'features'
-                ? 'border-primary/50 bg-primary/15 text-primary'
-                : 'border-border text-foreground/80 hover:border-primary/30 hover:text-foreground'
-            }`}
           >
             All Features
           </button>
@@ -127,7 +126,7 @@ export default function FeaturesPage() {
                 badge="Interactive guide"
                 onClick={() => openGuideInEditor(guide.title, guide.editorHint)}
                 footer={
-                  <ol className="list-inside list-decimal space-y-1 text-xs text-foreground/75">
+                  <ol className="vish-feature-grid-card__steps list-inside list-decimal space-y-1.5">
                     {guide.steps.map((step) => (
                       <li key={step}>{step}</li>
                     ))}

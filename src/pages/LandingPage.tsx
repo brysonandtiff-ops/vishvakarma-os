@@ -59,8 +59,8 @@ export default function LandingPage() {
           </Link>
         </div>
         <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {STATS.map((stat) => (
-            <MetricPill key={stat.label} value={stat.value} label={stat.label} />
+          {STATS.map((stat, index) => (
+            <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
           ))}
         </div>
       </section>
