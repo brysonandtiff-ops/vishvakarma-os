@@ -47,7 +47,7 @@ async function testDenyPath(page) {
 
   const googleButton = page.getByRole('button', { name: /continue with google/i });
   const popupPromise = page.waitForEvent('popup', { timeout: 8_000 }).catch(() => null);
-  await googleButton.click();
+  await googleButton.click({ noWaitAfter: true });
   const popup = await popupPromise;
   await page.waitForTimeout(3000);
 
