@@ -1,0 +1,47 @@
+---
+description: Always-on auto finish — build, verify, commit, and push without manual follow-up
+alwaysApply: true
+---
+
+# Auto-finish (always on)
+
+When building or changing anything in `vishvakarma-os-live`, run end-to-end without asking permission. The user should not need follow-up steps when you are done.
+
+## Work autonomously
+
+- Implement the full solution in one pass. Do not stop to ask whether to run tests, commit, or push.
+- Only pause for genuine ambiguity (missing requirements, destructive choices, secrets) — not for routine finish steps.
+- Fix failures you introduce before declaring done.
+
+## Verify before ship
+
+Match checks to what changed:
+
+| Change type | Run |
+|-------------|-----|
+| Any code change | `pnpm run lint:types` at minimum |
+| Logic, components, or routes | `pnpm run test` (+ `pnpm run test:routes` if routes touched) |
+| Build, config, or deps | `pnpm run build` |
+| Billing / Stripe | `pnpm run verify:stripe-billing` when env allows |
+| Auth / Firebase | relevant `verify:*` script when that area changed |
+
+If a check fails, fix and re-run until green or report a clear blocker.
+
+## Ship automatically
+
+After verification passes:
+
+1. Commit all relevant changes (`feat:`, `fix:`, `chore:` — match repo style).
+2. Push to `origin main` (or the active feature branch if one is explicitly in progress).
+3. Never commit secrets (`.env`, keys, credentials).
+
+Skip commit and push only if the user explicitly says not to in the same message.
+
+## Done report
+
+End every completed build task with:
+
+- What shipped (1–2 sentences)
+- Checks run and their result
+- Commit SHA and push confirmation (or why ship was skipped)
+- Manual follow-up only when truly unavoidable (e.g. Vercel env vars, Stripe dashboard)

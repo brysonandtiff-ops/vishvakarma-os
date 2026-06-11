@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBilling } from '@/hooks/useBilling';
 import { billingPlanLabel } from '@/types/billing';
 import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
+import BillingBanner from '@/components/billing/BillingBanner';
 import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
 
 export default function ProfilePage() {
@@ -26,6 +27,7 @@ export default function ProfilePage() {
     enabled: billingEnabled,
     refreshBilling,
     loading: billingLoading,
+    error: billingError,
   } = useBilling();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,6 +89,12 @@ export default function ProfilePage() {
             </span>
           }
         />
+
+        {stripeEnabled && user && (
+          <div className="mb-6">
+            <BillingBanner billing={billing} loading={billingLoading} error={billingError} />
+          </div>
+        )}
 
         <div className="space-y-4 rounded-2xl border border-dashed border-border/70 bg-card/80 p-6 shadow-sm">
           <div className="flex items-start gap-3">
