@@ -284,6 +284,17 @@ export default function AuthPage() {
             </p>
             <div className="vish-auth-workspace-badge mt-2">
               <span
+                className={`vish-auth-supabase-pill ${isConfigured ? 'vish-auth-supabase-pill--live' : 'vish-auth-supabase-pill--draft'}`}
+                data-testid="auth-supabase-badge"
+                title={
+                  isConfigured
+                    ? 'Authentication and data run on Supabase (Postgres + Auth)'
+                    : 'Supabase env vars not configured — local draft mode'
+                }
+              >
+                Supabase Auth
+              </span>
+              <span
                 className={`vish-gold-pill ${isConfigured ? 'vish-gold-pill--live' : 'vish-gold-pill--draft'}`}
               >
                 {workspaceStatusLabel}

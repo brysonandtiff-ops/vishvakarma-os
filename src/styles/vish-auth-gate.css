@@ -780,7 +780,47 @@
 
 .vish-auth-workspace-badge {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vish-auth-supabase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(153 60% 42% / 0.45);
+  background: hsl(158 42% 12% / 0.92);
+  color: hsl(153 55% 62%);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+}
+
+.vish-auth-supabase-pill--live::before {
+  content: '';
+  display: inline-block;
+  height: 0.4rem;
+  width: 0.4rem;
+  border-radius: 9999px;
+  background: hsl(153 80% 48%);
+  box-shadow: 0 0 8px hsl(153 80% 48% / 0.65);
+  animation: vish-pill-dot-pulse 2.4s ease-in-out infinite;
+}
+
+.vish-auth-supabase-pill--draft::before {
+  content: '';
+  display: inline-block;
+  height: 0.4rem;
+  width: 0.4rem;
+  border-radius: 9999px;
+  background: hsl(153 35% 38%);
+  box-shadow: 0 0 6px hsl(153 35% 38% / 0.35);
+  opacity: 0.85;
 }
 
 .vish-auth-wordmark-breathe {
