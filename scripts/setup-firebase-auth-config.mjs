@@ -12,9 +12,11 @@ import { spawnSync } from 'child_process';
 
 const PROJECT_ID = 'gen-lang-client-0690161780';
 const BASE_DOMAINS = [
+  'vishvakarma-os.vercel.app',
+  'vishvakarma-os-tyrasic-creations.vercel.app',
+  'vishvakarma-os-git-main-tyrasic-creations.vercel.app',
   'localhost',
   '127.0.0.1',
-  'vishvakarma-os.vercel.app',
   'gen-lang-client-0690161780.firebaseapp.com',
 ];
 
@@ -164,11 +166,11 @@ async function main() {
   console.log('[PASS] Updated authorized domains:', updated.authorizedDomains ?? []);
   console.log('[PASS] Updated email sign-in:', updated.signIn?.email ?? {});
 
-  const PRODUCTION_DOMAIN = 'vishvakarma-os.vercel.app';
-  if (!(updated.authorizedDomains ?? []).includes(PRODUCTION_DOMAIN)) {
-    throw new Error(`Production domain missing after update: ${PRODUCTION_DOMAIN}`);
+  const missing = BASE_DOMAINS.filter((domain) => !(updated.authorizedDomains ?? []).includes(domain));
+  if (missing.length > 0) {
+    throw new Error(`Required domains missing after update: ${missing.join(', ')}`);
   }
-  console.log('[PASS] Production domain verified:', PRODUCTION_DOMAIN);
+  console.log('[PASS] Required domains verified:', BASE_DOMAINS.join(', '));
 }
 
 main().catch((error) => {
