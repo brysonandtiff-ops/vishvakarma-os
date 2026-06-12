@@ -33,7 +33,17 @@ After verification passes:
 
 1. Commit all relevant changes (`feat:`, `fix:`, `chore:` — match repo style).
 2. Push to `origin main` (or the active feature branch if one is explicitly in progress).
-3. Never commit secrets (`.env`, keys, credentials).
+3. Never commit secrets or local artifacts (see exclusions below).
+
+**Never ask** the user whether to commit or push at the end of a build task — ship is the default.
+
+**Never end a task** with uncommitted code changes unless the user explicitly said not to commit in the same message.
+
+### Exclude from auto-commit
+
+- `.env*` and any credentials or API keys
+- `migration/export-*.json` and other local export artifacts
+- Generated caches, test output, and accidental nested workspaces (see `.gitignore`)
 
 Skip commit and push only if the user explicitly says not to in the same message.
 
@@ -43,5 +53,5 @@ End every completed build task with:
 
 - What shipped (1–2 sentences)
 - Checks run and their result
-- Commit SHA and push confirmation (or why ship was skipped)
+- Commit SHA and push confirmation (required — or explicit blocker reason if ship failed)
 - Manual follow-up only when truly unavoidable (e.g. Vercel env vars, Stripe dashboard)

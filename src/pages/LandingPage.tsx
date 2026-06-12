@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
+import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
 import PageSection from '@/components/common/PageSection';
@@ -71,45 +71,42 @@ export default function LandingPage() {
         description="One manifest powers 2D drafting, 3D preview, and every export format."
       >
         <div className="grid gap-6 lg:grid-cols-2">
-          <figure className="overflow-hidden rounded-2xl border border-primary/20 bg-card/40 shadow-lg">
+          <figure className="overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-2d.png"
               alt="2D blueprint editor with sample floor plan"
               className="h-auto w-full object-cover"
               loading="lazy"
             />
-            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/80">
+            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
               2D Blueprint Canvas
             </figcaption>
           </figure>
-          <figure className="overflow-hidden rounded-2xl border border-primary/20 bg-card/40 shadow-lg">
+          <figure className="overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-3d.png"
               alt="Live 3D model chamber with extruded walls"
               className="h-auto w-full object-cover"
               loading="lazy"
             />
-            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/80">
+            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
               Sacred 3D View
             </figcaption>
           </figure>
         </div>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:gap-8">
-          {WORKFLOW.map((item, index) => (
-            <div key={item.step} className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
+        <ol className="vish-workflow-strip mt-8 grid gap-6 md:grid-cols-3 md:gap-4">
+          {WORKFLOW.map((item) => (
+            <li key={item.step} className="flex items-start gap-3 md:flex-col md:items-center md:text-center">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
                 <item.icon className="h-5 w-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">{item.step}</p>
-                <p className="max-w-[12rem] text-xs vish-text-body">{item.desc}</p>
+                <p className="mt-1 text-xs leading-relaxed vish-text-body">{item.desc}</p>
               </div>
-              {index < WORKFLOW.length - 1 && (
-                <ArrowRight className="hidden h-4 w-4 text-primary/50 md:block" aria-hidden />
-              )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </PageSection>
 
       <PageSection className="mx-auto max-w-6xl px-4 md:px-8" title="Built for professional proof" description="Not just a drawing toy — a governed architectural workstation.">

@@ -1,7 +1,11 @@
+import { SANSKRIT_MATRIX_COLUMNS } from '@/components/common/SanskritRainBackground';
+
 const CENTER = 200;
 const STROKE_GOLD = 'hsl(43 90% 62% / 0.28)';
 const STROKE_GOLD_BRIGHT = 'hsl(43 96% 72% / 0.36)';
 const FILL_GOLD = 'hsl(43 100% 74% / 0.18)';
+
+const GLYPH_RING_CHARS = SANSKRIT_MATRIX_COLUMNS.join(' · ').split('');
 
 function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180;
@@ -11,14 +15,14 @@ function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: numb
   };
 }
 
-function radialTicks(count: number, innerR: number, outerR: number) {
+function radialTicks(count: number, innerR: number, outerR: number, keyPrefix = 'tick') {
   return Array.from({ length: count }, (_, index) => {
     const angle = (index * 360) / count;
     const inner = polarToCartesian(CENTER, CENTER, innerR, angle);
     const outer = polarToCartesian(CENTER, CENTER, outerR, angle);
     return (
       <line
-        key={`tick-${index}`}
+        key={`${keyPrefix}-${index}`}
         x1={inner.x}
         y1={inner.y}
         x2={outer.x}
@@ -84,6 +88,89 @@ function yantraSquare(size: number) {
   );
 }
 
+function starPointFrame(points: number, outerR: number, innerR: number) {
+  const vertices: string[] = [];
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (i * 360) / (points * 2);
+    const r = i % 2 === 0 ? outerR : innerR;
+    const { x, y } = polarToCartesian(CENTER, CENTER, r, angle);
+    vertices.push(`${x},${y}`);
+  }
+  return (
+    <polygon
+      points={vertices.join(' ')}
+      fill="none"
+      stroke={STROKE_GOLD}
+      strokeWidth={0.9}
+      strokeLinejoin="round"
+    />
+  );
+}
+
+function crownSpires() {
+  const spireCount = 7;
+  const baseY = CENTER - 168;
+  const spread = 140;
+
+  return Array.from({ length: spireCount }, (_, index) => {
+    const t = (index - (spireCount - 1) / 2) / ((spireCount - 1) / 2);
+    const x = CENTER + t * spread;
+    const height = 28 + (1 - Math.abs(t)) * 42;
+    const width = 4 + (1 - Math.abs(t)) * 3;
+    const peakY = baseY - height;
+
+    return (
+      <g key={`spire-${index}`} className="vish-mandala-spire">
+        <path
+          d={`M ${x - width} ${baseY} L ${x} ${peakY} L ${x + width} ${baseY} Z`}
+          fill="none"
+          stroke={STROKE_GOLD_BRIGHT}
+          strokeWidth={0.7}
+          strokeLinejoin="round"
+        />
+        <line
+          x1={x}
+          y1={peakY}
+          x2={x}
+          y2={peakY - height * 0.12}
+          stroke={STROKE_GOLD_BRIGHT}
+          strokeWidth={0.5}
+          strokeLinecap="round"
+        />
+      </g>
+    );
+  });
+}
+
+function devanagariGlyphRing() {
+  const radius = 148;
+  const charCount = GLYPH_RING_CHARS.length;
+
+  return GLYPH_RING_CHARS.map((char, index) => {
+    if (!char.trim()) return null;
+    const angle = (index * 360) / charCount;
+    const { x, y } = polarToCartesian(CENTER, CENTER, radius, angle);
+    const rotation = angle + 90;
+
+    return (
+      <text
+        key={`glyph-${index}-${char}`}
+        x={x}
+        y={y}
+        fill={STROKE_GOLD_BRIGHT}
+        fontSize={7}
+        fontFamily="'Noto Sans Devanagari', serif"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        transform={`rotate(${rotation} ${x} ${y})`}
+        opacity={0.75}
+      >
+        {char}
+      </text>
+    );
+  });
+}
+
 export function SacredMandalaLayer() {
   return (
     <div
@@ -95,10 +182,30 @@ export function SacredMandalaLayer() {
         viewBox="0 0 400 400"
         xmlns="http://www.w3.org/2000/svg"
       >
+        {starPointFrame(8, 192, 168)}
         <circle cx={CENTER} cy={CENTER} r={188} fill="none" stroke={STROKE_GOLD} strokeWidth={0.8} />
-        <circle cx={CENTER} cy={CENTER} r={168} fill="none" stroke={STROKE_GOLD} strokeWidth={0.6} strokeDasharray="4 6" />
+        <circle
+          cx={CENTER}
+          cy={CENTER}
+          r={178}
+          fill="none"
+          stroke={STROKE_GOLD}
+          strokeWidth={0.5}
+          strokeDasharray="2 8"
+        />
+        {radialTicks(24, 158, 186, 'outer-tick')}
         {radialTicks(16, 152, 186)}
+        <circle cx={CENTER} cy={CENTER} r={168} fill="none" stroke={STROKE_GOLD} strokeWidth={0.6} strokeDasharray="4 6" />
         <circle cx={CENTER} cy={CENTER} r={120} fill="none" stroke={STROKE_GOLD_BRIGHT} strokeWidth={0.7} />
+        <g className="vish-mandala-spires">{crownSpires()}</g>
+      </svg>
+
+      <svg
+        className="vish-mandala-svg vish-mandala-svg--glyph"
+        viewBox="0 0 400 400"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g className="vish-mandala-glyph-band">{devanagariGlyphRing()}</g>
       </svg>
 
       <svg
@@ -110,6 +217,22 @@ export function SacredMandalaLayer() {
         {yantraSquare(96)}
         <circle cx={CENTER} cy={CENTER} r={52} fill="none" stroke={STROKE_GOLD} strokeWidth={0.8} strokeDasharray="3 5" />
         <circle cx={CENTER} cy={CENTER} r={36} fill="none" stroke={STROKE_GOLD_BRIGHT} strokeWidth={0.6} />
+      </svg>
+
+      <svg
+        className="vish-mandala-svg vish-mandala-svg--spike"
+        viewBox="0 0 400 400"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g className="vish-mandala-spike">
+          <path
+            d={`M ${CENTER} ${CENTER + 36} L ${CENTER - 6} ${CENTER + 72} L ${CENTER} ${CENTER + 118} L ${CENTER + 6} ${CENTER + 72} Z`}
+            fill={FILL_GOLD}
+            stroke={STROKE_GOLD_BRIGHT}
+            strokeWidth={0.8}
+            strokeLinejoin="round"
+          />
+        </g>
       </svg>
 
       <div className="vish-mandala-ring vish-mandala-ring-outer vish-mandala-ring--marketing" />

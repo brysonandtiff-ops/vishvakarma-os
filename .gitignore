@@ -44,3 +44,6 @@ vishvakarma-os/
 
 # Supabase CLI local state
 supabase/.temp/
+
+# Local migration export artifacts (never commit)
+migration/export-*.json

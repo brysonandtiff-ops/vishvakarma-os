@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
+import { SacredCosmicLayer } from '@/components/marketing/SacredCosmicLayer';
 import { SacredMandalaLayer } from '@/components/marketing/SacredMandalaLayer';
 
 interface SacredBackgroundProps {
@@ -18,11 +19,15 @@ export function SacredBackground({
   header,
 }: SacredBackgroundProps) {
   const showAurora = intensity === 'marketing' || intensity === 'auth-lite';
+  const showCosmic = intensity === 'marketing';
   const showMandala = intensity === 'marketing' || intensity === 'auth-lite';
   const showVignette = intensity === 'marketing' || intensity === 'auth-lite';
 
   return (
     <div className={`vish-sacred-stage relative overflow-hidden ${className}`}>
+      {showCosmic && (
+        <SacredCosmicLayer className="vish-sacred-cosmic-canvas--marketing pointer-events-none absolute inset-0" />
+      )}
       {enableRain && (
         <SanskritRainBackground
           preset="marketing"
