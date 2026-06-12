@@ -326,7 +326,8 @@ export type ToolType =
   | 'furniture'
   | 'mep'
   | 'vastu'
-  | 'landscape';
+  | 'landscape'
+  | 'terrain';
 
 export interface EditorState {
   currentTool: ToolType;

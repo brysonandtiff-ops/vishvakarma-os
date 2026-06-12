@@ -42,8 +42,8 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('onWallAdd={(wall) => engine.addWall(wall)}');
     expect(editor).toContain('serializeProjectManifest');
     expect(editor).toContain('buildProjectExportFilename');
-    expect(viewport).toContain('ATMOSPHERE_STORAGE_KEY');
-    expect(viewport).toContain('prefers-reduced-motion');
+    expect(viewport).toContain('persistAtmosphereMode');
+    expect(viewport).toContain('resolveDefaultAtmosphereMode');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
     expect(editor).toContain('vish-editor-mantra-watermark');

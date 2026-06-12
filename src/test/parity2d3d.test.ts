@@ -36,7 +36,7 @@ describe('2D/3D parity', () => {
   });
 
   it('furniture and landscape showcase elements have finite placement data', () => {
-    for (const file of ['furniture-showcase.json', 'landscape-garden.json'] as const) {
+    for (const file of ['furniture-showcase.json', 'landscape-garden.json', 'terrain-garden.json'] as const) {
       const samplePath = resolve(process.cwd(), 'public/samples', file);
       const parsed = parseProjectManifestJson(readFileSync(samplePath, 'utf8'));
       expect(parsed.ok).toBe(true);
@@ -60,6 +60,15 @@ describe('2D/3D parity', () => {
         expect(Number.isFinite(element.position.y)).toBe(true);
         if (element.modelScale !== undefined) {
           expect(Number.isFinite(element.modelScale)).toBe(true);
+        }
+      }
+
+      for (const patch of manifest.terrain ?? []) {
+        expect(patch.points.length).toBeGreaterThanOrEqual(3);
+        expect(patch.elevation).toBeGreaterThanOrEqual(0);
+        for (const point of patch.points) {
+          expect(Number.isFinite(point.x)).toBe(true);
+          expect(Number.isFinite(point.y)).toBe(true);
         }
       }
     }

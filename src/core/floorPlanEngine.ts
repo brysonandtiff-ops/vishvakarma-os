@@ -23,6 +23,7 @@ import type {
   ProjectManifest,
   Room,
   ToolType,
+  TerrainPatch,
   Wall,
   WorkspaceMode,
 } from '@/types';
@@ -167,6 +168,10 @@ export class FloorPlanEngine {
 
   getLandscapeElements(): LandscapeElement[] {
     return this.manifest.landscapeElements ?? [];
+  }
+
+  getTerrain(): TerrainPatch[] {
+    return this.manifest.terrain ?? [];
   }
 
   getCostItems(): CostItem[] {
@@ -515,6 +520,26 @@ export class FloorPlanEngine {
       landscapeElements: (this.manifest.landscapeElements ?? []).filter(
         (element) => element.id !== elementId
       ),
+    });
+  }
+
+  addTerrainPatch(patch: TerrainPatch): void {
+    this.touchManifest({
+      terrain: [...(this.manifest.terrain ?? []), patch],
+    });
+  }
+
+  updateTerrainPatch(patchId: string, updates: Partial<TerrainPatch>): void {
+    this.touchManifest({
+      terrain: (this.manifest.terrain ?? []).map((patch) =>
+        patch.id === patchId ? { ...patch, ...updates } : patch
+      ),
+    });
+  }
+
+  removeTerrainPatch(patchId: string): void {
+    this.touchManifest({
+      terrain: (this.manifest.terrain ?? []).filter((patch) => patch.id !== patchId),
     });
   }
 

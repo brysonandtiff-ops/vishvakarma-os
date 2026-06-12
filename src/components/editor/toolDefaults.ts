@@ -53,6 +53,14 @@ const MEASURE_DEFAULTS: ToolDefaultsConfig = {
   fields: [],
 };
 
+const TERRAIN_DEFAULTS: ToolDefaultsConfig = {
+  sectionTitle: 'Terrain defaults',
+  footnote: 'Tap vertices to draw a contour. Click the first point to close. Elevation cycles per patch.',
+  fields: [
+    { id: 'elevation', label: 'Next elevation', value: 'Grade (0 cm)', type: 'text' },
+  ],
+};
+
 export function getToolDefaults(tool: ToolType): ToolDefaultsConfig {
   switch (tool) {
     case 'door':
@@ -61,6 +69,8 @@ export function getToolDefaults(tool: ToolType): ToolDefaultsConfig {
       return WINDOW_DEFAULTS;
     case 'wall':
       return WALL_DEFAULTS;
+    case 'terrain':
+      return TERRAIN_DEFAULTS;
     case 'measure':
     case 'dimension':
       return MEASURE_DEFAULTS;

@@ -1,5 +1,8 @@
 // 2D Blueprint Canvas Component — pointer-first for mouse, touch, and Pencil-style input
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useCanvasResize } from '@/hooks/useCanvasResize';
+import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
+import { mapCanvasBufferToDisplay, mapPointerToCanvasBuffer } from '@/utils/canvasPointerCoords';
 import type {
   DimensionAnnotation,
   FixtureItem,
@@ -10,6 +13,7 @@ import type {
   Opening,
   Point2D,
   Room,
+  TerrainPatch,
   ToolType,
   Wall,
 } from '@/types';
@@ -36,6 +40,13 @@ import {
   getLandscapeDefaults,
   LANDSCAPE_TYPES,
 } from '@/core/sceneVisualCatalog';
+import {
+  drawTerrain2D,
+  drawTerrainPreview,
+  getTerrainElevationPreset,
+  isValidTerrainPolygon,
+  pointsNear,
+} from '@/core/sceneTerrainCatalog';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -47,6 +58,7 @@ interface BlueprintCanvasProps {
   mepSymbols?: MepSymbol[];
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
+  terrain?: TerrainPatch[];
   northOrientation?: number;
   currentTool: ToolType;
   gridVisible: boolean;
@@ -67,6 +79,7 @@ interface BlueprintCanvasProps {
   onMepSymbolAdd?: (symbol: MepSymbol) => void;
   onFixtureAdd?: (fixture: FixtureItem) => void;
   onLandscapeAdd?: (element: LandscapeElement) => void;
+  onTerrainAdd?: (patch: TerrainPatch) => void;
   selectedFixtureId?: string;
   onFixtureSelect?: (fixtureId: string | undefined) => void;
   onPointerCanvasMove?: (point: Point2D) => void;
@@ -136,6 +149,7 @@ export default function BlueprintCanvas({
   mepSymbols = [],
   fixtures = [],
   landscapeElements = [],
+  terrain = [],
   northOrientation = 0,
   currentTool,
   gridVisible,
@@ -158,6 +172,7 @@ export default function BlueprintCanvas({
   selectedLabelId,
   onLabelSelect,
   onLandscapeAdd,
+  onTerrainAdd,
   onPointerCanvasMove,
   onWallSelect,
   onOpeningSelect,
@@ -166,6 +181,10 @@ export default function BlueprintCanvas({
   unitSystem = 'metric',
 }: BlueprintCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelInputRef = useRef<HTMLInputElement>(null);
+  const canvasMetrics = useCanvasResize(containerRef);
+  const { bottomInset: keyboardBottomInset } = useVisualViewportInset();
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point2D | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point2D | null>(null);
@@ -190,6 +209,8 @@ export default function BlueprintCanvas({
   const [furniturePresetIndex, setFurniturePresetIndex] = useState(0);
   const [mepPlacementIndex, setMepPlacementIndex] = useState(0);
   const [landscapeTypeIndex, setLandscapeTypeIndex] = useState(0);
+  const [terrainVertices, setTerrainVertices] = useState<Point2D[]>([]);
+  const [terrainElevationIndex, setTerrainElevationIndex] = useState(0);
 
   const snapToGrid = useCallback(
     (point: Point2D): Point2D => {
@@ -230,14 +251,26 @@ export default function BlueprintCanvas({
       if (!canvas) return { x: 0, y: 0 };
 
       const rect = canvas.getBoundingClientRect();
-      return snapToNearbyEndpoint(
-        snapToGrid({
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        })
+      const raw = mapPointerToCanvasBuffer(
+        event.clientX,
+        event.clientY,
+        rect,
+        canvas.width,
+        canvas.height,
       );
+      return snapToNearbyEndpoint(snapToGrid(raw));
     },
     [snapToGrid, snapToNearbyEndpoint]
+  );
+
+  const openLabelEdit = useCallback(
+    (label: Label) => {
+      if (!onLabelUpdate) return;
+      setEditingLabelId(label.id);
+      setEditingLabelText(label.text);
+      onLabelSelect?.(label.id);
+    },
+    [onLabelSelect, onLabelUpdate],
   );
 
   const getWallAtPoint = useCallback(
@@ -362,6 +395,10 @@ export default function BlueprintCanvas({
 
       const label = getLabelAtPoint(point);
       if (label) {
+        if (selectedLabelId === label.id && onLabelUpdate) {
+          openLabelEdit(label);
+          return;
+        }
         onLabelSelect?.(label.id);
         onFixtureSelect?.(undefined);
         onOpeningSelect?.(undefined);
@@ -465,6 +502,24 @@ export default function BlueprintCanvas({
       return;
     }
 
+    if (currentTool === 'terrain') {
+      if (terrainVertices.length >= 3 && pointsNear(point, terrainVertices[0])) {
+        if (isValidTerrainPolygon(terrainVertices)) {
+          onTerrainAdd?.({
+            id: `terrain-${Date.now()}`,
+            points: [...terrainVertices],
+            elevation: getTerrainElevationPreset(terrainElevationIndex),
+          });
+          setTerrainElevationIndex((index) => index + 1);
+        }
+        setTerrainVertices([]);
+        return;
+      }
+
+      setTerrainVertices((vertices) => [...vertices, point]);
+      return;
+    }
+
     placeOpening(point, mode);
   };
 
@@ -561,9 +616,7 @@ export default function BlueprintCanvas({
     const point = getCanvasPoint(event);
     const label = getLabelAtPoint(point);
     if (!label || !onLabelUpdate) return;
-    setEditingLabelId(label.id);
-    setEditingLabelText(label.text);
-    onLabelSelect?.(label.id);
+    openLabelEdit(label);
   };
 
   const commitLabelEdit = () => {
@@ -588,7 +641,39 @@ export default function BlueprintCanvas({
     setStartPoint(null);
     setCurrentPoint(null);
     setPreviewOpening(null);
+    setTerrainVertices([]);
   };
+
+  useEffect(() => {
+    if (currentTool !== 'terrain') {
+      setTerrainVertices([]);
+    }
+  }, [currentTool]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && terrainVertices.length > 0) {
+        setTerrainVertices([]);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [terrainVertices.length]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    if (canvas.width !== canvasMetrics.bufferWidth || canvas.height !== canvasMetrics.bufferHeight) {
+      canvas.width = canvasMetrics.bufferWidth;
+      canvas.height = canvasMetrics.bufferHeight;
+    }
+  }, [canvasMetrics.bufferWidth, canvasMetrics.bufferHeight]);
+
+  useEffect(() => {
+    if (editingLabelId) {
+      labelInputRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, [editingLabelId, keyboardBottomInset]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -607,7 +692,7 @@ export default function BlueprintCanvas({
       drawGrid(gridCtx, canvas, gridSize);
     }
     setGridLayerRevision((r) => r + 1);
-  }, [gridSize, gridVisible]);
+  }, [canvasMetrics.bufferWidth, canvasMetrics.bufferHeight, gridSize, gridVisible]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -731,8 +816,21 @@ export default function BlueprintCanvas({
       ctx.fillText(fixture.type.slice(0, 1).toUpperCase(), x, y + 14);
     }
 
+    for (const patch of terrain) {
+      drawTerrain2D(ctx, patch);
+    }
+
     for (const element of landscapeElements) {
       drawLandscape2D(ctx, element);
+    }
+
+    if (currentTool === 'terrain' && terrainVertices.length > 0 && hoveredPoint) {
+      drawTerrainPreview(
+        ctx,
+        terrainVertices,
+        hoveredPoint,
+        getTerrainElevationPreset(terrainElevationIndex),
+      );
     }
 
     if (currentTool === 'vastu' || northOrientation !== 0) {
@@ -778,12 +876,32 @@ export default function BlueprintCanvas({
     if (isDrawing && startPoint && currentPoint) {
       drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
     }
-  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, unitSystem, walls]);
+  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
-    <div className="relative">
-    {editingLabelId && (
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-full touch-manipulation"
+      style={{
+        width: canvasMetrics.displayWidth,
+        height: canvasMetrics.displayHeight,
+        maxWidth: '100%',
+      }}
+    >
+    {editingLabelId && (() => {
+      const editingLabel = labels.find((l) => l.id === editingLabelId);
+      const displayPos = editingLabel
+        ? mapCanvasBufferToDisplay(
+            editingLabel.position,
+            canvasMetrics.bufferWidth,
+            canvasMetrics.bufferHeight,
+            canvasMetrics.displayWidth,
+            canvasMetrics.displayHeight,
+          )
+        : { x: 0, y: 0 };
+      return (
       <input
+        ref={labelInputRef}
         type="text"
         value={editingLabelText}
         onChange={(e) => setEditingLabelText(e.target.value)}
@@ -797,17 +915,23 @@ export default function BlueprintCanvas({
         }}
         className="absolute z-10 rounded border border-primary bg-background px-2 py-1 text-sm shadow-md"
         style={{
-          left: labels.find((l) => l.id === editingLabelId)?.position.x ?? 0,
-          top: (labels.find((l) => l.id === editingLabelId)?.position.y ?? 0) - 28,
+          left: displayPos.x,
+          top: displayPos.y - 28,
         }}
         autoFocus
         aria-label="Edit label text"
       />
-    )}
+      );
+    })()}
     <canvas
       ref={canvasRef}
-      width={1200}
-      height={800}
+      width={canvasMetrics.bufferWidth}
+      height={canvasMetrics.bufferHeight}
+      style={{
+        width: canvasMetrics.displayWidth,
+        height: canvasMetrics.displayHeight,
+        maxWidth: '100%',
+      }}
       className="architect-canvas cursor-crosshair-precise touch-none select-none rounded-lg shadow-sm"
       data-testid="blueprint-canvas"
       data-input-mode={inputMode}

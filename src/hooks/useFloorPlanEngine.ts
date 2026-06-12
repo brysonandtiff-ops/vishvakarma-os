@@ -40,6 +40,7 @@ export function useFloorPlanEngine() {
     furniture: snapshot.manifest.furniture ?? [],
     mepSymbols: snapshot.manifest.mepSymbols ?? [],
     landscapeElements: snapshot.manifest.landscapeElements ?? [],
+    terrain: snapshot.manifest.terrain ?? [],
     costItems: snapshot.manifest.costItems ?? [],
     materials: snapshot.manifest.materials ?? [],
     fixtures: snapshot.manifest.fixtures ?? [],

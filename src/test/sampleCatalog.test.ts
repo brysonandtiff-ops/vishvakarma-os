@@ -65,6 +65,10 @@ describe('sample catalog', () => {
     expect(landscape.landscapeElements?.length).toBeGreaterThanOrEqual(12);
     expect(landscape.landscapeElements?.some((element) => element.type === 'water')).toBe(true);
 
+    const terrainGarden = resolveManifestForSample('terrain-garden');
+    expect(terrainGarden.terrain?.length).toBeGreaterThanOrEqual(3);
+    expect(terrainGarden.landscapeElements?.length).toBeGreaterThanOrEqual(12);
+
     const mep = resolveManifestForSample('mep-lighting-showcase');
     expect(mep.mepSymbols?.length).toBe(4);
     expect(mep.fixtures?.length).toBe(3);

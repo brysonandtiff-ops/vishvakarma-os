@@ -30,6 +30,7 @@ declare global {
       cylinderGeometry: any;
       coneGeometry: any;
       dodecahedronGeometry: any;
+      extrudeGeometry: any;
       bufferGeometry: any;
       bufferAttribute: any;
       points: any;

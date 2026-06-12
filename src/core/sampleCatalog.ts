@@ -2,6 +2,7 @@ import type { ProjectManifest } from '@/types';
 import sampleHouse01 from '../../public/samples/sample-house-01.json';
 import furnitureShowcaseJson from '../../public/samples/furniture-showcase.json';
 import landscapeGardenJson from '../../public/samples/landscape-garden.json';
+import terrainGardenJson from '../../public/samples/terrain-garden.json';
 import mepLightingShowcaseJson from '../../public/samples/mep-lighting-showcase.json';
 import fullFeatureShowcaseJson from '../../public/samples/full-feature-showcase.json';
 import {
@@ -14,6 +15,7 @@ import {
   buildFullFeatureShowcaseTemplate,
   buildFurnitureShowcaseTemplate,
   buildLandscapeGardenTemplate,
+  buildTerrainGardenTemplate,
   buildLShapeHomeTemplate,
   buildMepLightingShowcaseTemplate,
   buildStudioTemplate,
@@ -25,6 +27,7 @@ const JSON_SAMPLE_MANIFESTS: Record<string, ProjectManifest> = {
   'sample-house-01': sampleHouse01 as ProjectManifest,
   'furniture-showcase': furnitureShowcaseJson as ProjectManifest,
   'landscape-garden': landscapeGardenJson as ProjectManifest,
+  'terrain-garden': terrainGardenJson as ProjectManifest,
   'mep-lighting-showcase': mepLightingShowcaseJson as ProjectManifest,
   'full-feature-showcase': fullFeatureShowcaseJson as ProjectManifest,
 };
@@ -64,6 +67,7 @@ const BUILDERS: Record<string, () => ProjectManifest> = {
   'angled-modern': buildAngledModernTemplate,
   'furniture-showcase': buildFurnitureShowcaseTemplate,
   'landscape-garden': buildLandscapeGardenTemplate,
+  'terrain-garden': buildTerrainGardenTemplate,
   'mep-lighting-showcase': buildMepLightingShowcaseTemplate,
   'full-feature-showcase': buildFullFeatureShowcaseTemplate,
 };
@@ -171,6 +175,14 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     description: 'Small home surrounded by trees, shrubs, and garden paths',
     category: 'landscape',
     source: { kind: 'json', path: '/samples/landscape-garden.json' },
+    surfaces: ['load-sample'],
+  },
+  {
+    id: 'terrain-garden',
+    name: 'Terrain Garden',
+    description: 'Stepped lawn, patio pad, and raised garden beds with landscape planting',
+    category: 'landscape',
+    source: { kind: 'json', path: '/samples/terrain-garden.json' },
     surfaces: ['load-sample'],
   },
   {

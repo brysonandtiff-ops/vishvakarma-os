@@ -9,6 +9,7 @@ import type {
   Opening,
   ProjectManifest,
   Room,
+  TerrainPatch,
   Wall,
 } from '@/types';
 
@@ -37,6 +38,7 @@ export interface TemplateExtras {
   mepSymbols?: MepSymbol[];
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
+  terrain?: TerrainPatch[];
   floors?: ProjectManifest['floors'];
   activeFloorIndex?: number;
   floorMaterial?: string;
@@ -170,6 +172,7 @@ export function buildManifest(
     ...(extras.mepSymbols ? { mepSymbols: extras.mepSymbols } : {}),
     ...(extras.fixtures ? { fixtures: extras.fixtures } : {}),
     ...(extras.landscapeElements ? { landscapeElements: extras.landscapeElements } : {}),
+    ...(extras.terrain ? { terrain: extras.terrain } : {}),
     ...(extras.floors ? { floors: extras.floors } : {}),
     ...(extras.activeFloorIndex !== undefined ? { activeFloorIndex: extras.activeFloorIndex } : {}),
   };
@@ -644,6 +647,51 @@ export function buildLandscapeGardenTemplate(): ProjectManifest {
       { id: 'lg-l2', text: 'Garden', position: { x: 440, y: 520 } },
     ],
     landscapeElements: placeLandscapeRing(center),
+  });
+}
+
+export function buildTerrainGardenTemplate(): ProjectManifest {
+  const { walls, wallIds } = rectShell(280, 260, 320, 240);
+  const center = { x: 440, y: 380 };
+  return buildManifest('Terrain Garden', walls, defaultOpenings(wallIds, { doorWall: 'n' }), {
+    description: 'Stepped lawn, patio pad, and raised garden beds with landscape planting',
+    labels: [
+      { id: 'tg-l1', text: 'Home', position: { x: 440, y: 360 } },
+      { id: 'tg-l2', text: 'Raised Beds', position: { x: 440, y: 540 } },
+    ],
+    landscapeElements: placeLandscapeRing(center),
+    terrain: [
+      {
+        id: 'tg-lawn',
+        elevation: 0,
+        points: [
+          { x: 200, y: 180 },
+          { x: 680, y: 180 },
+          { x: 680, y: 620 },
+          { x: 200, y: 620 },
+        ],
+      },
+      {
+        id: 'tg-patio',
+        elevation: 30,
+        points: [
+          { x: 360, y: 420 },
+          { x: 520, y: 420 },
+          { x: 520, y: 500 },
+          { x: 360, y: 500 },
+        ],
+      },
+      {
+        id: 'tg-bed',
+        elevation: 60,
+        points: [
+          { x: 320, y: 540 },
+          { x: 560, y: 540 },
+          { x: 560, y: 600 },
+          { x: 320, y: 600 },
+        ],
+      },
+    ],
   });
 }
 

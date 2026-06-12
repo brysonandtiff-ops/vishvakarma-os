@@ -101,6 +101,7 @@ function EditorWorkspace() {
     mepSymbols,
     fixtures,
     landscapeElements,
+    terrain,
     costItems,
     materials,
     dimensionVisibility,
@@ -738,6 +739,7 @@ function EditorWorkspace() {
                   mepSymbols={mepSymbols}
                   fixtures={fixtures}
                   landscapeElements={landscapeElements}
+                  terrain={terrain}
                   northOrientation={northOrientation}
                   currentTool={currentTool}
                   gridVisible={gridVisible}
@@ -757,6 +759,7 @@ function EditorWorkspace() {
                   selectedFixtureId={selectedFixtureId}
                   onFixtureSelect={setSelectedFixtureId}
                   onLandscapeAdd={(element) => engine.addLandscapeElement(element)}
+                  onTerrainAdd={(patch) => engine.addTerrainPatch(patch)}
                   onPointerCanvasMove={broadcastCollaborationCursor}
                   onWallSelect={(id) => engine.setSelection(id, undefined)}
                   onOpeningSelect={(id) => engine.setSelection(undefined, id)}
@@ -821,6 +824,7 @@ function EditorWorkspace() {
                       mepSymbols={mepSymbols}
                       fixtures={fixtures}
                       landscapeElements={landscapeElements}
+                      terrain={terrain}
                       floorMaterial={engine.getManifest().floorMaterial}
                       walkMode={workspaceMode === 'walk'}
                       presentationLock={presentationLock}

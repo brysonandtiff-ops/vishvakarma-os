@@ -4,13 +4,21 @@ import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material } from '@/types';
+import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
+import { TerrainMeshes } from '@/components/editor/sceneTerrainMeshes';
 import { WallSurfaceMaterial } from '@/components/editor/sceneMaterials';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
+import {
+  persistAtmosphereMode,
+  readStoredAtmosphereMode,
+  resolveDefaultAtmosphereMode,
+  type AtmospherePerformanceMode,
+} from '@/utils/atmosphereMode';
 
 // ---------------------------------------------------------------------------
 // WebGL capability pre-check
@@ -31,38 +39,13 @@ function detectWebGL(): { supported: boolean; reason?: string } {
   }
 }
 
-type AtmospherePerformanceMode = 'standard' | 'premium' | 'cinematic';
-
-const ATMOSPHERE_STORAGE_KEY = 'vishvakarma.os.3d.atmosphere.v1';
-
-function resolveDefaultAtmosphereMode(): AtmospherePerformanceMode {
-  if (typeof window === 'undefined') return 'premium';
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return 'standard';
-  }
-
-  if (window.devicePixelRatio < 1.5) {
-    return 'standard';
-  }
-
-  const stored = window.localStorage.getItem(ATMOSPHERE_STORAGE_KEY);
-  if (stored === 'standard' || stored === 'premium' || stored === 'cinematic') {
-    return stored;
-  }
-
-  return 'premium';
+function resolveInitialAtmosphereMode(): AtmospherePerformanceMode {
+  return resolveDefaultAtmosphereMode({ storedMode: readStoredAtmosphereMode() });
 }
 
-function persistAtmosphereMode(mode: AtmospherePerformanceMode) {
-  try {
-    window.localStorage.setItem(ATMOSPHERE_STORAGE_KEY, mode);
-  } catch {
-    // ignore quota errors
-  }
-}
-
-const ATMOSPHERE_MODES: Record<AtmospherePerformanceMode, {
+const ATMOSPHERE_MODES: Record<
+  AtmospherePerformanceMode,
+  {
   label: string;
   particleCount: number;
   particleOpacity: number;
@@ -74,7 +57,8 @@ const ATMOSPHERE_MODES: Record<AtmospherePerformanceMode, {
   autoRotate: boolean;
   autoRotateSpeed: number;
   dpr: [number, number];
-}> = {
+}
+> = {
   standard: {
     label: 'Standard',
     particleCount: 42,
@@ -206,6 +190,7 @@ interface Viewport3DProps {
   mepSymbols?: MepSymbol[];
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
+  terrain?: TerrainPatch[];
   floorMaterial?: string;
   walkMode?: boolean;
   presentationLock?: boolean;
@@ -510,11 +495,13 @@ export default function Viewport3D({
   mepSymbols = [],
   fixtures = [],
   landscapeElements = [],
+  terrain = [],
   floorMaterial = 'material-concrete',
   walkMode = false,
   presentationLock = false,
 }: Viewport3DProps) {
-  const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveDefaultAtmosphereMode);
+  const isCoarsePointer = useCoarsePointer();
+  const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
     persistAtmosphereMode(mode);
@@ -556,12 +543,21 @@ export default function Viewport3D({
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={["#14100A"]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-            <OrbitControls enableDamping dampingFactor={0.06} autoRotate={atmosphereConfig.autoRotate} autoRotateSpeed={atmosphereConfig.autoRotateSpeed} />
+            <OrbitControls
+              enableDamping
+              dampingFactor={0.06}
+              enablePan
+              enableZoom
+              autoRotate={atmosphereConfig.autoRotate}
+              autoRotateSpeed={atmosphereConfig.autoRotateSpeed}
+              touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
+            />
 
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} />
 
             <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
+            <TerrainMeshes terrain={terrain} />
 
             {walls.map((wall) => (
               <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} />
@@ -610,7 +606,7 @@ export default function Viewport3D({
                 key={mode}
                 type="button"
                 onClick={() => setAtmosphereMode(mode)}
-                className={`rounded-lg px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition ${
+                className={`vish-3d-atmosphere-btn touch-target rounded-lg px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition ${
                   atmosphereMode === mode
                     ? 'bg-primary text-primary-foreground shadow-lg'
                     : 'text-stone-300/70 hover:bg-white/10 hover:text-stone-100'
@@ -630,7 +626,7 @@ export default function Viewport3D({
         >
           <RotateCcw className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-text-faint))' }} />
           <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.04em' }}>
-            Drag to orbit · Scroll to zoom · {atmosphereConfig.label} atmosphere
+            Drag to orbit · {isCoarsePointer ? 'Pinch to zoom' : 'Scroll to zoom'} · {atmosphereConfig.label} atmosphere
           </span>
         </div>
         )}

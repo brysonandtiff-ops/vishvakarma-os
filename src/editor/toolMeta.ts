@@ -1,6 +1,7 @@
 import {
   Compass,
   DoorOpen,
+  Layers,
   MousePointer2,
   MoveHorizontal,
   PenLine,
@@ -90,6 +91,11 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
     label: 'Landscape',
     hint: 'Garden elements',
   },
+  terrain: {
+    icon: Layers,
+    label: 'Terrain',
+    hint: 'Tap vertices, click first point to close',
+  },
 };
 
 export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
@@ -105,6 +111,7 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   mep: 'MEP — tap canvas to cycle MEP symbols and lighting fixtures.',
   furniture: 'Furniture — tap canvas to place furniture.',
   landscape: 'Landscape — tap canvas to place garden elements.',
+  terrain: 'Terrain — tap vertices, click the first point to close the contour.',
 };
 
 export const BASE_TOOL_IDS: ToolType[] = [

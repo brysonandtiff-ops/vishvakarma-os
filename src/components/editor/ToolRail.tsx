@@ -12,7 +12,7 @@ const MODE_TOOL_IDS: Record<WorkspaceMode, ToolType[]> = {
   draft: ['room', 'vastu'],
   mep: ['mep'],
   interior: ['furniture'],
-  landscape: ['landscape'],
+  landscape: ['landscape', 'terrain'],
   walk: [],
 };
 
