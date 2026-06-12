@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Writes a delegating package.json one level above vishvakarma-os-live so
- * `pnpm run setup:stripe-live:cli` works from the Vishvakarma-os parent folder.
+ * Writes a valid delegating package.json one level above vishvakarma-os-live so
+ * parent-folder pnpm commands keep working. This also repairs hand-written or
+ * previously generated JSON with trailing commas.
  */
 
 import { writeFileSync, existsSync, readFileSync } from 'node:fs';
@@ -26,17 +27,30 @@ const payload = {
   },
 };
 
+const serialized = `${JSON.stringify(payload, null, 2)}\n`;
+
+function isSameWorkspacePackage(value) {
+  return JSON.stringify(value) === JSON.stringify(payload);
+}
+
 if (existsSync(target)) {
   try {
     const existing = JSON.parse(readFileSync(target, 'utf8'));
-    if (existing.name === payload.name) {
-      console.log(`[OK] Workspace root already present: ${target}`);
+    if (isSameWorkspacePackage(existing)) {
+      console.log(`[OK] Workspace root package is already valid: ${target}`);
       process.exit(0);
     }
-  } catch {
-    // overwrite invalid json
+
+    if (existing?.name !== payload.name) {
+      console.warn(`[WARN] Replacing non-standard parent package.json at ${target}`);
+    } else {
+      console.log(`[FIX] Refreshing stale parent package.json at ${target}`);
+    }
+  } catch (error) {
+    console.warn(`[FIX] Replacing invalid parent package.json at ${target}`);
+    console.warn(`      ${error instanceof Error ? error.message : error}`);
   }
 }
 
-writeFileSync(target, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-console.log(`[OK] Wrote ${target}`);
+writeFileSync(target, serialized, 'utf8');
+console.log(`[OK] Wrote valid workspace root package.json: ${target}`);
