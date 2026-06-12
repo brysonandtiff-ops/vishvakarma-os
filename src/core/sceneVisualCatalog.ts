@@ -1,4 +1,5 @@
 import type { FurnitureItem, LandscapeElement, Point2D } from '@/types';
+import { drawPatternOverlay2D } from '@/core/texturePatterns';
 
 // ---------------------------------------------------------------------------
 // Furniture catalog
@@ -31,6 +32,14 @@ const WOOD_LIGHT = '#8B6914';
 const FABRIC = '#4a5568';
 const FABRIC_LIGHT = '#718096';
 
+function overlayWood(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  drawPatternOverlay2D(ctx, 'wood', x, y, w, h, 0.28);
+}
+
+function overlayFabric(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  drawPatternOverlay2D(ctx, 'fabric', x, y, w, h, 0.22);
+}
+
 function drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, stroke = WOOD_DARK) {
   ctx.fillStyle = fill;
   ctx.strokeStyle = stroke;
@@ -48,6 +57,8 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.fillRect(-hw + 4, -hd + hd * 0.25, hw * 2 - 8, hd * 1.5);
       ctx.strokeStyle = WOOD;
       ctx.strokeRect(-hw + 4, -hd + hd * 0.25, hw * 2 - 8, hd * 1.5);
+      overlayWood(ctx, -hw, -hd, hw * 2, hd * 0.22);
+      overlayFabric(ctx, -hw + 4, -hd + hd * 0.25, hw * 2 - 8, hd * 1.5);
       break;
     }
     case 'sofa': {
@@ -60,6 +71,7 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.fillRect(hw - hw * 0.28 - 2, -hd + 4, hw * 0.28, hd * 1.35);
       ctx.strokeStyle = WOOD;
       ctx.strokeRect(-hw + 4, -hd + 2, hw * 2 - 8, hd * 1.75);
+      overlayFabric(ctx, -hw + 4, -hd + 2, hw * 2 - 8, hd * 1.75);
       break;
     }
     case 'chair': {
@@ -71,6 +83,8 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.fillRect(-hw + 5, -hd + 5, hw * 0.35, hd * 1.5);
       ctx.strokeStyle = WOOD;
       ctx.strokeRect(-hw + 3, -hd + 3, hw * 2 - 6, hd * 2 - 6);
+      overlayWood(ctx, -hw + 3, -hd + 3, hw * 2 - 6, hd * 0.45);
+      overlayFabric(ctx, -hw + 5, -hd + 5, hw * 2 - 10, hd * 0.55);
       break;
     }
     case 'table':
@@ -81,6 +95,7 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.strokeStyle = WOOD;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(-hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
+      overlayWood(ctx, -hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
       const legInset = type === 'dining_table' ? 8 : 6;
       for (const [lx, ly] of [[-hw + legInset, -hd + legInset], [hw - legInset, -hd + legInset], [-hw + legInset, hd - legInset], [hw - legInset, hd - legInset]]) {
         ctx.fillStyle = WOOD_DARK;
@@ -100,6 +115,7 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.fillRect(-hw + 6, -hd + hd * 0.35, hw * 0.55, hd * 0.55);
       ctx.strokeStyle = WOOD_DARK;
       ctx.strokeRect(-hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
+      overlayWood(ctx, -hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
       break;
     }
     case 'wardrobe': {
@@ -116,6 +132,7 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.arc(-hw * 0.25, 0, 3, 0, Math.PI * 2);
       ctx.arc(hw * 0.25, 0, 3, 0, Math.PI * 2);
       ctx.fill();
+      overlayWood(ctx, -hw + 3, -hd + 3, hw * 2 - 6, hd * 2 - 6);
       break;
     }
     case 'nightstand': {
@@ -131,6 +148,7 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.beginPath();
       ctx.arc(hw * 0.35, 0, 2.5, 0, Math.PI * 2);
       ctx.fill();
+      overlayWood(ctx, -hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
       break;
     }
     default: {
@@ -225,6 +243,7 @@ function drawTree2D(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fill();
   ctx.fillStyle = '#5c3d1e';
   ctx.fillRect(x - 3, y + 8, 6, 10);
+  drawPatternOverlay2D(ctx, 'leaf', x - 14, y - 18, 28, 24, 0.3);
 }
 
 function drawPine2D(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -252,6 +271,7 @@ function drawShrub2D(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.arc(x + ox, y + oy, r, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(46, 125, 50, 0.5)';
     ctx.fill();
+    drawPatternOverlay2D(ctx, 'leaf', x + ox - r, y + oy - r, r * 2, r * 2, 0.25);
   }
 }
 
@@ -283,6 +303,7 @@ function drawRock2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: numb
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
+  drawPatternOverlay2D(ctx, 'stone', x - w / 2, y - h / 2, w, h, 0.3);
 }
 
 function drawPath2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: number) {
@@ -294,6 +315,7 @@ function drawPath2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: numb
   ctx.lineTo(x + w / 2, y);
   ctx.stroke();
   ctx.setLineDash([]);
+  drawPatternOverlay2D(ctx, 'stone', x - w / 2, y - 6, w, 12, 0.35);
 }
 
 function drawWater2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
@@ -311,6 +333,7 @@ function drawWater2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: num
     ctx.lineWidth = 1;
     ctx.stroke();
   }
+  drawPatternOverlay2D(ctx, 'waterNormal', x - w / 2, y - h / 2, w, h, 0.18);
 }
 
 export function drawLandscape2D(ctx: CanvasRenderingContext2D, element: LandscapeElement) {

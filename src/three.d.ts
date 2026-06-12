@@ -35,10 +35,7 @@ declare global {
       points: any;
       pointsMaterial: any;
       meshPhysicalMaterial: any;
-      fog: any;
-      hemisphereLight: any;
-      color: any;
-      group: any;
+      meshStandardMaterial: any;
     }
   }
 }

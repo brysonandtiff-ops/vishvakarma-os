@@ -3,13 +3,13 @@
 import { Component, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor } from '@/components/editor/sceneMeshes';
+import { WallSurfaceMaterial } from '@/components/editor/sceneMaterials';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getMaterialVisual } from '@/components/editor/MaterialPicker';
 
 // ---------------------------------------------------------------------------
 // WebGL capability pre-check
@@ -205,6 +205,7 @@ interface Viewport3DProps {
   mepSymbols?: MepSymbol[];
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
+  floorMaterial?: string;
   walkMode?: boolean;
   presentationLock?: boolean;
 }
@@ -275,24 +276,6 @@ function FixtureLight({ fixture }: { fixture: FixtureItem }) {
   );
 }
 
-function TexturedWallMaterial({
-  textureUrl,
-  color,
-  roughness,
-  metalness,
-}: {
-  textureUrl: string;
-  color: string;
-  roughness: number;
-  metalness: number;
-}) {
-  const texture = useTexture(textureUrl);
-  return (
-    // @ts-expect-error - React Three Fiber JSX types
-    <meshStandardMaterial map={texture} color={color} roughness={roughness} metalness={metalness} />
-  );
-}
-
 function WallMesh({
   wall,
   openings,
@@ -316,7 +299,6 @@ function WallMesh({
 
   // Get openings for this wall
   const wallOpenings = openings.filter((o) => o.wallId === wall.id);
-  const { color, roughness, metalness, textureUrl } = getMaterialVisual(wall.material, customMaterials);
 
   return (
     <>
@@ -329,12 +311,7 @@ function WallMesh({
       >
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100, wall.height / 100, wall.thickness / 100]} />
-        {textureUrl ? (
-          <TexturedWallMaterial textureUrl={textureUrl} color={color} roughness={roughness} metalness={metalness} />
-        ) : (
-          // @ts-expect-error - React Three Fiber JSX types
-          <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} />
-        )}
+        <WallSurfaceMaterial materialId={wall.material} customMaterials={customMaterials} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       
@@ -532,6 +509,7 @@ export default function Viewport3D({
   mepSymbols = [],
   fixtures = [],
   landscapeElements = [],
+  floorMaterial = 'material-concrete',
   walkMode = false,
   presentationLock = false,
 }: Viewport3DProps) {
@@ -578,7 +556,7 @@ export default function Viewport3D({
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} />
 
-            <SceneFloor />
+            <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
 
             {walls.map((wall) => (
               <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} />

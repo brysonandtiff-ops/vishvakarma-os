@@ -821,6 +821,7 @@ function EditorWorkspace() {
                       mepSymbols={mepSymbols}
                       fixtures={fixtures}
                       landscapeElements={landscapeElements}
+                      floorMaterial={engine.getManifest().floorMaterial}
                       walkMode={workspaceMode === 'walk'}
                       presentationLock={presentationLock}
                     />
