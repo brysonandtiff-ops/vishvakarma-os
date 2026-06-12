@@ -34,4 +34,25 @@ describe('2D/3D parity', () => {
       expect(wall.thickness).toBeGreaterThan(0);
     }
   });
+
+  it('furniture and landscape showcase elements have finite placement data', () => {
+    for (const file of ['furniture-showcase.json', 'landscape-garden.json'] as const) {
+      const samplePath = resolve(process.cwd(), 'public/samples', file);
+      const parsed = parseProjectManifestJson(readFileSync(samplePath, 'utf8'));
+      expect(parsed.ok).toBe(true);
+      const manifest = parsed.manifest!;
+
+      for (const item of manifest.furniture ?? []) {
+        expect(Number.isFinite(item.position.x)).toBe(true);
+        expect(Number.isFinite(item.position.y)).toBe(true);
+        expect((item.width ?? 0)).toBeGreaterThan(0);
+        expect((item.depth ?? 0)).toBeGreaterThan(0);
+      }
+
+      for (const element of manifest.landscapeElements ?? []) {
+        expect(Number.isFinite(element.position.x)).toBe(true);
+        expect(Number.isFinite(element.position.y)).toBe(true);
+      }
+    }
+  });
 });

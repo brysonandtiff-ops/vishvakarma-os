@@ -5,6 +5,7 @@ import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material } from '@/types';
+import { FurnitureMesh, LandscapeMesh, SceneFloor } from '@/components/editor/sceneMeshes';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -215,24 +216,6 @@ function canvasToWorld(point: { x: number; y: number }) {
   };
 }
 
-function FurnitureMesh({ item }: { item: FurnitureItem }) {
-  const { x, z } = canvasToWorld(item.position);
-  const width = (item.width ?? 80) / 100;
-  const depth = (item.depth ?? 60) / 100;
-  const height = item.type === 'bed' ? 0.45 : item.type === 'sofa' ? 0.55 : 0.75;
-
-  return (
-    // @ts-expect-error - React Three Fiber JSX types
-    <mesh position={[x, height / 2, z]} rotation={[0, ((item.rotation ?? 0) * Math.PI) / 180, 0]} castShadow>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <boxGeometry args={[width, height, depth]} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <meshStandardMaterial color="#6b4f3a" roughness={0.72} metalness={0.05} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-    </mesh>
-  );
-}
-
 function MepMarker({ symbol }: { symbol: MepSymbol }) {
   const { x, z } = canvasToWorld(symbol.position);
   const color =
@@ -289,57 +272,6 @@ function FixtureLight({ fixture }: { fixture: FixtureItem }) {
         <pointLight position={[x, height, z]} intensity={intensity} color={warm} distance={fixture.type === 'ceiling' ? 14 : 10} />
       )}
     </>
-  );
-}
-
-function LandscapeMarker({ element }: { element: LandscapeElement }) {
-  const { x, z } = canvasToWorld(element.position);
-
-  if (element.type === 'tree') {
-    return (
-      <>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <mesh position={[x, 0.35, z]} castShadow>
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-          <coneGeometry args={[0.22, 0.7, 8]} />
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshStandardMaterial color="#2e7d32" roughness={0.8} />
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-        </mesh>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <mesh position={[x, 0.08, z]}>
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-          <cylinderGeometry args={[0.05, 0.07, 0.16, 8]} />
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshStandardMaterial color="#5c3d1e" />
-          {/* @ts-expect-error - React Three Fiber JSX types */}
-        </mesh>
-      </>
-    );
-  }
-
-  if (element.type === 'shrub') {
-    return (
-      // @ts-expect-error - React Three Fiber JSX types
-      <mesh position={[x, 0.12, z]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <sphereGeometry args={[0.16, 10, 10]} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <meshStandardMaterial color="#388e3c" roughness={0.85} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
-    );
-  }
-
-  return (
-    // @ts-expect-error - React Three Fiber JSX types
-    <mesh position={[x, 0.02, z]} rotation={[-Math.PI / 2, 0, 0]}>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <planeGeometry args={[0.5, 0.12]} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <meshStandardMaterial color="#8d6e63" roughness={0.9} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-    </mesh>
   );
 }
 
@@ -433,19 +365,6 @@ function WallMesh({
         );
       })}
     </>
-  );
-}
-
-function Floor() {
-  return (
-    // @ts-expect-error - React Three Fiber JSX types
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <planeGeometry args={[22, 22]} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <meshStandardMaterial color="#DCD0B8" roughness={0.84} metalness={0.03} />
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-    </mesh>
   );
 }
 
@@ -659,7 +578,7 @@ export default function Viewport3D({
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} />
 
-            <Floor />
+            <SceneFloor />
 
             {walls.map((wall) => (
               <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} />
@@ -678,7 +597,7 @@ export default function Viewport3D({
             ))}
 
             {landscapeElements.map((element) => (
-              <LandscapeMarker key={element.id} element={element} />
+              <LandscapeMesh key={element.id} element={element} />
             ))}
 
             {/* @ts-expect-error - React Three Fiber JSX types */}

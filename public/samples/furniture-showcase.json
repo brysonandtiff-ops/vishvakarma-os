@@ -99,8 +99,8 @@
   "gridSize": 20,
   "snapToGrid": true,
   "metadata": {
-    "created": "2026-06-11T14:08:25.802Z",
-    "modified": "2026-06-11T14:08:25.802Z"
+    "created": "2026-06-12T12:29:29.323Z",
+    "modified": "2026-06-12T12:29:29.323Z"
   },
   "labels": [
     {
@@ -125,6 +125,17 @@
       "rotation": 0
     },
     {
+      "id": "f-sofa",
+      "type": "sofa",
+      "position": {
+        "x": 520,
+        "y": 280
+      },
+      "width": 180,
+      "depth": 90,
+      "rotation": 90
+    },
+    {
       "id": "f-table",
       "type": "table",
       "position": {
@@ -147,15 +158,48 @@
       "rotation": 45
     },
     {
-      "id": "f-sofa",
-      "type": "sofa",
+      "id": "f-desk",
+      "type": "desk",
       "position": {
-        "x": 520,
-        "y": 280
+        "x": 620,
+        "y": 360
       },
-      "width": 180,
+      "width": 140,
+      "depth": 70,
+      "rotation": 0
+    },
+    {
+      "id": "f-wardrobe",
+      "type": "wardrobe",
+      "position": {
+        "x": 280,
+        "y": 420
+      },
+      "width": 120,
+      "depth": 60,
+      "rotation": 0
+    },
+    {
+      "id": "f-dining",
+      "type": "dining_table",
+      "position": {
+        "x": 460,
+        "y": 460
+      },
+      "width": 160,
       "depth": 90,
-      "rotation": 90
+      "rotation": 0
+    },
+    {
+      "id": "f-nightstand",
+      "type": "nightstand",
+      "position": {
+        "x": 360,
+        "y": 240
+      },
+      "width": 50,
+      "depth": 40,
+      "rotation": 0
     }
   ]
 }

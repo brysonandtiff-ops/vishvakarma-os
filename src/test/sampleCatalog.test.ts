@@ -59,18 +59,19 @@ describe('sample catalog', () => {
 
   it('covers showcase feature counts', () => {
     const furniture = resolveManifestForSample('furniture-showcase');
-    expect(furniture.furniture?.length).toBeGreaterThanOrEqual(4);
+    expect(furniture.furniture?.length).toBeGreaterThanOrEqual(8);
 
     const landscape = resolveManifestForSample('landscape-garden');
-    expect(landscape.landscapeElements?.length).toBeGreaterThanOrEqual(10);
+    expect(landscape.landscapeElements?.length).toBeGreaterThanOrEqual(12);
+    expect(landscape.landscapeElements?.some((element) => element.type === 'water')).toBe(true);
 
     const mep = resolveManifestForSample('mep-lighting-showcase');
     expect(mep.mepSymbols?.length).toBe(4);
     expect(mep.fixtures?.length).toBe(3);
 
     const full = resolveManifestForSample('full-feature-showcase');
-    expect(full.furniture?.length).toBeGreaterThanOrEqual(4);
-    expect(full.landscapeElements?.length).toBeGreaterThan(0);
+    expect(full.furniture?.length).toBeGreaterThanOrEqual(8);
+    expect(full.landscapeElements?.length).toBeGreaterThanOrEqual(12);
     expect(full.mepSymbols?.length).toBeGreaterThan(0);
     expect(full.fixtures?.length).toBeGreaterThan(0);
     expect(full.dimensions?.length).toBeGreaterThan(0);

@@ -29,6 +29,13 @@ import {
   drawWallPreview,
   pointToLineDistance,
 } from './blueprintCanvasDrawing';
+import {
+  drawFurniture2D,
+  drawLandscape2D,
+  FURNITURE_PRESETS,
+  getLandscapeDefaults,
+  LANDSCAPE_TYPES,
+} from '@/core/sceneVisualCatalog';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -70,13 +77,6 @@ interface BlueprintCanvasProps {
   unitSystem?: UnitSystem;
 }
 
-const FURNITURE_PRESETS = [
-  { type: 'bed', width: 140, depth: 200 },
-  { type: 'table', width: 120, depth: 80 },
-  { type: 'chair', width: 50, depth: 50 },
-  { type: 'sofa', width: 180, depth: 90 },
-] as const;
-
 const MEP_TYPES: MepSymbol['type'][] = ['outlet', 'switch', 'hvac', 'panel'];
 const FIXTURE_TYPES: FixtureItem['type'][] = ['point', 'spot', 'ceiling'];
 type MepPlacement =
@@ -87,7 +87,7 @@ const MEP_PLACEMENT_CYCLE: MepPlacement[] = [
   ...MEP_TYPES.map((type) => ({ kind: 'mep' as const, type })),
   ...FIXTURE_TYPES.map((type) => ({ kind: 'fixture' as const, type })),
 ];
-const LANDSCAPE_TYPES = ['tree', 'shrub', 'path'] as const;
+const LANDSCAPE_TYPE_CYCLE = [...LANDSCAPE_TYPES];
 
 const MEP_COLORS: Record<MepSymbol['type'], string> = {
   outlet: '#2563eb',
@@ -451,13 +451,17 @@ export default function BlueprintCanvas({
     }
 
     if (currentTool === 'landscape') {
-      const type = LANDSCAPE_TYPES[landscapeTypeIndex % LANDSCAPE_TYPES.length];
+      const type = LANDSCAPE_TYPE_CYCLE[landscapeTypeIndex % LANDSCAPE_TYPE_CYCLE.length];
+      const landscapeDefaults = getLandscapeDefaults(type);
       onLandscapeAdd?.({
         id: `landscape-${Date.now()}`,
         type,
         position: point,
+        ...(type === 'water' || type === 'rock'
+          ? { width: landscapeDefaults.width, depth: landscapeDefaults.depth }
+          : {}),
       });
-      setLandscapeTypeIndex((index) => (index + 1) % LANDSCAPE_TYPES.length);
+      setLandscapeTypeIndex((index) => (index + 1) % LANDSCAPE_TYPE_CYCLE.length);
       return;
     }
 
@@ -681,29 +685,10 @@ export default function BlueprintCanvas({
     }
 
     for (const item of furniture) {
-      const width = item.width ?? 80;
-      const depth = item.depth ?? 60;
       const pos = item.id === draggingFurnitureId && dragFurniturePosition
         ? dragFurniturePosition
         : item.position;
-      ctx.save();
-      ctx.translate(pos.x, pos.y);
-      ctx.rotate(((item.rotation ?? 0) * Math.PI) / 180);
-      ctx.fillStyle = 'rgba(92, 64, 51, 0.35)';
-      ctx.strokeStyle = '#5c4033';
-      ctx.lineWidth = 1.5;
-      ctx.fillRect(-width / 2, -depth / 2, width, depth);
-      ctx.strokeRect(-width / 2, -depth / 2, width, depth);
-      ctx.font = 'bold 11px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const label = item.type.charAt(0).toUpperCase() + item.type.slice(1);
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(246, 241, 231, 0.92)';
-      ctx.strokeText(label, 0, 0);
-      ctx.fillStyle = '#2a1a0f';
-      ctx.fillText(label, 0, 0);
-      ctx.restore();
+      drawFurniture2D(ctx, item, pos, item.id === draggingFurnitureId);
     }
 
     for (const symbol of mepSymbols) {
@@ -747,26 +732,7 @@ export default function BlueprintCanvas({
     }
 
     for (const element of landscapeElements) {
-      if (element.type === 'tree') {
-        ctx.beginPath();
-        ctx.arc(element.position.x, element.position.y, 14, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(34, 120, 60, 0.55)';
-        ctx.fill();
-        ctx.fillStyle = '#5c3d1e';
-        ctx.fillRect(element.position.x - 3, element.position.y + 8, 6, 10);
-      } else if (element.type === 'shrub') {
-        ctx.beginPath();
-        ctx.arc(element.position.x, element.position.y, 10, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(46, 125, 50, 0.5)';
-        ctx.fill();
-      } else {
-        ctx.strokeStyle = '#8d6e63';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(element.position.x - 16, element.position.y);
-        ctx.lineTo(element.position.x + 16, element.position.y);
-        ctx.stroke();
-      }
+      drawLandscape2D(ctx, element);
     }
 
     if (currentTool === 'vastu' || northOrientation !== 0) {

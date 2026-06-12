@@ -1,11 +1,5 @@
 import { Button } from '@/components/ui/button';
-
-const PRESETS = [
-  { type: 'bed', label: 'Bed' },
-  { type: 'table', label: 'Table' },
-  { type: 'chair', label: 'Chair' },
-  { type: 'sofa', label: 'Sofa' },
-] as const;
+import { FURNITURE_PRESETS } from '@/core/sceneVisualCatalog';
 
 interface FurniturePickerProps {
   onSelectTool: () => void;
@@ -13,8 +7,8 @@ interface FurniturePickerProps {
 
 export default function FurniturePicker({ onSelectTool }: FurniturePickerProps) {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {PRESETS.map((preset) => (
+    <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
+      {FURNITURE_PRESETS.map((preset) => (
         <Button
           key={preset.type}
           variant="outline"

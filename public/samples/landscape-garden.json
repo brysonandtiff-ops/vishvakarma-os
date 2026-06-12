@@ -99,8 +99,8 @@
   "gridSize": 20,
   "snapToGrid": true,
   "metadata": {
-    "created": "2026-06-11T14:08:25.807Z",
-    "modified": "2026-06-11T14:08:25.807Z"
+    "created": "2026-06-12T12:29:29.330Z",
+    "modified": "2026-06-12T12:29:29.330Z"
   },
   "labels": [
     {
@@ -154,16 +154,16 @@
       }
     },
     {
-      "id": "ls-tree-5",
-      "type": "tree",
+      "id": "ls-pine-1",
+      "type": "pine",
       "position": {
         "x": 440,
         "y": 240
       }
     },
     {
-      "id": "ls-tree-6",
-      "type": "tree",
+      "id": "ls-pine-2",
+      "type": "pine",
       "position": {
         "x": 440,
         "y": 520
@@ -202,12 +202,50 @@
       }
     },
     {
+      "id": "ls-flower-1",
+      "type": "flower",
+      "position": {
+        "x": 350,
+        "y": 340
+      }
+    },
+    {
+      "id": "ls-flower-2",
+      "type": "flower",
+      "position": {
+        "x": 530,
+        "y": 420
+      }
+    },
+    {
+      "id": "ls-rock-1",
+      "type": "rock",
+      "position": {
+        "x": 530,
+        "y": 340
+      },
+      "width": 24,
+      "depth": 18
+    },
+    {
+      "id": "ls-rock-2",
+      "type": "rock",
+      "position": {
+        "x": 350,
+        "y": 420
+      },
+      "width": 28,
+      "depth": 20
+    },
+    {
       "id": "ls-path-1",
       "type": "path",
       "position": {
         "x": 400,
         "y": 220
-      }
+      },
+      "width": 32,
+      "depth": 12
     },
     {
       "id": "ls-path-2",
@@ -215,7 +253,19 @@
       "position": {
         "x": 480,
         "y": 220
-      }
+      },
+      "width": 32,
+      "depth": 12
+    },
+    {
+      "id": "ls-water-1",
+      "type": "water",
+      "position": {
+        "x": 440,
+        "y": 560
+      },
+      "width": 100,
+      "depth": 70
     }
   ]
 }

@@ -99,8 +99,8 @@
   "gridSize": 20,
   "snapToGrid": true,
   "metadata": {
-    "created": "2026-06-11T14:08:25.809Z",
-    "modified": "2026-06-11T14:08:25.809Z"
+    "created": "2026-06-12T12:29:29.345Z",
+    "modified": "2026-06-12T12:29:29.345Z"
   },
   "labels": [
     {
@@ -147,6 +147,17 @@
       "rotation": 0
     },
     {
+      "id": "f-sofa",
+      "type": "sofa",
+      "position": {
+        "x": 540,
+        "y": 300
+      },
+      "width": 180,
+      "depth": 90,
+      "rotation": 90
+    },
+    {
       "id": "f-table",
       "type": "table",
       "position": {
@@ -169,15 +180,48 @@
       "rotation": 45
     },
     {
-      "id": "f-sofa",
-      "type": "sofa",
+      "id": "f-desk",
+      "type": "desk",
       "position": {
-        "x": 540,
-        "y": 300
+        "x": 640,
+        "y": 380
       },
-      "width": 180,
+      "width": 140,
+      "depth": 70,
+      "rotation": 0
+    },
+    {
+      "id": "f-wardrobe",
+      "type": "wardrobe",
+      "position": {
+        "x": 300,
+        "y": 440
+      },
+      "width": 120,
+      "depth": 60,
+      "rotation": 0
+    },
+    {
+      "id": "f-dining",
+      "type": "dining_table",
+      "position": {
+        "x": 480,
+        "y": 480
+      },
+      "width": 160,
       "depth": 90,
-      "rotation": 90
+      "rotation": 0
+    },
+    {
+      "id": "f-nightstand",
+      "type": "nightstand",
+      "position": {
+        "x": 380,
+        "y": 260
+      },
+      "width": 50,
+      "depth": 40,
+      "rotation": 0
     }
   ],
   "mepSymbols": [
@@ -277,16 +321,16 @@
       }
     },
     {
-      "id": "ls-tree-5",
-      "type": "tree",
+      "id": "ls-pine-1",
+      "type": "pine",
       "position": {
         "x": 460,
         "y": 220
       }
     },
     {
-      "id": "ls-tree-6",
-      "type": "tree",
+      "id": "ls-pine-2",
+      "type": "pine",
       "position": {
         "x": 460,
         "y": 500
@@ -325,12 +369,50 @@
       }
     },
     {
+      "id": "ls-flower-1",
+      "type": "flower",
+      "position": {
+        "x": 370,
+        "y": 320
+      }
+    },
+    {
+      "id": "ls-flower-2",
+      "type": "flower",
+      "position": {
+        "x": 550,
+        "y": 400
+      }
+    },
+    {
+      "id": "ls-rock-1",
+      "type": "rock",
+      "position": {
+        "x": 550,
+        "y": 320
+      },
+      "width": 24,
+      "depth": 18
+    },
+    {
+      "id": "ls-rock-2",
+      "type": "rock",
+      "position": {
+        "x": 370,
+        "y": 400
+      },
+      "width": 28,
+      "depth": 20
+    },
+    {
       "id": "ls-path-1",
       "type": "path",
       "position": {
         "x": 420,
         "y": 200
-      }
+      },
+      "width": 32,
+      "depth": 12
     },
     {
       "id": "ls-path-2",
@@ -338,7 +420,19 @@
       "position": {
         "x": 500,
         "y": 200
-      }
+      },
+      "width": 32,
+      "depth": 12
+    },
+    {
+      "id": "ls-water-1",
+      "type": "water",
+      "position": {
+        "x": 460,
+        "y": 540
+      },
+      "width": 100,
+      "depth": 70
     }
   ]
 }

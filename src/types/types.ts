@@ -113,6 +113,9 @@ export interface LandscapeElement {
   id: string;
   type: string;
   position: Point2D;
+  width?: number;
+  depth?: number;
+  rotation?: number;
 }
 
 export interface CostItem {

@@ -26,6 +26,18 @@ declare global {
       spotLight: any;
       gridHelper: any;
       axesHelper: any;
+      ringGeometry: any;
+      cylinderGeometry: any;
+      coneGeometry: any;
+      dodecahedronGeometry: any;
+      bufferGeometry: any;
+      bufferAttribute: any;
+      points: any;
+      pointsMaterial: any;
+      meshPhysicalMaterial: any;
+      fog: any;
+      hemisphereLight: any;
+      color: any;
       group: any;
     }
   }

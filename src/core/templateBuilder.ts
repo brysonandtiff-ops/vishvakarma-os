@@ -178,9 +178,13 @@ export function buildManifest(
 export function placeAllFurniture(origin: { x: number; y: number }): FurnitureItem[] {
   return [
     { id: 'f-bed', type: 'bed', position: { x: origin.x + 80, y: origin.y + 60 }, width: 140, depth: 200, rotation: 0 },
+    { id: 'f-sofa', type: 'sofa', position: { x: origin.x + 320, y: origin.y + 100 }, width: 180, depth: 90, rotation: 90 },
     { id: 'f-table', type: 'table', position: { x: origin.x + 200, y: origin.y + 120 }, width: 120, depth: 80, rotation: 0 },
     { id: 'f-chair', type: 'chair', position: { x: origin.x + 200, y: origin.y + 200 }, width: 50, depth: 50, rotation: 45 },
-    { id: 'f-sofa', type: 'sofa', position: { x: origin.x + 320, y: origin.y + 100 }, width: 180, depth: 90, rotation: 90 },
+    { id: 'f-desk', type: 'desk', position: { x: origin.x + 420, y: origin.y + 180 }, width: 140, depth: 70, rotation: 0 },
+    { id: 'f-wardrobe', type: 'wardrobe', position: { x: origin.x + 80, y: origin.y + 240 }, width: 120, depth: 60, rotation: 0 },
+    { id: 'f-dining', type: 'dining_table', position: { x: origin.x + 260, y: origin.y + 280 }, width: 160, depth: 90, rotation: 0 },
+    { id: 'f-nightstand', type: 'nightstand', position: { x: origin.x + 160, y: origin.y + 60 }, width: 50, depth: 40, rotation: 0 },
   ];
 }
 
@@ -190,6 +194,8 @@ export function placeLandscapeRing(center: { x: number; y: number }): LandscapeE
     { x: center.x + 120, y: center.y - 80 },
     { x: center.x - 120, y: center.y + 80 },
     { x: center.x + 120, y: center.y + 80 },
+  ];
+  const pines = [
     { x: center.x, y: center.y - 140 },
     { x: center.x, y: center.y + 140 },
   ];
@@ -199,12 +205,36 @@ export function placeLandscapeRing(center: { x: number; y: number }): LandscapeE
     { x: center.x - 60, y: center.y + 120 },
     { x: center.x + 60, y: center.y + 120 },
   ];
+  const flowers = [
+    { x: center.x - 90, y: center.y - 40 },
+    { x: center.x + 90, y: center.y + 40 },
+  ];
+  const rocks = [
+    { x: center.x + 90, y: center.y - 40, width: 24, depth: 18 },
+    { x: center.x - 90, y: center.y + 40, width: 28, depth: 20 },
+  ];
 
   return [
     ...trees.map((pos, i) => ({ id: `ls-tree-${i + 1}`, type: 'tree', position: pos })),
+    ...pines.map((pos, i) => ({ id: `ls-pine-${i + 1}`, type: 'pine', position: pos })),
     ...shrubs.map((pos, i) => ({ id: `ls-shrub-${i + 1}`, type: 'shrub', position: pos })),
-    { id: 'ls-path-1', type: 'path', position: { x: center.x - 40, y: center.y - 160 } },
-    { id: 'ls-path-2', type: 'path', position: { x: center.x + 40, y: center.y - 160 } },
+    ...flowers.map((pos, i) => ({ id: `ls-flower-${i + 1}`, type: 'flower', position: pos })),
+    ...rocks.map((pos, i) => ({
+      id: `ls-rock-${i + 1}`,
+      type: 'rock',
+      position: { x: pos.x, y: pos.y },
+      width: pos.width,
+      depth: pos.depth,
+    })),
+    { id: 'ls-path-1', type: 'path', position: { x: center.x - 40, y: center.y - 160 }, width: 32, depth: 12 },
+    { id: 'ls-path-2', type: 'path', position: { x: center.x + 40, y: center.y - 160 }, width: 32, depth: 12 },
+    {
+      id: 'ls-water-1',
+      type: 'water',
+      position: { x: center.x, y: center.y + 180 },
+      width: 100,
+      depth: 70,
+    },
   ];
 }
 
