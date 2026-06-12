@@ -1,10 +1,13 @@
 import { backendStatus } from '@/backend/backendConfig';
-import { updateFirestoreProjectCollabSnapshot } from '@/backend/firebase/firestoreProjectGateway';
+import {
+  getSupabaseProjectCollabSnapshot,
+  updateSupabaseProjectCollabSnapshot,
+} from '@/backend/supabase/supabaseProjectGateway';
 import type { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
 
 const SNAPSHOT_DEBOUNCE_MS = 30_000;
 
-export class FirebaseSnapshotProvider {
+export class SupabaseSnapshotProvider {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private revision = 0;
   private projectId: string | null = null;
@@ -27,7 +30,7 @@ export class FirebaseSnapshotProvider {
     if (!backendStatus.isConfigured || !this.projectId || !this.bridge) return;
     this.revision += 1;
     const state = this.bridge.encodeState();
-    await updateFirestoreProjectCollabSnapshot(this.projectId, {
+    await updateSupabaseProjectCollabSnapshot(this.projectId, {
       state,
       updatedAt: new Date().toISOString(),
       revision: this.revision,
@@ -36,10 +39,7 @@ export class FirebaseSnapshotProvider {
 
   async restoreSnapshot(projectId: string, bridge: ManifestCollabBridge): Promise<boolean> {
     if (!backendStatus.isConfigured) return false;
-    const { getFirestoreProjectCollabSnapshot } = await import(
-      '@/backend/firebase/firestoreProjectGateway'
-    );
-    const snapshot = await getFirestoreProjectCollabSnapshot(projectId);
+    const snapshot = await getSupabaseProjectCollabSnapshot(projectId);
     if (!snapshot?.state) return false;
     bridge.applyEncodedState(snapshot.state);
     this.revision = snapshot.revision;

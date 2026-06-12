@@ -35,7 +35,7 @@ export function GovernanceBackendBanner() {
       <div className="flex min-w-0 items-start gap-2">
         <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
         <p className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">Local workspace.</span> Connect Firebase to enable cloud specs and registry writes.
+          <span className="font-semibold text-foreground">Local workspace.</span> Connect Supabase to enable cloud specs and registry writes.
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">

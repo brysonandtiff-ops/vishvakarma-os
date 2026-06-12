@@ -34,6 +34,8 @@ describe('login data setup', () => {
 
     expect(combined).toContain('handle_new_user');
     expect(combined).toContain('enable row level security');
+    expect(combined).toContain('collab_snapshot');
+    expect(combined).toContain('collaborators');
   });
 
   it('aligns export-supabase.mjs table list with migrations', () => {
@@ -43,8 +45,8 @@ describe('login data setup', () => {
     }
   });
 
-  it('matches Firebase profile gateway fields to Profile type usage', () => {
-    const gateway = read('src/backend/firebase/firestoreProfileGateway.ts');
+  it('matches Supabase profile gateway fields to Profile type usage', () => {
+    const gateway = read('src/backend/supabase/supabaseProfileGateway.ts');
     const profileType = read('src/types/index.ts');
 
     expect(profileType).toContain('export interface Profile');
@@ -57,10 +59,10 @@ describe('login data setup', () => {
 
   it('documents verify scripts for login data', () => {
     expect(existsSync(resolve(repoRoot, 'scripts/verify-supabase-schema.mjs'))).toBe(true);
-    expect(existsSync(resolve(repoRoot, 'scripts/verify-firebase-login-data.mjs'))).toBe(true);
+    expect(existsSync(resolve(repoRoot, 'scripts/verify-supabase-login-data.mjs'))).toBe(true);
 
     const pkg = read('package.json');
     expect(pkg).toContain('verify:supabase-schema');
-    expect(pkg).toContain('verify:firebase-login-data');
+    expect(pkg).toContain('verify:supabase-login-data');
   });
 });

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
-import { isStorageConfigured, uploadMaterialTexture } from '@/backend/firebase/storageUpload';
+import { isStorageConfigured, uploadMaterialTexture } from '@/backend/supabase/supabaseStorageGateway';
 import type { Material } from '@/types';
 import { toast } from 'sonner';
 
@@ -34,7 +34,7 @@ export default function CustomMaterialDialog({ open, onOpenChange, onCreate, use
       let textureUrl: string | undefined;
       if (textureFile) {
         if (!isStorageConfigured()) {
-          toast.error('Firebase Storage not configured — saving color-only material');
+          toast.error('Supabase Storage not configured — saving color-only material');
         } else if (!userId) {
           toast.error('Sign in to upload textures — saving color-only material');
         } else {
@@ -96,7 +96,7 @@ export default function CustomMaterialDialog({ open, onOpenChange, onCreate, use
               onChange={(e) => setTextureFile(e.target.files?.[0] ?? null)}
             />
             <p className="text-xs text-muted-foreground">
-              PNG, JPEG, WebP, or HEIC · max 2 MB · requires Firebase Storage
+              PNG, JPEG, WebP, or HEIC · max 2 MB · requires Supabase Storage
               {isCoarsePointer && ' · On iPad, tap Browse to pick from Photos or Files'}
             </p>
           </div>

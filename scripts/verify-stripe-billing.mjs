@@ -12,38 +12,21 @@ const failures = [];
 const warnings = [];
 
 function resolveBillingBackendProvider() {
-  return (process.env.BACKEND_PROVIDER ?? process.env.VITE_BACKEND_PROVIDER ?? 'supabase')
-    .trim()
-    .toLowerCase();
+  return 'supabase';
 }
 
 const billingBackend = resolveBillingBackendProvider();
 
-const requiredServerVars =
-  billingBackend === 'supabase'
-    ? [
-        'STRIPE_SECRET_KEY',
-        'STRIPE_WEBHOOK_SECRET',
-        'STRIPE_PRICE_STUDIO_MONTHLY',
-        'STRIPE_PRICE_ENTERPRISE_MONTHLY',
-        'SUPABASE_SERVICE_ROLE_KEY',
-        'SUPABASE_URL',
-      ]
-    : [
-        'STRIPE_SECRET_KEY',
-        'STRIPE_WEBHOOK_SECRET',
-        'STRIPE_PRICE_STUDIO_MONTHLY',
-        'STRIPE_PRICE_ENTERPRISE_MONTHLY',
-        'FIREBASE_SERVICE_ACCOUNT_JSON',
-        'FIREBASE_PROJECT_ID',
-      ];
-
-const recommendedClientVars = [
-  'VITE_STRIPE_BILLING_ENABLED',
-  'VITE_PRICING_PAGE_ENABLED',
-  'BACKEND_PROVIDER',
-  'VITE_BACKEND_PROVIDER',
+const requiredServerVars = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_PRICE_STUDIO_MONTHLY',
+  'STRIPE_PRICE_ENTERPRISE_MONTHLY',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'SUPABASE_URL',
 ];
+
+const recommendedClientVars = ['VITE_STRIPE_BILLING_ENABLED', 'VITE_PRICING_PAGE_ENABLED', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
 
 const EXPECTED_PRICE_AMOUNTS = {
   STRIPE_PRICE_STUDIO_MONTHLY: 49900,
@@ -133,10 +116,6 @@ for (const name of recommendedClientVars) {
     warnings.push('VITE_PRICING_PAGE_ENABLED is not true — /pricing will 404 in production builds.');
   } else if (name === 'VITE_STRIPE_BILLING_ENABLED' && value !== 'true') {
     warnings.push('VITE_STRIPE_BILLING_ENABLED is not true — checkout buttons stay in fallback mode.');
-  } else if (name === 'BACKEND_PROVIDER' && value !== billingBackend) {
-    warnings.push(`BACKEND_PROVIDER is "${value}" but expected "${billingBackend}".`);
-  } else if (name === 'VITE_BACKEND_PROVIDER' && value !== billingBackend) {
-    warnings.push(`VITE_BACKEND_PROVIDER is "${value}" but expected "${billingBackend}".`);
   }
 }
 
@@ -182,8 +161,4 @@ console.log('Operator next steps:');
 console.log('- Stripe Dashboard (live): Studio $499/mo + Enterprise $1,000/mo prices + webhook to /api/stripe/webhook');
 console.log('- Archive old $99 / $249 price IDs in Stripe Dashboard after updating Vercel env vars');
 console.log('- Vercel Production: set all STRIPE_* and backend vars, redeploy');
-console.log(
-  billingBackend === 'supabase'
-    ? '- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Supabase'
-    : '- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Firestore'
-);
+console.log('- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Supabase');

@@ -4,8 +4,8 @@ import type { SaveState } from '@/types';
 const STATE_TOOLTIPS: Record<SaveState, string> = {
   clean: 'All changes are saved to cloud or local storage.',
   unsaved: 'You have unsaved changes — save to protect your work.',
-  'local-draft': 'Saved in this browser only. Connect Firebase to sync across devices.',
-  'cloud-saved': 'Project saved to Firebase Firestore.',
+  'local-draft': 'Saved in this browser only. Connect Supabase to sync across devices.',
+  'cloud-saved': 'Project saved to Supabase Postgres.',
   'restored-draft': 'Recovered from a previous local draft in this browser.',
 };
 

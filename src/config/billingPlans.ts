@@ -53,7 +53,7 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
       'Unlimited projects',
       'Full 2D + Sacred 3D View',
       `Export Package (${EXPORT_FORMATS_LABEL})`,
-      'Cloud Save (Firebase)',
+      'Cloud Save (Supabase)',
       'Project Proof governance',
       'Vastu Harmony (preview)',
     ],

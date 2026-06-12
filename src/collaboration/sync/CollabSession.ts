@@ -1,11 +1,10 @@
 import { backendStatus } from '@/backend/backendConfig';
-import { resolveFirebaseSessionForFirestore } from '@/backend/firebase/firebaseAuthGateway';
 import { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
 import type { CollabSessionOptions, Presence } from '@/collaboration/types';
 import type { CollaborationMessage } from '@/modules/collaborationEngine';
 import type { ProjectManifest } from '@/types';
-import { FirebaseSnapshotProvider } from './FirebaseSnapshotProvider';
 import { LocalCollabTransportAdapter, type CollabTransportAdapter } from './CollabTransportAdapter';
+import { SupabaseSnapshotProvider } from './SupabaseSnapshotProvider';
 import { YjsWebSocketProvider } from './YjsWebSocketProvider';
 
 function getCollabWsUrl(): string {
@@ -25,7 +24,7 @@ export class CollabSession {
   private bridge: ManifestCollabBridge | null = null;
   private transport: CollabTransportAdapter = new LocalCollabTransportAdapter();
   private yjsProvider: YjsWebSocketProvider | null = null;
-  private snapshotProvider = new FirebaseSnapshotProvider();
+  private snapshotProvider = new SupabaseSnapshotProvider();
   private connected = false;
   private roomId: string | null = null;
   private currentUserId: string | null = null;

@@ -49,7 +49,7 @@ export default defineConfig({
         'src/core/exporters/pdfExport.ts',
         'src/core/exporters/pngExport.ts',
         'src/utils/projectThumbnail.ts',
-        'src/backend/firebase/storageUpload.ts',
+        'src/backend/supabase/supabaseStorageGateway.ts',
       ],
     },
   },

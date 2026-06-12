@@ -8,25 +8,27 @@ function read(path: string) {
   return readFileSync(resolve(repoRoot, path), 'utf8');
 }
 
-describe('Supabase auth restore wiring', () => {
-  it('selects Supabase provider in AuthProvider when configured', () => {
+describe('Supabase-only backend wiring', () => {
+  it('exports Supabase AuthProvider without Firebase branching', () => {
     const authContext = read('src/contexts/AuthContext.tsx');
     const backendConfig = read('src/backend/backendConfig.ts');
     const supabaseAuth = read('src/backend/supabase/supabaseAuthGateway.ts');
 
-    expect(authContext).toContain("backendStatus.provider === 'supabase'");
-    expect(authContext).toContain('SupabaseAuthProvider');
+    expect(authContext).toContain('SupabaseAuthProvider as AuthProvider');
+    expect(authContext).not.toContain('FirebaseAuthProvider');
     expect(backendConfig).toContain('VITE_SUPABASE_URL');
-    expect(backendConfig).toContain('resolveBackendProvider');
+    expect(backendConfig).toContain("provider: 'supabase'");
     expect(supabaseAuth).toContain('requestSupabaseAccessLink');
     expect(supabaseAuth).toContain('signInWithOtp');
+    expect(supabaseAuth).toContain('isSupabaseOAuthCallback');
   });
 
-  it('routes db/api through Supabase gateways when provider is supabase', () => {
+  it('routes db/api directly through Supabase gateways', () => {
     const api = read('src/db/api.ts');
 
-    expect(api).toContain('isSupabaseBackend');
     expect(api).toContain('getSupabaseProjects');
     expect(api).toContain('createSupabaseProject');
+    expect(api).not.toContain('getFirestoreProjects');
+    expect(api).not.toContain('isSupabaseBackend');
   });
 });

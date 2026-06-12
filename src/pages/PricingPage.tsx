@@ -22,7 +22,7 @@ import {
 type TierAction = 'link' | 'checkout' | 'portal';
 
 const TRUST_STATS = [
-  { value: 'Cloud', label: 'Firebase save' },
+  { value: 'Cloud', label: 'Supabase save' },
   { value: '13', label: 'Release gates' },
   { value: 'OS', label: 'Governance layer' },
 ] as const;

@@ -172,7 +172,7 @@ export default function ProjectsPage() {
     toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
-  const cloudLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
+  const cloudLabel = backendStatus.isConfigured ? 'Supabase Cloud Save' : 'Local Draft';
 
   return (
     <AppLayout>

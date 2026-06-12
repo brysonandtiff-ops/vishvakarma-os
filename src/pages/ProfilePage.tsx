@@ -34,8 +34,8 @@ export default function ProfilePage() {
   const [billingActionLoading, setBillingActionLoading] = useState<CheckoutPlan | 'portal' | null>(null);
   const stripeEnabled = STRIPE_BILLING_ENABLED && billingEnabled;
 
-  const providerLabel = 'Firebase';
-  const saveLabel = backendStatus.isConfigured ? 'Firebase Cloud Save' : 'Local Draft';
+  const providerLabel = 'Supabase';
+  const saveLabel = backendStatus.isConfigured ? 'Supabase Cloud Save' : 'Local Draft';
   const planLabel = billingPlanLabel(billing);
 
   useEffect(() => {

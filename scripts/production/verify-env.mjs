@@ -10,20 +10,13 @@ import { join } from 'path';
 
 const strict = process.argv.includes('--strict');
 
-const FIREBASE_KEYS = [
-  'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN',
-  'VITE_FIREBASE_PROJECT_ID',
-  'VITE_FIREBASE_APP_ID',
-];
+const SUPABASE_KEYS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
 
 const STRIPE_KEYS = [
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
   'STRIPE_PRICE_STUDIO_MONTHLY',
   'STRIPE_PRICE_ENTERPRISE_MONTHLY',
-  'FIREBASE_PROJECT_ID',
-  'FIREBASE_SERVICE_ACCOUNT_JSON',
 ];
 
 async function fileExists(path) {
@@ -73,24 +66,26 @@ async function main() {
 
   const envExample = await readFile(envExamplePath, 'utf-8');
   let passed = true;
-  passed = checkKeys(envExample, FIREBASE_KEYS, '.env.example (Firebase)') && passed;
+  passed = checkKeys(envExample, SUPABASE_KEYS, '.env.example (Supabase)') && passed;
   passed = checkKeys(envExample, ['VITE_STRIPE_BILLING_ENABLED', ...STRIPE_KEYS], '.env.example (Stripe billing)') && passed;
 
   if (envExample.includes('VITE_STRIPE_BILLING_ENABLED=true')) {
     console.warn('[WARN] .env.example documents Stripe billing keys; ensure server secrets are set before enabling in production');
   }
 
-  if (strict && (await fileExists(envLocalPath))) {
+  if (await fileExists(envLocalPath)) {
     const envLocal = await readFile(envLocalPath, 'utf-8');
-    passed = checkLiveValues(envLocal, FIREBASE_KEYS, '.env.local') && passed;
-  } else if (strict) {
-    console.warn('[WARN] --strict: .env.local not found; skipping live value checks');
+    if (strict) {
+      passed = checkLiveValues(envLocal, SUPABASE_KEYS, '.env.local (Supabase)') && passed;
+    }
   }
 
-  process.exit(passed ? 0 : 1);
+  if (!passed) {
+    process.exit(1);
+  }
 }
 
 main().catch((error) => {
-  console.error('[FAIL]', error);
+  console.error('[FAIL]', error instanceof Error ? error.message : error);
   process.exit(1);
 });

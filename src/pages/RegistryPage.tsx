@@ -249,7 +249,7 @@ function NewRegistryDialog({ onEntryCreated }: { onEntryCreated: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="shrink-0 touch-target" disabled={!cloudReady} title={cloudReady ? undefined : 'Sign in with Firebase to register entries — go to Account Access'}>
+        <Button className="shrink-0 touch-target" disabled={!cloudReady} title={cloudReady ? undefined : 'Sign in with Supabase to register entries — go to Account Access'}>
           <Plus className="mr-2 h-4 w-4" />
           Register Entry
         </Button>

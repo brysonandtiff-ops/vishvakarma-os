@@ -50,9 +50,9 @@ export default function OnboardingPanel({
           <div className="mx-5 mt-4 flex items-start gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs text-ws-text-dim">
             <WifiOff className="mt-0.5 h-4 w-4 shrink-0 text-primary/80" />
             <div>
-              <p className="font-semibold text-ws-text">Local Draft — connect Firebase to sync</p>
+              <p className="font-semibold text-ws-text">Local Draft — connect Supabase to sync</p>
               <p className="mt-1 leading-relaxed">
-                Projects save in this browser until Firebase is configured.{' '}
+                Projects save in this browser until Supabase is configured.{' '}
                 <Link to="/auth" className="text-primary underline-offset-2 hover:underline">
                   Sign in
                 </Link>{' '}

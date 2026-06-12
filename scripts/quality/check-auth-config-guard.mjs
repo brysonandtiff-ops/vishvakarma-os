@@ -6,7 +6,6 @@ import { join } from 'node:path';
 const root = process.cwd();
 const authPath = join(root, 'src/contexts/AuthContext.tsx');
 const supabaseAuthPath = join(root, 'src/backend/supabase/supabaseAuthGateway.ts');
-const firebaseAuthPath = join(root, 'src/backend/firebase/firebaseAuthGateway.ts');
 const backendConfigPath = join(root, 'src/backend/backendConfig.ts');
 const supabaseProviderPath = join(root, 'src/contexts/SupabaseAuthProvider.tsx');
 
@@ -24,15 +23,12 @@ function readRequiredFile(path, label) {
 const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
 const supabaseAuth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
 const supabaseProvider = readRequiredFile(supabaseProviderPath, 'src/contexts/SupabaseAuthProvider.tsx');
-const firebaseAuth = readRequiredFile(firebaseAuthPath, 'src/backend/firebase/firebaseAuthGateway.ts');
 const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendConfig.ts');
 
 const authRequired = [
   'SupabaseAuthProvider',
-  'FirebaseAuthProvider',
   'completeEmailLinkSignIn',
   'emailLinkState',
-  'ensureFirestoreProfile',
   'ensureSupabaseProfile',
   'normalizeMagicLinkError',
   "message.includes('fetch failed')",
@@ -47,6 +43,10 @@ for (const phrase of authRequired) {
   }
 }
 
+if (auth.includes('FirebaseAuthProvider') || auth.includes('firebaseAuthGateway')) {
+  failures.push('AuthContext still references Firebase — Supabase-only cutover required.');
+}
+
 const supabaseRequired = [
   'requestSupabaseAccessLink',
   'completeSupabaseEmailLinkSignIn',
@@ -55,6 +55,7 @@ const supabaseRequired = [
   'writeSupabaseSessionSnapshot',
   'signInWithOtp',
   'buildSupabaseSessionFromAuthSession',
+  'isSupabaseOAuthCallback',
 ];
 
 for (const phrase of supabaseRequired) {
@@ -63,32 +64,21 @@ for (const phrase of supabaseRequired) {
   }
 }
 
-const firebaseRequired = [
-  'requestFirebaseAccessLink',
-  'completeFirebaseEmailLinkSignIn',
-  'readFirebaseSessionSnapshot',
-  'clearFirebaseSessionSnapshot',
-  'writeFirebaseSessionSnapshot',
-];
-
-for (const phrase of firebaseRequired) {
-  if (!firebaseAuth.includes(phrase)) {
-    failures.push(`src/backend/firebase/firebaseAuthGateway.ts is missing Firebase auth phrase: ${phrase}`);
-  }
-}
-
 const backendRequired = [
   'VITE_SUPABASE_URL',
-  'VITE_BACKEND_PROVIDER',
-  'resolveBackendProvider',
+  'VITE_SUPABASE_ANON_KEY',
   'Supabase backend is not configured',
-  'Firebase backend is not configured',
+  "provider: 'supabase'",
 ];
 
 for (const phrase of backendRequired) {
   if (!backendConfig.includes(phrase)) {
     failures.push(`src/backend/backendConfig.ts is missing backend phrase: ${phrase}`);
   }
+}
+
+if (existsSync(join(root, 'src/backend/firebase'))) {
+  failures.push('Legacy src/backend/firebase still exists — remove Firebase backend directory.');
 }
 
 if (existsSync(join(root, 'src/db/supabase.ts'))) {
@@ -102,4 +92,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
-console.log('Supabase + Firebase auth configuration handling is guarded.');
+console.log('Supabase-only auth configuration handling is guarded.');

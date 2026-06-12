@@ -1,37 +1,4 @@
-import { backendStatus, isSupabaseBackend } from '@/backend/backendConfig';
-import {
-  createFirestoreAuditLog,
-  createFirestoreChangeRequest,
-  createFirestoreRegistryEntry,
-  createFirestoreRelease,
-  createFirestoreSpec,
-  getFirestoreAuditLogs,
-  getFirestoreAuditLogsByEntity,
-  getFirestoreChangeRequests,
-  getFirestoreChangeRequestsByStatus,
-  getFirestoreRegistryByType,
-  getFirestoreRegistryEntries,
-  getFirestoreRelease,
-  getFirestoreReleases,
-  getFirestoreRouteManifest,
-  getFirestoreSpecs,
-  getFirestoreSpecsByCategory,
-  updateFirestoreChangeRequest,
-  updateFirestoreRelease,
-  updateFirestoreSpec,
-} from '@/backend/firebase/firestoreGovernanceGateway';
-import {
-  createFirestoreOptimizationBatch,
-  getFirestoreOptimizationBatches,
-  linkFirestoreOptimizationBatchToProject,
-} from '@/backend/firebase/firestoreOptimizationGateway';
-import {
-  createFirestoreProject,
-  deleteFirestoreProject,
-  getFirestoreProject,
-  getFirestoreProjects,
-  updateFirestoreProject,
-} from '@/backend/firebase/firestoreProjectGateway';
+import { backendStatus } from '@/backend/backendConfig';
 import {
   createSupabaseAuditLog,
   createSupabaseChangeRequest,
@@ -82,8 +49,6 @@ import type {
   ProjectManifest,
 } from '@/types';
 
-const useSupabase = isSupabaseBackend();
-
 function assertConfigured() {
   if (!backendStatus.isConfigured) {
     throw new Error(backendStatus.configurationError ?? 'Backend is not configured.');
@@ -96,12 +61,12 @@ function assertConfigured() {
 
 export async function getProjects(): Promise<Project[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseProjects() : getFirestoreProjects();
+  return getSupabaseProjects();
 }
 
 export async function getProject(id: string): Promise<Project | null> {
   if (!backendStatus.isConfigured) return null;
-  return useSupabase ? getSupabaseProject(id) : getFirestoreProject(id);
+  return getSupabaseProject(id);
 }
 
 export async function createProject(
@@ -110,10 +75,7 @@ export async function createProject(
   manifest: ProjectManifest
 ): Promise<Project> {
   assertConfigured();
-  const data = useSupabase
-    ? await createSupabaseProject(name, description, manifest)
-    : await createFirestoreProject(name, description, manifest);
-
+  const data = await createSupabaseProject(name, description, manifest);
   await createAuditLog('project_created', 'project', data.id, { name, description });
   return data;
 }
@@ -123,21 +85,14 @@ export async function updateProject(
   updates: Partial<Pick<Project, 'name' | 'description' | 'manifest'>>
 ): Promise<Project> {
   assertConfigured();
-  const data = useSupabase
-    ? await updateSupabaseProject(id, updates)
-    : await updateFirestoreProject(id, updates);
-
+  const data = await updateSupabaseProject(id, updates);
   await createAuditLog('project_updated', 'project', id, updates);
   return data;
 }
 
 export async function deleteProject(id: string): Promise<void> {
   assertConfigured();
-  if (useSupabase) {
-    await deleteSupabaseProject(id);
-  } else {
-    await deleteFirestoreProject(id);
-  }
+  await deleteSupabaseProject(id);
   await createAuditLog('project_deleted', 'project', id, {});
 }
 
@@ -149,18 +104,14 @@ export async function saveOptimizationBatch(
   batch: OptimizationBatch,
 ): Promise<OptimizationBatchRecord> {
   if (backendStatus.isConfigured) {
-    return useSupabase
-      ? createSupabaseOptimizationBatch(batch)
-      : createFirestoreOptimizationBatch(batch);
+    return createSupabaseOptimizationBatch(batch);
   }
   return saveOptimizationBatchLocally(batch);
 }
 
 export async function getOptimizationBatches(limit = 20): Promise<OptimizationBatchRecord[]> {
   if (backendStatus.isConfigured) {
-    return useSupabase
-      ? getSupabaseOptimizationBatches(limit)
-      : getFirestoreOptimizationBatches(limit);
+    return getSupabaseOptimizationBatches(limit);
   }
   return getOptimizationBatchHistoryLocally(limit);
 }
@@ -171,9 +122,7 @@ export async function linkOptimizationBatchToProject(
   details: Record<string, unknown> = {},
 ): Promise<OptimizationBatchRecord | null> {
   if (backendStatus.isConfigured) {
-    const record = useSupabase
-      ? await linkSupabaseOptimizationBatchToProject(batchId, projectId)
-      : await linkFirestoreOptimizationBatchToProject(batchId, projectId);
+    const record = await linkSupabaseOptimizationBatchToProject(batchId, projectId);
     await createAuditLog('optimization_winner_promoted', 'optimization_batch', batchId, {
       projectId,
       ...details,
@@ -190,17 +139,17 @@ export async function linkOptimizationBatchToProject(
 
 export async function getSpecs(): Promise<Spec[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseSpecs() : getFirestoreSpecs();
+  return getSupabaseSpecs();
 }
 
 export async function getSpecsByCategory(category: string): Promise<Spec[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseSpecsByCategory(category) : getFirestoreSpecsByCategory(category);
+  return getSupabaseSpecsByCategory(category);
 }
 
 export async function createSpec(spec: Omit<Spec, 'id' | 'created_at' | 'updated_at'>): Promise<Spec> {
   assertConfigured();
-  const data = useSupabase ? await createSupabaseSpec(spec) : await createFirestoreSpec(spec);
+  const data = await createSupabaseSpec(spec);
   await createAuditLog('spec_created', 'spec', data.id, { title: spec.name });
   return data;
 }
@@ -210,7 +159,7 @@ export async function updateSpec(
   updates: Partial<Omit<Spec, 'id' | 'created_at' | 'updated_at'>>
 ): Promise<Spec> {
   assertConfigured();
-  const data = useSupabase ? await updateSupabaseSpec(id, updates) : await updateFirestoreSpec(id, updates);
+  const data = await updateSupabaseSpec(id, updates);
   await createAuditLog('spec_updated', 'spec', id, updates);
   return data;
 }
@@ -221,21 +170,19 @@ export async function updateSpec(
 
 export async function getRegistryEntries(): Promise<RegistryEntry[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseRegistryEntries() : getFirestoreRegistryEntries();
+  return getSupabaseRegistryEntries();
 }
 
 export async function getRegistryByType(type: string): Promise<RegistryEntry[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseRegistryByType(type) : getFirestoreRegistryByType(type);
+  return getSupabaseRegistryByType(type);
 }
 
 export async function createRegistryEntry(
   entry: Omit<RegistryEntry, 'id' | 'created_at'>
 ): Promise<RegistryEntry> {
   assertConfigured();
-  const data = useSupabase
-    ? await createSupabaseRegistryEntry(entry)
-    : await createFirestoreRegistryEntry(entry);
+  const data = await createSupabaseRegistryEntry(entry);
   await createAuditLog('registry_entry_created', 'registry', data.id, { name: entry.name });
   return data;
 }
@@ -246,23 +193,19 @@ export async function createRegistryEntry(
 
 export async function getChangeRequests(): Promise<ChangeRequest[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseChangeRequests() : getFirestoreChangeRequests();
+  return getSupabaseChangeRequests();
 }
 
 export async function getChangeRequestsByStatus(status: string): Promise<ChangeRequest[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase
-    ? getSupabaseChangeRequestsByStatus(status)
-    : getFirestoreChangeRequestsByStatus(status);
+  return getSupabaseChangeRequestsByStatus(status);
 }
 
 export async function createChangeRequest(
   request: Omit<ChangeRequest, 'id' | 'created_at' | 'reviewed_at' | 'implemented_at'>
 ): Promise<ChangeRequest> {
   assertConfigured();
-  const data = useSupabase
-    ? await createSupabaseChangeRequest(request)
-    : await createFirestoreChangeRequest(request);
+  const data = await createSupabaseChangeRequest(request);
   await createAuditLog('change_request_created', 'change_request', data.id, {
     title: request.title,
   });
@@ -274,9 +217,7 @@ export async function updateChangeRequest(
   updates: Partial<Omit<ChangeRequest, 'id' | 'created_at'>>
 ): Promise<ChangeRequest> {
   assertConfigured();
-  const data = useSupabase
-    ? await updateSupabaseChangeRequest(id, updates)
-    : await updateFirestoreChangeRequest(id, updates);
+  const data = await updateSupabaseChangeRequest(id, updates);
 
   if (updates.status === 'approved') {
     await createAuditLog('change_request_accepted', 'change_request', id, updates);
@@ -295,7 +236,7 @@ export async function getReleases(): Promise<Release[]> {
   }
 
   try {
-    const rows = useSupabase ? await getSupabaseReleases() : await getFirestoreReleases();
+    const rows = await getSupabaseReleases();
     return rows.length > 0 ? rows : getLocalReleaseHistory();
   } catch {
     return getLocalReleaseHistory();
@@ -329,14 +270,14 @@ function getLocalReleaseHistory(): Release[] {
 
 export async function getRelease(id: string): Promise<Release | null> {
   if (!backendStatus.isConfigured) return null;
-  return useSupabase ? getSupabaseRelease(id) : getFirestoreRelease(id);
+  return getSupabaseRelease(id);
 }
 
 export async function createRelease(
   release: Omit<Release, 'id' | 'created_at' | 'released_at'>
 ): Promise<Release> {
   assertConfigured();
-  const data = useSupabase ? await createSupabaseRelease(release) : await createFirestoreRelease(release);
+  const data = await createSupabaseRelease(release);
   await createAuditLog('release_created', 'release', data.id, {
     version: release.version,
     title: release.title,
@@ -349,7 +290,7 @@ export async function updateRelease(
   updates: Partial<Omit<Release, 'id' | 'created_at'>>
 ): Promise<Release> {
   assertConfigured();
-  return useSupabase ? updateSupabaseRelease(id, updates) : updateFirestoreRelease(id, updates);
+  return updateSupabaseRelease(id, updates);
 }
 
 // ============================================================================
@@ -358,7 +299,7 @@ export async function updateRelease(
 
 export async function getAuditLogs(limit = 100): Promise<AuditLog[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase ? getSupabaseAuditLogs(limit) : getFirestoreAuditLogs(limit);
+  return getSupabaseAuditLogs(limit);
 }
 
 export async function getAuditLogsByEntity(
@@ -366,9 +307,7 @@ export async function getAuditLogsByEntity(
   entityId: string
 ): Promise<AuditLog[]> {
   if (!backendStatus.isConfigured) return [];
-  return useSupabase
-    ? getSupabaseAuditLogsByEntity(entityType, entityId)
-    : getFirestoreAuditLogsByEntity(entityType, entityId);
+  return getSupabaseAuditLogsByEntity(entityType, entityId);
 }
 
 export async function createAuditLog(
@@ -380,9 +319,7 @@ export async function createAuditLog(
   if (!backendStatus.isConfigured) return null;
 
   try {
-    return useSupabase
-      ? await createSupabaseAuditLog(action, entityType, entityId, details)
-      : await createFirestoreAuditLog(action, entityType, entityId, details);
+    return await createSupabaseAuditLog(action, entityType, entityId, details);
   } catch (error) {
     console.warn('[Vishvakarma.OS] Audit log write skipped:', error);
     return null;
@@ -397,7 +334,7 @@ export async function getRouteManifest(): Promise<RouteManifestEntry[]> {
   if (!backendStatus.isConfigured) return [];
 
   try {
-    return useSupabase ? getSupabaseRouteManifest() : getFirestoreRouteManifest();
+    return getSupabaseRouteManifest();
   } catch {
     return [];
   }

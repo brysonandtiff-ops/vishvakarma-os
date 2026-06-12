@@ -99,9 +99,11 @@ describe('Sanskrit auth gate design', () => {
 
   it('handles OAuth redirect completion in AuthContext', () => {
     const authContext = read('src/contexts/AuthContext.tsx');
+    const supabaseProvider = read('src/contexts/SupabaseAuthProvider.tsx');
 
-    expect(authContext).toContain('getRedirectResult');
-    expect(authContext).toContain('signInWithGoogle');
+    expect(authContext).toContain('SupabaseAuthProvider');
+    expect(supabaseProvider).toContain('resolveSupabaseOAuthRedirectSession');
+    expect(supabaseProvider).toContain('signInWithGoogle');
   });
 
   it('keeps Supabase OAuth callback handling separate from email magic links', () => {

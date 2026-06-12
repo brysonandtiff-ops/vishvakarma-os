@@ -28,24 +28,24 @@ function forbidPhrase(content, phrase, label) {
 }
 
 const projectGateway = readRequiredFile(
-  join(root, 'src/backend/firebase/firestoreProjectGateway.ts'),
-  'src/backend/firebase/firestoreProjectGateway.ts',
+  join(root, 'src/backend/supabase/supabaseProjectGateway.ts'),
+  'src/backend/supabase/supabaseProjectGateway.ts',
 );
-const firestoreRules = readRequiredFile(join(root, 'firestore.rules'), 'firestore.rules');
+const collabMigration = readRequiredFile(
+  join(root, 'supabase/migrations/20260213000005_collab_and_storage.sql'),
+  'supabase/migrations/20260213000005_collab_and_storage.sql',
+);
 const collabServer = readRequiredFile(join(root, 'server/collab/presenceServer.ts'), 'server/collab/presenceServer.ts');
 const packageJson = readRequiredFile(join(root, 'package.json'), 'package.json');
 
-requirePhrase(projectGateway, 'ownerId: existing.ownerId', 'Firestore project gateway');
-requirePhrase(projectGateway, 'collaborators: existing.collaborators ?? []', 'Firestore project gateway');
-requirePhrase(projectGateway, 'created_at: existing.created_at', 'Firestore project gateway');
-forbidPhrase(projectGateway, 'ownerId: getCurrentOwnerId(),', 'Firestore project gateway');
+requirePhrase(projectGateway, 'collaborators: [userId]', 'Supabase project gateway');
+requirePhrase(projectGateway, 'updateSupabaseProjectCollabSnapshot', 'Supabase project gateway');
+requirePhrase(projectGateway, 'getSupabaseProjectCollabSnapshot', 'Supabase project gateway');
 
-requirePhrase(firestoreRules, 'function projectIdentityIsStable()', 'Firestore rules');
-requirePhrase(firestoreRules, 'request.resource.data.ownerId == resource.data.ownerId', 'Firestore rules');
-requirePhrase(firestoreRules, 'request.resource.data.created_at == resource.data.created_at', 'Firestore rules');
-requirePhrase(firestoreRules, 'function collaboratorListIsStable()', 'Firestore rules');
-requirePhrase(firestoreRules, 'request.resource.data.collaborators == resource.data.collaborators', 'Firestore rules');
-requirePhrase(firestoreRules, 'isOwnerOnCreate(docId)', 'Firestore rules');
+requirePhrase(collabMigration, 'collab_snapshot jsonb', 'Supabase collab migration');
+requirePhrase(collabMigration, 'collaborators uuid[]', 'Supabase collab migration');
+requirePhrase(collabMigration, 'projects_select_member', 'Supabase collab migration');
+requirePhrase(collabMigration, "bucket_id = 'materials'", 'Supabase storage migration');
 
 requirePhrase(collabServer, 'function normalizeOrigin', 'Collaboration presence server');
 requirePhrase(collabServer, 'ALLOWED_ORIGINS.includes(normalized)', 'Collaboration presence server');
@@ -53,6 +53,11 @@ requirePhrase(collabServer, "process.env.ALLOW_MISSING_ORIGIN === 'true'", 'Coll
 forbidPhrase(collabServer, 'origin.startsWith(allowed)', 'Collaboration presence server');
 
 requirePhrase(packageJson, '"node": "20.x"', 'package.json');
+forbidPhrase(packageJson, '"firebase"', 'package.json');
+
+if (existsSync(join(root, 'firestore.rules'))) {
+  failures.push('firestore.rules still exists — Firebase config should be removed.');
+}
 
 if (failures.length > 0) {
   console.error('Vishvakarma.OS production hardening check failed.');
@@ -61,4 +66,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS production hardening check passed.');
-console.log('Project ownership, Firestore rule immutability, collab origin checks, and Node runtime pin are guarded.');
+console.log('Supabase project ownership, collab migration, collab origin checks, and Node runtime pin are guarded.');

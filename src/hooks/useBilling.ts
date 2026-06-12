@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getFirestoreBilling } from '@/backend/firebase/firestoreBillingGateway';
 import { getSupabaseBilling } from '@/backend/supabase/supabaseBillingGateway';
-import { backendStatus, isSupabaseBackend } from '@/backend/backendConfig';
+import { backendStatus } from '@/backend/backendConfig';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
 import { isCoOwnerEmail } from '@/config/coOwners';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,9 +35,7 @@ export function useBilling() {
     setLoading(true);
     setError(null);
     try {
-      const record = isSupabaseBackend()
-        ? await getSupabaseBilling(user.id)
-        : await getFirestoreBilling(user.id);
+      const record = await getSupabaseBilling(user.id);
       setBilling(record);
     } catch (err) {
       setBilling(null);

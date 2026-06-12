@@ -8,7 +8,7 @@ import type {
   Spec,
 } from '@/types';
 
-export type BackendProvider = 'supabase' | 'firebase';
+export type BackendProvider = 'supabase';
 export type BackendMode = 'connected' | 'local-only';
 
 export type EnvSource = Record<string, unknown>;

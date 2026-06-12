@@ -84,41 +84,9 @@ async function fetchFirebaseGoogleIdp(accessToken) {
 }
 
 async function ensureSupabaseCallbackOnGoogleClient(_accessToken, _clientId) {
-  const firebaseJsonPath = join(process.cwd(), 'firebase.json');
-  if (!existsSync(firebaseJsonPath)) {
-    console.warn('[WARN] Missing firebase.json — add redirect URI manually:', SUPABASE_CALLBACK);
-    return;
-  }
-
-  const firebaseConfig = JSON.parse(readFileSync(firebaseJsonPath, 'utf8'));
-  const redirectUris = firebaseConfig?.auth?.providers?.googleSignIn?.authorizedRedirectUris ?? [];
-  if (redirectUris.includes(SUPABASE_CALLBACK)) {
-    console.log('[PASS] firebase.json already includes Supabase callback URI');
-  } else {
-    firebaseConfig.auth.providers.googleSignIn.authorizedRedirectUris = [...redirectUris, SUPABASE_CALLBACK];
-    writeFileSync(firebaseJsonPath, `${JSON.stringify(firebaseConfig, null, 2)}\n`);
-    console.log('[INFO] Wrote Supabase callback URI to firebase.json');
-  }
-
-  console.log('[INFO] Deploying Firebase auth config (updates Google OAuth redirect URIs)...');
-  const deployResult = spawnSync(
-    'npx',
-    ['firebase-tools', 'deploy', '--only', 'auth', '--project', FIREBASE_PROJECT_ID, '--non-interactive'],
-    { cwd: process.cwd(), encoding: 'utf8', shell: true }
-  );
-
-  if (deployResult.stdout) process.stdout.write(deployResult.stdout);
-  if (deployResult.stderr) process.stderr.write(deployResult.stderr);
-
-  if (deployResult.status !== 0) {
-    console.warn(
-      `[WARN] firebase deploy --only auth failed (${deployResult.status}). Add redirect URI manually:`,
-      SUPABASE_CALLBACK
-    );
-    return;
-  }
-
-  console.log('[PASS] Deployed auth config with Supabase Google redirect URI');
+  console.log('[INFO] Ensure this redirect URI is registered on your Google OAuth client:');
+  console.log(`       ${SUPABASE_CALLBACK}`);
+  console.log('[INFO] Supabase dashboard → Authentication → URL Configuration → Redirect URLs');
 }
 
 function resolveGoogleCredentials() {

@@ -1,6 +1,7 @@
 import type {
   AuditLog,
   ChangeRequest,
+  CollabSnapshot,
   Profile,
   Project,
   RegistryEntry,
@@ -30,11 +31,36 @@ export function mapProfileRow(row: Record<string, unknown>): Profile {
 }
 
 export function mapProjectRow(row: Record<string, unknown>): Project {
+  const collaborators = Array.isArray(row.collaborators)
+    ? row.collaborators.map(String)
+    : undefined;
+
+  let collabSnapshot: CollabSnapshot | undefined;
+  if (row.collab_snapshot && typeof row.collab_snapshot === 'object') {
+    const snapshot = row.collab_snapshot as Record<string, unknown>;
+    const state = typeof snapshot.state === 'string' ? snapshot.state : '';
+    if (state) {
+      collabSnapshot = {
+        state,
+        updatedAt:
+          typeof snapshot.updatedAt === 'string'
+            ? snapshot.updatedAt
+            : typeof snapshot.updated_at === 'string'
+              ? snapshot.updated_at
+              : '',
+        revision: Number(snapshot.revision ?? 0),
+      };
+    }
+  }
+
   return {
     id: asString(row.id),
     name: asString(row.name),
     description: asOptionalString(row.description),
     manifest: (row.manifest ?? {}) as Project['manifest'],
+    ownerId: asOptionalString(row.user_id),
+    collaborators,
+    collabSnapshot,
     created_at: asString(row.created_at),
     updated_at: asString(row.updated_at),
   };

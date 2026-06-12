@@ -5,7 +5,7 @@
  */
 
 import { backendStatus } from '@/backend/backendConfig';
-import { resolveFirebaseSessionForFirestore } from '@/backend/firebase/firebaseAuthGateway';
+import { resolveSupabaseSessionForApi } from '@/backend/supabase/supabaseAuthGateway';
 import { CollabSession } from '@/collaboration/sync/CollabSession';
 import type { Presence } from '@/collaboration/types';
 import type { ProjectManifest } from '@/types';
@@ -127,7 +127,7 @@ export class CollaborationEngine {
     this.broadcastPresence('online', userName, this.userColor);
 
     const getIdToken = async () => {
-      const session = await resolveFirebaseSessionForFirestore();
+      const session = await resolveSupabaseSessionForApi();
       return session.idToken;
     };
 

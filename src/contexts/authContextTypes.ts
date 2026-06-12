@@ -1,15 +1,14 @@
 import { createContext, useContext } from 'react';
 import type { Profile } from '@/types';
-import type { FirebaseSessionSnapshot } from '@/backend/firebase/firebaseAuthGateway';
 import type { SupabaseSessionSnapshot } from '@/backend/supabase/supabaseAuthGateway';
 
 export type AuthUser = {
   id: string;
   email: string;
-  provider: 'firebase' | 'supabase';
+  provider: 'supabase';
 };
 
-export type AuthSession = FirebaseSessionSnapshot | SupabaseSessionSnapshot;
+export type AuthSession = SupabaseSessionSnapshot;
 
 export type EmailLinkState = 'idle' | 'completing' | 'needs_email' | 'error';
 

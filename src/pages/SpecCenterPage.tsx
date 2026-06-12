@@ -146,7 +146,7 @@ export default function SpecCenterPage() {
               variant="outline"
               className="shrink-0"
               disabled={!backendStatus.isConfigured}
-              title={backendStatus.isConfigured ? undefined : 'Sign in with Firebase to create specs — go to Account Access'}
+              title={backendStatus.isConfigured ? undefined : 'Sign in with Supabase to create specs — go to Account Access'}
               onClick={() => setNewSpecOpen(true)}
             >
               <Plus className="mr-1.5 h-3.5 w-3.5" />

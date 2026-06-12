@@ -1,5 +1,5 @@
 import type { OptimizationBatch, OptimizationBatchRecord } from '@/domain/optimization/types';
-import { buildOptimizationBatchRecord } from '@/backend/firebase/firestoreOptimizationGateway';
+import { buildOptimizationBatchRecord } from '@/domain/optimization/buildOptimizationBatchRecord';
 
 const BATCH_HISTORY_KEY = 'optimization-batch-history';
 const MAX_LOCAL_HISTORY = 20;

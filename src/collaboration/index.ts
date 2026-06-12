@@ -5,4 +5,4 @@ export * from './crdt/manifestBridge';
 export * from './sync/CollabSession';
 export * from './sync/CollabTransportAdapter';
 export * from './sync/YjsWebSocketProvider';
-export * from './sync/FirebaseSnapshotProvider';
+export * from './sync/SupabaseSnapshotProvider';

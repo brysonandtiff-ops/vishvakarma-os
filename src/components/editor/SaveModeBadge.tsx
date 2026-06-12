@@ -2,8 +2,8 @@ import { Wifi, WifiOff } from 'lucide-react';
 import type { CloudSaveLabel } from '@/hooks/useCloudSaveStatus';
 
 const TOOLTIPS: Record<CloudSaveLabel, string> = {
-  'Firebase Cloud Save': 'Firestore is configured — projects can sync to the cloud when signed in.',
-  'Local Draft': 'Firebase not configured — work is saved in this browser only.',
+  'Supabase Cloud Save': 'Supabase Postgres is configured — projects can sync to the cloud when signed in.',
+  'Local Draft': 'Supabase not configured — work is saved in this browser only.',
 };
 
 export default function SaveModeBadge({
@@ -16,7 +16,7 @@ export default function SaveModeBadge({
   if (connected === null) return null;
 
   const tooltip = connected
-    ? TOOLTIPS['Firebase Cloud Save']
+    ? TOOLTIPS['Supabase Cloud Save']
     : TOOLTIPS['Local Draft'];
 
   return (

@@ -55,9 +55,8 @@ jobs:
       - name: Supabase login data wiring
         run: pnpm run verify:supabase-login-data
 
-      - name: Firebase authorized domains check
-        run: pnpm run verify:firebase-auth-domains
-        continue-on-error: false
+      - name: Supabase schema wiring
+        run: pnpm run verify:supabase-schema
 
       - name: Check launch evidence templates
         run: pnpm run launch:evidence

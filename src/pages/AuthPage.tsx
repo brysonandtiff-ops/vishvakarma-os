@@ -305,7 +305,7 @@ export default function AuthPage() {
 
           {allowLocalWorkspace && (
             <AuthStatusBanner variant="warning" title="Local workspace available">
-              Auth is disabled until real Firebase environment variables are configured. Current mode: {mode}.
+              Auth is disabled until real Supabase environment variables are configured. Current mode: {mode}.
             </AuthStatusBanner>
           )}
 

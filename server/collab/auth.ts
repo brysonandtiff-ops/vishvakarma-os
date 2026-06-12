@@ -1,48 +1,50 @@
-import { initializeApp, cert, getApps, type App } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-let adminApp: App | null = null;
+let adminClient: SupabaseClient | null = null;
 
-function getAdminApp(): App {
-  if (adminApp) return adminApp;
-  if (getApps().length > 0) {
-    adminApp = getApps()[0];
-    return adminApp;
+function getAdminClient(): SupabaseClient {
+  if (adminClient) return adminClient;
+
+  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRoleKey) {
+    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for collab server auth');
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  if (!projectId) {
-    throw new Error('FIREBASE_PROJECT_ID is required for collab server auth');
-  }
+  adminClient = createClient(url, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (serviceAccountJson) {
-    adminApp = initializeApp({
-      credential: cert(JSON.parse(serviceAccountJson)),
-      projectId,
-    });
-    return adminApp;
-  }
-
-  adminApp = initializeApp({ projectId });
-  return adminApp;
+  return adminClient;
 }
 
 export async function verifyCollabToken(token: string): Promise<{ uid: string; email?: string }> {
-  const auth = getAuth(getAdminApp());
-  const decoded = await auth.verifyIdToken(token);
-  return { uid: decoded.uid, email: decoded.email };
+  const client = getAdminClient();
+  const { data, error } = await client.auth.getUser(token);
+  if (error || !data.user) {
+    throw error ?? new Error('Invalid Supabase collab token');
+  }
+
+  return {
+    uid: data.user.id,
+    email: data.user.email ?? undefined,
+  };
 }
 
 export async function canJoinProjectRoom(uid: string, projectId: string): Promise<boolean> {
-  const db = getFirestore(getAdminApp());
-  const doc = await db.collection('projects').doc(projectId).get();
-  if (!doc.exists) return false;
+  const client = getAdminClient();
+  const { data, error } = await client
+    .from('projects')
+    .select('user_id, collaborators')
+    .eq('id', projectId)
+    .maybeSingle();
 
-  const data = doc.data();
-  if (!data) return false;
-  if (data.ownerId === uid) return true;
+  if (error || !data) return false;
+  if (data.user_id === uid) return true;
 
   const collaborators: string[] = Array.isArray(data.collaborators) ? data.collaborators : [];
   return collaborators.includes(uid);
