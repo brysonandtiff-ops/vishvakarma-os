@@ -152,15 +152,15 @@ const PRESET_DEFAULTS: Record<
     emberCount: 8,
   },
   marketing: {
-    density: 70,
-    opacity: 0.09,
-    streamCount: 5,
+    density: 85,
+    opacity: 0.14,
+    streamCount: 7,
     trailFade: 0.1,
     speedMin: 0.25,
     speedMax: 1.0,
     trailBg: '6, 6, 6',
     vignetteCenter: 0.62,
-    emberCount: 6,
+    emberCount: 10,
   },
 };
 
@@ -301,8 +301,8 @@ export default function SanskritRainBackground({
           speed: 0.35 + Math.random() * (isBoot ? 0.25 : isMarketing ? 0.2 : 0.35),
           chars,
           charSpacing,
-          fontSize: isBoot ? 11.5 : isMarketing ? 12 : 13,
-          baseOpacity: isBoot ? 0.38 : isMarketing ? 0.42 : 0.52,
+          fontSize: isBoot ? 11.5 : isMarketing ? 13.5 : 13,
+          baseOpacity: isBoot ? 0.38 : isMarketing ? 0.58 : 0.52,
           laneIndex: index,
         };
       });
@@ -393,9 +393,10 @@ export default function SanskritRainBackground({
 
     const drawStreams = () => {
       const isBoot = preset === 'boot';
+      const isMarketing = preset === 'marketing';
 
       streamsRef.current.forEach((stream) => {
-        const shimmerX = Math.sin(time * 0.0008 + stream.laneIndex) * 6;
+        const shimmerX = Math.sin(time * 0.0008 + stream.laneIndex) * (isMarketing ? 9 : 6);
         const drawX = stream.x + shimmerX;
 
         stream.chars.forEach((char, index) => {

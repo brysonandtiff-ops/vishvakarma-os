@@ -38,7 +38,7 @@ export default function LandingPage() {
         description="Draw floor plans, inspect Sacred 3D View, export your Project Proof. Premium architecture studio in your browser."
       />
       <section className="mx-auto max-w-6xl px-4 pb-12 pt-14 md:px-8 md:pb-16 md:pt-20">
-        <p className="vish-marketing-section-label vish-devanagari-accent mb-4">ॐ श्री विश्वकर्मणे नमः</p>
+        <p className="vish-devanagari-hero mb-4">ॐ श्री विश्वकर्मणे नमः</p>
         <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">
           iPad-native architecture studio.
           <br />

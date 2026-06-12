@@ -71,6 +71,59 @@
   display: grid;
   place-items: center;
   opacity: 0.76;
+  mask-image: radial-gradient(circle at center, black 0%, black 42%, transparent 76%);
+}
+
+.vish-mandala-aura--marketing {
+  animation: vish-mandala-aura-glow 6s ease-in-out infinite;
+}
+
+@keyframes vish-mandala-aura-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 40px hsl(43 90% 62% / 0.06));
+  }
+  50% {
+    filter: drop-shadow(0 0 64px hsl(43 96% 68% / 0.14));
+  }
+}
+
+.vish-mandala-svg {
+  position: absolute;
+  width: min(85vw, 56rem);
+  aspect-ratio: 1;
+  overflow: visible;
+}
+
+.vish-mandala-svg--outer {
+  animation: vish-mandala-drift 48s linear infinite;
+}
+
+.vish-mandala-svg--petals {
+  animation: vish-mandala-drift 36s linear infinite reverse;
+}
+
+.vish-mandala-bindu {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle, hsl(43 100% 78% / 0.72), hsl(43 90% 58% / 0.28) 55%, transparent 72%);
+  box-shadow:
+    0 0 18px hsl(43 96% 72% / 0.32),
+    0 0 36px hsl(39 85% 48% / 0.18);
+  animation: vish-mandala-bindu-pulse 5s ease-in-out infinite;
+}
+
+@keyframes vish-mandala-bindu-pulse {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.62;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
 }
 
 .vish-mandala-ring {
@@ -95,6 +148,13 @@
   inset: 22%;
   border-style: solid;
   opacity: 0.65;
+  border: none;
+  background: repeating-conic-gradient(
+    from 0deg,
+    hsl(43 96% 72% / 0.2) 0deg 2deg,
+    transparent 2deg 15deg
+  );
+  mask: radial-gradient(circle, transparent 58%, black 60%, black 100%);
 }
 
 .vish-mandala-ring-outer {
@@ -113,6 +173,18 @@
   width: min(38vw, 25rem);
   aspect-ratio: 1;
   animation: vish-mandala-pulse 6s ease-in-out infinite;
+}
+
+.vish-mandala-ring--marketing.vish-mandala-ring-outer {
+  width: min(85vw, 56rem);
+}
+
+.vish-mandala-ring--marketing.vish-mandala-ring-mid {
+  width: min(62vw, 42rem);
+}
+
+.vish-mandala-ring--marketing.vish-mandala-ring-inner {
+  width: min(40vw, 27rem);
 }
 
 .vish-mandala-ring-static {
@@ -152,6 +224,10 @@
   .vish-mandala-ring-outer,
   .vish-mandala-ring-mid,
   .vish-mandala-ring-inner,
+  .vish-mandala-svg--outer,
+  .vish-mandala-svg--petals,
+  .vish-mandala-aura--marketing,
+  .vish-mandala-bindu,
   .vish-auth-orb {
     animation: none !important;
   }

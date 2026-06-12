@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
+import { SacredMandalaLayer } from '@/components/marketing/SacredMandalaLayer';
 
 interface SacredBackgroundProps {
   children: ReactNode;
@@ -31,12 +32,8 @@ export function SacredBackground({
       {showAurora && (
         <div className="vish-sacred-aurora vish-sacred-aurora--marketing pointer-events-none absolute inset-0" aria-hidden="true" />
       )}
-      <div className="vish-yantra-grid pointer-events-none absolute inset-0 opacity-30" aria-hidden="true" />
-      {showMandala && (
-        <div className="vish-mandala-aura pointer-events-none absolute inset-0 opacity-40" aria-hidden="true">
-          <div className="vish-mandala-ring vish-mandala-ring-static" />
-        </div>
-      )}
+      <div className="vish-yantra-grid pointer-events-none absolute inset-0 opacity-20" aria-hidden="true" />
+      {showMandala && <SacredMandalaLayer />}
       {showVignette && (
         <div className="vish-sacred-vignette vish-sacred-vignette--light pointer-events-none absolute inset-0" aria-hidden="true" />
       )}

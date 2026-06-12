@@ -36,6 +36,7 @@ describe('marketing routes', () => {
     );
 
     expect(sacredBackground).toContain('SanskritRainBackground');
+    expect(sacredBackground).toContain('SacredMandalaLayer');
     expect(sacredBackground).toContain('preset="marketing"');
     expect(sacredBackground).toContain('enableRain');
     expect(marketingLayout).toContain('enableRain');

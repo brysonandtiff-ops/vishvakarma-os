@@ -20,7 +20,7 @@ export function MarketingPageHeader({
   return (
     <header className={`vish-fade-rise ${className}`.trim()}>
       {devanagari && (
-        <p className="vish-marketing-section-label vish-devanagari-accent mb-4">{devanagari}</p>
+        <p className="vish-devanagari-hero mb-4">{devanagari}</p>
       )}
       {label && !devanagari && (
         <p className="vish-marketing-section-label mb-4">{label}</p>
