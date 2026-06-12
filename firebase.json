@@ -8,10 +8,11 @@
   },
   "auth": {
     "authorizedDomains": [
+      "vishvakarma-os.vercel.app",
+      "vishvakarma-os-tyrasic-creations.vercel.app",
+      "vishvakarma-os-git-main-tyrasic-creations.vercel.app",
       "localhost",
       "127.0.0.1",
-      "vishvakarma-os.vercel.app",
-      "vishvakarma-lfbze7lf7-tyrasis-creations.vercel.app",
       "gen-lang-client-0690161780.firebaseapp.com"
     ],
     "providers": {
