@@ -122,7 +122,9 @@
       },
       "width": 140,
       "depth": 200,
-      "rotation": 0
+      "rotation": 0,
+      "modelUrl": "/models/furniture/bed.glb",
+      "modelScale": 1.05
     },
     {
       "id": "f-sofa",

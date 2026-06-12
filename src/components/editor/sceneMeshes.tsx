@@ -13,6 +13,8 @@ import {
   FloorSurfaceMaterial,
   PatternStandardMaterial,
 } from '@/components/editor/sceneMaterials';
+import { GltfModelBody } from '@/components/editor/sceneGltfModels';
+import { resolveModelUrl } from '@/core/sceneModelCatalog';
 
 const WOOD = '#6b4f3a';
 const WOOD_DARK = '#4a3528';
@@ -285,6 +287,38 @@ function furnitureHeight(type: string): number {
   }
 }
 
+export function ParametricFurnitureBody({
+  type,
+  hw,
+  hd,
+}: {
+  type: string;
+  hw: number;
+  hd: number;
+}) {
+  const height = furnitureHeight(type);
+  switch (type) {
+    case 'bed':
+      return <BedMesh hw={hw} hd={hd} />;
+    case 'sofa':
+      return <SofaMesh hw={hw} hd={hd} />;
+    case 'chair':
+      return <ChairMesh hw={hw} hd={hd} />;
+    case 'table':
+      return <TableMesh hw={hw} hd={hd} />;
+    case 'dining_table':
+      return <TableMesh hw={hw} hd={hd} legCount={6} />;
+    case 'desk':
+      return <DeskMesh hw={hw} hd={hd} />;
+    case 'wardrobe':
+      return <WardrobeMesh hw={hw} hd={hd} />;
+    case 'nightstand':
+      return <NightstandMesh hw={hw} hd={hd} />;
+    default:
+      return <GenericFurnitureMesh hw={hw} hd={hd} height={height} />;
+  }
+}
+
 export function FurnitureMesh({ item }: { item: FurnitureItem }) {
   const { x, z } = canvasToWorld(item.position);
   const defaults = getFurnitureDefaults(item.type);
@@ -292,36 +326,22 @@ export function FurnitureMesh({ item }: { item: FurnitureItem }) {
   const hd = pxToM(item.depth ?? defaults.depth) / 2;
   const height = furnitureHeight(item.type);
   const yOffset = item.type === 'bed' || item.type === 'sofa' || item.type === 'chair' ? 0 : height / 2;
+  const modelUrl = resolveModelUrl('furniture', item.type, item.modelUrl);
+  const parametric = <ParametricFurnitureBody type={item.type} hw={hw} hd={hd} />;
 
-  let body: ReactNode;
-  switch (item.type) {
-    case 'bed':
-      body = <BedMesh hw={hw} hd={hd} />;
-      break;
-    case 'sofa':
-      body = <SofaMesh hw={hw} hd={hd} />;
-      break;
-    case 'chair':
-      body = <ChairMesh hw={hw} hd={hd} />;
-      break;
-    case 'table':
-      body = <TableMesh hw={hw} hd={hd} />;
-      break;
-    case 'dining_table':
-      body = <TableMesh hw={hw} hd={hd} legCount={6} />;
-      break;
-    case 'desk':
-      body = <DeskMesh hw={hw} hd={hd} />;
-      break;
-    case 'wardrobe':
-      body = <WardrobeMesh hw={hw} hd={hd} />;
-      break;
-    case 'nightstand':
-      body = <NightstandMesh hw={hw} hd={hd} />;
-      break;
-    default:
-      body = <GenericFurnitureMesh hw={hw} hd={hd} height={height} />;
-  }
+  const body = modelUrl ? (
+    <GltfModelBody
+      url={modelUrl}
+      targetWidthM={hw * 2}
+      targetDepthM={hd * 2}
+      modelScale={item.modelScale}
+      category="furniture"
+      type={item.type}
+      fallback={parametric}
+    />
+  ) : (
+    parametric
+  );
 
   return (
     // @ts-expect-error - React Three Fiber JSX types
@@ -489,6 +509,37 @@ function WaterMesh({ hw, hd }: { hw: number; hd: number }) {
   );
 }
 
+export function ParametricLandscapeBody({
+  type,
+  hw,
+  hd,
+  rockRotation,
+}: {
+  type: string;
+  hw: number;
+  hd: number;
+  rockRotation: number;
+}) {
+  switch (type) {
+    case 'tree':
+      return <TreeMesh />;
+    case 'pine':
+      return <PineMesh />;
+    case 'shrub':
+      return <ShrubMesh />;
+    case 'flower':
+      return <FlowerMesh />;
+    case 'rock':
+      return <RockMesh rotation={rockRotation} />;
+    case 'path':
+      return <PathMesh hw={hw} hd={hd} />;
+    case 'water':
+      return <WaterMesh hw={hw} hd={hd} />;
+    default:
+      return <ShrubMesh />;
+  }
+}
+
 export function LandscapeMesh({ element }: { element: LandscapeElement }) {
   const { x, z } = canvasToWorld(element.position);
   const defaults = getLandscapeDefaults(element.type);
@@ -497,32 +548,33 @@ export function LandscapeMesh({ element }: { element: LandscapeElement }) {
   const rockRotation = element.rotation !== undefined
     ? (element.rotation * Math.PI) / 180
     : hashIdToRotation(element.id);
+  const modelUrl = resolveModelUrl('landscape', element.type, element.modelUrl);
+  const parametric = (
+    <ParametricLandscapeBody type={element.type} hw={hw} hd={hd} rockRotation={rockRotation} />
+  );
 
-  let body: ReactNode;
-  switch (element.type) {
-    case 'tree':
-      body = <TreeMesh />;
-      break;
-    case 'pine':
-      body = <PineMesh />;
-      break;
-    case 'shrub':
-      body = <ShrubMesh />;
-      break;
-    case 'flower':
-      body = <FlowerMesh />;
-      break;
-    case 'rock':
-      body = <RockMesh rotation={rockRotation} />;
-      break;
-    case 'path':
-      body = <PathMesh hw={hw} hd={hd} />;
-      break;
-    case 'water':
-      body = <WaterMesh hw={hw} hd={hd} />;
-      break;
-    default:
-      body = <ShrubMesh />;
+  let body: ReactNode = modelUrl ? (
+    <GltfModelBody
+      url={modelUrl}
+      targetWidthM={hw * 2}
+      targetDepthM={hd * 2}
+      modelScale={element.modelScale}
+      category="landscape"
+      type={element.type}
+      fallback={parametric}
+    />
+  ) : (
+    parametric
+  );
+
+  if (element.type === 'rock' && modelUrl) {
+    body = (
+      // @ts-expect-error - React Three Fiber JSX types
+      <group rotation={[0.2, rockRotation, 0.15]}>
+        {body}
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </group>
+    );
   }
 
   const y = element.type === 'path' || element.type === 'water' ? 0 : 0;

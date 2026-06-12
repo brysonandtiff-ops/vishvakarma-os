@@ -33,7 +33,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 | **3D Viewport** | ✅ Built | Live 2D→3D sync, WebGL error boundary |
 | **Firebase auth + Supabase data** | ✅ Wired | See `src/backend/backendConfig.ts` |
 | **Governance OS** | ✅ Built | 6 routes with SHA-256 snapshot hashing |
-| **Export/import** | ✅ JSON, SVG, PDF | GLTF deferred (stub returns clear error) |
+| **Export/import** | ✅ JSON, SVG, PDF | GLTF export/import deferred; 3D viewport uses bundled GLB models (Phase 3) |
 | **Realtime collaboration** | ✅ Transport | Supabase Realtime with local fallback |
 
 ### Known Limitations ⚠️

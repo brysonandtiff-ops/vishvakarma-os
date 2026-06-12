@@ -47,11 +47,20 @@ describe('2D/3D parity', () => {
         expect(Number.isFinite(item.position.y)).toBe(true);
         expect((item.width ?? 0)).toBeGreaterThan(0);
         expect((item.depth ?? 0)).toBeGreaterThan(0);
+        if (item.modelScale !== undefined) {
+          expect(Number.isFinite(item.modelScale)).toBe(true);
+        }
+        if (item.modelUrl !== undefined) {
+          expect(item.modelUrl.length).toBeGreaterThan(0);
+        }
       }
 
       for (const element of manifest.landscapeElements ?? []) {
         expect(Number.isFinite(element.position.x)).toBe(true);
         expect(Number.isFinite(element.position.y)).toBe(true);
+        if (element.modelScale !== undefined) {
+          expect(Number.isFinite(element.modelScale)).toBe(true);
+        }
       }
     }
   });

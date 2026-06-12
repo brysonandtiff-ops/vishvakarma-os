@@ -96,6 +96,8 @@ export interface FurnitureItem {
   rotation?: number;
   width?: number;
   depth?: number;
+  modelUrl?: string;
+  modelScale?: number;
 }
 
 export interface MepSymbol {
@@ -116,6 +118,8 @@ export interface LandscapeElement {
   width?: number;
   depth?: number;
   rotation?: number;
+  modelUrl?: string;
+  modelScale?: number;
 }
 
 export interface CostItem {

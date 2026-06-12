@@ -1,11 +1,12 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
-import { Component, useMemo, useRef, useState } from 'react';
+import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor } from '@/components/editor/sceneMeshes';
+import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
 import { WallSurfaceMaterial } from '@/components/editor/sceneMaterials';
 import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
@@ -519,6 +520,10 @@ export default function Viewport3D({
     persistAtmosphereMode(mode);
   };
   const atmosphereConfig = ATMOSPHERE_MODES[atmosphereMode];
+
+  useEffect(() => {
+    preloadSceneModels();
+  }, []);
 
   // Pre-check: avoid mounting Canvas at all if WebGL is unsupported
   const webgl = detectWebGL();
