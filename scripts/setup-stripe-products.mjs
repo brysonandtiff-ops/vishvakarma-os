@@ -1,8 +1,19 @@
 #!/usr/bin/env node
 /**
  * Idempotently create Vishvakarma Studio product + monthly price in Stripe.
- * Run: STRIPE_SECRET_KEY=sk_test_... pnpm run setup:stripe
+ *
+ * Safe local flow:
+ *   1. cp .env.stripe.local.example .env.stripe.local
+ *   2. Paste STRIPE_SECRET_KEY into .env.stripe.local (never commit it)
+ *   3. pnpm run setup:stripe
+ *
+ * Inline flow still works by prefixing the command with STRIPE_SECRET_KEY.
  */
+import { join } from 'node:path';
+import { loadEnvFile } from './load-env-file.mjs';
+
+loadEnvFile(join(process.cwd(), '.env.stripe.local'));
+loadEnvFile(join(process.cwd(), '.env.local'));
 
 const STUDIO_PLAN = 'studio';
 const ENTERPRISE_PLAN = 'enterprise';
@@ -15,7 +26,8 @@ const ENTERPRISE_MONTHLY_AMOUNT_CENTS = 100000;
 function requireStripeKey() {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
   if (!key) {
-    console.error('[FAIL] STRIPE_SECRET_KEY is required (use a test key for setup).');
+    console.error('[FAIL] STRIPE_SECRET_KEY is required.');
+    console.error('Add it to .env.stripe.local or prefix the setup command with STRIPE_SECRET_KEY.');
     process.exit(1);
   }
   return key;
@@ -87,7 +99,7 @@ async function main() {
   const secretKey = requireStripeKey();
 
   console.log('');
-  console.log('Add to Vercel / .env.local (server-only):');
+  console.log('Add these values to Vercel Production env and .env.stripe.local:');
   await ensurePlan(
     secretKey,
     STUDIO_PLAN,
