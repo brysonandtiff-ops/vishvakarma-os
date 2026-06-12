@@ -10,6 +10,7 @@ import { chromium } from '@playwright/test';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { openExternalUrl, resolveChromeExecutable } from './open-external-url.mjs';
 
 const ENV_PATH = '.env.stripe.local';
 const API_KEYS_URL = 'https://dashboard.stripe.com/apikeys';
@@ -28,18 +29,64 @@ function upsertEnv(key, value) {
   writeFileSync(ENV_PATH, `${output}\n`, 'utf8');
 }
 
-async function main() {
+async function launchStripeDashboard() {
+  const chromePath = resolveChromeExecutable();
   const userDataDir = join(homedir(), '.vishvakarma-stripe-playwright');
-  const context = await chromium.launchPersistentContext(userDataDir, {
-    channel: 'chrome',
-    headless: false,
-    viewport: { width: 1280, height: 900 },
-  });
+
+  if (chromePath) {
+    try {
+      const context = await chromium.launchPersistentContext(userDataDir, {
+        executablePath: chromePath,
+        headless: false,
+        viewport: { width: 1280, height: 900 },
+      });
+      return { context, method: 'playwright-chrome' };
+    } catch (error) {
+      console.warn(
+        `[WARN] Playwright could not launch Chrome at ${chromePath}: ${
+          error instanceof Error ? error.message : error
+        }`
+      );
+    }
+  }
+
+  try {
+    const context = await chromium.launchPersistentContext(userDataDir, {
+      channel: 'chrome',
+      headless: false,
+      viewport: { width: 1280, height: 900 },
+    });
+    return { context, method: 'playwright-channel' };
+  } catch (error) {
+    console.warn(
+      `[WARN] Playwright channel=chrome failed: ${error instanceof Error ? error.message : error}`
+    );
+  }
+
+  const opened = openExternalUrl(API_KEYS_URL, { preferChrome: true });
+  if (opened.ok) {
+    console.log(`[INFO] Opened Stripe API keys in ${opened.method}.`);
+    console.log('[INFO] Copy sk_live_... from the page into .env.stripe.local as STRIPE_SECRET_KEY.');
+    console.log(`[INFO] URL: ${API_KEYS_URL}`);
+    return { context: null, method: opened.method };
+  }
+
+  throw new Error(
+    'Could not launch Chrome. Install Google Chrome or set CHROME_PATH, then re-run this script.'
+  );
+}
+
+async function main() {
+  const { context, method } = await launchStripeDashboard();
+  if (!context) {
+    process.exit(0);
+  }
 
   try {
     const page = context.pages()[0] ?? (await context.newPage());
     await page.goto(API_KEYS_URL, { waitUntil: 'domcontentloaded', timeout: 120000 });
-    console.log('[INFO] Sign in to Stripe Dashboard if prompted. Waiting up to 3 minutes for sk_live_...');
+    console.log(`[INFO] Stripe Dashboard opened via ${method}.`);
+    console.log('[INFO] Sign in if prompted. Keep this window open — waiting up to 3 minutes for sk_live_...');
 
     let match = null;
     for (let attempt = 0; attempt < 36; attempt += 1) {
@@ -48,7 +95,9 @@ async function main() {
       for (let i = 0; i < count; i += 1) {
         await revealButtons.nth(i).click({ timeout: 3000 }).catch(() => undefined);
       }
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(5000).catch(() => {
+        throw new Error('Browser window closed before sk_live_ could be read. Re-run and keep Chrome open.');
+      });
       const bodyText = await page.locator('body').innerText();
       match = bodyText.match(/sk_live_[A-Za-z0-9]+/);
       if (match) break;
