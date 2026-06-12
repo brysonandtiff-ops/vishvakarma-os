@@ -14,12 +14,24 @@ Project ref: `jyocvwipthswfcmvqgqe` (or your linked project).
      - `https://vishvakarma-os.vercel.app/auth`
      - `https://*.vercel.app/auth` (preview)
      - `http://127.0.0.1:5173/auth`
-4. Apply migrations:
+4. Apply migrations and enable providers:
 
 ```bash
-supabase link --project-ref jyocvwipthswfcmvqgqe
-supabase db push
+npx supabase login
+npx supabase link --project-ref jyocvwipthswfcmvqgqe
+npx supabase db push
+node scripts/setup-supabase-auth-providers.mjs
 pnpm run verify:supabase-schema:live
+```
+
+5. **Google Cloud Console** — add authorized redirect URI to the Firebase web OAuth client:
+   `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback`
+
+6. Push env to Vercel (after copying keys to `.env.supabase.local`):
+
+```bash
+pnpm run push:supabase-env-vercel
+vercel --prod
 ```
 
 ## Vercel environment (Production)

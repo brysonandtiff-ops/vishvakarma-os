@@ -1,18 +1,18 @@
 {
-  "testedAt": "2026-06-12T11:57:47.766Z",
-  "commitSha": "1bb14f5c9c2d8afd4d75dcb2668428b491e83dd9",
+  "testedAt": "2026-06-12T17:11:23.725Z",
+  "commitSha": "81667015c84a35e07337453e8083d951c52bc41d",
   "deploymentUrl": "https://vishvakarma-os.vercel.app",
   "provider": "supabase",
   "emailLink": {
-    "config": false,
+    "config": true,
     "liveSend": false,
-    "liveSendNote": "VITE_SUPABASE_* not set locally"
+    "liveSendNote": "OTP response 422"
   },
   "google": {
-    "config": false,
-    "liveSignIn": false,
-    "liveSignInNote": "VITE_SUPABASE_* not set locally"
+    "config": true,
+    "liveSignIn": true,
+    "liveSignInNote": "Supabase Google provider assumed enabled when URL + anon key configured; verify in dashboard."
   },
   "winner": "google",
-  "winnerRationale": "Config-only pass — set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for live probe."
+  "winnerRationale": "Supabase Google OAuth is the configured primary sign-in path."
 }

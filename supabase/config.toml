@@ -1,5 +1,4 @@
-# Vishvakarma.OS — Supabase archive / migration project
-# Production auth uses Firebase; this project holds legacy schema for export → Firestore cutover.
+# Vishvakarma.OS — Supabase Auth + Postgres (production default when VITE_BACKEND_PROVIDER=supabase)
 
 project_id = "jyocvwipthswfcmvqgqe"
 
@@ -22,8 +21,21 @@ port = 54323
 [auth]
 enabled = true
 site_url = "https://vishvakarma-os.vercel.app"
-additional_redirect_urls = ["http://127.0.0.1:5173", "http://127.0.0.1:5173/**", "https://vishvakarma-os.vercel.app/**"]
+additional_redirect_urls = [
+  "http://127.0.0.1:5173/auth",
+  "http://127.0.0.1:5173/**",
+  "https://vishvakarma-os.vercel.app/auth",
+  "https://vishvakarma-os.vercel.app/**",
+  "https://*.vercel.app/auth",
+]
 
 [auth.email]
 enable_signup = true
 enable_confirmations = false
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+redirect_uri = ""
+skip_nonce_check = false

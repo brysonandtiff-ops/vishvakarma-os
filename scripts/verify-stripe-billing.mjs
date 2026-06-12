@@ -11,14 +11,32 @@ const strict = process.argv.includes('--strict');
 const failures = [];
 const warnings = [];
 
-const requiredServerVars = [
-  'STRIPE_SECRET_KEY',
-  'STRIPE_WEBHOOK_SECRET',
-  'STRIPE_PRICE_STUDIO_MONTHLY',
-  'STRIPE_PRICE_ENTERPRISE_MONTHLY',
-  'FIREBASE_SERVICE_ACCOUNT_JSON',
-  'FIREBASE_PROJECT_ID',
-];
+function resolveBillingBackendProvider() {
+  return (process.env.BACKEND_PROVIDER ?? process.env.VITE_BACKEND_PROVIDER ?? 'supabase')
+    .trim()
+    .toLowerCase();
+}
+
+const billingBackend = resolveBillingBackendProvider();
+
+const requiredServerVars =
+  billingBackend === 'supabase'
+    ? [
+        'STRIPE_SECRET_KEY',
+        'STRIPE_WEBHOOK_SECRET',
+        'STRIPE_PRICE_STUDIO_MONTHLY',
+        'STRIPE_PRICE_ENTERPRISE_MONTHLY',
+        'SUPABASE_SERVICE_ROLE_KEY',
+        'SUPABASE_URL',
+      ]
+    : [
+        'STRIPE_SECRET_KEY',
+        'STRIPE_WEBHOOK_SECRET',
+        'STRIPE_PRICE_STUDIO_MONTHLY',
+        'STRIPE_PRICE_ENTERPRISE_MONTHLY',
+        'FIREBASE_SERVICE_ACCOUNT_JSON',
+        'FIREBASE_PROJECT_ID',
+      ];
 
 const recommendedClientVars = [
   'VITE_STRIPE_BILLING_ENABLED',
@@ -115,10 +133,10 @@ for (const name of recommendedClientVars) {
     warnings.push('VITE_PRICING_PAGE_ENABLED is not true — /pricing will 404 in production builds.');
   } else if (name === 'VITE_STRIPE_BILLING_ENABLED' && value !== 'true') {
     warnings.push('VITE_STRIPE_BILLING_ENABLED is not true — checkout buttons stay in fallback mode.');
-  } else if (name === 'BACKEND_PROVIDER' && value !== 'firebase') {
-    warnings.push('BACKEND_PROVIDER is not firebase — Stripe webhooks may write to the wrong backend.');
-  } else if (name === 'VITE_BACKEND_PROVIDER' && value !== 'firebase') {
-    warnings.push('VITE_BACKEND_PROVIDER is not firebase — billing reads may not match webhook writes.');
+  } else if (name === 'BACKEND_PROVIDER' && value !== billingBackend) {
+    warnings.push(`BACKEND_PROVIDER is "${value}" but expected "${billingBackend}".`);
+  } else if (name === 'VITE_BACKEND_PROVIDER' && value !== billingBackend) {
+    warnings.push(`VITE_BACKEND_PROVIDER is "${value}" but expected "${billingBackend}".`);
   }
 }
 
@@ -163,5 +181,9 @@ console.log('Stripe billing env, CSP, and live Stripe API checks passed.');
 console.log('Operator next steps:');
 console.log('- Stripe Dashboard (live): Studio $499/mo + Enterprise $1,000/mo prices + webhook to /api/stripe/webhook');
 console.log('- Archive old $99 / $249 price IDs in Stripe Dashboard after updating Vercel env vars');
-console.log('- Vercel Production: set all STRIPE_* and FIREBASE_* vars, redeploy');
-console.log('- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Firestore');
+console.log('- Vercel Production: set all STRIPE_* and backend vars, redeploy');
+console.log(
+  billingBackend === 'supabase'
+    ? '- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Supabase'
+    : '- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Firestore'
+);
