@@ -24,6 +24,9 @@ async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
       '[data-testid="editor-top-bar"] button',
       '[data-testid="tool-rail"] button',
       '.bg-ws-canvas > .flex.shrink-0 button',
+      '.vish-3d-atmosphere-btn',
+      '.vish-properties-panel button',
+      '.vish-notifications-strip button',
     ];
     const buttons = selectors.flatMap((sel) => Array.from(document.querySelectorAll<HTMLButtonElement>(sel)));
     const seen = new Set<Element>();
@@ -71,6 +74,35 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await assertEditorTouchTargets(page);
+  });
+
+  test('editor portrait with 3D panel open avoids horizontal overflow', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    if (await toggle3d.isVisible()) {
+      await toggle3d.click();
+      await page.waitForTimeout(400);
+    }
+    await assertNoHorizontalOverflow(page);
+    await assertEditorTouchTargets(page);
+  });
+
+  test('blueprint canvas uses responsive container sizing', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    const metrics = await page.evaluate(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+      const container = canvas?.parentElement;
+      if (!canvas || !container) return null;
+      const canvasRect = canvas.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      return {
+        canvasWidth: canvasRect.width,
+        containerWidth: containerRect.width,
+        maxWidthOk: canvasRect.width <= containerRect.width + 1,
+      };
+    });
+    expect(metrics).not.toBeNull();
+    expect(metrics?.maxWidthOk).toBe(true);
   });
 
   test('captures iPad editor evidence screenshots', async ({ page }) => {

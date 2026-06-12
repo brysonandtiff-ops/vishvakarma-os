@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { useNavigate } from 'react-router-dom';
 import { FileDown, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -102,6 +103,7 @@ export default function AIDesignerDialog({
   const [explanation, setExplanation] = useState<PlanExplanation | null>(null);
   const [selectingRunnerUp, setSelectingRunnerUp] = useState(false);
   const navigate = useNavigate();
+  const { bottomInset: keyboardBottomInset, isKeyboardOpen } = useVisualViewportInset();
 
   const designBrief = session.designBrief;
 
@@ -363,7 +365,10 @@ export default function AIDesignerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome vish-copilot-dialog max-h-[85vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-3xl">
+      <DialogContent
+        className="vish-dialog-chrome vish-copilot-dialog max-h-[85vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-3xl"
+        style={isKeyboardOpen ? { paddingBottom: `${keyboardBottomInset + 12}px` } : undefined}
+      >
         <DialogHeader>
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
             Architecture Copilot

@@ -88,7 +88,8 @@
   }
 
   .architect-canvas {
-    max-width: none;
+    max-width: 100%;
+    height: auto;
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
@@ -106,7 +107,9 @@
   .bg-ws-canvas > .flex.shrink-0.items-center.gap-2.border-b button,
   .vish-properties-panel button[aria-label^="Delete"],
   .vish-radial-tool-btn,
-  .vish-notifications-strip button {
+  .vish-radial-center-btn,
+  .vish-notifications-strip button,
+  .vish-3d-atmosphere-btn {
     min-width: 44px;
     min-height: 44px;
   }
@@ -121,12 +124,24 @@
     height: 44px;
   }
 
+  .vish-radial-center-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .vish-3d-atmosphere-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 0.75rem;
+    font-size: 10px;
+  }
+
   .ws-pane-header {
     min-height: 44px;
   }
 
   .ws-status-bar {
-    min-height: 36px;
+    min-height: 44px;
     font-size: 10px;
   }
 

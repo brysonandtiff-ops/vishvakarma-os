@@ -1,3 +1,4 @@
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { MousePointer2 } from 'lucide-react';
 import { RADIAL_TOOL_IDS, TOOL_META } from '@/editor/toolMeta';
 import type { ToolType } from '@/types';
@@ -11,7 +12,9 @@ interface RadialToolMenuProps {
 }
 
 export default function RadialToolMenu({ visible, x, y, currentTool, onSelectTool }: RadialToolMenuProps) {
-  if (!visible) return null;
+  const isCoarsePointer = useCoarsePointer();
+
+  if (!visible || isCoarsePointer) return null;
 
   return (
     <div
@@ -23,7 +26,7 @@ export default function RadialToolMenu({ visible, x, y, currentTool, onSelectToo
         <button
           type="button"
           aria-label="Select"
-          className="pointer-events-auto absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/40 bg-ws-menubar text-primary shadow-lg"
+          className="vish-radial-center-btn pointer-events-auto absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/40 bg-ws-menubar text-primary shadow-lg"
           onClick={() => onSelectTool('select')}
         >
           <MousePointer2 className="h-4 w-4" />

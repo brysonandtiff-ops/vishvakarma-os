@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
 import { getToolDefaults } from '@/components/editor/toolDefaults';
+import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 
 interface PropertiesPanelProps {
@@ -143,6 +144,7 @@ export default function PropertiesPanel({
               className="vish-mockup-input h-9 w-full text-xs"
               value={selectedLabel.text}
               onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
+              onFocus={scrollFocusedFieldIntoView}
               aria-label="Label text"
             />
           </div>

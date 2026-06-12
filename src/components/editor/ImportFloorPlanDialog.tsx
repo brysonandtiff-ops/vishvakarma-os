@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { FileUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { importProject } from '@/modules/import';
 import type { ProjectManifest } from '@/types';
 
@@ -17,6 +18,7 @@ export default function ImportFloorPlanDialog({
   const inputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isCoarsePointer = useCoarsePointer();
 
   const handleFile = async (file: File) => {
     setImporting(true);
@@ -63,6 +65,11 @@ export default function ImportFloorPlanDialog({
             <li>JSON — full Vishvakarma project manifest</li>
             <li>SVG — wall geometry exported from Vishvakarma.OS</li>
           </ul>
+          {isCoarsePointer && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              On iPad, tap Browse Files to pick from Files or iCloud Drive.
+            </p>
+          )}
         </div>
 
         <input
@@ -88,7 +95,7 @@ export default function ImportFloorPlanDialog({
           </Button>
           <Button
             disabled={importing}
-            className="bg-primary text-primary-foreground"
+            className="touch-target bg-primary text-primary-foreground"
             onClick={() => inputRef.current?.click()}
           >
             {importing ? (
@@ -99,7 +106,7 @@ export default function ImportFloorPlanDialog({
             ) : (
               <>
                 <FileUp className="mr-2 h-4 w-4" />
-                Choose File
+                {isCoarsePointer ? 'Browse Files' : 'Choose File'}
               </>
             )}
           </Button>

@@ -59,23 +59,23 @@ export function expireStaleOAuthRedirectPending(maxAgeMs = 120_000) {
   }
 }
 
+const EMBEDDED_AUTH_UA_PATTERN =
+  /Cursor|Electron|VSCode|vscode|Codeium|Windsurf|Obsidian|WebView|; wv\)|\bwv\b|instagram|fbav|line\//i;
+
 export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
-  const ua = userAgent.toLowerCase();
-  return (
-    ua.includes('cursor') ||
-    ua.includes('electron') ||
-    ua.includes('webview') ||
-    ua.includes('instagram') ||
-    ua.includes('fbav') ||
-    ua.includes('line/')
-  );
+  if (/HeadlessChrome/i.test(userAgent)) {
+    return false;
+  }
+
+  return EMBEDDED_AUTH_UA_PATTERN.test(userAgent);
 }
 
 export function getEmbeddedAuthBrowserLabel(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
-  const ua = userAgent.toLowerCase();
-  if (ua.includes('cursor')) return 'Cursor embedded browser';
-  if (ua.includes('electron')) return 'embedded IDE browser';
-  if (ua.includes('instagram') || ua.includes('fbav')) return 'in-app browser';
+  if (/Cursor/i.test(userAgent)) return 'Cursor embedded preview';
+  if (/VSCode|vscode/i.test(userAgent)) return 'VS Code embedded preview';
+  if (/Electron/i.test(userAgent)) return 'embedded app browser';
+  if (/instagram|fbav/i.test(userAgent)) return 'in-app browser';
+  if (/; wv\)|\bwv\b/i.test(userAgent)) return 'embedded WebView';
   return 'embedded browser';
 }
 

@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
+import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
@@ -121,6 +122,7 @@ export default function AuthPage() {
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser || Boolean((emailLinkError ?? error) && isEmbeddedAuthErrorMessage(emailLinkError ?? error ?? ''));
+  const { bottomInset: keyboardBottomInset, isKeyboardOpen } = useVisualViewportInset();
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -222,8 +224,9 @@ export default function AuthPage() {
 
   return (
     <main
-      className="vish-auth-gate vish-dark-stage relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:py-10"
+      className="vish-auth-gate vish-dark-stage relative flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-8 sm:py-10"
       aria-labelledby="auth-page-title"
+      style={isKeyboardOpen ? { paddingBottom: `${keyboardBottomInset + 16}px` } : undefined}
     >
       <SanskritRainBackground preset="auth" className="pointer-events-none absolute inset-0" />
 

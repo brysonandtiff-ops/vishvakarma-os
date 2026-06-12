@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { FileText, Map, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import type { CopilotDocumentKind, CopilotUploadedDocument } from '@/domain/copilot/copilotSession';
 import { createUploadedDocument, validateCopilotUpload } from '@/services/copilot/ingestion/copilotUpload';
 import { toast } from 'sonner';
@@ -22,6 +23,7 @@ function UploadSlot({
   onUpload,
   onRemove,
   disabled,
+  isCoarsePointer = false,
 }: {
   kind: CopilotDocumentKind;
   label: string;
@@ -31,6 +33,7 @@ function UploadSlot({
   onUpload: (kind: CopilotDocumentKind, file: File) => void;
   onRemove: (kind: CopilotDocumentKind) => void;
   disabled?: boolean;
+  isCoarsePointer?: boolean;
 }) {
   const onDrop = useCallback(
     (files: File[]) => {
@@ -75,13 +78,13 @@ function UploadSlot({
       ) : (
         <div
           {...getRootProps()}
-          className={`cursor-pointer rounded-lg border border-dashed p-3 text-center text-xs transition-colors ${
+          className={`touch-target min-h-[44px] cursor-pointer rounded-lg border border-dashed p-4 text-center text-xs transition-colors ${
             isDragActive ? 'border-primary bg-primary/5' : 'border-border/60 text-muted-foreground hover:border-primary/50'
           }`}
         >
           <input {...getInputProps()} />
           <Upload className="mx-auto mb-1 h-5 w-5" />
-          Drop file or click · {hint}
+          {isCoarsePointer ? `Browse Files · ${hint}` : `Drop file or click · ${hint}`}
         </div>
       )}
     </div>
@@ -104,6 +107,7 @@ export default function CopilotUploadStep({
   const handleUpload = (kind: CopilotDocumentKind, file: File) => {
     onUpload(kind, file, createUploadedDocument(kind, file));
   };
+  const isCoarsePointer = useCoarsePointer();
 
   return (
     <div className="grid gap-3 md:grid-cols-3">
@@ -118,10 +122,12 @@ export default function CopilotUploadStep({
           onUpload={handleUpload}
           onRemove={onRemove}
           disabled={disabled}
+          isCoarsePointer={isCoarsePointer}
         />
       ))}
       <p className="text-[10px] text-muted-foreground">
         Optional uploads — design brief alone still works. Uploaded docs improve site and council accuracy.
+        {isCoarsePointer && ' On iPad, HEIC photos from Photos are accepted for image uploads.'}
       </p>
       {filesByKind.size > 0 && (
         <p className="text-xs text-muted-foreground">{filesByKind.size} file(s) ready for parsing</p>

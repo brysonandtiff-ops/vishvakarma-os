@@ -26,6 +26,8 @@ Implemented:
 - `apple-mobile-web-app-status-bar-style=black-translucent`
 - `apple-mobile-web-app-title=Vishvakarma.OS`
 - `viewport-fit=cover` viewport support
+- `interactive-widget=resizes-content` for Safari keyboard resize
+- Lightweight service worker via `vite-plugin-pwa` (shell/static precache, auto-update)
 
 Manual iPad Safari proof still required before public release:
 
@@ -35,9 +37,10 @@ Manual iPad Safari proof still required before public release:
 4. Confirm app name is `Vishvakarma.OS`.
 5. Launch from Home Screen.
 6. Confirm it opens in standalone mode.
-7. Confirm `/auth` renders correctly in portrait and landscape.
+7. Confirm `/auth` renders correctly in portrait and landscape (safe-area + keyboard).
 8. Confirm private routes redirect to `/auth` while signed out.
-9. Capture screenshots or video for release evidence.
+9. Confirm service worker registers (offline shell only — auth/API remain online).
+10. Capture screenshots or video for release evidence.
 
 ### Physical Device Evidence Log
 *(Automated Playwright captures in `docs/release/evidence/`; Home Screen install still requires a physical iPad.)*

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { isStorageConfigured, uploadMaterialTexture } from '@/backend/firebase/storageUpload';
 import type { Material } from '@/types';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ export default function CustomMaterialDialog({ open, onOpenChange, onCreate, use
   const [color, setColor] = useState('#c4a882');
   const [textureFile, setTextureFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const isCoarsePointer = useCoarsePointer();
 
   const resetForm = () => {
     setName('Custom');
@@ -89,10 +91,14 @@ export default function CustomMaterialDialog({ open, onOpenChange, onCreate, use
             <Input
               id="material-texture"
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif"
+              className="touch-target min-h-[44px] cursor-pointer"
               onChange={(e) => setTextureFile(e.target.files?.[0] ?? null)}
             />
-            <p className="text-xs text-muted-foreground">PNG, JPEG, or WebP · max 2 MB · requires Firebase Storage</p>
+            <p className="text-xs text-muted-foreground">
+              PNG, JPEG, WebP, or HEIC · max 2 MB · requires Firebase Storage
+              {isCoarsePointer && ' · On iPad, tap Browse to pick from Photos or Files'}
+            </p>
           </div>
         </div>
         <DialogFooter>

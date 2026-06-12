@@ -460,7 +460,11 @@
   }
 
   .ws-status-bar {
-    min-height: 36px;
+    min-height: 44px;
+  }
+
+  .vish-3d-viewport-pane {
+    resize: none;
   }
 }
 
