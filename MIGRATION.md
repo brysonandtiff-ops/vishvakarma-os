@@ -16,6 +16,33 @@ This document covers upgrading between Vishvakarma.OS versions and migrating fro
 - Lighting fixtures use `manifest.fixtures[]` (MEP workspace).
 - Multi-floor projects use `manifest.floors[]` with per-wall `floorIndex` (preview scaffolding for v2.0).
 
+## Supabase archive schema
+
+Production login uses **Firebase Auth + Firestore** (`profiles/{uid}`). Supabase project `jyocvwipthswfcmvqgqe` is retained for archival export only.
+
+Schema is versioned in [`supabase/migrations/`](supabase/migrations/):
+
+1. `20260212000001_create_core_tables.sql` — 8 tables including `profiles` (login data)
+2. `20260212000002_profiles_auth_trigger.sql` — auto-create profile on `auth.users` insert
+3. `20260212000003_rls_policies.sql` — uid-scoped RLS + admin via `profiles.role`
+
+Apply to the linked Supabase project:
+
+```bash
+cd vishvakarma-os-live
+supabase link --project-ref jyocvwipthswfcmvqgqe
+supabase db push
+```
+
+Verify locally (static) or against remote (live):
+
+```bash
+pnpm run verify:supabase-schema
+pnpm run verify:firebase-login-data
+# With SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY:
+pnpm run verify:supabase-schema:live
+```
+
 ## Supabase → Firebase cutover
 
 Vishvakarma.OS runtime is **Firebase-only** (Auth + Firestore). Supabase is no longer used by the application.

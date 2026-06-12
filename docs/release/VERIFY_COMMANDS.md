@@ -41,6 +41,32 @@ pnpm run verify:stripe-billing --strict
 
 Follow [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and checkout smoke test.
 
+## Login Data Check (Firebase + Supabase archive)
+
+Production auth is Firebase-only. Supabase holds the legacy schema for export/migration.
+
+```bash
+pnpm run verify:firebase-login-data
+pnpm run verify:supabase-schema
+pnpm run auth:gates
+```
+
+Remote Supabase probe (requires `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`):
+
+```bash
+pnpm run verify:supabase-schema:live
+node scripts/migration/export-supabase.mjs
+node scripts/migration/validate-migration.mjs migration/export-*.json
+```
+
+Promote admin after first Firebase sign-in:
+
+```bash
+node scripts/production/setup-admin.mjs admin@example.com
+```
+
+See [MIGRATION.md](../../MIGRATION.md) for Supabase → Firestore cutover steps.
+
 ## Final Evidence Check
 
 Use this only after all placeholders in the evidence files are filled:

@@ -210,24 +210,28 @@ pnpm run verify:ci
 
 ### Environment Variables
 
-Firebase auth + Supabase data — see root [`README.md`](../README.md) for the full variable list.
+Firebase auth is required for production login. Supabase env vars are operator-only for archive export — see [`.env.example`](../.env.example) and [`MIGRATION.md`](../MIGRATION.md).
 
 ---
 
-## Supabase Backend
+## Backend storage
 
-Vishvakarma.OS uses Supabase for all persistent storage:
+**Production:** Firebase Auth + Firestore (`profiles`, `projects`, governance collections). Login creates a Firestore profile via `ensureFirestoreProfile` in `AuthContext`.
+
+**Archive / migration:** Supabase project `jyocvwipthswfcmvqgqe` with schema in `supabase/migrations/`:
 
 | Table | Purpose |
 |---|---|
+| `profiles` | Login user data (linked to `auth.users`) |
 | `projects` | Blueprint project metadata |
 | `specs` | Locked governance specifications |
-| `registry_entries` | Component and feature registry |
+| `registry` | Component and feature registry |
 | `change_requests` | Change request workflow records |
 | `releases` | Release version records |
 | `audit_logs` | Immutable system event log |
+| `route_manifest` | Navigation route registry |
 
-All schema is managed via migrations in `supabase/migrations/`.
+Verify: `pnpm run verify:firebase-login-data` and `pnpm run verify:supabase-schema`
 
 ---
 
