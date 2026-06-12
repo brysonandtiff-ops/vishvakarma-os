@@ -7,9 +7,13 @@
  *   STRIPE_SECRET_KEY=sk_live_... node scripts/setup-stripe-live.mjs --push-vercel
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
+import { loadEnvFile } from './load-env-file.mjs';
+
+const ENV_PATH = join(process.cwd(), '.env.stripe.local');
+loadEnvFile(ENV_PATH);
 
 const APP_URL = (process.env.APP_URL ?? 'https://vishvakarma-os.vercel.app').replace(/\/$/, '');
 const WEBHOOK_PATH = '/api/stripe/webhook';
@@ -28,14 +32,57 @@ const STUDIO_AMOUNT = 49900;
 const ENTERPRISE_AMOUNT = 100000;
 const LEGACY_AMOUNTS = new Set([9900, 24900]);
 
-function requireStripeKey() {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
-  if (!key) {
-    console.error('[FAIL] STRIPE_SECRET_KEY is required');
-    process.exit(1);
+function extractCliKey(live) {
+  const result = spawnSync(process.execPath, ['scripts/extract-stripe-cli-key.mjs', live ? '--live' : '--test'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) return null;
+  const key = result.stdout?.trim();
+  return key && !key.includes('*') ? key : null;
+}
+
+function resolveStripeKey() {
+  const fromEnv = process.env.STRIPE_SECRET_KEY?.trim();
+  if (fromEnv && !fromEnv.includes('*')) return fromEnv;
+
+  const liveKey = extractCliKey(true);
+  if (liveKey) {
+    console.log('[OK] Using live Stripe key from CLI config');
+    return liveKey;
   }
-  if (!key.startsWith('sk_live_')) {
-    console.warn('[WARN] STRIPE_SECRET_KEY is not sk_live_... — use live key for production rollout');
+
+  const testKey = extractCliKey(false);
+  if (testKey) {
+    console.warn('[WARN] Live key unavailable in CLI config — using sk_test_ from CLI (re-login for live)');
+    return testKey;
+  }
+
+  console.error('[FAIL] STRIPE_SECRET_KEY not set and Stripe CLI keys unavailable.');
+  console.error('       Run: node scripts/stripe-cli-login.mjs  OR  node scripts/fetch-stripe-live-key.mjs');
+  process.exit(1);
+}
+
+function upsertEnvFile(entries) {
+  const lines = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, 'utf8').split('\n') : [];
+  const map = new Map();
+  for (const line of lines) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    const idx = line.indexOf('=');
+    if (idx === -1) continue;
+    map.set(line.slice(0, idx), line.slice(idx + 1));
+  }
+  for (const [key, value] of Object.entries(entries)) {
+    if (value) map.set(key, value);
+  }
+  writeFileSync(ENV_PATH, `${[...map.entries()].map(([k, v]) => `${k}=${v}`).join('\n')}\n`, 'utf8');
+  console.log(`[OK] Updated ${ENV_PATH}`);
+}
+
+function requireStripeKey() {
+  const key = resolveStripeKey();
+  if (!key.startsWith('sk_live_') && !key.startsWith('rk_live_')) {
+    console.warn('[WARN] STRIPE_SECRET_KEY is not a live key — use sk_live_/rk_live_ for production rollout');
   }
   return key;
 }
@@ -172,7 +219,7 @@ function pushEnvToVercel(entries) {
   for (const [name, value] of Object.entries(entries)) {
     if (!value) continue;
     console.log(`[INFO] vercel env add ${name} production`);
-    const result = spawnSync('vercel', ['env', 'add', name, 'production'], {
+    const result = spawnSync('vercel', ['env', 'add', name, 'production', '--force'], {
       input: value,
       encoding: 'utf8',
       shell: true,
@@ -213,21 +260,27 @@ async function main() {
 
   const firebaseEnv = await loadOptionalFirebaseEnv();
 
+  upsertEnvFile({
+    STRIPE_SECRET_KEY: secretKey,
+    STRIPE_WEBHOOK_SECRET: webhookSecret,
+    STRIPE_PRICE_STUDIO_MONTHLY: studioPriceId,
+    STRIPE_PRICE_ENTERPRISE_MONTHLY: enterprisePriceId,
+    FIREBASE_PROJECT_ID: firebaseEnv.FIREBASE_PROJECT_ID ?? 'gen-lang-client-0690161780',
+    FIREBASE_SERVICE_ACCOUNT_JSON: firebaseEnv.FIREBASE_SERVICE_ACCOUNT_JSON,
+    APP_URL,
+    VITE_STRIPE_BILLING_ENABLED: 'true',
+    VITE_PRICING_PAGE_ENABLED: 'true',
+    VITE_BACKEND_PROVIDER: 'firebase',
+    BACKEND_PROVIDER: 'firebase',
+  });
+
   console.log('');
   console.log('=== Vercel Production env (server + client) ===');
-  console.log(`STRIPE_SECRET_KEY=${secretKey}`);
-  console.log(`STRIPE_WEBHOOK_SECRET=${webhookSecret}`);
   console.log(`STRIPE_PRICE_STUDIO_MONTHLY=${studioPriceId}`);
   console.log(`STRIPE_PRICE_ENTERPRISE_MONTHLY=${enterprisePriceId}`);
-  console.log(`FIREBASE_PROJECT_ID=${firebaseEnv.FIREBASE_PROJECT_ID ?? 'gen-lang-client-0690161780'}`);
-  console.log('FIREBASE_SERVICE_ACCOUNT_JSON=<from provision-firebase-service-account.mjs>');
-  console.log(`APP_URL=${APP_URL}`);
-  console.log('VITE_STRIPE_BILLING_ENABLED=true');
-  console.log('VITE_PRICING_PAGE_ENABLED=true');
-  console.log('VITE_BACKEND_PROVIDER=firebase');
-  console.log('BACKEND_PROVIDER=firebase');
+  console.log('STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET saved to .env.stripe.local');
   console.log('');
-  console.log('Redeploy production after setting env vars.');
+  console.log('Redeploy production after pushing env vars.');
 
   if (pushVercel) {
     pushEnvToVercel({

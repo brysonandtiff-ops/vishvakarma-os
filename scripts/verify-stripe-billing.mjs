@@ -2,6 +2,10 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { loadEnvFile } from './load-env-file.mjs';
+
+loadEnvFile(join(process.cwd(), '.env.stripe.local'));
+loadEnvFile(join(process.cwd(), '.env.local'));
 
 const strict = process.argv.includes('--strict');
 const failures = [];

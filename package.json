@@ -61,6 +61,7 @@
     "setup:firebase-oauth": "node scripts/setup-firebase-oauth-providers.mjs",
     "setup:stripe": "node scripts/setup-stripe-products.mjs",
     "setup:stripe-live": "node scripts/setup-stripe-live.mjs",
+    "setup:stripe-live:cli": "node scripts/setup-stripe-live-cli.mjs --push-vercel",
     "provision:firebase-service-account": "node scripts/provision-firebase-service-account.mjs",
     "verify:stripe-billing": "node scripts/verify-stripe-billing.mjs",
     "setup:firebase-auth:full": "node scripts/setup-firebase-auth-config.mjs && npx -y firebase-tools@latest deploy --only auth --project gen-lang-client-0690161780 && node scripts/setup-firebase-auth-config.mjs && node scripts/setup-firebase-oauth-providers.mjs",

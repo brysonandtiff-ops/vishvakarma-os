@@ -10,7 +10,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 const live = process.argv.includes('--live');
-const stripeArgs = ['-y', '@stripe/cli', 'login', '--interactive', ...(live ? ['--live'] : [])];
+const stripeArgs = ['-y', '@stripe/cli', 'login', '--interactive'];
 
 function runStripe(args, input) {
   return spawnSync('npx', args, {
