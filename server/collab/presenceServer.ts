@@ -5,14 +5,34 @@ import { setupWSConnection } from 'y-websocket/bin/utils';
 import { canJoinProjectRoom, extractProjectIdFromRoom, verifyCollabToken } from './auth.js';
 
 const PORT = Number(process.env.COLLAB_WS_PORT ?? 1234);
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? 'http://127.0.0.1:5173,http://localhost:5173')
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://vishvakarma-os.vercel.app',
+  'https://vishvakarma-os-tyrasic-creations.vercel.app',
+  'https://vishvakarma-os-git-main-tyrasic-creations.vercel.app',
+  'http://127.0.0.1:5173',
+  'http://localhost:5173',
+];
+
+function normalizeOrigin(value: string): string | null {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? DEFAULT_ALLOWED_ORIGINS.join(','))
   .split(',')
   .map((value) => value.trim())
-  .filter(Boolean);
+  .filter(Boolean)
+  .map(normalizeOrigin)
+  .filter((origin): origin is string => Boolean(origin));
 
 function isOriginAllowed(origin: string | undefined): boolean {
-  if (!origin) return true;
-  return ALLOWED_ORIGINS.some((allowed) => origin === allowed || origin.startsWith(allowed));
+  if (!origin) return process.env.ALLOW_MISSING_ORIGIN === 'true';
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) return false;
+  return ALLOWED_ORIGINS.includes(normalized);
 }
 
 function parseTokenFromUrl(url: string | undefined): string | null {
