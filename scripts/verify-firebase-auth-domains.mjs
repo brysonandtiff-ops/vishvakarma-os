@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Verify Firebase authorized domains include production host.
+ * Verify Firebase authorized domains include production host and active Vercel aliases.
  * Run: node scripts/verify-firebase-auth-domains.mjs
  */
 
@@ -10,6 +10,8 @@ import { join } from 'path';
 const PROJECT_ID = 'gen-lang-client-0690161780';
 const REQUIRED_DOMAINS = [
   'vishvakarma-os.vercel.app',
+  'vishvakarma-os-tyrasic-creations.vercel.app',
+  'vishvakarma-os-git-main-tyrasic-creations.vercel.app',
   'localhost',
   '127.0.0.1',
   'gen-lang-client-0690161780.firebaseapp.com',
