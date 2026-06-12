@@ -179,6 +179,7 @@ function resolveLiveSecretKey() {
   console.error('[FAIL] LIVE setup requires sk_live_... in .env.stripe.local');
   console.error('       Stripe CLI only stores a read-only rk_live_ key for live mode.');
   console.error('       Copy your secret key from: https://dashboard.stripe.com/apikeys');
+  console.error('       Or run: pnpm run import:stripe-live-key (paste dialog)');
   console.error('       Or run: node scripts/fetch-stripe-live-key.mjs');
   console.error('       Or set STRIPE_LIVE_SECRET_KEY=sk_live_... for this command only');
   process.exit(1);
