@@ -22,7 +22,8 @@
         "oAuthBrandDisplayName": "Vishvakarma.OS",
         "supportEmail": "support@vishvakarma-os.vercel.app",
         "authorizedRedirectUris": [
-          "https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler"
+          "https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler",
+          "https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback"
         ]
       }
     }
