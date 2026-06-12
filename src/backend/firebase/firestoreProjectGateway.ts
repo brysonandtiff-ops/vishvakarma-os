@@ -69,7 +69,9 @@ export async function updateFirestoreProject(
     ...existing,
     ...updates,
     id,
-    ownerId: getCurrentOwnerId(),
+    ownerId: existing.ownerId,
+    collaborators: existing.collaborators ?? [],
+    created_at: existing.created_at,
     updated_at: new Date().toISOString(),
   };
 
@@ -98,6 +100,9 @@ export async function updateFirestoreProjectCollabSnapshot(
   const updated: Record<string, unknown> = {
     ...existing,
     id: projectId,
+    ownerId: existing.ownerId,
+    collaborators: existing.collaborators ?? [],
+    created_at: existing.created_at,
     collabSnapshot: snapshot,
     updated_at: new Date().toISOString(),
   };
@@ -119,6 +124,8 @@ export async function addFirestoreProjectCollaborator(
   const updated: Record<string, unknown> = {
     ...existing,
     id: projectId,
+    ownerId: existing.ownerId,
+    created_at: existing.created_at,
     collaborators: Array.from(collaborators),
     updated_at: new Date().toISOString(),
   };
