@@ -65,6 +65,7 @@
     "setup:stripe-live:cli": "node scripts/setup-stripe-live-cli.mjs --push-vercel",
     "fetch:stripe-live-key": "node scripts/fetch-stripe-live-key.mjs",
     "import:stripe-live-key": "node scripts/import-stripe-live-key-from-clipboard.mjs",
+    "install:workspace-root": "node scripts/install-workspace-root-package.mjs",
     "provision:firebase-service-account": "node scripts/provision-firebase-service-account.mjs",
     "verify:stripe-billing": "node scripts/verify-stripe-billing.mjs",
     "setup:firebase-auth:full": "node scripts/setup-firebase-auth-config.mjs && npx -y firebase-tools@latest deploy --only auth --project gen-lang-client-0690161780 && node scripts/setup-firebase-auth-config.mjs && node scripts/setup-firebase-oauth-providers.mjs",
