@@ -21,6 +21,8 @@ const EXPECTED_TABLES = [
   'releases',
   'audit_logs',
   'route_manifest',
+  'billing',
+  'optimization_batches',
 ];
 
 const REQUIRED_MIGRATION_FRAGMENTS = [

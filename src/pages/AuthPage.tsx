@@ -13,7 +13,7 @@ import {
   getEmbeddedAuthBrowserLabel,
   isEmbeddedAuthBrowser,
   isEmbeddedAuthErrorMessage,
-} from '@/backend/firebase/firebaseOAuthGateway';
+} from '@/backend/authUiHelpers';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';

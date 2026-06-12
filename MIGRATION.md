@@ -18,7 +18,7 @@ This document covers upgrading between Vishvakarma.OS versions and migrating fro
 
 ## Supabase archive schema
 
-Production login uses **Firebase Auth + Firestore** (`profiles/{uid}`). Supabase project `jyocvwipthswfcmvqgqe` is retained for archival export only.
+Production login uses **Supabase Auth + Postgres** by default (`VITE_BACKEND_PROVIDER=supabase`). Firebase Auth + Firestore remains available for rollback (`VITE_BACKEND_PROVIDER=firebase`).
 
 Schema is versioned in [`supabase/migrations/`](supabase/migrations/):
 

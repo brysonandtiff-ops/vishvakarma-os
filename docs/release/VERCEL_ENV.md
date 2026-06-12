@@ -2,12 +2,25 @@
 
 Configure these in the Vercel project **Settings → Environment Variables** for **Production** (and Preview if you want auth on preview URLs) before deploying Vishvakarma.OS.
 
-The app is **Firebase-only**. Supabase variables are no longer used by the runtime build.
+The app defaults to **Supabase Auth + Postgres** when `VITE_BACKEND_PROVIDER=supabase` (recommended). Set `VITE_BACKEND_PROVIDER=firebase` to roll back to Firebase Auth + Firestore.
 
-## Required (Firebase Auth + Firestore)
+See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) for Supabase dashboard steps.
+
+## Required (Supabase — production default)
 
 | Variable | Where to find it |
 |----------|------------------|
+| `VITE_BACKEND_PROVIDER` | Set to `supabase` |
+| `VITE_SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
+| `VITE_SUPABASE_ANON_KEY` | Same → anon public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Same → service_role key (server only — Stripe webhooks, JWT verify) |
+| `BACKEND_PROVIDER` | Optional server mirror of `VITE_BACKEND_PROVIDER` for API routes |
+
+## Required (Firebase — rollback path)
+
+| Variable | Where to find it |
+|----------|------------------|
+| `VITE_BACKEND_PROVIDER` | Set to `firebase` |
 | `VITE_FIREBASE_API_KEY` | Firebase Console → Project settings → General → Web app config |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Same (e.g. `your-project.firebaseapp.com`) |
 | `VITE_FIREBASE_PROJECT_ID` | Same |
@@ -32,8 +45,8 @@ Required when `VITE_STRIPE_BILLING_ENABLED=true`:
 | `STRIPE_WEBHOOK_SECRET` | Signing secret from Stripe webhook endpoint |
 | `STRIPE_PRICE_STUDIO_MONTHLY` | Price ID for Studio **$499/mo** — run `pnpm run setup:stripe` |
 | `STRIPE_PRICE_ENTERPRISE_MONTHLY` | Price ID for Enterprise **$1,000/mo** — run `pnpm run setup:stripe` |
-| `FIREBASE_PROJECT_ID` | Firebase project id (same as `VITE_FIREBASE_PROJECT_ID`) |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Service account JSON string for webhook Firestore writes |
+| `FIREBASE_PROJECT_ID` | Firebase project id (Firebase rollback only) |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Service account JSON (Firebase rollback webhooks) |
 | `APP_URL` | Optional production origin fallback for checkout redirect URLs |
 
 See [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and local testing.
@@ -49,13 +62,18 @@ See [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and local test
 | `VITE_FIREBASE_STORAGE_BUCKET` | Custom material texture uploads |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase SDK completeness |
 
-## Remove from Vercel (legacy)
+## Remove from Vercel (when on Supabase)
 
-Delete these if still present — they are ignored by the current app and can cause confusion:
+Delete Firebase client vars if fully cut over:
 
-- `VITE_BACKEND_PROVIDER`
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_APP_ID`
+
+## Legacy notes
+
+When using Firebase rollback, remove `VITE_SUPABASE_*` instead.
 
 ## Firebase Console checklist (before first deploy)
 

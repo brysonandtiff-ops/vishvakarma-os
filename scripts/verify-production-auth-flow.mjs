@@ -42,7 +42,9 @@ async function testBrowser(name, launcher) {
   const redirectPromise = page
     .waitForURL(
       (url) =>
-        url.href.includes('accounts.google.com') || url.href.includes('firebaseapp.com/__/auth/handler'),
+        url.href.includes('accounts.google.com') ||
+        url.href.includes('supabase.co/auth/v1/authorize') ||
+        url.href.includes('firebaseapp.com/__/auth/handler'),
       { timeout: 12_000 }
     )
     .catch(() => null);
@@ -54,16 +56,17 @@ async function testBrowser(name, launcher) {
   const url = page.url();
   const popupUrl = popup?.url() ?? '';
   const postAlert = (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
-  const reachedGoogle =
+  const reachedOAuth =
     url.includes('accounts.google.com') ||
+    url.includes('supabase.co/auth/v1/authorize') ||
     url.includes('firebaseapp.com/__/auth/handler') ||
     popupUrl.includes('accounts.google.com') ||
+    popupUrl.includes('supabase.co/auth/v1/authorize') ||
     popupUrl.includes('firebaseapp.com/__/auth/handler');
-  // Firefox headless often suppresses popup events without surfacing an app error.
-  const oauthStarted = reachedGoogle || (name === 'firefox' && postAlert === null);
+  const oauthStarted = reachedOAuth || (name === 'firefox' && postAlert === null);
   const oauthDetail = popup
     ? `popup:${popupUrl.slice(0, 80)}`
-    : reachedGoogle
+    : reachedOAuth
       ? url.slice(0, 120)
       : name === 'firefox'
         ? 'firefox-no-error'

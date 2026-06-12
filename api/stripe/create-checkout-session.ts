@@ -1,7 +1,10 @@
 import type { IncomingMessage } from 'node:http';
-import { getBillingRecord, upsertBillingRecord } from '../_lib/billingFirestore';
+import {
+  getBillingRecord,
+  upsertBillingRecord,
+} from '../_lib/billingBackend';
 import { getPriceIdForPlan, getStripeClient, type CheckoutPlan } from '../_lib/stripeClient';
-import { verifyFirebaseTokenFromRequest } from '../_lib/verifyFirebaseToken';
+import { authMetadataUidKey, verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { STUDIO_TRIAL_DAYS } from '../../src/config/billingPlans';
 
 type VercelRequest = IncomingMessage & {
@@ -58,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const user = await verifyFirebaseTokenFromRequest(req);
+  const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -73,10 +76,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const existingBilling = await getBillingRecord(user.uid);
     let customerId = existingBilling?.stripeCustomerId;
 
+    const uidKey = authMetadataUidKey();
+    const uidValue = user.uid;
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
-        metadata: { firebaseUid: user.uid },
+        metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue },
       });
       customerId = customer.id;
       await upsertBillingRecord(user.uid, {
@@ -87,10 +93,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const subscriptionData: {
-      metadata: { firebaseUid: string; plan: CheckoutPlan };
+      metadata: Record<string, string>;
       trial_period_days?: number;
     } = {
-      metadata: { firebaseUid: user.uid, plan },
+      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
     };
 
     if (plan === 'studio') {
@@ -103,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       client_reference_id: user.uid,
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: subscriptionData,
-      metadata: { firebaseUid: user.uid, plan },
+      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
       success_url: `${origin}/profile?checkout=success`,
       cancel_url: `${origin}/pricing?checkout=canceled`,
     });

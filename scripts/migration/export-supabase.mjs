@@ -15,6 +15,8 @@ const TABLES = [
   'releases',
   'audit_logs',
   'route_manifest',
+  'billing',
+  'optimization_batches',
 ];
 
 const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');

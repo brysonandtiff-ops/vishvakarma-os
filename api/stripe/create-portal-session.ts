@@ -1,7 +1,7 @@
 import type { IncomingMessage } from 'node:http';
-import { getBillingRecord } from '../_lib/billingFirestore';
+import { getBillingRecord } from '../_lib/billingBackend';
 import { getStripeClient } from '../_lib/stripeClient';
-import { verifyFirebaseTokenFromRequest } from '../_lib/verifyFirebaseToken';
+import { verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 
 type VercelRequest = IncomingMessage & {
   method?: string;
@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const user = await verifyFirebaseTokenFromRequest(req);
+  const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }

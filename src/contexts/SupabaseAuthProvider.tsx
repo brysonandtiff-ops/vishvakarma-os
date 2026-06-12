@@ -1,24 +1,25 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { backendStatus } from '@/backend/backendConfig';
 import {
-  buildFirebaseSessionFromIdToken,
-  clearFirebaseSessionSnapshot,
-  completeFirebaseEmailLinkSignIn,
-  isFirebaseEmailLinkCallback,
-  requestFirebaseAccessLink,
-  type FirebaseSessionSnapshot,
-} from '@/backend/firebase/firebaseAuthGateway';
-import { firebaseAuth } from '@/backend/firebase/firebaseClient';
+  buildSupabaseSessionFromAuthSession,
+  clearSupabaseSessionSnapshot,
+  completeSupabaseEmailLinkSignIn,
+  isSupabaseEmailLinkCallback,
+  requestSupabaseAccessLink,
+  signOutSupabaseAuth,
+} from '@/backend/supabase/supabaseAuthGateway';
 import {
   clearOAuthRedirectPending,
   consumeOAuthRedirectPending,
   expireStaleOAuthRedirectPending,
   formatAuthError,
   formatOAuthRedirectIncompleteMessage,
-  signInWithAppleFirebase,
-  signInWithGoogleFirebase,
-} from '@/backend/firebase/firebaseOAuthGateway';
-import { ensureFirestoreProfile, getFirestoreProfile } from '@/backend/firebase/firestoreProfileGateway';
+  resolveSupabaseOAuthRedirectSession,
+  signInWithAppleSupabase,
+  signInWithGoogleSupabase,
+} from '@/backend/supabase/supabaseOAuthGateway';
+import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
+import { ensureSupabaseProfile, getSupabaseProfile } from '@/backend/supabase/supabaseProfileGateway';
 import type { Profile } from '@/types';
 import {
   AuthContext,
@@ -27,14 +28,12 @@ import {
   type AuthUser,
   type EmailLinkState,
 } from '@/contexts/authContextTypes';
-import { SupabaseAuthProvider, getProfile as getSupabaseProfileExport } from '@/contexts/SupabaseAuthProvider';
-import { onAuthStateChanged, getRedirectResult, signOut as firebaseSignOut } from 'firebase/auth';
 
-function firebaseUserFromSession(session: FirebaseSessionSnapshot): AuthUser {
+function supabaseUserFromSession(session: AuthSession): AuthUser {
   return {
     id: session.uid,
     email: session.email,
-    provider: 'firebase',
+    provider: 'supabase',
   };
 }
 
@@ -44,7 +43,7 @@ function normalizeMagicLinkError(error: unknown) {
 
     if (message.includes('fetch failed') || message.includes('failed to fetch') || message.includes('networkerror')) {
       return new Error(
-        'Magic-link request could not reach Firebase Auth. Check Firebase environment variables and deployment network access.'
+        'Magic-link request could not reach Supabase Auth. Check Supabase environment variables and deployment network access.'
       );
     }
 
@@ -54,16 +53,18 @@ function normalizeMagicLinkError(error: unknown) {
   return new Error('Magic-link request failed for an unknown reason.');
 }
 
-async function syncSessionFromFirebaseUser(uid: string, email: string, forceRefresh = false) {
-  if (!firebaseAuth?.currentUser) {
-    throw new Error('Firebase user is not available.');
-  }
+export async function getProfile(userId: string): Promise<Profile | null> {
+  if (!backendStatus.isConfigured) return null;
 
-  const idToken = await firebaseAuth.currentUser.getIdToken(forceRefresh);
-  return buildFirebaseSessionFromIdToken(uid, firebaseAuth.currentUser.email ?? email, idToken);
+  try {
+    return await getSupabaseProfile(userId);
+  } catch (error) {
+    console.error('[Vishvakarma.OS] Failed to fetch user profile:', error);
+    return null;
+  }
 }
 
-function FirebaseAuthProvider({ children }: { children: ReactNode }) {
+export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -78,7 +79,7 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const nextProfile = await ensureFirestoreProfile(nextUser.id, nextUser.email);
+      const nextProfile = await ensureSupabaseProfile(nextUser.id, nextUser.email);
       setProfile(nextProfile);
     } catch (error) {
       console.error('[Vishvakarma.OS] Failed to load profile:', error);
@@ -95,7 +96,7 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     setEmailLinkState('completing');
     setLoading(true);
 
-    const result = await completeFirebaseEmailLinkSignIn(email);
+    const result = await completeSupabaseEmailLinkSignIn(email);
 
     if (result.status === 'completed') {
       setEmailLinkState('idle');
@@ -117,24 +118,18 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    const client = getSupabaseClient();
 
-    if (!backendStatus.isConfigured) {
+    if (!backendStatus.isConfigured || !client) {
       setLoading(false);
       return () => {
         mounted = false;
       };
     }
 
-    if (!firebaseAuth) {
-      if (mounted) setLoading(false);
-      return () => {
-        mounted = false;
-      };
-    }
-
-    if (isFirebaseEmailLinkCallback()) {
+    if (isSupabaseEmailLinkCallback()) {
       setEmailLinkState('completing');
-      void completeFirebaseEmailLinkSignIn()
+      void completeSupabaseEmailLinkSignIn()
         .then((result) => {
           if (!mounted) return;
 
@@ -148,86 +143,48 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             setEmailLinkState('error');
             setEmailLinkError(result.error.message);
             setLoading(false);
-            console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', result.error);
             return;
           }
 
-          if (result.status === 'completed') {
-            setEmailLinkState('idle');
-            setLoading(false);
-          }
+          setEmailLinkState('idle');
+          setLoading(false);
         })
         .catch((error) => {
           if (!mounted) return;
           setEmailLinkState('error');
           setEmailLinkError(error instanceof Error ? error.message : 'Email-link sign-in failed.');
           setLoading(false);
-          console.error('[Vishvakarma.OS] Firebase email-link sign-in failed:', error);
         });
     }
 
     expireStaleOAuthRedirectPending();
 
-    void getRedirectResult(firebaseAuth)
-      .then(async (credential) => {
-        if (!mounted) return;
+    void resolveSupabaseOAuthRedirectSession()
+      .then(async (redirectSession) => {
+        if (!mounted || !redirectSession) return;
 
-        if (!credential?.user) {
-          if (consumeOAuthRedirectPending() && mounted) {
-            setEmailLinkError(formatOAuthRedirectIncompleteMessage());
-          }
-          if (mounted) setLoading(false);
-          return;
-        }
-
-        clearOAuthRedirectPending();
-
-        try {
-          const nextSession = await syncSessionFromFirebaseUser(
-            credential.user.uid,
-            credential.user.email ?? '',
-            true
-          );
-          const nextUser = firebaseUserFromSession(nextSession);
-
-          setSession(nextSession);
-          setUser(nextUser);
-          setEmailLinkState('idle');
-          setEmailLinkError(null);
-          await loadProfile(nextUser);
-        } catch (error) {
-          console.error('[Vishvakarma.OS] Firebase OAuth redirect sign-in failed:', error);
-          if (mounted) {
-            setEmailLinkError(formatAuthError(error, { usedRedirect: true }).message);
-          }
-        } finally {
-          if (mounted) setLoading(false);
-        }
+        const nextUser = supabaseUserFromSession(redirectSession);
+        setSession(redirectSession);
+        setUser(nextUser);
+        setEmailLinkError(null);
+        await loadProfile(nextUser);
       })
       .catch((error) => {
         if (!mounted) return;
-        const code = (error as { code?: string })?.code ?? '';
-        clearOAuthRedirectPending();
-        if (code === 'auth/no-auth-event') {
-          setLoading(false);
-          return;
+        if (consumeOAuthRedirectPending()) {
+          setEmailLinkError(formatOAuthRedirectIncompleteMessage());
         }
-        console.error('[Vishvakarma.OS] Firebase OAuth redirect result failed:', { code, error });
-        if (mounted) {
-          setEmailLinkError(
-            code === 'auth/internal-error'
-              ? formatOAuthRedirectIncompleteMessage()
-              : formatAuthError(error, { usedRedirect: true }).message
-          );
-        }
-        setLoading(false);
+        console.error('[Vishvakarma.OS] Supabase OAuth redirect sign-in failed:', error);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
       });
 
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+    const { data: authListener } = client.auth.onAuthStateChange(async (_event, authSession) => {
       if (!mounted) return;
 
-      if (!firebaseUser) {
-        clearFirebaseSessionSnapshot();
+      if (!authSession?.user) {
+        clearSupabaseSessionSnapshot();
         setSession(null);
         setUser(null);
         setProfile(null);
@@ -236,12 +193,8 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const nextSession = await syncSessionFromFirebaseUser(
-          firebaseUser.uid,
-          firebaseUser.email ?? '',
-          true
-        );
-        const nextUser = firebaseUserFromSession(nextSession);
+        const nextSession = await buildSupabaseSessionFromAuthSession(authSession, authSession.user);
+        const nextUser = supabaseUserFromSession(nextSession);
 
         setSession(nextSession);
         setUser(nextUser);
@@ -249,7 +202,7 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         setEmailLinkError(null);
         await loadProfile(nextUser);
       } catch (error) {
-        console.error('[Vishvakarma.OS] Firebase auth session sync failed:', error);
+        console.error('[Vishvakarma.OS] Supabase auth session sync failed:', error);
         setSession(null);
         setUser(null);
         setProfile(null);
@@ -260,7 +213,7 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
-      unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, [loadProfile]);
 
@@ -269,11 +222,11 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       if (!backendStatus.isConfigured) {
         throw new Error(
           backendStatus.configurationError ??
-            'Firebase is not configured. Set VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, and VITE_FIREBASE_APP_ID.'
+            'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
         );
       }
 
-      return await requestFirebaseAccessLink(email, `${window.location.origin}/auth`);
+      return await requestSupabaseAccessLink(email, `${window.location.origin}/auth`);
     } catch (error) {
       return { error: normalizeMagicLinkError(error) };
     }
@@ -282,18 +235,18 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(async () => {
     try {
       if (!backendStatus.isConfigured) {
-        throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
+        throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
       }
 
-      const result = await signInWithGoogleFirebase();
+      const result = await signInWithGoogleSupabase();
       if (result.redirecting) {
         return { error: null, redirecting: true };
       }
 
       if (result.session) {
         setSession(result.session);
-        setUser(firebaseUserFromSession(result.session));
-        await loadProfile(firebaseUserFromSession(result.session));
+        setUser(supabaseUserFromSession(result.session));
+        await loadProfile(supabaseUserFromSession(result.session));
       }
       return { error: null };
     } catch (error) {
@@ -304,18 +257,18 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const signInWithApple = useCallback(async () => {
     try {
       if (!backendStatus.isConfigured) {
-        throw new Error(backendStatus.configurationError ?? 'Firebase backend is not configured.');
+        throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
       }
 
-      const result = await signInWithAppleFirebase();
+      const result = await signInWithAppleSupabase();
       if (result.redirecting) {
         return { error: null, redirecting: true };
       }
 
       if (result.session) {
         setSession(result.session);
-        setUser(firebaseUserFromSession(result.session));
-        await loadProfile(firebaseUserFromSession(result.session));
+        setUser(supabaseUserFromSession(result.session));
+        await loadProfile(supabaseUserFromSession(result.session));
       }
       return { error: null };
     } catch (error) {
@@ -324,12 +277,8 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   const signOut = useCallback(async () => {
-    if (firebaseAuth) {
-      await firebaseSignOut(firebaseAuth);
-    } else {
-      clearFirebaseSessionSnapshot();
-    }
-
+    clearOAuthRedirectPending();
+    await signOutSupabaseAuth();
     setSession(null);
     setUser(null);
     setProfile(null);
@@ -372,28 +321,3 @@ function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-export async function getProfile(userId: string): Promise<Profile | null> {
-  if (!backendStatus.isConfigured) return null;
-
-  if (backendStatus.provider === 'supabase') {
-    return getSupabaseProfileExport(userId);
-  }
-
-  try {
-    return await getFirestoreProfile(userId);
-  } catch (error) {
-    console.error('[Vishvakarma.OS] Failed to fetch user profile:', error);
-    return null;
-  }
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  if (backendStatus.provider === 'supabase') {
-    return <SupabaseAuthProvider>{children}</SupabaseAuthProvider>;
-  }
-
-  return <FirebaseAuthProvider>{children}</FirebaseAuthProvider>;
-}
-
-export { useAuth, type EmailLinkState } from '@/contexts/authContextTypes';

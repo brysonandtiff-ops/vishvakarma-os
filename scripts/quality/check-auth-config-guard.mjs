@@ -5,8 +5,10 @@ import { join } from 'node:path';
 
 const root = process.cwd();
 const authPath = join(root, 'src/contexts/AuthContext.tsx');
+const supabaseAuthPath = join(root, 'src/backend/supabase/supabaseAuthGateway.ts');
 const firebaseAuthPath = join(root, 'src/backend/firebase/firebaseAuthGateway.ts');
 const backendConfigPath = join(root, 'src/backend/backendConfig.ts');
+const supabaseProviderPath = join(root, 'src/contexts/SupabaseAuthProvider.tsx');
 
 const failures = [];
 
@@ -20,37 +22,50 @@ function readRequiredFile(path, label) {
 }
 
 const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
+const supabaseAuth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
+const supabaseProvider = readRequiredFile(supabaseProviderPath, 'src/contexts/SupabaseAuthProvider.tsx');
 const firebaseAuth = readRequiredFile(firebaseAuthPath, 'src/backend/firebase/firebaseAuthGateway.ts');
 const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendConfig.ts');
 
 const authRequired = [
-  'onAuthStateChanged',
-  'getRedirectResult',
-  'requestFirebaseAccessLink',
-  'completeFirebaseEmailLinkSignIn',
+  'SupabaseAuthProvider',
+  'FirebaseAuthProvider',
   'completeEmailLinkSignIn',
   'emailLinkState',
   'ensureFirestoreProfile',
+  'ensureSupabaseProfile',
   'normalizeMagicLinkError',
   "message.includes('fetch failed')",
   "message.includes('failed to fetch')",
-  'Magic-link request could not reach Firebase Auth',
 ];
 
+const combinedAuthSource = `${auth}\n${supabaseProvider}\n${readRequiredFile(join(root, 'src/backend/supabase/supabaseProfileGateway.ts'), 'supabaseProfileGateway')}`;
+
 for (const phrase of authRequired) {
-  if (!auth.includes(phrase)) {
-    failures.push(`src/contexts/AuthContext.tsx is missing auth handling phrase: ${phrase}`);
+  if (!combinedAuthSource.includes(phrase)) {
+    failures.push(`Auth wiring is missing phrase: ${phrase}`);
+  }
+}
+
+const supabaseRequired = [
+  'requestSupabaseAccessLink',
+  'completeSupabaseEmailLinkSignIn',
+  'readSupabaseSessionSnapshot',
+  'clearSupabaseSessionSnapshot',
+  'writeSupabaseSessionSnapshot',
+  'signInWithOtp',
+  'buildSupabaseSessionFromAuthSession',
+];
+
+for (const phrase of supabaseRequired) {
+  if (!supabaseAuth.includes(phrase)) {
+    failures.push(`src/backend/supabase/supabaseAuthGateway.ts is missing Supabase auth phrase: ${phrase}`);
   }
 }
 
 const firebaseRequired = [
-  'FIREBASE_SEND_OOB_CODE_URL',
-  'FIREBASE_SIGN_IN_WITH_EMAIL_LINK_URL',
-  'sendSignInLinkToEmail',
-  'signInWithEmailLink',
   'requestFirebaseAccessLink',
   'completeFirebaseEmailLinkSignIn',
-  'resolveFirebaseSessionForFirestore',
   'readFirebaseSessionSnapshot',
   'clearFirebaseSessionSnapshot',
   'writeFirebaseSessionSnapshot',
@@ -63,8 +78,10 @@ for (const phrase of firebaseRequired) {
 }
 
 const backendRequired = [
-  'VITE_FIREBASE_API_KEY',
-  "provider: 'firebase'",
+  'VITE_SUPABASE_URL',
+  'VITE_BACKEND_PROVIDER',
+  'resolveBackendProvider',
+  'Supabase backend is not configured',
   'Firebase backend is not configured',
 ];
 
@@ -75,11 +92,7 @@ for (const phrase of backendRequired) {
 }
 
 if (existsSync(join(root, 'src/db/supabase.ts'))) {
-  failures.push('Legacy src/db/supabase.ts still exists — Firebase-only cutover requires its removal.');
-}
-
-if (auth.includes('@supabase/supabase-js') || auth.includes("from '@/db/supabase'")) {
-  failures.push('AuthContext still imports Supabase client code.');
+  failures.push('Legacy src/db/supabase.ts exists — use src/backend/supabase/supabaseClient.ts instead.');
 }
 
 if (failures.length > 0) {
@@ -89,4 +102,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
-console.log('Firebase magic-link auth configuration handling is guarded.');
+console.log('Supabase + Firebase auth configuration handling is guarded.');

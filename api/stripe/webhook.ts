@@ -3,7 +3,7 @@ import {
   findUserIdByStripeCustomerId,
   resolveUserIdFromStripeMetadata,
   upsertBillingFromSubscription,
-} from '../_lib/billingFirestore';
+} from '../_lib/billingBackend';
 import { getStripeClient } from '../_lib/stripeClient';
 
 type VercelRequest = {

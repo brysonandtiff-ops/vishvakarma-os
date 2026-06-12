@@ -1,17 +1,18 @@
 {
-  "testedAt": "2026-06-10T15:31:36.478Z",
-  "commitSha": "ac1ba8e",
+  "testedAt": "2026-06-12T11:57:47.766Z",
+  "commitSha": "1bb14f5c9c2d8afd4d75dcb2668428b491e83dd9",
   "deploymentUrl": "https://vishvakarma-os.vercel.app",
+  "provider": "supabase",
   "emailLink": {
-    "config": true,
+    "config": false,
     "liveSend": false,
-    "liveSendNote": "QUOTA_EXCEEDED — Spark daily email sign-in quota exhausted; API config verified"
+    "liveSendNote": "VITE_SUPABASE_* not set locally"
   },
   "google": {
-    "config": true,
-    "liveSignIn": true,
-    "liveSignInNote": "Google IdP enabled; redirect sign-in on production; createAuthUri PASS; authorized domain verified"
+    "config": false,
+    "liveSignIn": false,
+    "liveSignInNote": "VITE_SUPABASE_* not set locally"
   },
   "winner": "google",
-  "winnerRationale": "Email magic link is blocked by daily quota or failed live send; Google OAuth is the verified live sign-in path."
+  "winnerRationale": "Config-only pass — set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for live probe."
 }

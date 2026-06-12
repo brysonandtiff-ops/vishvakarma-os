@@ -50,7 +50,10 @@ jobs:
         run: pnpm run auth:gates
 
       - name: Firebase auth config smoke
-        run: pnpm run test:firebase-auth
+        run: pnpm run test:supabase-auth
+
+      - name: Supabase login data wiring
+        run: pnpm run verify:supabase-login-data
 
       - name: Firebase authorized domains check
         run: pnpm run verify:firebase-auth-domains

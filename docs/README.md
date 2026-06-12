@@ -6,6 +6,8 @@ Vishvakarma.OS is an iPad-first, browser-native architectural blueprint and live
 
 **Product capabilities (audited):** [PRODUCT_CAPABILITIES.md](./PRODUCT_CAPABILITIES.md)
 
+**Software inventory (valuation / due diligence):** [SOFTWARE_INVENTORY.md](./SOFTWARE_INVENTORY.md)
+
 ## Architecture
 
 ### Single Source of Truth Principle
