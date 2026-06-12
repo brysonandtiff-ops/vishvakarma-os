@@ -160,6 +160,9 @@ async function archiveLegacyLivePrices(secretKey, keepIds) {
 }
 
 function resolveLiveSecretKey() {
+  const liveOverride = process.env.STRIPE_LIVE_SECRET_KEY?.trim();
+  if (liveOverride?.startsWith('sk_live_')) return liveOverride;
+
   loadEnvFile(ENV_PATH);
   const fromEnv = process.env.STRIPE_SECRET_KEY?.trim();
   if (fromEnv?.startsWith('sk_live_')) return fromEnv;
@@ -177,6 +180,7 @@ function resolveLiveSecretKey() {
   console.error('       Stripe CLI only stores a read-only rk_live_ key for live mode.');
   console.error('       Copy your secret key from: https://dashboard.stripe.com/apikeys');
   console.error('       Or run: node scripts/fetch-stripe-live-key.mjs');
+  console.error('       Or set STRIPE_LIVE_SECRET_KEY=sk_live_... for this command only');
   process.exit(1);
 }
 

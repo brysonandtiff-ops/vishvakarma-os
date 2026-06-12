@@ -13,7 +13,38 @@ import { join } from 'node:path';
 import { openExternalUrl, resolveChromeExecutable } from './open-external-url.mjs';
 
 const ENV_PATH = '.env.stripe.local';
-const API_KEYS_URL = 'https://dashboard.stripe.com/apikeys';
+const ACCOUNT_ID = process.env.STRIPE_ACCOUNT_ID?.trim() || 'acct_1SnNEDL5pWZeI0CX';
+const API_KEYS_URL =
+  process.env.STRIPE_API_KEYS_URL?.trim() ||
+  `https://dashboard.stripe.com/${ACCOUNT_ID}/apikeys`;
+
+async function findLiveSecretKey(page) {
+  const revealButtons = page.locator(
+    'button:has-text("Reveal live key"), button:has-text("Reveal test key"), button:has-text("Reveal")'
+  );
+  const count = await revealButtons.count();
+  for (let i = 0; i < count; i += 1) {
+    await revealButtons.nth(i).click({ timeout: 3000 }).catch(() => undefined);
+  }
+
+  const snippets = await page.locator('code, pre, input, [data-testid*="secret"], [class*="Secret"]').allTextContents();
+  const bodyText = await page.locator('body').innerText();
+  for (const raw of [...snippets, bodyText]) {
+    const text = String(raw ?? '');
+    const match = text.match(/sk_live_[A-Za-z0-9]+/);
+    if (match) return match[0];
+  }
+
+  return null;
+}
+
+async function ensureLiveMode(page) {
+  const testModeToggle = page.locator('text=/View test data|Test mode/i').first();
+  if (await testModeToggle.isVisible().catch(() => false)) {
+    await testModeToggle.click({ timeout: 3000 }).catch(() => undefined);
+    await page.waitForTimeout(1500);
+  }
+}
 
 function upsertEnv(key, value) {
   const lines = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, 'utf8').split('\n') : [];
@@ -85,22 +116,17 @@ async function main() {
   try {
     const page = context.pages()[0] ?? (await context.newPage());
     await page.goto(API_KEYS_URL, { waitUntil: 'domcontentloaded', timeout: 120000 });
-    console.log(`[INFO] Stripe Dashboard opened via ${method}.`);
+    await ensureLiveMode(page);
+    console.log(`[INFO] Stripe Dashboard opened via ${method} (${API_KEYS_URL}).`);
     console.log('[INFO] Sign in if prompted. Keep this window open — waiting up to 3 minutes for sk_live_...');
 
     let match = null;
     for (let attempt = 0; attempt < 36; attempt += 1) {
-      const revealButtons = page.locator('button:has-text("Reveal"), button:has-text("Reveal live key")');
-      const count = await revealButtons.count();
-      for (let i = 0; i < count; i += 1) {
-        await revealButtons.nth(i).click({ timeout: 3000 }).catch(() => undefined);
-      }
+      match = await findLiveSecretKey(page);
+      if (match) break;
       await page.waitForTimeout(5000).catch(() => {
         throw new Error('Browser window closed before sk_live_ could be read. Re-run and keep Chrome open.');
       });
-      const bodyText = await page.locator('body').innerText();
-      match = bodyText.match(/sk_live_[A-Za-z0-9]+/);
-      if (match) break;
     }
 
     if (!match) {
@@ -109,7 +135,7 @@ async function main() {
       );
     }
 
-    upsertEnv('STRIPE_SECRET_KEY', match[0]);
+    upsertEnv('STRIPE_SECRET_KEY', match);
     console.log('[OK] STRIPE_SECRET_KEY saved to .env.stripe.local');
   } finally {
     await context.close();

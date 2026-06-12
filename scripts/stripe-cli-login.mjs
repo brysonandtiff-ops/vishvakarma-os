@@ -13,7 +13,7 @@ import { openExternalUrl, resolveChromeExecutable } from './open-external-url.mj
 function runStripe(args) {
   return spawnSync('npx', args, {
     encoding: 'utf8',
-    shell: false,
+    shell: process.platform === 'win32',
     windowsHide: true,
   });
 }
