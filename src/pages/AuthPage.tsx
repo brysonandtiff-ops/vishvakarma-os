@@ -15,6 +15,7 @@ import {
   isEmbeddedAuthBrowser,
   isEmbeddedAuthErrorMessage,
 } from '@/backend/authUiHelpers';
+import { peekAuthReturnPath, storeAuthReturnPath } from '@/backend/supabase/supabaseOAuthGateway';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
@@ -26,7 +27,7 @@ function getReturnPath(state: unknown) {
     return from.startsWith('/') ? from : '/editor';
   }
 
-  return '/editor';
+  return peekAuthReturnPath('/editor');
 }
 
 function getSignInHeadline(winner: 'email' | 'google' | 'none') {
@@ -195,6 +196,7 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
+    storeAuthReturnPath(returnPath);
     setSubmitting(true);
     const result = await signInWithGoogle();
     setSubmitting(false);

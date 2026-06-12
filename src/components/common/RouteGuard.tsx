@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
+import { peekAuthReturnPath, readAndClearAuthReturnPath } from '@/backend/supabase/supabaseOAuthGateway';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/routes';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
@@ -57,10 +58,13 @@ export function RouteGuard({ children }: RouteGuardProps) {
     }
 
     if (user && location.pathname === '/auth') {
-      const from = typeof location.state === 'object' && location.state && 'from' in location.state
-        ? String(location.state.from)
-        : '/editor';
+      const fromState =
+        typeof location.state === 'object' && location.state && 'from' in location.state
+          ? String(location.state.from)
+          : null;
+      const from = fromState?.startsWith('/') ? fromState : peekAuthReturnPath('/editor');
       const dest = from.startsWith('/') && isProtectedRoute(from) ? from : '/editor';
+      readAndClearAuthReturnPath();
       navigate(dest, { replace: true });
     }
   }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);

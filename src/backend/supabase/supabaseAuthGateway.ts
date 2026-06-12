@@ -114,16 +114,23 @@ export function clearPendingSupabaseEmail() {
   window.localStorage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
-export function isSupabaseEmailLinkCallback() {
-  if (typeof window === 'undefined') return false;
-  const hash = window.location.hash;
-  const search = window.location.search;
-  return (
-    hash.includes('access_token=') ||
-    hash.includes('type=magiclink') ||
-    search.includes('code=') ||
-    search.includes('token_hash=')
-  );
+/** PKCE OAuth return — query `code` without email OTP `token_hash`. */
+export function isSupabaseOAuthCallback(
+  search = typeof window !== 'undefined' ? window.location.search : ''
+) {
+  const params = new URLSearchParams(search);
+  return params.has('code') && !params.has('token_hash');
+}
+
+/** Email magic-link return — not OAuth PKCE `?code=`. */
+export function isSupabaseEmailLinkCallback(
+  hash = typeof window !== 'undefined' ? window.location.hash : '',
+  search = typeof window !== 'undefined' ? window.location.search : ''
+) {
+  if (isSupabaseOAuthCallback(search)) return false;
+
+  const params = new URLSearchParams(search);
+  return hash.includes('type=magiclink') || params.has('token_hash');
 }
 
 export async function requestSupabaseAccessLink(email: string, redirectTo: string) {

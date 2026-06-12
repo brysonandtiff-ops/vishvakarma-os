@@ -5,6 +5,7 @@ import {
   clearSupabaseSessionSnapshot,
   completeSupabaseEmailLinkSignIn,
   isSupabaseEmailLinkCallback,
+  isSupabaseOAuthCallback,
   requestSupabaseAccessLink,
   signOutSupabaseAuth,
 } from '@/backend/supabase/supabaseAuthGateway';
@@ -14,6 +15,7 @@ import {
   expireStaleOAuthRedirectPending,
   formatAuthError,
   formatOAuthRedirectIncompleteMessage,
+  isOAuthRedirectPending,
   resolveSupabaseOAuthRedirectSession,
   signInWithAppleSupabase,
   signInWithGoogleSupabase,
@@ -118,72 +120,101 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    const client = getSupabaseClient();
+    const authClient = getSupabaseClient();
 
-    if (!backendStatus.isConfigured || !client) {
+    if (!backendStatus.isConfigured || !authClient) {
       setLoading(false);
       return () => {
         mounted = false;
       };
     }
 
-    if (isSupabaseEmailLinkCallback()) {
-      setEmailLinkState('completing');
-      void completeSupabaseEmailLinkSignIn()
-        .then((result) => {
+    const client = authClient;
+
+    const shouldHandleOAuth = isSupabaseOAuthCallback() || isOAuthRedirectPending();
+    const shouldHandleEmailLink = isSupabaseEmailLinkCallback();
+    let callbackResolutionComplete = false;
+
+    const shouldIgnoreNullSession = (event: string) =>
+      event === 'INITIAL_SESSION' &&
+      !callbackResolutionComplete &&
+      (shouldHandleOAuth || shouldHandleEmailLink);
+
+    async function initAuth() {
+      expireStaleOAuthRedirectPending();
+
+      try {
+        if (shouldHandleOAuth) {
+          const redirectSession = await resolveSupabaseOAuthRedirectSession();
+          if (!mounted) return;
+
+          if (redirectSession) {
+            const nextUser = supabaseUserFromSession(redirectSession);
+            setSession(redirectSession);
+            setUser(nextUser);
+            setEmailLinkError(null);
+            setEmailLinkState('idle');
+            await loadProfile(nextUser);
+          } else if (consumeOAuthRedirectPending()) {
+            setEmailLinkError(formatOAuthRedirectIncompleteMessage());
+          }
+          return;
+        }
+
+        if (shouldHandleEmailLink) {
+          setEmailLinkState('completing');
+          const result = await completeSupabaseEmailLinkSignIn();
           if (!mounted) return;
 
           if (result.status === 'needs_email') {
             setEmailLinkState('needs_email');
-            setLoading(false);
-            return;
-          }
-
-          if (result.status === 'error') {
+          } else if (result.status === 'error') {
             setEmailLinkState('error');
             setEmailLinkError(result.error.message);
-            setLoading(false);
-            return;
+          } else {
+            setEmailLinkState('idle');
           }
+          return;
+        }
 
-          setEmailLinkState('idle');
-          setLoading(false);
-        })
-        .catch((error) => {
-          if (!mounted) return;
-          setEmailLinkState('error');
-          setEmailLinkError(error instanceof Error ? error.message : 'Email-link sign-in failed.');
-          setLoading(false);
-        });
-    }
+        const { data, error } = await client.auth.getSession();
+        if (error) throw error;
+        if (!mounted || !data.session?.user) return;
 
-    expireStaleOAuthRedirectPending();
-
-    void resolveSupabaseOAuthRedirectSession()
-      .then(async (redirectSession) => {
-        if (!mounted || !redirectSession) return;
-
-        const nextUser = supabaseUserFromSession(redirectSession);
-        setSession(redirectSession);
+        const nextSession = await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+        const nextUser = supabaseUserFromSession(nextSession);
+        setSession(nextSession);
         setUser(nextUser);
-        setEmailLinkError(null);
         await loadProfile(nextUser);
-      })
-      .catch((error) => {
+      } catch (error) {
         if (!mounted) return;
-        if (consumeOAuthRedirectPending()) {
+
+        if (shouldHandleOAuth && consumeOAuthRedirectPending()) {
           setEmailLinkError(formatOAuthRedirectIncompleteMessage());
         }
-        console.error('[Vishvakarma.OS] Supabase OAuth redirect sign-in failed:', error);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
 
-    const { data: authListener } = client.auth.onAuthStateChange(async (_event, authSession) => {
+        if (shouldHandleEmailLink) {
+          setEmailLinkState('error');
+          setEmailLinkError(error instanceof Error ? error.message : 'Email-link sign-in failed.');
+        }
+
+        console.error('[Vishvakarma.OS] Supabase auth init failed:', error);
+      } finally {
+        callbackResolutionComplete = true;
+        if (mounted) setLoading(false);
+      }
+    }
+
+    void initAuth();
+
+    const { data: authListener } = client.auth.onAuthStateChange(async (event, authSession) => {
       if (!mounted) return;
 
       if (!authSession?.user) {
+        if (shouldIgnoreNullSession(event)) {
+          return;
+        }
+
         clearSupabaseSessionSnapshot();
         setSession(null);
         setUser(null);

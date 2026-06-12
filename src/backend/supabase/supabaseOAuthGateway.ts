@@ -1,6 +1,7 @@
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
+  isSupabaseOAuthCallback,
   type SupabaseSessionSnapshot,
 } from '@/backend/supabase/supabaseAuthGateway';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
@@ -15,6 +16,62 @@ type AuthErrorContext = {
 };
 
 const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
+const AUTH_RETURN_PATH_KEY = 'vish-auth-return-path';
+const DEFAULT_AUTH_RETURN_PATH = '/editor';
+
+export function storeAuthReturnPath(path: string) {
+  try {
+    const normalized = path.startsWith('/') ? path : DEFAULT_AUTH_RETURN_PATH;
+    sessionStorage.setItem(AUTH_RETURN_PATH_KEY, normalized);
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function peekAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PATH) {
+  try {
+    const stored = sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
+    if (stored?.startsWith('/')) return stored;
+  } catch {
+    // ignore storage failures
+  }
+  return defaultPath;
+}
+
+export function ensureAuthReturnPathStored(path = DEFAULT_AUTH_RETURN_PATH) {
+  try {
+    if (sessionStorage.getItem(AUTH_RETURN_PATH_KEY)) return;
+    storeAuthReturnPath(path);
+  } catch {
+    // ignore storage failures
+  }
+}
+export function readAndClearAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PATH) {
+  try {
+    const stored = sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
+    sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
+    if (stored?.startsWith('/')) return stored;
+  } catch {
+    // ignore storage failures
+  }
+  return defaultPath;
+}
+
+export function isOAuthRedirectPending() {
+  try {
+    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
+    if (!raw) return false;
+    const started = Number(raw);
+    return Number.isFinite(started) && Date.now() - started < 120_000;
+  } catch {
+    return false;
+  }
+}
+
+function stripAuthCallbackFromUrl() {
+  if (typeof window === 'undefined') return;
+  window.history.replaceState({}, document.title, `${window.location.origin}/auth`);
+}
 
 export function markOAuthRedirectPending() {
   try {
@@ -141,6 +198,7 @@ export async function signInWithGoogleSupabase(): Promise<OAuthSignInResult> {
     throw new Error('Supabase client is not available.');
   }
 
+  ensureAuthReturnPathStored(DEFAULT_AUTH_RETURN_PATH);
   markOAuthRedirectPending();
 
   const { error } = await client.auth.signInWithOAuth({
@@ -169,6 +227,7 @@ export async function signInWithAppleSupabase(): Promise<OAuthSignInResult> {
     throw new Error('Supabase client is not available.');
   }
 
+  ensureAuthReturnPathStored(DEFAULT_AUTH_RETURN_PATH);
   markOAuthRedirectPending();
 
   const { error } = await client.auth.signInWithOAuth({
@@ -190,9 +249,26 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
   const client = getSupabaseClient();
   if (!client) return null;
 
+  if (isSupabaseOAuthCallback()) {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      const { data, error } = await client.auth.exchangeCodeForSession(code);
+      if (error) throw error;
+      if (data.session?.user) {
+        clearOAuthRedirectPending();
+        stripAuthCallbackFromUrl();
+        return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+      }
+    }
+  }
+
   const { data, error } = await client.auth.getSession();
-  if (error || !data.session?.user) return null;
+  if (error) throw error;
+  if (!data.session?.user) return null;
 
   clearOAuthRedirectPending();
+  if (isSupabaseOAuthCallback()) {
+    stripAuthCallbackFromUrl();
+  }
   return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
 }

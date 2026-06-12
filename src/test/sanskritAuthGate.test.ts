@@ -52,7 +52,7 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).not.toContain('signInWithApple');
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
     expect(manifest).toContain('"winner"');
-    expect(manifest).toMatch(/redirect sign-in|Supabase OAuth|supabase\.co\/auth|Config-only pass/);
+    expect(manifest).toMatch(/redirect sign-in|Supabase Google OAuth|Supabase OAuth|supabase\.co\/auth|Config-only pass/);
     expect(manifest).not.toContain('popup sign-in');
     expect(authPage).not.toContain('type="password"');
   });
@@ -102,6 +102,19 @@ describe('Sanskrit auth gate design', () => {
 
     expect(authContext).toContain('getRedirectResult');
     expect(authContext).toContain('signInWithGoogle');
+  });
+
+  it('keeps Supabase OAuth callback handling separate from email magic links', () => {
+    const supabaseAuthGateway = read('src/backend/supabase/supabaseAuthGateway.ts');
+    const supabaseAuthProvider = read('src/contexts/SupabaseAuthProvider.tsx');
+
+    expect(supabaseAuthGateway).toContain('isSupabaseOAuthCallback');
+    expect(supabaseAuthGateway).toContain('isSupabaseEmailLinkCallback');
+    expect(supabaseAuthProvider).toContain('isSupabaseOAuthCallback');
+    expect(supabaseAuthProvider).toContain('resolveSupabaseOAuthRedirectSession');
+    expect(supabaseAuthProvider).toContain('shouldHandleOAuth');
+    expect(supabaseAuthProvider).toContain('shouldHandleEmailLink');
+    expect(supabaseAuthProvider).toContain('INITIAL_SESSION');
   });
 
   it('surfaces founders acknowledgment on marketing footer', () => {
