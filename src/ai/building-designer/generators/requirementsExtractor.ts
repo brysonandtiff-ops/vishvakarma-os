@@ -2,7 +2,10 @@ import { createParcel } from '@/domain/parcels/parcel';
 import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
 import { DEFAULT_BUILDING_REQUEST } from '@/domain/buildings/buildingRequest';
 import { parcelFromPromptHints } from '@/services/lot-analysis/lotAnalysis';
-import { buildingRequestSchema } from '@/ai/building-designer/prompts/outputSchema';
+import {
+  buildingRequestSchema,
+  type BuildingRequestPayload,
+} from '@/ai/building-designer/prompts/outputSchema';
 
 export function parseRequirementsFallback(prompt: string, parcelOverride?: Partial<BuildingRequest['parcel']>): BuildingRequest {
   const bedroomsMatch = prompt.match(/(\d+)\s*[- ]?bed/i);
@@ -42,10 +45,10 @@ export async function extractRequirements(
     });
 
     if (res.ok) {
-      const body = await res.json();
+      const body = (await res.json()) as { request?: unknown };
       const parsed = buildingRequestSchema.safeParse(body.request ?? body);
       if (parsed.success) {
-        return parsed.data;
+        return normalizeBuildingRequest(parsed.data);
       }
     }
   } catch {
@@ -55,10 +58,11 @@ export async function extractRequirements(
   return parseRequirementsFallback(prompt, parcelOverride);
 }
 
-export function normalizeBuildingRequest(raw: BuildingRequest): BuildingRequest {
+export function normalizeBuildingRequest(raw: BuildingRequestPayload): BuildingRequest {
   const parcel = createParcel(raw.parcel);
   return {
-    ...raw,
+    style: raw.style,
+    extras: raw.extras,
     parcel,
     bedrooms: Math.min(8, Math.max(1, Math.round(raw.bedrooms))),
     bathrooms: Math.min(6, Math.max(1, Math.round(raw.bathrooms))),

@@ -31,7 +31,14 @@ export async function verifySupabaseTokenFromRequest(
   const admin = getSupabaseAdmin();
   if (!admin) return null;
 
-  const { data, error } = await admin.auth.getUser(token);
+  // SupabaseAuthClient's declared type can omit inherited GoTrueClient methods in Vercel's TS build.
+  const auth = admin.auth as {
+    getUser: (jwt?: string) => Promise<{
+      data: { user: { id: string; email?: string | null } | null };
+      error: { message: string } | null;
+    }>;
+  };
+  const { data, error } = await auth.getUser(token);
   if (error || !data.user) return null;
 
   return {

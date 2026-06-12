@@ -5,6 +5,7 @@ import {
   upsertBillingFromSubscription,
 } from '../_lib/billingBackend';
 import { getStripeClient } from '../_lib/stripeClient';
+import { getInvoiceSubscriptionId } from '../_lib/stripeInvoice';
 
 type VercelRequest = {
   method?: string;
@@ -28,8 +29,15 @@ async function readRawBody(req: VercelRequest): Promise<Buffer> {
   const chunks: Buffer[] = [];
 
   await new Promise<void>((resolve, reject) => {
-    req.on?.('data', (chunk: Buffer | string) => {
-      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    req.on?.('data', (...args: unknown[]) => {
+      const chunk = args[0];
+      if (typeof chunk === 'string') {
+        chunks.push(Buffer.from(chunk));
+        return;
+      }
+      if (Buffer.isBuffer(chunk)) {
+        chunks.push(chunk);
+      }
     });
     req.on?.('end', () => resolve());
     req.on?.('error', reject);
@@ -113,8 +121,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-        const subscriptionId =
-          typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+        const subscriptionId = getInvoiceSubscriptionId(invoice);
 
         if (!customerId || !subscriptionId) break;
 
