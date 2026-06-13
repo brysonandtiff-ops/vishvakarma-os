@@ -257,6 +257,44 @@ function NightstandMesh({ hw, hd }: { hw: number; hd: number }) {
   );
 }
 
+function ColumnMesh({ hw }: { hw: number; hd: number }) {
+  const shaftR = hw * 0.72;
+  const baseR = hw * 0.98;
+  const capitalR = hw * 0.94;
+  const baseH = 0.08;
+  const shaftH = 2.04;
+  const capitalH = 0.2;
+  const stone = (
+    <PatternStandardMaterial pattern="stone" color="#b8b4ac" roughness={0.82} metalness={0.05} repeat={[2, 2]} />
+  );
+
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH / 2, 0]} castShadow receiveShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <cylinderGeometry args={[baseR, baseR, baseH, 20]} />
+        {stone}
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH + shaftH / 2, 0]} castShadow receiveShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <cylinderGeometry args={[shaftR, shaftR, shaftH, 20]} />
+        {stone}
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH + shaftH + capitalH / 2, 0]} castShadow receiveShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <cylinderGeometry args={[capitalR, capitalR, capitalH, 20]} />
+        {stone}
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+    </>
+  );
+}
+
 function GenericFurnitureMesh({ hw, hd, height }: { hw: number; hd: number; height: number }) {
   return (
     // @ts-expect-error - React Three Fiber JSX types
@@ -281,6 +319,8 @@ function furnitureHeight(type: string): number {
       return 0.95;
     case 'nightstand':
       return 0.28;
+    case 'column':
+      return 2.32;
     case 'desk':
       return 0.47;
     case 'dining_table':
@@ -317,6 +357,8 @@ export function ParametricFurnitureBody({
       return <WardrobeMesh hw={hw} hd={hd} />;
     case 'nightstand':
       return <NightstandMesh hw={hw} hd={hd} />;
+    case 'column':
+      return <ColumnMesh hw={hw} hd={hd} />;
     default:
       return <GenericFurnitureMesh hw={hw} hd={hd} height={height} />;
   }
@@ -328,7 +370,9 @@ export function FurnitureMesh({ item }: { item: FurnitureItem }) {
   const hw = pxToM(item.width ?? defaults.width) / 2;
   const hd = pxToM(item.depth ?? defaults.depth) / 2;
   const height = furnitureHeight(item.type);
-  const yOffset = item.type === 'bed' || item.type === 'sofa' || item.type === 'chair' ? 0 : height / 2;
+  const yOffset = item.type === 'bed' || item.type === 'sofa' || item.type === 'chair' || item.type === 'column'
+    ? 0
+    : height / 2;
   const modelUrl = resolveModelUrl('furniture', item.type, item.modelUrl);
   const parametric = <ParametricFurnitureBody type={item.type} hw={hw} hd={hd} />;
 
