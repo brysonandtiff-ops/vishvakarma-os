@@ -54,7 +54,9 @@ describe('sceneModelCatalog', () => {
 
   it('lists unique preload URLs and expected files', () => {
     const urls = getAllSceneModelUrls();
-    expect(urls.length).toBe(13);
+    const expectedCount =
+      Object.keys(FURNITURE_MODEL_PATHS).length + Object.keys(LANDSCAPE_MODEL_PATHS).length;
+    expect(urls.length).toBe(expectedCount);
     expect(new Set(urls).size).toBe(urls.length);
     expect(getExpectedModelFiles()[0]).toMatch(/^public\/models\//);
   });
