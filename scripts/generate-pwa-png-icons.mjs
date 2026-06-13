@@ -27,6 +27,18 @@ const OUTPUTS = [
     paddingRatio: 0,
   },
   {
+    svgPath: join(root, 'public', 'icons', 'maskable.svg'),
+    outPath: join(root, 'public', 'icons', 'maskable-192.png'),
+    size: 192,
+    paddingRatio: 0,
+  },
+  {
+    svgPath: join(root, 'public', 'icons', 'maskable.svg'),
+    outPath: join(root, 'public', 'icons', 'maskable-512.png'),
+    size: 512,
+    paddingRatio: 0,
+  },
+  {
     svgPath: join(root, 'public', 'icons', 'icon.svg'),
     outPath: join(root, 'public', 'icons', 'favicon-32.png'),
     size: 32,
