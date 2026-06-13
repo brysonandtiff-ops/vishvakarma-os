@@ -1,8 +1,11 @@
 # Vishvakarma.OS — Product Capabilities
 
-**Version:** v1.2 (codebase `APP_VERSION` v1.1.1) · **Last audited:** 2026-06-08
+**Version:** v1.2.x  
+**Last audited:** 2026-06-13  
+**Current production backend:** Supabase Auth + Postgres/RLS + Storage + billing entitlement state  
+**Production URL:** https://vishvakarma-os.vercel.app
 
-Authoritative capability brief aligned with the codebase. Use this for README, marketing, and launch copy.
+This document is the product capability brief aligned with the current production architecture. For backend status wording, see [`CURRENT_PRODUCTION_ARCHITECTURE.md`](./CURRENT_PRODUCTION_ARCHITECTURE.md).
 
 ---
 
@@ -14,7 +17,7 @@ The 2D canvas is fully interactive and uses pointer events for mouse, touch, and
 
 ### Architectural tools
 
-The ToolRail includes functional tools for selecting, drawing walls, and placing doors and windows. Users can add editable text labels, persistent dimension leader lines, furniture, MEP symbols, landscape elements, and (in MEP mode) lighting fixtures.
+The ToolRail includes functional tools for selecting, drawing walls, placing doors/windows, labels, dimensions, furniture, MEP symbols, lighting fixtures, landscape assets, terrain patches, and Vastu overlays.
 
 | Tool | Shortcut | Notes |
 |------|----------|-------|
@@ -22,92 +25,79 @@ The ToolRail includes functional tools for selecting, drawing walls, and placing
 | Wall | W | Tap start, tap end |
 | Door / Window | D / N | Snap to walls |
 | Label | T | Double-click to edit text |
-| Dimension | ⇧M | Leader lines; toggle all with ⇧D or status bar |
-| Furniture | F | Drag reposition |
-| MEP | — | Cycles outlet, switch, HVAC, panel, then point/spot/ceiling fixtures |
+| Measure / Dimension | M / ⇧M | Measurements and leader lines; visibility toggle supported |
+| Furniture | F | Drag reposition, optional GLB model body |
+| MEP | — | Outlet, switch, HVAC, panel, point/spot/ceiling fixtures |
+| Landscape / Terrain | — | Landscape elements and elevated contour patches |
+| Vastu | — | 8-direction harmony overlay |
 
 ### Precision drafting
 
-- Snap-to-grid and endpoint snap for corner auto-joining
-- **Gold** corner-join ring (`#CF9B3A`) when wall endpoints snap during preview — not green
-- Openings drag along walls with percentage-based parametric positioning and undo-safe commit on pointer up
+- Snap-to-grid and endpoint snap for corner auto-joining.
+- Gold corner-join ring (`#CF9B3A`) when wall endpoints snap during preview.
+- Openings drag along walls with percentage-based parametric positioning and undo-safe commit on pointer up.
+- Room perimeters, enclosed-space detection, and area use the Shoelace formula in `src/utils/roomCalculations.ts`.
+- Undo/redo is backed by the floor-plan engine history stack.
 
-### Spatial calculations
+### iPad hardening
 
-Room perimeters, enclosed-space detection, and area use the **Shoelace formula** in [`src/utils/roomCalculations.ts`](../src/utils/roomCalculations.ts). Area appears in the label properties panel when a room is detected.
-
-### Undo / redo
-
-Up to **50** manifest versions via [`floorPlanEngine.ts`](../src/core/floorPlanEngine.ts) (`maxVersions: 50`).
-
-### v1.2 additions
-
-- MEP lighting fixtures (point, spot, ceiling) — 2D placement + 3D lights
-- Dimension visibility chip in status bar
-- Custom materials with optional Firebase Storage texture upload
+Current v1.2.x work includes iPad touch/keyboard/safe-area hardening, coarse touch-target CSS, upload UX improvements, PWA shell work, and expanded iPad audit tests.
 
 ---
 
 ## 2. Live 3D Viewport (`src/components/editor/Viewport3D.tsx`)
 
-### Real-time rendering
+React Three Fiber and Three.js translate the 2D manifest into 3D geometry. Walls extrude, openings render as semi-transparent red doors and gold windows, fixtures emit point/spot lights, and the 3D surface remains resilient through WebGL pre-flight checks and an error boundary.
 
-React Three Fiber and Three.js translate the 2D manifest into 3D geometry. Walls extrude; openings render as semi-transparent **red doors** (`#C85A54`) and **gold windows** (`#D4A13D`) — not blue.
+### 3D capability set
 
-### Environment controls
-
-`SolarTimeline` adjusts sun azimuth and elevation. Atmosphere modes: standard, premium, cinematic.
-
-### Material system
-
-Presets (paint, wood, concrete) plus custom materials via `CustomMaterialDialog`. Optional `textureUrl` maps onto walls with `useTexture` from drei.
-
-### Lighting fixtures
-
-`FixtureLight` renders point and spot lights from manifest `fixtures[]` placed via the MEP tool.
-
-### Resilience
-
-WebGL pre-flight check plus `WebGLErrorBoundary` — the 2D editor remains usable if 3D fails.
+- Real-time 2D manifest → 3D model chamber.
+- Solar timeline: azimuth, elevation, intensity.
+- Atmosphere modes: standard, premium, cinematic.
+- Procedural PBR materials for walls, floors, furniture, and landscape.
+- Phase 3 GLTF/GLB furniture and landscape model support with parametric fallback meshes.
+- Phase 4 terrain patches: 2D contour drawing, elevation presets, and 3D extrusion.
+- Service-worker/PWA shell support for stronger iPad usage.
 
 ---
 
 ## 3. Governance Operating System (`src/governance/`)
 
-### Spec and registry
+The Governance OS is a distinct enterprise-style product surface.
 
-- **Spec Center** — locked specifications with SHA-256 hash verification
-- **Registry** — schema for components and project properties
+| Page | Route | Capability |
+|------|-------|------------|
+| Spec Center | `/spec-center` | Locked specs with SHA-256 hash verification |
+| Registry | `/registry` | Component, feature, and tool registry |
+| Change Requests | `/change-requests` | Structured change workflow |
+| Release Center | `/releases` | 13-gate release pipeline and evidence packs |
+| World Records | `/world-records` | Self-verified metric registry and measurement artifact |
+| Audit Log | `/audit` | Immutable governance timeline |
 
-### Change and release management
-
-Structured change-request pipeline. **Releases** enforces a **13-gate** release manifest (automated tests, 2D/3D parity, touch targets, performance evidence, etc.) as a stop-ship barrier.
-
-**World record metric:** gates **1–12** count toward the compliance claim; **gate 13** verifies the measurement artifact exists. See [`docs/world-record/WORLD_RECORD_CLAIM.md`](world-record/WORLD_RECORD_CLAIM.md).
-
-### Audit logging
-
-`AuditLogPage` — immutable chronological timeline of governance actions.
-
-### World Records
-
-`WorldRecordsPage` tracks the self-verified gate-count claim with reproducible `pnpm run record:measure` evidence.
+The release-gate system is enforced through scripts and CI. World-record measurement evidence is generated with `pnpm run record:measure`.
 
 ---
 
-## 4. Infrastructure and data persistence
+## 4. Infrastructure and Data Persistence
 
-### Firebase
+### Supabase production backend
 
-Firebase Auth (passwordless email link; Google/Apple when enabled) and Firestore for projects, profiles, and governance data when `VITE_FIREBASE_*` env vars are set.
+Current production architecture is consolidated around Supabase:
 
-### Local draft fallback
+| Layer | Production path |
+|-------|-----------------|
+| Auth | Supabase Auth: email link + Google OAuth |
+| Primary data | Supabase Postgres with RLS |
+| Storage | Supabase Storage for uploaded/custom material textures |
+| Billing entitlement state | Supabase-backed API route writes from Stripe webhooks |
+| Profiles/projects/governance | Supabase gateway layer |
+| Local fallback | `localStorage` for drafts/projects when Supabase is unconfigured |
 
-Without Firebase, **Local Workspace** mode saves manifests to `localStorage` with draft recovery on next visit.
+Earlier Firebase/Firebase-admin work and Firestore migration utilities remain in the repository as portability and archive-recovery evidence. They should not be described as the current production backend unless Firebase runtime selection is intentionally restored in a later commit.
 
 ### Export pipeline
 
-**Export Package** dialog (user-facing): **JSON**, **PNG**, **PDF** (recommended), **DXF**, **SVG**.
+The Export Package dialog supports JSON, PNG, PDF, DXF, and SVG. PNG/PDF/SVG use the shared floor-plan SVG builder path.
 
 | Format | Content |
 |--------|---------|
@@ -115,133 +105,115 @@ Without Firebase, **Local Workspace** mode saves manifests to `localStorage` wit
 | PNG | Rasterized plan — walls, openings, labels, dimensions |
 | PDF | Visual floor plan + title block (A4/Letter) |
 | DXF | Basic LINE entities |
-| SVG | Vector floor plan via `buildFloorPlanSvg` / `ExportModule.exportSVG` |
-
-PNG and PDF rasterize from the shared SVG builder in [`src/core/exporters/floorPlanSvg.ts`](../src/core/exporters/floorPlanSvg.ts).
-
-### Pricing
-
-Public `/pricing` route when `VITE_PRICING_PAGE_ENABLED=true` (default in `.env.example`).
+| SVG | Vector floor plan |
 
 ---
 
-## 5. Design system and quality assurance
+## 5. Architecture Copilot
 
-### Workstation aesthetic
+Architecture Copilot supports autonomous building-design workflows from uploaded inputs:
 
-Gold workstation / dark glass design system — semantic Tailwind CSS variables (`--primary`, `--ws-*`), frosted editor chrome, cream drafting-board canvas.
+- Site survey / council docs / boundary input ingestion.
+- Requirements extraction with Gemini and local parsers.
+- Layout and floor-plan generation.
+- Schedules, material list, cost estimate, compliance report.
+- Permit package ZIP export.
 
-### iPad-first compliance
-
-Responsive side-sheet navigation; **44×44 px** minimum touch targets (`touch-target` class).
-
-### Test coverage
-
-Vitest unit/integration suite + Playwright E2E (auth gates, app smoke, page-reference pack). Run `pnpm run test` for current count.
-
-Quality enforcement: Biome, TypeScript (`tsgo`), ast-grep structural rules.
+Entry points include the Editor AI Designer flow and new-project workflows.
 
 ---
 
-## Accuracy notes (audit corrections)
+## 6. Design Optimization Engine
 
-| Common misstatement | Correct wording |
-|---------------------|-----------------|
-| Green snap indicators | Gold corner-join ring |
-| Blue window boxes in 3D | Gold windows |
-| 12 gates only | 12 metric gates; 13 total pipeline |
-| Export as SVG only via API | SVG also in Export Package dialog |
-| Stale test count | **457** Vitest tests (47 files) as of 2026-06-08 — re-run `pnpm run test` before publishing |
+The optimization engine generates strategy-driven candidates and scores them across compliance, cost, energy, circulation, privacy, natural light, buildability, and related dimensions.
 
----
+Current surfaces:
 
-## 6. Architecture Copilot (v2.0)
+- `/optimization` dashboard.
+- Candidate scoring and comparison.
+- Winner promotion to editor.
+- Cost, council, and permit-confidence signals.
+- Batch persistence via Supabase or local fallback.
 
-Autonomous building design from site inputs:
-
-- **Upload**: site survey, boundary plan (DXF/PDF/image), council requirements, design brief
-- **Generate**: concept design, floor plan, 3D manifest, schedules, material list, cost estimate
-- **Compliance**: automated NCC stub audit (12 rules) with export gate
-- **Export**: compliance report PDF and permit package ZIP (8 documents + manifest.json)
-
-Entry: Editor menu → **Architecture Copilot** · New Project → **Start with Architecture Copilot**
-
-Spec: [`docs/specs/ARCHITECTURE_COPILOT_v2.md`](specs/ARCHITECTURE_COPILOT_v2.md)
+UI includes prototype disclaimers where appropriate.
 
 ---
 
-## 7. Design Optimization Engine (Phase 3 + Phase 4)
+## 7. Construction Cost Intelligence
 
-Multi-candidate design optimization and decision engine:
+Cost intelligence supports Copilot and optimization workflows:
 
-- **Generate**: 5 strategy-driven candidates (Family Focused, Budget Optimized, Energy Optimized, Premium Lifestyle, Maximum Resale Value)
-- **Score**: 8 internal explainable categories (0–100) plus weighted overall; dashboard shows 6 primary dimensions (compliance, cost, energy, privacy, resale, buildability)
-- **Moat Gain**: decision lift, winner margin, strategy diversity, permit confidence, explainability — maps to value impact band ($1M–3M or $3M–8M)
-- **Site fitness**: solar orientation, slope, setbacks, open-space quality
-- **Budget intelligence**: iterative cost reduction when target budget is set
-- **Optimization dashboard**: `/optimization` — winner hero, Recharts comparison, tradeoff deltas, moat panel, batch history
-- **Winner workflow**: promote to editor, save as project, export permit package (compliance-gated), export report PDF
-- **Persistence**: optimization batch history in Firestore (`optimization_batches`) or localStorage fallback
+- Material database and catalog.
+- Regional cost indices.
+- Labor rates.
+- Supplier pricing tiers.
+- Best/expected/worst-case scenarios.
+- Confidence and risk scoring.
 
-Entry: Sidebar → **Design Optimization** · Copilot review step → **Compare 5 designs**
-
-Spec: [`docs/specs/DESIGN_OPTIMIZATION_ENGINE.md`](specs/DESIGN_OPTIMIZATION_ENGINE.md)
+This is decision-support, not a certified quotation engine.
 
 ---
 
-## 8. Construction Cost Intelligence (Phase 6)
+## 8. Council and Compliance Intelligence
 
-Priced construction cost engine for Copilot and Optimization pipelines:
+Council intelligence parses planning signals such as setbacks and coverage from uploaded documents. Compliance rules include NCC/zoning/fire/energy/accessibility stubs and generate explainable findings.
 
-- **Material database**: AU residential SKU catalog with labor hours per unit
-- **Labor cost engine**: Trade rates (carpentry, concrete, glazing, roofing, plaster, site)
-- **Supplier pricing**: 3-tier supplier competition (budget / standard / premium)
-- **Regional index**: AU-only v1 — Sydney, Melbourne, Brisbane metro + regional tiers
-- **Scenarios**: Expected, best case, worst case, median with category breakdown
-- **Confidence score**: Catalog coverage, supplier coverage, regional match, freshness
-- **Risk analysis**: Low/medium/high with explainable drivers
-- **Cost moat**: Extends Moat Gain with $5M–15M / $10M–25M value bands
+Use cautious wording in public materials:
 
-Entry: Copilot cost tab · Optimization dashboard `CostIntelligencePanel`
-
-Spec: [`docs/specs/CONSTRUCTION_COST_INTELLIGENCE.md`](specs/CONSTRUCTION_COST_INTELLIGENCE.md)
+- Good: “pre-check,” “decision support,” “readiness indicator,” “prototype compliance assistant.”
+- Avoid: “guaranteed approval,” “certified compliance,” “legal approval.”
 
 ---
 
-## 9. System Contract Layer (Hardened)
+## 9. Marketing and Monetization
 
-Contract-first architecture preventing drift between generation engines:
+Public surfaces:
 
-- **Contracts**: `src/core-contract/` — pipeline, compliance, cost, output schemas
-- **System graph**: `system-map.json` — allowed/forbidden data flow edges
-- **Runtime guard**: `assertAllowedFlow()` at orchestration boundaries
-- **Regression anchors**: `tests/anchors/` — structural gold standards via `anchorRunner.ts`
-- **Build gates**: `build-gate.manifest.ts` + `pnpm run contract:gates` (enforced in GitHub CI)
-- **Anchor CI**: `pnpm run test:anchors` in `verify.yml`
+- Landing page.
+- Features page.
+- Pricing page.
+- Auth page.
+- Profile/billing page.
 
-Spec: [`docs/specs/SYSTEM_CONTRACT_LAYER.md`](specs/SYSTEM_CONTRACT_LAYER.md)
+Stripe integration includes Checkout, Customer Portal, webhooks, tier-based export gating, and billing verification scripts.
 
----
+Published tiers:
 
-## 10. Council Intelligence (Phase 7)
-
-Council approval likelihood scoring from real pipeline signals:
-
-- **Approval score**: 0–100 with high / medium / low likelihood bands
-- **Signals**: setbacks, coverage, height, heritage overlay, special conditions, compliance findings
-- **Pipeline**: computed in `buildFromLayout` when council requirements are ingested
-- **Optimization integration**: `approvalConfidence` on report; moat gain blends permit confidence
-- **UI**: Approval % badge on candidate cards, winner hero, optimization report panel
-
-Entry: Optimization battle view (when council doc ingested via Copilot)
-
-Spec: [`docs/specs/COUNCIL_INTELLIGENCE.md`](specs/COUNCIL_INTELLIGENCE.md)
+| Tier | Price |
+|------|------:|
+| Starter | Free |
+| Studio | $499/month |
+| Enterprise | $1,000/month |
 
 ---
 
-## Related docs
+## 10. Quality and Verification
 
-- [README.md](../README.md) — build state and routes
-- [NEXT_STEPS.md](../NEXT_STEPS.md) — roadmap
-- [EXPORT_LIMITATIONS.md](user/EXPORT_LIMITATIONS.md) — format limits
-- [PAGE_REFERENCE.md](design/page-references/PAGE_REFERENCE.md) — UI screenshots
+Recommended production verification:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run hardening:gates
+pnpm run auth:gates
+pnpm run verify:supabase-schema
+pnpm run verify:production-auth-flow
+pnpm run verify:stripe-billing
+pnpm run test
+pnpm run build
+```
+
+Quality systems include Vitest, Playwright, route smoke, production auth checks, release gates, regression anchors, launch evidence, and hardening gates.
+
+---
+
+## Accuracy notes
+
+| Stale wording | Correct current wording |
+|---------------|-------------------------|
+| Firebase production backend | Supabase production backend |
+| Runtime-selectable Firebase/Supabase live architecture | Supabase-only production architecture with Firebase migration history |
+| Firebase Storage for materials | Supabase Storage for uploaded/custom material textures |
+| Firestore project persistence | Supabase Postgres/RLS project persistence |
+| Firebase Realtime collaboration | Supabase metadata + preview Yjs/WebSocket collaboration server |
+
+Update this document whenever the active production backend, auth provider flow, billing write path, or editor capability set changes.
