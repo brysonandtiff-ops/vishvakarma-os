@@ -3,7 +3,8 @@
 **Document type:** Technical due diligence and operator transition handoff  
 **Product version:** v1.2.0  
 **Audit date:** 2026-06-13  
-**Production URL:** https://vishvakarma-os.vercel.app  
+**Canonical production URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
 
 **Repository location:** All application code lives in `vishvakarma-os-live/` (git root). The parent workspace folder is a thin wrapper only.
@@ -46,7 +47,8 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** de
 | Fact | Value |
 |------|-------|
 | Product version | 1.2.0 |
-| Production URL | https://vishvakarma-os.vercel.app |
+| Canonical production URL | https://vishvakarma-os.app |
+| Vercel fallback URL | https://vishvakarma-os.vercel.app |
 | Supabase project ref | `jyocvwipthswfcmvqgqe` |
 | Runtime backend | Supabase Auth + Postgres + Storage |
 | Billing | Stripe Checkout + Portal + webhooks |
@@ -137,6 +139,8 @@ Verify completeness: `pnpm run handoff:verify`
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |
 | `pnpm run verify:ci` | **PASS** | lint, gates, unit tests, build, route smoke |
 | Git SHA (pre-commit) | `f4573a47123b99d1b6cf5805f3592859e109f8f0` | See [MANIFEST.json](./appendices/MANIFEST.json) after regenerate |
+
+**Domain cutover note:** after Vercel/Supabase env changes are applied, rerun live auth evidence so `public/auth-capabilities.json` and Supabase logs prove `https://vishvakarma-os.app`.
 
 **Sign-off command block:**
 
