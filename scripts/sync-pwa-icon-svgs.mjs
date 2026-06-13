@@ -49,6 +49,7 @@ function writeSvg(relativePath, content) {
 
 const imageHref = readEmbeddedImageHref();
 const label = 'Vishvakarma.OS official swan V logo';
+const background = '#17120c';
 
 writeSvg(
   'public/icons/icon.svg',
@@ -57,7 +58,12 @@ writeSvg(
 
 writeSvg(
   'public/icons/apple-touch-icon.svg',
-  buildIconSvg({ size: 180, imageHref, label }),
+  buildIconSvg({ size: 180, imageHref, background, label }),
+);
+
+writeSvg(
+  'public/icons/maskable.svg',
+  buildIconSvg({ size: 512, imageHref, background, paddingRatio: 0.14, label }),
 );
 
 writeSvg(
@@ -72,5 +78,5 @@ writeSvg(
 
 writeSvg(
   'public/images/logo/logo-dark.svg',
-  buildIconSvg({ size: 48, imageHref, background: '#17120c', paddingRatio: 0.08, label }),
+  buildIconSvg({ size: 48, imageHref, background, paddingRatio: 0.08, label }),
 );
