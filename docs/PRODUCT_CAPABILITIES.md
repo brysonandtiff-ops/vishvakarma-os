@@ -3,7 +3,8 @@
 **Version:** v1.2.x  
 **Last audited:** 2026-06-13  
 **Current production backend:** Supabase Auth + Postgres/RLS + Storage + billing entitlement state  
-**Production URL:** https://vishvakarma-os.vercel.app
+**Canonical production URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app
 
 This document is the product capability brief aligned with the current production architecture. For backend status wording, see [`CURRENT_PRODUCTION_ARCHITECTURE.md`](./CURRENT_PRODUCTION_ARCHITECTURE.md).
 
@@ -215,5 +216,6 @@ Quality systems include Vitest, Playwright, route smoke, production auth checks,
 | Firebase Storage for materials | Supabase Storage for uploaded/custom material textures |
 | Firestore project persistence | Supabase Postgres/RLS project persistence |
 | Firebase Realtime collaboration | Supabase metadata + preview Yjs/WebSocket collaboration server |
+| Vercel subdomain as canonical production origin | `https://vishvakarma-os.app` as canonical production origin; Vercel subdomain as fallback/debug alias |
 
-Update this document whenever the active production backend, auth provider flow, billing write path, or editor capability set changes.
+Update this document whenever the active production backend, auth provider flow, billing write path, canonical production origin, or editor capability set changes.
