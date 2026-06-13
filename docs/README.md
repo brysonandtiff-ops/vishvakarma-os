@@ -257,3 +257,9 @@ pnpm run verify:stripe-billing
 ```
 
 See [release/VERIFY_COMMANDS.md](./release/VERIFY_COMMANDS.md).
+
+### Testing
+
+| Document | Purpose |
+|----------|---------|
+| [testing/EDITOR_WORKFLOWS.md](./testing/EDITOR_WORKFLOWS.md) | Editor tool, selection, and radial menu workflow tests |

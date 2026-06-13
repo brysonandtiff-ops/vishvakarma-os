@@ -44,6 +44,7 @@ export function useFloorPlanEngine() {
     costItems: snapshot.manifest.costItems ?? [],
     materials: snapshot.manifest.materials ?? [],
     fixtures: snapshot.manifest.fixtures ?? [],
+    staircases: snapshot.manifest.staircases ?? [],
     dimensionVisibility: snapshot.manifest.dimensionVisibility ?? true,
     northOrientation: snapshot.manifest.northOrientation ?? 0,
     lighting: snapshot.manifest.lighting,

@@ -323,6 +323,8 @@ export type ToolType =
   | 'text'
   | 'dimension'
   | 'room'
+  | 'column'
+  | 'stair'
   | 'furniture'
   | 'mep'
   | 'vastu'
@@ -332,6 +334,7 @@ export type ToolType =
 export interface EditorState {
   currentTool: ToolType;
   selectedWallId?: string;
+  selectedWallIds?: string[];
   selectedOpeningId?: string;
   isDrawing: boolean;
   show3DView: boolean;

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-09T18:58:17.352Z",
+  "generatedAt": "2026-06-13T06:31:09.532Z",
   "source": "scripts/verify-all.js",
-  "strict": true,
+  "strict": false,
   "gates": {
     "gate-1": {
       "status": "pass",
@@ -24,16 +24,16 @@
       "message": "Production security headers are configured."
     },
     "gate-6": {
-      "status": "pass",
-      "message": ".env.example documents required Firebase variables."
+      "status": "fail",
+      "message": ".env.example is missing required production variables."
     },
     "gate-7": {
-      "status": "pass",
-      "message": "pnpm run test completed successfully."
+      "status": "fail",
+      "message": "pnpm run test failed."
     },
     "gate-8": {
-      "status": "pass",
-      "message": "node scripts/run-e2e-gates.mjs completed successfully."
+      "status": "fail",
+      "message": "node scripts/run-e2e-gates.mjs failed."
     },
     "gate-9": {
       "status": "pass",
@@ -57,9 +57,9 @@
     }
   },
   "verification": {
-    "lint": "pass",
-    "tests": "pass",
+    "lint": "fail",
+    "tests": "fail",
     "build": "pending",
-    "note": "Counts from release:gates:strict run"
+    "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
   }
 }

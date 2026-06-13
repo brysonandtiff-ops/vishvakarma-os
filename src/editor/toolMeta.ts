@@ -1,4 +1,5 @@
 import {
+  Columns3,
   Compass,
   DoorOpen,
   Layers,
@@ -9,6 +10,7 @@ import {
   Sofa,
   Square,
   SquareDashed,
+  SquareStack,
   TreePine,
   Type,
   Zap,
@@ -27,7 +29,7 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
     icon: MousePointer2,
     label: 'Select',
     shortcut: 'V',
-    hint: 'Select and inspect walls',
+    hint: 'Select, marquee, and inspect elements',
   },
   wall: {
     icon: Square,
@@ -70,6 +72,18 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
     label: 'Room',
     hint: 'Detect / label rooms',
   },
+  column: {
+    icon: Columns3,
+    label: 'Column',
+    shortcut: 'C',
+    hint: 'Place structural column markers',
+  },
+  stair: {
+    icon: SquareStack,
+    label: 'Stair',
+    shortcut: 'U',
+    hint: 'Place staircase runs; tap to rotate direction',
+  },
   vastu: {
     icon: Compass,
     label: 'Vastu',
@@ -99,7 +113,7 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
 };
 
 export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
-  select: 'Select — tap to inspect, drag handles to adjust',
+  select: 'Select — click to inspect, Shift+click multi-select, drag empty to marquee',
   wall: 'Wall — tap start, tap end. Snap joins corners.',
   door: 'Door — tap a wall to place a door.',
   window: 'Window — tap a wall to place a window.',
@@ -107,6 +121,8 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   text: 'Label — tap to place a room label.',
   dimension: 'Dimension — tap start point, then end point.',
   room: 'Room — tap enclosed area to detect and label rooms.',
+  column: 'Column — tap canvas to place structural column markers.',
+  stair: 'Stair — tap to place; each tap cycles run direction.',
   vastu: 'Vastu — harmony compass overlay; adjust north in sidebar.',
   mep: 'MEP — tap canvas to cycle MEP symbols and lighting fixtures.',
   furniture: 'Furniture — tap canvas to place furniture.',
@@ -124,7 +140,16 @@ export const BASE_TOOL_IDS: ToolType[] = [
   'dimension',
 ];
 
-export const RADIAL_TOOL_IDS: ToolType[] = ['wall', 'door', 'window', 'measure'];
+export const RADIAL_TOOL_IDS: ToolType[] = [
+  'wall',
+  'door',
+  'window',
+  'measure',
+  'text',
+  'dimension',
+  'column',
+  'stair',
+];
 
 /** @deprecated Use TOOL_META — kept for legacy imports */
 export const PenLineWallIcon = PenLine;

@@ -9,7 +9,7 @@ interface ToolRailProps {
 }
 
 const MODE_TOOL_IDS: Record<WorkspaceMode, ToolType[]> = {
-  draft: ['room', 'vastu'],
+  draft: ['room', 'vastu', 'column', 'stair'],
   mep: ['mep'],
   interior: ['furniture'],
   landscape: ['landscape', 'terrain'],

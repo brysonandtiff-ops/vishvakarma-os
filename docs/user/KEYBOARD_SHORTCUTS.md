@@ -12,6 +12,18 @@
 | Shift+M | Dimension |
 | T | Text label |
 | F | Furniture |
+| C | Column |
+| U | Stair |
+
+## Selection
+
+| Action | Result |
+|--------|--------|
+| Click wall | Select wall |
+| Shift+click wall | Toggle in multi-selection |
+| Drag on empty canvas | Marquee select walls |
+| Escape | Cancel marquee |
+| Delete / Backspace | Delete selected wall(s) |
 
 ## View
 

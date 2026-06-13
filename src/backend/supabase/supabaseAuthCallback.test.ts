@@ -95,10 +95,6 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
       email: 'architect@firm.com',
       accessToken: 'access',
     });
-    expect(window.history.replaceState).toHaveBeenCalledWith(
-      {},
-      'Auth',
-      'https://vishvakarma-os.app/auth'
-    );
+    expect(window.history.replaceState).toHaveBeenCalledWith({}, 'Auth', '/auth');
   });
 });

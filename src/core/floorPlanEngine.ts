@@ -22,6 +22,7 @@ import type {
   Point2D,
   ProjectManifest,
   Room,
+  Staircase,
   ToolType,
   TerrainPatch,
   Wall,
@@ -31,6 +32,7 @@ import type {
 export interface EditorSessionState {
   currentTool: ToolType;
   selectedWallId?: string;
+  selectedWallIds?: string[];
   selectedOpeningId?: string;
   show3DView: boolean;
   gridVisible: boolean;
@@ -317,7 +319,28 @@ export class FloorPlanEngine {
   }
 
   setSelection(wallId?: string, openingId?: string): void {
-    this.touchSession({ selectedWallId: wallId, selectedOpeningId: openingId });
+    this.touchSession({
+      selectedWallId: wallId,
+      selectedWallIds: wallId ? [wallId] : undefined,
+      selectedOpeningId: openingId,
+    });
+  }
+
+  setWallSelection(wallIds: string[], openingId?: string): void {
+    const ids = wallIds.length ? wallIds : undefined;
+    this.touchSession({
+      selectedWallId: ids?.[0],
+      selectedWallIds: ids,
+      selectedOpeningId: openingId,
+    });
+  }
+
+  clearSelection(): void {
+    this.touchSession({
+      selectedWallId: undefined,
+      selectedWallIds: undefined,
+      selectedOpeningId: undefined,
+    });
   }
 
   addWall(wall: Wall): void {
@@ -332,7 +355,7 @@ export class FloorPlanEngine {
     if (index < 0 || index >= floors.length) return;
     if (getActiveFloorIndex(this.manifest) === index) return;
     this.touchManifest({ activeFloorIndex: index }, 'Switch floor');
-    this.touchSession({ selectedWallId: undefined, selectedOpeningId: undefined });
+    this.touchSession({ selectedWallId: undefined, selectedWallIds: undefined, selectedOpeningId: undefined });
   }
 
   addFloor(name?: string): void {
@@ -357,8 +380,12 @@ export class FloorPlanEngine {
       walls: this.manifest.walls.filter((w) => w.id !== wallId),
       openings: this.manifest.openings.filter((o) => o.wallId !== wallId),
     });
-    if (this.session.selectedWallId === wallId) {
-      this.touchSession({ selectedWallId: undefined });
+    if (this.session.selectedWallId === wallId || this.session.selectedWallIds?.includes(wallId)) {
+      const remaining = (this.session.selectedWallIds ?? []).filter((id) => id !== wallId);
+      this.touchSession({
+        selectedWallId: remaining[0],
+        selectedWallIds: remaining.length ? remaining : undefined,
+      });
     }
   }
 
@@ -483,6 +510,14 @@ export class FloorPlanEngine {
 
   addFurniture(item: FurnitureItem): void {
     this.touchManifest({ furniture: [...(this.manifest.furniture ?? []), item] });
+  }
+
+  addStaircase(staircase: Staircase): void {
+    this.touchManifest({ staircases: [...(this.manifest.staircases ?? []), staircase] });
+  }
+
+  getStaircases(): Staircase[] {
+    return this.manifest.staircases ?? [];
   }
 
   updateFurniture(furnitureId: string, updates: Partial<FurnitureItem>): void {

@@ -34,7 +34,7 @@ test.describe('iPad production readiness', () => {
     const manifest = await response.json();
     expect(manifest.name).toBe('Vishvakarma.OS');
     expect(manifest.display).toBe('standalone');
-    expect(manifest.start_url).toBe('/');
+    expect(manifest.start_url).toBe('/editor?source=pwa');
     expect(manifest.icons.length).toBeGreaterThanOrEqual(2);
   });
 

@@ -23,6 +23,8 @@ describe('ToolRail', () => {
       expect(screen.getByLabelText('Dimension')).toBeInTheDocument();
       expect(screen.getByLabelText('Room')).toBeInTheDocument();
       expect(screen.getByLabelText('Vastu')).toBeInTheDocument();
+      expect(screen.getByLabelText('Column')).toBeInTheDocument();
+      expect(screen.getByLabelText('Stair')).toBeInTheDocument();
       expect(screen.queryByLabelText('Arc')).not.toBeInTheDocument();
     });
 
