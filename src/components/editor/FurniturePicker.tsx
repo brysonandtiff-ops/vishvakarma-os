@@ -7,7 +7,7 @@ interface FurniturePickerProps {
 
 export default function FurniturePicker({ onSelectTool }: FurniturePickerProps) {
   return (
-    <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
+    <div className="vish-editor-picker-card grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded-xl border p-2">
       {FURNITURE_PRESETS.map((preset) => (
         <Button
           key={preset.type}

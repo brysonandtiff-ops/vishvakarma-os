@@ -1,8 +1,25 @@
 import type { DimensionAnnotation, Opening, Point2D, Wall } from '@/types';
+import {
+  CHIP_FILL,
+  CHIP_FILL_ALPHA,
+  CHIP_FILL_PREVIEW,
+  CHIP_STROKE,
+  DOOR,
+  DOOR_GHOST,
+  GOLD,
+  GOLD_BRIGHT,
+  GOLD_HOVER,
+  GOLD_PREVIEW,
+  GRID_MAJOR,
+  GRID_MINOR,
+  INK,
+  WINDOW,
+  WINDOW_GHOST,
+} from '@/core/sceneDrawingTokens';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
 
 export function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, gridSize: number) {
-  ctx.strokeStyle = '#D4CFC4';
+  ctx.strokeStyle = GRID_MINOR;
   ctx.lineWidth = 1;
   for (let x = 0; x < canvas.width; x += gridSize) {
     ctx.beginPath();
@@ -17,7 +34,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElemen
     ctx.stroke();
   }
 
-  ctx.strokeStyle = 'rgba(184, 148, 31, 0.22)';
+  ctx.strokeStyle = GRID_MAJOR;
   ctx.lineWidth = 2;
   for (let x = 0; x < canvas.width; x += gridSize * 5) {
     ctx.beginPath();
@@ -39,8 +56,8 @@ export function drawWall(
   state: { selected: boolean; hovered: boolean; snapEnabled: boolean },
 ) {
   if (state.hovered && !state.selected) {
-    ctx.strokeStyle = 'rgba(184, 148, 31, 0.3)';
-    ctx.lineWidth = wall.thickness + 4;
+    ctx.strokeStyle = GOLD_HOVER;
+    ctx.lineWidth = wall.thickness + 5;
     ctx.lineCap = 'square';
     ctx.beginPath();
     ctx.moveTo(wall.start.x, wall.start.y);
@@ -48,7 +65,7 @@ export function drawWall(
     ctx.stroke();
   }
 
-  ctx.strokeStyle = state.selected ? '#B8941F' : '#2C2C2C';
+  ctx.strokeStyle = state.selected ? GOLD : INK;
   ctx.lineWidth = wall.thickness;
   ctx.lineCap = 'square';
   ctx.beginPath();
@@ -56,15 +73,15 @@ export function drawWall(
   ctx.lineTo(wall.end.x, wall.end.y);
   ctx.stroke();
 
-  ctx.fillStyle = state.selected ? '#B8941F' : '#2C2C2C';
+  ctx.fillStyle = state.selected ? GOLD : INK;
   for (const point of [wall.start, wall.end]) {
     ctx.beginPath();
-    ctx.arc(point.x, point.y, wall.thickness / 2, 0, Math.PI * 2);
+    ctx.arc(point.x, point.y, wall.thickness / 2 + (state.selected ? 0.5 : 0), 0, Math.PI * 2);
     ctx.fill();
 
     if (state.snapEnabled) {
-      ctx.strokeStyle = '#B8941F';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 1.25;
       ctx.beginPath();
       ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
       ctx.stroke();
@@ -80,13 +97,13 @@ export function drawWallMeasurement(ctx: CanvasRenderingContext2D, wall: Wall, u
   const x = midX + Math.sin(angle) * 20;
   const y = midY - Math.cos(angle) * 20;
 
-  ctx.fillStyle = '#F9F6F0';
-  ctx.fillRect(x - 35, y - 12, 70, 24);
-  ctx.strokeStyle = '#B8941F';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x - 35, y - 12, 70, 24);
-  ctx.fillStyle = '#2C2C2C';
-  ctx.font = 'bold 11px "SF Mono", Monaco, monospace';
+  ctx.fillStyle = CHIP_FILL;
+  ctx.fillRect(x - 38, y - 13, 76, 26);
+  ctx.strokeStyle = GOLD;
+  ctx.lineWidth = 1.25;
+  ctx.strokeRect(x - 38, y - 13, 76, 26);
+  ctx.fillStyle = INK;
+  ctx.font = 'bold 12px "SF Mono", Monaco, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), x, y);
@@ -109,13 +126,13 @@ export function drawOpening(
     : opening.position;
   const x = wall.start.x + (wall.end.x - wall.start.x) * position;
   const y = wall.start.y + (wall.end.y - wall.start.y) * position;
-  const color = opening.type === 'door' ? '#C85A54' : '#C8963A';
+  const color = opening.type === 'door' ? DOOR : WINDOW;
 
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(x, y, options.hovered || options.selected ? 10 : 8, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#F5F1E8';
+  ctx.strokeStyle = CHIP_STROKE;
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -125,23 +142,23 @@ export function drawOpening(
     for (const sign of [-1, 1]) {
       const hx = x + Math.cos(wallAngle) * handleOffset * sign;
       const hy = y + Math.sin(wallAngle) * handleOffset * sign;
-      ctx.fillStyle = '#B8941F';
+      ctx.fillStyle = GOLD;
       ctx.beginPath();
       ctx.arc(hx, hy, 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#F5F1E8';
+      ctx.strokeStyle = CHIP_STROKE;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
   }
 
   if (options.dragging && options.dragPositionPercent !== undefined) {
-    ctx.fillStyle = 'rgba(249, 246, 240, 0.95)';
+    ctx.fillStyle = CHIP_FILL_ALPHA;
     ctx.fillRect(x - 28, y - 36, 56, 20);
-    ctx.strokeStyle = '#B8941F';
+    ctx.strokeStyle = GOLD;
     ctx.lineWidth = 1;
     ctx.strokeRect(x - 28, y - 36, 56, 20);
-    ctx.fillStyle = '#2C2C2C';
+    ctx.fillStyle = INK;
     ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -160,11 +177,11 @@ export function drawOpening(
   const labelX = x + Math.sin(wallAngle) * 40;
   const labelY = y - Math.cos(wallAngle) * 40;
 
-  ctx.fillStyle = 'rgba(249, 246, 240, 0.95)';
+  ctx.fillStyle = CHIP_FILL_ALPHA;
   ctx.fillRect(labelX - 45, labelY - 22, 90, 44);
   ctx.strokeStyle = color;
   ctx.strokeRect(labelX - 45, labelY - 22, 90, 44);
-  ctx.fillStyle = '#2C2C2C';
+  ctx.fillStyle = INK;
   ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -183,14 +200,14 @@ export function drawPreviewOpening(
   const wall = walls.find((item) => item.id === preview.wallId);
   if (!wall) return;
 
-  const color = preview.type === 'door' ? '#C85A54' : '#C8963A';
+  const color = preview.type === 'door' ? DOOR : WINDOW;
   const width = preview.type === 'door' ? 90 : 120;
   const height = preview.type === 'door' ? 210 : 120;
   const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
   const labelX = preview.position.x + Math.sin(wallAngle) * 35;
   const labelY = preview.position.y - Math.cos(wallAngle) * 35;
 
-  ctx.fillStyle = preview.type === 'door' ? 'rgba(200, 90, 84, 0.4)' : 'rgba(200, 150, 58, 0.4)';
+  ctx.fillStyle = preview.type === 'door' ? DOOR_GHOST : WINDOW_GHOST;
   ctx.beginPath();
   ctx.arc(preview.position.x, preview.position.y, 12, 0, Math.PI * 2);
   ctx.fill();
@@ -200,11 +217,11 @@ export function drawPreviewOpening(
   ctx.arc(preview.position.x, preview.position.y, 16, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(249, 246, 240, 0.95)';
+  ctx.fillStyle = CHIP_FILL_ALPHA;
   ctx.fillRect(labelX - 40, labelY - 20, 80, 40);
   ctx.strokeStyle = color;
   ctx.strokeRect(labelX - 40, labelY - 20, 80, 40);
-  ctx.fillStyle = '#2C2C2C';
+  ctx.fillStyle = INK;
   ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -224,7 +241,7 @@ export function drawWallPreview(
   walls: Wall[],
   unitSystem: UnitSystem,
 ) {
-  ctx.strokeStyle = 'rgba(184, 148, 31, 0.6)';
+  ctx.strokeStyle = GOLD_PREVIEW;
   ctx.lineWidth = 10;
   ctx.setLineDash([5, 5]);
   ctx.beginPath();
@@ -235,9 +252,9 @@ export function drawWallPreview(
 
   const midX = (start.x + end.x) / 2;
   const midY = (start.y + end.y) / 2;
-  ctx.fillStyle = '#F9F6F0';
+  ctx.fillStyle = CHIP_FILL;
   ctx.fillRect(midX - 34, midY - 20, 68, 20);
-  ctx.fillStyle = '#2C2C2C';
+  ctx.fillStyle = INK;
   ctx.font = '12px "SF Mono", Monaco, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -249,7 +266,7 @@ export function drawWallPreview(
       Math.hypot(end.x - wall.end.x, end.y - wall.end.y) < 1,
   );
   if (snapped) {
-    ctx.strokeStyle = '#CF9B3A';
+    ctx.strokeStyle = GOLD_BRIGHT;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(end.x, end.y, 15, 0, Math.PI * 2);
@@ -276,7 +293,7 @@ export function drawDimension(
   const midX = (dimStart.x + dimEnd.x) / 2;
   const midY = (dimStart.y + dimEnd.y) / 2;
 
-  const strokeColor = preview ? 'rgba(184, 148, 31, 0.6)' : '#B8941F';
+  const strokeColor = preview ? GOLD_PREVIEW : GOLD;
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = preview ? 1 : 1.5;
   ctx.setLineDash([4, 3]);
@@ -306,13 +323,13 @@ export function drawDimension(
     ctx.stroke();
   }
 
-  ctx.fillStyle = preview ? 'rgba(249, 246, 240, 0.85)' : '#F9F6F0';
-  ctx.fillRect(midX - 36, midY - 12, 72, 24);
+  ctx.fillStyle = preview ? CHIP_FILL_PREVIEW : CHIP_FILL;
+  ctx.fillRect(midX - 38, midY - 13, 76, 26);
   ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(midX - 36, midY - 12, 72, 24);
-  ctx.fillStyle = '#2C2C2C';
-  ctx.font = 'bold 11px "SF Mono", Monaco, monospace';
+  ctx.lineWidth = 1.25;
+  ctx.strokeRect(midX - 38, midY - 13, 76, 26);
+  ctx.fillStyle = INK;
+  ctx.font = 'bold 12px "SF Mono", Monaco, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), midX, midY);

@@ -19,6 +19,7 @@ import {
   resolveDefaultAtmosphereMode,
   type AtmospherePerformanceMode,
 } from '@/utils/atmosphereMode';
+import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
 
 // ---------------------------------------------------------------------------
 // WebGL capability pre-check
@@ -145,34 +146,31 @@ class WebGLErrorBoundary extends Component<
 // ---------------------------------------------------------------------------
 function Viewport3DFallback({ reason, onRetry }: { reason: string; onRetry?: () => void }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-muted/30 px-6 text-center">
-      {/* Icon cluster */}
+    <div className="vish-3d-fallback flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
       <div className="relative flex items-center justify-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card shadow-sm">
-          <Box className="h-8 w-8 text-muted-foreground/40" />
+        <div className="vish-3d-fallback-icon flex h-16 w-16 items-center justify-center rounded-2xl">
+          <Box className="h-8 w-8 text-primary/50" />
         </div>
-        <div className="absolute -bottom-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full border border-warning/40 bg-warning/10">
-          <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+        <div className="absolute -bottom-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full border border-primary/40 bg-primary/10">
+          <AlertTriangle className="h-3.5 w-3.5 text-primary" />
         </div>
       </div>
 
-      {/* Text */}
       <div className="max-w-[220px] space-y-1.5">
-        <p className="text-sm font-semibold text-foreground">3D Preview Unavailable</p>
-        <p className="text-xs text-pretty text-muted-foreground">
+        <p className="text-sm font-semibold text-ws-text">3D Preview Unavailable</p>
+        <p className="text-xs text-pretty text-ws-text-dim">
           {reason}
         </p>
       </div>
 
-      {/* Hint */}
-      <div className="rounded-lg border border-border bg-card px-3 py-2">
-        <p className="text-[10px] text-muted-foreground">
+      <div className="vish-3d-fallback-hint rounded-lg px-3 py-2">
+        <p className="text-[10px] text-ws-text-dim">
           2D blueprint editor is fully operational
         </p>
       </div>
 
       {onRetry && (
-        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={onRetry}>
+        <Button variant="outline" size="sm" className="vish-gold-action h-8 gap-1.5 text-xs" onClick={onRetry}>
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
         </Button>
@@ -205,14 +203,7 @@ function canvasToWorld(point: { x: number; y: number }) {
 
 function MepMarker({ symbol }: { symbol: MepSymbol }) {
   const { x, z } = canvasToWorld(symbol.position);
-  const color =
-    symbol.type === 'outlet'
-      ? '#2563eb'
-      : symbol.type === 'switch'
-        ? '#ca8a04'
-        : symbol.type === 'hvac'
-          ? '#0891b2'
-          : '#7c3aed';
+  const color = MEP_COLORS[symbol.type];
 
   return (
     // @ts-expect-error - React Three Fiber JSX types
@@ -300,6 +291,15 @@ function WallMesh({
         <WallSurfaceMaterial materialId={wall.material} customMaterials={customMaterials} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
+      {/* Edge highlight for wall extrusion */}
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[posX, posY, posZ]} rotation={[0, -angle, 0]}>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[length / 100 + 0.004, wall.height / 100 + 0.004, wall.thickness / 100 + 0.004]} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <meshBasicMaterial color={ATMOSPHERE.gridPrimary} wireframe transparent opacity={0.08} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
       
       {/* Render openings as colored markers */}
       {wallOpenings.map((opening) => {
@@ -317,11 +317,11 @@ function WallMesh({
             <boxGeometry args={[opening.width / 100, opening.height / 100, wall.thickness / 100 + 0.02]} />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <meshStandardMaterial 
-              color={opening.type === 'door' ? '#C85A54' : '#D4A13D'}
+              color={opening.type === 'door' ? DOOR : WINDOW}
               transparent 
-              opacity={0.74}
+              opacity={0.78}
               emissive={opening.type === 'door' ? '#3a100d' : '#392400'}
-              emissiveIntensity={0.12}
+              emissiveIntensity={0.14}
             />
             {/* @ts-expect-error - React Three Fiber JSX types */}
           </mesh>
@@ -402,7 +402,7 @@ function AtmosphericParticles({ mode }: { mode: AtmospherePerformanceMode }) {
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </bufferGeometry>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <pointsMaterial color="#F4C34F" size={config.particleSize} transparent opacity={config.particleOpacity} sizeAttenuation depthWrite={false} />
+      <pointsMaterial color={ATMOSPHERE.particle} size={config.particleSize} transparent opacity={config.particleOpacity} sizeAttenuation depthWrite={false} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
     </points>
   );
@@ -426,7 +426,7 @@ function GodRayShafts({ mode }: { mode: AtmospherePerformanceMode }) {
           {/* @ts-expect-error - React Three Fiber JSX types */}
           <planeGeometry args={[mode === 'cinematic' ? 1.55 : 1.35, mode === 'cinematic' ? 8 : 7]} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshBasicMaterial color="#F5D76A" transparent opacity={mode === 'cinematic' ? 0.065 : 0.05} depthWrite={false} side={THREE.DoubleSide} />
+          <meshBasicMaterial color={ATMOSPHERE.godRay} transparent opacity={mode === 'cinematic' ? 0.07 : 0.055} depthWrite={false} side={THREE.DoubleSide} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
         </mesh>
       ))}
@@ -444,9 +444,9 @@ function SacredAtmosphere({ mode }: { mode: AtmospherePerformanceMode }) {
       <AtmosphericParticles mode={mode} />
       {config.godRays && <GodRayShafts mode={mode} />}
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <fog attach="fog" args={["#17120A", config.fogNear, config.fogFar]} />
+      <fog attach="fog" args={[ATMOSPHERE.fog, config.fogNear, config.fogFar]} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <hemisphereLight args={["#F2C45A", "#17120A", mode === 'standard' ? 0.42 : mode === 'premium' ? 0.52 : 0.58]} />
+      <hemisphereLight args={[ATMOSPHERE.fillWarm, ATMOSPHERE.fog, mode === 'standard' ? 0.44 : mode === 'premium' ? 0.54 : 0.6]} />
     </>
   );
 }
@@ -464,22 +464,23 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <ambientLight intensity={mode === 'standard' ? 0.44 : 0.48} />
+      <ambientLight intensity={mode === 'standard' ? 0.46 : 0.5} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <directionalLight
         position={[x, y, z]}
         intensity={lighting.intensity}
-        color="#FFE3A3"
+        color={ATMOSPHERE.sun}
         castShadow
         shadow-mapSize-width={mode === 'standard' ? 1024 : 2048}
         shadow-mapSize-height={mode === 'standard' ? 1024 : 2048}
+        shadow-bias={-0.0002}
       />
       {mode !== 'standard' && (
         <>
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <pointLight position={[-4, 3.2, 3.5]} color="#D99B25" intensity={mode === 'cinematic' ? 0.48 : 0.42} distance={12} />
+          <pointLight position={[-4, 3.2, 3.5]} color={ATMOSPHERE.accentWarm} intensity={mode === 'cinematic' ? 0.52 : 0.46} distance={12} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <pointLight position={[4.5, 1.4, -4]} color="#7A4B10" intensity={mode === 'cinematic' ? 0.22 : 0.18} distance={10} />
+          <pointLight position={[4.5, 1.4, -4]} color={ATMOSPHERE.accentCool} intensity={mode === 'cinematic' ? 0.26 : 0.2} distance={10} />
         </>
       )}
     </>
@@ -528,7 +529,7 @@ export default function Viewport3D({
   return (
     <div className="flex h-full w-full flex-col">
       <Viewport3DHeader wallCount={walls.length} atmosphereMode={atmosphereMode} />
-      <div className="relative flex-1 overflow-hidden bg-[#14100a]">
+      <div className="relative flex-1 overflow-hidden bg-[var(--vish-3d-bg)]">
         <WebGLErrorBoundary
           fallback={
             <Viewport3DFallback reason="WebGL context creation failed (BindToCurrentSequence). The 3D renderer could not initialise." />
@@ -541,7 +542,7 @@ export default function Viewport3D({
             style={{ width: '100%', height: '100%' }}
           >
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <color attach="background" args={["#14100A"]} />
+            <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
             <OrbitControls
               enableDamping
@@ -580,7 +581,7 @@ export default function Viewport3D({
             ))}
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <gridHelper args={[20, 20, '#C99A27', '#5C4B2A']} />
+            <gridHelper args={[20, 20, ATMOSPHERE.gridPrimary, ATMOSPHERE.gridSecondary]} />
           </Canvas>
         </WebGLErrorBoundary>
 
@@ -620,12 +621,9 @@ export default function Viewport3D({
         )}
 
         {!walkMode && (
-        <div
-          className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md px-2 py-1"
-          style={{ background: 'hsl(var(--ws-toolbar) / 0.85)', border: '1px solid hsl(var(--ws-border))' }}
-        >
-          <RotateCcw className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-text-faint))' }} />
-          <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.04em' }}>
+        <div className="vish-3d-orbit-hint pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md px-2 py-1">
+          <RotateCcw className="h-2.5 w-2.5 text-ws-text-faint" />
+          <span className="text-[9px] tracking-wide text-ws-text-faint">
             Drag to orbit · {isCoarsePointer ? 'Pinch to zoom' : 'Scroll to zoom'} · {atmosphereConfig.label} atmosphere
           </span>
         </div>
@@ -638,50 +636,23 @@ export default function Viewport3D({
 // ── Premium 3D Viewport Header ──────────────────────────────────────────────
 function Viewport3DHeader({ wallCount, atmosphereMode }: { wallCount: number; atmosphereMode: AtmospherePerformanceMode }) {
   return (
-    <div
-      className="flex h-7 shrink-0 items-center gap-2 px-3"
-      style={{
-        background: 'linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(39 28% 12%) 100%)',
-        borderBottom: '1px solid hsl(43 58% 44% / 0.22)',
-        boxShadow: 'inset 0 -1px 0 hsl(43 90% 70% / 0.06)',
-      }}
-    >
-      {/* Icon + label */}
+    <div className="vish-3d-viewport-header flex h-7 shrink-0 items-center gap-2 px-3">
       <div className="flex items-center gap-1.5">
-        <Box className="h-3 w-3" style={{ color: 'hsl(var(--ws-active))' }} />
-        <span
-          style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'hsl(var(--ws-text))',
-          }}
-        >
-          Sacred 3D View
-        </span>
+        <Box className="h-3 w-3 text-ws-active" />
+        <span className="vish-3d-viewport-header-label">Sacred 3D View</span>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Wall count badge */}
-      <div
-        className="flex items-center gap-1 rounded px-1.5 py-0.5"
-        style={{ background: 'hsl(var(--ws-active-bg))', border: '1px solid hsl(var(--ws-active) / 0.3)' }}
-      >
-        <Layers className="h-2.5 w-2.5" style={{ color: 'hsl(var(--ws-active))' }} />
-        <span style={{ fontSize: '9px', color: 'hsl(var(--ws-active))', fontFamily: 'monospace' }}>
+      <div className="vish-3d-badge vish-3d-badge-gold flex items-center gap-1 rounded px-1.5 py-0.5">
+        <Layers className="h-2.5 w-2.5 text-ws-active" />
+        <span className="font-mono text-[9px] text-ws-active">
           {wallCount} wall{wallCount !== 1 ? 's' : ''}
         </span>
       </div>
 
-      {/* Engine badge */}
-      <div
-        className="rounded px-1.5 py-0.5"
-        style={{ background: 'hsl(var(--ws-border-subtle))', border: '1px solid hsl(var(--ws-border))' }}
-      >
-        <span style={{ fontSize: '9px', color: 'hsl(var(--ws-text-faint))', letterSpacing: '0.06em' }}>
+      <div className="vish-3d-badge vish-3d-badge-muted rounded px-1.5 py-0.5">
+        <span className="text-[9px] tracking-wide text-ws-text-faint">
           WebGL · {ATMOSPHERE_MODES[atmosphereMode].label}
         </span>
       </div>

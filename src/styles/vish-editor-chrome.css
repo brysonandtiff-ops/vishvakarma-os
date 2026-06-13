@@ -332,9 +332,72 @@
 .vish-canvas-stage {
   background-color: hsl(var(--ws-canvas-surface));
   background-image:
-    linear-gradient(hsl(0 0% 0% / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(0 0% 0% / 0.04) 1px, transparent 1px);
+    linear-gradient(hsl(0 0% 0% / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 0% / 0.035) 1px, transparent 1px);
   background-size: 20px 20px;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.06),
+    inset 0 2px 24px hsl(var(--ws-active) / 0.04);
+}
+
+.vish-canvas-stage::before,
+.vish-canvas-stage::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border-color: hsl(var(--ws-active) / 0.22);
+  border-style: solid;
+}
+
+.vish-canvas-stage::before {
+  top: 0.85rem;
+  left: 0.85rem;
+  border-width: 1px 0 0 1px;
+}
+
+.vish-canvas-stage::after {
+  bottom: 0.85rem;
+  right: 0.85rem;
+  border-width: 0 1px 1px 0;
+}
+
+.vish-canvas-empty-hint {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vish-canvas-empty-hint__card {
+  max-width: 16rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px dashed hsl(var(--ws-active) / 0.35);
+  background: hsl(var(--ws-canvas-surface) / 0.92);
+  box-shadow: 0 12px 40px hsl(0 0% 0% / 0.12);
+  text-align: center;
+}
+
+.vish-canvas-empty-hint__title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-active) / 0.88);
+}
+
+.vish-canvas-empty-hint__body {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: hsl(var(--foreground) / 0.62);
 }
 
 .vish-dialog-chrome [data-slot='dialog-header'] {
@@ -374,9 +437,11 @@
 .vish-workspace-shell .architect-canvas {
   background-blend-mode: screen, normal;
   box-shadow:
-    inset 0 0 0 1px hsl(var(--ws-active) / 0.08),
-    inset 0 0 80px hsl(var(--ws-active) / 0.045),
-    0 24px 70px hsl(0 0% 0% / 0.28);
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.1),
+    inset 0 0 90px hsl(var(--ws-active) / 0.05),
+    0 28px 80px hsl(0 0% 0% / 0.32),
+    0 4px 12px hsl(0 0% 0% / 0.08);
+  border-radius: 0.65rem;
 }
 
 .vish-workspace-shell .ws-panel-light {
@@ -479,6 +544,205 @@
   overflow: hidden;
   min-width: 16rem;
   max-width: min(52vw, 36rem);
+  position: relative;
+}
+
+@media (pointer: fine) {
+  .vish-3d-viewport-pane::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: col-resize;
+    background: linear-gradient(90deg, transparent, hsl(var(--ws-active) / 0.18));
+    opacity: 0;
+    transition: opacity 160ms ease;
+    z-index: 4;
+  }
+
+  .vish-3d-viewport-pane:hover::after {
+    opacity: 1;
+  }
+}
+
+:root {
+  --vish-3d-bg: #14100a;
+}
+
+.vish-3d-viewport-header {
+  background:
+    linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(39 28% 12%) 100%);
+  border-bottom: 1px solid hsl(43 58% 44% / 0.22);
+  box-shadow: inset 0 -1px 0 hsl(43 90% 70% / 0.06);
+}
+
+.vish-3d-viewport-header-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(var(--ws-text));
+}
+
+.vish-3d-badge-gold {
+  background: hsl(var(--ws-active-bg));
+  border: 1px solid hsl(var(--ws-active) / 0.3);
+}
+
+.vish-3d-badge-muted {
+  background: hsl(var(--ws-border-subtle));
+  border: 1px solid hsl(var(--ws-border));
+}
+
+.vish-3d-orbit-hint {
+  background: hsl(var(--ws-toolbar) / 0.85);
+  border: 1px solid hsl(var(--ws-border));
+}
+
+.vish-3d-fallback {
+  background:
+    radial-gradient(circle at 50% 30%, hsl(var(--ws-active) / 0.08), transparent 14rem),
+    hsl(var(--ws-menubar));
+}
+
+.vish-3d-fallback-icon {
+  border: 1px solid hsl(var(--ws-active) / 0.28);
+  background: hsl(var(--ws-active-bg) / 0.45);
+  box-shadow: 0 0 24px hsl(var(--ws-active) / 0.12);
+}
+
+.vish-3d-fallback-hint {
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(var(--ws-toolbar) / 0.65);
+}
+
+.vish-3d-loading {
+  background:
+    radial-gradient(circle at 50% 40%, hsl(var(--ws-active) / 0.1), transparent 12rem),
+    hsl(var(--ws-menubar) / 0.92);
+}
+
+.vish-3d-loading-icon {
+  border: 1px solid hsl(var(--ws-active) / 0.35);
+  background: hsl(var(--ws-active-bg) / 0.5);
+  animation: vish-3d-loading-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes vish-3d-loading-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 hsl(var(--ws-active) / 0.1);
+  }
+  50% {
+    box-shadow: 0 0 28px hsl(var(--ws-active) / 0.28);
+  }
+}
+
+.vish-ai-plan-preview {
+  border-color: hsl(var(--ws-active) / 0.22) !important;
+  background-color: hsl(var(--ws-canvas-surface)) !important;
+  background-image:
+    linear-gradient(hsl(0 0% 0% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 0% / 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  box-shadow: inset 0 0 0 1px hsl(var(--ws-active) / 0.06);
+}
+
+.vish-editor-picker-card {
+  border-color: hsl(var(--ws-active) / 0.2);
+  background:
+    linear-gradient(145deg, hsl(var(--ws-canvas-surface)), hsl(38 26% 91% / 0.95));
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.12);
+}
+
+.vish-radial-center-btn {
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active) / 0.2),
+    0 8px 24px hsl(0 0% 0% / 0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.vish-radial-center-btn:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active) / 0.35),
+    0 10px 28px hsl(0 0% 0% / 0.4);
+}
+
+.vish-radial-menu {
+  animation: vish-radial-menu-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vish-radial-menu-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.vish-radial-tool-btn {
+  box-shadow: 0 4px 14px hsl(0 0% 0% / 0.28);
+  transition:
+    border-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease,
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: vish-radial-tool-pop 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vish-radial-tool-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.vish-radial-tool-btn:hover {
+  box-shadow: 0 0 12px hsl(var(--ws-active) / 0.22);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.vish-radial-tool-btn--active {
+  box-shadow:
+    0 0 0 2px hsl(var(--ws-active) / 0.35),
+    0 0 16px hsl(var(--ws-active) / 0.25);
+}
+
+/* Canvas tool cursors */
+.vish-canvas-tool-select {
+  cursor: default;
+}
+
+.vish-canvas-tool-wall,
+.vish-canvas-tool-dimension {
+  cursor: crosshair;
+}
+
+.vish-canvas-tool-measure {
+  cursor: help;
+}
+
+.vish-canvas-tool-door,
+.vish-canvas-tool-window,
+.vish-canvas-tool-text,
+.vish-canvas-tool-column,
+.vish-canvas-tool-stair,
+.vish-canvas-tool-furniture,
+.vish-canvas-tool-mep,
+.vish-canvas-tool-landscape,
+.vish-canvas-tool-room,
+.vish-canvas-tool-vastu,
+.vish-canvas-tool-terrain {
+  cursor: copy;
 }
 
 .vish-onboarding-modal {
@@ -580,7 +844,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vish-editor-overlay-backdrop,
-  .vish-workspace-shell .architect-tool-button.active {
+  .vish-workspace-shell .architect-tool-button.active,
+  .vish-3d-loading-icon {
     animation: none !important;
   }
 

@@ -1,4 +1,5 @@
 import type { FurnitureItem, LandscapeElement, Point2D } from '@/types';
+import { FABRIC, FABRIC_LIGHT, GOLD_MUTED, INK, WOOD, WOOD_DARK, WOOD_LIGHT, CHIP_FILL } from '@/core/sceneDrawingTokens';
 import { drawPatternOverlay2D } from '@/core/texturePatterns';
 
 // ---------------------------------------------------------------------------
@@ -14,6 +15,7 @@ export const FURNITURE_PRESETS = [
   { type: 'wardrobe', label: 'Wardrobe', width: 120, depth: 60 },
   { type: 'dining_table', label: 'Dining Table', width: 160, depth: 90 },
   { type: 'nightstand', label: 'Nightstand', width: 50, depth: 40 },
+  { type: 'column', label: 'Column', width: 40, depth: 40 },
 ] as const;
 
 export type FurnitureType = (typeof FURNITURE_PRESETS)[number]['type'];
@@ -25,12 +27,6 @@ export function getFurnitureDefaults(type: string): { width: number; depth: numb
   }
   return { width: 80, depth: 60, label: type.charAt(0).toUpperCase() + type.slice(1) };
 }
-
-const WOOD = '#6b4f3a';
-const WOOD_DARK = '#4a3528';
-const WOOD_LIGHT = '#8B6914';
-const FABRIC = '#4a5568';
-const FABRIC_LIGHT = '#718096';
 
 function overlayWood(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
   drawPatternOverlay2D(ctx, 'wood', x, y, w, h, 0.28);
@@ -151,6 +147,27 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       overlayWood(ctx, -hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
       break;
     }
+    case 'column': {
+      ctx.fillStyle = 'rgba(44, 44, 44, 0.12)';
+      ctx.beginPath();
+      ctx.arc(0, 0, hw, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, hw - 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = GOLD_MUTED;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, hw * 0.55, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = CHIP_FILL;
+      ctx.beginPath();
+      ctx.arc(0, 0, hw * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
     default: {
       drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(92, 64, 51, 0.35)');
     }
@@ -180,6 +197,57 @@ export function drawFurniture2D(
   }
 
   drawFurnitureSilhouette(ctx, item.type, hw, hd);
+  ctx.restore();
+}
+
+/** 2D staircase run symbol — direction in degrees (0 = east). */
+export function drawStair2D(
+  ctx: CanvasRenderingContext2D,
+  position: Point2D,
+  direction = 0,
+  highlighted = false,
+) {
+  const width = 80;
+  const depth = 48;
+  const hw = width / 2;
+  const hd = depth / 2;
+
+  ctx.save();
+  ctx.translate(position.x, position.y);
+  ctx.rotate((direction * Math.PI) / 180);
+
+  if (highlighted) {
+    ctx.strokeStyle = '#B8941F';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-hw - 3, -hd - 3, width + 6, depth + 6);
+  }
+
+  ctx.fillStyle = 'rgba(44, 44, 44, 0.08)';
+  ctx.fillRect(-hw, -hd, width, depth);
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(-hw, -hd, width, depth);
+
+  const treadCount = 5;
+  const treadStep = depth / treadCount;
+  ctx.strokeStyle = GOLD_MUTED;
+  ctx.lineWidth = 1;
+  for (let i = 1; i < treadCount; i += 1) {
+    const y = -hd + i * treadStep;
+    ctx.beginPath();
+    ctx.moveTo(-hw, y);
+    ctx.lineTo(hw, y);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = INK;
+  ctx.beginPath();
+  ctx.moveTo(hw - 6, -hd + 4);
+  ctx.lineTo(hw - 2, 0);
+  ctx.lineTo(hw - 6, hd - 4);
+  ctx.closePath();
+  ctx.fill();
+
   ctx.restore();
 }
 

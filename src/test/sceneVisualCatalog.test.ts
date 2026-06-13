@@ -9,6 +9,7 @@ import {
   hashIdToRotation,
   LANDSCAPE_TYPES,
 } from '@/core/sceneVisualCatalog';
+import { GOLD, INK, MEP_COLORS } from '@/core/sceneDrawingTokens';
 
 function createMockContext(): CanvasRenderingContext2D {
   const noop = () => undefined;
@@ -41,8 +42,8 @@ function createMockContext(): CanvasRenderingContext2D {
 }
 
 describe('sceneVisualCatalog', () => {
-  it('defines eight furniture presets with defaults', () => {
-    expect(FURNITURE_PRESETS).toHaveLength(8);
+  it('defines nine furniture presets with defaults', () => {
+    expect(FURNITURE_PRESETS).toHaveLength(9);
     for (const preset of FURNITURE_PRESETS) {
       const defaults = getFurnitureDefaults(preset.type);
       expect(defaults.width).toBeGreaterThan(0);
@@ -91,5 +92,14 @@ describe('sceneVisualCatalog', () => {
     const c = hashIdToRotation('ls-rock-2');
     expect(a).toBe(b);
     expect(a).not.toBe(c);
+  });
+
+  it('keeps BRAND_LOCK-aligned drawing tokens for ink, gold, and MEP palette', () => {
+    expect(GOLD).toBe('#B8941F');
+    expect(INK).toBe('#2C2C2C');
+    expect(MEP_COLORS.outlet).toBe('#8B6914');
+    expect(MEP_COLORS.switch).toBe('#B8941F');
+    expect(MEP_COLORS.hvac).toBe('#6B5B4A');
+    expect(MEP_COLORS.panel).toBe('#5C4B2A');
   });
 });

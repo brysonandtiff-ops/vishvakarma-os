@@ -60,7 +60,7 @@ export default function MaterialPicker({
   const allMaterials = [...MATERIAL_PRESETS, ...materials];
 
   return (
-    <Card>
+    <Card className="vish-editor-picker-card">
       <CardHeader>
         <CardTitle className="text-sm">Materials</CardTitle>
       </CardHeader>

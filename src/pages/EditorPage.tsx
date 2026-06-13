@@ -100,6 +100,7 @@ function EditorWorkspace() {
     furniture,
     mepSymbols,
     fixtures,
+    staircases,
     landscapeElements,
     terrain,
     costItems,
@@ -126,6 +127,7 @@ function EditorWorkspace() {
   const gridVisible = session.gridVisible;
   const snapEnabled = session.snapEnabled;
   const selectedWallId = session.selectedWallId;
+  const selectedWallIds = session.selectedWallIds;
   const selectedOpeningId = session.selectedOpeningId;
   const workspaceMode = session.workspaceMode;
   const zenMode = session.zenMode;
@@ -335,6 +337,12 @@ function EditorWorkspace() {
       } else if (event.key === 'f' || event.key === 'F') {
         event.preventDefault();
         setTool('furniture');
+      } else if (event.key === 'c' || event.key === 'C') {
+        event.preventDefault();
+        setTool('column');
+      } else if (event.key === 'u' || event.key === 'U') {
+        event.preventDefault();
+        setTool('stair');
       } else if (event.key === 'g' || event.key === 'G') {
         event.preventDefault();
         engine.setGridVisible(!gridVisible);
@@ -344,9 +352,19 @@ function EditorWorkspace() {
       } else if (event.key === 's' && event.shiftKey) {
         event.preventDefault();
         engine.setSnapEnabled(!snapEnabled);
-      } else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedWallId) {
-        event.preventDefault();
-        engine.removeWall(selectedWallId);
+      } else if ((event.key === 'Delete' || event.key === 'Backspace')) {
+        const wallIds = selectedWallIds?.length
+          ? selectedWallIds
+          : selectedWallId
+            ? [selectedWallId]
+            : [];
+        if (wallIds.length > 0) {
+          event.preventDefault();
+          for (const wallId of wallIds) {
+            engine.removeWall(wallId);
+          }
+          engine.clearSelection();
+        }
       }
     };
 
@@ -364,6 +382,7 @@ function EditorWorkspace() {
     newProjectOpen,
     recoveryDialogOpen,
     selectedWallId,
+    selectedWallIds,
     setTool,
     show3DView,
     snapEnabled,
@@ -582,7 +601,7 @@ function EditorWorkspace() {
     }
   }, [selectedWall?.id, selectedWall?.material]);
 
-  const showRadialMenu = currentTool === 'wall' || currentTool === 'door' || currentTool === 'window';
+  const showRadialMenu = ['wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
 
   const manifest = buildManifest();
   const complianceReport = useComplianceReport(manifest, {
@@ -727,6 +746,16 @@ function EditorWorkspace() {
                 <p className="vish-editor-mantra-watermark" aria-hidden="true">
                   ॐ वास्तु · शिल्प · प्रमाण
                 </p>
+                {walls.length === 0 && !showOnboarding && (
+                  <div className="vish-canvas-empty-hint" aria-hidden="true">
+                    <div className="vish-canvas-empty-hint__card">
+                      <p className="vish-canvas-empty-hint__title">Drafting board ready</p>
+                      <p className="vish-canvas-empty-hint__body">
+                        Press W for Wall, C for Column, or load a sample blueprint to begin drafting.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <AppErrorBoundary title="Blueprint canvas error">
                 <BlueprintCanvas
                   walls={walls}
@@ -736,6 +765,7 @@ function EditorWorkspace() {
                   dimensionVisibility={dimensionVisibility}
                   rooms={rooms}
                   furniture={furniture}
+                  staircases={staircases}
                   mepSymbols={mepSymbols}
                   fixtures={fixtures}
                   landscapeElements={landscapeElements}
@@ -754,6 +784,7 @@ function EditorWorkspace() {
                   onRoomDetect={handleRoomDetect}
                   onFurnitureAdd={(item) => engine.addFurniture(item)}
                   onFurnitureUpdate={(furnitureId, updates) => engine.updateFurniture(furnitureId, updates)}
+                  onStaircaseAdd={(staircase) => engine.addStaircase(staircase)}
                   onMepSymbolAdd={(symbol) => engine.addMepSymbol(symbol)}
                   onFixtureAdd={(fixture) => engine.addFixture(fixture)}
                   selectedFixtureId={selectedFixtureId}
@@ -762,8 +793,10 @@ function EditorWorkspace() {
                   onTerrainAdd={(patch) => engine.addTerrainPatch(patch)}
                   onPointerCanvasMove={broadcastCollaborationCursor}
                   onWallSelect={(id) => engine.setSelection(id, undefined)}
+                  onWallsSelect={(ids) => engine.setWallSelection(ids)}
                   onOpeningSelect={(id) => engine.setSelection(undefined, id)}
                   selectedWallId={selectedWallId}
+                  selectedWallIds={selectedWallIds}
                   selectedOpeningId={selectedOpeningId}
                   selectedLabelId={selectedLabelId}
                   onLabelSelect={setSelectedLabelId}

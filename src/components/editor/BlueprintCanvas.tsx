@@ -13,6 +13,7 @@ import type {
   Opening,
   Point2D,
   Room,
+  Staircase,
   TerrainPatch,
   ToolType,
   Wall,
@@ -36,10 +37,37 @@ import {
 import {
   drawFurniture2D,
   drawLandscape2D,
+  drawStair2D,
   FURNITURE_PRESETS,
   getLandscapeDefaults,
   LANDSCAPE_TYPES,
 } from '@/core/sceneVisualCatalog';
+import {
+  isWallSelected,
+  normalizeSelectionRect,
+  toggleWallInSelection,
+  wallsInSelectionRect,
+  type SelectionRect,
+} from '@/editor/canvasSelection';
+import {
+  COMPASS_FILL,
+  COMPASS_STROKE,
+  FIXTURE_LABEL,
+  FIXTURE_MEP_LABEL,
+  FIXTURE_MEP_STROKE,
+  FIXTURE_STROKE,
+  GOLD,
+  GOLD_GLOW,
+  GOLD_GLOW_SOFT,
+  GOLD_LIGHT,
+  GOLD_MUTED,
+  CANVAS_PAPER_FILL,
+  INK_LABEL,
+  MEP_COLORS,
+  ROOM_FILL,
+  ROOM_LABEL,
+  ROOM_STROKE,
+} from '@/core/sceneDrawingTokens';
 import {
   drawTerrain2D,
   drawTerrainPreview,
@@ -55,6 +83,7 @@ interface BlueprintCanvasProps {
   dimensions?: DimensionAnnotation[];
   rooms?: Room[];
   furniture?: FurnitureItem[];
+  staircases?: Staircase[];
   mepSymbols?: MepSymbol[];
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
@@ -74,6 +103,7 @@ interface BlueprintCanvasProps {
   onRoomDetect?: (point: Point2D) => void;
   onFurnitureAdd?: (item: FurnitureItem) => void;
   onFurnitureUpdate?: (furnitureId: string, updates: Partial<FurnitureItem>) => void;
+  onStaircaseAdd?: (staircase: Staircase) => void;
   selectedLabelId?: string;
   onLabelSelect?: (labelId: string | undefined) => void;
   onMepSymbolAdd?: (symbol: MepSymbol) => void;
@@ -84,8 +114,10 @@ interface BlueprintCanvasProps {
   onFixtureSelect?: (fixtureId: string | undefined) => void;
   onPointerCanvasMove?: (point: Point2D) => void;
   onWallSelect: (wallId: string | undefined) => void;
+  onWallsSelect?: (wallIds: string[]) => void;
   onOpeningSelect?: (openingId: string | undefined) => void;
   selectedWallId?: string;
+  selectedWallIds?: string[];
   selectedOpeningId?: string;
   unitSystem?: UnitSystem;
 }
@@ -100,14 +132,9 @@ const MEP_PLACEMENT_CYCLE: MepPlacement[] = [
   ...MEP_TYPES.map((type) => ({ kind: 'mep' as const, type })),
   ...FIXTURE_TYPES.map((type) => ({ kind: 'fixture' as const, type })),
 ];
+const STAIR_DIRECTIONS = [0, 90, 180, 270];
+const COLUMN_PRESET = FURNITURE_PRESETS.find((entry) => entry.type === 'column')!;
 const LANDSCAPE_TYPE_CYCLE = [...LANDSCAPE_TYPES];
-
-const MEP_COLORS: Record<MepSymbol['type'], string> = {
-  outlet: '#2563eb',
-  switch: '#ca8a04',
-  hvac: '#0891b2',
-  panel: '#7c3aed',
-};
 
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
 type InputMode = 'mouse' | 'touch' | 'pen';
@@ -146,6 +173,7 @@ export default function BlueprintCanvas({
   dimensions = [],
   rooms = [],
   furniture = [],
+  staircases = [],
   mepSymbols = [],
   fixtures = [],
   landscapeElements = [],
@@ -165,6 +193,7 @@ export default function BlueprintCanvas({
   onRoomDetect,
   onFurnitureAdd,
   onFurnitureUpdate,
+  onStaircaseAdd,
   onMepSymbolAdd,
   onFixtureAdd,
   selectedFixtureId,
@@ -175,8 +204,10 @@ export default function BlueprintCanvas({
   onTerrainAdd,
   onPointerCanvasMove,
   onWallSelect,
+  onWallsSelect,
   onOpeningSelect,
   selectedWallId,
+  selectedWallIds,
   selectedOpeningId,
   unitSystem = 'metric',
 }: BlueprintCanvasProps) {
@@ -211,6 +242,8 @@ export default function BlueprintCanvas({
   const [landscapeTypeIndex, setLandscapeTypeIndex] = useState(0);
   const [terrainVertices, setTerrainVertices] = useState<Point2D[]>([]);
   const [terrainElevationIndex, setTerrainElevationIndex] = useState(0);
+  const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
+  const [stairDirectionIndex, setStairDirectionIndex] = useState(0);
 
   const snapToGrid = useCallback(
     (point: Point2D): Point2D => {
@@ -377,6 +410,7 @@ export default function BlueprintCanvas({
       if (opening) {
         onOpeningSelect?.(opening.id);
         onWallSelect(undefined);
+        onWallsSelect?.([]);
         onLabelSelect?.(undefined);
         setDraggingOpeningId(opening.id);
         setDragOpeningPosition(opening.position);
@@ -387,6 +421,7 @@ export default function BlueprintCanvas({
       if (furnitureItem && onFurnitureUpdate) {
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
+        onWallsSelect?.([]);
         onLabelSelect?.(undefined);
         setDraggingFurnitureId(furnitureItem.id);
         setDragFurniturePosition(furnitureItem.position);
@@ -403,6 +438,7 @@ export default function BlueprintCanvas({
         onFixtureSelect?.(undefined);
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
+        onWallsSelect?.([]);
         return;
       }
 
@@ -412,13 +448,34 @@ export default function BlueprintCanvas({
         onLabelSelect?.(undefined);
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
+        onWallsSelect?.([]);
+        return;
+      }
+
+      const wall = getWallAtPoint(point, getHitArea(mode, 5));
+      if (wall) {
+        const additive = event.shiftKey;
+        const currentIds = selectedWallIds?.length
+          ? selectedWallIds
+          : selectedWallId
+            ? [selectedWallId]
+            : [];
+        const nextIds = toggleWallInSelection(currentIds, wall.id, additive);
+        if (onWallsSelect) {
+          onWallsSelect(nextIds);
+        } else {
+          onWallSelect(nextIds[0]);
+        }
+        onOpeningSelect?.(undefined);
+        onLabelSelect?.(undefined);
+        onFixtureSelect?.(undefined);
         return;
       }
 
       onOpeningSelect?.(undefined);
       onLabelSelect?.(undefined);
       onFixtureSelect?.(undefined);
-      onWallSelect(getWallAtPoint(point, getHitArea(mode, 5))?.id);
+      setMarqueeRect({ x1: point.x, y1: point.y, x2: point.x, y2: point.y });
       return;
     }
 
@@ -450,6 +507,29 @@ export default function BlueprintCanvas({
 
     if (currentTool === 'room') {
       onRoomDetect?.(point);
+      return;
+    }
+
+    if (currentTool === 'column') {
+      onFurnitureAdd?.({
+        id: `column-${Date.now()}`,
+        type: COLUMN_PRESET.type,
+        position: point,
+        width: COLUMN_PRESET.width,
+        depth: COLUMN_PRESET.depth,
+        rotation: 0,
+      });
+      return;
+    }
+
+    if (currentTool === 'stair') {
+      const direction = STAIR_DIRECTIONS[stairDirectionIndex % STAIR_DIRECTIONS.length];
+      onStaircaseAdd?.({
+        id: `stair-${Date.now()}`,
+        position: point,
+        direction,
+      });
+      setStairDirectionIndex((index) => index + 1);
       return;
     }
 
@@ -550,6 +630,11 @@ export default function BlueprintCanvas({
       return;
     }
 
+    if (marqueeRect && currentTool === 'select') {
+      setMarqueeRect({ ...marqueeRect, x2: point.x, y2: point.y });
+      return;
+    }
+
     const wall = getWallAtPoint(point, getHitArea(mode));
     const opening = getOpeningAtPoint(point, mode);
     setHoveredWall(wall?.id ?? null);
@@ -609,6 +694,25 @@ export default function BlueprintCanvas({
     setDragOpeningPosition(null);
     setDraggingFurnitureId(null);
     setDragFurniturePosition(null);
+
+    if (marqueeRect && currentTool === 'select') {
+      const end = getCanvasPoint(event);
+      const rect: SelectionRect = { ...marqueeRect, x2: end.x, y2: end.y };
+      const ids = wallsInSelectionRect(walls, rect);
+      if (ids.length > 0) {
+        onWallsSelect?.(ids);
+        onOpeningSelect?.(undefined);
+      } else {
+        const { width, height } = normalizeSelectionRect(rect);
+        if (width < 10 && height < 10) {
+          onWallSelect(undefined);
+          onWallsSelect?.([]);
+          onOpeningSelect?.(undefined);
+        }
+      }
+      setMarqueeRect(null);
+    }
+
     finishWallDrawing(event);
   };
 
@@ -642,6 +746,7 @@ export default function BlueprintCanvas({
     setCurrentPoint(null);
     setPreviewOpening(null);
     setTerrainVertices([]);
+    setMarqueeRect(null);
   };
 
   useEffect(() => {
@@ -652,13 +757,18 @@ export default function BlueprintCanvas({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && terrainVertices.length > 0) {
-        setTerrainVertices([]);
+      if (event.key === 'Escape') {
+        if (terrainVertices.length > 0) {
+          setTerrainVertices([]);
+        }
+        if (marqueeRect) {
+          setMarqueeRect(null);
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [terrainVertices.length]);
+  }, [marqueeRect, terrainVertices.length]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -687,7 +797,7 @@ export default function BlueprintCanvas({
     gridLayer.height = canvas.height;
     const gridCtx = gridLayer.getContext('2d');
     if (gridCtx && gridVisible) {
-      gridCtx.fillStyle = '#F5F1E8';
+      gridCtx.fillStyle = CANVAS_PAPER_FILL;
       gridCtx.fillRect(0, 0, gridLayer.width, gridLayer.height);
       drawGrid(gridCtx, canvas, gridSize);
     }
@@ -699,7 +809,7 @@ export default function BlueprintCanvas({
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    ctx.fillStyle = '#F5F1E8';
+    ctx.fillStyle = CANVAS_PAPER_FILL;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (gridVisible && gridLayerRef.current) {
@@ -709,13 +819,14 @@ export default function BlueprintCanvas({
     }
 
     for (const wall of walls) {
+      const selected = isWallSelected(wall.id, selectedWallId, selectedWallIds);
       drawWall(ctx, wall, {
-        selected: wall.id === selectedWallId,
+        selected,
         hovered: wall.id === hoveredWall,
         snapEnabled,
       });
 
-      if ((wall.id === selectedWallId || (wall.id === hoveredWall && currentTool === 'measure')) && !isDrawing) {
+      if ((selected || (wall.id === hoveredWall && currentTool === 'measure')) && !isDrawing) {
         drawWallMeasurement(ctx, wall, unitSystem);
       }
     }
@@ -734,11 +845,11 @@ export default function BlueprintCanvas({
 
     for (const label of labels) {
       const isSelected = label.id === selectedLabelId;
-      ctx.fillStyle = label.color ?? '#2c1810';
+      ctx.fillStyle = label.color ?? INK_LABEL;
       ctx.font = `${label.fontSize ?? 14}px sans-serif`;
       if (isSelected) {
         const textWidth = ctx.measureText(label.text).width;
-        ctx.strokeStyle = '#B8941F';
+        ctx.strokeStyle = GOLD;
         ctx.lineWidth = 1;
         ctx.strokeRect(label.position.x - 4, label.position.y - (label.fontSize ?? 14), textWidth + 8, (label.fontSize ?? 14) + 8);
       }
@@ -755,15 +866,15 @@ export default function BlueprintCanvas({
           ctx.lineTo(vertices[i].x, vertices[i].y);
         }
         ctx.closePath();
-        ctx.fillStyle = 'rgba(180, 140, 60, 0.12)';
+        ctx.fillStyle = ROOM_FILL;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(180, 140, 60, 0.45)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = ROOM_STROKE;
+        ctx.lineWidth = 1.25;
         ctx.stroke();
       }
 
       if (room.center) {
-        ctx.fillStyle = '#6b4f2a';
+        ctx.fillStyle = ROOM_LABEL;
         ctx.font = '12px sans-serif';
         ctx.fillText(`${room.name}${room.area ? ` · ${room.area.toFixed(1)} m²` : ''}`, room.center.x, room.center.y);
       }
@@ -776,18 +887,25 @@ export default function BlueprintCanvas({
       drawFurniture2D(ctx, item, pos, item.id === draggingFurnitureId);
     }
 
+    for (const staircase of staircases) {
+      drawStair2D(ctx, staircase.position, staircase.direction ?? 0);
+    }
+
     for (const symbol of mepSymbols) {
+      const { x, y } = symbol.position;
+      const r = 9;
       ctx.beginPath();
-      ctx.arc(symbol.position.x, symbol.position.y, 8, 0, Math.PI * 2);
+      ctx.roundRect(x - r, y - r, r * 2, r * 2, 3);
       ctx.fillStyle = MEP_COLORS[symbol.type];
       ctx.fill();
-      ctx.strokeStyle = '#1f2937';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = FIXTURE_MEP_STROKE;
+      ctx.lineWidth = 1.25;
       ctx.stroke();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '8px sans-serif';
+      ctx.fillStyle = FIXTURE_MEP_LABEL;
+      ctx.font = 'bold 8px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(symbol.type.slice(0, 1).toUpperCase(), symbol.position.x, symbol.position.y + 3);
+      ctx.textBaseline = 'middle';
+      ctx.fillText(symbol.type.slice(0, 1).toUpperCase(), x, y);
     }
 
     for (const fixture of fixtures) {
@@ -795,9 +913,9 @@ export default function BlueprintCanvas({
       const selected = fixture.id === selectedFixtureId;
       ctx.beginPath();
       ctx.arc(x, y, 10, 0, Math.PI * 2);
-      ctx.fillStyle = selected ? 'rgba(212, 175, 55, 0.45)' : 'rgba(212, 175, 55, 0.25)';
+      ctx.fillStyle = selected ? GOLD_GLOW : GOLD_GLOW_SOFT;
       ctx.fill();
-      ctx.strokeStyle = selected ? '#D4AF37' : '#b48c3c';
+      ctx.strokeStyle = selected ? GOLD_LIGHT : GOLD_MUTED;
       ctx.lineWidth = selected ? 2 : 1.5;
       ctx.stroke();
       ctx.beginPath();
@@ -805,12 +923,12 @@ export default function BlueprintCanvas({
       ctx.lineTo(x - 4, y + 2);
       ctx.lineTo(x + 4, y + 2);
       ctx.closePath();
-      ctx.fillStyle = '#D4AF37';
+      ctx.fillStyle = GOLD_LIGHT;
       ctx.fill();
-      ctx.strokeStyle = '#5c4b2a';
+      ctx.strokeStyle = FIXTURE_STROKE;
       ctx.lineWidth = 1;
       ctx.stroke();
-      ctx.fillStyle = '#3d2914';
+      ctx.fillStyle = FIXTURE_LABEL;
       ctx.font = '7px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(fixture.type.slice(0, 1).toUpperCase(), x, y + 14);
@@ -839,8 +957,8 @@ export default function BlueprintCanvas({
       ctx.save();
       ctx.translate(center.x, center.y);
       ctx.rotate(((northOrientation - 90) * Math.PI) / 180);
-      ctx.strokeStyle = 'rgba(180, 140, 60, 0.8)';
-      ctx.fillStyle = 'rgba(180, 140, 60, 0.08)';
+      ctx.strokeStyle = COMPASS_STROKE;
+      ctx.fillStyle = COMPASS_FILL;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -852,7 +970,7 @@ export default function BlueprintCanvas({
       ctx.moveTo(-radius + 6, 0);
       ctx.lineTo(radius - 6, 0);
       ctx.stroke();
-      ctx.fillStyle = '#b48c3c';
+      ctx.fillStyle = GOLD_MUTED;
       ctx.font = 'bold 11px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('N', 0, -radius + 18);
@@ -876,7 +994,20 @@ export default function BlueprintCanvas({
     if (isDrawing && startPoint && currentPoint) {
       drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
     }
-  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, snapEnabled, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+
+    if (marqueeRect && currentTool === 'select') {
+      const { left, top, width, height } = normalizeSelectionRect(marqueeRect);
+      ctx.save();
+      ctx.fillStyle = 'rgba(184, 148, 31, 0.08)';
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 1.25;
+      ctx.setLineDash([6, 4]);
+      ctx.fillRect(left, top, width, height);
+      ctx.strokeRect(left, top, width, height);
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
     <div
@@ -932,8 +1063,9 @@ export default function BlueprintCanvas({
         height: canvasMetrics.displayHeight,
         maxWidth: '100%',
       }}
-      className="architect-canvas cursor-crosshair-precise touch-none select-none rounded-lg shadow-sm"
+      className={`architect-canvas vish-canvas-tool-${currentTool} touch-none select-none rounded-lg shadow-md`}
       data-testid="blueprint-canvas"
+      data-current-tool={currentTool}
       data-input-mode={inputMode}
       aria-label="2D blueprint drawing canvas"
       onPointerDown={handlePointerDown}

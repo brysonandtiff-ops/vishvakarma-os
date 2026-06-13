@@ -30,8 +30,13 @@ describe('Blueprint editor visual polish', () => {
     expect(styles).toContain('.architect-tool-button.active');
     expect(styles).toContain('.vish-workspace-shell .blueprint-grid');
     expect(styles).toContain('.vish-workspace-shell .architect-canvas');
+    expect(styles).toContain('.vish-3d-viewport-header');
+    expect(styles).toContain('.vish-canvas-empty-hint');
     expect(styles).toContain('.vish-workspace-shell .ws-panel-dark');
     expect(styles).toContain('.ws-status-bar');
+    expect(styles).toContain('.vish-radial-menu');
+    expect(styles).toContain('.vish-canvas-tool-select');
+    expect(styles).toContain('@keyframes vish-radial-menu-in');
     expect(mockup).toContain('.vish-auth-card-mockup');
   });
 
@@ -39,6 +44,9 @@ describe('Blueprint editor visual polish', () => {
     const editor = read('src/pages/EditorPage.tsx');
     const viewport = read('src/components/editor/Viewport3D.tsx');
 
+    const drawing = read('src/components/editor/blueprintCanvasDrawing.ts');
+
+    expect(drawing).toContain("from '@/core/sceneDrawingTokens'");
     expect(editor).toContain('onWallAdd={(wall) => engine.addWall(wall)}');
     expect(editor).toContain('serializeProjectManifest');
     expect(editor).toContain('buildProjectExportFilename');
@@ -46,6 +54,7 @@ describe('Blueprint editor visual polish', () => {
     expect(viewport).toContain('resolveDefaultAtmosphereMode');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
+    expect(editor).toContain('vish-canvas-empty-hint');
     expect(editor).toContain('vish-editor-mantra-watermark');
     expect(editor).toContain('showOnboarding && !welcomeOpen');
     expect(editor).toContain('<OnboardingPanel');

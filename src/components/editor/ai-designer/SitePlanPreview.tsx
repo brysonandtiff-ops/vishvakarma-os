@@ -26,12 +26,12 @@ export default function SitePlanPreview({
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
-      className={`w-full rounded-xl border border-border/60 bg-muted/30 ${compact ? 'h-24' : 'h-48'}`}
+      className={`w-full rounded-xl vish-ai-plan-preview ${compact ? 'h-24' : 'h-48'}`}
       role="img"
       aria-label="Site plan preview"
     >
-      <path d={toPath(points)} fill="none" stroke="currentColor" strokeWidth={2} className="text-primary/60" />
-      <path d={toPath(footprint)} fill="currentColor" fillOpacity={0.12} stroke="currentColor" strokeWidth={1.5} className="text-foreground/70" />
+      <path d={toPath(points)} fill="none" stroke="currentColor" strokeWidth={2} className="text-primary/70" />
+      <path d={toPath(footprint)} fill="currentColor" fillOpacity={0.14} stroke="currentColor" strokeWidth={1.75} className="text-primary/80" />
       <text x={pad} y={14} className="fill-muted-foreground text-[10px]">
         {sitePlan.orientation} · setbacks F{sitePlan.setbacks.front}m S{sitePlan.setbacks.side}m
       </text>

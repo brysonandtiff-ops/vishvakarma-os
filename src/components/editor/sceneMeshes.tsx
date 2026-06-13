@@ -16,11 +16,14 @@ import {
 import { GltfModelBody } from '@/components/editor/sceneGltfModels';
 import { resolveModelUrl } from '@/core/sceneModelCatalog';
 
-const WOOD = '#6b4f3a';
-const WOOD_DARK = '#4a3528';
-const WOOD_LIGHT = '#8B6914';
-const FABRIC = '#4a5568';
-const FABRIC_LIGHT = '#718096';
+import {
+  ATMOSPHERE,
+  FABRIC,
+  FABRIC_LIGHT,
+  WOOD,
+  WOOD_DARK,
+  WOOD_LIGHT,
+} from '@/core/sceneDrawingTokens';
 
 function WoodMaterial({ color = WOOD, roughness = 0.72 }: { color?: string; roughness?: number }) {
   return <PatternStandardMaterial pattern="wood" color={color} roughness={roughness} metalness={0.05} />;
@@ -30,12 +33,12 @@ function FabricMaterial({ color = FABRIC, roughness = 0.88 }: { color?: string; 
   return <PatternStandardMaterial pattern="fabric" color={color} roughness={roughness} metalness={0} />;
 }
 
-function LeafMaterial({ color = '#388e3c', roughness = 0.85 }: { color?: string; roughness?: number }) {
+function LeafMaterial({ color = ATMOSPHERE.leaf, roughness = 0.85 }: { color?: string; roughness?: number }) {
   return <PatternStandardMaterial pattern="leaf" color={color} roughness={roughness} metalness={0.02} repeat={[3, 3]} />;
 }
 
 function BarkMaterial() {
-  return <PatternStandardMaterial pattern="bark" color="#5c3d1e" roughness={0.9} metalness={0.02} repeat={[1, 4]} />;
+  return <PatternStandardMaterial pattern="bark" color={ATMOSPHERE.bark} roughness={0.9} metalness={0.02} repeat={[1, 4]} />;
 }
 
 function FurnitureLegs({ hw, hd, legH = 0.08 }: { hw: number; hd: number; legH?: number }) {

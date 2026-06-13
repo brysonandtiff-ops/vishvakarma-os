@@ -18,7 +18,7 @@ export default function ArchitectureMapView({ graph }: { graph: ArchitectureMapG
   const height = rows * cell + 40;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-56 w-full rounded-xl border border-border/60 bg-muted/20" role="img" aria-label="Architecture adjacency map">
+    <svg viewBox={`0 0 ${width} ${height}`} className="vish-ai-plan-preview h-56 w-full rounded-xl border" role="img" aria-label="Architecture adjacency map">
       {positiveEdges.map((edge) => {
         const from = positions.get(edge.from);
         const to = positions.get(edge.to);
