@@ -19,5 +19,6 @@ export interface Profile {
 // Re-export all types from types.ts
 export * from './types';
 export * from './billing';
+export type { ProjectMemberRole, ProjectPermission } from '@/domain/projects/projectRoles';
 
 export type SaveState = 'clean' | 'unsaved' | 'local-draft' | 'cloud-saved' | 'restored-draft';
