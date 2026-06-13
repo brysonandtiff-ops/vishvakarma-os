@@ -2,7 +2,7 @@
 
 **An iPad-first, browser-native architectural blueprint editor and live 3D studio — with a strict governance operating system built in.**
 
-[![Production](https://img.shields.io/badge/production-v1.2.0%20live-brightgreen)](https://vishvakarma-os.vercel.app)
+[![Production](https://img.shields.io/badge/production-v1.2.0%20live-brightgreen)](https://vishvakarma-os.app)
 [![Stack](https://img.shields.io/badge/stack-React%2018%20·%20Three.js%20·%20Supabase-informational)]()
 [![Gates](https://img.shields.io/badge/release%20gates-13%2F13%20strict-blueviolet)]()
 [![UI](https://img.shields.io/badge/UI-gold%20workstation-blueviolet)]()
@@ -12,7 +12,8 @@
 ## Current production status
 
 **Version:** v1.2.0  
-**Production URL:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)  
+**Canonical production URL:** [vishvakarma-os.app](https://vishvakarma-os.app)  
+**Vercel fallback URL:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)  
 **Current backend:** Supabase-first / Supabase-only production path for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata.
 
 Earlier v1.2.x work implemented Firebase/Supabase dual-backend migration paths. Those Firebase files and migration utilities remain useful for archive recovery and portability evidence, but current production docs should treat Supabase as the active runtime backend unless a later commit explicitly restores Firebase runtime selection.
@@ -137,8 +138,9 @@ Typical env variables:
 ```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app
 SUPABASE_SERVICE_ROLE_KEY=
-APP_URL=https://vishvakarma-os.vercel.app
+APP_URL=https://vishvakarma-os.app
 ```
 
 Setup and verification helpers:
