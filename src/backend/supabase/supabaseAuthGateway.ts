@@ -4,6 +4,7 @@ import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
 const SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
+const PRODUCTION_AUTH_URL = 'https://vishvakarma-os.vercel.app/auth';
 
 export interface SupabaseSessionSnapshot {
   provider: 'supabase';
@@ -16,6 +17,20 @@ export interface SupabaseSessionSnapshot {
 
 function hasBrowserStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function isProtectedVercelPreviewUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.hostname.endsWith('.vercel.app') && url.hostname !== 'vishvakarma-os.vercel.app';
+  } catch {
+    return false;
+  }
+}
+
+function normalizeEmailRedirectUrl(redirectTo: string) {
+  if (isProtectedVercelPreviewUrl(redirectTo)) return PRODUCTION_AUTH_URL;
+  return redirectTo;
 }
 
 function normalizeSupabaseAuthError(error: unknown) {
@@ -145,7 +160,7 @@ export async function requestSupabaseAccessLink(email: string, redirectTo: strin
   const { error } = await client.auth.signInWithOtp({
     email: normalized,
     options: {
-      emailRedirectTo: redirectTo,
+      emailRedirectTo: normalizeEmailRedirectUrl(redirectTo),
       shouldCreateUser: true,
     },
   });
