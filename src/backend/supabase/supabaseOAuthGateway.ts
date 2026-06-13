@@ -18,6 +18,7 @@ type AuthErrorContext = {
 const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
 const AUTH_RETURN_PATH_KEY = 'vish-auth-return-path';
 const DEFAULT_AUTH_RETURN_PATH = '/editor';
+const PRODUCTION_AUTH_ORIGIN = 'https://vishvakarma-os.vercel.app';
 
 export function storeAuthReturnPath(path: string) {
   try {
@@ -70,7 +71,7 @@ export function isOAuthRedirectPending() {
 
 function stripAuthCallbackFromUrl() {
   if (typeof window === 'undefined') return;
-  window.history.replaceState({}, document.title, `${window.location.origin}/auth`);
+  window.history.replaceState({}, document.title, '/auth');
 }
 
 export function markOAuthRedirectPending() {
@@ -179,9 +180,21 @@ export function formatOAuthRedirectIncompleteMessage() {
   return 'Google sign-in did not complete. Try again, or open this page in Chrome or Safari (not an embedded preview).';
 }
 
+function isLocalAuthOrigin(origin: string) {
+  try {
+    const hostname = new URL(origin).hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
 export function getAuthPageUrl() {
-  if (typeof window === 'undefined') return '/auth';
-  return `${window.location.origin}/auth`;
+  if (typeof window === 'undefined') return `${PRODUCTION_AUTH_ORIGIN}/auth`;
+  if (import.meta.env.DEV || import.meta.env.MODE === 'e2e' || isLocalAuthOrigin(window.location.origin)) {
+    return `${window.location.origin}/auth`;
+  }
+  return `${import.meta.env.VITE_AUTH_REDIRECT_ORIGIN ?? PRODUCTION_AUTH_ORIGIN}/auth`;
 }
 
 export async function signInWithGoogleSupabase(): Promise<OAuthSignInResult> {
