@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-06-13T07:38:00.760Z",
+  "gitSha": "f4573a47123b99d1b6cf5805f3592859e109f8f0",
+  "productVersion": "1.2.0",
+  "appendices": [
+    "A-routes-and-api.md",
+    "B-environment-variables.md",
+    "C-npm-scripts.md",
+    "D-database-schema.md",
+    "E-verify-scripts.md",
+    "F-test-inventory.md",
+    "G-dependencies.md",
+    "H-file-tree.md"
+  ],
+  "counts": {
+    "routes": 16,
+    "apiHandlers": 5,
+    "npmScripts": 68,
+    "tables": 10,
+    "unitTests": 109,
+    "e2eSpecs": 19,
+    "prodDependencies": 72,
+    "devDependencies": 27
+  }
+}

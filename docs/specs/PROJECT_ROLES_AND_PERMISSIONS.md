@@ -1,7 +1,7 @@
 # Project Roles and Permissions
 
 **Status:** v1 foundation  
-**Runtime source of truth:** `src/domain/projects/projectRoles.ts`  
+**Runtime source of truth:** `src/domain/projects/projectRoles.ts` — role keys: `owner`, `co_owner`, `architect`, `builder`, `engineer`, `family`, `council_reviewer`, `viewer`  
 **Test guard:** `src/test/projectRoles.test.ts`
 
 Vishvakarma.OS projects need clear household, professional, builder, and reviewer access before broad external pilots. This spec defines the role vocabulary and permission expectations that future collaboration, invitations, billing, and audit-log work must preserve.

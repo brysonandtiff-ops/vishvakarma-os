@@ -79,7 +79,9 @@
     "record:measure": "node scripts/world-record/measure-record.mjs",
     "deploy:vercel": "bash scripts/deploy-vercel.sh",
     "collab:server": "node --import tsx server/collab/presenceServer.ts",
-    "collab:server:dev": "node --import tsx --watch server/collab/presenceServer.ts"
+    "collab:server:dev": "node --import tsx --watch server/collab/presenceServer.ts",
+    "handoff:generate": "node scripts/handoff/generate-handoff-appendices.mjs",
+    "handoff:verify": "node scripts/handoff/verify-handoff-completeness.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

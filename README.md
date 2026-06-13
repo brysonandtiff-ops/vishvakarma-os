@@ -19,6 +19,8 @@ Earlier v1.2.x work implemented Firebase/Supabase dual-backend migration paths. 
 
 Current-state addendum: [`docs/CURRENT_PRODUCTION_ARCHITECTURE.md`](docs/CURRENT_PRODUCTION_ARCHITECTURE.md)
 
+**Valuation / due diligence handoff:** [`docs/handoff/HANDOFF.md`](docs/handoff/HANDOFF.md)
+
 ---
 
 ## What is Vishvakarma.OS?

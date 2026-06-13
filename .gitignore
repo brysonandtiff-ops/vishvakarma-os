@@ -50,3 +50,6 @@ migration/export-*.json
 
 # Cursor debug output (keep rules/mcp tracked)
 .cursor/debug-*.log
+
+# Operator handoff annex (filled credentials — use templates/OPERATOR_ANNEX.template.md)
+docs/handoff/OPERATOR_ANNEX.md

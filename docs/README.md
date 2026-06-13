@@ -1,5 +1,9 @@
 # Vishvakarma.OS Documentation
 
+## Valuation handoff (start here for due diligence)
+
+**[docs/handoff/HANDOFF.md](./handoff/HANDOFF.md)** — master index for valuation, acquisition review, and operator transition. Includes auto-generated appendices (`pnpm run handoff:generate`).
+
 ## Overview
 
 Vishvakarma.OS is an iPad-first, browser-native architectural blueprint and live 3D studio with a strict governance framework. The system provides a unified workspace for 2D blueprint editing with real-time 3D visualization, material application, and solar lighting simulation.
