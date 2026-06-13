@@ -1,7 +1,8 @@
 # Vishvakarma.OS — Current Production Architecture
 
 **Status date:** 2026-06-13  
-**Production URL:** https://vishvakarma-os.vercel.app  
+**Canonical production URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
 **Purpose:** Current-state addendum for README, software inventory, valuation, and technical due-diligence reviews.
 
 ---
@@ -26,6 +27,21 @@ Use this document to supersede older references that say the production system i
 | Billing entitlement writes | Supabase-backed API routes | Stripe remains the billing provider. |
 | Collaboration metadata | Supabase tables / app server authorization | Yjs/WebSocket presence remains preview/scaffolded. |
 | Firebase | Legacy/migration support only | Firestore export/import and historical auth config remain useful for migration, not live architecture claims. |
+
+---
+
+## Canonical origin rules
+
+Use `https://vishvakarma-os.app` for:
+
+- production links in investor, operator, and valuation docs
+- `APP_URL`
+- `VITE_AUTH_REDIRECT_ORIGIN`
+- Supabase Site URL
+- Stripe checkout success/cancel return URLs
+- launch evidence and auth proof after retesting
+
+Use `https://vishvakarma-os.vercel.app` only as a Vercel fallback/debug alias or preview-compatible redirect origin.
 
 ---
 
@@ -70,7 +86,7 @@ pnpm run verify:stripe-billing
 Use this wording for current production status:
 
 ```text
-Current v1.2.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support.
+Current v1.2.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support. The canonical production origin is https://vishvakarma-os.app; the Vercel subdomain is a fallback/debug alias.
 ```
 
 Avoid this wording for current production status:
@@ -80,6 +96,7 @@ runtime-selectable dual backend
 current Firebase production backend
 Firebase-only production
 Firebase/Supabase dual cloud is the live architecture
+vishvakarma-os.vercel.app is the canonical production origin
 ```
 
 It is still fair to mention the historical engineering effort:
@@ -114,14 +131,14 @@ Caution for valuation documents:
 
 After backend/auth changes, manually verify:
 
-1. `/auth` loads and shows Supabase auth status.
-2. Google OAuth completes and redirects to `/editor`.
+1. `/auth` loads and shows Supabase auth status on `https://vishvakarma-os.app`.
+2. Google OAuth completes and redirects to `/editor` from the canonical domain.
 3. `/projects` lists cloud/local project state correctly.
 4. New project save/load works.
-5. Stripe checkout and portal routes resolve with valid auth.
+5. Stripe checkout and portal routes resolve with valid auth and return to the canonical domain.
 6. `/editor` loads 2D + 3D surfaces.
 7. iPad Safari can sign in, open editor, and use terrain/tools.
-8. PWA install/home-screen flow does not serve stale cached auth shell.
+8. PWA install/home-screen flow does not serve stale auth shell.
 
 ---
 
@@ -140,4 +157,4 @@ After backend/auth changes, manually verify:
 
 ## Maintenance
 
-Update this file whenever the active production backend changes, auth provider flow changes, or billing entitlement write path changes.
+Update this file whenever the active production backend changes, auth provider flow changes, billing entitlement write path changes, or canonical production origin changes.
