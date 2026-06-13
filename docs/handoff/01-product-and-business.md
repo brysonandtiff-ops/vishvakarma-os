@@ -13,7 +13,8 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** co
 | Technical inventory | [`docs/SOFTWARE_INVENTORY.md`](../SOFTWARE_INVENTORY.md) |
 | Version | `1.2.0` — [`src/config/appVersion.ts`](../../src/config/appVersion.ts), [`package.json`](../../package.json) |
 
-**Production URL:** https://vishvakarma-os.vercel.app
+**Canonical production URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app
 
 ## Target users
 
