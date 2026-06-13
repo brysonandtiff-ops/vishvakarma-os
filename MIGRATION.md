@@ -1,7 +1,8 @@
 # Vishvakarma.OS — Backend Migration Guide
 
 **Last updated:** 2026-06-13  
-**Current production backend:** Supabase Auth + Postgres + Storage (Supabase-only runtime)
+**Current production backend:** Supabase Auth + Postgres + Storage (Supabase-only runtime)  
+**Canonical production origin:** https://vishvakarma-os.app
 
 For the current architecture summary, see [`docs/CURRENT_PRODUCTION_ARCHITECTURE.md`](docs/CURRENT_PRODUCTION_ARCHITECTURE.md).
 
@@ -23,7 +24,7 @@ Required client env vars (see [`.env.example`](.env.example)):
 ```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
-VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.vercel.app
+VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app
 ```
 
 Required server env vars:
@@ -31,7 +32,10 @@ Required server env vars:
 ```env
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
+APP_URL=https://vishvakarma-os.app
 ```
+
+`https://vishvakarma-os.vercel.app` may remain as a fallback/debug redirect origin, but it is not the canonical production origin.
 
 Setup and verification:
 
