@@ -192,7 +192,7 @@ export default function PropertiesPanel({
         </div>
         {morePanel && (
           <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
-            <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
@@ -349,7 +349,7 @@ export default function PropertiesPanel({
 
         {morePanel && (
           <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
-            <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
