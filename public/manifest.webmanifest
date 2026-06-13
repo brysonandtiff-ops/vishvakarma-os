@@ -1,8 +1,9 @@
 {
+  "id": "/?app=vishvakarma-os",
   "name": "Vishvakarma.OS",
   "short_name": "Vishvakarma",
   "description": "iPad-first architectural blueprint editor and live 3D planning studio.",
-  "start_url": "/",
+  "start_url": "/editor?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "browser"],
@@ -24,7 +25,13 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -34,6 +41,22 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Editor",
+      "short_name": "Editor",
+      "description": "Open the Vishvakarma.OS blueprint editor.",
+      "url": "/editor?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "Open your Vishvakarma.OS projects.",
+      "url": "/projects?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
