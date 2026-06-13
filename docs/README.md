@@ -4,9 +4,13 @@
 
 Vishvakarma.OS is an iPad-first, browser-native architectural blueprint and live 3D studio with strict governance framework. The system provides a unified workspace for 2D blueprint editing with real-time 3D visualization, material application, and solar lighting simulation.
 
+**Current production architecture:** [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md)
+
 **Product capabilities (audited):** [PRODUCT_CAPABILITIES.md](./PRODUCT_CAPABILITIES.md)
 
 **Software inventory (valuation / due diligence):** [SOFTWARE_INVENTORY.md](./SOFTWARE_INVENTORY.md)
+
+> **Current-state note:** If older inventory or release documents mention Firebase/Supabase as the active dual-backend production path, treat [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md) as the superseding current-state addendum. Current production is Supabase-first/Supabase-only unless a later commit explicitly restores Firebase runtime selection.
 
 ## Architecture
 
@@ -178,158 +182,9 @@ interface Opening {
 
 ```typescript
 interface LightingConfig {
-  sunAzimuth: number; // 0-360 degrees
-  sunElevation: number; // 0-90 degrees
-  timeOfDay: number; // 0-24 hours
-  intensity: number; // 0-1
+  sunAzimuth: number;
+  sunElevation: number;
+  timeOfDay: number;
+  intensity: number;
 }
 ```
-
-## Route Manifest
-
-All routes are defined in the database `route_manifest` table:
-
-```sql
-CREATE TABLE route_manifest (
-  id UUID PRIMARY KEY,
-  path TEXT NOT NULL UNIQUE,
-  name TEXT NOT NULL,
-  component TEXT NOT NULL,
-  category TEXT NOT NULL, -- editor, governance, system
-  visible BOOLEAN DEFAULT true,
-  order_index INTEGER DEFAULT 0
-);
-```
-
-**No ad-hoc page creation is allowed.** All routes must be registered in the Route Manifest.
-
-## Development Workflow
-
-### Required Process for All Features
-
-1. **Spec Entry** - Create specification in Spec Center
-2. **Implementation** - Develop the feature
-3. **Registry Entry** - Register component/feature in Registry Center
-4. **Test/Evidence** - Create evidence pack
-5. **Change Request** - Create and approve change request
-6. **Release Gate** - Include in release with evidence
-
-### Stop-Ship Enforcement
-
-The following violations will cause stop-ship:
-- Ad-hoc page creation without Route Manifest entry
-- Features without corresponding specs
-- Changes without approved change requests
-- Releases without evidence packs
-- Missing audit log entries
-
-## Material System
-
-### Preset Materials
-
-1. **Paint**
-   - Color: #FFFFFF
-   - Roughness: 0.8
-   - Type: paint
-
-2. **Wood**
-   - Color: #8B4513
-   - Roughness: 0.6
-   - Type: wood
-
-3. **Concrete**
-   - Color: #808080
-   - Roughness: 0.9
-   - Type: concrete
-
-## 3D Rendering
-
-### Technology Stack
-- React Three Fiber
-- Three.js
-- @react-three/drei
-
-### Coordinate System
-- 2D canvas coordinates are converted to 3D world space
-- Y-axis is vertical (height)
-- Grid helper shows major grid lines
-
-### Lighting Model
-- Ambient light (base illumination)
-- Directional light (sun)
-- Sun position calculated from azimuth and elevation
-- Real-time updates based on solar timeline
-
-## iPad Optimization
-
-### Touch Targets
-All interactive elements use `.touch-target` class with minimum 44px size.
-
-### Apple Pencil Support
-- Precise cursor for drawing tools
-- Canvas supports touch and pencil input
-- Pressure sensitivity ready (future enhancement)
-
-### Responsive Layout
-- Desktop: Full sidebar navigation
-- Mobile/Tablet: Hamburger menu with sheet overlay
-- 3D viewport toggleable to maximize canvas space
-
-## Quality Assurance
-
-### Smoke Tests
-Critical paths to test:
-1. Create new project
-2. Draw walls on canvas
-3. Toggle 3D view
-4. Apply materials
-5. Adjust solar lighting
-6. Save project
-7. Load project
-8. Export JSON
-
-### Evidence Pack
-Each release must include:
-- Test results
-- Smoke test validation
-- Feature checklist
-- Known issues
-
-## Version History
-
-### v1.0.0 (Initial Release)
-- 2D blueprint editor with grid
-- Wall drawing tool
-- Door and window placement
-- Live 3D visualization
-- Material system (3 presets)
-- Solar lighting simulation
-- Project save/load
-- JSON export
-- Governance framework (Spec Center, Registry, Change Requests, Releases)
-- Audit log system
-- Route manifest
-
-## Explicitly Out of Scope for v1.0.0
-
-- Full BIM capabilities
-- Structural engineering calculations
-- Plumbing and HVAC systems
-- Terrain modeling
-- Multi-story buildings
-- Photoreal path tracing
-- User authentication
-- Collaborative editing
-- Cloud sync
-
-## Future Enhancements (Post v1.0.0)
-
-- Multi-story support
-- Advanced material editor
-- Furniture placement
-- Dimension annotations
-- PDF export
-- DXF/DWG import
-- Collaborative features
-- Cloud storage
-- Mobile app
