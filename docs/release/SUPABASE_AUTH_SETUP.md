@@ -6,12 +6,14 @@ Vishvakarma.OS uses **Supabase Auth + Postgres** as the production backend (hard
 
 Project ref: `jyocvwipthswfcmvqgqe` (or your linked project).
 
-1. **Authentication → Providers**: Enable **Google** (OAuth client ID + secret from Google Cloud Console).
-2. **Authentication → Providers**: Enable **Email** (magic link / OTP).
+1. **Authentication → Providers**: Enable **Google**.
+2. **Authentication → Providers**: Enable **Email** if email login is part of the launch path.
 3. **Authentication → URL Configuration**:
-   - Site URL: `https://vishvakarma-os.vercel.app`
+   - Site URL: `https://vishvakarma-os.app`
    - Redirect URLs:
-     - `https://vishvakarma-os.vercel.app/auth`
+     - `https://vishvakarma-os.app/auth`
+     - `https://vishvakarma-os.app/editor`
+     - `https://vishvakarma-os.vercel.app/auth` (fallback/debug alias)
      - `https://*.vercel.app/auth` (preview)
      - `http://127.0.0.1:5173/auth`
 4. Apply migrations and enable providers:
@@ -24,7 +26,7 @@ node scripts/setup-supabase-auth-providers.mjs
 pnpm run verify:supabase-schema:live
 ```
 
-5. **Google Cloud Console** — add authorized redirect URI to your Supabase Google OAuth client:
+5. **Google Cloud Console** — add this authorized redirect URI to the Google OAuth client used by Supabase:
    `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback`
 
 6. Push env to Vercel (after copying keys to `.env.supabase.local`):
@@ -42,7 +44,8 @@ vercel --prod
 | `VITE_SUPABASE_ANON_KEY` | Anon/public key |
 | `SUPABASE_URL` | Server mirror of project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only — Stripe webhooks, JWT verify |
-| `VITE_AUTH_REDIRECT_ORIGIN` | Production origin for OAuth callbacks |
+| `VITE_AUTH_REDIRECT_ORIGIN` | Canonical production origin: `https://vishvakarma-os.app` |
+| `APP_URL` | Canonical production origin for Stripe return URLs: `https://vishvakarma-os.app` |
 
 Remove legacy `VITE_FIREBASE_*` and `VITE_BACKEND_PROVIDER` vars if still present from older deploys.
 
@@ -54,4 +57,4 @@ pnpm run verify:supabase-login-data
 pnpm run verify:production-auth-flow
 ```
 
-See [VERCEL_ENV.md](./VERCEL_ENV.md) and [MIGRATION.md](../../MIGRATION.md) for the full env matrix.
+After redeploying, test Google OAuth from `https://vishvakarma-os.app/auth` and confirm the `.app` referer appears in Supabase Auth logs. See [VERCEL_ENV.md](./VERCEL_ENV.md) and [MIGRATION.md](../../MIGRATION.md) for the full env matrix.
