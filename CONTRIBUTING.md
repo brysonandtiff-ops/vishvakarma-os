@@ -22,7 +22,7 @@ pnpm run release:gates
 - TypeScript strict null checks via `tsconfig.check.json`
 - Biome + ast-grep for lint structure
 - Editor changes flow: `ToolRail` → `EditorPage` → `FloorPlanEngine` → `ProjectManifest` → `BlueprintCanvas` + `Viewport3D`
-- New manifest fields require updates to `types.ts`, `manifestSchema.ts`, export/import, and evidence tests
+- New manifest fields require updates to `src/types/types.ts`, `src/core/manifestSchema.ts`, export/import, and evidence tests
 
 ## Governance
 
@@ -32,4 +32,4 @@ pnpm run release:gates
 
 ## Deployment
 
-See `docs/release/VERCEL_ENV.md` and `MIGRATION.md`.
+See `docs/release/VERCEL_ENV.md`, `supabase/README.md`, and `MIGRATION.md`.

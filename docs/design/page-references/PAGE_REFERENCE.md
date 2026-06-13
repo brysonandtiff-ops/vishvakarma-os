@@ -20,7 +20,7 @@ Governance remainder only (after a partial run):
 SKIP_BUILD=1 PAGE_REF_REMAINDER=1 pnpm run capture:page-references
 ```
 
-Build uses `VITE_E2E_ALLOW_LOCAL_ACCESS=true` and `VITE_PRICING_PAGE_ENABLED=true` so all routes are reachable without Firebase.
+Build uses `VITE_E2E_ALLOW_LOCAL_ACCESS=true` and `VITE_PRICING_PAGE_ENABLED=true` so all routes are reachable without Supabase in E2E builds.
 
 ## Marketing (`marketing/`)
 
@@ -73,15 +73,15 @@ Build uses `VITE_E2E_ALLOW_LOCAL_ACCESS=true` and `VITE_PRICING_PAGE_ENABLED=tru
 | [30-world-records.png](./governance/30-world-records.png) | `/world-records` | `src/pages/WorldRecordsPage.tsx` | |
 | [31-audit.png](./governance/31-audit.png) | `/audit` | `src/pages/AuditLogPage.tsx` | |
 
-## Manual captures (Firebase / production)
+## Manual captures (Supabase / production)
 
 These states cannot be automated in the local e2e build:
 
 | Target | Why manual | Steps |
 |--------|------------|-------|
-| `manual-cloud-save-badge.png` | Needs Firebase env | Deploy preview with Firebase configured, open `/editor` |
+| `manual-cloud-save-badge.png` | Needs Supabase env | Deploy preview with Supabase configured, open `/editor` |
 | `manual-projects-cloud.png` | Needs signed-in cloud save | Sign in, save project, open `/projects` with ≥1 row |
-| `manual-registry-form-open.png` | Create dialog needs cloud | Firebase configured → `/registry` → Register Entry |
-| `manual-change-request-open.png` | Create dialog needs cloud | Firebase configured → `/change-requests` → New Request |
+| `manual-registry-form-open.png` | Create dialog needs cloud | Supabase configured → `/registry` → Register Entry |
+| `manual-change-request-open.png` | Create dialog needs cloud | Supabase configured → `/change-requests` → New Request |
 
 See also [SCREENSHOT_PACK.md](../../release/evidence/SCREENSHOT_PACK.md) for release evidence captures.

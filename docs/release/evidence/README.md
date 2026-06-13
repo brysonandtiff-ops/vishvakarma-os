@@ -8,7 +8,7 @@ This folder stores production-launch evidence generated from the current codebas
 |---|---|---:|
 | `latest-ci-run.md` | Records the latest GitHub Actions run and artifact status | Yes |
 | `security-headers.md` | Records deployed response headers and CSP/HSTS proof | Yes |
-| `firebase-production-check.md` | Proves Firebase env, auth URLs, and Firestore rules are configured | Yes |
+| `auth-sign-in-proof.md` | Proves production auth gate, OAuth redirect, and sign-in evidence | Yes |
 | `save-load-proof.md` | Proves project save, reload, export, and import behaviour | Yes |
 | `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
 | `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
@@ -47,7 +47,7 @@ Before public release, attach:
 
 1. latest green CI run,
 2. deployed security header proof,
-3. Firebase production proof,
+3. Supabase production auth proof,
 4. save/load determinism proof,
 5. 2D/3D parity proof,
 6. iPad touch audit,

@@ -21,12 +21,13 @@ pnpm run release:gates
 
 ---
 
-## Firebase Production
+## Supabase Production
 
-- [x] `VITE_FIREBASE_*` set in Vercel production environment
-- [x] Firestore security rules deployed (`firebase deploy --only firestore:rules`)
+- [x] `VITE_SUPABASE_*` and `SUPABASE_SERVICE_ROLE_KEY` set in Vercel production environment
+- [x] Supabase migrations applied (`pnpm run setup:supabase-auth:full` or `npx supabase db push`)
+- [x] Google OAuth redirect URLs configured in Supabase dashboard
 - [x] Authorized domain includes production URL
-- [x] Email-link auth tested on production URL
+- [x] Email-link and Google OAuth tested on production URL
 - [x] Save → reload → geometry intact (attach proof to `docs/release/evidence/save-load-proof.md`)
 
 Commands:
@@ -34,10 +35,12 @@ Commands:
 ```bash
 pnpm run production:verify-env --strict
 pnpm run production:evidence
-pnpm run test:firebase-auth              # quota-safe config check (no live email send)
+pnpm run verify:supabase-schema:live
+pnpm run test:supabase-auth
+pnpm run verify:production-auth-flow
 ```
 
-**Auth deploy ritual:** After any `firebase deploy --only auth`, always run `pnpm run setup:firebase-auth` to restore passwordless email (`passwordRequired: false`). Prefer `pnpm run setup:firebase-auth:full` for email + OAuth deploys.
+See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [MIGRATION.md](../../MIGRATION.md).
 
 ---
 
@@ -110,7 +113,7 @@ Manual supplement (optional):
 
 | Role | Name | Date | Gates cleared |
 |------|------|------|---------------|
-| Operator | Bryson Erdmann | 2026-06-09 | 9–12, Firebase, headers |
+| Operator | Bryson Erdmann | 2026-06-09 | 9–12, Supabase auth, headers |
 | Reviewer | Bryson Erdmann | 2026-06-09 | `release:gates:strict` exit 0 |
 
 When all boxes are checked, run:

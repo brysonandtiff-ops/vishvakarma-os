@@ -26,19 +26,17 @@ This file is the production release evidence ledger. It must be updated whenever
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
 | Vercel deployment | Production URL opens | PASS | https://vishvakarma-os.vercel.app |
-| Firebase env (Vercel) | 4 required `VITE_FIREBASE_*` vars on Production | PASS | [`firebase-production-check.md`](firebase-production-check.md) |
+| Supabase auth (Vercel) | `VITE_SUPABASE_*` vars on Production | PASS | [`auth-sign-in-proof.md`](auth-sign-in-proof.md) |
 | `/auth` screenshot | Signed-out auth page visible | PASS | Live site + page references |
 | Private route redirect (live) | Signed-out `/editor` → `/auth` | PASS | `e2e/auth-private-routes.spec.ts` |
-| Authenticated editor | Editor opens after Firebase sign-in | PASS | Production bundle audit |
+| Authenticated editor | Editor opens after Supabase sign-in | PASS | Production bundle audit |
 | Governance routes | All private governance routes render | PASS | Route smoke + page references |
 
 ## Backend Evidence
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Firebase env template | Vars in `.env.example` | PASS | [`firebase-production-check.md`](firebase-production-check.md) |
-| Firestore rules deployed | `firestore.rules` on production project | PASS | Operator deploy per README |
-| Firebase live auth | Email-link sign-in smoke | PASS | Production auth page enabled |
+| Supabase env template | Vars in `.env.example` | PASS | [`auth-sign-in-proof.md`](auth-sign-in-proof.md) |
 | Cloud save/load | Save project → reload → identical manifest | PASS | [`save-load-proof.md`](save-load-proof.md) |
 
 ## Manual Device Evidence (Gates 9–12)
@@ -65,8 +63,7 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] Unit tests green locally (461/461).
 - [x] E2E gate green locally (auth + smoke + cross-browser + a11y).
 - [x] No exposed private route while signed out.
-- [x] Firebase production env on Vercel configured.
-- [x] Firestore rules deployed to production project.
+- [x] Supabase production env on Vercel configured.
 - [x] Evidence files filled (no launch placeholders).
 - [x] Marketing claims audited — collaboration marked preview/planned.
 - [x] Fresh green GitHub Actions run URL attached after push.

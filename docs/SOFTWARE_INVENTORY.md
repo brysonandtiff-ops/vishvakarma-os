@@ -62,7 +62,7 @@ The current production architecture has been consolidated around Supabase for au
 |-------|---------|
 | `/` | Marketing home |
 | `/features` | Product feature catalog and guides |
-| `/pricing` | Pricing and plan comparison |
+| `/pricing` | Pricing and plan comparison | Requires `VITE_PRICING_PAGE_ENABLED=true` |
 | `/auth` | Supabase Auth login: Google OAuth and email link |
 | `/reset-password` | Reset/password-auth support path or redirect behavior |
 | `/404` | Branded not-found page |

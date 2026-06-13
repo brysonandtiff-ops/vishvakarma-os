@@ -13,7 +13,7 @@ All notable changes to Vishvakarma.OS are documented in this file.
 - Operator launch checklist (`docs/release/OPERATOR_CHECKLIST.md`)
 
 ### Changed
-- `package.json` version synced to `1.1.1` (display version in `appVersion.ts`)
+- `package.json` version synced to `1.2.0` (display version in `src/config/appVersion.ts`)
 - Playwright config: `cross-browser-firefox`, `cross-browser-webkit`, `accessibility-audit` projects
 
 ## [1.1.1] - 2026-06-08
@@ -26,7 +26,7 @@ All notable changes to Vishvakarma.OS are documented in this file.
 - Custom material dialog, furniture picker, F shortcut, furniture drag
 - Projects page search, archive, and duplicate
 - Save/load determinism and 2D/3D parity automated tests
-- MIGRATION.md, SECURITY.md, CONTRIBUTING.md, DEPLOYMENT.md
+- MIGRATION.md, SECURITY.md, CONTRIBUTING.md; deployment guide at `docs/release/DEPLOYMENT.md`
 - API retry, structured logger, monitoring and analytics consent scaffold
 - v2 architecture doc and RFC backlog index
 

@@ -1,3 +1,4 @@
+> **Historical snapshot.** Point-in-time verification record from early 2026 development. For current architecture, routes, and commands see [README.md](README.md), [docs/SOFTWARE_INVENTORY.md](docs/SOFTWARE_INVENTORY.md), and [docs/CURRENT_PRODUCTION_ARCHITECTURE.md](docs/CURRENT_PRODUCTION_ARCHITECTURE.md).
 # STEP 6 Implementation Summary
 
 ## ✅ COMPLETE - All Goals Achieved

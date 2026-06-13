@@ -45,7 +45,7 @@ governance/
    - Creates immutable snapshot on successful save
    - Blocks save on governance violations
 
-3. **Build Pipeline** (`scripts/enforce-build.js`)
+3. **Build Pipeline** (`scripts/quality/` gate scripts + `pnpm run release:gates`)
    - Validates spec hashes at build time
    - Blocks build on spec mismatch
    - Requires formal change request for spec modifications
@@ -428,33 +428,32 @@ async function saveProject(manifest: ProjectManifest) {
 
 ### Step 3: Build Pipeline
 
-Add enforcement to build script in `package.json`:
+Current `package.json` uses gate scripts run before release, not inline build hooks:
 
 ```json
 {
   "scripts": {
-    "build": "node scripts/enforce-build.js && vite build",
-    "prebuild": "npm run lint && npm run test"
+    "build": "vite build",
+    "release:gates": "node scripts/verify-all.js",
+    "contract:gates": "node scripts/quality/check-system-contract.mjs && ..."
   }
 }
 ```
 
+Run gates before shipping:
+
+```bash
+pnpm run verify:ci
+pnpm run release:gates
+```
+
 ### Step 4: CI/CD Integration
 
-Add to CI/CD pipeline (e.g., GitHub Actions):
+GitHub Actions (`.github/workflows/verify.yml`) runs:
 
 ```yaml
-- name: Governance Enforcement
-  run: |
-    npm run lint
-    npm run test
-    node scripts/enforce-build.js
-    
-- name: Build
-  run: npm run build
-  
-- name: Verify Build
-  run: node scripts/verify-build.js
+- name: CI verify
+  run: pnpm run ci
 ```
 
 ---

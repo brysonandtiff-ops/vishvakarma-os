@@ -26,7 +26,7 @@ Successfully implemented enterprise-grade governance enforcement system with six
 **Integration Points**:
 - App startup (`src/main.tsx`) - runs on application initialization
 - Save actions (`src/modules/export.ts`) - validates before export
-- Build pipeline (`scripts/enforce-build.js`) - validates at build time
+- Build pipeline (`scripts/quality/` + `pnpm run release:gates`) - validates before release
 
 **Key Metrics**:
 - Validation time: < 2ms average
@@ -191,7 +191,7 @@ Successfully implemented enterprise-grade governance enforcement system with six
 - Validation: Manifest + governance rules
 
 ### ✅ Build Pipeline
-- Location: `scripts/enforce-build.js`
+- Location: `scripts/quality/` gate scripts and `scripts/verify-all.js`
 - Enforcement: Spec hash validation
 - Blocking: Yes (on spec mismatch)
 - Integration: Ready for CI/CD

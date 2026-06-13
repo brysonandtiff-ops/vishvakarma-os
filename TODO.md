@@ -1,3 +1,4 @@
+> **Historical snapshot.** Point-in-time verification record from early 2026 development. For current architecture, routes, and commands see [README.md](README.md), [docs/SOFTWARE_INVENTORY.md](docs/SOFTWARE_INVENTORY.md), and [docs/CURRENT_PRODUCTION_ARCHITECTURE.md](docs/CURRENT_PRODUCTION_ARCHITECTURE.md).
 # Task: Vishvakarma.OS v1.0.0 - STEP 8 Complete
 
 ## Status: ✅ STEP 8 COMPLETE - Collaboration & Multi-User Editing

@@ -1,6 +1,6 @@
 # Vishvakarma.OS — Production Readiness Evidence
 
-**Status:** v1.2.0 release hardening complete locally. Firebase-only runtime on Vercel. Final public launch requires green GitHub Actions on the release commit.
+**Status:** v1.2.0 release hardening complete locally. Supabase-only runtime on Vercel. Final public launch requires green GitHub Actions on the release commit.
 
 **Last updated:** 2026-06-09
 
@@ -18,13 +18,12 @@
 | Browser auth E2E | Playwright `/auth` + private route redirect | PASS locally |
 | Production build | `pnpm run build` creates `dist/` | PASS |
 | Build artifact | CI uploads `dist/` as `vishvakarma-os-dist` | PASS locally |
-| Passwordless account access | `/auth` uses Firebase email-link | PASS |
-| Data persistence | Firestore via `src/backend/firebase/` | PASS |
+| Passwordless account access | `/auth` uses Supabase Google OAuth or email link | PASS |
+| Data persistence | Supabase Postgres via `src/backend/supabase/` | PASS |
 | App route guard | Private routes redirect when signed out | PASS |
 | Account shell controls | Session mode + sign-out in AppLayout | PASS |
-| Profile creation | Firebase auth + profile context | PASS |
-| Firestore rules | `firestore.rules` deployed to production project | PASS per operator checklist |
-| Environment template | `.env.example` documents `VITE_FIREBASE_*` | PASS |
+| Profile creation | Supabase auth + profile context | PASS |
+| Environment template | `.env.example` documents `VITE_SUPABASE_*` | PASS |
 | Export format limits | `docs/user/EXPORT_LIMITATIONS.md` | PASS |
 | Stub tool roadmap | `docs/user/STUB_TOOLS.md` | PASS |
 | Release screenshot pack | Page references + Playwright captures | PASS |
@@ -42,16 +41,15 @@ Do **not** mark a release as production ready unless all of these are true:
 2. The `dist/` artifact is present in the verify workflow run.
 3. The Playwright report is attached or inspected for the E2E workflow run.
 4. A deployed preview opens every production route (31 routes per `PAGE_REFERENCE.md`).
-5. Firebase production environment variables are configured in Vercel:
-   - `VITE_FIREBASE_API_KEY`
-   - `VITE_FIREBASE_AUTH_DOMAIN`
-   - `VITE_FIREBASE_PROJECT_ID`
-   - `VITE_FIREBASE_APP_ID`
-6. Firebase Auth is configured:
-   - email link / passwordless provider enabled
+5. Supabase production environment variables are configured in Vercel:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `VITE_AUTH_REDIRECT_ORIGIN`
+6. Supabase Auth is configured:
+   - Google OAuth provider enabled
    - production site URL allowlisted (`vishvakarma-os.vercel.app`)
-7. Firestore rules deployed: `firebase deploy --only firestore:rules`
-8. Manual smoke test confirms:
+7. Manual smoke test confirms:
    - `/auth` loads while signed out
    - signed-out users cannot access private app routes in production
    - account creation/sign-in email link reaches the configured site URL
@@ -81,18 +79,18 @@ Open the preview and test every production route listed in `docs/design/page-ref
 
 ---
 
-## Auth / Firestore Verification
+## Auth / Supabase Verification
 
 Run before production release:
 
-- `docs/release/evidence/firebase-production-check.md`
+- `docs/release/evidence/auth-sign-in-proof.md`
 - `pnpm run production:verify-env`
-- `pnpm run setup:firebase-auth` (operator)
+- `pnpm run test:supabase-auth:full` (operator)
 
 Required proof:
 
-- Firestore rules restrict user-owned project documents.
-- New `/auth` account can sign in via email link.
+- RLS policies restrict user-owned project documents.
+- New `/auth` account can sign in via Google OAuth or email link.
 - Cloud save/load round-trip on production URL.
 
 ---
@@ -115,9 +113,8 @@ The release must be blocked if any of these occur:
 
 - GitHub Actions verification fails.
 - E2E Auth Gate fails.
-- Firebase production env values are missing for production release.
-- Firebase Auth email-link flow is not configured.
-- Firestore rules are not deployed.
+- Supabase production env values are missing for production release.
+- Supabase Auth sign-in flow is not configured.
 - Any private production route is reachable while signed out.
 - Any production route renders a blank page.
 - WebGL failure crashes the whole app instead of degrading gracefully.
@@ -131,7 +128,7 @@ The release must be blocked if any of these occur:
 - [x] Local `pnpm run verify:ci` green (2026-06-09)
 - [x] Vercel deployment URL attached — https://vishvakarma-os.vercel.app
 - [x] Live security headers captured — `security-headers.txt`
-- [x] Firebase production check — `firebase-production-check.md`
+- [x] Auth sign-in proof — `auth-sign-in-proof.md`
 - [x] Save/load proof — `save-load-proof.md`
 - [x] 2D/3D parity proof — `2d-3d-parity-proof.md`
 - [x] iPad touch audit — `ipad-touch-audit.md`

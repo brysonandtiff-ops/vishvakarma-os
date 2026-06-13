@@ -1,6 +1,6 @@
 # Supabase Auth Setup (Production)
 
-Vishvakarma.OS uses **Supabase Auth + Postgres** when `VITE_BACKEND_PROVIDER=supabase`.
+Vishvakarma.OS uses **Supabase Auth + Postgres** as the production backend (hardcoded in `src/backend/backendConfig.ts`).
 
 ## Supabase Dashboard
 
@@ -24,7 +24,7 @@ node scripts/setup-supabase-auth-providers.mjs
 pnpm run verify:supabase-schema:live
 ```
 
-5. **Google Cloud Console** — add authorized redirect URI to the Firebase web OAuth client:
+5. **Google Cloud Console** — add authorized redirect URI to your Supabase Google OAuth client:
    `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback`
 
 6. Push env to Vercel (after copying keys to `.env.supabase.local`):
@@ -38,13 +38,13 @@ vercel --prod
 
 | Variable | Purpose |
 |----------|---------|
-| `VITE_BACKEND_PROVIDER` | Set to `supabase` |
 | `VITE_SUPABASE_URL` | Project URL (`https://xxx.supabase.co`) |
 | `VITE_SUPABASE_ANON_KEY` | Anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only — Stripe webhooks, JWT verify fallback |
-| `SUPABASE_JWT_SECRET` | Optional — local JWT verify for API routes |
+| `SUPABASE_URL` | Server mirror of project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only — Stripe webhooks, JWT verify |
+| `VITE_AUTH_REDIRECT_ORIGIN` | Production origin for OAuth callbacks |
 
-Remove runtime `VITE_FIREBASE_*` after cutover (keep only if rolling back).
+Remove legacy `VITE_FIREBASE_*` and `VITE_BACKEND_PROVIDER` vars if still present from older deploys.
 
 ## Verify
 
@@ -54,4 +54,4 @@ pnpm run verify:supabase-login-data
 pnpm run verify:production-auth-flow
 ```
 
-Rollback: set `VITE_BACKEND_PROVIDER=firebase` and restore Firebase env vars.
+See [VERCEL_ENV.md](./VERCEL_ENV.md) and [MIGRATION.md](../../MIGRATION.md) for the full env matrix.

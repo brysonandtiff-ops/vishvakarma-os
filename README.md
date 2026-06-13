@@ -54,7 +54,7 @@ It is designed as a professional architectural OS — not just a drawing app. Ev
 |---|---|---|
 | `/` | Landing | Marketing home |
 | `/features` | Features & Guides | Product reference |
-| `/pricing` | Pricing | Plans |
+| `/pricing` | Pricing | Plans (requires `VITE_PRICING_PAGE_ENABLED=true`) |
 | `/auth` | Account Access | Email link + Google/Apple OAuth surface |
 | `/reset-password` | Reset Password | Redirects to auth when unconfigured |
 | `/404` | Not Found | Unknown route fallback |
@@ -154,9 +154,11 @@ pnpm run verify:supabase-login-data
 Migration helpers retained for archive/portability work:
 
 ```bash
-pnpm run migration:export-firestore
-pnpm run migration:import-supabase
+node scripts/migration/export-supabase.mjs
+pnpm run migration:import-supabase -- --in=migration/your-legacy-export.json
 ```
+
+See [`MIGRATION.md`](MIGRATION.md) for backend cutover and import/export details.
 
 ---
 
@@ -230,7 +232,7 @@ Vishvakarma.OS uses a **gold workstation** visual language:
 | [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance workflow |
 | [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_CLAIM.md) | Self-verified gate-count evidence |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |
-| [`MIGRATION.md`](MIGRATION.md) | Version and backend migration |
+| [`supabase/README.md`](supabase/README.md) | Supabase schema and auth setup |
 | [`SECURITY.md`](SECURITY.md) | Security policy |
 
 ---

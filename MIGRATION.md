@@ -1,123 +1,129 @@
-# Migration Guide — Vishvakarma.OS
+# Vishvakarma.OS — Backend Migration Guide
 
-This document covers upgrading between Vishvakarma.OS versions and migrating from legacy Supabase to Firebase.
+**Last updated:** 2026-06-13  
+**Current production backend:** Supabase Auth + Postgres + Storage (Supabase-only runtime)
 
-## Version upgrades
+For the current architecture summary, see [`docs/CURRENT_PRODUCTION_ARCHITECTURE.md`](docs/CURRENT_PRODUCTION_ARCHITECTURE.md).
 
-### v1.0.0 → v1.1.0
+---
 
-- Project manifest schema is backward-compatible. Import existing `.json` exports without changes.
-- New optional manifest fields: `labels`, `dimensions`, `furniture`, `dimensionVisibility`.
-- PDF export now includes a visual floor-plan raster when exported from the editor.
+## Current production path
 
-### v1.1.0 → v1.2.0
+Vishvakarma.OS v1.2.x runs on Supabase for:
 
-- Custom materials are stored in `manifest.materials[]` with optional `textureUrl`.
-- Lighting fixtures use `manifest.fixtures[]` (MEP workspace).
-- Multi-floor projects use `manifest.floors[]` with per-wall `floorIndex` (preview scaffolding for v2.0).
+- Authentication (email link, Google OAuth)
+- Postgres persistence (projects, governance, billing entitlements, optimization history, profiles)
+- Storage (uploads and custom textures)
+- Server-side JWT verification for Stripe API routes
 
-## Supabase archive schema
+The SPA hardcodes `provider: 'supabase'` in `src/backend/backendConfig.ts`. There is no runtime Firebase/Supabase switch in current builds.
 
-Production login uses **Supabase Auth + Postgres** by default (`VITE_BACKEND_PROVIDER=supabase`). Firebase Auth + Firestore remains available for rollback (`VITE_BACKEND_PROVIDER=firebase`).
+Required client env vars (see [`.env.example`](.env.example)):
 
-Schema is versioned in [`supabase/migrations/`](supabase/migrations/):
-
-1. `20260212000001_create_core_tables.sql` — 8 tables including `profiles` (login data)
-2. `20260212000002_profiles_auth_trigger.sql` — auto-create profile on `auth.users` insert
-3. `20260212000003_rls_policies.sql` — uid-scoped RLS + admin via `profiles.role`
-
-Apply to the linked Supabase project:
-
-```bash
-cd vishvakarma-os-live
-supabase link --project-ref jyocvwipthswfcmvqgqe
-supabase db push
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.vercel.app
 ```
 
-Verify locally (static) or against remote (live):
+Required server env vars:
+
+```env
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+Setup and verification:
 
 ```bash
+pnpm run setup:supabase-auth
+pnpm run setup:supabase-auth:full
+pnpm run push:supabase-env-vercel
 pnpm run verify:supabase-schema
-pnpm run verify:firebase-login-data
-# With SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY:
 pnpm run verify:supabase-schema:live
+pnpm run test:supabase-auth
+pnpm run verify:supabase-login-data
+pnpm run verify:production-auth-flow
 ```
 
-## Supabase → Firebase cutover
+See [`docs/release/SUPABASE_AUTH_SETUP.md`](docs/release/SUPABASE_AUTH_SETUP.md) and [`supabase/README.md`](supabase/README.md).
 
-Vishvakarma.OS runtime is **Firebase-only** (Auth + Firestore). Supabase is no longer used by the application.
+---
 
-### Pre-cutover
+## Data export and import
 
-1. Announce a maintenance window.
-2. Freeze writes in Supabase.
-3. Export data:
+Migration utilities live under `scripts/migration/`:
+
+| Script | Purpose |
+|--------|---------|
+| `export-supabase.mjs` | Export Supabase Postgres rows to JSON |
+| `import-supabase.mjs` | Import JSON export into Supabase (`pnpm run migration:import-supabase`) |
+| `validate-migration.mjs` | Validate export JSON shape before import |
+
+Export:
 
 ```bash
-export SUPABASE_URL=https://your-project.supabase.co
-export SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 node scripts/migration/export-supabase.mjs
 ```
 
-4. Validate the export:
+Import:
 
 ```bash
-node scripts/migration/validate-migration.mjs migration/export-*.json
+pnpm run migration:import-supabase -- --in=migration/your-export.json
+node scripts/migration/validate-migration.mjs migration/your-export.json
 ```
 
-### Import to Firestore
+The `migration/` folder at repo root is a runtime staging area for export/import JSON (gitignored artifacts).
 
-1. Create or select a Firebase project and enable Firestore (production mode).
-2. Deploy security rules:
+---
+
+## Historical Firebase work
+
+Earlier v1.2.x releases implemented Firebase Auth + Firestore alongside Supabase for dual-backend migration experiments. That path is **not** the current production runtime.
+
+Legacy artifacts that may remain in the repo:
+
+- `firestore.rules` (if present) — historical Firestore rules
+- `scripts/production/setup-admin.mjs`, `setup-co-owner.mjs` — Firebase Admin SDK helpers for legacy operator workflows
+- Release evidence files referencing Firebase OAuth setup
+
+Do not describe Firebase as the live production backend in new documentation. Count Firebase engineering as portability and migration depth, not as an active second backend.
+
+---
+
+## Version migrations (app releases)
+
+Application-level breaking changes and upgrade notes are recorded in [`CHANGELOG.md`](CHANGELOG.md).
+
+Schema changes ship via `supabase/migrations/`:
 
 ```bash
-firebase deploy --only firestore:rules --project your-firebase-project-id
+npx supabase link --project-ref jyocvwipthswfcmvqgqe
+npx supabase db push
+pnpm run verify:supabase-schema:live
 ```
 
-3. Import data:
+---
 
-```bash
-export GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
-export FIREBASE_PROJECT_ID=your-firebase-project-id
-node scripts/migration/import-firestore.mjs migration/export-*.json
-```
+## Promote admin / co-owner (Supabase)
 
-4. Smoke test on staging: auth, project save/load, registry, releases, audit log.
+Production admin role is stored on the `profiles` table. After a user signs in once:
 
-### Vercel environment
+1. Open Supabase Dashboard → Table Editor → `profiles`
+2. Set `role` to `admin` for their row
 
-**Remove** (legacy):
+Co-owner billing and export entitlements are also configured via profile/billing columns and `src/config/coOwners.ts`. See [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md).
 
-- `VITE_BACKEND_PROVIDER`
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+Legacy Firebase promotion scripts (`scripts/production/setup-admin.mjs`) require Firebase service account credentials and are not used on the Supabase production path.
 
-**Set** (required):
+---
 
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_APP_ID`
+## Related documentation
 
-Optional: `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
-
-See [docs/release/VERCEL_ENV.md](docs/release/VERCEL_ENV.md) for the full checklist.
-
-### Post-cutover
-
-1. Deploy the Firebase-only build.
-2. Re-run `pnpm run release:gates`.
-3. Keep Supabase export JSON as rollback archive for 14–30 days.
-4. Promote admin users:
-
-```bash
-node scripts/production/setup-admin.mjs admin@example.com
-```
-
-### Rollback
-
-Restore the previous Vercel deployment and re-enable Supabase env vars from archive. Do not delete export JSON until sign-off.
-
-## Detailed runbook
-
-See [docs/release/FIREBASE_CUTOVER.md](docs/release/FIREBASE_CUTOVER.md) for operator step-by-step instructions.
+| Document | Purpose |
+|----------|---------|
+| [`README.md`](README.md) | Primary project entry |
+| [`docs/SOFTWARE_INVENTORY.md`](docs/SOFTWARE_INVENTORY.md) | Technical inventory |
+| [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Production env matrix |
+| [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md) | Deployment guide |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contributor workflow |

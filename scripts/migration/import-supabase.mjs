@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 /**
- * Import Firestore export JSON into Supabase Postgres via service role.
+ * Import legacy Firestore export JSON into Supabase Postgres via service role.
  *
- * Usage: node scripts/migration/import-supabase.mjs [--in migration/export-firestore.json]
+ * Usage: node scripts/migration/import-supabase.mjs --in=migration/your-legacy-export.json
  */
 
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
 const inArg = process.argv.find((arg) => arg.startsWith('--in='));
-const inPath = inArg?.slice('--in='.length) ?? join(process.cwd(), 'migration/export-firestore.json');
+if (!inArg) {
+  console.error('Usage: node scripts/migration/import-supabase.mjs --in=migration/your-legacy-export.json');
+  process.exit(1);
+}
+const inPath = inArg.slice('--in='.length);
 
 function getAdminClient() {
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;

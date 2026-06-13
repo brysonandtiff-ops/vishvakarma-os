@@ -46,11 +46,11 @@ Exit `2` is not a broken repo. It means the build is not yet publicly launch-cle
 
 | Gate | Evidence Required | Launch Impact |
 |---|---|---|
-| Gate 9 — Save/load determinism | Firebase-backed save, reload, import/export proof | Blocks public launch |
+| Gate 9 — Save/load determinism | Supabase-backed save, reload, import/export proof | Blocks public launch |
 | Gate 10 — 2D/3D parity | Sample project wall/opening count matches rendered 3D model | Blocks public launch |
 | Gate 11 — iPad touch target audit | iPad or coarse-pointer screenshots showing touch-safe controls | Blocks public launch |
 | Gate 12 — Performance | Build size, load, interaction, and 3D update evidence | Blocks public launch |
-| Firebase production setup | API keys configured, Firestore rules deployed, auth domains configured | Blocks public launch |
+| Supabase production setup | API keys configured, RLS policies deployed, auth redirect URLs configured | Blocks public launch |
 | Gate 5 — Security headers | Deployed header inspection showing CSP/HSTS active | Blocks public launch |
 
 ---
@@ -70,7 +70,7 @@ latest-ci-run.md
 build-output.txt
 route-smoke-output.txt
 playwright-report-summary.md
-firebase-production-check.md
+auth-sign-in-proof.md
 ipad-touch-audit.md
 2d-3d-parity-proof.md
 save-load-proof.md
@@ -89,8 +89,8 @@ Do not launch publicly if:
 - route production tests fail,
 - build fails,
 - Playwright E2E fails,
-- Firestore security rules are not deployed,
-- production Firebase env variables are missing,
+- Supabase RLS policies are not deployed,
+- production Supabase env variables are missing,
 - save/load cannot be proven,
 - WebGL fallback cannot be proven,
 - iPad touch UX has not been checked,
@@ -106,7 +106,7 @@ Allowed:
 - iPad-first 2D drawing workspace.
 - Live 3D model chamber.
 - Governance OS for specs, registry, change requests, releases, and audit logs.
-- Firebase-backed persistence when configured.
+- Supabase-backed persistence when configured.
 
 Blocked unless separately proven:
 
@@ -125,7 +125,7 @@ The fastest value increase is not feature expansion. It is proof hardening:
 
 1. CI green on main.
 2. Public deploy with security headers.
-3. Firebase production proof.
+3. Supabase production auth proof.
 4. iPad evidence pack.
 5. Save/load determinism proof.
 6. 2D/3D parity proof.

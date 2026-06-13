@@ -1,5 +1,7 @@
 # Vishvakarma.OS Final Cleanup Evidence
 
+> **Historical evidence.** May 2026 cleanup snapshot. Current production backend is Supabase — see [CURRENT_PRODUCTION_ARCHITECTURE.md](../../CURRENT_PRODUCTION_ARCHITECTURE.md).
+
 **Date:** 2026-05-31  
 **Branch:** `upgrade/ui-ux-overhaul-20260528`  
 **Commit:** `d80a0b5202614f55b4c2e516be941de0ca39e098` (pre-commit snapshot; includes uncommitted cleanup changes)
@@ -72,7 +74,7 @@ Summary:
 - DXF: basic LINE entities
 - Room/Vastu/MEP/Furniture/Landscape tools visible but not on canvas yet
 - Collaboration engine requires live Supabase Realtime
-- `/projects` requires configured Firebase or Supabase for cloud list
+- `/projects` requires configured Supabase for cloud list (production path)
 
 ## Rollback plan
 
@@ -82,11 +84,13 @@ Revert in reverse phase order:
 3. Manifest wiring (`EditorPage` export/draft, `localDraft.ts`, `import.ts`)
 4. Auth/marketing honesty pass
 
-## Next recommended build
+## Next recommended build (superseded)
 
-1. Configure Firebase production env (`VITE_BACKEND_PROVIDER=firebase`) on Vercel
+> Superseded by Supabase production cutover. Current next steps: [`OPERATOR_CHECKLIST.md`](../OPERATOR_CHECKLIST.md) and [`VERIFY_COMMANDS.md`](../VERIFY_COMMANDS.md).
+
+1. Configure Supabase production env on Vercel (see [`VERCEL_ENV.md`](../VERCEL_ENV.md))
 2. Manual demo loop: create project → draw walls/door/window → 3D Standard → save → export JSON → reload from `/projects`
-3. Capture screenshot pack: `pnpm run test:screenshots` + manual items in [SCREENSHOT_PACK.md](./evidence/SCREENSHOT_PACK.md)
+3. Capture screenshot pack: `pnpm run test:screenshots` + manual items in [SCREENSHOT_PACK.md](./SCREENSHOT_PACK.md)
 4. Run Playwright E2E on deployed preview
 
 ---

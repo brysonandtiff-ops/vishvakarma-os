@@ -73,7 +73,6 @@
     "test:supabase-auth": "node scripts/test-supabase-auth-smoke.mjs --config-only --write-capabilities",
     "test:supabase-auth:full": "node scripts/test-supabase-auth-smoke.mjs --write-capabilities",
     "verify:supabase-login-data": "node scripts/verify-supabase-login-data.mjs",
-    "migration:export-firestore": "node scripts/migration/export-firestore.mjs",
     "migration:import-supabase": "node scripts/migration/import-supabase.mjs",
     "production:evidence": "node scripts/production/generate-evidence.mjs",
     "production:manual-evidence": "node scripts/production/generate-manual-evidence.mjs",

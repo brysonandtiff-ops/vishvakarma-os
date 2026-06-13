@@ -50,8 +50,8 @@ Supabase setup / cutover helpers:
 pnpm run setup:supabase-auth
 pnpm run setup:supabase-auth:full
 pnpm run push:supabase-env-vercel
-pnpm run migration:export-firestore
-pnpm run migration:import-supabase
+node scripts/migration/export-supabase.mjs
+pnpm run migration:import-supabase -- --in=migration/your-legacy-export.json
 ```
 
 Stripe helpers:
@@ -132,7 +132,7 @@ After backend/auth changes, manually verify:
 | Supabase auth | `src/backend/supabase/`, `scripts/setup-supabase-auth-providers.mjs` |
 | Supabase schema | `supabase/migrations/`, `scripts/verify-supabase-schema.mjs` |
 | Billing | `api/stripe/`, `api/_lib/billingSupabase.ts`, `scripts/verify-stripe-billing.mjs` |
-| Migration | `scripts/migration/export-firestore.mjs`, `scripts/migration/import-supabase.mjs` |
+| Migration | `scripts/migration/export-supabase.mjs`, `scripts/migration/import-supabase.mjs`, `scripts/migration/validate-migration.mjs` |
 | Production hardening | `scripts/quality/check-production-hardening.mjs` |
 | Vercel | `vercel.json`, `docs/release/VERCEL_ENV.md` |
 

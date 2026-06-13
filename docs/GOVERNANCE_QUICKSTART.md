@@ -72,23 +72,22 @@ console.log('System spec hash:', hash);
 
 ## For CI/CD
 
-### Build Script
+### Release gate check
 
 ```bash
-# Run enforcement before build
-node scripts/enforce-build.js
-
-# If successful, proceed with build
-npm run build
+pnpm run contract:gates
+pnpm run release:gates
+pnpm run build
 ```
 
-### Package.json Integration
+### Package.json (current)
 
 ```json
 {
   "scripts": {
-    "build": "node scripts/enforce-build.js && vite build",
-    "prebuild": "npm run lint && npm run test"
+    "build": "vite build",
+    "release:gates": "node scripts/verify-all.js",
+    "ci": "pnpm run lint && pnpm run contract:gates && ..."
   }
 }
 ```

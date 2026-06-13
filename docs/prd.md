@@ -30,13 +30,22 @@ An iPad-first, browser-native architectural blueprint editor and real-time 3D st
 
 ### 3.1 Page Hierarchy
 
+> **Note:** This PRD describes the original v1.0 scope. The editor moved to `/editor`; marketing and billing routes were added in v1.1+. See [`README.md`](../README.md) and [`docs/README.md`](./README.md) for the current route map.
+
 ```
 Vishvakarma.OS
-├── / (Blueprint Editor - Main Workspace)
+├── / (Landing — marketing home)
+├── /editor (Blueprint Editor — Main Workspace)
+├── /projects (Project library)
+├── /optimization (Design optimization)
+├── /profile (Account + billing)
+├── /features, /pricing (public marketing)
+├── /auth, /reset-password (auth)
 ├── /spec-center (Specification Management)
 ├── /registry (Component Registry)
 ├── /change-requests (Change Management)
 ├── /releases (Release Center)
+├── /world-records (Gate-count registry)
 └── /audit (Audit Log)
 ```
 

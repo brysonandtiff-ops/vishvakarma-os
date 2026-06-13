@@ -37,35 +37,34 @@ pnpm run setup:stripe    # requires STRIPE_SECRET_KEY — creates $499 Studio + 
 pnpm run verify:stripe-billing --strict
 ```
 
-**Live production rollout:** run `setup:stripe` with `sk_live_...`, copy new `STRIPE_PRICE_*` IDs to Vercel, archive old $99 / $249 prices in Stripe Dashboard, redeploy, then smoke-test both checkout tiers.
+**Live production rollout:** run `setup:stripe` with `sk_live_...`, copy new `STRIPE_PRICE_*` IDs to Vercel, archive old prices in Stripe Dashboard, redeploy, then smoke-test both checkout tiers.
 
 Follow [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and checkout smoke test.
 
-## Login Data Check (Firebase + Supabase archive)
+## Supabase Auth and Data Check
 
-Production auth is Firebase-only. Supabase holds the legacy schema for export/migration.
+Production auth and persistence use Supabase. See [CURRENT_PRODUCTION_ARCHITECTURE.md](../CURRENT_PRODUCTION_ARCHITECTURE.md).
 
 ```bash
-pnpm run verify:firebase-login-data
 pnpm run verify:supabase-schema
+pnpm run verify:supabase-schema:live
+pnpm run test:supabase-auth
+pnpm run verify:supabase-login-data
+pnpm run verify:production-auth-flow
 pnpm run auth:gates
 ```
 
-Remote Supabase probe (requires `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`):
+Export / validate migration JSON (optional):
 
 ```bash
-pnpm run verify:supabase-schema:live
 node scripts/migration/export-supabase.mjs
 node scripts/migration/validate-migration.mjs migration/export-*.json
+pnpm run migration:import-supabase -- --in=migration/your-export.json
 ```
 
-Promote admin after first Firebase sign-in:
+Promote admin after first Supabase sign-in: set `role = admin` on the user's row in the `profiles` table (Supabase Dashboard). See [MIGRATION.md](../../MIGRATION.md).
 
-```bash
-node scripts/production/setup-admin.mjs admin@example.com
-```
-
-See [MIGRATION.md](../../MIGRATION.md) for Supabase → Firestore cutover steps.
+See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [supabase/README.md](../../supabase/README.md) for auth and schema setup.
 
 ## Final Evidence Check
 

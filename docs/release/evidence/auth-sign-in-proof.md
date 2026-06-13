@@ -1,5 +1,7 @@
 # Auth Sign-In Proof
 
+> **Historical evidence.** Portions of this file reference Firebase auth checks from the v1.1 dual-backend era. Current production uses Supabase Auth — verify with `pnpm run verify:production-auth-flow` and [`SUPABASE_AUTH_SETUP.md`](../SUPABASE_AUTH_SETUP.md).
+
 Generated from commit: `580618b`
 Deployment URL: https://vishvakarma-os.vercel.app
 Generated at: 2026-06-11T18:05:00.000Z
@@ -104,10 +106,10 @@ Production showed the Google sign-in UI but sign-in failed because **Google OAut
 
 ```bash
 cd vishvakarma-os-live
-pnpm run setup:firebase-auth:full
-pnpm run test:firebase-auth:full
+pnpm run setup:supabase-auth:full
+pnpm run test:supabase-auth:full
 pnpm run production:verify-env --strict
-node scripts/test-firebase-auth-smoke.mjs --write-capabilities
+pnpm run verify:production-auth-flow
 ```
 
 Manual operator verification:
@@ -124,7 +126,7 @@ Manual operator verification:
 |---|---|
 | Capabilities JSON | `public/auth-capabilities.json` → `/auth-capabilities.json` |
 | This report | `docs/release/evidence/auth-sign-in-proof.md` |
-| Firebase production check | `docs/release/evidence/firebase-production-check.md` |
+| Supabase auth setup | `docs/release/SUPABASE_AUTH_SETUP.md` |
 | Vercel env guide | `docs/release/VERCEL_ENV.md` |
 
 ## Verdict

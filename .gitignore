@@ -47,3 +47,6 @@ supabase/.temp/
 
 # Local migration export artifacts (never commit)
 migration/export-*.json
+
+# Cursor debug output (keep rules/mcp tracked)
+.cursor/debug-*.log
