@@ -18,7 +18,8 @@ type AuthErrorContext = {
 
 const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
 const AUTH_RETURN_PATH_KEY = 'vish-auth-return-path';
-const DEFAULT_AUTH_RETURN_PATH = '/editor';
+export const POST_AUTH_DESTINATION = '/editor';
+const DEFAULT_AUTH_RETURN_PATH = POST_AUTH_DESTINATION;
 const PRODUCTION_AUTH_ORIGIN = CANONICAL_ORIGIN;
 
 export function storeAuthReturnPath(path: string) {
@@ -48,6 +49,13 @@ export function ensureAuthReturnPathStored(path = DEFAULT_AUTH_RETURN_PATH) {
     // ignore storage failures
   }
 }
+export function resolvePostAuthDestination(fromState?: string | null): string {
+  // Always land in the editor after sign-in (all devices / all entry paths).
+  void fromState;
+  void peekAuthReturnPath(POST_AUTH_DESTINATION);
+  return POST_AUTH_DESTINATION;
+}
+
 export function readAndClearAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PATH) {
   try {
     const stored = sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
@@ -271,6 +279,9 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
+        // #region agent log
+        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'supabaseOAuthGateway.ts:exchangeCodeForSession',message:'OAuth code exchange succeeded',data:{pathname:typeof window!=='undefined'?window.location.pathname:null,hasUser:true},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }

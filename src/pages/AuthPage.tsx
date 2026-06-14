@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
@@ -15,19 +15,23 @@ import {
   isEmbeddedAuthBrowser,
   isEmbeddedAuthErrorMessage,
 } from '@/backend/authUiHelpers';
-import { peekAuthReturnPath, storeAuthReturnPath } from '@/backend/supabase/supabaseOAuthGateway';
+import {
+  POST_AUTH_DESTINATION,
+  peekAuthReturnPath,
+  resolvePostAuthDestination,
+  storeAuthReturnPath,
+} from '@/backend/supabase/supabaseOAuthGateway';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 
 function getReturnPath(state: unknown) {
-  if (typeof state === 'object' && state !== null && 'from' in state) {
-    const from = String((state as { from: unknown }).from);
-    return from.startsWith('/') ? from : '/editor';
-  }
-
-  return peekAuthReturnPath('/editor');
+  const fromState =
+    typeof state === 'object' && state !== null && 'from' in state
+      ? String((state as { from: unknown }).from)
+      : null;
+  return resolvePostAuthDestination(fromState);
 }
 
 function getSignInHeadline(winner: 'email' | 'google' | 'none') {
@@ -128,8 +132,21 @@ export default function AuthPage() {
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
 
+  useEffect(() => {
+    if (loading || !user || !location.pathname.startsWith('/auth')) return;
+    const dest = resolvePostAuthDestination(
+      typeof location.state === 'object' && location.state && 'from' in location.state
+        ? String((location.state as { from: unknown }).from)
+        : null
+    );
+    // #region agent log
+    fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'AuthPage.tsx:postAuthRedirect',message:'AuthPage redirecting signed-in user',data:{dest,pathname:location.pathname,peekPath:peekAuthReturnPath(POST_AUTH_DESTINATION),userAgent:typeof navigator!=='undefined'?navigator.userAgent.slice(0,80):null},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    navigate(dest, { replace: true });
+  }, [loading, user, location.pathname, location.state, navigate]);
+
   if (!loading && user) {
-    return <Navigate to={returnPath} replace />;
+    return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
 
   const onCompleteEmailLink = async (event: FormEvent<HTMLFormElement>) => {
@@ -196,7 +213,7 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
-    storeAuthReturnPath(returnPath);
+    storeAuthReturnPath(POST_AUTH_DESTINATION);
     setSubmitting(true);
     const result = await signInWithGoogle();
     setSubmitting(false);

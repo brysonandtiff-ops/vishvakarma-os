@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
-import { peekAuthReturnPath, readAndClearAuthReturnPath } from '@/backend/supabase/supabaseOAuthGateway';
+import { peekAuthReturnPath, readAndClearAuthReturnPath, resolvePostAuthDestination } from '@/backend/supabase/supabaseOAuthGateway';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/routes';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
@@ -62,9 +62,11 @@ export function RouteGuard({ children }: RouteGuardProps) {
         typeof location.state === 'object' && location.state && 'from' in location.state
           ? String(location.state.from)
           : null;
-      const from = fromState?.startsWith('/') ? fromState : peekAuthReturnPath('/editor');
-      const dest = from.startsWith('/') && isProtectedRoute(from) ? from : '/editor';
+      const dest = resolvePostAuthDestination(fromState);
       readAndClearAuthReturnPath();
+      // #region agent log
+      fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'RouteGuard.tsx:postAuthRedirect',message:'RouteGuard redirecting signed-in user from /auth',data:{dest,fromState,peekPath:peekAuthReturnPath('/editor')},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
       navigate(dest, { replace: true });
     }
   }, [gated, loading, location.pathname, location.state, navigate, publicRoute, user]);

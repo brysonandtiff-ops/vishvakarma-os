@@ -155,8 +155,14 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
             setEmailLinkError(null);
             setEmailLinkState('idle');
             await loadProfile(nextUser);
+            // #region agent log
+            fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'SupabaseAuthProvider.tsx:oauthSession',message:'OAuth redirect session established',data:{uid:nextUser.id,pathname:typeof window!=='undefined'?window.location.pathname:null},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
           } else if (consumeOAuthRedirectPending()) {
             setEmailLinkError(formatOAuthRedirectIncompleteMessage());
+            // #region agent log
+            fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'SupabaseAuthProvider.tsx:oauthIncomplete',message:'OAuth redirect incomplete',data:{pathname:typeof window!=='undefined'?window.location.pathname:null},timestamp:Date.now(),hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
           }
           return;
         }
@@ -201,7 +207,12 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         console.error('[Vishvakarma.OS] Supabase auth init failed:', error);
       } finally {
         callbackResolutionComplete = true;
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          // #region agent log
+          fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'SupabaseAuthProvider.tsx:initAuthFinally',message:'Auth init finished',data:{shouldHandleOAuth,shouldHandleEmailLink,callbackResolutionComplete:true},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+        }
       }
     }
 
