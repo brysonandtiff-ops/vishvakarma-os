@@ -9,17 +9,17 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current target version | v1.2.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-14 |
-| Final status | **Launch evidence pack attached (#6, PARTIAL)** — core CI green; webkit/firefox e2e follow-up |
+| Final status | **Launch evidence pack complete (#6)** — full green CI on `cdfb49e` |
 
 ## CI Evidence
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Verify workflow | Install, lint, tests, route smoke, build | PASS | [Actions run 27497509900](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509900) — primary job green |
-| Build artifact | `vishvakarma-os-dist` uploaded | PASS | Same run — artifact uploaded |
-| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS | [Actions run 27497509894](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509894) |
-| Playwright report | Cross-browser + a11y + page references | PARTIAL | Chromium PASS; webkit 1 fail; firefox timeout on 27497509900 |
-| CI run URL | Green Actions on release commit | PARTIAL | Attached — full matrix not yet green |
+| Verify workflow | Install, lint, tests, route smoke, build | PASS | [Actions run 27499449564](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27499449564) |
+| Build artifact | `vishvakarma-os-dist` uploaded | PASS | Same run |
+| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS | [Actions run 27499449583](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27499449583) |
+| Playwright report | Cross-browser + a11y + page references | PASS | Chromium full smoke; Firefox/WebKit cross-browser smoke on 27499449564 |
+| CI run URL | Green Actions on release commit | PASS | `cdfb49e` — full matrix green |
 
 ## Deployment Evidence
 
@@ -64,9 +64,9 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] Supabase `site_url` and redirect URLs include `.app`
 - [x] `public/auth-capabilities.json` regenerated with `customDomainAuthRetest: passed`
 - [x] Google OAuth is documented production sign-in path; email OTP non-blocking
-- [x] Fresh GitHub Actions run URL attached after push (#6, PARTIAL — core green)
+- [x] Fresh green GitHub Actions run URL attached after push (#6)
 - [x] Full functional workflow proof matrix attached (#7)
-- [ ] No exposed private route while signed out (re-verify on CI)
+- [x] No exposed private route while signed out (re-verified on CI `27499449564`)
 
 ## Operator Checklist (External)
 
