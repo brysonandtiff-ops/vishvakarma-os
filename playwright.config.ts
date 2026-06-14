@@ -41,6 +41,8 @@ const APP_SMOKE_MATCH = [
   '**/compliance-gate.spec.ts',
 ];
 
+const CROSS_BROWSER_SMOKE_MATCH = ['**/cross-browser-smoke.spec.ts'];
+
 const BROWSERS = [
   { slug: 'chromium', device: 'Desktop Chrome' as const },
   { slug: 'firefox', device: 'Desktop Firefox' as const },
@@ -63,6 +65,18 @@ const browserMatrixProjects = BROWSERS.flatMap((browser) => [
   {
     name: `app-smoke-${browser.slug}`,
     testMatch: APP_SMOKE_MATCH,
+    use: { ...devices[browser.device], hasTouch: true },
+    webServer: {
+      command: 'pnpm run preview:e2e:local',
+      url: previewUrl,
+      reuseExistingServer,
+      timeout: 300_000,
+      env: appSmokeServerEnv,
+    },
+  },
+  {
+    name: `cross-browser-smoke-${browser.slug}`,
+    testMatch: CROSS_BROWSER_SMOKE_MATCH,
     use: { ...devices[browser.device], hasTouch: true },
     webServer: {
       command: 'pnpm run preview:e2e:local',

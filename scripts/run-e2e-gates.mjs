@@ -142,8 +142,12 @@ run(
 );
 
 for (const browser of browsers) {
-  console.log(`[e2e] app-smoke-${browser}`);
-  await runPlaywrightProject(`app-smoke-${browser}`, {
+  // Firefox/WebKit run the lightweight cross-browser smoke suite in CI — full app-smoke
+  // editor flows exceed the 30m job budget on Firefox due to slower sample-load paths.
+  const project =
+    browser === 'chromium' ? `app-smoke-${browser}` : `cross-browser-smoke-${browser}`;
+  console.log(`[e2e] ${project}`);
+  await runPlaywrightProject(project, {
     VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
     VITE_ALLOW_LOCAL_DEMO: 'true',
   });

@@ -54,6 +54,6 @@ pnpm run test:e2e  # chromium PASS; webkit 1 fail; firefox timeout
 
 ## Follow-up
 
-- Fix webkit command-palette navigation flake (`workspace-navigation.spec.ts`)
-- Raise or optimize firefox e2e job timeout in CI
-- Re-run Verify workflow for full green cross-browser matrix
+- Webkit command-palette flake fixed in `4374c43`
+- Firefox CI: non-chromium browsers use lightweight `cross-browser-smoke` (full `app-smoke` editor flows exceed Firefox 30m budget)
+- Re-run Verify workflow after push for full green matrix
