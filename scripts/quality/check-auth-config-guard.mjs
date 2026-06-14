@@ -109,6 +109,8 @@ const supabaseRequired = [
   'readSupabaseSessionSnapshot',
   'clearSupabaseSessionSnapshot',
   'writeSupabaseSessionSnapshot',
+  'hydrateSupabaseAuthSession',
+  'readCachedAuthBootstrap',
   'signInWithOtp',
   'buildSupabaseSessionFromAuthSession',
   'isSupabaseOAuthCallback',
@@ -143,6 +145,8 @@ if (existsSync(join(root, 'src/db/supabase.ts'))) {
 
 const supabaseProviderRequired = [
   'completePostAuthRedirect',
+  'hydrateSupabaseAuthSession',
+  'readCachedAuthBootstrap',
   'POST_AUTH_DESTINATION',
   'INITIAL_SESSION',
 ];

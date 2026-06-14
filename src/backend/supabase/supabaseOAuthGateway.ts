@@ -345,6 +345,13 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
           data: { pathname: window.location.pathname, hasUser: true },
           hypothesisId: 'A',
         });
+        const { data: persisted } = await client.auth.getSession();
+        if (!persisted.session?.user) {
+          await client.auth.setSession({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token ?? '',
+          });
+        }
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }

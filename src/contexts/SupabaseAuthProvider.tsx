@@ -5,8 +5,10 @@ import {
   buildSupabaseSessionFromAuthSession,
   clearSupabaseSessionSnapshot,
   completeSupabaseEmailLinkSignIn,
+  hydrateSupabaseAuthSession,
   isSupabaseEmailLinkCallback,
   isSupabaseOAuthCallback,
+  readCachedAuthBootstrap,
   requestSupabaseAccessLink,
   signOutSupabaseAuth,
 } from '@/backend/supabase/supabaseAuthGateway';
@@ -74,8 +76,11 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const bootstrapSession = readCachedAuthBootstrap();
+  const [session, setSession] = useState<AuthSession | null>(bootstrapSession);
+  const [user, setUser] = useState<AuthUser | null>(
+    bootstrapSession ? supabaseUserFromSession(bootstrapSession) : null
+  );
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(backendStatus.isConfigured);
   const [emailLinkState, setEmailLinkState] = useState<EmailLinkState>('idle');
@@ -205,13 +210,21 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const { data, error } = await client.auth.getSession();
-        if (error) throw error;
-        if (!mounted || !data.session?.user) return;
+        const hydratedSession = await hydrateSupabaseAuthSession();
+        authFlowTrace({
+          location: 'SupabaseAuthProvider.tsx:hydrateSession',
+          message: 'Hydrated auth session after boot',
+          data: {
+            pathname: typeof window !== 'undefined' ? window.location.pathname : null,
+            hasHydratedSession: Boolean(hydratedSession),
+            hadBootstrapSession: Boolean(bootstrapSession),
+          },
+          hypothesisId: 'W',
+        });
+        if (!mounted || !hydratedSession) return;
 
-        const nextSession = await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
-        const nextUser = supabaseUserFromSession(nextSession);
-        setSession(nextSession);
+        const nextUser = supabaseUserFromSession(hydratedSession);
+        setSession(hydratedSession);
         setUser(nextUser);
         if (completePostAuthRedirect()) return;
         void loadProfile(nextUser);

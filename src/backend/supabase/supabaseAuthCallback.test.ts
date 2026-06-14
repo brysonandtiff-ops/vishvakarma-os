@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  hydrateSupabaseAuthSession,
   isSupabaseEmailLinkCallback,
   isSupabaseOAuthCallback,
+  readCachedAuthBootstrap,
 } from '@/backend/supabase/supabaseAuthGateway';
 import {
   completePostAuthRedirect,
@@ -13,6 +15,7 @@ import {
 
 const exchangeCodeForSession = vi.fn();
 const getSession = vi.fn();
+const setSession = vi.fn();
 
 vi.mock('@/backend/backendConfig', () => ({
   backendStatus: { isConfigured: true, mode: 'connected' as const },
@@ -23,6 +26,7 @@ vi.mock('@/backend/supabase/supabaseClient', () => ({
     auth: {
       exchangeCodeForSession,
       getSession,
+      setSession,
     },
   }),
 }));
@@ -62,6 +66,8 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
   beforeEach(() => {
     exchangeCodeForSession.mockReset();
     getSession.mockReset();
+    setSession.mockReset();
+    localStorage.clear();
     vi.stubGlobal('window', {
       location: {
         search: '?code=pkce-code',
@@ -91,11 +97,23 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
       },
       error: null,
     });
+    getSession.mockResolvedValue({ data: { session: null }, error: null });
+    setSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: 'access',
+          refresh_token: 'refresh',
+          expires_at: 999,
+          user: { id: 'user-1', email: 'architect@firm.com' },
+        },
+      },
+      error: null,
+    });
 
     const session = await resolveSupabaseOAuthRedirectSession();
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('pkce-code');
-    expect(getSession).not.toHaveBeenCalled();
+    expect(setSession).toHaveBeenCalled();
     expect(session).toMatchObject({
       uid: 'user-1',
       email: 'architect@firm.com',
@@ -173,5 +191,68 @@ describe('getAuthPageUrl', () => {
     vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.app');
 
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.vercel.app/auth');
+  });
+});
+
+describe('hydrateSupabaseAuthSession', () => {
+  beforeEach(() => {
+    getSession.mockReset();
+    setSession.mockReset();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    localStorage.clear();
+  });
+
+  it('rehydrates the Supabase client from cached snapshot when getSession is empty', async () => {
+    localStorage.setItem(
+      'vishvakarma.os.supabase.session.v1',
+      JSON.stringify({
+        provider: 'supabase',
+        uid: 'user-1',
+        email: 'architect@firm.com',
+        idToken: 'access',
+        refreshToken: 'refresh',
+        expiresAt: Date.now() + 60_000,
+      })
+    );
+    getSession.mockResolvedValue({ data: { session: null }, error: null });
+    setSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: 'access',
+          refresh_token: 'refresh',
+          expires_at: 999,
+          user: { id: 'user-1', email: 'architect@firm.com' },
+        },
+      },
+      error: null,
+    });
+
+    const hydrated = await hydrateSupabaseAuthSession();
+
+    expect(setSession).toHaveBeenCalledWith({
+      access_token: 'access',
+      refresh_token: 'refresh',
+    });
+    expect(hydrated).toMatchObject({ uid: 'user-1', email: 'architect@firm.com' });
+  });
+
+  it('returns cached snapshot from readCachedAuthBootstrap', () => {
+    localStorage.setItem(
+      'vishvakarma.os.supabase.session.v1',
+      JSON.stringify({
+        provider: 'supabase',
+        uid: 'user-1',
+        email: 'architect@firm.com',
+        idToken: 'access',
+        refreshToken: 'refresh',
+        expiresAt: Date.now() + 60_000,
+      })
+    );
+
+    expect(readCachedAuthBootstrap()?.uid).toBe('user-1');
   });
 });

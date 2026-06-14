@@ -116,6 +116,43 @@ export async function buildSupabaseSessionFromAuthSession(
   return snapshot;
 }
 
+/** Restore Supabase client session from storage, rehydrating the SDK when needed. */
+export async function hydrateSupabaseAuthSession(): Promise<SupabaseSessionSnapshot | null> {
+  const client = getSupabaseClient();
+  const cached = readSupabaseSessionSnapshot();
+
+  if (!client) {
+    return cached;
+  }
+
+  const { data, error } = await client.auth.getSession();
+  if (!error && data.session?.user) {
+    return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+  }
+
+  if (!cached) {
+    return null;
+  }
+
+  if (cached.idToken) {
+    const { data: restored, error: restoreError } = await client.auth.setSession({
+      access_token: cached.idToken,
+      refresh_token: cached.refreshToken,
+    });
+
+    if (!restoreError && restored.session?.user) {
+      return buildSupabaseSessionFromAuthSession(restored.session, restored.session.user);
+    }
+  }
+
+  return cached;
+}
+
+export function readCachedAuthBootstrap(): SupabaseSessionSnapshot | null {
+  if (!backendStatus.isConfigured) return null;
+  return readSupabaseSessionSnapshot();
+}
+
 export function storePendingSupabaseEmail(email: string) {
   if (!hasBrowserStorage()) return;
   window.localStorage.setItem(SUPABASE_PENDING_EMAIL_KEY, email.trim().toLowerCase());
