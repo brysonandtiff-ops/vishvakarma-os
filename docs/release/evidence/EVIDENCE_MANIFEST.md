@@ -9,7 +9,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current target version | v1.2.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-14 |
-| Final status | **Canonical-domain auth proof complete (#32)** — full launch evidence pack (#6) and functional workflow proof (#7) require fresh CI run after this commit |
+| Final status | **Functional workflow proof (#7) in progress** — attach green CI URL for #6 after merge |
 
 ## CI Evidence
 

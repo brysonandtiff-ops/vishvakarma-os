@@ -13,6 +13,7 @@ This folder stores production-launch evidence generated from the current codebas
 | `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
 | `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
 | `performance-notes.md` | Records build size, load behaviour, and interaction performance | Yes |
+| `functional-workflow-proof.md` | Proves core app workflows end-to-end (issue #7 matrix) | Yes |
 | `screenshots/` | Stores route, iPad, parity, and deployment screenshots | Yes |
 
 ## Evidence Rules

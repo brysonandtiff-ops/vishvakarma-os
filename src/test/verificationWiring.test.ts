@@ -15,6 +15,9 @@ describe('verification command wiring', () => {
     expect(pkg.scripts['launch:evidence']).toBe('node scripts/quality/check-launch-evidence.mjs');
     expect(pkg.scripts['launch:evidence:strict']).toBe('node scripts/quality/check-launch-evidence.mjs --strict');
     expect(pkg.scripts['release:gates']).toBe('node scripts/verify-all.js');
+    expect(pkg.scripts['production:functional-proof']).toBe(
+      'node scripts/production/generate-functional-proof.mjs',
+    );
     expect(pkg.scripts.verify).toContain('pnpm run lint');
     expect(pkg.scripts.verify).toContain('pnpm run launch:evidence');
     expect(pkg.scripts.verify).toContain('pnpm run test');

@@ -77,6 +77,8 @@
     "migration:import-supabase": "node scripts/migration/import-supabase.mjs",
     "production:evidence": "node scripts/production/generate-evidence.mjs",
     "production:manual-evidence": "node scripts/production/generate-manual-evidence.mjs",
+    "production:functional-proof": "node scripts/production/generate-functional-proof.mjs",
+    "production:functional-proof:quick": "node scripts/production/generate-functional-proof.mjs --skip-e2e",
     "record:measure": "node scripts/world-record/measure-record.mjs",
     "deploy:vercel": "bash scripts/deploy-vercel.sh",
     "collab:server": "node --import tsx server/collab/presenceServer.ts",
