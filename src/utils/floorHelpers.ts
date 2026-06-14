@@ -42,6 +42,10 @@ export function filterRoomsByFloor(rooms: Room[], floorIndex: number): Room[] {
   return rooms.filter((room) => (room.floorIndex ?? 0) === floorIndex);
 }
 
+export function filterByFloorIndex<T extends { floorIndex?: number }>(items: T[], floorIndex: number): T[] {
+  return items.filter((item) => (item.floorIndex ?? 0) === floorIndex);
+}
+
 export function createFloor(name: string, elevation: number, index: number): BuildingFloor {
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `level-${index}`;
   return {

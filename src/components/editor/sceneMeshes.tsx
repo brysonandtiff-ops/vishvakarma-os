@@ -1,12 +1,13 @@
 /// <reference path="../../three.d.ts" />
 import type { ReactNode } from 'react';
-import type { FurnitureItem, LandscapeElement, Material } from '@/types';
+import type { FurnitureItem, LandscapeElement, Material, Staircase } from '@/types';
 import {
   canvasToWorld,
   getFurnitureDefaults,
   getLandscapeDefaults,
   hashIdToRotation,
   pxToM,
+  type SceneOrigin,
 } from '@/core/sceneVisualCatalog';
 import {
   AnimatedWaterMaterial,
@@ -364,8 +365,8 @@ export function ParametricFurnitureBody({
   }
 }
 
-export function FurnitureMesh({ item }: { item: FurnitureItem }) {
-  const { x, z } = canvasToWorld(item.position);
+export function FurnitureMesh({ item, origin }: { item: FurnitureItem; origin?: SceneOrigin }) {
+  const { x, z } = canvasToWorld(item.position, origin);
   const defaults = getFurnitureDefaults(item.type);
   const hw = pxToM(item.width ?? defaults.width) / 2;
   const hd = pxToM(item.depth ?? defaults.depth) / 2;
@@ -587,8 +588,8 @@ export function ParametricLandscapeBody({
   }
 }
 
-export function LandscapeMesh({ element }: { element: LandscapeElement }) {
-  const { x, z } = canvasToWorld(element.position);
+export function LandscapeMesh({ element, origin }: { element: LandscapeElement; origin?: SceneOrigin }) {
+  const { x, z } = canvasToWorld(element.position, origin);
   const defaults = getLandscapeDefaults(element.type);
   const hw = pxToM(element.width ?? defaults.width) / 2;
   const hd = pxToM(element.depth ?? defaults.depth) / 2;
@@ -658,6 +659,38 @@ export function SceneFloor({
         <FloorSurfaceMaterial floorMaterial={floorMaterial} customMaterials={customMaterials} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
+    </>
+  );
+}
+
+export function StairMeshes({
+  staircases,
+  origin,
+}: {
+  staircases: Staircase[];
+  origin?: SceneOrigin;
+}) {
+  return (
+    <>
+      {staircases.map((staircase) => {
+        const { x, z } = canvasToWorld(staircase.position, origin);
+        const rotation = ((staircase.direction ?? 0) * Math.PI) / 180;
+        return (
+          // @ts-expect-error - React Three Fiber JSX types
+          <group key={staircase.id} position={[x, 0, z]} rotation={[0, rotation, 0]}>
+            {Array.from({ length: 6 }).map((_, step) => (
+              // @ts-expect-error - React Three Fiber JSX types
+              <mesh key={step} position={[0, step * 0.05 + 0.025, step * 0.1]} castShadow>
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+                <boxGeometry args={[0.9, 0.05, 0.14]} />
+                <WoodMaterial color={WOOD_LIGHT} />
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+              </mesh>
+            ))}
+            {/* @ts-expect-error - React Three Fiber JSX types */}
+          </group>
+        );
+      })}
     </>
   );
 }

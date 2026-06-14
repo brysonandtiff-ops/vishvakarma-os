@@ -73,6 +73,8 @@ import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 import { shouldIgnoreKeyboardShortcuts } from '@/utils/keyboardShortcuts';
+import { resolveJurisdiction, resolveRegionId } from '@/domain/projects/jurisdiction';
+import type { ProjectJurisdiction } from '@/domain/projects/jurisdiction';
 import { enforce } from '@/governance/core/enforcer';
 import { getFailFindings } from '@/services/compliance/complianceGate';
 
@@ -645,7 +647,7 @@ function EditorWorkspace() {
       <div className="space-y-3 px-4">
         <VayuJalaPanel manifest={manifest} />
         <AgniThermalPanel manifest={manifest} />
-        <PanchatattvaPanel />
+        <PanchatattvaPanel manifest={manifest} />
         <AkashaCastPanel />
       </div>
       <ProjectProofPanel
@@ -687,7 +689,10 @@ function EditorWorkspace() {
           <div className="mx-4 h-px bg-border" />
           <div className="px-4 py-3">
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Furniture</p>
-            <FurniturePicker onSelectTool={() => setTool('furniture')} />
+            <FurniturePicker
+              onSelectTool={() => setTool('furniture')}
+              highlightIndian={resolveJurisdiction(engine.getManifest()) === 'in'}
+            />
           </div>
         </>
       )}
@@ -814,9 +819,13 @@ function EditorWorkspace() {
                 </AppErrorBoundary>
                 <EditorCompassCost
                   northOrientation={northOrientation}
+                  jurisdiction={resolveJurisdiction(engine.getManifest())}
+                  regionId={resolveRegionId(engine.getManifest())}
                   costItems={costItems}
                   costRange={engine.getManifest().metadata.costIntelligence}
                   onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
+                  onJurisdictionChange={(j: ProjectJurisdiction) => engine.setJurisdiction(j)}
+                  onRegionChange={(regionId) => engine.setRegionId(regionId)}
                 />
                 <RemoteCursorsOverlay
                   presences={collabPresences}
@@ -867,6 +876,8 @@ function EditorWorkspace() {
                       fixtures={fixtures}
                       landscapeElements={landscapeElements}
                       terrain={terrain}
+                      rooms={rooms}
+                      staircases={staircases}
                       floorMaterial={engine.getManifest().floorMaterial}
                       walkMode={workspaceMode === 'walk'}
                       presentationLock={presentationLock}

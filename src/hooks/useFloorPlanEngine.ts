@@ -5,6 +5,7 @@ import {
   ensureDefaultFloors,
   filterOpeningsByFloor,
   filterRoomsByFloor,
+  filterByFloorIndex,
   filterWallsByFloor,
   getActiveFloorIndex,
 } from '@/utils/floorHelpers';
@@ -32,6 +33,31 @@ export function useFloorPlanEngine() {
     [snapshot.manifest.rooms, activeFloorIndex],
   );
 
+  const furniture = useMemo(
+    () => snapshot.manifest.furniture ?? [],
+    [snapshot.manifest.furniture],
+  );
+  const mepSymbols = useMemo(
+    () => snapshot.manifest.mepSymbols ?? [],
+    [snapshot.manifest.mepSymbols],
+  );
+  const landscapeElements = useMemo(
+    () => snapshot.manifest.landscapeElements ?? [],
+    [snapshot.manifest.landscapeElements],
+  );
+  const terrain = useMemo(
+    () => snapshot.manifest.terrain ?? [],
+    [snapshot.manifest.terrain],
+  );
+  const fixtures = useMemo(
+    () => filterByFloorIndex(snapshot.manifest.fixtures ?? [], activeFloorIndex),
+    [snapshot.manifest.fixtures, activeFloorIndex],
+  );
+  const staircases = useMemo(
+    () => snapshot.manifest.staircases ?? [],
+    [snapshot.manifest.staircases],
+  );
+
   return {
     ...snapshot,
     manifest,
@@ -42,14 +68,14 @@ export function useFloorPlanEngine() {
     labels: snapshot.manifest.labels ?? [],
     dimensions: snapshot.manifest.dimensions ?? [],
     rooms,
-    furniture: snapshot.manifest.furniture ?? [],
-    mepSymbols: snapshot.manifest.mepSymbols ?? [],
-    landscapeElements: snapshot.manifest.landscapeElements ?? [],
-    terrain: snapshot.manifest.terrain ?? [],
+    furniture,
+    mepSymbols,
+    landscapeElements,
+    terrain,
+    fixtures,
+    staircases,
     costItems: snapshot.manifest.costItems ?? [],
     materials: snapshot.manifest.materials ?? [],
-    fixtures: snapshot.manifest.fixtures ?? [],
-    staircases: snapshot.manifest.staircases ?? [],
     dimensionVisibility: snapshot.manifest.dimensionVisibility ?? true,
     northOrientation: snapshot.manifest.northOrientation ?? 0,
     lighting: snapshot.manifest.lighting,

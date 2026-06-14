@@ -16,6 +16,21 @@ export const FURNITURE_PRESETS = [
   { type: 'dining_table', label: 'Dining Table', width: 160, depth: 90 },
   { type: 'nightstand', label: 'Nightstand', width: 50, depth: 40 },
   { type: 'column', label: 'Column', width: 40, depth: 40 },
+  { type: 'mandir', label: 'Mandir', width: 100, depth: 80, indian: true },
+  { type: 'puja_shelf', label: 'Puja Shelf', width: 80, depth: 30, indian: true },
+  { type: 'diwan', label: 'Diwan', width: 180, depth: 90, indian: true },
+  { type: 'charpai', label: 'Charpai', width: 90, depth: 180, indian: true },
+  { type: 'modular_kitchen_base', label: 'Modular Kitchen', width: 240, depth: 60, indian: true },
+  { type: 'jali_screen', label: 'Jali Screen', width: 120, depth: 20, indian: true },
+] as const;
+
+export const INDIAN_FURNITURE_TYPES = [
+  'mandir',
+  'puja_shelf',
+  'diwan',
+  'charpai',
+  'modular_kitchen_base',
+  'jali_screen',
 ] as const;
 
 export type FurnitureType = (typeof FURNITURE_PRESETS)[number]['type'];
@@ -168,6 +183,77 @@ function drawFurnitureSilhouette(ctx: CanvasRenderingContext2D, type: string, hw
       ctx.fill();
       break;
     }
+    case 'mandir': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(180, 140, 60, 0.25)', GOLD_MUTED);
+      ctx.fillStyle = GOLD_MUTED;
+      ctx.fillRect(-hw * 0.15, -hd, hw * 0.3, hd * 0.35);
+      ctx.strokeStyle = GOLD_MUTED;
+      ctx.strokeRect(-hw + 4, -hd + hd * 0.2, hw * 2 - 8, hd * 1.6);
+      break;
+    }
+    case 'puja_shelf': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(92, 64, 51, 0.35)');
+      ctx.fillStyle = WOOD;
+      ctx.fillRect(-hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
+      ctx.strokeStyle = GOLD_MUTED;
+      for (const yOff of [-hd * 0.3, 0, hd * 0.3]) {
+        ctx.strokeRect(-hw + 4, yOff - 2, hw * 2 - 8, 4);
+      }
+      break;
+    }
+    case 'diwan': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(92, 64, 51, 0.35)');
+      ctx.fillStyle = FABRIC;
+      ctx.fillRect(-hw + 6, -hd + 8, hw * 2 - 12, hd * 1.2);
+      ctx.fillStyle = WOOD_DARK;
+      ctx.fillRect(-hw + 4, hd - hd * 0.25, hw * 2 - 8, hd * 0.2);
+      overlayFabric(ctx, -hw + 6, -hd + 8, hw * 2 - 12, hd * 1.2);
+      break;
+    }
+    case 'charpai': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(92, 64, 51, 0.2)');
+      ctx.strokeStyle = WOOD_DARK;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-hw + 4, -hd + 4, hw * 2 - 8, hd * 2 - 8);
+      for (let i = -2; i <= 2; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(-hw + 8, i * (hd / 3));
+        ctx.lineTo(hw - 8, i * (hd / 3));
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(i * (hw / 3), -hd + 8);
+        ctx.lineTo(i * (hw / 3), hd - 8);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'modular_kitchen_base': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(44, 44, 44, 0.15)');
+      ctx.fillStyle = WOOD_LIGHT;
+      ctx.fillRect(-hw + 2, -hd + 2, hw * 2 - 4, hd * 2 - 4);
+      ctx.strokeStyle = WOOD_DARK;
+      for (let i = 1; i < 4; i += 1) {
+        const x = -hw + (hw * 2 * i) / 4;
+        ctx.beginPath();
+        ctx.moveTo(x, -hd + 2);
+        ctx.lineTo(x, hd - 2);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'jali_screen': {
+      drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(180, 140, 60, 0.12)');
+      ctx.strokeStyle = GOLD_MUTED;
+      ctx.lineWidth = 1;
+      for (let row = 0; row < 4; row += 1) {
+        for (let col = 0; col < 6; col += 1) {
+          const cx = -hw + hw * 0.2 + col * (hw * 0.28);
+          const cy = -hd + hd * 0.25 + row * (hd * 0.22);
+          ctx.strokeRect(cx, cy, hw * 0.18, hd * 0.16);
+        }
+      }
+      break;
+    }
     default: {
       drawRect(ctx, -hw, -hd, hw * 2, hd * 2, 'rgba(92, 64, 51, 0.35)');
     }
@@ -255,7 +341,7 @@ export function drawStair2D(
 // Landscape catalog
 // ---------------------------------------------------------------------------
 
-export const LANDSCAPE_TYPES = ['tree', 'pine', 'shrub', 'flower', 'rock', 'path', 'water'] as const;
+export const LANDSCAPE_TYPES = ['tree', 'pine', 'shrub', 'flower', 'rock', 'path', 'water', 'tulsi', 'courtyard_planter', 'terrace_water_tank'] as const;
 
 export type LandscapeType = (typeof LANDSCAPE_TYPES)[number];
 
@@ -275,6 +361,12 @@ export function getLandscapeDefaults(type: string): { width: number; depth: numb
       return { width: 32, depth: 12, label: 'Path' };
     case 'water':
       return { width: 80, depth: 60, label: 'Water' };
+    case 'tulsi':
+      return { width: 24, depth: 24, label: 'Tulsi' };
+    case 'courtyard_planter':
+      return { width: 48, depth: 48, label: 'Courtyard Planter' };
+    case 'terrace_water_tank':
+      return { width: 60, depth: 60, label: 'Terrace Tank' };
     default:
       return { width: 20, depth: 20, label: type.charAt(0).toUpperCase() + type.slice(1) };
   }
@@ -288,10 +380,30 @@ export function hashIdToRotation(id: string): number {
   return ((hash % 360) * Math.PI) / 180;
 }
 
-export function canvasToWorld(point: Point2D) {
+export interface SceneOrigin {
+  cx: number;
+  cy: number;
+}
+
+export function computeSceneOrigin(walls: import('@/types').Wall[]): SceneOrigin {
+  if (walls.length === 0) return { cx: 600, cy: 400 };
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const wall of walls) {
+    minX = Math.min(minX, wall.start.x, wall.end.x);
+    maxX = Math.max(maxX, wall.start.x, wall.end.x);
+    minY = Math.min(minY, wall.start.y, wall.end.y);
+    maxY = Math.max(maxY, wall.start.y, wall.end.y);
+  }
+  return { cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
+}
+
+export function canvasToWorld(point: Point2D, origin: SceneOrigin = { cx: 600, cy: 400 }) {
   return {
-    x: (point.x - 600) / 100,
-    z: (point.y - 400) / 100,
+    x: (point.x - origin.cx) / 100,
+    z: (point.y - origin.cy) / 100,
   };
 }
 
@@ -404,6 +516,35 @@ function drawWater2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: num
   drawPatternOverlay2D(ctx, 'waterNormal', x - w / 2, y - h / 2, w, h, 0.18);
 }
 
+function drawTulsi2D(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.fillStyle = '#5c3d1e';
+  ctx.fillRect(x - 8, y + 4, 16, 10);
+  ctx.beginPath();
+  ctx.arc(x, y - 2, 10, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(34, 120, 60, 0.65)';
+  ctx.fill();
+  ctx.fillStyle = GOLD_MUTED;
+  ctx.font = '8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('तुलसी', x, y + 18);
+}
+
+function drawCourtyardPlanter2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: number) {
+  ctx.fillStyle = 'rgba(120, 113, 108, 0.5)';
+  ctx.fillRect(x - w / 2, y - 6, w, 12);
+  drawShrub2D(ctx, x - w * 0.2, y - 4);
+  drawShrub2D(ctx, x + w * 0.15, y - 2);
+}
+
+function drawTerraceWaterTank2D(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  ctx.fillStyle = 'rgba(100, 100, 100, 0.55)';
+  ctx.fillRect(x - w / 2, y - h / 2, w, h);
+  ctx.strokeStyle = '#555';
+  ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+  ctx.fillStyle = 'rgba(26, 107, 175, 0.35)';
+  ctx.fillRect(x - w / 2 + 4, y - h / 2 + 4, w - 8, h * 0.35);
+}
+
 export function drawLandscape2D(ctx: CanvasRenderingContext2D, element: LandscapeElement) {
   const defaults = getLandscapeDefaults(element.type);
   const width = element.width ?? defaults.width;
@@ -432,6 +573,15 @@ export function drawLandscape2D(ctx: CanvasRenderingContext2D, element: Landscap
       break;
     case 'water':
       drawWater2D(ctx, x, y, width, depth);
+      break;
+    case 'tulsi':
+      drawTulsi2D(ctx, x, y);
+      break;
+    case 'courtyard_planter':
+      drawCourtyardPlanter2D(ctx, x, y, width);
+      break;
+    case 'terrace_water_tank':
+      drawTerraceWaterTank2D(ctx, x, y, width, depth);
       break;
     default:
       drawShrub2D(ctx, x, y);

@@ -3,9 +3,9 @@
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch } from '@/types';
-import { FurnitureMesh, LandscapeMesh, SceneFloor } from '@/components/editor/sceneMeshes';
+import { OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
+import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase } from '@/types';
+import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
 import { TerrainMeshes } from '@/components/editor/sceneTerrainMeshes';
 import { WallSurfaceMaterial } from '@/components/editor/sceneMaterials';
@@ -19,6 +19,8 @@ import {
   resolveDefaultAtmosphereMode,
   type AtmospherePerformanceMode,
 } from '@/utils/atmosphereMode';
+import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
+import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
 
 // ---------------------------------------------------------------------------
@@ -189,20 +191,15 @@ interface Viewport3DProps {
   fixtures?: FixtureItem[];
   landscapeElements?: LandscapeElement[];
   terrain?: TerrainPatch[];
+  rooms?: Room[];
+  staircases?: Staircase[];
   floorMaterial?: string;
   walkMode?: boolean;
   presentationLock?: boolean;
 }
 
-function canvasToWorld(point: { x: number; y: number }) {
-  return {
-    x: (point.x - 600) / 100,
-    z: (point.y - 400) / 100,
-  };
-}
-
-function MepMarker({ symbol }: { symbol: MepSymbol }) {
-  const { x, z } = canvasToWorld(symbol.position);
+function MepMarker({ symbol, origin }: { symbol: MepSymbol; origin: SceneOrigin }) {
+  const { x, z } = canvasToWorld(symbol.position, origin);
   const color = MEP_COLORS[symbol.type];
 
   return (
@@ -217,8 +214,8 @@ function MepMarker({ symbol }: { symbol: MepSymbol }) {
   );
 }
 
-function FixtureLight({ fixture }: { fixture: FixtureItem }) {
-  const { x, z } = canvasToWorld(fixture.position);
+function FixtureLight({ fixture, origin }: { fixture: FixtureItem; origin: SceneOrigin }) {
+  const { x, z } = canvasToWorld(fixture.position, origin);
   const intensity = (fixture.intensity ?? 1) * 0.65;
   const warm = '#D4AF37';
   const height = fixture.type === 'ceiling' ? 2.4 : fixture.type === 'spot' ? 2.35 : 2.1;
@@ -257,10 +254,12 @@ function WallMesh({
   wall,
   openings,
   customMaterials = [],
+  origin,
 }: {
   wall: Wall;
   openings: Opening[];
   customMaterials?: Material[];
+  origin: SceneOrigin;
 }) {
   const length = Math.sqrt(
     Math.pow(wall.end.x - wall.start.x, 2) + Math.pow(wall.end.y - wall.start.y, 2)
@@ -269,9 +268,8 @@ function WallMesh({
   const centerX = (wall.start.x + wall.end.x) / 2;
   const centerY = (wall.start.y + wall.end.y) / 2;
 
-  // Convert 2D canvas coordinates to 3D world coordinates
-  const posX = (centerX - 600) / 100; // Center and scale
-  const posZ = (centerY - 400) / 100;
+  const posX = (centerX - origin.cx) / 100;
+  const posZ = (centerY - origin.cy) / 100;
   const posY = wall.height / 200; // Half height
 
   // Get openings for this wall
@@ -309,22 +307,42 @@ function WallMesh({
         
         return (
           // @ts-expect-error - React Three Fiber JSX types
-          <mesh
-            key={opening.id}
-            position={[openingPosX, openingPosY, openingPosZ]}
-          >
+          <group key={opening.id} position={[openingPosX, openingPosY, openingPosZ]} rotation={[0, -angle, 0]}>
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <boxGeometry args={[opening.width / 100, opening.height / 100, wall.thickness / 100 + 0.02]} />
+            <mesh>
+              {/* @ts-expect-error - React Three Fiber JSX types */}
+              <boxGeometry args={[opening.width / 100, opening.height / 100, wall.thickness / 100 + 0.02]} />
+              {/* @ts-expect-error - React Three Fiber JSX types */}
+              <meshStandardMaterial
+                color={opening.type === 'door' ? DOOR : WINDOW}
+                transparent
+                opacity={opening.type === 'door' ? 0.35 : 0.55}
+                emissive={opening.type === 'door' ? '#3a100d' : '#392400'}
+                emissiveIntensity={0.14}
+              />
+              {/* @ts-expect-error - React Three Fiber JSX types */}
+            </mesh>
+            {opening.type === 'door' ? (
+              // @ts-expect-error - React Three Fiber JSX types
+              <mesh position={[opening.width / 200, 0, wall.thickness / 200 + 0.01]} rotation={[0, 0.35, 0]}>
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+                <boxGeometry args={[opening.width / 100, opening.height / 100, 0.03]} />
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+                <meshStandardMaterial color={DOOR} roughness={0.6} metalness={0.05} />
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+              </mesh>
+            ) : (
+              // @ts-expect-error - React Three Fiber JSX types
+              <mesh position={[0, 0, 0]}>
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+                <boxGeometry args={[opening.width / 100 - 0.04, opening.height / 100 - 0.04, 0.01]} />
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+                <meshStandardMaterial color="#a8d8ff" transparent opacity={0.45} />
+                {/* @ts-expect-error - React Three Fiber JSX types */}
+              </mesh>
+            )}
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <meshStandardMaterial 
-              color={opening.type === 'door' ? DOOR : WINDOW}
-              transparent 
-              opacity={0.78}
-              emissive={opening.type === 'door' ? '#3a100d' : '#392400'}
-              emissiveIntensity={0.14}
-            />
-            {/* @ts-expect-error - React Three Fiber JSX types */}
-          </mesh>
+          </group>
         );
       })}
     </>
@@ -497,11 +515,14 @@ export default function Viewport3D({
   fixtures = [],
   landscapeElements = [],
   terrain = [],
+  rooms = [],
+  staircases = [],
   floorMaterial = 'material-concrete',
   walkMode = false,
   presentationLock = false,
 }: Viewport3DProps) {
   const isCoarsePointer = useCoarsePointer();
+  const sceneOrigin = useMemo(() => computeSceneOrigin(walls), [walls]);
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
@@ -544,40 +565,46 @@ export default function Viewport3D({
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-            <OrbitControls
-              enableDamping
-              dampingFactor={0.06}
-              enablePan
-              enableZoom
-              autoRotate={atmosphereConfig.autoRotate}
-              autoRotateSpeed={atmosphereConfig.autoRotateSpeed}
-              touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
-            />
+            {walkMode && !isCoarsePointer ? (
+              <PointerLockControls selector="#vish-3d-walk-hint" />
+            ) : (
+              <OrbitControls
+                enableDamping
+                dampingFactor={0.06}
+                enablePan
+                enableZoom
+                autoRotate={atmosphereConfig.autoRotate}
+                autoRotateSpeed={atmosphereConfig.autoRotateSpeed}
+                touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
+              />
+            )}
 
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} />
 
             <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
             <TerrainMeshes terrain={terrain} />
+            <RoomVolumeMeshes rooms={rooms} walls={walls} origin={sceneOrigin} floorMaterial={floorMaterial} />
+            <StairMeshes staircases={staircases} origin={sceneOrigin} />
 
             {walls.map((wall) => (
-              <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} />
+              <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} origin={sceneOrigin} />
             ))}
 
             {furniture.map((item) => (
-              <FurnitureMesh key={item.id} item={item} />
+              <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
             ))}
 
             {mepSymbols.map((symbol) => (
-              <MepMarker key={symbol.id} symbol={symbol} />
+              <MepMarker key={symbol.id} symbol={symbol} origin={sceneOrigin} />
             ))}
 
             {fixtures.map((fixture) => (
-              <FixtureLight key={fixture.id} fixture={fixture} />
+              <FixtureLight key={fixture.id} fixture={fixture} origin={sceneOrigin} />
             ))}
 
             {landscapeElements.map((element) => (
-              <LandscapeMesh key={element.id} element={element} />
+              <LandscapeMesh key={element.id} element={element} origin={sceneOrigin} />
             ))}
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
@@ -586,8 +613,11 @@ export default function Viewport3D({
         </WebGLErrorBoundary>
 
         {walkMode && (
-          <p className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary">
-            Walk mode — use orbit to navigate
+          <p
+            id="vish-3d-walk-hint"
+            className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary"
+          >
+            {isCoarsePointer ? 'Walk mode — use orbit to navigate' : 'Click canvas to enter walk · Esc to exit'}
           </p>
         )}
         {/* Atmosphere mode controls */}
