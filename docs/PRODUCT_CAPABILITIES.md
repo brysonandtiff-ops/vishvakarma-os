@@ -1,7 +1,7 @@
 # Vishvakarma.OS — Product Capabilities
 
-**Version:** v1.2.x  
-**Last audited:** 2026-06-13  
+**Version:** v1.3.x  
+**Last audited:** 2026-06-14  
 **Current production backend:** Supabase Auth + Postgres/RLS + Storage + billing entitlement state  
 **Canonical production URL:** https://vishvakarma-os.app  
 **Vercel fallback URL:** https://vishvakarma-os.vercel.app
@@ -37,7 +37,9 @@ The ToolRail includes functional tools for selecting, drawing walls, placing doo
 - Snap-to-grid and endpoint snap for corner auto-joining.
 - Gold corner-join ring (`#CF9B3A`) when wall endpoints snap during preview.
 - Openings drag along walls with percentage-based parametric positioning and undo-safe commit on pointer up.
-- Room perimeters, enclosed-space detection, and area use the Shoelace formula in `src/utils/roomCalculations.ts`.
+- Room perimeters use planar face extraction in `src/utils/roomCalculations.ts` with multi-room `detectRoomAtPoint` (smallest containing cycle) and polygon centroid labels.
+- Canvas zoom/pan: wheel zoom (cursor-centered), shift/middle-button pan, on-canvas zoom badge, status-bar zoom readout, and reset view; viewport persisted via `manifest.camera`.
+- Room tool assigns `roomType` and `floorIndex`; properties panel includes type picker and quick-type chips.
 - Undo/redo is backed by the floor-plan engine history stack.
 
 ### iPad hardening
@@ -52,7 +54,11 @@ React Three Fiber and Three.js translate the 2D manifest into 3D geometry. Walls
 
 ### 3D capability set
 
-- Real-time 2D manifest → 3D model chamber.
+- Real-time 2D manifest → 3D model chamber with **dynamic scene origin** (wall bounding-box center, not fixed canvas center).
+- Room volume slabs and ceiling planes at detected room centroids; stair meshes from `manifest.staircases`.
+- Improved door/window geometry (wall notch + hinged panel / framed glass).
+- Walk mode: first-person `PointerLockControls` on desktop; orbit controls remain on coarse-pointer (iPad) devices.
+- Floor-scoped walls, openings, rooms, and fixtures in the 3D preview.
 - Solar timeline: azimuth, elevation, intensity.
 - Atmosphere modes: standard, premium, cinematic.
 - Procedural PBR materials for walls, floors, furniture, and landscape.
@@ -98,7 +104,9 @@ Earlier Firebase/Firebase-admin work and Firestore migration utilities remain in
 
 ### Export pipeline
 
-The Export Package dialog supports JSON, PNG, PDF, DXF, and SVG. PNG/PDF/SVG use the shared floor-plan SVG builder path.
+The Export Package dialog supports JSON, PNG, PDF, DXF, and SVG with layer toggles (rooms, furniture, dimensions). PNG/PDF/SVG use the shared floor-plan SVG builder path.
+
+Import supports JSON (full manifest fidelity), Vishvakarma SVG round-trip, and basic DXF LINE/LWPOLYLINE walls with preview counts and warnings before apply.
 
 | Format | Content |
 |--------|---------|

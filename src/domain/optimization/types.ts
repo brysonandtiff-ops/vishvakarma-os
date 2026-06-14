@@ -10,7 +10,8 @@ export type OptimizationObjective =
   | 'budget_optimized'
   | 'energy_optimized'
   | 'premium_lifestyle'
-  | 'resale_value';
+  | 'resale_value'
+  | 'vastu_harmonized';
 
 export type OptimizationScoreCategory =
   | 'compliance'

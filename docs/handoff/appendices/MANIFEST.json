@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-14T07:22:49.516Z",
-  "gitSha": "34a75d4176ca91fc2bea5def1294f9be2d4bd36c",
-  "productVersion": "1.2.0",
+  "generatedAt": "2026-06-14T13:35:29.007Z",
+  "gitSha": "f1eac26b002a3b96df841abd00c4c06a5161da3a",
+  "productVersion": "1.3.0",
   "appendices": [
     "A-routes-and-api.md",
     "B-environment-variables.md",
@@ -15,10 +15,10 @@
   "counts": {
     "routes": 16,
     "apiHandlers": 5,
-    "npmScripts": 69,
+    "npmScripts": 71,
     "tables": 10,
     "unitTests": 109,
-    "e2eSpecs": 19,
+    "e2eSpecs": 20,
     "prodDependencies": 72,
     "devDependencies": 27
   }

@@ -2,7 +2,7 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
 ## npm verify / gates scripts
 
@@ -28,6 +28,8 @@ Generated: 2026-06-14T07:22:49.516Z
 | `verify:supabase-login-data` | `node scripts/verify-supabase-login-data.mjs` |
 | `production:evidence` | `node scripts/production/generate-evidence.mjs` |
 | `production:manual-evidence` | `node scripts/production/generate-manual-evidence.mjs` |
+| `production:functional-proof` | `node scripts/production/generate-functional-proof.mjs` |
+| `production:functional-proof:quick` | `node scripts/production/generate-functional-proof.mjs --skip-e2e` |
 
 ## `scripts/quality/*`
 

@@ -2,7 +2,7 @@
 
 # Appendix B — Environment Variables
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
 ## Documented in `.env.example`
 

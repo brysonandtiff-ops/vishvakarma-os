@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
 ```
 src/
@@ -74,6 +74,7 @@ components/
   billing/
     BillingBanner.tsx
     billingBannerMessage.ts
+    BillingPlanCard.tsx
   brand/
     FoundersAcknowledgment.test.tsx
     FoundersAcknowledgment.tsx
@@ -138,6 +139,7 @@ components/
     sceneGltfModels.tsx
     sceneMaterials.tsx
     sceneMeshes.tsx
+    sceneRoomMeshes.tsx
     sceneTerrainMeshes.tsx
     SolarTimeline.tsx
     StatusBar.tsx
@@ -148,6 +150,7 @@ components/
     WelcomeOverlay.tsx
   governance/
     GovernanceBackendBanner.tsx
+    GovernanceStatPill.tsx
   layouts/
     AppLayout.tsx
     MarketingLayout.tsx
@@ -266,6 +269,8 @@ core/
     sitePlanSvg.ts
   floorPlanEngine.test.ts
   floorPlanEngine.ts
+  importers/
+    dxfImport.ts
   manifestSchema.ts
   projectExport.test.ts
   projectExport.ts
@@ -278,11 +283,14 @@ core/
   sceneTextureCatalog.ts
   sceneVisualCatalog.ts
   simulations/
+    panchatattva.test.ts
+    panchatattva.ts
     thermalEngine.ts
     tvashtar.test.ts
     tvashtar.ts
     vastu.test.ts
     vastu.ts
+    vastuOverlay.ts
     vayuCFD.ts
   specValidation.ts
   templateBuilder.ts
@@ -337,6 +345,7 @@ domain/
   parcels/
     parcel.ts
   projects/
+    jurisdiction.ts
     projectRoles.ts
   rooms/
     adjacencyRule.ts
@@ -381,6 +390,7 @@ index.css
 ipad-workspace.css
 lib/
   analytics.ts
+  editorDialog.ts
   logger.ts
   monitoring.ts
   utils.ts
@@ -398,6 +408,7 @@ modules/
     complianceReportExport.test.ts
     complianceReportExport.ts
     constants.ts
+    jurisdictionCompliance.test.ts
     types.ts
   council-intelligence/
     councilIntelligenceModule.ts
@@ -458,6 +469,10 @@ rules/
   fire/
     egressPathRule.ts
     smokeAlarmZoneRule.ts
+  nbc/
+    bedroomSizeRule.ts
+    habitableRoomHeightRule.ts
+    stairWidthRule.ts
   ncc/
     bedroomEgressRule.test.ts
     bedroomEgressRule.ts
@@ -632,6 +647,7 @@ utils/
   commandPaletteShortcut.ts
   costEstimate.test.ts
   costEstimate.ts
+  currencyFormat.ts
   floorHelpers.test.ts
   floorHelpers.ts
   keyboardShortcuts.ts
@@ -701,6 +717,7 @@ migration/
 open-external-url.mjs
 production/
   generate-evidence.mjs
+  generate-functional-proof.mjs
   generate-manual-evidence.mjs
   setup-admin.mjs
   setup-co-owner.mjs
@@ -752,6 +769,7 @@ e2e/
 accessibility-audit.spec.ts
 ai-designer.spec.ts
 auth-gate.spec.ts
+auth-post-login-restore.spec.ts
 auth-private-routes.spec.ts
 collaboration-sync.spec.ts
 compliance-gate.spec.ts
@@ -876,6 +894,7 @@ release/
     build-output.txt
     EVIDENCE_MANIFEST.md
     FINAL_CLEANUP_EVIDENCE.md
+    functional-workflow-proof.md
     ipad-3d-panel.png
     ipad-auth-landscape.png
     ipad-auth-portrait.png
@@ -920,9 +939,11 @@ specs/
   CONSTRUCTION_COST_INTELLIGENCE.md
   COUNCIL_INTELLIGENCE.md
   DESIGN_OPTIMIZATION_ENGINE.md
+  NBC_INDIA_PRECHECK_v1.md
   PLANNING_INTELLIGENCE_v1.md
   PROJECT_ROLES_AND_PERMISSIONS.md
   SYSTEM_CONTRACT_LAYER.md
+  VASTU_HARMONY_v1.md
 STEP10_COMPLETE.md
 testing/
   EDITOR_WORKFLOWS.md

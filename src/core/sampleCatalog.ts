@@ -9,6 +9,8 @@ import {
   build2BhkTemplate,
   build3BhkTemplate,
   buildAngledModernTemplate,
+  buildBengaluruApartmentTemplate,
+  buildCourtyardVillaIndianTemplate,
   buildDuplexTwoFloorTemplate,
   buildFamilyHome4BrTemplate,
   buildFamilyHome5BrTemplate,
@@ -21,6 +23,7 @@ import {
   buildStudioTemplate,
   buildTShapeWingTemplate,
   buildUShapeCourtyardTemplate,
+  buildVastu2BhkIndianTemplate,
 } from '@/core/templateBuilder';
 
 const JSON_SAMPLE_MANIFESTS: Record<string, ProjectManifest> = {
@@ -32,7 +35,7 @@ const JSON_SAMPLE_MANIFESTS: Record<string, ProjectManifest> = {
   'full-feature-showcase': fullFeatureShowcaseJson as ProjectManifest,
 };
 
-export type SampleCategory = 'starter' | 'residential' | 'shapes' | 'interior' | 'landscape' | 'mep' | 'full';
+export type SampleCategory = 'starter' | 'residential' | 'indian' | 'shapes' | 'interior' | 'landscape' | 'mep' | 'full';
 export type SampleSurface = 'load-sample' | 'new-project';
 
 export interface SampleDefinition {
@@ -47,6 +50,7 @@ export interface SampleDefinition {
 export const SAMPLE_CATEGORY_LABELS: Record<SampleCategory, string> = {
   starter: 'Starter',
   residential: 'Residential',
+  indian: 'Indian Residential',
   shapes: 'Building Shapes',
   interior: 'Interior',
   landscape: 'Nature & Garden',
@@ -70,6 +74,9 @@ const BUILDERS: Record<string, () => ProjectManifest> = {
   'terrain-garden': buildTerrainGardenTemplate,
   'mep-lighting-showcase': buildMepLightingShowcaseTemplate,
   'full-feature-showcase': buildFullFeatureShowcaseTemplate,
+  'vastu-2bhk-indian': buildVastu2BhkIndianTemplate,
+  'courtyard-villa-indian': buildCourtyardVillaIndianTemplate,
+  'bengaluru-3bhk': buildBengaluruApartmentTemplate,
 };
 
 export const SAMPLE_CATALOG: SampleDefinition[] = [
@@ -103,6 +110,30 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     description: 'Three-bedroom apartment with dining and kitchen',
     category: 'residential',
     source: { kind: 'builder', build: build3BhkTemplate },
+    surfaces: ['load-sample', 'new-project'],
+  },
+  {
+    id: 'vastu-2bhk-indian',
+    name: 'Vastu 2BHK Flat',
+    description: 'Indian 2BHK with puja room, mandir, and Vastu-oriented labels',
+    category: 'indian',
+    source: { kind: 'builder', build: buildVastu2BhkIndianTemplate },
+    surfaces: ['load-sample', 'new-project'],
+  },
+  {
+    id: 'courtyard-villa-indian',
+    name: 'Courtyard Villa (Indian)',
+    description: 'U-shaped villa with courtyard, tulsi, and puja room',
+    category: 'indian',
+    source: { kind: 'builder', build: buildCourtyardVillaIndianTemplate },
+    surfaces: ['load-sample', 'new-project'],
+  },
+  {
+    id: 'bengaluru-3bhk',
+    name: 'Bengaluru 3BHK Apartment',
+    description: 'Compact Bengaluru apartment with service core and INR locale',
+    category: 'indian',
+    source: { kind: 'builder', build: buildBengaluruApartmentTemplate },
     surfaces: ['load-sample', 'new-project'],
   },
   {

@@ -105,6 +105,25 @@ test.describe('iPad editor layout', () => {
     expect(metrics?.maxWidthOk).toBe(true);
   });
 
+  test('blueprint canvas wheel zoom updates status bar readout', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+
+    const canvas = page.getByTestId('blueprint-canvas');
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+
+    const zoomBefore = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
+    expect(zoomBefore).toContain('100%');
+
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    await page.mouse.wheel(0, -120);
+    await page.waitForTimeout(200);
+
+    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
+    expect(zoomAfter).not.toContain('100%');
+  });
+
   test('captures iPad editor evidence screenshots', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });

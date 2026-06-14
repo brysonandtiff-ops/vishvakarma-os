@@ -201,6 +201,8 @@ export interface ProjectManifest {
   gridSize: number;
   snapToGrid: boolean;
   northOrientation?: number;
+  jurisdiction?: 'au' | 'in';
+  regionId?: string;
   dimensionVisibility?: boolean;
   fixtures?: FixtureItem[];
   floors?: BuildingFloor[];

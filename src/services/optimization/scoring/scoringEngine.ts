@@ -1,3 +1,4 @@
+import { analyzeVastu } from '@/core/simulations/vastu';
 import type { GeneratedBuilding } from '@/domain/buildings/generatedBuilding';
 import type {
   OptimizationCandidate,
@@ -54,6 +55,17 @@ export function scoreCandidate(
     weight: weights[category],
     explanation: result.explanation,
   }));
+
+  if (objective === 'vastu_harmonized' || building.manifest.jurisdiction === 'in') {
+    const vastu = analyzeVastu(building.manifest);
+    const boost = Math.round((vastu.harmonyPercent - 55) / 4);
+    for (const score of scores) {
+      if (score.category === 'privacy' || score.category === 'resale') {
+        score.score = Math.min(100, Math.max(0, score.score + boost));
+        score.explanation.metrics.vastuHarmony = vastu.harmonyPercent;
+      }
+    }
+  }
 
   const overall = computeOverallScore(scores, weights);
   scores.push({

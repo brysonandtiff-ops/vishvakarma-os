@@ -1,6 +1,6 @@
 import type { Project } from '@/types';
 
-export type ComplianceCategory = 'ncc' | 'accessibility' | 'energy' | 'zoning' | 'fire';
+export type ComplianceCategory = 'ncc' | 'nbc' | 'accessibility' | 'energy' | 'zoning' | 'fire';
 
 export type ComplianceStatus = 'pass' | 'warning' | 'fail';
 

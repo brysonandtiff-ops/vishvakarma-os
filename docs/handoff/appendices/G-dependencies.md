@@ -2,9 +2,9 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
-Package: `vishvakarma-os` v1.2.0
+Package: `vishvakarma-os` v1.3.0
 
 ## Production (72)
 

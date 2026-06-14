@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseProjectManifestJson } from '@/core/projectExport';
+import { computeSceneOrigin } from '@/core/sceneVisualCatalog';
+import { detectRoomAtPoint } from '@/utils/roomCalculations';
 
 describe('2D/3D parity', () => {
   it('sample project wall and opening counts match manifest', () => {
@@ -33,6 +35,33 @@ describe('2D/3D parity', () => {
       expect(wall.height).toBeGreaterThan(0);
       expect(wall.thickness).toBeGreaterThan(0);
     }
+  });
+
+  it('computeSceneOrigin centers on active wall bounding box', () => {
+    const walls = [
+      { id: 'w1', start: { x: 100, y: 200 }, end: { x: 500, y: 200 }, thickness: 10, height: 300 },
+      { id: 'w2', start: { x: 500, y: 200 }, end: { x: 500, y: 600 }, thickness: 10, height: 300 },
+    ];
+    const origin = computeSceneOrigin(walls);
+    expect(origin.cx).toBe(300);
+    expect(origin.cy).toBe(400);
+  });
+
+  it('showcase walls yield enclosed room geometry for 3D room volumes', () => {
+    const samplePath = resolve(process.cwd(), 'public/samples/full-feature-showcase.json');
+    const parsed = parseProjectManifestJson(readFileSync(samplePath, 'utf8'));
+    expect(parsed.ok).toBe(true);
+    const manifest = parsed.manifest!;
+    expect(manifest.walls.length).toBeGreaterThanOrEqual(4);
+
+    const center = {
+      x: (manifest.walls[0].start.x + manifest.walls[0].end.x) / 2,
+      y: (manifest.walls[0].start.y + manifest.walls[0].end.y) / 2,
+    };
+    const detected = detectRoomAtPoint(manifest.walls, center);
+    expect(detected).not.toBeNull();
+    expect(detected!.center).toBeDefined();
+    expect((detected!.area ?? 0)).toBeGreaterThan(0);
   });
 
   it('furniture and landscape showcase elements have finite placement data', () => {

@@ -42,8 +42,9 @@ function createMockContext(): CanvasRenderingContext2D {
 }
 
 describe('sceneVisualCatalog', () => {
-  it('defines nine furniture presets with defaults', () => {
-    expect(FURNITURE_PRESETS).toHaveLength(9);
+  it('defines fifteen furniture presets including Indian residential types', () => {
+    expect(FURNITURE_PRESETS).toHaveLength(15);
+    expect(FURNITURE_PRESETS.some((p) => p.type === 'mandir')).toBe(true);
     for (const preset of FURNITURE_PRESETS) {
       const defaults = getFurnitureDefaults(preset.type);
       expect(defaults.width).toBeGreaterThan(0);
@@ -52,9 +53,10 @@ describe('sceneVisualCatalog', () => {
     }
   });
 
-  it('defines seven landscape types including water and legacy types', () => {
-    expect(LANDSCAPE_TYPES).toHaveLength(7);
+  it('defines ten landscape types including Indian garden symbols', () => {
+    expect(LANDSCAPE_TYPES).toHaveLength(10);
     expect(LANDSCAPE_TYPES).toContain('water');
+    expect(LANDSCAPE_TYPES).toContain('tulsi');
     expect(LANDSCAPE_TYPES).toContain('tree');
     expect(LANDSCAPE_TYPES).toContain('shrub');
     expect(LANDSCAPE_TYPES).toContain('path');

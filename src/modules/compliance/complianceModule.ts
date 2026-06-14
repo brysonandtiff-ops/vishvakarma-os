@@ -1,11 +1,13 @@
+import { resolveJurisdiction } from '@/domain/projects/jurisdiction';
 import { aggregateComplianceResults } from '@/services/compliance/complianceAggregator';
-import { getAllComplianceRules } from '@/rules/registry';
+import { getComplianceRulesForJurisdiction } from '@/rules/registry';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { ComplianceResult } from '@/rules/types';
 import type { Project, ProjectManifest } from '@/types';
 
 function runRules(project: Project): ComplianceResult[] {
-  return getAllComplianceRules().map((rule) => rule.validate(project));
+  const jurisdiction = resolveJurisdiction(project.manifest);
+  return getComplianceRulesForJurisdiction(jurisdiction).map((rule) => rule.validate(project));
 }
 
 export function runComplianceAudit(project: Project): ComplianceAuditReport {

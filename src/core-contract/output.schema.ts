@@ -37,7 +37,7 @@ export interface PermitPackageOutput {
 }
 
 export interface OptimizationBatchOutput {
-  candidateCount: 5;
+  candidateCount: 6;
   winnerId: string;
   runnerUpId: string;
   reportIncludesMoatGain: boolean;

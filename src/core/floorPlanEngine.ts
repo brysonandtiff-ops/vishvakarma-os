@@ -1,3 +1,5 @@
+// Floor plan engine — manifest mutations and geometry operations
+import { DEFAULT_REGION_BY_JURISDICTION } from '@/domain/projects/jurisdiction';
 import {
   createEmptyProjectManifest,
   createProjectManifest,
@@ -658,6 +660,23 @@ export class FloorPlanEngine {
       return;
     }
     this.touchManifest({ northOrientation: normalized }, 'Set north');
+  }
+
+  setJurisdiction(jurisdiction: 'au' | 'in'): void {
+    if ((this.manifest.jurisdiction ?? 'au') === jurisdiction) {
+      return;
+    }
+    this.touchManifest(
+      { jurisdiction, regionId: DEFAULT_REGION_BY_JURISDICTION[jurisdiction] },
+      'Set jurisdiction',
+    );
+  }
+
+  setRegionId(regionId: string): void {
+    if (this.manifest.regionId === regionId) {
+      return;
+    }
+    this.touchManifest({ regionId }, 'Set region');
   }
 
   recalculateCostItems(): void {

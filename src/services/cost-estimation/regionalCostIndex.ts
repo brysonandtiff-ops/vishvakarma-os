@@ -22,6 +22,28 @@ export function resolveRegion(
     .join(' ')
     .toLowerCase();
 
+  if (hints.includes('kolkata') || hints.includes('west bengal')) {
+    return getRegionById('in-kolkata');
+  }
+  if (hints.includes('mumbai') || hints.includes('maharashtra')) {
+    return getRegionById('in-mumbai');
+  }
+  if (hints.includes('bengaluru') || hints.includes('bangalore') || hints.includes('karnataka')) {
+    return getRegionById('in-bengaluru');
+  }
+  if (hints.includes('delhi') || hints.includes('ncr') || hints.includes('noida') || hints.includes('gurgaon')) {
+    return getRegionById('in-delhi-ncr');
+  }
+  if (hints.includes('hyderabad') || hints.includes('telangana')) {
+    return getRegionById('in-hyderabad');
+  }
+  if (hints.includes('chennai') || hints.includes('tamil')) {
+    return getRegionById('in-chennai');
+  }
+  if (hints.includes('india') || hints.includes('inr')) {
+    return getRegionById('in-national');
+  }
+
   if (hints.includes('sydney') || hints.includes('nsw')) {
     return getRegionById('au-nsw-sydney');
   }

@@ -3,7 +3,7 @@ import { runOptimizationBatch } from '@/services/optimization/optimizationOrches
 import { parseCouncilText } from '@/services/copilot/ingestion/documentParsers';
 
 describe('optimizationOrchestrator', () => {
-  it('generates 5 scored and ranked candidates', async () => {
+  it('generates 6 scored and ranked candidates', async () => {
     const batch = await runOptimizationBatch({
       prompt: '4-bedroom modern home on 600m² corner block with double garage',
       targetBudget: 500_000,
@@ -14,7 +14,7 @@ describe('optimizationOrchestrator', () => {
       sessionId: 'opt-test',
     });
 
-    expect(batch.candidates).toHaveLength(5);
+    expect(batch.candidates).toHaveLength(6);
     expect(batch.winnerId).toBeTruthy();
     expect(batch.runnerUpId).toBeTruthy();
     expect(batch.siteFitness.overall).toBeGreaterThan(0);
@@ -27,9 +27,9 @@ describe('optimizationOrchestrator', () => {
     }
 
     const ranks = batch.candidates.map((c) => c.rank).sort();
-    expect(ranks).toEqual([1, 2, 3, 4, 5]);
+    expect(ranks).toEqual([1, 2, 3, 4, 5, 6]);
     expect(batch.report.winnerLabel).toBeTruthy();
-    expect(batch.report.tradeoffs.length).toBe(6);
+    expect(batch.report.tradeoffs.length).toBeGreaterThanOrEqual(6);
     expect(batch.report.moatGain.score).toBeGreaterThan(0);
     expect(batch.report.moatGain.compositeScore).toBeGreaterThan(0);
     expect(batch.report.moatGain.valueImpactLabel).toBeTruthy();

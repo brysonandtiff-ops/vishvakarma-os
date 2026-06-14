@@ -68,6 +68,20 @@ export const STRATEGY_PROFILES: OptimizationStrategy[] = [
       { roomA: 'Living', roomB: 'Entry', multiplier: 1.2 },
     ],
   },
+  {
+    id: 'candidate-f',
+    objective: 'vastu_harmonized',
+    label: 'Vastu Harmonized Layout',
+    layoutSeed: 67,
+    roomSizeBias: { MasterBedroom: 1.08, Kitchen: 1.06, Living: 1.05 },
+    roomPriority: { Entry: 1, Kitchen: 2, MasterBedroom: 3, Living: 4, Dining: 5 },
+    adjacencyMultipliers: [
+      { roomA: 'Kitchen', roomB: 'Dining', multiplier: 1.35 },
+      { roomA: 'Living', roomB: 'Entry', multiplier: 1.25 },
+      { roomA: 'MasterBedroom', roomB: 'Ensuite', multiplier: 1.2 },
+    ],
+    northernLivingBias: true,
+  },
 ];
 
 export function getStrategyByObjective(objective: OptimizationObjective): OptimizationStrategy {

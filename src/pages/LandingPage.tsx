@@ -49,7 +49,7 @@ export default function LandingPage() {
         </h1>
         <p className="mt-8 max-w-2xl text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
           Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays,
-          and professional Export Package delivery — Cloud Save when configured, Local Draft always available.
+          NBC India pre-checks, INR cost regions, and professional Export Package delivery — Cloud Save when configured, Local Draft always available.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Button variant="gold" size="gold" asChild>

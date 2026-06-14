@@ -2,6 +2,25 @@
 
 All notable changes to Vishvakarma.OS are documented in this file.
 
+## [1.3.0] - 2026-06-14
+
+### Added
+- Multi-room detection via planar face extraction (`findAllRoomFaces`, smallest-cycle `detectRoomAtPoint`)
+- Canvas zoom/pan viewport with wheel zoom, shift/middle pan, status-bar zoom badge, and manifest camera persistence
+- Room type picker and quick-type chips in the properties panel
+- Blueprint loader v2: full manifest preservation in `normalizeManifest`, SVG round-trip export/import, DXF import with preview step
+- Export layer toggles (rooms, furniture, dimensions) and full-fidelity SVG/PNG/PDF/DXF output
+- 3D chamber upgrades: dynamic scene origin, room volume slabs, stair meshes, improved door/window geometry, walk mode (Pointer Lock), floor-scoped fixtures
+
+### Changed
+- Unified gold/cream visual tokens across editor chrome and secondary panels
+- Canvas drawing polish: wall shadows, grid edge fade, stronger snap rings
+- `Viewport3D` consumes floor-filtered rooms and staircases from `EditorPage`
+
+### Fixed
+- Room centroid uses polygon centroid instead of wall-endpoint average
+- Import no longer strips manifest fields (`floors`, `terrain`, `fixtures`, `metadata`, etc.)
+
 ## [1.2.0] - 2026-06-09
 
 ### Added

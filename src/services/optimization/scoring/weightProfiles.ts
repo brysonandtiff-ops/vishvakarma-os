@@ -64,6 +64,16 @@ export const OBJECTIVE_WEIGHT_PROFILES: Record<OptimizationObjective, WeightProf
     resale: 0.22,
     buildability: 0.12,
   },
+  vastu_harmonized: {
+    compliance: 0.12,
+    construction_cost: 0.1,
+    natural_light: 0.12,
+    energy: 0.1,
+    circulation: 0.1,
+    privacy: 0.18,
+    resale: 0.16,
+    buildability: 0.12,
+  },
 };
 
 export function getWeightProfile(objective?: OptimizationObjective): WeightProfile {

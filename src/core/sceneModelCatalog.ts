@@ -2,8 +2,14 @@ import { FURNITURE_PRESETS, LANDSCAPE_TYPES } from '@/core/sceneVisualCatalog';
 
 export type SceneModelCategory = 'furniture' | 'landscape';
 
-/** Landscape types that stay parametric (flat surfaces). */
-export const PARAMETRIC_ONLY_LANDSCAPE = ['water', 'path'] as const;
+/** Landscape types that stay parametric (flat surfaces and Indian symbols). */
+export const PARAMETRIC_ONLY_LANDSCAPE = [
+  'water',
+  'path',
+  'tulsi',
+  'courtyard_planter',
+  'terrace_water_tank',
+] as const;
 
 const FURNITURE_MODEL_PATHS: Record<string, string> = Object.fromEntries(
   FURNITURE_PRESETS.map((preset) => [preset.type, `/models/furniture/${preset.type}.glb`]),

@@ -11,11 +11,22 @@ export const NCC_AU_THRESHOLDS = {
   maxGlazingRatio: 0.4,
 } as const;
 
+/** NBC India residential stubs (decision-support — not certified). */
+export const NBC_IN_THRESHOLDS = {
+  minHabitableRoomAreaSqM: 7.0,
+  minBedroomWidthM: 2.1,
+  minDoorWidthM: 0.81,
+  minStairWidthM: 0.9,
+  minWallHeightM: 2.75,
+  minVentilationOpeningSqM: 0.3,
+} as const;
+
 export const COMPLIANCE_CATEGORY_LABELS: Record<
   import('@/rules/types').ComplianceCategory,
   string
 > = {
   ncc: 'NCC',
+  nbc: 'NBC',
   accessibility: 'Access',
   energy: 'Energy',
   zoning: 'Zoning',

@@ -2,10 +2,27 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateRoomStats,
   calculateRoomCentroid,
+  detectRoomAtPoint,
+  findAllRoomFaces,
   pixelsToMeters,
   squarePixelsToSquareMeters,
 } from '../utils/roomCalculations';
 import type { Wall } from '../types';
+
+function rectangleWalls(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  prefix = 'w',
+): Wall[] {
+  return [
+    { id: `${prefix}1`, start: { x, y }, end: { x: x + width, y }, thickness: 10, height: 300 },
+    { id: `${prefix}2`, start: { x: x + width, y }, end: { x: x + width, y: y + height }, thickness: 10, height: 300 },
+    { id: `${prefix}3`, start: { x: x + width, y: y + height }, end: { x, y: y + height }, thickness: 10, height: 300 },
+    { id: `${prefix}4`, start: { x, y: y + height }, end: { x, y }, thickness: 10, height: 300 },
+  ];
+}
 
 describe('roomCalculations', () => {
   describe('pixelsToMeters', () => {
@@ -263,6 +280,46 @@ describe('roomCalculations', () => {
       expect(centroid).not.toBeNull();
       expect(centroid!.x).toBeCloseTo(150, 0);
       expect(centroid!.y).toBeCloseTo(100, 0);
+    });
+  });
+
+  describe('multi-room detection', () => {
+    it('finds two adjacent rooms sharing an interior wall', () => {
+      const left = rectangleWalls(0, 0, 200, 200, 'l');
+      const sharedWall: Wall = {
+        id: 'shared',
+        start: { x: 200, y: 0 },
+        end: { x: 200, y: 200 },
+        thickness: 10,
+        height: 300,
+      };
+      const right = rectangleWalls(200, 0, 200, 200, 'r').filter((w) => w.id !== 'r4');
+      const walls = [...left, sharedWall, ...right];
+
+      const faces = findAllRoomFaces(walls);
+      expect(faces.length).toBeGreaterThanOrEqual(2);
+
+      const leftRoom = detectRoomAtPoint(walls, { x: 100, y: 100 });
+      const rightRoom = detectRoomAtPoint(walls, { x: 300, y: 100 });
+      expect(leftRoom).not.toBeNull();
+      expect(rightRoom).not.toBeNull();
+      expect(leftRoom!.wallIds).not.toEqual(rightRoom!.wallIds);
+      expect(leftRoom!.area).toBeGreaterThan(0);
+      expect(rightRoom!.area).toBeGreaterThan(0);
+    });
+
+    it('detectRoomAtPoint picks the smallest containing cycle in nested layouts', () => {
+      const outer = rectangleWalls(0, 0, 400, 400, 'o');
+      const inner = rectangleWalls(100, 100, 100, 100, 'i');
+      const walls = [...outer, ...inner];
+
+      const innerRoom = detectRoomAtPoint(walls, { x: 150, y: 150 });
+      expect(innerRoom).not.toBeNull();
+      expect(innerRoom!.wallIds.every((id) => id.startsWith('i'))).toBe(true);
+
+      const outerRoom = detectRoomAtPoint(walls, { x: 50, y: 50 });
+      expect(outerRoom).not.toBeNull();
+      expect(outerRoom!.wallIds.some((id) => id.startsWith('o'))).toBe(true);
     });
   });
 

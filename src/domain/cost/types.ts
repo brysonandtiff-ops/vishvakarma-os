@@ -39,6 +39,8 @@ export interface SupplierQuote {
 export interface RegionalCostIndex {
   regionId: string;
   label: string;
+  jurisdiction: 'au' | 'in';
+  currency: 'AUD' | 'INR' | 'USD';
   materialMultiplier: number;
   laborMultiplier: number;
   volatility: number;

@@ -76,6 +76,7 @@ import {
   isValidTerrainPolygon,
   pointsNear,
 } from '@/core/sceneTerrainCatalog';
+import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -1035,6 +1036,14 @@ export default function BlueprintCanvas({
       ctx.strokeRect(left, top, width, height);
       ctx.setLineDash([]);
       ctx.restore();
+    }
+
+    if (currentTool === 'vastu' && walls.length > 0) {
+      drawVastuSectorOverlay(
+        ctx,
+        { walls, openings, labels, northOrientation },
+        computeVastuOverlayRadius(walls),
+      );
     }
 
     ctx.restore();

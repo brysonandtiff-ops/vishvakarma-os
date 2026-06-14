@@ -2,7 +2,7 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
 ## Vitest unit/integration (109 files)
 
@@ -116,11 +116,12 @@ Generated: 2026-06-14T07:22:49.516Z
 - `src/utils/costEstimate.test.ts`
 - `src/utils/floorHelpers.test.ts`
 
-## Playwright E2E (19 specs)
+## Playwright E2E (20 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
 - `e2e/auth-gate.spec.ts`
+- `e2e/auth-post-login-restore.spec.ts`
 - `e2e/auth-private-routes.spec.ts`
 - `e2e/collaboration-sync.spec.ts`
 - `e2e/compliance-gate.spec.ts`

@@ -43,6 +43,9 @@ export interface TemplateExtras {
   activeFloorIndex?: number;
   floorMaterial?: string;
   description?: string;
+  jurisdiction?: 'au' | 'in';
+  regionId?: string;
+  northOrientation?: number;
 }
 
 function wallSegment(
@@ -175,6 +178,9 @@ export function buildManifest(
     ...(extras.terrain ? { terrain: extras.terrain } : {}),
     ...(extras.floors ? { floors: extras.floors } : {}),
     ...(extras.activeFloorIndex !== undefined ? { activeFloorIndex: extras.activeFloorIndex } : {}),
+    ...(extras.jurisdiction ? { jurisdiction: extras.jurisdiction } : {}),
+    ...(extras.regionId ? { regionId: extras.regionId } : {}),
+    ...(extras.northOrientation !== undefined ? { northOrientation: extras.northOrientation } : {}),
   };
 }
 
@@ -727,5 +733,99 @@ export function buildFullFeatureShowcaseTemplate(): ProjectManifest {
     landscapeElements: placeLandscapeRing(center),
     mepSymbols: placeMepGrid({ x: 600, y: 280 }),
     fixtures: placeFixtures({ x: 360, y: 400 }),
+  });
+}
+
+export function buildVastu2BhkIndianTemplate(): ProjectManifest {
+  const { walls: shell, wallIds } = rectShell(240, 220, 420, 300);
+  const mid = partitionWall('v2-mid', { x: 430, y: 220 }, { x: 430, y: 380 });
+  const walls = [...shell, mid];
+  const openings = [
+    ...defaultOpenings(wallIds, {
+      doorWall: 's',
+      doorPosition: 0.35,
+      windows: [{ wall: 'e', position: 0.3 }, { wall: 'e', position: 0.75 }],
+    }),
+    interiorDoor('v2-d2', 'v2-mid', 0.6),
+  ];
+
+  return buildManifest('Vastu 2BHK Flat', walls, openings, {
+    description: 'Indian 2BHK with puja niche, Vastu-oriented room labels, and mandir furniture',
+    jurisdiction: 'in',
+    regionId: 'in-mumbai',
+    northOrientation: 0,
+    labels: [
+      { id: 'v2-l1', text: 'Living', position: { x: 340, y: 300 } },
+      { id: 'v2-l2', text: 'Master Bedroom', position: { x: 520, y: 280 } },
+      { id: 'v2-l3', text: 'Bedroom 2', position: { x: 520, y: 440 } },
+      { id: 'v2-l4', text: 'Kitchen', position: { x: 300, y: 460 } },
+      { id: 'v2-l5', text: 'Puja Room', position: { x: 360, y: 250 } },
+    ],
+    furniture: [
+      { id: 'v2-f1', type: 'mandir', position: { x: 360, y: 255 }, width: 100, depth: 80, rotation: 0 },
+      { id: 'v2-f2', type: 'modular_kitchen_base', position: { x: 300, y: 470 }, width: 240, depth: 60, rotation: 0 },
+      { id: 'v2-f3', type: 'diwan', position: { x: 330, y: 320 }, width: 180, depth: 90, rotation: 0 },
+    ],
+  });
+}
+
+export function buildCourtyardVillaIndianTemplate(): ProjectManifest {
+  const base = buildUShapeCourtyardTemplate();
+  return {
+    ...base,
+    name: 'Courtyard Villa (Indian)',
+    description: 'U-shaped villa with open courtyard, tulsi planter, and Vastu labels',
+    jurisdiction: 'in',
+    regionId: 'in-bengaluru',
+    northOrientation: 0,
+    labels: [
+      ...(base.labels ?? []),
+      { id: 'cv-l1', text: 'Puja Room', position: { x: 500, y: 200 } },
+      { id: 'cv-l2', text: 'Open Courtyard', position: { x: 480, y: 280 } },
+    ],
+    landscapeElements: [
+      ...(base.landscapeElements ?? []),
+      { id: 'cv-tulsi', type: 'tulsi', position: { x: 520, y: 220 } },
+      { id: 'cv-planter', type: 'courtyard_planter', position: { x: 480, y: 300 }, width: 48, depth: 48 },
+    ],
+    furniture: [
+      ...(base.furniture ?? []),
+      { id: 'cv-mandir', type: 'mandir', position: { x: 500, y: 205 }, width: 100, depth: 80, rotation: 0 },
+    ],
+  };
+}
+
+export function buildBengaluruApartmentTemplate(): ProjectManifest {
+  const { walls: shell, wallIds } = rectShell(180, 160, 480, 320);
+  const walls = [
+    ...shell,
+    partitionWall('ba-v1', { x: 400, y: 160 }, { x: 400, y: 360 }),
+    partitionWall('ba-h1', { x: 180, y: 360 }, { x: 660, y: 360 }),
+    partitionWall('ba-v2', { x: 540, y: 160 }, { x: 540, y: 360 }),
+  ];
+  const openings = [
+    ...defaultOpenings(wallIds, { doorWall: 's', doorPosition: 0.2 }),
+    interiorDoor('ba-d2', 'ba-v1', 0.45),
+    interiorDoor('ba-d3', 'ba-h1', 0.35),
+    interiorDoor('ba-d4', 'ba-v2', 0.5),
+  ];
+
+  return buildManifest('Bengaluru 3BHK Apartment', walls, openings, {
+    description: 'Compact Bengaluru 3BHK with service core and Indian locale defaults',
+    jurisdiction: 'in',
+    regionId: 'in-bengaluru',
+    northOrientation: 0,
+    labels: [
+      { id: 'ba-l1', text: 'Living', position: { x: 290, y: 280 } },
+      { id: 'ba-l2', text: 'Kitchen', position: { x: 250, y: 420 } },
+      { id: 'ba-l3', text: 'Master Bedroom', position: { x: 470, y: 260 } },
+      { id: 'ba-l4', text: 'Bedroom 2', position: { x: 600, y: 260 } },
+      { id: 'ba-l5', text: 'Bedroom 3', position: { x: 470, y: 420 } },
+      { id: 'ba-l6', text: 'Utility', position: { x: 600, y: 420 } },
+    ],
+    furniture: [
+      { id: 'ba-f1', type: 'modular_kitchen_base', position: { x: 250, y: 430 }, width: 240, depth: 60, rotation: 0 },
+      { id: 'ba-f2', type: 'puja_shelf', position: { x: 290, y: 240 }, width: 80, depth: 30, rotation: 0 },
+    ],
   });
 }

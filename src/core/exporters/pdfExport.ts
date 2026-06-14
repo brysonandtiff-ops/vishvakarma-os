@@ -1,4 +1,13 @@
 import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
+import { analyzePanchatattva } from '@/core/simulations/panchatattva';
+import { analyzeVastu } from '@/core/simulations/vastu';
+import {
+  resolveJurisdiction,
+  resolveRegionId,
+  complianceCodeLabel,
+} from '@/domain/projects/jurisdiction';
+import { getRegionById } from '@/services/cost-estimation/regionalCostIndex';
+import { formatCurrency } from '@/utils/currencyFormat';
 import { buildTextPdf, buildVisualPdf } from '@/utils/minimalPdf';
 import type { ProjectManifest } from '@/types';
 import { summarizeProjectManifest } from '@/core/projectModel';
@@ -33,12 +42,32 @@ async function rasterizeManifestToJpeg(manifest: ProjectManifest): Promise<Uint8
 
 export function exportManifestToPdfBytes(manifest: ProjectManifest): Uint8Array {
   const summary = summarizeProjectManifest(manifest);
+  const jurisdiction = resolveJurisdiction(manifest);
+  const codeLabel = complianceCodeLabel(jurisdiction);
+  const region = getRegionById(resolveRegionId(manifest));
+  const vastu = analyzeVastu(manifest);
+  const pancha = analyzePanchatattva(manifest);
+  const costLine =
+    manifest.metadata.costIntelligence?.expected != null
+      ? `Cost band: ${formatCurrency(manifest.metadata.costIntelligence.expected, region.currency)} (${region.label})`
+      : null;
+
   const lines = [
     `Project: ${manifest.name}`,
+    `Locale: ${jurisdiction === 'in' ? 'India' : 'Australia'} · ${codeLabel} pre-check · ${region.label}`,
     `Walls: ${summary.wallCount}`,
     `Openings: ${summary.openingCount}`,
     `Grid: ${summary.gridSize}px · Snap: ${summary.snapToGrid ? 'on' : 'off'}`,
     '',
+    'Vastu Harmony (decision-support):',
+    `  Harmony: ${vastu.harmonyPercent}% · Entrance ${vastu.entranceScore} · Kitchen ${vastu.kitchenScore}`,
+    ...vastu.tips.slice(0, 3).map((t) => `  - ${t}`),
+    '',
+    'Panchatattva balance:',
+    `  Overall: ${pancha.balancePercent}%`,
+    ...pancha.elements.map((e) => `  - ${e.label}: ${e.score}`),
+    '',
+    ...(costLine ? [costLine, ''] : []),
     'Room labels:',
     ...(manifest.labels ?? []).map((l) => `  - ${l.text}`),
     '',

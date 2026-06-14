@@ -55,7 +55,8 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
       `Export Package (${EXPORT_FORMATS_LABEL})`,
       'Cloud Save (Supabase)',
       'Project Proof governance',
-      'Vastu Harmony (preview)',
+      'Vastu Harmony + Panchatattva scoring',
+      'India NBC pre-check & INR cost regions',
     ],
   },
   enterprise: {
@@ -74,6 +75,7 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
       'API access',
       'Dedicated onboarding',
       'Custom template library',
+      'Indian residential sample library',
       'Collaboration (planned)',
     ],
   },

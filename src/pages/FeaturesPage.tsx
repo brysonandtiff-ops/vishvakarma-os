@@ -43,9 +43,15 @@ const INTERACTIVE_GUIDES = [
   },
   {
     title: 'Vastu Harmony Overview',
-    steps: ['Switch to Draft mode', 'Select Vastu tool', 'Adjust north orientation', 'Review compass overlay'],
+    steps: ['Switch to Draft mode', 'Select Vastu tool', 'Adjust north orientation', 'Review 8-sector overlay'],
     icon: Compass,
     editorHint: 'Switch to Draft mode and select Vastu tool',
+  },
+  {
+    title: 'India Locale & NBC',
+    steps: ['Open locale pill (IN/AU)', 'Select India + metro', 'Review NBC compliance panel', 'Load Vastu 2BHK sample'],
+    icon: Compass,
+    editorHint: 'Use the globe locale control on the canvas',
   },
   {
     title: 'MEP & Routing Analysis',
@@ -62,7 +68,9 @@ const FEATURE_MODULES = [
   { name: 'Cloud Save', ready: true, icon: Cloud },
   { name: 'Local Draft', ready: true, icon: Sparkles },
   { name: 'Vastu Harmony', ready: true, icon: Compass },
-  { name: 'MEP Routing', ready: true, icon: Route },
+  { name: 'Panchatattva Balance', ready: true, icon: Sparkles },
+  { name: 'NBC India Pre-check', ready: true, icon: Route },
+  { name: 'INR Cost Regions', ready: true, icon: Sparkles },
   { name: 'Collaboration', ready: false, preview: true, icon: Cloud },
   { name: 'Lighting Fixtures', ready: true, icon: Sparkles },
   { name: 'Custom Textures', ready: true, icon: Sparkles },

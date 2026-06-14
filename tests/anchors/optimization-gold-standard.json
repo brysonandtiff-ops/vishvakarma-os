@@ -9,8 +9,8 @@
     "councilText": "Front setback: 6m Side setback: 1.5m Rear setback: 3m Maximum coverage: 40%"
   },
   "structuralExpectations": {
-    "candidateCount": 5,
-    "ranks": [1, 2, 3, 4, 5],
+    "candidateCount": 6,
+    "ranks": [1, 2, 3, 4, 5, 6],
     "scoreCategoriesPerCandidate": 9,
     "complianceRuleCountPerCandidate": 12,
     "tradeoffDimensionCount": 6,

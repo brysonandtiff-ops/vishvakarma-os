@@ -16,7 +16,7 @@ View toggles: 3D preview (Sacred 3D View), grid, snap-to-grid.
 
 ## Stub tools (coming soon)
 
-Room, Vastu, MEP, Furniture, and Landscape appear in the tool rail but are **not** on-canvas yet. See [STUB_TOOLS.md](./STUB_TOOLS.md).
+Room, Vastu, MEP, Furniture, and Landscape are functional on-canvas tools. Vastu includes an 8-sector overlay when the Vastu tool is active. See [STUB_TOOLS.md](./STUB_TOOLS.md).
 
 ## Export formats
 

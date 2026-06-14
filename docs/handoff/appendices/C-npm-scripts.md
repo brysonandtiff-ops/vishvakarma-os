@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-14T07:22:49.516Z
+Generated: 2026-06-14T13:35:29.007Z
 
-Total: 69 scripts
+Total: 71 scripts
 
 | Script | Command |
 |--------|--------|
@@ -38,6 +38,8 @@ Total: 69 scripts
 | `preview:e2e` | `vite build --mode e2e && vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e:local` | `vite build --mode e2e-local && vite preview --host 127.0.0.1 --port 4173` |
 | `production:evidence` | `node scripts/production/generate-evidence.mjs` |
+| `production:functional-proof` | `node scripts/production/generate-functional-proof.mjs` |
+| `production:functional-proof:quick` | `node scripts/production/generate-functional-proof.mjs --skip-e2e` |
 | `production:manual-evidence` | `node scripts/production/generate-manual-evidence.mjs` |
 | `production:verify-env` | `node scripts/production/verify-env.mjs` |
 | `project-roles:gates` | `node scripts/quality/check-project-roles.mjs` |

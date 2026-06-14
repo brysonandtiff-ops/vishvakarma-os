@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Download, RefreshCw, XCircle } from 'lucide-react';
 import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import { Button } from '@/components/ui/button';
+import { complianceCodeLabel, resolveJurisdiction } from '@/domain/projects/jurisdiction';
 import { runComplianceAuditFromManifest } from '@/modules/compliance/complianceModule';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { ComplianceCategory, ComplianceStatus } from '@/rules/types';
@@ -31,6 +32,9 @@ export function CompliancePanel({
   const [refreshKey, setRefreshKey] = useState(0);
   const [expanded, setExpanded] = useState<ComplianceCategory | null>(null);
 
+  const jurisdiction = resolveJurisdiction(manifest);
+  const codeLabel = complianceCodeLabel(jurisdiction);
+
   const report: ComplianceAuditReport = useMemo(
     () =>
       runComplianceAuditFromManifest(manifest, {
@@ -53,7 +57,7 @@ export function CompliancePanel({
   return (
     <div className="space-y-3 px-4 py-3 text-xs" data-testid="compliance-panel">
       <div className="flex items-center justify-between gap-2">
-        <p className="font-bold uppercase tracking-[0.14em] text-primary">Building Compliance</p>
+        <p className="font-bold uppercase tracking-[0.14em] text-primary">{codeLabel} Building Compliance</p>
         <Button
           variant="ghost"
           size="sm"
