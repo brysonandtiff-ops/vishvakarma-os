@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const SESSION_STORAGE_KEY = 'vishvakarma.os.supabase.session.v1';
 
@@ -13,28 +13,56 @@ function buildSessionSnapshot() {
   };
 }
 
+async function seedCachedSession(page: Page) {
+  await page.addInitScript(
+    ({ key, snapshot }) => {
+      window.localStorage.setItem(key, JSON.stringify(snapshot));
+    },
+    { key: SESSION_STORAGE_KEY, snapshot: buildSessionSnapshot() }
+  );
+
+  await page.route('**/auth/v1/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ access_token: null, token_type: 'bearer', user: null }),
+    });
+  });
+}
+
+async function expectEditorLanding(page: Page) {
+  await page.waitForTimeout(1500);
+
+  expect(page.url()).toContain('/editor');
+  expect(page.url()).not.toContain('/auth');
+  await expect(page.getByTestId('auth-mockup-card')).toHaveCount(0);
+}
+
 test.describe('Post-login session restore', () => {
   test('keeps /editor after OAuth cold start with cached session snapshot', async ({ page }) => {
-    await page.addInitScript(
-      ({ key, snapshot }) => {
-        window.localStorage.setItem(key, JSON.stringify(snapshot));
-      },
-      { key: SESSION_STORAGE_KEY, snapshot: buildSessionSnapshot() }
-    );
-
-    await page.route('**/auth/v1/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ access_token: null, token_type: 'bearer', user: null }),
-      });
-    });
-
+    await seedCachedSession(page);
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(1500);
+    await expectEditorLanding(page);
+  });
 
-    expect(page.url()).toContain('/editor');
-    expect(page.url()).not.toContain('/auth');
+  test('keeps /editor on iPhone viewport after cached session cold start', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await seedCachedSession(page);
+    await page.goto('/editor', { waitUntil: 'domcontentloaded' });
+    await expectEditorLanding(page);
+  });
+
+  test('keeps /editor on iPad landscape after cached session cold start', async ({ page }) => {
+    await page.setViewportSize({ width: 1180, height: 820 });
+    await seedCachedSession(page);
+    await page.goto('/editor', { waitUntil: 'domcontentloaded' });
+    await expectEditorLanding(page);
+  });
+
+  test('redirects signed-in user from /auth to /editor', async ({ page }) => {
+    await seedCachedSession(page);
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
+    await page.waitForURL('**/editor**', { timeout: 15_000 });
     await expect(page.getByTestId('auth-mockup-card')).toHaveCount(0);
   });
 });

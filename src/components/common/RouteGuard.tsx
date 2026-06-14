@@ -2,7 +2,10 @@ import { useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
-import { hasCachedAuthSession } from '@/backend/supabase/supabaseAuthGateway';
+import {
+  clearSupabaseSessionSnapshot,
+  hasCachedAuthSession,
+} from '@/backend/supabase/supabaseAuthGateway';
 import { readAndClearAuthReturnPath, resolvePostAuthDestination } from '@/backend/supabase/supabaseOAuthGateway';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/routes';
@@ -30,6 +33,9 @@ const allowLocalAccess = isE2eAuthGateBuild
     (import.meta.env.DEV && (allowLocalDemoMode || !backendStatus.isConfigured));
 const showServiceConfigBanner =
   import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode && !isE2eLocalAccess;
+
+/** Max wait on SessionBootScreen before clearing a stale snapshot and returning to sign-in. */
+export const SESSION_BOOT_TIMEOUT_MS = 9_000;
 
 /** Paths that require an authenticated session before rendering. */
 export function isProtectedRoute(pathname: string): boolean {
@@ -105,6 +111,22 @@ export function RouteGuard({ children }: RouteGuardProps) {
       navigate(dest, { replace: true });
     }
   }, [awaitingAuth, gated, location.pathname, location.state, navigate, publicRoute, user]);
+
+  useEffect(() => {
+    if (!restoringSession || user || publicRoute) return;
+
+    const timeoutId = window.setTimeout(() => {
+      if (!hasCachedAuthSession()) return;
+
+      clearSupabaseSessionSnapshot();
+      navigate('/auth', {
+        state: { from: location.pathname, message: 'session-restore-timeout' },
+        replace: true,
+      });
+    }, SESSION_BOOT_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [location.pathname, navigate, publicRoute, restoringSession, user]);
 
   if (awaitingAuth && !publicRoute) {
     return <SessionBootScreen />;

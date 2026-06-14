@@ -77,6 +77,9 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain('hasCachedAuthSession');
     expect(routeGuard).toContain('awaitingAuth');
     expect(routeGuard).toContain('restoringSession');
+    expect(routeGuard).toContain('SESSION_BOOT_TIMEOUT_MS');
+    expect(routeGuard).toContain('clearSupabaseSessionSnapshot');
+    expect(routeGuard).toContain('session-restore-timeout');
     expect(routeGuard).toContain('if (awaitingAuth && !publicRoute)');
     expect(routeGuard).toContain('if (gated && !awaitingAuth && !user && !publicRoute');
     expect(routeGuard).toContain('<Navigate to="/auth"');
