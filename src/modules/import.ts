@@ -12,6 +12,7 @@ import type { ExportPackage } from './export';
 import type { GovernanceEvent } from './governanceLock';
 import type { VersionSnapshot } from './versionControlHooks';
 import { createProjectManifest } from '@/core/projectModel';
+import { importDxfToManifest } from '@/core/importers/dxfImport';
 import { FormatValidator } from './formatValidator';
 import { logGovernanceEvent } from './governanceLock';
 
@@ -69,6 +70,8 @@ export class ImportModule {
           return this.importFromJSON(content, options);
         case 'svg':
           return this.importFromSVG(content, options);
+        case 'dxf':
+          return this.importFromDXF(content, file.name, options);
         default:
           if (file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb')) {
             return {
@@ -252,7 +255,7 @@ export class ImportModule {
     const sanitized = options.sanitize === false ? manifest : FormatValidator.sanitizeManifest(manifest);
     return {
       success: true,
-      manifest: sanitized,
+      manifest: ImportModule.normalizeManifest(sanitized),
       errors: [],
       warnings,
       metadata: {
@@ -262,6 +265,43 @@ export class ImportModule {
         importedAt: new Date().toISOString(),
       },
     };
+  }
+
+  static importFromDXF(content: string, filename: string, options: ImportOptions = {}): ImportResult {
+    try {
+      const { manifest, warnings: dxfWarnings } = importDxfToManifest(content, filename);
+      const warnings = [...dxfWarnings];
+      const sanitized =
+        options.sanitize === false ? manifest : FormatValidator.sanitizeManifest(manifest);
+      const normalized = ImportModule.normalizeManifest(sanitized);
+      logGovernanceEvent({
+        type: 'project-imported',
+        metadata: {
+          source: 'dxf',
+          version: normalized.version,
+          wallCount: normalized.walls.length,
+        },
+        timestamp: Date.now(),
+      });
+      return {
+        success: true,
+        manifest: normalized,
+        errors: [],
+        warnings,
+        metadata: {
+          wallCount: normalized.walls.length,
+          openingCount: normalized.openings.length,
+          materialCount: normalized.materials.length,
+          importedAt: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        errors: [error instanceof Error ? error.message : 'DXF import failed'],
+        warnings: [],
+      };
+    }
   }
 
   /**
@@ -350,11 +390,11 @@ export class ImportModule {
    * Normalize imported manifest through the canonical project model factory.
    */
   static normalizeManifest(manifest: ProjectManifest): ProjectManifest {
-    const base = createProjectManifest({
-      name: manifest.name,
+    const defaults = createProjectManifest({
+      name: manifest.name ?? 'Imported Project',
       description: manifest.description,
-      walls: manifest.walls,
-      openings: manifest.openings,
+      walls: manifest.walls ?? [],
+      openings: manifest.openings ?? [],
       materials: manifest.materials,
       floorMaterial: manifest.floorMaterial,
       lighting: manifest.lighting,
@@ -366,19 +406,12 @@ export class ImportModule {
     });
 
     return {
-      ...base,
-      labels: manifest.labels,
-      dimensions: manifest.dimensions,
-      rooms: manifest.rooms,
-      furniture: manifest.furniture,
-      mepSymbols: manifest.mepSymbols,
-      plumbingRuns: manifest.plumbingRuns,
-      landscapeElements: manifest.landscapeElements,
-      measurements: manifest.measurements,
-      costItems: manifest.costItems,
-      staircases: manifest.staircases,
-      ceilingZones: manifest.ceilingZones,
-      camera: manifest.camera,
+      ...defaults,
+      ...manifest,
+      metadata: {
+        ...defaults.metadata,
+        ...manifest.metadata,
+      },
     };
   }
 

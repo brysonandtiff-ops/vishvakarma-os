@@ -1,8 +1,12 @@
-import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
+import { buildFloorPlanSvg, type FloorPlanSvgOptions } from '@/core/exporters/floorPlanSvg';
 import type { ProjectManifest } from '@/types';
 
-export async function exportManifestToPng(manifest: ProjectManifest, scale = 2): Promise<Blob> {
-  const svg = buildFloorPlanSvg(manifest);
+export async function exportManifestToPng(
+  manifest: ProjectManifest,
+  options?: FloorPlanSvgOptions,
+  scale = 2,
+): Promise<Blob> {
+  const svg = buildFloorPlanSvg(manifest, options);
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const img = new Image();

@@ -1,4 +1,5 @@
 import type { ProjectManifest } from '@/types';
+import { getVerticesForRoom } from '@/utils/roomCalculations';
 
 export function exportManifestToDxf(manifest: ProjectManifest): string {
   const lines: string[] = [
@@ -16,6 +17,29 @@ export function exportManifestToDxf(manifest: ProjectManifest): string {
 
   for (const wall of manifest.walls) {
     lines.push('0', 'LINE', '8', 'WALLS', '10', String(wall.start.x), '20', String(wall.start.y), '11', String(wall.end.x), '21', String(wall.end.y));
+  }
+
+  for (const room of manifest.rooms ?? []) {
+    const vertices = getVerticesForRoom(room, manifest.walls);
+    if (vertices.length < 3) continue;
+    for (let i = 0; i < vertices.length; i++) {
+      const start = vertices[i];
+      const end = vertices[(i + 1) % vertices.length];
+      lines.push(
+        '0',
+        'LINE',
+        '8',
+        'ROOMS',
+        '10',
+        String(start.x),
+        '20',
+        String(start.y),
+        '11',
+        String(end.x),
+        '21',
+        String(end.y),
+      );
+    }
   }
 
   for (const opening of manifest.openings) {

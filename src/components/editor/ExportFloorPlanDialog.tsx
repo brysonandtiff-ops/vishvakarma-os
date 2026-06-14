@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { FileDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { editorDialogClassName } from '@/lib/editorDialog';
 import { exportManifestToDxf } from '@/core/exporters/dxfExport';
-import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
+import { buildFloorPlanSvg, type FloorPlanSvgOptions } from '@/core/exporters/floorPlanSvg';
 import { downloadPdf } from '@/core/exporters/pdfExport';
 import { downloadBlob, exportManifestToPng } from '@/core/exporters/pngExport';
 import type { ProjectManifest } from '@/types';
@@ -41,6 +42,15 @@ export default function ExportFloorPlanDialog({
   exportBlocked?: boolean;
   exportBlockReason?: string;
 }) {
+  const [layerOptions, setLayerOptions] = useState<FloorPlanSvgOptions>({
+    includeRooms: true,
+    includeFurniture: true,
+    includeDimensions: true,
+    includeLabels: true,
+  });
+
+  const svgOptions = layerOptions;
+
   const canPdf = tier !== 'starter';
   const canDxf = tier !== 'starter';
 
@@ -48,7 +58,7 @@ export default function ExportFloorPlanDialog({
 
   const exportPng = async () => {
     try {
-      const blob = await exportManifestToPng(manifest);
+      const blob = await exportManifestToPng(manifest, svgOptions);
       downloadBlob(blob, `${slug}.png`);
       toast.success('PNG exported');
       onOpenChange(false);
@@ -59,7 +69,7 @@ export default function ExportFloorPlanDialog({
 
   const exportSvg = () => {
     try {
-      const svg = buildFloorPlanSvg(manifest);
+      const svg = buildFloorPlanSvg(manifest, svgOptions);
       const blob = new Blob([svg], { type: 'image/svg+xml' });
       downloadBlob(blob, `${slug}.svg`);
       toast.success('SVG exported');
@@ -96,6 +106,29 @@ export default function ExportFloorPlanDialog({
               <p className="text-2xl font-bold text-primary">{openingCount}</p>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Openings</p>
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border bg-white/70 p-4 text-xs">
+          <p className="mb-2 font-medium text-foreground">Export layers</p>
+          <div className="flex flex-wrap gap-3">
+            {(
+              [
+                ['includeRooms', 'Rooms'],
+                ['includeFurniture', 'Furniture'],
+                ['includeDimensions', 'Dimensions'],
+                ['includeLabels', 'Labels'],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="flex items-center gap-1.5 text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={layerOptions[key] ?? true}
+                  onChange={(e) => setLayerOptions((prev) => ({ ...prev, [key]: e.target.checked }))}
+                />
+                {label}
+              </label>
+            ))}
           </div>
         </div>
 
