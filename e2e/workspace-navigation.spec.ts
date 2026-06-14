@@ -46,7 +46,7 @@ test.describe('workspace navigation (e2e local access)', () => {
     await gotoWorkspaceShell(page, '/projects');
 
     const openPalette = async () => {
-      await page.keyboard.press('Control+K');
+      await page.getByRole('button', { name: /open command palette/i }).click();
       const input = page.getByPlaceholder(/jump to a workspace/i);
       await expect(input).toBeVisible({ timeout: 15_000 });
       return input;
@@ -56,11 +56,13 @@ test.describe('workspace navigation (e2e local access)', () => {
     await paletteInput.fill('Profile');
     await page.getByRole('option', { name: /profile/i }).click();
     await expect(page).toHaveURL(/\/profile$/);
+    await expect(page.getByRole('heading', { name: /profile/i }).first()).toBeVisible({ timeout: 30_000 });
 
     const paletteInputAgain = await openPalette();
     await paletteInputAgain.fill('Spec Center');
     await page.getByRole('option', { name: /spec center/i }).click();
     await expect(page).toHaveURL(/\/spec-center$/);
+    await expect(page.getByRole('heading', { name: /spec center/i }).first()).toBeVisible({ timeout: 30_000 });
   });
 
   test('mobile sheet drawer navigates to spec center', async ({ page }) => {

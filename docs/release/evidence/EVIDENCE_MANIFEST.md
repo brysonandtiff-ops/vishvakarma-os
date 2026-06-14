@@ -9,17 +9,17 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current target version | v1.2.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-14 |
-| Final status | **Functional workflow proof complete (#7)** — green CI URL for #6 pending after push |
+| Final status | **Launch evidence pack attached (#6, PARTIAL)** — core CI green; webkit/firefox e2e follow-up |
 
 ## CI Evidence
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Verify workflow | Install, lint, tests, route smoke, build | PENDING | Re-run after canonical-domain commit push |
-| Build artifact | `vishvakarma-os-dist` uploaded | PENDING | Attach green Actions URL to `latest-ci-run.md` |
-| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS | `PRODUCTION_AUTH_URL=https://vishvakarma-os.app/auth pnpm run verify:production-auth-flow` — 15/15 |
-| Playwright report | Cross-browser + a11y + page references | PENDING | Re-run `pnpm run test:e2e` on green CI |
-| CI run URL | Green Actions on release commit | PENDING | Update after push |
+| Verify workflow | Install, lint, tests, route smoke, build | PASS | [Actions run 27497509900](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509900) — primary job green |
+| Build artifact | `vishvakarma-os-dist` uploaded | PASS | Same run — artifact uploaded |
+| E2E Auth Gate | Browser proof for `/auth` and private route redirect | PASS | [Actions run 27497509894](https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509894) |
+| Playwright report | Cross-browser + a11y + page references | PARTIAL | Chromium PASS; webkit 1 fail; firefox timeout on 27497509900 |
+| CI run URL | Green Actions on release commit | PARTIAL | Attached — full matrix not yet green |
 
 ## Deployment Evidence
 
@@ -64,7 +64,7 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] Supabase `site_url` and redirect URLs include `.app`
 - [x] `public/auth-capabilities.json` regenerated with `customDomainAuthRetest: passed`
 - [x] Google OAuth is documented production sign-in path; email OTP non-blocking
-- [ ] Fresh green GitHub Actions run URL attached after push (#6)
+- [x] Fresh GitHub Actions run URL attached after push (#6, PARTIAL — core green)
 - [x] Full functional workflow proof matrix attached (#7)
 - [ ] No exposed private route while signed out (re-verify on CI)
 

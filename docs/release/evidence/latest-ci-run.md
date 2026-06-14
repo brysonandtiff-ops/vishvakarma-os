@@ -1,32 +1,59 @@
-# Latest CI Run
+# Latest CI / Verify Run
 
-Generated: 2026-06-14  
-Canonical deployment URL: https://vishvakarma-os.app  
-Vercel fallback URL: https://vishvakarma-os.vercel.app  
+Generated from commit: `0b51662f5e1ddb25f665d264b58c6ea02ae1f22d`
+Deployment URL: https://vishvakarma-os.app
+Vercel fallback URL: https://vishvakarma-os.vercel.app
+Generated at: 2026-06-14T12:10:00.000Z
+Operator: Bryson Erdmann / CI attach (#6)
+Result: `PARTIAL`
 
 ## Workflow Run
 
-**PENDING** — attach green GitHub Actions run URL after canonical-domain auth cleanup commit is pushed to `main`.
+**Verify Vishvakarma.OS (primary):** https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509900
 
+**E2E Auth Gate (production OAuth):** https://github.com/brysonandtiff-ops/vishvakarma-os/actions/runs/27497509894 — **PASS**
+
+| Job | Status | Duration |
+|---|---|---|
+| Lint, security, evidence, test, route smoke, and build | **PASS** | 2m47s |
+| Production OAuth (all browsers) | **PASS** | 5m33s |
+| Playwright E2E (chromium) | **PASS** | 5m52s |
+| Playwright E2E (webkit) | **FAIL** | 1 failed — command palette → Spec Center |
+| Playwright E2E (firefox) | **CANCELLED** | 30m job timeout |
+
+Overall workflow conclusion: **failure** (cross-browser e2e matrix incomplete). Core build/test gate and chromium functional proof are green on this commit.
+
+## Artifacts
+
+- `vishvakarma-os-dist` — uploaded from green build job
+- `world-record-evidence` — uploaded
+- `playwright-report-chromium` — uploaded
+
+## Command Parity (green on primary job)
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run lint
+pnpm run launch:evidence
+pnpm run test:coverage
+pnpm run test:anchors
+pnpm run test:routes
+pnpm run build
+pnpm run record:measure
+pnpm run test:e2e  # chromium PASS; webkit 1 fail; firefox timeout
 ```
-<attach after push>
-```
 
-## Command Parity
-
-Local verification completed before push (canonical `.app` auth proof):
+## Local parity (pre-push)
 
 | Command | Result |
-|---------|--------|
-| `pnpm run auth:gates` | PASS |
-| `pnpm run production:verify-env --strict` | PASS |
+|---|---|
 | `pnpm run lint:types` | PASS |
-| `PRODUCTION_URL=https://vishvakarma-os.app pnpm run test:supabase-auth:full` | PASS |
+| `pnpm run production:functional-proof` | PASS |
+| `pnpm run test:e2e` (local chromium) | PASS (47 passed, 1 flaky) |
 | `PRODUCTION_AUTH_URL=https://vishvakarma-os.app/auth pnpm run verify:production-auth-flow` | PASS (15/15) |
-| `npx supabase config push --yes` | PASS — remote auth `site_url` → `.app` |
-| `pnpm run test:e2e:auth` | PASS (22/22) |
 
-## Deployment URL
+## Follow-up
 
-- Canonical: https://vishvakarma-os.app
-- Vercel fallback: https://vishvakarma-os.vercel.app
+- Fix webkit command-palette navigation flake (`workspace-navigation.spec.ts`)
+- Raise or optimize firefox e2e job timeout in CI
+- Re-run Verify workflow for full green cross-browser matrix
