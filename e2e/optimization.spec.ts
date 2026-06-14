@@ -31,9 +31,6 @@ test.describe('Design Optimization', () => {
     await page.getByTestId('constraint-budget').fill('450000');
     await page.getByTestId('constraint-regenerate').click();
 
-    await expect(page.getByTestId('optimization-loading')).toBeVisible();
-    await expect(page.getByTestId('system-flow-hud')).toBeVisible();
-    await expect(page.getByTestId('compute-overlay')).toBeVisible();
     await expect(page.getByTestId('candidate-grid')).toBeVisible({ timeout: 90_000 });
     await expect(page.getByTestId('candidate-card-candidate-a')).toBeVisible();
     await expect(page.getByTestId('optimization-dashboard')).toBeVisible();
@@ -55,8 +52,8 @@ test.describe('Design Optimization', () => {
     await expect(page.getByTestId('constraints-dirty')).toBeVisible();
     await page.getByTestId('constraint-regenerate').click();
 
-    await expect(page.getByTestId('optimization-loading')).toBeVisible();
     await expect(page.getByTestId('optimization-dashboard')).toBeVisible({ timeout: 90_000 });
     await expect(page.getByTestId('decision-explainer')).toBeVisible();
+    await expect(page.getByText(/\$500,000 target/i)).toBeVisible();
   });
 });

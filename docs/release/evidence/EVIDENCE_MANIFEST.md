@@ -9,7 +9,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Current target version | v1.2.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-14 |
-| Final status | **Functional workflow proof (#7) in progress** — attach green CI URL for #6 after merge |
+| Final status | **Functional workflow proof complete (#7)** — green CI URL for #6 pending after push |
 
 ## CI Evidence
 
@@ -65,7 +65,7 @@ This file is the production release evidence ledger. It must be updated whenever
 - [x] `public/auth-capabilities.json` regenerated with `customDomainAuthRetest: passed`
 - [x] Google OAuth is documented production sign-in path; email OTP non-blocking
 - [ ] Fresh green GitHub Actions run URL attached after push (#6)
-- [ ] Full functional workflow proof matrix attached (#7)
+- [x] Full functional workflow proof matrix attached (#7)
 - [ ] No exposed private route while signed out (re-verify on CI)
 
 ## Operator Checklist (External)
