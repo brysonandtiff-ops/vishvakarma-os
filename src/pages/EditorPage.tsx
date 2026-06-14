@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
+import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
 import { Box } from 'lucide-react';
 import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
@@ -132,6 +133,7 @@ function EditorWorkspace() {
   const workspaceMode = session.workspaceMode;
   const zenMode = session.zenMode;
   const presentationLock = session.presentationLock;
+  const canvasViewport = session.canvasViewport;
 
   const [unitSystem] = useState<UnitSystem>('metric');
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
@@ -157,6 +159,7 @@ function EditorWorkspace() {
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
+  const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
   const cloudSave = useCloudSaveStatus();
   const { user } = useAuth();
 
@@ -201,7 +204,9 @@ function EditorWorkspace() {
 
   const handleRoomDetect = useCallback(
     (point: Point2D) => {
-      const room = engine.detectRoomAtPoint(point);
+      const roomType = pendingRoomType as RoomType;
+      const labelName = roomTypeLabel(roomType);
+      const room = engine.detectRoomAtPoint(point, labelName, roomType);
       if (!room) {
         toast.message('Room tool', { description: 'Click inside an enclosed wall loop to detect a room.' });
         return;
@@ -215,7 +220,7 @@ function EditorWorkspace() {
       });
       toast.success(`Detected ${room.name}${room.area ? ` (${room.area.toFixed(1)} m²)` : ''}`);
     },
-    [engine],
+    [engine, pendingRoomType],
   );
 
   const loadProjects = useCallback(async () => {
@@ -801,6 +806,10 @@ function EditorWorkspace() {
                   selectedLabelId={selectedLabelId}
                   onLabelSelect={setSelectedLabelId}
                   unitSystem={unitSystem}
+                  canvasViewport={canvasViewport}
+                  onCanvasViewportChange={(viewport) => engine.setCanvasViewport(viewport)}
+                  onResetViewport={() => engine.resetCanvasViewport()}
+                  manifestWalls={engine.getManifest().walls}
                 />
                 </AppErrorBoundary>
                 <EditorCompassCost
@@ -874,7 +883,13 @@ function EditorWorkspace() {
               selectedWall={selectedWall}
               selectedLabel={selectedLabel}
               selectedFixture={fixtures.find((f) => f.id === selectedFixtureId)}
-              selectedRoom={rooms.find((r) => selectedLabel?.text === r.name)}
+              selectedRoom={
+                rooms.find((r) => selectedLabelId === `label-${r.id}`) ??
+                rooms.find((r) => selectedLabel?.text === r.name)
+              }
+              onRoomUpdate={(roomId, updates) => engine.updateRoom(roomId, updates)}
+              pendingRoomType={pendingRoomType}
+              onPendingRoomTypeChange={setPendingRoomType}
               openings={openings}
               onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
               onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
@@ -902,7 +917,9 @@ function EditorWorkspace() {
           mousePos={mousePos}
           snapEnabled={snapEnabled}
           dimensionVisibility={dimensionVisibility}
+          canvasZoom={canvasViewport.zoom}
           onToggleDimensions={() => engine.setDimensionVisibility(!engine.getDimensionVisibility())}
+          onResetViewport={() => engine.resetCanvasViewport()}
         />
       </div>
 

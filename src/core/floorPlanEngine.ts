@@ -5,10 +5,11 @@ import {
 } from '@/core/projectModel';
 import { VersionControlHooks } from '@/modules/versionControlHooks';
 import { calculateProjectCostItems } from '@/utils/costEstimate';
-import { createFloor, ensureDefaultFloors, getActiveFloorIndex } from '@/utils/floorHelpers';
-import { detectRoomAtPoint, detectRoomFromWalls } from '@/utils/roomCalculations';
+import { createFloor, ensureDefaultFloors, filterWallsByFloor, getActiveFloorIndex } from '@/utils/floorHelpers';
+import { detectRoomAtPoint, detectRoomFromWalls, findAllRoomFaces, polygonCentroid, squarePixelsToSquareMeters } from '@/utils/roomCalculations';
 import type { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
 import type {
+  CanvasViewportState,
   CostItem,
   DimensionAnnotation,
   FixtureItem,
@@ -42,6 +43,7 @@ export interface EditorSessionState {
   presentationLock: boolean;
   projectName: string;
   description?: string;
+  canvasViewport: CanvasViewportState;
 }
 
 export interface FloorPlanSnapshot {
@@ -52,6 +54,8 @@ export interface FloorPlanSnapshot {
   revision: number;
 }
 
+const DEFAULT_CANVAS_VIEWPORT: CanvasViewportState = { panX: 0, panY: 0, zoom: 1 };
+
 const DEFAULT_SESSION: EditorSessionState = {
   currentTool: 'select',
   show3DView: false,
@@ -61,6 +65,7 @@ const DEFAULT_SESSION: EditorSessionState = {
   zenMode: false,
   presentationLock: false,
   projectName: 'Untitled Project',
+  canvasViewport: { ...DEFAULT_CANVAS_VIEWPORT },
 };
 
 export class FloorPlanEngine {
@@ -249,11 +254,18 @@ export class FloorPlanEngine {
       costItems: calculateProjectCostItems(manifest),
     });
     this.manifest = normalized;
+    const camera = normalized.camera;
+    const canvasViewport: CanvasViewportState = {
+      panX: camera?.panX ?? 0,
+      panY: camera?.panY ?? 0,
+      zoom: camera?.canvasZoom ?? 1,
+    };
     this.session = {
       ...this.session,
       projectName: projectName ?? manifest.name,
       description: manifest.description,
       snapEnabled: manifest.snapToGrid ?? true,
+      canvasViewport,
     };
     this.versionControl.clearVersionHistory();
     this.versionControl.saveVersion(this.manifest, 'Loaded', false);
@@ -294,6 +306,51 @@ export class FloorPlanEngine {
 
   setShow3D(show: boolean): void {
     this.touchSession({ show3DView: show });
+  }
+
+  setCanvasViewport(viewport: Partial<CanvasViewportState>): void {
+    const next = { ...this.session.canvasViewport, ...viewport };
+    if (next.zoom < 0.25) next.zoom = 0.25;
+    if (next.zoom > 4) next.zoom = 4;
+    this.touchSession({ canvasViewport: next });
+  }
+
+  resetCanvasViewport(): void {
+    this.touchSession({ canvasViewport: { ...DEFAULT_CANVAS_VIEWPORT } });
+  }
+
+  getCanvasViewport(): CanvasViewportState {
+    return this.session.canvasViewport;
+  }
+
+  private refreshStoredRooms(): void {
+    const rooms = this.manifest.rooms ?? [];
+    if (rooms.length === 0) return;
+
+    const updated = rooms.map((room) => {
+      const floorIndex = room.floorIndex ?? 0;
+      const floorWalls = filterWallsByFloor(this.manifest.walls, floorIndex);
+      const faces = findAllRoomFaces(floorWalls);
+      const wallSet = new Set(room.wallIds);
+      const face = faces.find((f) => {
+        const ids = new Set(f.wallIds);
+        return room.wallIds.every((id) => ids.has(id)) && f.wallIds.length === room.wallIds.length;
+      });
+      if (!face) return room;
+      const center = polygonCentroid(face.vertices);
+      return {
+        ...room,
+        area: squarePixelsToSquareMeters(face.area),
+        center: center ?? room.center,
+      };
+    });
+
+    const changed = updated.some((room, i) => JSON.stringify(room) !== JSON.stringify(rooms[i]));
+    if (changed) {
+      this.skipVersionSnapshot = true;
+      this.touchManifest({ rooms: updated });
+      this.skipVersionSnapshot = false;
+    }
   }
 
   setGridVisible(visible: boolean): void {
@@ -348,6 +405,7 @@ export class FloorPlanEngine {
     this.touchManifest({
       walls: [...this.manifest.walls, { ...wall, floorIndex: wall.floorIndex ?? floorIndex }],
     });
+    this.refreshStoredRooms();
   }
 
   setActiveFloorIndex(index: number): void {
@@ -373,12 +431,14 @@ export class FloorPlanEngine {
     this.touchManifest({
       walls: this.manifest.walls.map((w) => (w.id === wallId ? { ...w, ...updates } : w)),
     });
+    this.refreshStoredRooms();
   }
 
   removeWall(wallId: string): void {
     this.touchManifest({
       walls: this.manifest.walls.filter((w) => w.id !== wallId),
       openings: this.manifest.openings.filter((o) => o.wallId !== wallId),
+      rooms: (this.manifest.rooms ?? []).filter((r) => !r.wallIds.includes(wallId)),
     });
     if (this.session.selectedWallId === wallId || this.session.selectedWallIds?.includes(wallId)) {
       const remaining = (this.session.selectedWallIds ?? []).filter((id) => id !== wallId);
@@ -496,16 +556,30 @@ export class FloorPlanEngine {
     return room;
   }
 
-  detectRoomAtPoint(point: Point2D, name = 'Room'): Room | null {
-    const room = detectRoomAtPoint(this.manifest.walls, point, name);
+  detectRoomAtPoint(point: Point2D, name = 'Room', roomType?: string): Room | null {
+    const floorIndex = getActiveFloorIndex(this.manifest);
+    const floorWalls = filterWallsByFloor(this.manifest.walls, floorIndex);
+    const room = detectRoomAtPoint(
+      floorWalls,
+      point,
+      name,
+      roomType as import('@/domain/rooms/roomType').RoomType,
+      floorIndex,
+    );
     if (!room) return null;
 
     const existing = (this.manifest.rooms ?? []).filter(
-      (candidate) => candidate.wallIds.join(',') !== room.wallIds.join(',')
+      (candidate) => candidate.wallIds.join(',') !== room.wallIds.join(','),
     );
 
     this.touchManifest({ rooms: [...existing, room] }, 'Detect room');
     return room;
+  }
+
+  updateRoom(roomId: string, updates: Partial<Room>): void {
+    this.touchManifest({
+      rooms: (this.manifest.rooms ?? []).map((r) => (r.id === roomId ? { ...r, ...updates } : r)),
+    });
   }
 
   addFurniture(item: FurnitureItem): void {
@@ -605,11 +679,22 @@ export class FloorPlanEngine {
   }
 
   buildManifest(): ProjectManifest {
+    const baseCamera = this.manifest.camera ?? {
+      position: [0, 5, 10] as [number, number, number],
+      target: [0, 0, 0] as [number, number, number],
+      zoom: 1,
+    };
     return {
       ...this.manifest,
       name: this.session.projectName,
       description: this.session.description,
       snapToGrid: this.session.snapEnabled,
+      camera: {
+        ...baseCamera,
+        panX: this.session.canvasViewport.panX,
+        panY: this.session.canvasViewport.panY,
+        canvasZoom: this.session.canvasViewport.zoom,
+      },
     };
   }
 

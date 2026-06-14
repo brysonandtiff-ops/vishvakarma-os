@@ -1,4 +1,4 @@
-import type { BuildingFloor, Opening, ProjectManifest, Wall } from '@/types';
+import type { BuildingFloor, Opening, ProjectManifest, Room, Wall } from '@/types';
 
 export const DEFAULT_GROUND_FLOOR: BuildingFloor = {
   id: 'floor-ground',
@@ -36,6 +36,10 @@ export function filterWallsByFloor(walls: Wall[], floorIndex: number): Wall[] {
 export function filterOpeningsByFloor(openings: Opening[], walls: Wall[], floorIndex: number): Opening[] {
   const wallIds = new Set(filterWallsByFloor(walls, floorIndex).map((wall) => wall.id));
   return openings.filter((opening) => wallIds.has(opening.wallId));
+}
+
+export function filterRoomsByFloor(rooms: Room[], floorIndex: number): Room[] {
+  return rooms.filter((room) => (room.floorIndex ?? 0) === floorIndex);
 }
 
 export function createFloor(name: string, elevation: number, index: number): BuildingFloor {

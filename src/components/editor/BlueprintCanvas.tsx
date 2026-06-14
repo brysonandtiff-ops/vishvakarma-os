@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useCanvasResize } from '@/hooks/useCanvasResize';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
-import { mapCanvasBufferToDisplay, mapPointerToCanvasBuffer } from '@/utils/canvasPointerCoords';
+import { mapCanvasBufferToDisplay, mapCanvasBufferToWorld, mapPointerToCanvasBuffer, mapPointerToWorldCoords, mapWorldToCanvasBuffer } from '@/utils/canvasPointerCoords';
 import type {
   DimensionAnnotation,
   FixtureItem,
@@ -17,8 +17,9 @@ import type {
   TerrainPatch,
   ToolType,
   Wall,
+  CanvasViewportState,
 } from '@/types';
-import { buildOrderedVertices } from '@/utils/roomCalculations';
+import { buildOrderedVertices, getVerticesForRoom } from '@/utils/roomCalculations';
 import {
   checkOpeningOverlap,
   isOpeningInBounds,
@@ -120,6 +121,10 @@ interface BlueprintCanvasProps {
   selectedWallIds?: string[];
   selectedOpeningId?: string;
   unitSystem?: UnitSystem;
+  canvasViewport?: CanvasViewportState;
+  onCanvasViewportChange?: (viewport: Partial<CanvasViewportState>) => void;
+  onResetViewport?: () => void;
+  manifestWalls?: Wall[];
 }
 
 const MEP_TYPES: MepSymbol['type'][] = ['outlet', 'switch', 'hvac', 'panel'];
@@ -210,6 +215,10 @@ export default function BlueprintCanvas({
   selectedWallIds,
   selectedOpeningId,
   unitSystem = 'metric',
+  canvasViewport = { panX: 0, panY: 0, zoom: 1 },
+  onCanvasViewportChange,
+  onResetViewport,
+  manifestWalls,
 }: BlueprintCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -233,8 +242,6 @@ export default function BlueprintCanvas({
   const [draggingFurnitureId, setDraggingFurnitureId] = useState<string | null>(null);
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
   const [editingLabelText, setEditingLabelText] = useState('');
-  const gridLayerRef = useRef<HTMLCanvasElement | null>(null);
-  const [gridLayerRevision, setGridLayerRevision] = useState(0);
   const [dragFurniturePosition, setDragFurniturePosition] = useState<Point2D | null>(null);
   const [dimensionStart, setDimensionStart] = useState<Point2D | null>(null);
   const [furniturePresetIndex, setFurniturePresetIndex] = useState(0);
@@ -244,6 +251,9 @@ export default function BlueprintCanvas({
   const [terrainElevationIndex, setTerrainElevationIndex] = useState(0);
   const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
   const [stairDirectionIndex, setStairDirectionIndex] = useState(0);
+  const [isPanning, setIsPanning] = useState(false);
+  const panOriginRef = useRef<{ clientX: number; clientY: number; panX: number; panY: number } | null>(null);
+  const roomWallSource = manifestWalls ?? walls;
 
   const snapToGrid = useCallback(
     (point: Point2D): Point2D => {
@@ -284,16 +294,17 @@ export default function BlueprintCanvas({
       if (!canvas) return { x: 0, y: 0 };
 
       const rect = canvas.getBoundingClientRect();
-      const raw = mapPointerToCanvasBuffer(
+      const raw = mapPointerToWorldCoords(
         event.clientX,
         event.clientY,
         rect,
         canvas.width,
         canvas.height,
+        canvasViewport,
       );
       return snapToNearbyEndpoint(snapToGrid(raw));
     },
-    [snapToGrid, snapToNearbyEndpoint]
+    [canvasViewport, snapToGrid, snapToNearbyEndpoint],
   );
 
   const openLabelEdit = useCallback(
@@ -392,6 +403,19 @@ export default function BlueprintCanvas({
   };
 
   const handlePointerDown = (event: CanvasPointerEvent) => {
+    if (event.button === 1 || (event.button === 0 && event.shiftKey && onCanvasViewportChange)) {
+      event.preventDefault();
+      panOriginRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        panX: canvasViewport.panX,
+        panY: canvasViewport.panY,
+      };
+      setIsPanning(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+      return;
+    }
+
     event.preventDefault();
     const mode = getInputMode(event);
     setInputMode(mode);
@@ -607,6 +631,21 @@ export default function BlueprintCanvas({
     event.preventDefault();
     const mode = getInputMode(event);
     setInputMode(mode);
+
+    if (isPanning && panOriginRef.current && onCanvasViewportChange) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const scaleX = canvas.width / canvas.getBoundingClientRect().width;
+      const scaleY = canvas.height / canvas.getBoundingClientRect().height;
+      const dx = (event.clientX - panOriginRef.current.clientX) * scaleX;
+      const dy = (event.clientY - panOriginRef.current.clientY) * scaleY;
+      onCanvasViewportChange({
+        panX: panOriginRef.current.panX + dx,
+        panY: panOriginRef.current.panY + dy,
+      });
+      return;
+    }
+
     const point = getCanvasPoint(event);
     setHoveredPoint(point);
     onPointerCanvasMove?.(point);
@@ -678,6 +717,10 @@ export default function BlueprintCanvas({
 
   const handlePointerUp = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    if (isPanning) {
+      setIsPanning(false);
+      panOriginRef.current = null;
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -786,23 +829,34 @@ export default function BlueprintCanvas({
   }, [editingLabelId, keyboardBottomInset]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!container || !onCanvasViewportChange) return;
 
-    if (!gridLayerRef.current) {
-      gridLayerRef.current = document.createElement('canvas');
-    }
-    const gridLayer = gridLayerRef.current;
-    gridLayer.width = canvas.width;
-    gridLayer.height = canvas.height;
-    const gridCtx = gridLayer.getContext('2d');
-    if (gridCtx && gridVisible) {
-      gridCtx.fillStyle = CANVAS_PAPER_FILL;
-      gridCtx.fillRect(0, 0, gridLayer.width, gridLayer.height);
-      drawGrid(gridCtx, canvas, gridSize);
-    }
-    setGridLayerRevision((r) => r + 1);
-  }, [canvasMetrics.bufferWidth, canvasMetrics.bufferHeight, gridSize, gridVisible]);
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const buffer = mapPointerToCanvasBuffer(
+        event.clientX,
+        event.clientY,
+        rect,
+        canvas.width,
+        canvas.height,
+      );
+      const worldBefore = mapCanvasBufferToWorld(buffer, canvasViewport);
+      const factor = event.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.min(4, Math.max(0.25, canvasViewport.zoom * factor));
+      onCanvasViewportChange({
+        zoom: newZoom,
+        panX: buffer.x - worldBefore.x * newZoom,
+        panY: buffer.y - worldBefore.y * newZoom,
+      });
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => container.removeEventListener('wheel', onWheel);
+  }, [canvasViewport, onCanvasViewportChange]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -812,9 +866,11 @@ export default function BlueprintCanvas({
     ctx.fillStyle = CANVAS_PAPER_FILL;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (gridVisible && gridLayerRef.current) {
-      ctx.drawImage(gridLayerRef.current, 0, 0);
-    } else if (gridVisible) {
+    ctx.save();
+    ctx.translate(canvasViewport.panX, canvasViewport.panY);
+    ctx.scale(canvasViewport.zoom, canvasViewport.zoom);
+
+    if (gridVisible) {
       drawGrid(ctx, canvas, gridSize);
     }
 
@@ -857,8 +913,7 @@ export default function BlueprintCanvas({
     }
 
     for (const room of rooms) {
-      const roomWalls = walls.filter((wall) => room.wallIds.includes(wall.id));
-      const vertices = buildOrderedVertices(roomWalls);
+      const vertices = getVerticesForRoom(room, roomWallSource);
       if (vertices.length >= 3) {
         ctx.beginPath();
         ctx.moveTo(vertices[0].x, vertices[0].y);
@@ -951,32 +1006,6 @@ export default function BlueprintCanvas({
       );
     }
 
-    if (currentTool === 'vastu' || northOrientation !== 0) {
-      const center = { x: canvas.width - 72, y: 72 };
-      const radius = 42;
-      ctx.save();
-      ctx.translate(center.x, center.y);
-      ctx.rotate(((northOrientation - 90) * Math.PI) / 180);
-      ctx.strokeStyle = COMPASS_STROKE;
-      ctx.fillStyle = COMPASS_FILL;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(0, 0, radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0, -radius + 6);
-      ctx.lineTo(0, radius - 6);
-      ctx.moveTo(-radius + 6, 0);
-      ctx.lineTo(radius - 6, 0);
-      ctx.stroke();
-      ctx.fillStyle = GOLD_MUTED;
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('N', 0, -radius + 18);
-      ctx.restore();
-    }
-
     if (dimensionVisibility) {
       for (const dimension of dimensions) {
         drawDimension(ctx, dimension, unitSystem);
@@ -1007,7 +1036,35 @@ export default function BlueprintCanvas({
       ctx.setLineDash([]);
       ctx.restore();
     }
-  }, [currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridLayerRevision, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+
+    ctx.restore();
+
+    if (currentTool === 'vastu' || northOrientation !== 0) {
+      const center = { x: canvas.width - 72, y: 72 };
+      const radius = 42;
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.rotate(((northOrientation - 90) * Math.PI) / 180);
+      ctx.strokeStyle = COMPASS_STROKE;
+      ctx.fillStyle = COMPASS_FILL;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, -radius);
+      ctx.lineTo(0, radius);
+      ctx.moveTo(-radius, 0);
+      ctx.lineTo(radius, 0);
+      ctx.stroke();
+      ctx.fillStyle = GOLD_MUTED;
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('N', 0, -radius + 18);
+      ctx.restore();
+    }
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
     <div
@@ -1019,11 +1076,25 @@ export default function BlueprintCanvas({
         maxWidth: '100%',
       }}
     >
+    <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2">
+      <span className="rounded-md border border-primary/25 bg-background/90 px-2 py-1 text-[10px] font-mono text-foreground shadow-sm backdrop-blur-sm">
+        {(canvasViewport.zoom * 100).toFixed(0)}%
+      </span>
+      {onResetViewport && canvasViewport.zoom !== 1 && (
+        <button
+          type="button"
+          className="pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm hover:text-foreground"
+          onClick={onResetViewport}
+        >
+          Reset view
+        </button>
+      )}
+    </div>
     {editingLabelId && (() => {
       const editingLabel = labels.find((l) => l.id === editingLabelId);
       const displayPos = editingLabel
         ? mapCanvasBufferToDisplay(
-            editingLabel.position,
+            mapWorldToCanvasBuffer(editingLabel.position, canvasViewport),
             canvasMetrics.bufferWidth,
             canvasMetrics.bufferHeight,
             canvasMetrics.displayWidth,

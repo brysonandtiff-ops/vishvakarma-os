@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
 import { getToolDefaults } from '@/components/editor/toolDefaults';
 import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
+import { ROOM_TYPES, roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 
 interface PropertiesPanelProps {
@@ -17,6 +18,9 @@ interface PropertiesPanelProps {
   selectedLabel?: TextLabel;
   selectedFixture?: FixtureItem;
   selectedRoom?: Room;
+  pendingRoomType?: string;
+  onPendingRoomTypeChange?: (type: string) => void;
+  onRoomUpdate?: (roomId: string, updates: Partial<Room>) => void;
   openings: Opening[];
   onWallUpdate: (wallId: string, updates: Partial<Wall>) => void;
   onOpeningUpdate: (openingId: string, updates: Partial<Opening>) => void;
@@ -76,6 +80,9 @@ export default function PropertiesPanel({
   selectedLabel,
   selectedFixture,
   selectedRoom,
+  pendingRoomType,
+  onPendingRoomTypeChange,
+  onRoomUpdate,
   openings,
   onWallUpdate,
   onOpeningUpdate,
@@ -175,6 +182,30 @@ export default function PropertiesPanel({
               <span className="font-mono text-ws-text">{selectedRoom.area.toFixed(1)} m²</span>
             </div>
           )}
+          {selectedRoom && onRoomUpdate && (
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Room type</Label>
+              <select
+                className="vish-input-workstation h-9 w-full text-xs"
+                value={selectedRoom.roomType ?? 'Bedroom'}
+                onChange={(e) => {
+                  const roomType = e.target.value as RoomType;
+                  onRoomUpdate(selectedRoom.id, {
+                    roomType,
+                    name: roomTypeLabel(roomType),
+                  });
+                  if (onLabelUpdate && selectedLabel) {
+                    onLabelUpdate(selectedLabel.id, { text: roomTypeLabel(roomType) });
+                  }
+                }}
+                aria-label="Room type"
+              >
+                {ROOM_TYPES.map((type) => (
+                  <option key={type} value={type}>{roomTypeLabel(type)}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {onLabelDelete && (
             <Button variant="destructive" size="sm" className="w-full" onClick={() => onLabelDelete(selectedLabel.id)}>
               <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete label
@@ -189,6 +220,27 @@ export default function PropertiesPanel({
     return (
       <div className="vish-properties-panel vish-dark-panel flex h-full min-h-0 flex-col overflow-hidden">
         <div className="min-h-0 flex-1 overflow-y-auto">
+          {currentTool === 'room' && onPendingRoomTypeChange && (
+            <div className="border-b border-ws-border px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Room type</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {ROOM_TYPES.slice(0, 8).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={`rounded-md border px-2 py-1 text-[10px] transition ${
+                      pendingRoomType === type
+                        ? 'border-primary bg-primary/15 text-primary'
+                        : 'border-ws-border text-ws-text-dim hover:border-primary/40 hover:text-ws-text'
+                    }`}
+                    onClick={() => onPendingRoomTypeChange(type)}
+                  >
+                    {roomTypeLabel(type)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <ToolDefaultsPanel currentTool={currentTool} />
         </div>
         {morePanel && (

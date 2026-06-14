@@ -87,6 +87,8 @@ export interface Room {
   wallIds: string[];
   center?: Point2D;
   area?: number;
+  roomType?: string;
+  floorIndex?: number;
 }
 
 export interface FurnitureItem {
@@ -151,6 +153,15 @@ export interface Roof {
 export interface ViewportCameraState {
   position: [number, number, number];
   target: [number, number, number];
+  zoom: number;
+  panX?: number;
+  panY?: number;
+  canvasZoom?: number;
+}
+
+export interface CanvasViewportState {
+  panX: number;
+  panY: number;
   zoom: number;
 }
 

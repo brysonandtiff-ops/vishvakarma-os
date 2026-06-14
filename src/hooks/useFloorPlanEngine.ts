@@ -4,6 +4,7 @@ import type { ToolType, WorkspaceMode } from '@/types';
 import {
   ensureDefaultFloors,
   filterOpeningsByFloor,
+  filterRoomsByFloor,
   filterWallsByFloor,
   getActiveFloorIndex,
 } from '@/utils/floorHelpers';
@@ -26,6 +27,10 @@ export function useFloorPlanEngine() {
     () => filterOpeningsByFloor(manifest.openings, manifest.walls, activeFloorIndex),
     [manifest.openings, manifest.walls, activeFloorIndex],
   );
+  const rooms = useMemo(
+    () => filterRoomsByFloor(snapshot.manifest.rooms ?? [], activeFloorIndex),
+    [snapshot.manifest.rooms, activeFloorIndex],
+  );
 
   return {
     ...snapshot,
@@ -36,7 +41,7 @@ export function useFloorPlanEngine() {
     openings,
     labels: snapshot.manifest.labels ?? [],
     dimensions: snapshot.manifest.dimensions ?? [],
-    rooms: snapshot.manifest.rooms ?? [],
+    rooms,
     furniture: snapshot.manifest.furniture ?? [],
     mepSymbols: snapshot.manifest.mepSymbols ?? [],
     landscapeElements: snapshot.manifest.landscapeElements ?? [],

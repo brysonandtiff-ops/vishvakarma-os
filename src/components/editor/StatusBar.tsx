@@ -10,7 +10,9 @@ export default function StatusBar({
   mousePos,
   snapEnabled,
   dimensionVisibility,
+  canvasZoom,
   onToggleDimensions,
+  onResetViewport,
 }: {
   currentTool: ToolType;
   wallCount: number;
@@ -18,7 +20,9 @@ export default function StatusBar({
   mousePos: { x: number; y: number };
   snapEnabled: boolean;
   dimensionVisibility: boolean;
+  canvasZoom?: number;
   onToggleDimensions: () => void;
+  onResetViewport?: () => void;
 }) {
   const meta = TOOL_META[currentTool];
   const ToolIcon = meta?.icon;
@@ -45,6 +49,15 @@ export default function StatusBar({
         <span>Openings:</span><span className="text-ws-text">{openingCount}</span>
       </div>
       <div className="ws-status-divider" />
+      {canvasZoom !== undefined && (
+        <>
+          <div className="ws-status-item shrink-0">
+            <span>Zoom</span>
+            <span className="text-ws-text">{Math.round(canvasZoom * 100)}%</span>
+          </div>
+          <div className="ws-status-divider" />
+        </>
+      )}
       <div className={`ws-status-item shrink-0 ${snapEnabled ? 'active' : ''}`}>
         <Magnet className="h-3 w-3" aria-hidden />
         <span>{snapEnabled ? 'Snap ON' : 'Snap OFF'}</span>
@@ -60,9 +73,21 @@ export default function StatusBar({
         {dimensionVisibility ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
         <span>{dimensionVisibility ? 'Dims ON' : 'Dims OFF'}</span>
       </button>
-      <div className="ml-auto ws-status-item shrink-0">
-        <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">ॐ शिल्प · </span>
-        <span>Vishvakarma.OS {APP_VERSION}</span>
+      <div className="ml-auto flex items-center gap-2">
+        {onResetViewport && canvasZoom !== undefined && canvasZoom !== 1 && (
+          <button
+            type="button"
+            className="ws-status-item touch-target shrink-0 hover:text-ws-text"
+            onClick={onResetViewport}
+            title="Reset canvas view"
+          >
+            Reset view
+          </button>
+        )}
+        <div className="ws-status-item shrink-0">
+          <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">ॐ शिल्प · </span>
+          <span>Vishvakarma.OS {APP_VERSION}</span>
+        </div>
       </div>
     </div>
   );
