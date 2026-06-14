@@ -24,6 +24,7 @@ import {
   signInWithAppleSupabase,
   signInWithGoogleSupabase,
 } from '@/backend/supabase/supabaseOAuthGateway';
+import { authFlowTrace } from '@/lib/authFlowTrace';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 import { ensureSupabaseProfile, getSupabaseProfile } from '@/backend/supabase/supabaseProfileGateway';
 import type { Profile } from '@/types';
@@ -147,6 +148,20 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     const shouldHandleEmailLink = isSupabaseEmailLinkCallback();
     let callbackResolutionComplete = false;
 
+    authFlowTrace({
+      location: 'SupabaseAuthProvider.tsx:initAuthStart',
+      message: 'Auth init starting',
+      data: {
+        shouldHandleOAuth,
+        shouldHandleEmailLink,
+        oauthCallback: isSupabaseOAuthCallback(),
+        oauthPending: isOAuthRedirectPending(),
+        pathname: typeof window !== 'undefined' ? window.location.pathname : null,
+        origin: typeof window !== 'undefined' ? window.location.origin : null,
+      },
+      hypothesisId: 'G',
+    });
+
     const shouldIgnoreNullSession = (event: string) =>
       event === 'INITIAL_SESSION' &&
       !callbackResolutionComplete &&
@@ -168,7 +183,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
             setEmailLinkState('idle');
             if (completePostAuthRedirect()) return;
             void loadProfile(nextUser);
-          } else if (consumeOAuthRedirectPending()) {
+          } else if (consumeOAuthRedirectPending() || isSupabaseOAuthCallback()) {
             setEmailLinkError(formatOAuthRedirectIncompleteMessage());
           }
           return;
@@ -203,8 +218,10 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         if (!mounted) return;
 
-        if (shouldHandleOAuth && consumeOAuthRedirectPending()) {
-          setEmailLinkError(formatOAuthRedirectIncompleteMessage());
+        if (shouldHandleOAuth) {
+          const message = error instanceof Error ? error.message : formatOAuthRedirectIncompleteMessage();
+          setEmailLinkError(formatAuthError(new Error(message)).message);
+          consumeOAuthRedirectPending();
         }
 
         if (shouldHandleEmailLink) {

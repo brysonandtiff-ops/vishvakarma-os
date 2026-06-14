@@ -65,6 +65,9 @@ function checkGatewayCanonicalFallbacks() {
   if (!oauth.includes('completePostAuthRedirect')) {
     failures.push('supabaseOAuthGateway.ts must export completePostAuthRedirect for OAuth callback landing');
   }
+  if (!oauth.includes('ALLOWED_AUTH_ORIGINS')) {
+    failures.push('supabaseOAuthGateway.ts must pin OAuth redirectTo to the active allowed production origin');
+  }
   if (!oauth.includes("POST_AUTH_DESTINATION = '/editor'")) {
     failures.push("supabaseOAuthGateway.ts POST_AUTH_DESTINATION must be '/editor'");
   }

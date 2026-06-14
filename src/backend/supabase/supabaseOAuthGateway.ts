@@ -1,4 +1,5 @@
-import { CANONICAL_ORIGIN } from '@/config/canonicalOrigin';
+import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
+import { authFlowTrace } from '@/lib/authFlowTrace';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -18,9 +19,48 @@ type AuthErrorContext = {
 
 const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
 const AUTH_RETURN_PATH_KEY = 'vish-auth-return-path';
+const LEGACY_OAUTH_PENDING_SESSION_KEY = 'vish-oauth-redirect-pending';
 export const POST_AUTH_DESTINATION = '/editor';
 const DEFAULT_AUTH_RETURN_PATH = POST_AUTH_DESTINATION;
 const PRODUCTION_AUTH_ORIGIN = CANONICAL_ORIGIN;
+const ALLOWED_AUTH_ORIGINS = new Set([CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN]);
+
+function readOAuthPendingStartedAt(): number | null {
+  try {
+    for (const storage of [localStorage, sessionStorage]) {
+      const raw = storage.getItem(OAUTH_REDIRECT_PENDING_KEY);
+      if (!raw) continue;
+      const started = Number(raw);
+      if (Number.isFinite(started)) return started;
+    }
+  } catch {
+    // ignore storage failures
+  }
+  return null;
+}
+
+function writeOAuthPendingStartedAt(started: number) {
+  try {
+    localStorage.setItem(OAUTH_REDIRECT_PENDING_KEY, String(started));
+    sessionStorage.setItem(OAUTH_REDIRECT_PENDING_KEY, String(started));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function clearOAuthPendingMarkers() {
+  try {
+    localStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
+    sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
+    sessionStorage.removeItem(LEGACY_OAUTH_PENDING_SESSION_KEY);
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function isAuthCallbackPath(pathname: string) {
+  return pathname === '/auth' || pathname === '/auth/';
+}
 
 export function storeAuthReturnPath(path: string) {
   try {
@@ -58,12 +98,19 @@ export function resolvePostAuthDestination(fromState?: string | null): string {
 
 /** Hard navigation to the post-sign-in route when the OAuth callback lands on /auth. */
 export function completePostAuthRedirect(): boolean {
-  if (typeof window === 'undefined' || window.location.pathname !== '/auth') {
+  if (typeof window === 'undefined' || !isAuthCallbackPath(window.location.pathname)) {
     return false;
   }
 
   readAndClearAuthReturnPath();
-  window.location.replace(POST_AUTH_DESTINATION);
+  const destination = `${window.location.origin}${POST_AUTH_DESTINATION}`;
+  authFlowTrace({
+    location: 'supabaseOAuthGateway.ts:completePostAuthRedirect',
+    message: 'Hard redirect to editor',
+    data: { destination, pathname: window.location.pathname },
+    hypothesisId: 'J',
+  });
+  window.location.replace(destination);
   return true;
 }
 
@@ -79,14 +126,9 @@ export function readAndClearAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PAT
 }
 
 export function isOAuthRedirectPending() {
-  try {
-    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
-    if (!raw) return false;
-    const started = Number(raw);
-    return Number.isFinite(started) && Date.now() - started < 120_000;
-  } catch {
-    return false;
-  }
+  const started = readOAuthPendingStartedAt();
+  if (started === null) return false;
+  return Date.now() - started < 120_000;
 }
 
 function stripAuthCallbackFromUrl() {
@@ -95,45 +137,25 @@ function stripAuthCallbackFromUrl() {
 }
 
 export function markOAuthRedirectPending() {
-  try {
-    sessionStorage.setItem(OAUTH_REDIRECT_PENDING_KEY, String(Date.now()));
-  } catch {
-    // ignore storage failures
-  }
+  writeOAuthPendingStartedAt(Date.now());
 }
 
 export function clearOAuthRedirectPending() {
-  try {
-    sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
-  } catch {
-    // ignore storage failures
-  }
+  clearOAuthPendingMarkers();
 }
 
 export function consumeOAuthRedirectPending(maxAgeMs = 120_000): boolean {
-  try {
-    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
-    sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
-    if (!raw) return false;
-
-    const started = Number(raw);
-    return Number.isFinite(started) && Date.now() - started < maxAgeMs;
-  } catch {
-    return false;
-  }
+  const started = readOAuthPendingStartedAt();
+  clearOAuthPendingMarkers();
+  if (started === null) return false;
+  return Date.now() - started < maxAgeMs;
 }
 
 export function expireStaleOAuthRedirectPending(maxAgeMs = 120_000) {
-  try {
-    const raw = sessionStorage.getItem(OAUTH_REDIRECT_PENDING_KEY);
-    if (!raw) return;
-
-    const started = Number(raw);
-    if (!Number.isFinite(started) || Date.now() - started >= maxAgeMs) {
-      sessionStorage.removeItem(OAUTH_REDIRECT_PENDING_KEY);
-    }
-  } catch {
-    // ignore storage failures
+  const started = readOAuthPendingStartedAt();
+  if (started === null) return;
+  if (Date.now() - started >= maxAgeMs) {
+    clearOAuthPendingMarkers();
   }
 }
 
@@ -211,9 +233,17 @@ function isLocalAuthOrigin(origin: string) {
 
 export function getAuthPageUrl() {
   if (typeof window === 'undefined') return `${PRODUCTION_AUTH_ORIGIN}/auth`;
-  if (import.meta.env.DEV || import.meta.env.MODE === 'e2e' || isLocalAuthOrigin(window.location.origin)) {
-    return `${window.location.origin}/auth`;
+
+  const origin = window.location.origin;
+  if (import.meta.env.DEV || import.meta.env.MODE === 'e2e' || isLocalAuthOrigin(origin)) {
+    return `${origin}/auth`;
   }
+
+  // Keep PKCE verifier + callback on the same origin the user actually opened.
+  if (ALLOWED_AUTH_ORIGINS.has(origin)) {
+    return `${origin}/auth`;
+  }
+
   return `${import.meta.env.VITE_AUTH_REDIRECT_ORIGIN ?? PRODUCTION_AUTH_ORIGIN}/auth`;
 }
 
@@ -284,12 +314,37 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
 
   if (isSupabaseOAuthCallback()) {
     const code = new URLSearchParams(window.location.search).get('code');
+    authFlowTrace({
+      location: 'supabaseOAuthGateway.ts:resolveOAuthStart',
+      message: 'Resolving OAuth redirect session',
+      data: {
+        hasCode: Boolean(code),
+        origin: window.location.origin,
+        redirectToConfigured: getAuthPageUrl(),
+        oauthPending: isOAuthRedirectPending(),
+      },
+      hypothesisId: 'T',
+    });
     if (code) {
       const { data, error } = await client.auth.exchangeCodeForSession(code);
-      if (error) throw error;
+      if (error) {
+        authFlowTrace({
+          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
+          message: 'OAuth code exchange failed',
+          data: { error: error.message },
+          hypothesisId: 'T',
+        });
+        throw error;
+      }
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
+        authFlowTrace({
+          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
+          message: 'OAuth code exchange succeeded',
+          data: { pathname: window.location.pathname, hasUser: true },
+          hypothesisId: 'A',
+        });
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }

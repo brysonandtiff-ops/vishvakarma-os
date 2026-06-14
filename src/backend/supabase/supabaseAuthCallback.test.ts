@@ -5,6 +5,7 @@ import {
 } from '@/backend/supabase/supabaseAuthGateway';
 import {
   completePostAuthRedirect,
+  getAuthPageUrl,
   POST_AUTH_DESTINATION,
   resolvePostAuthDestination,
   resolveSupabaseOAuthRedirectSession,
@@ -120,12 +121,13 @@ describe('post-auth redirect helpers', () => {
     vi.stubGlobal('window', {
       location: {
         pathname: '/auth',
+        origin: 'https://vishvakarma-os.app',
         replace,
       },
     });
 
     expect(completePostAuthRedirect()).toBe(true);
-    expect(replace).toHaveBeenCalledWith('/editor');
+    expect(replace).toHaveBeenCalledWith('https://vishvakarma-os.app/editor');
 
     vi.unstubAllGlobals();
   });
@@ -143,5 +145,33 @@ describe('post-auth redirect helpers', () => {
     expect(replace).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();
+  });
+});
+
+describe('getAuthPageUrl', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps OAuth callback on the canonical .app origin the user opened', () => {
+    vi.stubGlobal('window', {
+      location: { origin: 'https://vishvakarma-os.app' },
+    });
+    vi.stubEnv('DEV', false);
+    vi.stubEnv('MODE', 'production');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.vercel.app');
+
+    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
+  });
+
+  it('keeps OAuth callback on the vercel fallback origin the user opened', () => {
+    vi.stubGlobal('window', {
+      location: { origin: 'https://vishvakarma-os.vercel.app' },
+    });
+    vi.stubEnv('DEV', false);
+    vi.stubEnv('MODE', 'production');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.app');
+
+    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.vercel.app/auth');
   });
 });
