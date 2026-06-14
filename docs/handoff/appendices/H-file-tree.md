@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-14T07:05:40.824Z
+Generated: 2026-06-14T07:22:49.516Z
 
 ```
 src/
