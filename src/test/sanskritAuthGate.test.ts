@@ -52,7 +52,7 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).not.toContain('signInWithApple');
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
     expect(manifest).toContain('"winner"');
-    expect(manifest).toMatch(/redirect sign-in|Supabase Google OAuth|Supabase OAuth|supabase\.co\/auth|Config-only pass/);
+    expect(manifest).toMatch(/redirect sign-in|Supabase Google OAuth|Supabase Google provider|Google OAuth is the production|Supabase OAuth|supabase\.co\/auth|Config-only pass/);
     expect(manifest).not.toContain('popup sign-in');
     expect(authPage).not.toContain('type="password"');
   });
@@ -106,6 +106,7 @@ describe('Sanskrit auth gate design', () => {
 
     expect(authContext).toContain('SupabaseAuthProvider');
     expect(supabaseProvider).toContain('resolveSupabaseOAuthRedirectSession');
+    expect(supabaseProvider).toContain('POST_AUTH_DESTINATION');
     expect(supabaseProvider).toContain('signInWithGoogle');
   });
 

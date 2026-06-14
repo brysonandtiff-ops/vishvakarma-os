@@ -279,9 +279,6 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
-        // #region agent log
-        fetch('http://127.0.0.1:7686/ingest/cdb0a854-0724-4d15-96cb-d25c2ef763fe',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2e495c'},body:JSON.stringify({sessionId:'2e495c',location:'supabaseOAuthGateway.ts:exchangeCodeForSession',message:'OAuth code exchange succeeded',data:{pathname:typeof window!=='undefined'?window.location.pathname:null,hasUser:true},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }
