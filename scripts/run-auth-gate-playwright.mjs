@@ -10,6 +10,8 @@ const project = process.env.PLAYWRIGHT_AUTH_PROJECT ?? 'auth-gate';
 
 const authEnv = {
   ...process.env,
+  VITE_SUPABASE_URL: 'https://restore-test.supabase.co',
+  VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.restore-test-anon-key',
   VITE_FIREBASE_API_KEY: '',
   VITE_FIREBASE_AUTH_DOMAIN: '',
   VITE_FIREBASE_PROJECT_ID: '',
