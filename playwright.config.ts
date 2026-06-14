@@ -24,6 +24,7 @@ const appSmokeServerEnv = {
 const AUTH_GATE_MATCH = [
   '**/auth-gate.spec.ts',
   '**/auth-private-routes.spec.ts',
+  '**/auth-post-login-restore.spec.ts',
   '**/ipad-production-readiness.spec.ts',
 ];
 

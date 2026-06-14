@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  hasCachedAuthSession,
   hydrateSupabaseAuthSession,
   isSupabaseEmailLinkCallback,
   isSupabaseOAuthCallback,
@@ -254,5 +255,23 @@ describe('hydrateSupabaseAuthSession', () => {
     );
 
     expect(readCachedAuthBootstrap()?.uid).toBe('user-1');
+  });
+
+  it('detects cached auth session for RouteGuard restore gate', () => {
+    expect(hasCachedAuthSession()).toBe(false);
+
+    localStorage.setItem(
+      'vishvakarma.os.supabase.session.v1',
+      JSON.stringify({
+        provider: 'supabase',
+        uid: 'user-1',
+        email: 'architect@firm.com',
+        idToken: 'access',
+        refreshToken: 'refresh',
+        expiresAt: Date.now() + 60_000,
+      })
+    );
+
+    expect(hasCachedAuthSession()).toBe(true);
   });
 });

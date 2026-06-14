@@ -80,6 +80,8 @@ const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
 const supabaseAuth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
 const supabaseProvider = readRequiredFile(supabaseProviderPath, 'src/contexts/SupabaseAuthProvider.tsx');
 const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendConfig.ts');
+const routeGuardPath = join(root, 'src/components/common/RouteGuard.tsx');
+const routeGuard = readRequiredFile(routeGuardPath, 'src/components/common/RouteGuard.tsx');
 
 const authRequired = [
   'SupabaseAuthProvider',
@@ -111,6 +113,7 @@ const supabaseRequired = [
   'writeSupabaseSessionSnapshot',
   'hydrateSupabaseAuthSession',
   'readCachedAuthBootstrap',
+  'hasCachedAuthSession',
   'signInWithOtp',
   'buildSupabaseSessionFromAuthSession',
   'isSupabaseOAuthCallback',
@@ -155,6 +158,10 @@ for (const phrase of supabaseProviderRequired) {
   if (!supabaseProvider.includes(phrase)) {
     failures.push(`src/contexts/SupabaseAuthProvider.tsx is missing auth phrase: ${phrase}`);
   }
+}
+
+if (!routeGuard.includes('hasCachedAuthSession')) {
+  failures.push('RouteGuard must defer auth redirect while hasCachedAuthSession() is true');
 }
 
 checkSupabaseConfig();

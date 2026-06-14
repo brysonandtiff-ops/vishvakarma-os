@@ -74,9 +74,11 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain('isE2eAuthGateBuild');
     expect(routeGuard).toContain('showServiceConfigBanner');
     expect(routeGuard).toContain('import.meta.env.PROD');
-    expect(routeGuard).toContain('if (loading && !publicRoute)');
-    expect(routeGuard).toContain('if (!user && !publicRoute)');
-    expect(routeGuard).toContain('if (gated && !loading && !user && !publicRoute)');
+    expect(routeGuard).toContain('hasCachedAuthSession');
+    expect(routeGuard).toContain('awaitingAuth');
+    expect(routeGuard).toContain('restoringSession');
+    expect(routeGuard).toContain('if (awaitingAuth && !publicRoute)');
+    expect(routeGuard).toContain('if (gated && !awaitingAuth && !user && !publicRoute');
     expect(routeGuard).toContain('<Navigate to="/auth"');
   });
 

@@ -27,11 +27,13 @@ export function authFlowTrace(payload: AuthFlowTracePayload) {
     // ignore storage failures
   }
 
-  // #region agent log
-  fetch(INGEST_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': DEBUG_SESSION_ID },
-    body: JSON.stringify(entry),
-  }).catch(() => {});
-  // #endregion
+  if (import.meta.env.DEV) {
+    // #region agent log
+    fetch(INGEST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': DEBUG_SESSION_ID },
+      body: JSON.stringify(entry),
+    }).catch(() => {});
+    // #endregion
+  }
 }

@@ -82,7 +82,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     bootstrapSession ? supabaseUserFromSession(bootstrapSession) : null
   );
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(backendStatus.isConfigured);
+  const [loading, setLoading] = useState(() => backendStatus.isConfigured);
   const [emailLinkState, setEmailLinkState] = useState<EmailLinkState>('idle');
   const [emailLinkError, setEmailLinkError] = useState<string | null>(null);
 
@@ -221,7 +221,19 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
           },
           hypothesisId: 'W',
         });
-        if (!mounted || !hydratedSession) return;
+        if (!mounted) return;
+
+        if (!hydratedSession) {
+          if (bootstrapSession) {
+            authFlowTrace({
+              location: 'SupabaseAuthProvider.tsx:hydrateSessionFallback',
+              message: 'Hydrate returned null — retaining bootstrap session',
+              data: { uid: bootstrapSession.uid },
+              hypothesisId: 'W',
+            });
+          }
+          return;
+        }
 
         const nextUser = supabaseUserFromSession(hydratedSession);
         setSession(hydratedSession);

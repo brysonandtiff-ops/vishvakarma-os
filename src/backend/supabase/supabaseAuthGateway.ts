@@ -149,8 +149,12 @@ export async function hydrateSupabaseAuthSession(): Promise<SupabaseSessionSnaps
 }
 
 export function readCachedAuthBootstrap(): SupabaseSessionSnapshot | null {
-  if (!backendStatus.isConfigured) return null;
   return readSupabaseSessionSnapshot();
+}
+
+/** True when a non-expired session snapshot exists in storage (post-OAuth cold start). */
+export function hasCachedAuthSession(): boolean {
+  return readSupabaseSessionSnapshot() !== null;
 }
 
 export function storePendingSupabaseEmail(email: string) {
