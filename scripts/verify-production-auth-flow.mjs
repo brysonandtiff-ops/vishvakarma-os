@@ -1,11 +1,11 @@
 /**
- * Headless Playwright check: production /auth Google OAuth starts without Firebase errors.
+ * Headless Playwright check: production /auth Google OAuth starts without production auth errors.
  * Run: pnpm run verify:production-auth-flow
  */
 import { webkit, chromium, firefox } from '@playwright/test';
+import { CANONICAL_AUTH_URL } from './lib/canonical-origin.mjs';
 
-const PRODUCTION_AUTH =
-  process.env.PRODUCTION_AUTH_URL ?? 'https://vishvakarma-os.vercel.app/auth';
+const PRODUCTION_AUTH = process.env.PRODUCTION_AUTH_URL ?? CANONICAL_AUTH_URL;
 
 const results = [];
 
@@ -76,7 +76,7 @@ async function testBrowser(name, launcher) {
   record(`${name}: no error after click`, postAlert === null, postAlert ?? 'none');
 
   record(
-    `${name}: no Firebase console auth errors`,
+    `${name}: no production auth console errors`,
     consoleErrors.length === 0,
     consoleErrors.join(' | ') || 'none',
   );

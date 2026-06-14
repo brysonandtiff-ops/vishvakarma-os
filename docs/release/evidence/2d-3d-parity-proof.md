@@ -1,9 +1,10 @@
 # 2D / 3D Parity Proof
 
-Generated from commit: `616d152ce659b8f7d7ed7098dbfc86c30a8e1296`
-Deployment URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-09T14:38:46.000Z
-Operator: Bryson Erdmann — automated parity + production URL verified
+Generated from commit: `44a5863faf32b1f14175f69968ac0d2f6dce1236`
+Deployment URL: https://vishvakarma-os.app
+Vercel fallback URL: https://vishvakarma-os.vercel.app
+Generated at: 2026-06-14T07:04:51.594Z
+Operator: automated local verify
 Result: PASS — sample project counts verified from source JSON
 
 ## Purpose
@@ -49,5 +50,5 @@ Automated parity run — no console errors captured locally.
 ## Verdict
 
 ```txt
-Result: PASS — automated sample project parity confirmed on local + production deployment; Playwright 3D panel screenshot captured.
+PASS — automated sample project parity confirmed; browser screenshots optional follow-up.
 ```

@@ -6,6 +6,7 @@ import { canJoinProjectRoom, extractProjectIdFromRoom, verifyCollabToken } from 
 
 const PORT = Number(process.env.COLLAB_WS_PORT ?? 1234);
 const DEFAULT_ALLOWED_ORIGINS = [
+  'https://vishvakarma-os.app',
   'https://vishvakarma-os.vercel.app',
   'https://vishvakarma-os-tyrasic-creations.vercel.app',
   'https://vishvakarma-os-git-main-tyrasic-creations.vercel.app',

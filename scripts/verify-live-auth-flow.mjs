@@ -1,5 +1,5 @@
 /**
- * Live auth flow verification for https://vishvakarma-os.vercel.app
+ * Live auth flow verification for https://vishvakarma-os.app
  * - Automated: auth gate, deny/back path
  * - Interactive (headed): accept path — operator completes Google sign-in in the browser window
  *
@@ -7,8 +7,9 @@
  *      node scripts/verify-live-auth-flow.mjs --skip-interactive
  */
 import { chromium } from '@playwright/test';
+import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
 
-const BASE = process.env.PRODUCTION_URL ?? 'https://vishvakarma-os.vercel.app';
+const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const AUTH_URL = `${BASE}/auth`;
 const EDITOR_URL = `${BASE}/editor`;
 const skipInteractive = process.argv.includes('--skip-interactive');

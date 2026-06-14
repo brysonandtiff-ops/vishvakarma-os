@@ -12,7 +12,8 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 |-------|-------|
 | Product | Vishvakarma.OS |
 | Version | 1.2.0 |
-| Production URL | https://vishvakarma-os.vercel.app |
+| Production URL | https://vishvakarma-os.app |
+| Vercel fallback URL | https://vishvakarma-os.vercel.app |
 | Completed by | |
 | Date | |
 | Recipient | |
@@ -60,7 +61,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Account ID | |
 | Mode | Test / Live |
 | Admin contact email | |
-| Webhook endpoint | https://vishvakarma-os.vercel.app/api/stripe/webhook |
+| Webhook endpoint | https://vishvakarma-os.app/api/stripe/webhook |
 | Webhook secret location | Vercel env: `STRIPE_WEBHOOK_SECRET` |
 | Studio price ID location | Vercel env: `STRIPE_PRICE_STUDIO_MONTHLY` |
 | Enterprise price ID location | Vercel env: `STRIPE_PRICE_ENTERPRISE_MONTHLY` |
@@ -136,6 +137,6 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 - [ ] All production secrets rotated post-transfer
 - [ ] Operator annex delivered via secure channel and destroyed from sender's insecure copies
 - [ ] `pnpm run handoff:verify` passes on transferred repository
-- [ ] Production smoke test completed on https://vishvakarma-os.vercel.app
+- [ ] Production smoke test completed on https://vishvakarma-os.app
 
 **Signed:** _________________________ **Date:** _____________

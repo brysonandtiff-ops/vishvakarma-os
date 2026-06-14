@@ -49,7 +49,7 @@ jobs:
       - name: Auth configuration guard
         run: pnpm run auth:gates
 
-      - name: Firebase auth config smoke
+      - name: Supabase auth config smoke
         run: pnpm run test:supabase-auth
 
       - name: Supabase login data wiring
@@ -127,6 +127,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium firefox webkit
 
       - name: Verify production Google OAuth flow
+        env:
+          PRODUCTION_AUTH_URL: https://vishvakarma-os.app/auth
         run: pnpm run verify:production-auth-flow
 
   e2e:

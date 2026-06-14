@@ -36,7 +36,7 @@ function resolveAppOrigin(req: VercelRequest, body: Record<string, unknown>): st
   const originHeader = req.headers.origin;
   if (typeof originHeader === 'string' && originHeader) return originHeader;
 
-  return process.env.APP_URL?.trim() || 'https://vishvakarma-os.vercel.app';
+  return process.env.APP_URL?.trim() || 'https://vishvakarma-os.app';
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

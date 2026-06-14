@@ -20,13 +20,16 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "https://vishvakarma-os.vercel.app"
+site_url = "https://vishvakarma-os.app"
 additional_redirect_urls = [
-  "http://127.0.0.1:5173/auth",
-  "http://127.0.0.1:5173/**",
+  "https://vishvakarma-os.app/auth",
+  "https://vishvakarma-os.app/editor",
+  "https://vishvakarma-os.app/**",
   "https://vishvakarma-os.vercel.app/auth",
   "https://vishvakarma-os.vercel.app/**",
   "https://*.vercel.app/auth",
+  "http://127.0.0.1:5173/auth",
+  "http://127.0.0.1:5173/**",
 ]
 
 [auth.email]

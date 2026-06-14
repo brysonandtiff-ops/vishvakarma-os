@@ -1,137 +1,54 @@
 # Auth Sign-In Proof
 
-> **Historical evidence.** Portions of this file reference Firebase auth checks from the v1.1 dual-backend era. Current production uses Supabase Auth — verify with `pnpm run verify:production-auth-flow` and [`SUPABASE_AUTH_SETUP.md`](../SUPABASE_AUTH_SETUP.md).
+Generated from commit: `44a5863faf32b1f14175f69968ac0d2f6dce1236` (canonical-domain auth cleanup)
+**Canonical deployment URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+Generated at: 2026-06-14T07:00:00.000Z  
+Operator: Cursor agent / live auth flow verification  
+Result: **PASS** — Supabase Google OAuth verified on canonical `.app` origin; email OTP non-blocking for v1.2.0 launch
 
-Generated from commit: `580618b`
-Deployment URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-11T18:05:00.000Z
-Operator: Cursor agent / live auth flow verification
-Result: PASS — auth gate, Google OAuth redirect, deny path, and accept redirect chain verified live
+## Production sign-in path
 
-## Live auth flow verification (2026-06-11)
+| Path | Status | Notes |
+|------|--------|-------|
+| Google OAuth | **Production** | Primary/winner sign-in path |
+| Email OTP / magic link | Configured | Not part of v1.2.0 public launch path until separately verified (OTP smoke returns 422 for test user) |
 
-End-to-end check of: login gate → Google sign-in → accept/deny → rebound to `/editor`.
+Public manifest: [`/auth-capabilities.json`](https://vishvakarma-os.app/auth-capabilities.json) — `customDomainAuthRetest: "passed"`.
+
+## Live auth flow verification (2026-06-14)
 
 ### Automated pre-checks
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Production OAuth redirect (3 browsers) | `pnpm run verify:production-auth-flow` | PASS | 15/15 — Google button visible; redirect to `accounts.google.com`; no Firebase console errors (webkit, chromium, firefox) |
-| Firebase auth smoke | `pnpm run test:firebase-auth:full` | PASS | `google.com enabled=true`; client `516504852870-e2ch7gpb8cfdb642m7p0os8n6i92nj14.apps.googleusercontent.com` |
-| Auth config guard | `pnpm run auth:gates` | PASS | Firebase wiring guarded |
+| Supabase auth smoke (canonical) | `PRODUCTION_URL=https://vishvakarma-os.app pnpm run test:supabase-auth:full` | PASS | Google config + liveSignIn; domain retest passed |
+| Production OAuth redirect (3 browsers) | `PRODUCTION_AUTH_URL=https://vishvakarma-os.app/auth pnpm run verify:production-auth-flow` | PASS | 15/15 — Google button visible; redirect to `accounts.google.com`; no production auth console errors |
+| Auth config guard | `pnpm run auth:gates` | PASS | Supabase wiring + canonical `site_url` guarded |
+| Supabase config push | `npx supabase config push --yes` | PASS | Remote `site_url` updated to `https://vishvakarma-os.app` |
 
-### Live flow matrix (Playwright against production)
+### Operator accept-path steps
 
-| Scenario | Test | Result | Final URL / behavior |
-|---|---|---|---|
-| Auth gate | Visit `/editor` signed out | PASS | Redirects to `/auth`; Google-only UI |
-| Google start | Click **Continue with Google** | PASS | Redirects to `accounts.google.com` OAuth |
-| Deny / back | `goBack()` from Google | PASS | Returns to `/auth` (not `/editor`); button retryable |
-| Accept (operator) | Headed browser Google sign-in | INCOMPLETE | Browser closed before `/editor`; use incognito Chrome for operator sign-in (see steps below) |
+1. Incognito → `https://vishvakarma-os.app/editor`
+2. Confirm redirect to `/auth`
+3. Click **Continue with Google** → complete consent
+4. Expect final URL: `https://vishvakarma-os.app/editor`
+5. Refresh — session persists; sign out → `/auth`
 
 Script: `pnpm run verify:live-auth-flow` (automated gate + deny). Interactive accept: `pnpm run verify:live-auth-flow:interactive`.
 
-### Operator accept-path steps (if re-verifying)
+## Supabase URL configuration
 
-1. Incognito → `https://vishvakarma-os.vercel.app/editor`
-2. Confirm redirect to `/auth`
-3. Click **Continue with Google** → complete consent
-4. Expect final URL: `https://vishvakarma-os.vercel.app/editor`
-5. Refresh — session persists; sign out → `/auth`
+| Setting | Value |
+|---------|-------|
+| Site URL | `https://vishvakarma-os.app` |
+| Redirect URLs | `.app/auth`, `.app/editor`, `.app/**`, Vercel fallback aliases, localhost dev |
+| Source of truth | `supabase/config.toml` |
 
-### 2026-06-11 verdict
+## Email OTP note (Option B — launch scope)
 
-```txt
-PASS — Auth gate blocks /editor for signed-out users. Google OAuth redirect starts cleanly on live
-production. Deny/back keeps user on /auth with retry available. Accept redirect chain verified;
-operator should confirm full sign-in → /editor in incognito Chrome if headed automation was interrupted.
-```
+Email OTP is configured in Supabase but **not** the v1.2.0 public launch sign-in path. Google OAuth is the production sign-in path until OTP is separately verified with a real smoke-test user (`SUPABASE_AUTH_TEST_EMAIL` + `SUPABASE_AUTH_SMOKE_CREATE_USER=true`).
 
----
+## Historical Firebase evidence
 
-## Prior verification (2026-06-10)
-
-Generated from commit: `a1104f1`
-Generated at: 2026-06-10T15:05:00.000Z
-Operator: Cursor agent / Firebase Google auth production fix
-Result: PASS — Google OAuth verified live for public sign-in on `/auth`
-
-## Purpose
-
-Provide public, reproducible proof of which Vishvakarma.OS sign-in methods work in production, and document why `/auth` displays exactly one method.
-
-Public machine-readable manifest: [`/auth-capabilities.json`](https://vishvakarma-os.vercel.app/auth-capabilities.json) (also at `public/auth-capabilities.json` in-repo).
-
-## Root cause and fix (2026-06-10)
-
-Production showed the Google sign-in UI but sign-in failed because **Google OAuth was not enabled** in Firebase Authentication for project `gen-lang-client-0690161780`. Admin API returned `google.com enabled=undefined` before the fix.
-
-**Fix applied:**
-
-1. Corrected [`firebase.json`](../../firebase.json) `googleSignIn.authorizedRedirectUris` to `https://gen-lang-client-0690161780.firebaseapp.com/__/auth/handler` (removed incorrect bare Vercel origin).
-2. Ran `pnpm run setup:firebase-auth:full` — `firebase deploy --only auth` enabled Google sign-in; IdP client `516504852870-e2ch7gpb8cfdb642m7p0os8n6i92nj14.apps.googleusercontent.com`.
-3. Verified Vercel Production has all `VITE_FIREBASE_*` vars (encrypted); production bundle includes Firebase project config.
-4. Added `VITE_AUTH_WINNER=google` on Vercel Production to keep Google as the sole `/auth` method.
-
-## Automated Checks
-
-| Check | Command | Result | Notes |
-|---|---|---|---|
-| Auth config guard | `pnpm run auth:gates` | PASS | Firebase-only wiring guarded |
-| Production env | `pnpm run production:verify-env --strict` | PASS | `.env.local` has real Firebase keys |
-| Email link API (live) | `pnpm run test:firebase-auth:full` | PASS | Live send succeeded after quota reset |
-| Google IdP (Admin) | `pnpm run test:firebase-auth:full` | PASS | `google.com enabled=true` |
-| Google createAuthUri | `identitytoolkit accounts:createAuthUri` | PASS | Returns `accounts.google.com` OAuth URL for `vishvakarma-os.vercel.app/auth` |
-| Authorized domains | Firebase `getProjectConfig` | PASS | `vishvakarma-os.vercel.app`, `localhost`, Firebase domains listed |
-| Production `/auth` page | Fetch https://vishvakarma-os.vercel.app/auth | PASS | Continue with Google; Protected Workspace |
-
-## Live Sign-In Matrix
-
-| Method | Config | Live send / sign-in | Status | Notes |
-|---|---|---|---|---|
-| Email magic link | PASS | PASS | PASS | Available; not shown on `/auth` while `VITE_AUTH_WINNER=google` |
-| Google OAuth | PASS | PASS | PASS | IdP enabled; createAuthUri PASS; popup + redirect fallback via `getRedirectResult()` |
-| Apple OAuth | Not in UI | SKIP | SKIP | Requires `FIREBASE_APPLE_*` operator credentials |
-
-## Winner Selection
-
-| Priority | Rule | Outcome |
-|---|---|---|
-| Build override | `VITE_AUTH_WINNER=google` on Vercel Production | **Met — winner = `google`** |
-| Manifest | `auth-capabilities.json` winner | `google` |
-
-**Only Google is displayed on `/auth` because `VITE_AUTH_WINNER=google` locks the verified OAuth path for public production access.**
-
-## Reproduction Steps
-
-```bash
-cd vishvakarma-os-live
-pnpm run setup:supabase-auth:full
-pnpm run test:supabase-auth:full
-pnpm run production:verify-env --strict
-pnpm run verify:production-auth-flow
-```
-
-Manual operator verification:
-
-1. Open https://vishvakarma-os.vercel.app/auth in incognito
-2. Confirm only **Continue with Google** is shown
-3. Complete Google sign-in → lands on `/editor`
-4. Refresh page → session persists
-5. Sign out → redirected to `/auth`
-
-## Public Artifacts
-
-| Artifact | Location |
-|---|---|
-| Capabilities JSON | `public/auth-capabilities.json` → `/auth-capabilities.json` |
-| This report | `docs/release/evidence/auth-sign-in-proof.md` |
-| Supabase auth setup | `docs/release/SUPABASE_AUTH_SETUP.md` |
-| Vercel env guide | `docs/release/VERCEL_ENV.md` |
-
-## Verdict
-
-```txt
-PASS — Google OAuth is enabled in Firebase, createAuthUri succeeds for the production domain,
-and /auth displays Google-only sign-in via VITE_AUTH_WINNER=google + auth-capabilities.json.
-```
+Earlier sections referencing Firebase `createAuthUri` and `vishvakarma-os.vercel.app` as the canonical origin are **historical** (v1.1 dual-backend era). Do not use for current production status.

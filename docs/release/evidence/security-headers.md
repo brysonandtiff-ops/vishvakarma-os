@@ -1,9 +1,9 @@
 # Security Headers Evidence
 
-Generated from commit: `616d152ce659b8f7d7ed7098dbfc86c30a8e1296`
-Generated at: 2026-06-09T14:28:14.000Z
-Operator: Bryson Erdmann / live curl audit
-Result: PASS — vercel.json and live deployment headers verified
+Generated from commit: `44a5863faf32b1f14175f69968ac0d2f6dce1236`
+Generated at: 2026-06-14T07:04:51.594Z
+Operator: automated local verify
+Result: PASS — vercel.json contains required production headers
 
 ## Required Headers Present
 
@@ -16,13 +16,8 @@ Result: PASS — vercel.json and live deployment headers verified
 
 ## Live Deployment Check
 
-Captured from `https://vishvakarma-os.vercel.app` on 2026-06-09 — see `security-headers.txt`.
+Run against production URL after deploy:
 
-| Header | Present on live deploy |
-|---|---|
-| Content-Security-Policy | Yes |
-| Strict-Transport-Security | Yes (max-age=63072000; includeSubDomains; preload) |
-| X-Content-Type-Options | Yes (nosniff) |
-| X-Frame-Options | Yes (DENY) |
-| Referrer-Policy | Yes (strict-origin-when-cross-origin) |
-| Permissions-Policy | Yes (camera/mic/geo blocked) |
+```bash
+node scripts/quality/check-vercel-security.mjs
+```

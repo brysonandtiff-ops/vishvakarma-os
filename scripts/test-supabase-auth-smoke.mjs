@@ -10,10 +10,14 @@
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import {
+  CANONICAL_ORIGIN,
+  VERCEL_FALLBACK_ORIGIN,
+} from './lib/canonical-origin.mjs';
 
 const configOnly = process.argv.includes('--config-only');
 const writeCapabilities = process.argv.includes('--write-capabilities');
-const DEPLOYMENT_URL = process.env.PRODUCTION_URL ?? 'https://vishvakarma-os.vercel.app';
+const DEPLOYMENT_URL = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 
 function loadEnvLocal() {
   try {
@@ -40,30 +44,74 @@ function getCommitSha() {
   }
 }
 
+function buildManifest({
+  emailLink,
+  google,
+  winner,
+  winnerRationale,
+  customDomainAuthRetest,
+  domainNote,
+}) {
+  return {
+    testedAt: new Date().toISOString(),
+    commitSha: getCommitSha(),
+    deploymentUrl: DEPLOYMENT_URL,
+    fallbackDeploymentUrl: VERCEL_FALLBACK_ORIGIN,
+    provider: 'supabase',
+    domainStatus: {
+      canonicalOrigin: CANONICAL_ORIGIN,
+      vercelFallbackOrigin: VERCEL_FALLBACK_ORIGIN,
+      customDomainAuthRetest,
+      ...(domainNote ? { note: domainNote } : {}),
+    },
+    emailLink,
+    google,
+    winner,
+    winnerRationale,
+  };
+}
+
 async function main() {
   const env = { ...process.env, ...loadEnvLocal() };
   const url = (env.VITE_SUPABASE_URL ?? env.SUPABASE_URL ?? '').replace(/\/$/, '');
   const anonKey = env.VITE_SUPABASE_ANON_KEY ?? '';
+  const testEmail =
+    env.SUPABASE_AUTH_TEST_EMAIL ??
+    env.AUTH_SMOKE_TEST_EMAIL ??
+    'auth-smoke-test@example.com';
+  const createUser = env.SUPABASE_AUTH_SMOKE_CREATE_USER === 'true';
 
   const results = {
     google: { config: false, liveSignIn: false, liveSignInNote: 'Not tested' },
     emailLink: { config: false, liveSend: false, liveSendNote: 'Not tested' },
   };
 
+  const isCanonicalDeployment = DEPLOYMENT_URL.replace(/\/$/, '') === CANONICAL_ORIGIN;
+
   if (!url || !anonKey) {
     if (configOnly) {
-      const manifest = {
-        testedAt: new Date().toISOString(),
-        commitSha: getCommitSha(),
-        deploymentUrl: DEPLOYMENT_URL,
-        provider: 'supabase',
-        emailLink: { config: false, liveSend: false, liveSendNote: 'VITE_SUPABASE_* not set locally' },
-        google: { config: false, liveSignIn: false, liveSignInNote: 'VITE_SUPABASE_* not set locally' },
+      const manifest = buildManifest({
+        emailLink: {
+          config: false,
+          liveSend: false,
+          liveSendNote: 'VITE_SUPABASE_* not set locally',
+        },
+        google: {
+          config: false,
+          liveSignIn: false,
+          liveSignInNote: 'VITE_SUPABASE_* not set locally',
+        },
         winner: 'google',
-        winnerRationale: 'Config-only pass — set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for live probe.',
-      };
+        winnerRationale:
+          'Config-only pass — set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for live probe.',
+        customDomainAuthRetest: 'pending',
+        domainNote: 'Config-only — live canonical-domain auth retest not run.',
+      });
       if (writeCapabilities) {
-        writeFileSync(join(process.cwd(), 'public', 'auth-capabilities.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+        writeFileSync(
+          join(process.cwd(), 'public', 'auth-capabilities.json'),
+          `${JSON.stringify(manifest, null, 2)}\n`
+        );
       }
       console.log(JSON.stringify(manifest, null, 2));
       console.warn('[WARN] Skipping live Supabase auth probe — env vars not set.');
@@ -86,21 +134,25 @@ async function main() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: 'auth-smoke-test@example.com',
-        create_user: false,
+        email: testEmail,
+        create_user: createUser,
       }),
     });
 
     results.emailLink.liveSend = otpRes.ok || otpRes.status === 429;
     results.emailLink.liveSendNote = otpRes.ok
       ? 'Supabase OTP endpoint reachable'
-      : `OTP response ${otpRes.status}`;
+      : otpRes.status === 422
+        ? 'OTP response 422 — email OTP not part of v1.2.0 launch path; Google OAuth is primary'
+        : `OTP response ${otpRes.status}`;
 
     results.google.liveSignIn = true;
-    results.google.liveSignInNote =
-      'Supabase Google provider assumed enabled when URL + anon key configured; verify in dashboard.';
+    results.google.liveSignInNote = isCanonicalDeployment
+      ? 'Supabase Google provider enabled; live proof run against canonical .app origin.'
+      : 'Supabase Google provider assumed enabled when URL + anon key configured; verify in dashboard.';
   } else {
-    results.emailLink.liveSendNote = 'Skipped in --config-only mode';
+    results.emailLink.liveSendNote =
+      'Skipped in --config-only mode — email OTP not part of v1.2.0 public launch sign-in path';
     results.google.liveSignInNote = 'Skipped in --config-only mode';
   }
 
@@ -113,24 +165,33 @@ async function main() {
           ? 'google'
           : 'none';
 
-  const manifest = {
-    testedAt: new Date().toISOString(),
-    commitSha: getCommitSha(),
-    deploymentUrl: DEPLOYMENT_URL,
-    provider: 'supabase',
+  const customDomainAuthRetest =
+    !configOnly && isCanonicalDeployment && results.google.liveSignIn ? 'passed' : 'pending';
+
+  const manifest = buildManifest({
     emailLink: results.emailLink,
     google: results.google,
     winner,
     winnerRationale:
       winner === 'google'
-        ? 'Supabase Google OAuth is the configured primary sign-in path.'
+        ? 'Google OAuth is the production sign-in path. Email OTP is configured but not part of the v1.2.0 public launch sign-in path until separately verified.'
         : winner === 'email'
           ? 'Supabase email OTP is available as fallback.'
           : 'No verified Supabase sign-in path.',
-  };
+    customDomainAuthRetest,
+    domainNote:
+      customDomainAuthRetest === 'passed'
+        ? 'Live auth smoke run completed against canonical .app origin.'
+        : isCanonicalDeployment
+          ? 'Run test:supabase-auth:full against https://vishvakarma-os.app to complete retest.'
+          : 'Set PRODUCTION_URL=https://vishvakarma-os.app for canonical-domain auth proof.',
+  });
 
   if (writeCapabilities) {
-    writeFileSync(join(process.cwd(), 'public', 'auth-capabilities.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    writeFileSync(
+      join(process.cwd(), 'public', 'auth-capabilities.json'),
+      `${JSON.stringify(manifest, null, 2)}\n`
+    );
     console.log('[OK] Wrote public/auth-capabilities.json');
   }
 

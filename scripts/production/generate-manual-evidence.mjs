@@ -6,6 +6,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '../lib/canonical-origin.mjs';
 
 function run(command) {
   return execSync(command, { encoding: 'utf-8' }).trim();
@@ -24,7 +25,8 @@ async function main() {
   const parity = `# 2D / 3D Parity Proof
 
 Generated from commit: \`${sha}\`
-Deployment URL: https://vishvakarma-os.vercel.app
+Deployment URL: ${CANONICAL_ORIGIN}
+Vercel fallback URL: ${VERCEL_FALLBACK_ORIGIN}
 Generated at: ${generatedAt}
 Operator: automated local verify
 Result: PASS — sample project counts verified from source JSON
@@ -126,7 +128,8 @@ node scripts/quality/check-vercel-security.mjs
   const saveLoad = `# Save / Load Determinism Proof
 
 Generated from commit: \`${sha}\`
-Deployment URL: https://vishvakarma-os.vercel.app
+Deployment URL: ${CANONICAL_ORIGIN}
+Vercel fallback URL: ${VERCEL_FALLBACK_ORIGIN}
 Generated at: ${generatedAt}
 Operator: automated local verify
 Result: \`PARTIAL\`

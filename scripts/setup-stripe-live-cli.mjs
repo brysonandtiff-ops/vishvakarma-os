@@ -8,9 +8,10 @@ import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { loadEnvFile } from './load-env-file.mjs';
+import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
 
 const ENV_PATH = join(process.cwd(), '.env.stripe.local');
-const APP_URL = (process.env.APP_URL ?? 'https://vishvakarma-os.vercel.app').replace(/\/$/, '');
+const APP_URL = (process.env.APP_URL ?? CANONICAL_ORIGIN).replace(/\/$/, '');
 const WEBHOOK_URL = `${APP_URL}/api/stripe/webhook`;
 const writeEnv = process.argv.includes('--write-env') || true;
 const pushVercel = process.argv.includes('--push-vercel');

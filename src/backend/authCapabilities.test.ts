@@ -4,7 +4,7 @@ import { resolveAuthWinner, type AuthCapabilitiesManifest } from '@/backend/auth
 describe('authCapabilities', () => {
   const googleWinnerManifest: AuthCapabilitiesManifest = {
     testedAt: '2026-06-10T00:00:00.000Z',
-    deploymentUrl: 'https://vishvakarma-os.vercel.app',
+    deploymentUrl: 'https://vishvakarma-os.app',
     emailLink: { config: true, liveSend: false },
     google: { config: true, liveSignIn: true },
     winner: 'google',

@@ -3,7 +3,8 @@
 **Document type:** Technical inventory and valuation scope reference  
 **Product version:** v1.2.x  
 **Codebase audit date:** 2026-06-13  
-**Production URL:** [vishvakarma-os.vercel.app](https://vishvakarma-os.vercel.app)  
+**Production URL:** https://vishvakarma-os.app  
+**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
 **Current production backend:** Supabase-only runtime path for Auth, Postgres/RLS, Storage, billing entitlements, and collaboration metadata
 
 This document is the authoritative current-state record of what has been built in Vishvakarma.OS. It is intended for investors, acquirers, technical due diligence, valuation discussions, and internal roadmap planning.

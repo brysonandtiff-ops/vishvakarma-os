@@ -2,12 +2,16 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL, CANONICAL_ORIGIN } from '../lib/canonical-origin.mjs';
 
 const root = process.cwd();
 const authPath = join(root, 'src/contexts/AuthContext.tsx');
 const supabaseAuthPath = join(root, 'src/backend/supabase/supabaseAuthGateway.ts');
+const supabaseOAuthPath = join(root, 'src/backend/supabase/supabaseOAuthGateway.ts');
 const backendConfigPath = join(root, 'src/backend/backendConfig.ts');
 const supabaseProviderPath = join(root, 'src/contexts/SupabaseAuthProvider.tsx');
+const supabaseConfigPath = join(root, 'supabase/config.toml');
+const canonicalOriginPath = join(root, 'src/config/canonicalOrigin.ts');
 
 const failures = [];
 
@@ -18,6 +22,44 @@ function readRequiredFile(path, label) {
   }
 
   return readFileSync(path, 'utf8');
+}
+
+function checkSupabaseConfig() {
+  const config = readRequiredFile(supabaseConfigPath, 'supabase/config.toml');
+  if (!config) return;
+
+  const siteUrlMatch = config.match(/site_url\s*=\s*"([^"]+)"/);
+  const siteUrl = siteUrlMatch?.[1] ?? '';
+  if (siteUrl !== CANONICAL_ORIGIN) {
+    failures.push(
+      `supabase/config.toml site_url must be ${CANONICAL_ORIGIN} (found ${siteUrl || 'missing'})`
+    );
+  }
+
+  for (const required of [CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL]) {
+    if (!config.includes(required)) {
+      failures.push(`supabase/config.toml missing redirect URL: ${required}`);
+    }
+  }
+}
+
+function checkGatewayCanonicalFallbacks() {
+  const oauth = readRequiredFile(supabaseOAuthPath, 'src/backend/supabase/supabaseOAuthGateway.ts');
+  const auth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
+  const canonical = readRequiredFile(canonicalOriginPath, 'src/config/canonicalOrigin.ts');
+
+  if (oauth.includes("'https://vishvakarma-os.vercel.app'")) {
+    failures.push('supabaseOAuthGateway.ts must not hardcode Vercel as primary auth origin');
+  }
+  if (auth.includes("'https://vishvakarma-os.vercel.app/auth'")) {
+    failures.push('supabaseAuthGateway.ts must not hardcode Vercel as primary auth URL');
+  }
+  if (!oauth.includes('CANONICAL_ORIGIN') || !auth.includes('CANONICAL_AUTH_URL')) {
+    failures.push('Supabase auth gateways must import canonical origin constants');
+  }
+  if (!canonical.includes(CANONICAL_ORIGIN)) {
+    failures.push('src/config/canonicalOrigin.ts missing canonical origin constant');
+  }
 }
 
 const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
@@ -85,6 +127,9 @@ if (existsSync(join(root, 'src/db/supabase.ts'))) {
   failures.push('Legacy src/db/supabase.ts exists — use src/backend/supabase/supabaseClient.ts instead.');
 }
 
+checkSupabaseConfig();
+checkGatewayCanonicalFallbacks();
+
 if (failures.length > 0) {
   console.error('Vishvakarma.OS auth configuration guard check failed.');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -93,3 +138,4 @@ if (failures.length > 0) {
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
 console.log('Supabase-only auth configuration handling is guarded.');
+console.log(`Canonical auth origin: ${CANONICAL_ORIGIN}`);

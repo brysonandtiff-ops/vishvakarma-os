@@ -134,13 +134,14 @@ Verify completeness: `pnpm run handoff:verify`
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `pnpm run handoff:generate` | **PASS** | 16 routes, 5 API handlers, 68 scripts, 10 tables |
+| `pnpm run handoff:generate` | **PASS** | 16 routes, 5 API handlers, 69 scripts, 10 tables |
 | `pnpm run handoff:verify` | **PASS** | All annexes and appendices present |
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |
-| `pnpm run verify:ci` | **PASS** | lint, gates, unit tests, build, route smoke |
-| Git SHA (pre-commit) | `f4573a47123b99d1b6cf5805f3592859e109f8f0` | See [MANIFEST.json](./appendices/MANIFEST.json) after regenerate |
+| `pnpm run verify:ci` | **PENDING** | Re-run after canonical-domain commit push |
+| Canonical auth proof | **PASS** | `customDomainAuthRetest: passed` on https://vishvakarma-os.app |
+| Git SHA (pre-commit) | See [MANIFEST.json](./appendices/MANIFEST.json) | Regenerated after canonical-domain auth cleanup |
 
-**Domain cutover note:** after Vercel/Supabase env changes are applied, rerun live auth evidence so `public/auth-capabilities.json` and Supabase logs prove `https://vishvakarma-os.app`.
+**Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
 
 **Sign-off command block:**
 

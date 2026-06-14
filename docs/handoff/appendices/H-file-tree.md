@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-13T07:38:00.760Z
+Generated: 2026-06-14T07:05:40.824Z
 
 ```
 src/
@@ -246,6 +246,7 @@ config/
   appVersion.ts
   billingFeatures.ts
   billingPlans.ts
+  canonicalOrigin.ts
   coOwners.ts
   marketingFeatures.ts
 constants/
@@ -690,6 +691,7 @@ handoff/
 import-stripe-live-key-from-clipboard.mjs
 install-workspace-root-package.mjs
 lib/
+  canonical-origin.mjs
   load-gate-manifest.mjs
 load-env-file.mjs
 migration/

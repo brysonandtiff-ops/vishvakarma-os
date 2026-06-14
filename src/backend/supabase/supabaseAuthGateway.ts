@@ -1,10 +1,11 @@
 import type { Session, User } from '@supabase/supabase-js';
+import { CANONICAL_AUTH_URL, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
 const SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
-const PRODUCTION_AUTH_URL = 'https://vishvakarma-os.vercel.app/auth';
+const PRODUCTION_AUTH_URL = CANONICAL_AUTH_URL;
 
 export interface SupabaseSessionSnapshot {
   provider: 'supabase';
@@ -22,7 +23,8 @@ function hasBrowserStorage() {
 function isProtectedVercelPreviewUrl(value: string) {
   try {
     const url = new URL(value);
-    return url.hostname.endsWith('.vercel.app') && url.hostname !== 'vishvakarma-os.vercel.app';
+    const fallbackHost = new URL(VERCEL_FALLBACK_ORIGIN).hostname;
+    return url.hostname.endsWith('.vercel.app') && url.hostname !== fallbackHost;
   } catch {
     return false;
   }

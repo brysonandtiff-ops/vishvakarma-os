@@ -10,7 +10,7 @@
 
 | Service | Role | Identifiers / URLs |
 |---------|------|-------------------|
-| **Vercel** | Hosting, serverless API, security headers | Production: https://vishvakarma-os.vercel.app |
+| **Vercel** | Hosting, serverless API, security headers | Canonical: https://vishvakarma-os.app (fallback: https://vishvakarma-os.vercel.app) |
 | **Supabase** | Auth, Postgres, RLS, Storage | Project ref: `jyocvwipthswfcmvqgqe`; URL: `https://jyocvwipthswfcmvqgqe.supabase.co` |
 | **Stripe** | Checkout, Customer Portal, webhooks | Products: Studio $499/mo, Enterprise $1,000/mo |
 | **GitHub** | Source control, CI | https://github.com/brysonandtiff-ops/vishvakarma-os |

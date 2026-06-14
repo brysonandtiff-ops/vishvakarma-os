@@ -2,10 +2,11 @@
 
 # Appendix B — Environment Variables
 
-Generated: 2026-06-13T07:38:00.760Z
+Generated: 2026-06-14T07:05:40.824Z
 
 ## Documented in `.env.example`
 
+- `APP_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_URL`
 - `VITE_AUTH_REDIRECT_ORIGIN`
@@ -76,7 +77,6 @@ Generated: 2026-06-13T07:38:00.760Z
 
 - `ALLOWED_ORIGINS`
 - `ALLOW_MISSING_ORIGIN`
-- `APP_URL`
 - `CHROME_PATH`
 - `COLLAB_WS_PORT`
 - `FIREBASE_PROJECT_ID`

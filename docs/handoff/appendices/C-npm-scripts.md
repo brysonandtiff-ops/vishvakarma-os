@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-13T07:38:00.760Z
+Generated: 2026-06-14T07:05:40.824Z
 
-Total: 68 scripts
+Total: 69 scripts
 
 | Script | Command |
 |--------|--------|
@@ -65,8 +65,9 @@ Total: 68 scripts
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |
 | `test:screenshots` | `node scripts/run-screenshot-pack.mjs` |
-| `test:supabase-auth` | `node scripts/test-supabase-auth-smoke.mjs --config-only --write-capabilities` |
+| `test:supabase-auth` | `node scripts/test-supabase-auth-smoke.mjs --config-only` |
 | `test:supabase-auth:full` | `node scripts/test-supabase-auth-smoke.mjs --write-capabilities` |
+| `test:supabase-auth:write` | `node scripts/test-supabase-auth-smoke.mjs --write-capabilities` |
 | `verify` | `pnpm run lint && pnpm run contract:gates && pnpm run auth:gates && pnpm run flawless:gates && pnpm run launch:evidence && pnpm run test && pnpm run build` |
 | `verify:ci` | `pnpm run verify && pnpm run test:routes` |
 | `verify:live-auth-flow` | `node scripts/verify-live-auth-flow.mjs --skip-interactive` |

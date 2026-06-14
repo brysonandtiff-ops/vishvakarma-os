@@ -11,11 +11,12 @@ import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { loadEnvFile } from './load-env-file.mjs';
+import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
 
 const ENV_PATH = join(process.cwd(), '.env.stripe.local');
 loadEnvFile(ENV_PATH);
 
-const APP_URL = (process.env.APP_URL ?? 'https://vishvakarma-os.vercel.app').replace(/\/$/, '');
+const APP_URL = (process.env.APP_URL ?? CANONICAL_ORIGIN).replace(/\/$/, '');
 const WEBHOOK_PATH = '/api/stripe/webhook';
 const WEBHOOK_URL = `${APP_URL}${WEBHOOK_PATH}`;
 const pushVercel = process.argv.includes('--push-vercel');

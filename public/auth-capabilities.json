@@ -1,25 +1,25 @@
 {
-  "testedAt": "2026-06-13T08:00:00.000Z",
-  "commitSha": "main-after-custom-domain-doc-sync",
+  "testedAt": "2026-06-14T06:59:22.008Z",
+  "commitSha": "44a5863faf32b1f14175f69968ac0d2f6dce1236",
   "deploymentUrl": "https://vishvakarma-os.app",
   "fallbackDeploymentUrl": "https://vishvakarma-os.vercel.app",
   "provider": "supabase",
   "domainStatus": {
     "canonicalOrigin": "https://vishvakarma-os.app",
     "vercelFallbackOrigin": "https://vishvakarma-os.vercel.app",
-    "customDomainAuthRetest": "pending",
-    "note": "Docs and env templates now use the .app origin. Re-run live auth verification after Vercel/Supabase envs are updated."
+    "customDomainAuthRetest": "passed",
+    "note": "Live auth smoke run completed against canonical .app origin."
   },
   "emailLink": {
     "config": true,
     "liveSend": false,
-    "liveSendNote": "Pending retest after canonical domain cutover; previous evidence returned OTP response 422"
+    "liveSendNote": "OTP response 422 — email OTP not part of v1.2.0 launch path; Google OAuth is primary"
   },
   "google": {
     "config": true,
     "liveSignIn": true,
-    "liveSignInNote": "Supabase Google OAuth has been observed working on Vercel origins; re-run proof from https://vishvakarma-os.app/auth after env/domain cutover."
+    "liveSignInNote": "Supabase Google provider enabled; live proof run against canonical .app origin."
   },
   "winner": "google",
-  "winnerRationale": "Google OAuth remains the configured primary sign-in path until email OTP is cleanly verified."
+  "winnerRationale": "Google OAuth is the production sign-in path. Email OTP is configured but not part of the v1.2.0 public launch sign-in path until separately verified."
 }

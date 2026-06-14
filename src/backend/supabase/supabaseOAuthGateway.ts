@@ -1,3 +1,4 @@
+import { CANONICAL_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -18,7 +19,7 @@ type AuthErrorContext = {
 const OAUTH_REDIRECT_PENDING_KEY = 'vish-oauth-redirect-pending';
 const AUTH_RETURN_PATH_KEY = 'vish-auth-return-path';
 const DEFAULT_AUTH_RETURN_PATH = '/editor';
-const PRODUCTION_AUTH_ORIGIN = 'https://vishvakarma-os.vercel.app';
+const PRODUCTION_AUTH_ORIGIN = CANONICAL_ORIGIN;
 
 export function storeAuthReturnPath(path: string) {
   try {
