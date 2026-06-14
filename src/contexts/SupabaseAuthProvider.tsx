@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { agentDebugLog } from '@/lib/agentDebugLog';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -13,6 +12,7 @@ import {
 } from '@/backend/supabase/supabaseAuthGateway';
 import {
   clearOAuthRedirectPending,
+  completePostAuthRedirect,
   consumeOAuthRedirectPending,
   expireStaleOAuthRedirectPending,
   formatAuthError,
@@ -59,19 +59,6 @@ function normalizeMagicLinkError(error: unknown) {
   return new Error('Magic-link request failed for an unknown reason.');
 }
 
-function redirectSignedInUserFromAuth(reason: string) {
-  if (typeof window === 'undefined' || window.location.pathname !== '/auth') return false;
-  readAndClearAuthReturnPath();
-  agentDebugLog({
-    location: 'SupabaseAuthProvider.tsx:redirectSignedInUserFromAuth',
-    message: 'Hard redirect to editor after sign-in',
-    data: { reason, pathname: window.location.pathname },
-    hypothesisId: 'J',
-  });
-  window.location.replace(POST_AUTH_DESTINATION);
-  return true;
-}
-
 export async function getProfile(userId: string): Promise<Profile | null> {
   if (!backendStatus.isConfigured) return null;
 
@@ -114,12 +101,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (loading || !user || location.pathname !== '/auth') return;
-    agentDebugLog({
-      location: 'SupabaseAuthProvider.tsx:postAuthNavigateEffect',
-      message: 'Router navigate to editor from auth',
-      data: { loading, hasUser: Boolean(user), pathname: location.pathname },
-      hypothesisId: 'D',
-    });
     readAndClearAuthReturnPath();
     navigate(POST_AUTH_DESTINATION, { replace: true });
   }, [loading, user, location.pathname, navigate]);
@@ -165,21 +146,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     const shouldHandleOAuth = isSupabaseOAuthCallback() || isOAuthRedirectPending();
     const shouldHandleEmailLink = isSupabaseEmailLinkCallback();
     let callbackResolutionComplete = false;
-    let establishedUserId: string | null = null;
-
-    agentDebugLog({
-      location: 'SupabaseAuthProvider.tsx:initAuthStart',
-      message: 'Auth init starting',
-      data: {
-        shouldHandleOAuth,
-        shouldHandleEmailLink,
-        oauthPending: isOAuthRedirectPending(),
-        oauthCallback: isSupabaseOAuthCallback(),
-        pathname: typeof window !== 'undefined' ? window.location.pathname : null,
-        search: typeof window !== 'undefined' ? window.location.search.slice(0, 80) : null,
-      },
-      hypothesisId: 'G',
-    });
 
     const shouldIgnoreNullSession = (event: string) =>
       event === 'INITIAL_SESSION' &&
@@ -200,14 +166,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
             setUser(nextUser);
             setEmailLinkError(null);
             setEmailLinkState('idle');
-            establishedUserId = nextUser.id;
-            agentDebugLog({
-              location: 'SupabaseAuthProvider.tsx:oauthSessionEstablished',
-              message: 'OAuth session established in initAuth',
-              data: { uid: nextUser.id },
-              hypothesisId: 'A',
-            });
-            if (redirectSignedInUserFromAuth('initAuth-oauth')) return;
+            if (completePostAuthRedirect()) return;
             void loadProfile(nextUser);
           } else if (consumeOAuthRedirectPending()) {
             setEmailLinkError(formatOAuthRedirectIncompleteMessage());
@@ -239,8 +198,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         const nextUser = supabaseUserFromSession(nextSession);
         setSession(nextSession);
         setUser(nextUser);
-        establishedUserId = nextUser.id;
-        if (redirectSignedInUserFromAuth('initAuth-getSession')) return;
+        if (completePostAuthRedirect()) return;
         void loadProfile(nextUser);
       } catch (error) {
         if (!mounted) return;
@@ -257,20 +215,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         console.error('[Vishvakarma.OS] Supabase auth init failed:', error);
       } finally {
         callbackResolutionComplete = true;
-        if (mounted) {
-          setLoading(false);
-          agentDebugLog({
-            location: 'SupabaseAuthProvider.tsx:initAuthFinally',
-            message: 'Auth init finished',
-            data: {
-              shouldHandleOAuth,
-              shouldHandleEmailLink,
-              hasUser: Boolean(establishedUserId),
-              establishedUserId,
-            },
-            hypothesisId: 'B',
-          });
-        }
+        if (mounted) setLoading(false);
       }
     }
 
@@ -280,26 +225,9 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
 
       if (!authSession?.user) {
-        if (event === 'INITIAL_SESSION') {
-          agentDebugLog({
-            location: 'SupabaseAuthProvider.tsx:onAuthStateChangeNullInitial',
-            message: 'Ignoring INITIAL_SESSION null (Supabase hydration quirk)',
-            data: { event, callbackResolutionComplete },
-            hypothesisId: 'K',
-          });
+        if (event === 'INITIAL_SESSION' || shouldIgnoreNullSession(event)) {
           return;
         }
-
-        if (shouldIgnoreNullSession(event)) {
-          return;
-        }
-
-        agentDebugLog({
-          location: 'SupabaseAuthProvider.tsx:onAuthStateChangeClearUser',
-          message: 'Clearing user from auth state change',
-          data: { event },
-          hypothesisId: 'K',
-        });
 
         clearSupabaseSessionSnapshot();
         setSession(null);
@@ -317,13 +245,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         setUser(nextUser);
         setEmailLinkState('idle');
         setEmailLinkError(null);
-        agentDebugLog({
-          location: 'SupabaseAuthProvider.tsx:onAuthStateChangeSignedIn',
-          message: 'Auth state change with user',
-          data: { event, uid: nextUser.id, pathname: typeof window !== 'undefined' ? window.location.pathname : null },
-          hypothesisId: 'F',
-        });
-        if (redirectSignedInUserFromAuth(`onAuthStateChange-${event}`)) return;
+        if (completePostAuthRedirect()) return;
         void loadProfile(nextUser);
       } catch (error) {
         console.error('[Vishvakarma.OS] Supabase auth session sync failed:', error);

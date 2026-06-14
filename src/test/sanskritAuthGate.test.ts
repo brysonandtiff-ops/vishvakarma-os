@@ -106,6 +106,7 @@ describe('Sanskrit auth gate design', () => {
 
     expect(authContext).toContain('SupabaseAuthProvider');
     expect(supabaseProvider).toContain('resolveSupabaseOAuthRedirectSession');
+    expect(supabaseProvider).toContain('completePostAuthRedirect');
     expect(supabaseProvider).toContain('POST_AUTH_DESTINATION');
     expect(supabaseProvider).toContain('signInWithGoogle');
   });

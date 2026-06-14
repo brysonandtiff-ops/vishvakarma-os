@@ -3,7 +3,12 @@ import {
   isSupabaseEmailLinkCallback,
   isSupabaseOAuthCallback,
 } from '@/backend/supabase/supabaseAuthGateway';
-import { resolveSupabaseOAuthRedirectSession } from '@/backend/supabase/supabaseOAuthGateway';
+import {
+  completePostAuthRedirect,
+  POST_AUTH_DESTINATION,
+  resolvePostAuthDestination,
+  resolveSupabaseOAuthRedirectSession,
+} from '@/backend/supabase/supabaseOAuthGateway';
 
 const exchangeCodeForSession = vi.fn();
 const getSession = vi.fn();
@@ -96,5 +101,47 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
       accessToken: 'access',
     });
     expect(window.history.replaceState).toHaveBeenCalledWith({}, 'Auth', '/auth');
+  });
+});
+
+describe('post-auth redirect helpers', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('always resolves post-auth destination to /editor', () => {
+    expect(POST_AUTH_DESTINATION).toBe('/editor');
+    expect(resolvePostAuthDestination('/projects')).toBe('/editor');
+    expect(resolvePostAuthDestination(null)).toBe('/editor');
+  });
+
+  it('hard-redirects from /auth to /editor', () => {
+    const replace = vi.fn();
+    vi.stubGlobal('window', {
+      location: {
+        pathname: '/auth',
+        replace,
+      },
+    });
+
+    expect(completePostAuthRedirect()).toBe(true);
+    expect(replace).toHaveBeenCalledWith('/editor');
+
+    vi.unstubAllGlobals();
+  });
+
+  it('does not redirect when not on /auth', () => {
+    const replace = vi.fn();
+    vi.stubGlobal('window', {
+      location: {
+        pathname: '/editor',
+        replace,
+      },
+    });
+
+    expect(completePostAuthRedirect()).toBe(false);
+    expect(replace).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
   });
 });

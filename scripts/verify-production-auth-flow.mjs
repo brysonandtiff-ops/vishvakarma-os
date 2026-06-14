@@ -1,5 +1,6 @@
 /**
  * Headless Playwright check: production /auth Google OAuth starts without production auth errors.
+ * Post-login redirect to /editor is covered by verify-live-auth-flow.mjs (interactive accept path).
  * Run: pnpm run verify:production-auth-flow
  */
 import { webkit, chromium, firefox } from '@playwright/test';

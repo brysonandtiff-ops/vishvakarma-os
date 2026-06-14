@@ -47,6 +47,8 @@ function checkGatewayCanonicalFallbacks() {
   const oauth = readRequiredFile(supabaseOAuthPath, 'src/backend/supabase/supabaseOAuthGateway.ts');
   const auth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
   const canonical = readRequiredFile(canonicalOriginPath, 'src/config/canonicalOrigin.ts');
+  const supabaseClientPath = join(root, 'src/backend/supabase/supabaseClient.ts');
+  const supabaseClient = readRequiredFile(supabaseClientPath, 'src/backend/supabase/supabaseClient.ts');
 
   if (oauth.includes("'https://vishvakarma-os.vercel.app'")) {
     failures.push('supabaseOAuthGateway.ts must not hardcode Vercel as primary auth origin');
@@ -59,6 +61,15 @@ function checkGatewayCanonicalFallbacks() {
   }
   if (!canonical.includes(CANONICAL_ORIGIN)) {
     failures.push('src/config/canonicalOrigin.ts missing canonical origin constant');
+  }
+  if (!oauth.includes('completePostAuthRedirect')) {
+    failures.push('supabaseOAuthGateway.ts must export completePostAuthRedirect for OAuth callback landing');
+  }
+  if (!oauth.includes("POST_AUTH_DESTINATION = '/editor'")) {
+    failures.push("supabaseOAuthGateway.ts POST_AUTH_DESTINATION must be '/editor'");
+  }
+  if (!supabaseClient.includes('detectSessionInUrl: false')) {
+    failures.push('supabaseClient.ts must disable detectSessionInUrl — PKCE exchange is handled in supabaseOAuthGateway');
   }
 }
 
@@ -125,6 +136,18 @@ if (existsSync(join(root, 'src/backend/firebase'))) {
 
 if (existsSync(join(root, 'src/db/supabase.ts'))) {
   failures.push('Legacy src/db/supabase.ts exists — use src/backend/supabase/supabaseClient.ts instead.');
+}
+
+const supabaseProviderRequired = [
+  'completePostAuthRedirect',
+  'POST_AUTH_DESTINATION',
+  'INITIAL_SESSION',
+];
+
+for (const phrase of supabaseProviderRequired) {
+  if (!supabaseProvider.includes(phrase)) {
+    failures.push(`src/contexts/SupabaseAuthProvider.tsx is missing auth phrase: ${phrase}`);
+  }
 }
 
 checkSupabaseConfig();

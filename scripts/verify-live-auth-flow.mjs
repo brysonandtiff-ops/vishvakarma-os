@@ -53,7 +53,9 @@ async function testDenyPath(page) {
   const redirectPromise = page
     .waitForURL(
       (url) =>
-        url.href.includes('accounts.google.com') || url.href.includes('firebaseapp.com/__/auth/handler'),
+        url.href.includes('accounts.google.com') ||
+        url.href.includes('supabase.co/auth/v1/authorize') ||
+        url.href.includes('firebaseapp.com/__/auth/handler'),
       { timeout: 12_000 }
     )
     .catch(() => null);
@@ -63,20 +65,22 @@ async function testDenyPath(page) {
   await page.waitForTimeout(1500);
 
   const popupUrl = popup?.url() ?? '';
-  const reachedGoogle =
+  const reachedOAuth =
     page.url().includes('accounts.google.com') ||
+    page.url().includes('supabase.co/auth/v1/authorize') ||
     page.url().includes('firebaseapp.com/__/auth/handler') ||
     popupUrl.includes('accounts.google.com') ||
+    popupUrl.includes('supabase.co/auth/v1/authorize') ||
     popupUrl.includes('firebaseapp.com/__/auth/handler');
   record(
     'deny: OAuth flow started',
-    reachedGoogle,
+    reachedOAuth,
     popup ? `popup:${popupUrl.slice(0, 80)}` : page.url().slice(0, 100)
   );
 
   if (popup) {
     await popup.close().catch(() => null);
-  } else if (reachedGoogle) {
+  } else if (reachedOAuth) {
     await page.goBack({ waitUntil: 'domcontentloaded' }).catch(() => null);
   }
 

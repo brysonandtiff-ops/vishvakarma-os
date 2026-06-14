@@ -1,4 +1,3 @@
-import { agentDebugLog } from '@/lib/agentDebugLog';
 import { CANONICAL_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
@@ -55,6 +54,17 @@ export function resolvePostAuthDestination(fromState?: string | null): string {
   void fromState;
   void peekAuthReturnPath(POST_AUTH_DESTINATION);
   return POST_AUTH_DESTINATION;
+}
+
+/** Hard navigation to the post-sign-in route when the OAuth callback lands on /auth. */
+export function completePostAuthRedirect(): boolean {
+  if (typeof window === 'undefined' || window.location.pathname !== '/auth') {
+    return false;
+  }
+
+  readAndClearAuthReturnPath();
+  window.location.replace(POST_AUTH_DESTINATION);
+  return true;
 }
 
 export function readAndClearAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PATH) {
@@ -280,12 +290,6 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
-        agentDebugLog({
-          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
-          message: 'OAuth code exchange succeeded',
-          data: { pathname: typeof window !== 'undefined' ? window.location.pathname : null, hasUser: true },
-          hypothesisId: 'A',
-        });
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }
