@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
+import { Button } from '@/components/ui/button';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,12 +20,12 @@ export default function NotFound() {
         />
         <h1 className="sr-only">Route not found</h1>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link to="/" className="vish-gold-cta">
-            Return home
-          </Link>
-          <Link to={editorTo} className="vish-gold-cta-outline">
-            Open editor
-          </Link>
+          <Button variant="gold" size="gold" asChild>
+            <Link to="/">Return home</Link>
+          </Button>
+          <Button variant="goldOutline" size="gold" asChild>
+            <Link to={editorTo}>Open editor</Link>
+          </Button>
         </div>
       </section>
     </MarketingLayout>

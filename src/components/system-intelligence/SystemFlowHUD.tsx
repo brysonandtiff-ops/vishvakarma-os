@@ -62,7 +62,7 @@ export default function SystemFlowHUD(props: SystemFlowHUDProps) {
                 'rounded border px-2 py-1 transition-colors',
                 isActive && 'border-earth-500 text-earth-500',
                 isComplete && !isActive && 'border-earth-500/40 text-earth-400/80',
-                !isActive && !isComplete && 'border-gray-700 text-muted-foreground',
+                !isActive && !isComplete && 'border-border text-muted-foreground',
               )}
               aria-current={isActive ? 'step' : undefined}
             >
@@ -97,7 +97,7 @@ export default function SystemFlowHUD(props: SystemFlowHUDProps) {
               'rounded border px-2 py-1 transition-colors',
               isActive && 'border-earth-500 text-earth-500',
               isComplete && !isActive && 'border-earth-500/40 text-earth-400/80',
-              !isActive && !isComplete && 'border-gray-700 text-muted-foreground',
+              !isActive && !isComplete && 'border-border text-muted-foreground',
             )}
             aria-current={isActive ? 'step' : undefined}
           >

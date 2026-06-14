@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -46,7 +47,7 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
           </Label>
           {field.type === 'select' ? (
             <select
-              className="vish-mockup-input h-9 text-xs"
+              className="vish-input-workstation h-9 text-xs"
               defaultValue={field.value}
               aria-label={field.label}
             >
@@ -59,7 +60,7 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
               readOnly
               value={field.value}
               aria-label={field.label}
-              className="vish-mockup-input h-9 text-xs"
+              className="vish-input-workstation h-9 text-xs"
             />
           )}
         </div>
@@ -98,7 +99,7 @@ export default function PropertiesPanel({
           <div className="space-y-1.5">
             <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Type</Label>
             <select
-              className="vish-mockup-input h-9 w-full text-xs"
+              className="vish-input-workstation h-9 w-full text-xs"
               value={selectedFixture.type}
               onChange={(e) => onFixtureUpdate(selectedFixture.id, { type: e.target.value as FixtureItem['type'] })}
               aria-label="Fixture type"
@@ -141,7 +142,7 @@ export default function PropertiesPanel({
           <div className="space-y-1.5">
             <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Text</Label>
             <input
-              className="vish-mockup-input h-9 w-full text-xs"
+              className="vish-input-workstation h-9 w-full text-xs"
               value={selectedLabel.text}
               onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
               onFocus={scrollFocusedFieldIntoView}

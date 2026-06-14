@@ -42,9 +42,13 @@ describe('Governance visual polish', () => {
 
     for (const page of pages) {
       const source = read(page);
-      expect(source).toContain('gov-page-header');
+      expect(source).toContain('WorkspacePageShell');
+      expect(source).toContain('WorkspacePageHeader');
       expect(source).toContain('AppLayout');
     }
+
+    const header = read('src/components/common/WorkspacePageHeader.tsx');
+    expect(header).toContain('gov-page-header');
   });
 
   it('keeps workspace pages on the shared header component', () => {

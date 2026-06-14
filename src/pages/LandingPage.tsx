@@ -3,6 +3,7 @@ import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
 import PageSection from '@/components/common/PageSection';
+import { Button } from '@/components/ui/button';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,12 +52,12 @@ export default function LandingPage() {
           and professional Export Package delivery — Cloud Save when configured, Local Draft always available.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
-          <Link to={startTo} className="vish-gold-cta">
-            Start Free — Protected Workspace →
-          </Link>
-          <Link to="/features" className="vish-gold-cta-outline">
-            ▷ See All Features
-          </Link>
+          <Button variant="gold" size="gold" asChild>
+            <Link to={startTo}>Start Free — Protected Workspace →</Link>
+          </Button>
+          <Button variant="goldOutline" size="gold" asChild>
+            <Link to="/features">▷ See All Features</Link>
+          </Button>
         </div>
         <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((stat, index) => (
@@ -131,9 +132,9 @@ export default function LandingPage() {
           <p className="mt-4 text-lg vish-text-heading">
             Load the sample project, draw your first walls, and export a Project Proof in minutes.
           </p>
-          <Link to={startTo} className="vish-gold-cta mt-8">
-            Create Your First Floor Plan →
-          </Link>
+          <Button variant="gold" size="gold" className="mt-8" asChild>
+            <Link to={startTo}>Create Your First Floor Plan →</Link>
+          </Button>
         </div>
       </section>
     </MarketingLayout>

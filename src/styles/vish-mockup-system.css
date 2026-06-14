@@ -64,6 +64,7 @@
   font-weight: 500;
 }
 
+/* @deprecated — use Button variant="gold" (vish-btn-gold) */
 .vish-gold-button {
   position: relative;
   overflow: hidden;
@@ -246,6 +247,7 @@
   z-index: 1;
 }
 
+/* @deprecated — use Input variant="workstation" (vish-input-workstation) */
 .vish-mockup-input {
   width: 100%;
   border-radius: 0.65rem;

@@ -573,9 +573,11 @@
 
 .vish-3d-viewport-header {
   background:
-    linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(39 28% 12%) 100%);
-  border-bottom: 1px solid hsl(43 58% 44% / 0.22);
-  box-shadow: inset 0 -1px 0 hsl(43 90% 70% / 0.06);
+    linear-gradient(90deg, hsl(var(--ws-toolbar)) 0%, hsl(39 28% 12%) 55%, hsl(43 40% 18% / 0.35) 100%);
+  border-bottom: 1px solid hsl(43 58% 44% / 0.32);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--ws-active) / 0.12),
+    inset 0 -1px 0 hsl(43 90% 70% / 0.06);
 }
 
 .vish-3d-viewport-header-label {

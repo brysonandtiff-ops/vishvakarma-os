@@ -2,6 +2,13 @@
    Import after index.css; vish-theme.css overrides runtime values. */
 
 :root {
+  /* BRAND_LOCK canonical aliases */
+  --vish-ink: 0 0% 2%;
+  --vish-cream: 35 45% 97%;
+  --vish-gold: 43 65% 52%;
+  --vish-gold-glow: 43 74% 58%;
+  --vish-charcoal: 0 0% 11%;
+
   /* Marketing / sacred aliases → canonical shadcn tokens */
   --vish-marketing-text: var(--foreground);
   --vish-marketing-muted: var(--muted-foreground);
@@ -56,4 +63,163 @@
 
 .vish-text-accent {
   color: hsl(var(--primary));
+}
+
+/* ── Typography scale (unified across zones) ── */
+.vish-eyebrow {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.vish-wordmark {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.vish-display {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.vish-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+.vish-mono {
+  font-family: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ── Unified brand button primitives (replaces vish-gold-cta / vish-gold-button) ── */
+.vish-btn-gold {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--vish-gold-glow) / 0.55);
+  background: linear-gradient(135deg, hsl(31 63% 32%), hsl(var(--vish-gold)), hsl(43 74% 62%));
+  color: hsl(0 0% 8%);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow:
+    0 0 28px hsl(var(--vish-gold) / 0.45),
+    0 8px 24px hsl(0 0% 0% / 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.vish-btn-gold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-110%);
+  background: linear-gradient(90deg, transparent, hsl(43 100% 88% / 0.22), transparent);
+  transition: transform 360ms ease;
+  pointer-events: none;
+}
+
+.vish-btn-gold:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.06) brightness(1.03);
+  box-shadow:
+    0 0 36px hsl(var(--vish-gold) / 0.55),
+    0 12px 28px hsl(0 0% 0% / 0.4);
+}
+
+.vish-btn-gold:hover:not(:disabled)::before {
+  transform: translateX(110%);
+}
+
+.vish-btn-gold:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vish-btn-gold-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--vish-gold) / 0.45);
+  background: hsl(0 0% 4% / 0.6);
+  color: hsl(var(--vish-gold));
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.vish-btn-gold-outline:hover:not(:disabled) {
+  border-color: hsl(var(--vish-gold-glow) / 0.65);
+  background: hsl(0 0% 6% / 0.8);
+}
+
+.vish-btn-workstation {
+  min-height: 44px;
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(var(--vish-chrome, 0 0% 3%));
+  color: hsl(var(--ws-text));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.vish-btn-workstation:hover:not(:disabled) {
+  border-color: hsl(var(--vish-gold) / 0.45);
+  background: hsl(0 0% 5%);
+}
+
+/* ── Workstation input (replaces vish-mockup-input) ── */
+.vish-input-workstation {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--ws-border));
+  background: hsl(0 0% 4%);
+  color: hsl(var(--ws-text));
+  font-size: 0.875rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.vish-input-workstation::placeholder {
+  color: hsl(var(--ws-text-faint));
+}
+
+.vish-input-workstation:focus-visible {
+  outline: 2px solid hsl(var(--vish-gold) / 0.45);
+  outline-offset: 1px;
+  border-color: hsl(var(--vish-gold) / 0.35);
+  box-shadow: 0 0 0 3px hsl(var(--vish-gold) / 0.12);
+}
+
+.vish-input-workstation:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-btn-gold,
+  .vish-btn-gold::before {
+    transition: none;
+  }
 }

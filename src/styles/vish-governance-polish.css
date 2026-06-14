@@ -1,6 +1,28 @@
 /* Vishvakarma.OS — governance surface polish
    Shared visual authority for Spec Center, Registry, Change Requests, Releases, and Audit pages. */
 
+.vish-governance-shell {
+  position: relative;
+}
+
+.vish-governance-shell .gov-scroll-area [data-radix-scroll-area-viewport],
+.vish-governance-shell .gov-content-area {
+  background:
+    radial-gradient(circle at 100% 0%, hsl(43 80% 70% / 0.06), transparent 22rem),
+    linear-gradient(180deg, hsl(220 14% 11%), hsl(220 14% 9%));
+}
+
+@media (max-width: 767px) {
+  .vish-governance-shell .gov-content-area {
+    overflow-x: auto;
+  }
+
+  .vish-governance-shell .gov-content-area table,
+  .vish-governance-shell .gov-content-area .grid {
+    min-width: min(100%, 640px);
+  }
+}
+
 .vish-workspace-shell .gov-page-header {
   position: relative;
   overflow: hidden;

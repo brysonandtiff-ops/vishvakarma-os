@@ -597,7 +597,7 @@ export default function Viewport3D({
             <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
               <Sparkles className="h-3 w-3" /> Architect Energy
             </div>
-            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-stone-300/70">
+            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
               {atmosphereConfig.label} · {atmosphereMode === 'standard' ? 'low power' : atmosphereMode === 'premium' ? 'balanced' : 'max visuals'}
             </p>
           </div>
@@ -610,7 +610,7 @@ export default function Viewport3D({
                 className={`vish-3d-atmosphere-btn touch-target rounded-lg px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition ${
                   atmosphereMode === mode
                     ? 'bg-primary text-primary-foreground shadow-lg'
-                    : 'text-stone-300/70 hover:bg-white/10 hover:text-stone-100'
+                    : 'text-muted-foreground hover:bg-white/10 hover:text-foreground'
                 }`}
               >
                 {ATMOSPHERE_MODES[mode].label}

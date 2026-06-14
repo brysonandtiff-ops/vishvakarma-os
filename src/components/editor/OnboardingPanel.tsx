@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Plus, Sparkles, WifiOff } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import { Button } from '@/components/ui/button';
 
 const ONBOARDING_STEPS = [
   {
@@ -75,12 +76,12 @@ export default function OnboardingPanel({
         </div>
 
         <div className="grid gap-2 border-t border-primary/20 px-5 py-4 sm:grid-cols-2">
-          <button type="button" className="vish-gold-action inline-flex w-full" onClick={onLoadSample}>
+          <Button type="button" variant="gold" size="full" onClick={onLoadSample}>
             <Sparkles className="h-4 w-4" /> Load Demo Blueprint
-          </button>
-          <button type="button" className="vish-gold-cta-outline inline-flex w-full" onClick={onNewProject}>
+          </Button>
+          <Button type="button" variant="goldOutline" size="full" onClick={onNewProject}>
             <Plus className="h-4 w-4" /> Start Blank Project
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -71,9 +71,9 @@ describe('Blueprint editor visual polish', () => {
     const editor = read('src/pages/EditorPage.tsx');
 
     const welcome = read('src/components/editor/WelcomeOverlay.tsx');
-    expect(welcome).toContain('vish-gold-action');
+    expect(welcome).toContain('variant="gold"');
     expect(welcome).toContain('vish-editor-overlay-backdrop');
-    expect(onboarding).toContain('vish-gold-action');
+    expect(onboarding).toContain('variant="gold"');
     expect(onboarding).toContain('data-testid="first-run-welcome"');
     expect(onboarding).toContain('Build your first verified blueprint');
     expect(onboarding).toContain('Load Demo Blueprint');

@@ -30,7 +30,7 @@ export default function WorkspacePageHeader({
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 space-y-2">
           {eyebrow && (
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">{eyebrow}</p>
+            <p className="vish-eyebrow text-primary">{eyebrow}</p>
           )}
           <h1 className="text-lg font-bold tracking-tight text-foreground">{title}</h1>
           {description && (

@@ -1,5 +1,6 @@
 import { FolderOpen } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { editorDialogClassNameLg } from '@/lib/editorDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Project } from '@/types';
 
@@ -16,7 +17,7 @@ export default function OpenProjectDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl md:max-w-lg">
+      <DialogContent className={editorDialogClassNameLg}>
         <DialogHeader>
           <DialogTitle>Open Project</DialogTitle>
           <DialogDescription>Load a saved blueprint from your workspace.</DialogDescription>

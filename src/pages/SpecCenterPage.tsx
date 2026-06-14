@@ -12,6 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AppLayout from '@/components/layouts/AppLayout';
+import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { backendStatus } from '@/backend/backendConfig';
 import { createSpec, getSpecs } from '@/db/api';
@@ -131,20 +134,16 @@ export default function SpecCenterPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden bg-background">
-        {/* Header */}
-        <div className="gov-page-header shrink-0">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-lg font-bold text-foreground text-balance">Spec Center</h1>
-              <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
-                Centralized specification management with governance enforcement
-              </p>
-            </div>
+      <WorkspacePageShell variant="governance">
+        <WorkspacePageHeader
+          variant="fullBleed"
+          title="Spec Center"
+          description="Centralized specification management with governance enforcement"
+          actions={
             <Button
               size="sm"
               variant="outline"
-              className="shrink-0"
+              className="shrink-0 touch-target"
               disabled={!backendStatus.isConfigured}
               title={backendStatus.isConfigured ? undefined : 'Sign in with Supabase to create specs — go to Account Access'}
               onClick={() => setNewSpecOpen(true)}
@@ -152,26 +151,23 @@ export default function SpecCenterPage() {
               <Plus className="mr-1.5 h-3.5 w-3.5" />
               New Spec
             </Button>
-          </div>
+          }
+          stats={
+            <>
+              {[
+                { label: 'Total', value: specs.length + 1, cls: 'text-foreground' },
+                { label: 'Locked', value: 1, cls: 'text-primary' },
+                { label: 'Approved', value: specs.filter(s => s.status === 'approved').length, cls: 'text-success' },
+                { label: 'Draft', value: specs.filter(s => s.status === 'draft').length, cls: 'text-warning' },
+              ].map(stat => (
+                <GovernanceStatPill key={stat.label} label={stat.label} value={stat.value} valueClassName={stat.cls} />
+              ))}
+            </>
+          }
+        />
 
-          {/* Stats row */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            {[
-              { label: 'Total',    value: specs.length + 1, cls: 'text-foreground' },
-              { label: 'Locked',   value: 1,                cls: 'text-primary' },
-              { label: 'Approved', value: specs.filter(s => s.status === 'approved').length, cls: 'text-success' },
-              { label: 'Draft',    value: specs.filter(s => s.status === 'draft').length,    cls: 'text-warning' },
-            ].map(stat => (
-              <div key={stat.label} className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
-                <span className={`text-base font-bold tabular-nums ${stat.cls}`}>{stat.value}</span>
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="mx-auto max-w-5xl space-y-6 p-6">
+        <WorkspacePageScroll>
+          <div className="mx-auto max-w-5xl space-y-6 p-6 gov-content-area">
             <GovernanceBackendBanner />
             {loadError && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -321,8 +317,8 @@ export default function SpecCenterPage() {
               </div>
             </div>
           </div>
-        </ScrollArea>
-      </div>
+        </WorkspacePageScroll>
+      </WorkspacePageShell>
 
       <Dialog open={fullSpecOpen} onOpenChange={setFullSpecOpen}>
         <DialogContent className="max-w-3xl">

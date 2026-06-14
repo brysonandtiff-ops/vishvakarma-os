@@ -152,6 +152,7 @@ export default function ProfilePage() {
           {stripeEnabled && user && !isPaid && (
             <>
               <Button
+                variant="gold"
                 className="touch-target"
                 disabled={billingActionLoading !== null || billingLoading}
                 onClick={() => void handleCheckout('studio')}
@@ -159,7 +160,7 @@ export default function ProfilePage() {
                 {billingActionLoading === 'studio' ? 'Redirecting…' : 'Upgrade to Studio'}
               </Button>
               <Button
-                variant="outline"
+                variant="goldOutline"
                 className="touch-target"
                 disabled={billingActionLoading !== null || billingLoading}
                 onClick={() => void handleCheckout('enterprise')}

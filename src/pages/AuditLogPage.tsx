@@ -6,6 +6,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
@@ -81,44 +84,40 @@ export default function AuditLogPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden bg-background">
-        {/* Header */}
-        <div className="gov-page-header shrink-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground text-balance">Audit Log</h1>
-              <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
-                Immutable chronological record of all system events
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={loadLogs} className="shrink-0" disabled={loading}>
+      <WorkspacePageShell variant="governance">
+        <WorkspacePageHeader
+          variant="fullBleed"
+          title="Audit Log"
+          description="Immutable chronological record of all system events"
+          actions={
+            <Button variant="outline" size="sm" onClick={loadLogs} className="shrink-0 touch-target" disabled={loading}>
               <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-          </div>
+          }
+          stats={
+            <>
+              <GovernanceStatPill label="Total Events" value={logs.length} />
+              {(['project', 'spec', 'registry', 'change_request', 'release'] as const).map(entity => {
+                const count = logs.filter(l => l.entity_type === entity).length;
+                if (count === 0) return null;
+                const cfg = getEntityConfig(entity);
+                return (
+                  <GovernanceStatPill
+                    key={entity}
+                    label={entity.replace('_', ' ')}
+                    value={count}
+                    valueClassName={cfg.color.split(' ')[1]}
+                    className={cfg.borderColor}
+                  />
+                );
+              })}
+            </>
+          }
+        />
 
-          {/* Stats */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            <div className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
-              <span className="text-base font-bold tabular-nums text-foreground">{logs.length}</span>
-              <span className="text-xs text-muted-foreground">Total Events</span>
-            </div>
-            {(['project', 'spec', 'registry', 'change_request', 'release'] as const).map(entity => {
-              const count = logs.filter(l => l.entity_type === entity).length;
-              if (count === 0) return null;
-              const cfg = getEntityConfig(entity);
-              return (
-                <div key={entity} className={`flex items-baseline gap-1.5 rounded border bg-card px-3 py-1.5 shadow-sm ${cfg.borderColor}`}>
-                  <span className={`text-base font-bold tabular-nums ${cfg.color.split(' ')[1]}`}>{count}</span>
-                  <span className="text-xs capitalize text-muted-foreground">{entity.replace('_', ' ')}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="px-6 py-6">
+        <WorkspacePageScroll>
+          <div className="px-6 py-6 gov-content-area">
             <GovernanceBackendBanner />
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -225,8 +224,8 @@ export default function AuditLogPage() {
               </div>
             )}
           </div>
-        </ScrollArea>
-      </div>
+        </WorkspacePageScroll>
+      </WorkspacePageShell>
     </AppLayout>
   );
 }

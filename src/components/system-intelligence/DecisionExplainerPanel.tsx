@@ -23,7 +23,7 @@ export default function DecisionExplainerPanel({
     >
       <h3 className="text-sm font-semibold text-earth-500">Why this design won</h3>
       <p className="mt-1 text-xs text-muted-foreground">{headline}</p>
-      <ul className="mt-3 space-y-1.5 text-xs text-gray-300">
+      <ul className="mt-3 space-y-1.5 text-xs text-muted-foreground">
         {bullets.map((bullet, index) => (
           <li key={`${bullet.source}-${index}`} className="flex gap-2">
             <span

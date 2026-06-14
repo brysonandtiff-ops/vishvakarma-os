@@ -75,10 +75,23 @@ The UI must align with the supplied reference images:
 ## Current implementation files
 
 - `src/brand/officialLogo.ts`
+- `src/styles/vish-tokens.css` — canonical brand tokens (`--vish-ink`, `--vish-cream`, `--vish-gold`, typography utilities)
 - `src/vish-theme.css`
 - `src/main.tsx`
+- `src/components/ui/button.tsx` — use `variant="gold"`, `goldOutline`, `workstation` for brand CTAs
+- `src/components/ui/input.tsx` — use `variant="workstation"` on auth/editor dark inputs
+- `src/components/billing/BillingPlanCard.tsx` — shared pricing/profile plan cards
+- `src/components/layouts/WorkspacePageShell.tsx` — document + governance page shells
+- `src/components/common/WorkspacePageHeader.tsx` — unified page headers (includes `gov-page-header`)
+- `src/lib/editorDialog.ts` — shared editor dialog chrome classes
 - `src/pages/AuthPage.tsx`
 - `src/pages/EditorPage.tsx`
 - `src/components/layouts/AppLayout.tsx`
 - `src/components/common/RouteGuard.tsx`
 - `index.html`
+
+## Deprecated CSS (migrate to Button/Input variants)
+
+- `.vish-gold-cta`, `.vish-gold-button` → `Button variant="gold"`
+- `.vish-gold-cta-outline` → `Button variant="goldOutline"`
+- `.vish-mockup-input` → `Input variant="workstation"` or `.vish-input-workstation`

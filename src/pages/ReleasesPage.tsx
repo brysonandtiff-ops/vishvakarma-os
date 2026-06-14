@@ -18,6 +18,8 @@ import {
   Rocket,
 } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getReleases } from '@/db/api';
 import {
@@ -170,19 +172,15 @@ export default function ReleasesPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden bg-background">
-        {/* Header */}
-        <div className="gov-page-header shrink-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground text-balance">Release Center</h1>
-              <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
-                Release gates, version control, and evidence packs
-              </p>
-            </div>
+      <WorkspacePageShell variant="governance">
+        <WorkspacePageHeader
+          variant="fullBleed"
+          title="Release Center"
+          description="Release gates, version control, and evidence packs"
+          actions={
             <div className="flex shrink-0 items-center gap-2">
               <div
-                className={`flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-semibold ${
+                className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-semibold ${
                   buildStatus === 'GREEN'
                     ? 'border-success/30 bg-success/10 text-success'
                     : buildStatus === 'YELLOW'
@@ -195,15 +193,15 @@ export default function ReleasesPage() {
                 }`} />
                 Build: {buildStatus}
               </div>
-              <Button variant="outline" size="sm" onClick={() => void handleEvidencePackDownload()}>
+              <Button variant="outline" size="sm" className="touch-target" onClick={() => void handleEvidencePackDownload()}>
                 Download Evidence Pack
               </Button>
             </div>
-          </div>
-        </div>
+          }
+        />
 
-        <ScrollArea className="flex-1">
-          <div className="mx-auto max-w-5xl space-y-6 p-6">
+        <WorkspacePageScroll>
+          <div className="mx-auto max-w-5xl space-y-6 p-6 gov-content-area">
             <GovernanceBackendBanner />
 
             {/* Verification snapshot — from gate-ui-status.json (pnpm run release:gates) */}
@@ -501,8 +499,8 @@ export default function ReleasesPage() {
               )}
             </div>
           </div>
-        </ScrollArea>
-      </div>
+        </WorkspacePageScroll>
+      </WorkspacePageShell>
     </AppLayout>
   );
 }

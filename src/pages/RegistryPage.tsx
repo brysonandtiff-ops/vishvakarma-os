@@ -13,6 +13,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, Database, Wrench, Box, Layers, Loader2, AlertCircle } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { backendStatus } from '@/backend/backendConfig';
 import { getRegistryEntries, createRegistryEntry } from '@/db/api';
@@ -65,37 +68,28 @@ export default function RegistryPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden bg-background">
-        {/* Header */}
-        <div className="gov-page-header shrink-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground text-balance">Registry Center</h1>
-              <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
-                Component and feature registry — track every system element
-              </p>
-            </div>
-            <NewRegistryDialog onEntryCreated={loadEntries} />
-          </div>
+      <WorkspacePageShell variant="governance">
+        <WorkspacePageHeader
+          variant="fullBleed"
+          title="Registry Center"
+          description="Component and feature registry — track every system element"
+          actions={<NewRegistryDialog onEntryCreated={loadEntries} />}
+          stats={
+            <>
+              {([
+                { label: 'Total', count: entries.length, color: 'text-foreground' },
+                { label: 'Components', count: typeCounts.component, color: 'text-primary' },
+                { label: 'Features', count: typeCounts.feature, color: 'text-success' },
+                { label: 'Tools', count: typeCounts.tool, color: 'text-warning' },
+              ] as const).map(stat => (
+                <GovernanceStatPill key={stat.label} label={stat.label} value={stat.count} valueClassName={stat.color} />
+              ))}
+            </>
+          }
+        />
 
-          {/* Stats */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            {([
-              { label: 'Total',      count: entries.length,           color: 'text-foreground' },
-              { label: 'Components', count: typeCounts.component,     color: 'text-primary' },
-              { label: 'Features',   count: typeCounts.feature,       color: 'text-success' },
-              { label: 'Tools',      count: typeCounts.tool,          color: 'text-warning' },
-            ] as const).map(stat => (
-              <div key={stat.label} className="flex items-baseline gap-1.5 rounded border border-border bg-card px-3 py-1.5 shadow-sm">
-                <span className={`text-base font-bold tabular-nums ${stat.color}`}>{stat.count}</span>
-                <span className="text-xs text-muted-foreground">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-6">
+        <WorkspacePageScroll>
+          <div className="p-6 gov-content-area">
             <GovernanceBackendBanner />
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -211,8 +205,8 @@ export default function RegistryPage() {
             </Tabs>
             )}
           </div>
-        </ScrollArea>
-      </div>
+        </WorkspacePageScroll>
+      </WorkspacePageShell>
     </AppLayout>
   );
 }

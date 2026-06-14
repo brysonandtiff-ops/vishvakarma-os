@@ -99,6 +99,7 @@
 .vish-stagger-4 { animation-delay: 320ms; }
 
 .vish-gold-action,
+/* @deprecated — use Button variant="gold" (vish-btn-gold) */
 .vish-gold-cta {
   position: relative;
   overflow: hidden;
@@ -148,6 +149,7 @@
   transform: translateX(110%);
 }
 
+/* @deprecated — use Button variant="goldOutline" (vish-btn-gold-outline) */
 .vish-gold-cta-outline {
   display: inline-flex;
   align-items: center;

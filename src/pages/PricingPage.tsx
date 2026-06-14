@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Check } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
+import { BillingPlanCard, type BillingActionType } from '@/components/billing/BillingPlanCard';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { PRICING_TIERS, STUDIO_TRIAL_LABEL } from '@/config/billingPlans';
@@ -19,7 +18,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-type TierAction = 'link' | 'checkout' | 'portal';
+type TierAction = BillingActionType;
 
 const TRUST_STATS = [
   { value: 'Cloud', label: 'Supabase save' },
@@ -173,60 +172,20 @@ export default function PricingPage() {
 
         <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-3 lg:gap-5">
           {tiers.map((tier, index) => (
-            <article
+            <BillingPlanCard
               key={tier.tier}
-              className={`vish-pricing-card vish-fade-rise relative flex flex-col ${STAGGER_CLASSES[index]} ${tier.popular ? 'vish-pricing-popular' : ''}`}
-            >
-              {tier.popular && (
-                <span className="vish-pricing-badge absolute -top-3 left-1/2 -translate-x-1/2">
-                  Most Popular
-                </span>
-              )}
-              <div className="vish-pricing-card__header">
-                <p className="vish-marketing-section-label">{tier.tier}</p>
-                <h2 className="mt-2 text-2xl font-bold vish-text-heading">{tier.name}</h2>
-                <p className="vish-pricing-card__price mt-3">
-                  {tier.priceLabel}
-                  {tier.amountCents > 0 && (
-                    <span className="vish-pricing-card__period"> / month</span>
-                  )}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed vish-text-body">{tier.desc}</p>
-              </div>
-              {tier.action === 'checkout' && tier.checkoutPlan ? (
-                <button
-                  type="button"
-                  className="vish-gold-cta mt-6 w-full"
-                  disabled={checkoutLoading !== null}
-                  onClick={() => void handleCheckout(tier.checkoutPlan!)}
-                >
-                  {tier.cta}
-                </button>
-              ) : tier.action === 'portal' ? (
-                <button
-                  type="button"
-                  className="vish-gold-cta mt-6 w-full"
-                  disabled={checkoutLoading !== null}
-                  onClick={() => void handleManageSubscription()}
-                >
-                  {tier.cta}
-                </button>
-              ) : (
-                <Link to={tier.to} className="vish-gold-cta mt-6 w-full">
-                  {tier.cta}
-                </Link>
-              )}
-              <ul className="vish-pricing-card__features mt-6 flex-1 space-y-3 text-sm vish-text-body">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <span className="vish-pricing-check mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
-                      <Check className="h-3 w-3" aria-hidden />
-                    </span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
+              plan={tier}
+              cta={tier.cta}
+              action={tier.action}
+              to={tier.to}
+              checkoutPlan={tier.checkoutPlan}
+              loading={checkoutLoading !== null}
+              disabled={checkoutLoading !== null}
+              onCheckout={(plan) => void handleCheckout(plan)}
+              onPortal={() => void handleManageSubscription()}
+              staggerClass={STAGGER_CLASSES[index]}
+              variant="marketing"
+            />
           ))}
         </div>
 

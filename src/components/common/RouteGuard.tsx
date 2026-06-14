@@ -65,10 +65,10 @@ function SessionBootScreen() {
         </div>
 
         <div className="vish-fade-rise vish-stagger-2 relative z-20 mt-[-3.5rem] space-y-3">
-          <p className="vish-wordmark text-xl font-bold tracking-[0.46em] text-stone-100">VISHVAKARMA.OS</p>
+          <p className="vish-wordmark text-xl font-bold tracking-[0.46em] text-foreground">VISHVAKARMA.OS</p>
           <div className="mx-auto h-px w-48 bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
           <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/70">Checking secure session</p>
-          <p className="mx-auto max-w-sm text-xs leading-6 text-stone-400">
+          <p className="mx-auto max-w-sm text-xs leading-6 text-muted-foreground">
             Aligning workspace, mantra gate, and protected project state…
           </p>
         </div>

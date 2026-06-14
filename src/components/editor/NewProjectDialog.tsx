@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { editorDialogClassNameLg } from '@/lib/editorDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -84,7 +85,7 @@ export default function NewProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome max-h-[min(90vh,720px)] max-w-[calc(100%-2rem)] overflow-hidden rounded-3xl md:max-w-md">
+      <DialogContent className={editorDialogClassNameLg}>
         <DialogHeader>
           <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
             नूतन · New Project

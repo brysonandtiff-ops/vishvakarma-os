@@ -251,7 +251,7 @@ function SidebarContent({
                   variant="ghost"
                   size="icon"
                   onClick={handleSignOut}
-                  className="h-7 w-7 shrink-0 text-ws-text-faint hover:text-ws-text"
+                  className="h-9 w-9 shrink-0 touch-target text-ws-text-faint hover:text-ws-text"
                   aria-label="Sign out"
                 >
                   <LogOut className="h-3.5 w-3.5" />

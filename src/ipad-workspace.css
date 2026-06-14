@@ -40,6 +40,11 @@
   left: calc(1rem + var(--vish-safe-left));
 }
 
+.vish-governance-shell .gov-scroll-area,
+.vish-governance-shell .gov-content-area {
+  padding-bottom: max(1rem, var(--vish-safe-bottom));
+}
+
 .bg-ws-canvas {
   padding-top: var(--vish-safe-top);
 }

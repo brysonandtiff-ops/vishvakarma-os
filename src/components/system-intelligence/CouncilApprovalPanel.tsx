@@ -29,7 +29,7 @@ export default function CouncilApprovalPanel({
       {assessment.blockers.length > 0 && (
         <div className="mt-3">
           <p className="text-xs font-medium text-red-400">Blockers</p>
-          <ul className="mt-1 space-y-1 text-xs text-gray-300">
+          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
             {assessment.blockers.map((item) => (
               <li key={item}>• {item}</li>
             ))}
@@ -40,7 +40,7 @@ export default function CouncilApprovalPanel({
       {assessment.warnings.length > 0 && (
         <div className="mt-3">
           <p className="text-xs font-medium text-amber-500/90">Warnings</p>
-          <ul className="mt-1 space-y-1 text-xs text-gray-300">
+          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
             {assessment.warnings.slice(0, 3).map((item) => (
               <li key={item}>• {item}</li>
             ))}
@@ -51,7 +51,7 @@ export default function CouncilApprovalPanel({
       {assessment.recommendedAdjustments.length > 0 && (
         <div className="mt-3">
           <p className="text-xs font-medium text-muted-foreground">Recommended adjustments</p>
-          <ul className="mt-1 space-y-1 text-xs text-gray-300">
+          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
             {assessment.recommendedAdjustments.slice(0, 3).map((item) => (
               <li key={item}>• {item}</li>
             ))}

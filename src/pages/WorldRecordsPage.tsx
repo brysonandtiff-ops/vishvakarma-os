@@ -7,6 +7,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Copy, ExternalLink, Loader2, ShieldCheck, Trophy } from 'lucide-react';
 import AppLayout from '@/components/layouts/AppLayout';
+import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import {
   WORLD_RECORD_HONESTY_DISCLAIMER,
@@ -72,35 +75,28 @@ export default function WorldRecordsPage() {
 
   return (
     <AppLayout>
-      <div className="flex h-full flex-col overflow-hidden bg-background">
-        <div className="gov-page-header shrink-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground text-balance">World Record Registry</h1>
-              <p className="mt-0.5 text-sm text-muted-foreground text-pretty">
-                Measurable claims with SHA-256 evidence — honest status labels only
-              </p>
-            </div>
-            <Badge variant="outline" className="shrink-0 gap-1">
+      <WorkspacePageShell variant="governance">
+        <WorkspacePageHeader
+          variant="fullBleed"
+          title="World Record Registry"
+          description="Measurable claims with SHA-256 evidence — honest status labels only"
+          actions={
+            <Badge variant="outline" className="shrink-0 gap-1 rounded-xl">
               <Trophy className="h-3.5 w-3.5" />
               Governance OS
             </Badge>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded border border-border bg-card px-3 py-1.5 text-xs font-semibold tabular-nums shadow-sm">
-              {records.length} record{records.length === 1 ? '' : 's'}
-            </span>
-            <span className="rounded border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success tabular-nums shadow-sm">
-              {verifiedCount} verified
-            </span>
-            <span className="rounded border border-border bg-card px-3 py-1.5 text-xs font-semibold tabular-nums shadow-sm">
-              {proposedCount} proposed
-            </span>
-          </div>
-        </div>
+          }
+          stats={
+            <>
+              <GovernanceStatPill label="Records" value={records.length} />
+              <GovernanceStatPill label="Verified" value={verifiedCount} valueClassName="text-success" className="border-success/30 bg-success/10" />
+              <GovernanceStatPill label="Proposed" value={proposedCount} />
+            </>
+          }
+        />
 
-        <ScrollArea className="flex-1">
-          <div className="space-y-6 p-4 md:p-6">
+        <WorkspacePageScroll>
+          <div className="space-y-6 p-4 md:p-6 gov-content-area">
             <GovernanceBackendBanner />
             {error && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -242,8 +238,8 @@ export default function WorldRecordsPage() {
             </>
             )}
           </div>
-        </ScrollArea>
-      </div>
+        </WorkspacePageScroll>
+      </WorkspacePageShell>
     </AppLayout>
   );
 }

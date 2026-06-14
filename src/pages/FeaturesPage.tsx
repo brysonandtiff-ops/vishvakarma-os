@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Box,
@@ -10,6 +9,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageMeta from '@/components/common/PageMeta';
 import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
@@ -69,7 +69,6 @@ const FEATURE_MODULES = [
 ] as const;
 
 export default function FeaturesPage() {
-  const [tab, setTab] = useState<'guides' | 'features'>('guides');
   const navigate = useNavigate();
 
   const openGuideInEditor = (title: string, hint: string) => {
@@ -96,64 +95,55 @@ export default function FeaturesPage() {
           <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" animate staggerIndex={1} />
           <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" animate staggerIndex={2} />
         </div>
-        <div className="vish-features-toggle mt-10" role="tablist" aria-label="Features page sections">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'guides'}
-            data-active={tab === 'guides'}
-            onClick={() => setTab('guides')}
-          >
-            Getting Started
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'features'}
-            data-active={tab === 'features'}
-            onClick={() => setTab('features')}
-          >
-            All Features
-          </button>
-        </div>
-        {tab === 'guides' ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {INTERACTIVE_GUIDES.map((guide) => (
-              <FeatureCard
-                key={guide.title}
-                title={guide.title}
-                icon={guide.icon}
-                badge="Interactive guide"
-                onClick={() => openGuideInEditor(guide.title, guide.editorHint)}
-                footer={
-                  <ol className="vish-feature-grid-card__steps list-inside list-decimal space-y-1.5">
-                    {guide.steps.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURE_MODULES.map((mod) => (
-              <FeatureCard
-                key={mod.name}
-                title={mod.name}
-                icon={mod.icon}
-                badge={mod.ready ? 'Available' : 'Preview'}
-                description={
-                  mod.ready
-                    ? 'Available now in editor.'
-                    : 'preview' in mod && mod.preview
-                      ? 'Preview — full collaboration ships in v2.'
-                      : 'Planned — remote collaboration in a future release.'
-                }
-              />
-            ))}
-          </div>
-        )}
+        <Tabs defaultValue="guides" className="mt-10">
+          <TabsList className="vish-features-toggle h-auto w-full justify-start gap-1 bg-transparent p-0">
+            <TabsTrigger value="guides" className="rounded-xl data-[state=active]:bg-primary/15">
+              Getting Started
+            </TabsTrigger>
+            <TabsTrigger value="features" className="rounded-xl data-[state=active]:bg-primary/15">
+              All Features
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="guides" className="mt-8">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {INTERACTIVE_GUIDES.map((guide) => (
+                <FeatureCard
+                  key={guide.title}
+                  title={guide.title}
+                  icon={guide.icon}
+                  badge="Interactive guide"
+                  onClick={() => openGuideInEditor(guide.title, guide.editorHint)}
+                  footer={
+                    <ol className="vish-feature-grid-card__steps list-inside list-decimal space-y-1.5">
+                      {guide.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  }
+                />
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="features" className="mt-8">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {FEATURE_MODULES.map((mod) => (
+                <FeatureCard
+                  key={mod.name}
+                  title={mod.name}
+                  icon={mod.icon}
+                  badge={mod.ready ? 'Available' : 'Preview'}
+                  description={
+                    mod.ready
+                      ? 'Available now in editor.'
+                      : 'preview' in mod && mod.preview
+                        ? 'Preview — full collaboration ships in v2.'
+                        : 'Planned — remote collaboration in a future release.'
+                  }
+                />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </section>
     </MarketingLayout>
   );

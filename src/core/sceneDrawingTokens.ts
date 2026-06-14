@@ -9,8 +9,11 @@ export const CANVAS_PAPER = '#FDF9F5';
 export const CANVAS_PAPER_FILL = '#F5F1E8';
 
 /** Grid lines */
-export const GRID_MINOR = '#D4CFC4';
-export const GRID_MAJOR = 'rgba(184, 148, 31, 0.22)';
+export const GRID_MINOR = 'rgba(212, 207, 196, 0.55)';
+export const GRID_MAJOR = 'rgba(184, 148, 31, 0.28)';
+
+/** Wall depth shadow (subtle ink offset) */
+export const WALL_SHADOW = 'rgba(44, 28, 16, 0.18)';
 
 /** Architectural ink + gold selection — matches --ws-active family */
 export const INK = '#2C2C2C';

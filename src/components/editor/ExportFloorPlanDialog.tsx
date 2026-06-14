@@ -2,6 +2,7 @@ import { FileDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { editorDialogClassName } from '@/lib/editorDialog';
 import { exportManifestToDxf } from '@/core/exporters/dxfExport';
 import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
 import { downloadPdf } from '@/core/exporters/pdfExport';
@@ -70,7 +71,7 @@ export default function ExportFloorPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="vish-dialog-chrome max-w-[calc(100%-2rem)] rounded-3xl border-primary/30 md:max-w-md">
+      <DialogContent className={editorDialogClassName}>
         <DialogHeader className="items-center text-center">
           <div className="vish-logo-tile mb-2 flex h-16 w-16 items-center justify-center rounded-2xl p-1.5">
             <FileDown className="h-8 w-8 text-primary-foreground" />

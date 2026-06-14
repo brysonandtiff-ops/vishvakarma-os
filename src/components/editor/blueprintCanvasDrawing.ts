@@ -13,36 +13,55 @@ import {
   GRID_MAJOR,
   GRID_MINOR,
   INK,
+  WALL_SHADOW,
   WINDOW,
   WINDOW_GHOST,
 } from '@/core/sceneDrawingTokens';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
 
 export function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, gridSize: number) {
-  ctx.strokeStyle = GRID_MINOR;
+  const fadeMargin = Math.min(canvas.width, canvas.height) * 0.08;
+  const edgeFade = (coord: number, max: number) => {
+    const d = Math.min(coord, max - coord);
+    if (d >= fadeMargin) return 1;
+    return Math.max(0.15, d / fadeMargin);
+  };
+
   ctx.lineWidth = 1;
   for (let x = 0; x < canvas.width; x += gridSize) {
+    const alpha = edgeFade(x, canvas.width);
+    ctx.strokeStyle = GRID_MINOR.replace(')', ` / ${alpha})`).replace('rgba', 'rgba');
+    if (GRID_MINOR.startsWith('rgba')) {
+      ctx.strokeStyle = `rgba(212, 207, 196, ${0.55 * alpha})`;
+    } else {
+      ctx.strokeStyle = GRID_MINOR;
+    }
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.height);
     ctx.stroke();
   }
   for (let y = 0; y < canvas.height; y += gridSize) {
+    const alpha = edgeFade(y, canvas.height);
+    ctx.strokeStyle = `rgba(212, 207, 196, ${0.55 * alpha})`;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
     ctx.stroke();
   }
 
-  ctx.strokeStyle = GRID_MAJOR;
   ctx.lineWidth = 2;
   for (let x = 0; x < canvas.width; x += gridSize * 5) {
+    const alpha = edgeFade(x, canvas.width);
+    ctx.strokeStyle = `rgba(184, 148, 31, ${0.28 * alpha})`;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.height);
     ctx.stroke();
   }
   for (let y = 0; y < canvas.height; y += gridSize * 5) {
+    const alpha = edgeFade(y, canvas.height);
+    ctx.strokeStyle = `rgba(184, 148, 31, ${0.28 * alpha})`;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
@@ -55,6 +74,15 @@ export function drawWall(
   wall: Wall,
   state: { selected: boolean; hovered: boolean; snapEnabled: boolean },
 ) {
+  // Subtle depth shadow
+  ctx.strokeStyle = WALL_SHADOW;
+  ctx.lineWidth = wall.thickness + 2;
+  ctx.lineCap = 'square';
+  ctx.beginPath();
+  ctx.moveTo(wall.start.x + 1.5, wall.start.y + 1.5);
+  ctx.lineTo(wall.end.x + 1.5, wall.end.y + 1.5);
+  ctx.stroke();
+
   if (state.hovered && !state.selected) {
     ctx.strokeStyle = GOLD_HOVER;
     ctx.lineWidth = wall.thickness + 5;
@@ -80,10 +108,15 @@ export function drawWall(
     ctx.fill();
 
     if (state.snapEnabled) {
-      ctx.strokeStyle = GOLD;
-      ctx.lineWidth = 1.25;
+      ctx.strokeStyle = GOLD_BRIGHT;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+      ctx.arc(point.x, point.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.stroke();
     }
   }

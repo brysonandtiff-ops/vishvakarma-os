@@ -23,6 +23,8 @@ import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function getSignInHeadline(winner: 'email' | 'google' | 'none') {
   if (winner === 'google') {
@@ -270,7 +272,7 @@ export default function AuthPage() {
               iPad-Native Architecture Suite
             </p>
             <p
-              className="vish-auth-card-headline mt-3 text-sm font-medium text-stone-100 sm:text-base"
+              className="vish-auth-card-headline mt-3 text-sm font-medium text-foreground sm:text-base"
               aria-live="polite"
             >
               {capabilitiesLoading ? 'Preparing sign-in…' : signInHeadline}
@@ -372,8 +374,9 @@ export default function AuthPage() {
                 <span className="vish-bilingual-label">
                   Email <span>- ई-पत्र</span>
                 </span>
-                <input
+                <Input
                   type="email"
+                  variant="workstation"
                   autoComplete="email"
                   inputMode="email"
                   spellCheck={false}
@@ -381,7 +384,6 @@ export default function AuthPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   disabled={!isConfigured || submitting || showConfigRequired}
-                  className="vish-mockup-input"
                   aria-describedby="auth-email-helper"
                 />
               </label>
@@ -396,9 +398,10 @@ export default function AuthPage() {
                 </AuthStatusBanner>
               )}
 
-              <button
+              <Button
                 type="submit"
-                className="vish-gold-button"
+                variant="gold"
+                size="full"
                 disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
               >
                 {needsEmailForLink
@@ -408,7 +411,7 @@ export default function AuthPage() {
                   : submitting
                     ? 'Sending access link…'
                     : 'Send secure access link'}
-              </button>
+              </Button>
 
               <p className="text-center text-[11px] text-muted-foreground">
                 <button
@@ -468,9 +471,11 @@ export default function AuthPage() {
                 </AuthStatusBanner>
               )}
 
-              <button
+              <Button
                 type="button"
-                className="vish-gold-button vish-gold-button--with-icon"
+                variant="gold"
+                size="full"
+                className="vish-gold-button--with-icon"
                 disabled={submitting || !isConfigured || showConfigRequired || embeddedAuthBrowser}
                 onClick={() => void handleGoogleSignIn()}
               >
@@ -478,7 +483,7 @@ export default function AuthPage() {
                   <GoogleMarkIcon />
                 </span>
                 {submitting ? 'Connecting to Google…' : 'Continue with Google'}
-              </button>
+              </Button>
 
               {allowLocalWorkspace && (
                 <button

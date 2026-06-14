@@ -17,6 +17,12 @@
 @layer base {
   :root {
     --radius: 0.375rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.5rem;
 
     /* ── PANEL / PAGE (light) ── */
     --background:   0 0% 96%;          /* #f5f5f5 – page bg */
@@ -26,7 +32,7 @@
     --popover:      0 0% 100%;
     --popover-foreground: 0 0% 11%;
 
-    /* ── ACCENT GOLD — mockup metallic gold (#D4AF37) ── */
+    /* ── ACCENT GOLD — canonical vish-gold (vish-tokens.css) ── */
     --primary:      43 65% 52%;
     --primary-foreground: 0 0% 7%;
 
@@ -79,7 +85,7 @@
        WORKSTATION — always-dark canvas/toolbar tokens
        These are used directly in editor CSS, not theme-toggled
        ════════════════════════════════════════════════════ */
-    --ws-canvas:      220 14% 11%;     /* #191c22 – 2D canvas bg */
+    --ws-canvas:      220 14% 11%;     /* overridden at runtime by vish-theme.css (cream paper) */
     --ws-toolbar:     220 14% 14%;     /* #1f2229 – toolbar bar */
     --ws-sidebar:     220 14% 12%;     /* #1b1f26 – mode sidebar */
     --ws-menubar:     220 14% 10%;     /* #171a20 – top menu bar */
