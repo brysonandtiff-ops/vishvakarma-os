@@ -24,7 +24,8 @@ export function getSupabaseClient(): SupabaseClient | null {
     supabaseClient = createClient(url, anonKey, {
       auth: {
         persistSession: true,
-        detectSessionInUrl: true,
+        // OAuth PKCE exchange is handled explicitly in resolveSupabaseOAuthRedirectSession.
+        detectSessionInUrl: false,
         flowType: 'pkce',
         autoRefreshToken: true,
       },

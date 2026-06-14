@@ -1,3 +1,4 @@
+import { agentDebugLog } from '@/lib/agentDebugLog';
 import { CANONICAL_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
@@ -279,6 +280,12 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
+        agentDebugLog({
+          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
+          message: 'OAuth code exchange succeeded',
+          data: { pathname: typeof window !== 'undefined' ? window.location.pathname : null, hasUser: true },
+          hypothesisId: 'A',
+        });
         return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
       }
     }
