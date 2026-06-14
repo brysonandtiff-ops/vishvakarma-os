@@ -1,5 +1,4 @@
 import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
-import { authFlowTrace } from '@/lib/authFlowTrace';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -104,12 +103,6 @@ export function completePostAuthRedirect(): boolean {
 
   readAndClearAuthReturnPath();
   const destination = `${window.location.origin}${POST_AUTH_DESTINATION}`;
-  authFlowTrace({
-    location: 'supabaseOAuthGateway.ts:completePostAuthRedirect',
-    message: 'Hard redirect to editor',
-    data: { destination, pathname: window.location.pathname },
-    hypothesisId: 'J',
-  });
   window.location.replace(destination);
   return true;
 }
@@ -314,37 +307,14 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
 
   if (isSupabaseOAuthCallback()) {
     const code = new URLSearchParams(window.location.search).get('code');
-    authFlowTrace({
-      location: 'supabaseOAuthGateway.ts:resolveOAuthStart',
-      message: 'Resolving OAuth redirect session',
-      data: {
-        hasCode: Boolean(code),
-        origin: window.location.origin,
-        redirectToConfigured: getAuthPageUrl(),
-        oauthPending: isOAuthRedirectPending(),
-      },
-      hypothesisId: 'T',
-    });
     if (code) {
       const { data, error } = await client.auth.exchangeCodeForSession(code);
       if (error) {
-        authFlowTrace({
-          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
-          message: 'OAuth code exchange failed',
-          data: { error: error.message },
-          hypothesisId: 'T',
-        });
         throw error;
       }
       if (data.session?.user) {
         clearOAuthRedirectPending();
         stripAuthCallbackFromUrl();
-        authFlowTrace({
-          location: 'supabaseOAuthGateway.ts:exchangeCodeForSession',
-          message: 'OAuth code exchange succeeded',
-          data: { pathname: window.location.pathname, hasUser: true },
-          hypothesisId: 'A',
-        });
         const { data: persisted } = await client.auth.getSession();
         if (!persisted.session?.user) {
           await client.auth.setSession({

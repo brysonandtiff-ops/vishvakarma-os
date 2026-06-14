@@ -26,7 +26,6 @@ import {
   signInWithAppleSupabase,
   signInWithGoogleSupabase,
 } from '@/backend/supabase/supabaseOAuthGateway';
-import { authFlowTrace } from '@/lib/authFlowTrace';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 import { ensureSupabaseProfile, getSupabaseProfile } from '@/backend/supabase/supabaseProfileGateway';
 import type { Profile } from '@/types';
@@ -153,20 +152,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     const shouldHandleEmailLink = isSupabaseEmailLinkCallback();
     let callbackResolutionComplete = false;
 
-    authFlowTrace({
-      location: 'SupabaseAuthProvider.tsx:initAuthStart',
-      message: 'Auth init starting',
-      data: {
-        shouldHandleOAuth,
-        shouldHandleEmailLink,
-        oauthCallback: isSupabaseOAuthCallback(),
-        oauthPending: isOAuthRedirectPending(),
-        pathname: typeof window !== 'undefined' ? window.location.pathname : null,
-        origin: typeof window !== 'undefined' ? window.location.origin : null,
-      },
-      hypothesisId: 'G',
-    });
-
     const shouldIgnoreNullSession = (event: string) =>
       event === 'INITIAL_SESSION' &&
       !callbackResolutionComplete &&
@@ -211,27 +196,9 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         }
 
         const hydratedSession = await hydrateSupabaseAuthSession();
-        authFlowTrace({
-          location: 'SupabaseAuthProvider.tsx:hydrateSession',
-          message: 'Hydrated auth session after boot',
-          data: {
-            pathname: typeof window !== 'undefined' ? window.location.pathname : null,
-            hasHydratedSession: Boolean(hydratedSession),
-            hadBootstrapSession: Boolean(bootstrapSession),
-          },
-          hypothesisId: 'W',
-        });
         if (!mounted) return;
 
         if (!hydratedSession) {
-          if (bootstrapSession) {
-            authFlowTrace({
-              location: 'SupabaseAuthProvider.tsx:hydrateSessionFallback',
-              message: 'Hydrate returned null — retaining bootstrap session',
-              data: { uid: bootstrapSession.uid },
-              hypothesisId: 'W',
-            });
-          }
           return;
         }
 
