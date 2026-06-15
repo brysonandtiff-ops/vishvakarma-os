@@ -33,6 +33,13 @@ Password reset is available at `/reset-password` when configured.
 
 ## Editor tour
 
+Open **Tutorials** from the editor help button (?), workspace sidebar, or command palette (`Ctrl+K` / `Cmd+K` → Learn). The in-app tutorial system includes:
+
+- **Essentials** — hands-on walkthrough: draw walls, place openings, toggle 3D, read Project Proof
+- **Topic tours** — export, interior materials, Vastu, NBC compliance, MEP, projects library, optimization, governance
+
+First visit: choose **New project** or **Load sample** on the welcome screen to auto-start Essentials (once per browser).
+
 | Region | Purpose |
 |--------|---------|
 | **Tool rail** (left) | Wall, door, window, measure, label, dimension, room, MEP, furniture, landscape, terrain, Vastu tools |
@@ -42,6 +49,8 @@ Password reset is available at `/reset-password` when configured.
 | **Top bar** | Project name, save status, export, view modes |
 
 Toggle 3D with the viewport control. Adjust solar time with the lighting scrubber.
+
+Marketing guides on [/features](/features) deep-link into the matching in-app tour.
 
 ---
 
