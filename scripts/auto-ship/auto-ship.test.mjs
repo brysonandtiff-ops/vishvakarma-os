@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import {
   acquireDebounceLock,
   buildCommitMessage,
@@ -105,8 +105,18 @@ describe('auto-ship-lib', () => {
   });
 
   it('prefers hook repo over cwd when both have .git', () => {
-    const hookDir = 'C:\\wrapper\\vishvakarma-os-live\\.cursor\\hooks';
-    const cwd = 'C:\\wrapper';
-    expect(resolveRepoRootFromHook(hookDir, cwd)).toBe('C:\\wrapper\\vishvakarma-os-live');
+    const wrapper = mkdtempSync(join(tmpdir(), 'auto-ship-wrapper-'));
+    const nested = join(wrapper, 'vishvakarma-os-live');
+    const hookDir = join(nested, '.cursor', 'hooks');
+    try {
+      mkdirSync(hookDir, { recursive: true });
+      writeFileSync(join(wrapper, '.git'), '');
+      writeFileSync(join(nested, '.git'), '');
+      expect(existsSync(join(wrapper, '.git'))).toBe(true);
+      expect(existsSync(join(nested, '.git'))).toBe(true);
+      expect(resolveRepoRootFromHook(hookDir, wrapper)).toBe(resolve(nested));
+    } finally {
+      rmSync(wrapper, { recursive: true, force: true });
+    }
   });
 });
