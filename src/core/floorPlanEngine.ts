@@ -58,6 +58,9 @@ export interface FloorPlanSnapshot {
   canUndo: boolean;
   canRedo: boolean;
   revision: number;
+  geometryRevision: number;
+  sessionRevision: number;
+  viewportRevision: number;
 }
 
 const DEFAULT_CANVAS_VIEWPORT: CanvasViewportState = { panX: 0, panY: 0, zoom: 1 };
@@ -82,9 +85,14 @@ export class FloorPlanEngine {
   private session: EditorSessionState;
   private versionControl: VersionControlHooks;
   private listeners = new Set<() => void>();
+  private viewportListeners = new Set<() => void>();
   private revision = 0;
+  private geometryRevision = 0;
+  private sessionRevision = 0;
+  private viewportRevision = 0;
   private skipVersionSnapshot = false;
   private skipVersionSnapshotForRemote = false;
+  private editTransactionDepth = 0;
   private cachedSnapshot: FloorPlanSnapshot | null = null;
   private collabBridge: ManifestCollabBridge | null = null;
 
@@ -120,6 +128,33 @@ export class FloorPlanEngine {
     return () => this.listeners.delete(listener);
   };
 
+  subscribeViewport = (listener: () => void): (() => void) => {
+    this.viewportListeners.add(listener);
+    return () => this.viewportListeners.delete(listener);
+  };
+
+  getGeometryRevision(): number {
+    return this.geometryRevision;
+  }
+
+  getViewportRevision(): number {
+    return this.viewportRevision;
+  }
+
+  /** Coalesce undo snapshots during continuous edits (drag, etc.). */
+  beginEditTransaction(): void {
+    this.editTransactionDepth += 1;
+  }
+
+  commitEditTransaction(snapshotLabel = 'Edit'): void {
+    if (this.editTransactionDepth <= 0) return;
+    this.editTransactionDepth -= 1;
+    if (this.editTransactionDepth === 0 && this.shouldSaveVersionSnapshot()) {
+      this.versionControl.saveVersion(this.manifest, snapshotLabel);
+      this.versionControl.updateCurrentManifest(this.manifest);
+    }
+  }
+
   private rebuildSnapshot(): void {
     this.cachedSnapshot = {
       manifest: this.manifest,
@@ -127,15 +162,64 @@ export class FloorPlanEngine {
       canUndo: this.versionControl.canUndo(),
       canRedo: this.versionControl.canRedo(),
       revision: this.revision,
+      geometryRevision: this.geometryRevision,
+      sessionRevision: this.sessionRevision,
+      viewportRevision: this.viewportRevision,
     };
   }
 
-  private notify(): void {
+  private notifyViewport(): void {
+    this.viewportRevision += 1;
+    this.revision += 1;
+    this.rebuildSnapshot();
+    for (const listener of this.viewportListeners) {
+      listener();
+    }
+  }
+
+  private notifySession(): void {
+    this.sessionRevision += 1;
     this.revision += 1;
     this.rebuildSnapshot();
     for (const listener of this.listeners) {
       listener();
     }
+  }
+
+  private notifyGeometry(_snapshotLabel = 'Edit'): void {
+    this.geometryRevision += 1;
+    this.revision += 1;
+    this.rebuildSnapshot();
+    for (const listener of this.listeners) {
+      listener();
+    }
+  }
+
+  private notifyBoth(): void {
+    this.geometryRevision += 1;
+    this.sessionRevision += 1;
+    this.revision += 1;
+    this.rebuildSnapshot();
+    for (const listener of this.listeners) {
+      listener();
+    }
+  }
+
+  private notify(): void {
+    this.notifyBoth();
+  }
+
+  abortEditTransaction(): void {
+    if (this.editTransactionDepth <= 0) return;
+    this.editTransactionDepth -= 1;
+  }
+
+  private shouldSaveVersionSnapshot(): boolean {
+    return (
+      !this.skipVersionSnapshot &&
+      !this.skipVersionSnapshotForRemote &&
+      this.editTransactionDepth === 0
+    );
   }
 
   getSnapshot = (): FloorPlanSnapshot => {
@@ -220,11 +304,11 @@ export class FloorPlanEngine {
       this.collabBridge.applyPartial(partial, snapshotLabel);
       const nextManifest = this.collabBridge.toManifest();
       this.manifest = nextManifest;
-      if (!this.skipVersionSnapshot && !this.skipVersionSnapshotForRemote) {
+      if (this.shouldSaveVersionSnapshot()) {
         this.versionControl.saveVersion(this.manifest, snapshotLabel);
         this.versionControl.updateCurrentManifest(this.manifest);
       }
-      this.notify();
+      this.notifyGeometry(snapshotLabel);
       return;
     }
 
@@ -242,16 +326,21 @@ export class FloorPlanEngine {
     }
 
     this.manifest = nextManifest;
-    if (!this.skipVersionSnapshot) {
+    if (this.shouldSaveVersionSnapshot()) {
       this.versionControl.saveVersion(this.manifest, snapshotLabel);
       this.versionControl.updateCurrentManifest(this.manifest);
     }
-    this.notify();
+    this.notifyGeometry(snapshotLabel);
   }
 
   private touchSession(partial: Partial<EditorSessionState>): void {
     this.session = { ...this.session, ...partial };
-    this.notify();
+    this.notifySession();
+  }
+
+  private touchViewport(viewport: CanvasViewportState): void {
+    this.session = { ...this.session, canvasViewport: viewport };
+    this.notifyViewport();
   }
 
   loadManifest(manifest: ProjectManifest, projectName?: string): void {
@@ -347,11 +436,11 @@ export class FloorPlanEngine {
     const next = { ...this.session.canvasViewport, ...viewport };
     if (next.zoom < 0.25) next.zoom = 0.25;
     if (next.zoom > 4) next.zoom = 4;
-    this.touchSession({ canvasViewport: next });
+    this.touchViewport(next);
   }
 
   resetCanvasViewport(): void {
-    this.touchSession({ canvasViewport: { ...DEFAULT_CANVAS_VIEWPORT } });
+    this.touchViewport({ ...DEFAULT_CANVAS_VIEWPORT });
   }
 
   getCanvasViewport(): CanvasViewportState {
@@ -747,6 +836,16 @@ export class FloorPlanEngine {
         panY: this.session.canvasViewport.panY,
         canvasZoom: this.session.canvasViewport.zoom,
       },
+    };
+  }
+
+  /** Manifest for compliance/audit — excludes session camera pan/zoom. */
+  getGeometryManifest(): ProjectManifest {
+    return {
+      ...this.manifest,
+      name: this.session.projectName,
+      description: this.session.description,
+      snapToGrid: this.session.snapEnabled,
     };
   }
 

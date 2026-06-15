@@ -76,6 +76,7 @@ export class CastSessionManager {
   private joinPayload: CastJoinPayload | null = null;
   private viewerRole: CastInviteRole = 'viewer';
   private presenterGetIdToken: (() => Promise<string>) | null = null;
+  private viewerManifestHandler: ((manifest: ProjectManifest) => void) | null = null;
 
   static getInstance(): CastSessionManager {
     if (!CastSessionManager.instance) {
@@ -210,11 +211,18 @@ export class CastSessionManager {
         options.onManifestChange?.(manifest, isRemote);
       },
       authMode: 'supabase',
+      castRole: 'presenter',
     });
 
     this.bindLocalBus();
     this.bindCastAwareness(options.userId);
     this.emitBroadcastState();
+
+    getLocalCastBus().publish({
+      type: 'manifest',
+      projectId: options.projectId,
+      manifest: options.manifest,
+    });
 
     return { shareUrl: this.shareUrl!, token: this.shareToken! };
   }
@@ -226,6 +234,9 @@ export class CastSessionManager {
 
     this.role = 'viewer';
     this.followPresenter = true;
+    this.viewerManifestHandler = options.onManifestChange
+      ? (manifest) => options.onManifestChange?.(manifest, true)
+      : null;
 
     const local = resolveLocalCastJoin(options.token);
     if (local) {
@@ -272,7 +283,7 @@ export class CastSessionManager {
       userId: viewerId,
       userName: options.viewerName,
       getIdToken: async () => options.token,
-      initialManifest: this.joinPayload?.manifest ?? undefined,
+      initialManifest: (this.joinPayload?.manifest as ProjectManifest | null | undefined) ?? undefined,
       onManifestChange: (manifest, isRemote) => {
         if (isRemote) {
           options.onManifestChange?.(manifest, isRemote);
@@ -280,6 +291,7 @@ export class CastSessionManager {
       },
       authMode: 'cast',
       readOnly: true,
+      castRole: 'viewer',
     });
 
     this.bindLocalBus();
@@ -384,7 +396,12 @@ export class CastSessionManager {
   }
 
   private async resolvePresenterToken(): Promise<string | null> {
-    return null;
+    if (!this.presenterGetIdToken) return null;
+    try {
+      return await this.presenterGetIdToken();
+    } catch {
+      return null;
+    }
   }
 
   private async connectCollab(options: {
@@ -394,8 +411,9 @@ export class CastSessionManager {
     getIdToken: () => Promise<string>;
     initialManifest?: ProjectManifest;
     onManifestChange?: (manifest: ProjectManifest, isRemote: boolean) => void;
-    authMode: 'supabase' | 'cast';
+    authMode?: 'supabase' | 'cast';
     readOnly?: boolean;
+    castRole?: 'presenter' | 'viewer';
   }): Promise<void> {
     const collab = CollabSession.getInstance();
     await collab.connect({
@@ -408,6 +426,7 @@ export class CastSessionManager {
       onManifestChange: options.onManifestChange,
       authMode: options.authMode,
       readOnly: options.readOnly,
+      castRole: options.castRole,
     });
 
     if (options.readOnly) {
@@ -438,7 +457,7 @@ export class CastSessionManager {
     if (this.isLocal) {
       getLocalCastBus().publish({
         type: 'manifest',
-        projectId: manifest.name,
+        projectId: this.session?.projectId ?? '',
         manifest,
       });
     }
@@ -454,7 +473,7 @@ export class CastSessionManager {
         return;
       }
 
-      if (message.sessionId && message.sessionId !== this.session.id) return;
+      if ('sessionId' in message && message.sessionId && message.sessionId !== this.session.id) return;
 
       switch (message.type) {
         case 'broadcast':
@@ -478,6 +497,16 @@ export class CastSessionManager {
           if (this.role === 'presenter') {
             this.viewerCount += 1;
             this.emitViewerCount();
+          }
+          break;
+        case 'manifest':
+          if (
+            this.role === 'viewer' &&
+            this.session &&
+            message.projectId === this.session.projectId &&
+            message.manifest
+          ) {
+            this.viewerManifestHandler?.(message.manifest as ProjectManifest);
           }
           break;
         default:
@@ -514,6 +543,7 @@ export class CastSessionManager {
 
   private publishBroadcast(viewport?: ViewportCameraState): void {
     const state = this.buildBroadcastState(viewport);
+    if (!state) return;
     getLocalCastBus().publish({ type: 'broadcast', state });
     CollabSession.getInstance().updateCastState(state);
     this.emitBroadcastState();
@@ -555,4 +585,6 @@ export class CastSessionManager {
   }
 }
 
-export function getCastSessionManager(): CastSessionMana
+export function getCastSessionManager(): CastSessionManager {
+  return CastSessionManager.getInstance();
+}

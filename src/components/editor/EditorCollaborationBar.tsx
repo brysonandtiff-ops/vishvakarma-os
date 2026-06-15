@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Users } from 'lucide-react';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
@@ -119,9 +119,20 @@ export function useCollaborationCursorBroadcast(
   viewport?: ViewportCameraState
 ) {
   const backendReady = backendStatus.isConfigured;
+  const lastSentRef = useRef(0);
+  const toolRef = useRef(currentTool);
+  const viewportRef = useRef(viewport);
 
-  return (point: Point2D) => {
-    if (!backendReady) return;
-    broadcastCursor(point.x, point.y, currentTool, viewport);
-  };
+  useEffect(() => {
+    toolRef.current = currentTool;
+    viewportRef.current = viewport;
+  }, [currentTool, viewport]);
+
+  return useCallback((point: Point2D) => {
+    if (!backendReady || typeof document !== 'undefined' && document.hidden) return;
+    const now = performance.now();
+    if (now - lastSentRef.current < 80) return;
+    lastSentRef.current = now;
+    broadcastCursor(point.x, point.y, toolRef.current, viewportRef.current);
+  }, [backendReady]);
 }

@@ -168,7 +168,8 @@ export function CompliancePanel({
 export function useComplianceReport(
   manifest: ProjectManifest,
   meta: { projectId?: string; projectName: string },
-  refreshKey = 0
+  refreshKey = 0,
+  geometryRevision?: number,
 ) {
   return useMemo(
     () =>
@@ -176,6 +177,6 @@ export function useComplianceReport(
         id: meta.projectId,
         name: meta.projectName,
       }),
-    [manifest, meta.projectId, meta.projectName, refreshKey]
+    [manifest, meta.projectId, meta.projectName, refreshKey, geometryRevision],
   );
 }

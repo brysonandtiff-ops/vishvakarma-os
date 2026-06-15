@@ -2,7 +2,7 @@ import http from 'node:http';
 import { WebSocketServer } from 'ws';
 // @ts-expect-error y-websocket bin utils has no published types
 import { setupWSConnection } from 'y-websocket/bin/utils';
-import { canJoinProjectRoom, extractProjectIdFromRoom, verifyCollabToken } from './auth.js';
+import { canJoinProjectRoom, extractProjectIdFromRoom, parseAuthTokenFromUrl, verifyCastViewerToken, verifyCollabToken } from './auth.js';
 
 const PORT = Number(process.env.COLLAB_WS_PORT ?? 1234);
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -37,13 +37,7 @@ function isOriginAllowed(origin: string | undefined): boolean {
 }
 
 function parseTokenFromUrl(url: string | undefined): string | null {
-  if (!url) return null;
-  try {
-    const parsed = new URL(url, 'http://localhost');
-    return parsed.searchParams.get('token');
-  } catch {
-    return null;
-  }
+  return parseAuthTokenFromUrl(url).token;
 }
 
 const server = http.createServer((_req, res) => {
@@ -61,17 +55,25 @@ server.on('upgrade', async (request, socket, head) => {
     return;
   }
 
-  const token = parseTokenFromUrl(request.url);
-  if (!token) {
+  const { token, castToken } = parseAuthTokenFromUrl(request.url);
+  const authToken = castToken ?? token;
+  if (!authToken) {
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
   }
 
   let uid: string;
+  let castViewer = false;
   try {
-    const verified = await verifyCollabToken(token);
-    uid = verified.uid;
+    if (castToken) {
+      const verified = await verifyCastViewerToken(castToken);
+      uid = verified.uid;
+      castViewer = true;
+    } else {
+      const verified = await verifyCollabToken(authToken);
+      uid = verified.uid;
+    }
   } catch {
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
@@ -87,11 +89,20 @@ server.on('upgrade', async (request, socket, head) => {
   }
 
   try {
-    const allowed = await canJoinProjectRoom(uid, projectId);
-    if (!allowed) {
-      socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
-      socket.destroy();
-      return;
+    if (castViewer) {
+      const verified = await verifyCastViewerToken(castToken!);
+      if (verified.projectId !== projectId) {
+        socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+        socket.destroy();
+        return;
+      }
+    } else {
+      const allowed = await canJoinProjectRoom(uid, projectId);
+      if (!allowed) {
+        socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+        socket.destroy();
+        return;
+      }
     }
   } catch (error) {
     console.error('[collab] authorization failed', error);

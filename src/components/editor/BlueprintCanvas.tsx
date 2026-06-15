@@ -1,7 +1,9 @@
 // 2D Blueprint Canvas Component — pointer-first for mouse, touch, and Pencil-style input
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { useCanvasResize } from '@/hooks/useCanvasResize';
+import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
+import { getFloorPlanEngine } from '@/core/floorPlanEngine';
 import { mapCanvasBufferToDisplay, mapCanvasBufferToWorld, mapPointerToCanvasBuffer, mapPointerToWorldCoords, mapWorldToCanvasBuffer } from '@/utils/canvasPointerCoords';
 import type {
   CanvasViewportState,
@@ -67,7 +69,12 @@ import {
   isValidTerrainPolygon,
   pointsNear,
 } from '@/core/sceneTerrainCatalog';
-import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
+import { SpatialIndex } from '@/editor/spatialIndex';
+import {
+  createCanvasRenderScheduler,
+  createEmptyDirtyFlags,
+  type CanvasDirtyFlags,
+} from '@/components/editor/blueprint/canvasRenderLoop';
 import { drawRoomFills, drawRoomLabels } from '@/components/editor/blueprint/drawRooms';
 import { drawMepSymbol2D, drawFixture2D } from '@/components/editor/blueprint/drawSymbols';
 import { drawWallsLayer } from '@/components/editor/blueprint/drawWalls';
@@ -82,6 +89,7 @@ import {
   getWallEndpointAtPoint,
   MIN_WALL_LENGTH_PX,
 } from '@/utils/wallDrawConstraints';
+import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -221,13 +229,30 @@ export default function BlueprintCanvas({
   selectedWallIds,
   selectedOpeningId,
   unitSystem = 'metric',
-  canvasViewport = { panX: 0, panY: 0, zoom: 1 },
   onCanvasViewportChange,
   onResetViewport,
   manifestWalls,
   layerVisibility = DEFAULT_LAYER_VISIBILITY,
   interactionLocked = false,
 }: BlueprintCanvasProps) {
+  const floorPlanEngine = getFloorPlanEngine();
+  const {
+    canvasViewport: engineViewport,
+    setCanvasViewport: setEngineViewport,
+    resetCanvasViewport: resetEngineViewport,
+  } = useCanvasViewport();
+  const canvasViewport = engineViewport;
+  const applyViewportChange = useCallback(
+    (patch: Partial<CanvasViewportState>) => {
+      setEngineViewport(patch);
+      onCanvasViewportChange?.(patch);
+    },
+    [onCanvasViewportChange, setEngineViewport],
+  );
+  const handleResetViewport = useCallback(() => {
+    resetEngineViewport();
+    onResetViewport?.();
+  }, [onResetViewport, resetEngineViewport]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
@@ -266,6 +291,32 @@ export default function BlueprintCanvas({
   } | null>(null);
   const [dragWallEndpointPosition, setDragWallEndpointPosition] = useState<Point2D | null>(null);
   const panOriginRef = useRef<{ clientX: number; clientY: number; panX: number; panY: number } | null>(null);
+  const spatialIndexRef = useRef(new SpatialIndex());
+  const dirtyFlagsRef = useRef<CanvasDirtyFlags>(createEmptyDirtyFlags());
+  const drawSceneRef = useRef<() => void>(() => undefined);
+  useEffect(() => {
+    spatialIndexRef.current.rebuild({ walls, openings, furniture, fixtures });
+    dirtyFlagsRef.current.geometry = true;
+  }, [fixtures, furniture, openings, walls]);
+
+  const renderScheduler = useMemo(
+    () =>
+      createCanvasRenderScheduler(
+        () => drawSceneRef.current(),
+        () => dirtyFlagsRef.current,
+        () => {
+          dirtyFlagsRef.current = createEmptyDirtyFlags();
+        },
+      ),
+    [],
+  );
+
+  const requestCanvasDraw = useCallback(
+    (flag: 'geometry' | 'viewport' | 'interaction' | 'overlay') => {
+      renderScheduler.requestDraw(flag);
+    },
+    [renderScheduler],
+  );
   const roomWallSource = manifestWalls ?? walls;
 
   const snapToGrid = useCallback(
@@ -360,21 +411,33 @@ export default function BlueprintCanvas({
 
   const getWallAtPoint = useCallback(
     (point: Point2D, extraHitArea = 10) =>
+      spatialIndexRef.current.findWallAtPoint(point, extraHitArea) ??
       walls.find((wall) => pointToLineDistance(point, wall.start, wall.end) < wall.thickness / 2 + extraHitArea),
     [walls]
   );
 
   const getOpeningAtPoint = useCallback(
-    (point: Point2D, mode: InputMode) => openings.find((opening) => {
-      const wall = walls.find((candidate) => candidate.id === opening.wallId);
-      if (!wall) return false;
-      const pos = opening.id === draggingOpeningId && dragOpeningPosition !== null
-        ? dragOpeningPosition
-        : opening.position;
-      const x = wall.start.x + (wall.end.x - wall.start.x) * pos;
-      const y = wall.start.y + (wall.end.y - wall.start.y) * pos;
-      return Math.hypot(point.x - x, point.y - y) < getHitArea(mode, 15);
-    }), [dragOpeningPosition, draggingOpeningId, openings, walls]);
+    (point: Point2D, mode: InputMode) => {
+      const hitRadius = getHitArea(mode, 15);
+      const fromIndex = spatialIndexRef.current.findOpeningAtPoint(point, hitRadius, (opening) =>
+        opening.id === draggingOpeningId && dragOpeningPosition !== null
+          ? dragOpeningPosition
+          : opening.position,
+      );
+      if (fromIndex) return fromIndex;
+      return openings.find((opening) => {
+        const wall = walls.find((candidate) => candidate.id === opening.wallId);
+        if (!wall) return false;
+        const pos = opening.id === draggingOpeningId && dragOpeningPosition !== null
+          ? dragOpeningPosition
+          : opening.position;
+        const x = wall.start.x + (wall.end.x - wall.start.x) * pos;
+        const y = wall.start.y + (wall.end.y - wall.start.y) * pos;
+        return Math.hypot(point.x - x, point.y - y) < hitRadius;
+      });
+    },
+    [dragOpeningPosition, draggingOpeningId, openings, walls],
+  );
 
   const getLabelAtPoint = useCallback(
     (point: Point2D) => labels.find((label) => {
@@ -390,22 +453,26 @@ export default function BlueprintCanvas({
   );
 
   const getFurnitureAtPoint = useCallback(
-    (point: Point2D, mode: InputMode) => furniture.find((item) => {
-      const width = item.width ?? 80;
-      const depth = item.depth ?? 60;
-      return (
-        Math.abs(point.x - item.position.x) < width / 2 + getHitArea(mode, 4) &&
-        Math.abs(point.y - item.position.y) < depth / 2 + getHitArea(mode, 4)
-      );
-    }),
+    (point: Point2D, mode: InputMode) =>
+      spatialIndexRef.current.findFurnitureAtPoint(point, getHitArea(mode, 4)) ??
+      furniture.find((item) => {
+        const width = item.width ?? 80;
+        const depth = item.depth ?? 60;
+        return (
+          Math.abs(point.x - item.position.x) < width / 2 + getHitArea(mode, 4) &&
+          Math.abs(point.y - item.position.y) < depth / 2 + getHitArea(mode, 4)
+        );
+      }),
     [furniture],
   );
 
   const getFixtureAtPoint = useCallback(
-    (point: Point2D, mode: InputMode) => fixtures.find((fixture) => {
-      const radius = 10 + getHitArea(mode, 2);
-      return Math.hypot(point.x - fixture.position.x, point.y - fixture.position.y) <= radius;
-    }),
+    (point: Point2D, mode: InputMode) =>
+      spatialIndexRef.current.findFixtureAtPoint(point, 10 + getHitArea(mode, 2)) ??
+      fixtures.find((fixture) => {
+        const radius = 10 + getHitArea(mode, 2);
+        return Math.hypot(point.x - fixture.position.x, point.y - fixture.position.y) <= radius;
+      }),
     [fixtures],
   );
 
@@ -447,7 +514,7 @@ export default function BlueprintCanvas({
     if (interactionLocked && event.button !== 1 && !(event.button === 0 && event.shiftKey)) {
       return;
     }
-    if (event.button === 1 || (event.button === 0 && event.shiftKey && onCanvasViewportChange)) {
+    if (event.button === 1 || (event.button === 0 && event.shiftKey)) {
       event.preventDefault();
       panOriginRef.current = {
         clientX: event.clientX,
@@ -482,6 +549,7 @@ export default function BlueprintCanvas({
         onLabelSelect?.(undefined);
         setDraggingOpeningId(opening.id);
         setDragOpeningPosition(opening.position);
+        floorPlanEngine.beginEditTransaction();
         return;
       }
 
@@ -493,6 +561,7 @@ export default function BlueprintCanvas({
         onLabelSelect?.(undefined);
         setDraggingFurnitureId(furnitureItem.id);
         setDragFurniturePosition(furnitureItem.position);
+        floorPlanEngine.beginEditTransaction();
         return;
       }
 
@@ -534,6 +603,7 @@ export default function BlueprintCanvas({
             setDragWallEndpointPosition(
               endpoint === 'start' ? selectedWallForDrag.start : selectedWallForDrag.end,
             );
+            floorPlanEngine.beginEditTransaction();
             return;
           }
         }
@@ -695,14 +765,14 @@ export default function BlueprintCanvas({
     const mode = getInputMode(event);
     setInputMode(mode);
 
-    if (isPanning && panOriginRef.current && onCanvasViewportChange) {
+    if (isPanning && panOriginRef.current) {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const scaleX = canvas.width / canvas.getBoundingClientRect().width;
       const scaleY = canvas.height / canvas.getBoundingClientRect().height;
       const dx = (event.clientX - panOriginRef.current.clientX) * scaleX;
       const dy = (event.clientY - panOriginRef.current.clientY) * scaleY;
-      onCanvasViewportChange({
+      applyViewportChange({
         panX: panOriginRef.current.panX + dx,
         panY: panOriginRef.current.panY + dy,
       });
@@ -801,15 +871,18 @@ export default function BlueprintCanvas({
 
     if (draggingOpeningId && onOpeningUpdate && dragOpeningPosition !== null) {
       onOpeningUpdate(draggingOpeningId, { position: dragOpeningPosition });
+      floorPlanEngine.commitEditTransaction('Move opening');
     }
 
     if (draggingFurnitureId && onFurnitureUpdate && dragFurniturePosition) {
       onFurnitureUpdate(draggingFurnitureId, { position: dragFurniturePosition });
+      floorPlanEngine.commitEditTransaction('Move furniture');
     }
 
     if (draggingWallEndpoint && onWallUpdate && dragWallEndpointPosition) {
       const { wallId, end } = draggingWallEndpoint;
       onWallUpdate(wallId, end === 'start' ? { start: dragWallEndpointPosition } : { end: dragWallEndpointPosition });
+      floorPlanEngine.commitEditTransaction('Move wall endpoint');
     }
 
     setDraggingOpeningId(null);
@@ -859,6 +932,9 @@ export default function BlueprintCanvas({
     event.preventDefault();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
+      floorPlanEngine.abortEditTransaction();
     }
     setDraggingOpeningId(null);
     setDragOpeningPosition(null);
@@ -913,7 +989,7 @@ export default function BlueprintCanvas({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !onCanvasViewportChange) return;
+    if (!container) return;
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
@@ -930,7 +1006,7 @@ export default function BlueprintCanvas({
       const worldBefore = mapCanvasBufferToWorld(buffer, canvasViewport);
       const factor = event.deltaY > 0 ? 0.9 : 1.1;
       const newZoom = Math.min(4, Math.max(0.25, canvasViewport.zoom * factor));
-      onCanvasViewportChange({
+      applyViewportChange({
         zoom: newZoom,
         panX: buffer.x - worldBefore.x * newZoom,
         panY: buffer.y - worldBefore.y * newZoom,
@@ -939,9 +1015,10 @@ export default function BlueprintCanvas({
 
     container.addEventListener('wheel', onWheel, { passive: false });
     return () => container.removeEventListener('wheel', onWheel);
-  }, [canvasViewport, onCanvasViewportChange]);
+  }, [canvasViewport, applyViewportChange]);
 
   useEffect(() => {
+    drawSceneRef.current = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
@@ -1166,7 +1243,9 @@ export default function BlueprintCanvas({
       ctx.fillText('N', 0, -radius + 16);
       ctx.restore();
     }
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+    };
+    requestCanvasDraw('overlay');
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
     <div
@@ -1182,11 +1261,11 @@ export default function BlueprintCanvas({
       <span className="vish-canvas-hud-badge rounded-md border border-primary/25 bg-background/90 px-2 py-1 text-[10px] font-mono text-foreground shadow-sm backdrop-blur-sm">
         {(canvasViewport.zoom * 100).toFixed(0)}%
       </span>
-      {onResetViewport && canvasViewport.zoom !== 1 && (
+      {handleResetViewport && canvasViewport.zoom !== 1 && (
         <button
           type="button"
           className="vish-canvas-hud-badge pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm hover:text-foreground"
-          onClick={onResetViewport}
+          onClick={handleResetViewport}
         >
           Reset view
         </button>

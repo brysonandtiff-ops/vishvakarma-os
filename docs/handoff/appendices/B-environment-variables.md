@@ -2,7 +2,7 @@
 
 # Appendix B — Environment Variables
 
-Generated: 2026-06-15T06:45:27.301Z
+Generated: 2026-06-15T07:06:44.393Z
 
 ## Documented in `.env.example`
 
@@ -24,6 +24,7 @@ Generated: 2026-06-15T06:45:27.301Z
 | `VITE_ALLOW_LOCAL_DEMO` | yes |
 | `VITE_AUTH_REDIRECT_ORIGIN` | yes |
 | `VITE_AUTH_WINNER` | yes |
+| `VITE_CAST_LOCAL_ONLY` | yes |
 | `VITE_COLLAB_WS_URL` | yes |
 | `VITE_E2E_ALLOW_LOCAL_ACCESS` | yes |
 | `VITE_PRICING_PAGE_ENABLED` | yes |

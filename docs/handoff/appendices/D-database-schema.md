@@ -2,7 +2,7 @@
 
 # Appendix D — Database Schema (from migrations)
 
-Generated: 2026-06-15T06:45:27.301Z
+Generated: 2026-06-15T07:06:44.393Z
 
 ## Migration files
 
@@ -11,11 +11,15 @@ Generated: 2026-06-15T06:45:27.301Z
 - `supabase/migrations/20260212000003_rls_policies.sql`
 - `supabase/migrations/20260212000004_profiles_billing_optimization.sql`
 - `supabase/migrations/20260213000005_collab_and_storage.sql`
+- `supabase/migrations/20260615000001_cast_sessions.sql`
 
 ## Tables (`public` schema)
 
 - `audit_logs`
 - `billing`
+- `cast_events`
+- `cast_invites`
+- `cast_sessions`
 - `change_requests`
 - `optimization_batches`
 - `profiles`
@@ -79,6 +83,11 @@ Generated: 2026-06-15T06:45:27.301Z
 | materials_insert_own | storage | 20260213000005_collab_and_storage.sql |
 | materials_update_own | storage | 20260213000005_collab_and_storage.sql |
 | materials_delete_own | storage | 20260213000005_collab_and_storage.sql |
+| cast_sessions_select_member | cast_sessions | 20260615000001_cast_sessions.sql |
+| cast_sessions_insert_host | cast_sessions | 20260615000001_cast_sessions.sql |
+| cast_sessions_update_host | cast_sessions | 20260615000001_cast_sessions.sql |
+| cast_invites_select_host | cast_invites | 20260615000001_cast_sessions.sql |
+| cast_events_select_member | cast_events | 20260615000001_cast_sessions.sql |
 
 ## Storage
 

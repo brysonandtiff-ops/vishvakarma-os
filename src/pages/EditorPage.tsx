@@ -15,7 +15,7 @@ import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import CanvasMinimap from '@/components/editor/CanvasMinimap';
 import EditorLayerPanel from '@/components/editor/EditorLayerPanel';
 import EditorTopBar from '@/components/editor/EditorTopBar';
-import RadialToolMenu from '@/components/editor/RadialToolMenu';
+import RadialToolMenuTracker from '@/components/editor/RadialToolMenuTracker';
 import MaterialPicker from '@/components/editor/MaterialPicker';
 import CustomMaterialDialog from '@/components/editor/CustomMaterialDialog';
 import FurniturePicker from '@/components/editor/FurniturePicker';
@@ -38,7 +38,6 @@ import { ComplianceBanner } from '@/components/editor/panels/ComplianceBanner';
 import { CompliancePanel, useComplianceReport } from '@/components/editor/panels/CompliancePanel';
 import {
   AgniThermalPanel,
-  AkashaCastPanel,
   PanchatattvaPanel,
   TvashtarPanel,
   VayuJalaPanel,
@@ -52,6 +51,7 @@ import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
 import EditorCompassCost from '@/components/editor/EditorCompassCost';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
+import { useGeometryRevision } from '@/hooks/useGeometryRevision';
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
 import type { Presence } from '@/collaboration/types';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
@@ -81,6 +81,7 @@ import { enforce } from '@/governance/core/enforcer';
 import { getFailFindings } from '@/services/compliance/complianceGate';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
+const AkashaCastPanel = lazy(() => import('@/components/editor/panels/AkashaCastPanel'));
 
 export default function EditorPage() {
   return (
@@ -115,6 +116,7 @@ function EditorWorkspace() {
     lighting,
     gridSize,
     session,
+    revision,
     canUndo,
     canRedo,
     engine,
@@ -126,6 +128,17 @@ function EditorWorkspace() {
   const broadcastCollaborationCursor = useCollaborationCursorBroadcast(
     session.currentTool,
     engine.getManifest().camera
+  );
+  const handlePointerCanvasMove = useCallback(
+    (point: { x: number; y: number }) => {
+      broadcastCollaborationCursor(point);
+      const now = performance.now();
+      if (now - lastMouseUiUpdateRef.current > 120) {
+        lastMouseUiUpdateRef.current = now;
+        setMousePos(point);
+      }
+    },
+    [broadcastCollaborationCursor],
   );
   const currentTool = session.currentTool;
   const show3DView = session.show3DView;
@@ -145,6 +158,7 @@ function EditorWorkspace() {
   const [unitSystem] = useState<UnitSystem>('metric');
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const lastMouseUiUpdateRef = useRef(0);
   const [saveState, setSaveState] = useState<SaveState>('clean');
   const [lastDraftSavedAt, setLastDraftSavedAt] = useState<string | null>(null);
   const [recoveryDraft, setRecoveryDraft] = useState<LocalDraftPayload | null>(null);
@@ -635,13 +649,18 @@ function EditorWorkspace() {
   }, [selectedWall?.id, selectedWall?.material]);
 
   const showRadialMenu = ['wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
-
-  const manifest = buildManifest();
-  const complianceReport = useComplianceReport(manifest, {
+  const geometryRevision = useGeometryRevision();
+  const geometryManifest = useMemo(
+    () => engine.getGeometryManifest(),
+    [engine, geometryRevision],
+  );
+  const complianceReport = useComplianceReport(geometryManifest, {
     projectId: currentProject?.id,
     projectName,
-  });
+  }, 0, geometryRevision);
   const complianceFailSummary = getFailFindings(complianceReport)[0]?.message;
+  const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
+  const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
 
   const fileStrip = (
     <>
@@ -655,7 +674,7 @@ function EditorWorkspace() {
       <EditorCollaborationBar
         projectId={currentProject?.id}
         projectName={projectName}
-        manifest={manifest}
+        manifest={collabManifest}
         onPresenceChange={setCollabPresences}
       />
       <SaveStateBadge state={saveState} lastDraftAt={lastDraftSavedAt} />
@@ -673,15 +692,27 @@ function EditorWorkspace() {
       <div className="mx-4 h-px bg-border" />
       {workspaceMode === 'mep' && (
         <div className="px-4">
-          <TvashtarPanel manifest={manifest} />
+          <TvashtarPanel manifest={geometryManifest} />
         </div>
       )}
-      {(workspaceMode === 'draft' || currentTool === 'vastu') && <VastuPanel manifest={manifest} />}
+      {(workspaceMode === 'draft' || currentTool === 'vastu') && <VastuPanel manifest={geometryManifest} />}
       <div className="space-y-3 px-4">
-        <VayuJalaPanel manifest={manifest} />
-        <AgniThermalPanel manifest={manifest} />
-        <PanchatattvaPanel manifest={manifest} />
-        <AkashaCastPanel />
+        <VayuJalaPanel manifest={geometryManifest} />
+        <AgniThermalPanel manifest={geometryManifest} />
+        <PanchatattvaPanel manifest={geometryManifest} />
+        <AkashaCastPanel
+          projectId={currentProject?.id}
+          userId={user?.id}
+          userName={user?.email?.split('@')[0] ?? 'Architect'}
+          manifest={geometryManifest}
+          onCastStart={() => engine.setPresentationLock(true)}
+          onCastStop={() => engine.setPresentationLock(false)}
+          onManifestChange={(nextManifest, isRemote) => {
+            if (isRemote) {
+              engine.applyRemoteManifest(nextManifest);
+            }
+          }}
+        />
       </div>
       <ProjectProofPanel
         projectName={projectName}
@@ -703,7 +734,7 @@ function EditorWorkspace() {
       />
       <div className="mx-4 h-px bg-border" />
       <CompliancePanel
-        manifest={manifest}
+        manifest={geometryManifest}
         projectId={currentProject?.id}
         projectName={projectName}
       />
@@ -732,7 +763,15 @@ function EditorWorkspace() {
       <div className="mx-4 h-px bg-border" />
       <div className="px-4 py-3">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Solar / Lighting</p>
-        <SolarTimeline lighting={lighting} onLightingChange={(value) => engine.setLighting(value)} />
+        <SolarTimeline
+          lighting={lighting}
+          onLightingChange={(value) => {
+            engine.setLighting(value);
+            void import('@/cast/CastSessionManager').then(({ getCastSessionManager }) => {
+              getCastSessionManager().updatePresenterLighting(value);
+            });
+          }}
+        />
       </div>
     </div>
   );
@@ -784,10 +823,6 @@ function EditorWorkspace() {
               <div
                 ref={canvasStageRef}
                 className="vish-canvas-stage relative flex-1 overflow-auto p-4"
-                onPointerMove={(event) => {
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  setMousePos({ x: event.clientX - rect.left, y: event.clientY - rect.top });
-                }}
               >
                 <p className="vish-editor-mantra-watermark" aria-hidden="true">
                   ॐ वास्तु · शिल्प · प्रमाण
@@ -838,7 +873,7 @@ function EditorWorkspace() {
                   onFixtureSelect={setSelectedFixtureId}
                   onLandscapeAdd={(element) => engine.addLandscapeElement(element)}
                   onTerrainAdd={(patch) => engine.addTerrainPatch(patch)}
-                  onPointerCanvasMove={broadcastCollaborationCursor}
+                  onPointerCanvasMove={handlePointerCanvasMove}
                   onWallSelect={(id) => engine.setSelection(id, undefined)}
                   onWallsSelect={(ids) => engine.setWallSelection(ids)}
                   onOpeningSelect={(id) => engine.setSelection(undefined, id)}
@@ -884,10 +919,9 @@ function EditorWorkspace() {
                   currentUserId={user?.id}
                 />
                 <EditorPhasePills />
-                <RadialToolMenu
+                <RadialToolMenuTracker
                   visible={showRadialMenu}
-                  x={mousePos.x}
-                  y={mousePos.y}
+                  containerRef={canvasStageRef}
                   currentTool={currentTool}
                   onSelectTool={setTool}
                 />
@@ -1054,7 +1088,7 @@ function EditorWorkspace() {
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
         onExportJSON={handleExportJSON}
-        manifest={manifest}
+        manifest={exportManifest}
         projectName={projectName}
         wallCount={walls.length}
         openingCount={openings.length}

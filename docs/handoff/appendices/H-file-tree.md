@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-15T06:45:27.301Z
+Generated: 2026-06-15T07:06:44.393Z
 
 ```
 src/
@@ -53,6 +53,19 @@ backend/
 brand/
   founders.ts
   officialLogo.ts
+cast/
+  castApi.ts
+  CastEvidenceExporter.ts
+  CastIntentRelay.test.ts
+  CastIntentRelay.ts
+  CastLensState.test.ts
+  CastLensState.ts
+  CastSessionManager.ts
+  castTier.test.ts
+  castTier.ts
+  LocalCastBus.ts
+  types.ts
+  useCastSession.ts
 collaboration/
   crdt/
     manifestBridge.ts
@@ -78,6 +91,9 @@ components/
   brand/
     FoundersAcknowledgment.test.tsx
     FoundersAcknowledgment.tsx
+  cast/
+    CastIntentTimeline.tsx
+    CastLensBadges.tsx
   common/
     AnalyticsConsentBanner.tsx
     AppErrorBoundary.tsx
@@ -135,6 +151,7 @@ components/
     OnboardingPanel.tsx
     OpenProjectDialog.tsx
     panels/
+      AkashaCastPanel.tsx
       ComplianceBanner.tsx
       CompliancePanel.tsx
       SimulationPanels.tsx
@@ -332,6 +349,11 @@ data/
 db/
   api.ts
 domain/
+  buildingGraph/
+    index.ts
+    manifestAdapter.test.ts
+    manifestAdapter.ts
+    types.ts
   buildings/
     buildingRequest.ts
     generatedBuilding.ts
@@ -393,9 +415,11 @@ hooks/
   useAuthCapabilities.ts
   useBilling.ts
   useCanvasResize.ts
+  useCanvasViewport.ts
   useCloudSaveStatus.ts
   useCoarsePointer.ts
   useFloorPlanEngine.ts
+  useGeometryRevision.ts
   usePlanTier.ts
   useVisualViewportInset.ts
 index.css
@@ -421,6 +445,11 @@ modules/
     complianceReportExport.ts
     constants.ts
     jurisdictionCompliance.test.ts
+    rulePacks/
+      auNccVol2H1.test.ts
+      auNccVol2H1.ts
+      index.ts
+      types.ts
     types.ts
   council-intelligence/
     councilIntelligenceModule.ts
@@ -437,11 +466,15 @@ modules/
   permit/
     permitPackageExport.test.ts
     permitPackageExport.ts
+  sheetSet/
+    sheetSetComposer.test.ts
+    sheetSetComposer.ts
   themeManager.ts
   versionControlHooks.ts
 pages/
   AuditLogPage.tsx
   AuthPage.tsx
+  CastViewerPage.tsx
   ChangeRequestsPage.tsx
   EditorPage.tsx
   FeaturesPage.tsx
@@ -610,6 +643,7 @@ test/
   elementLock.test.ts
   export.test.ts
   fixtures/
+    dxf-layer-filter-sample.dxf
     dxf-lwpolyline-sample.dxf
   formatValidator.test.ts
   functionalWiring.test.ts
@@ -686,6 +720,10 @@ api/
 ai/
   extract-requirements.ts
   parse-site-documents.ts
+cast/
+  evidence.ts
+  join.ts
+  sessions.ts
 health.ts
 stripe/
   create-checkout-session.ts
@@ -694,6 +732,7 @@ stripe/
 _lib/
   billingBackend.ts
   billingSupabase.ts
+  castBackend.ts
   stripeClient.ts
   stripeInvoice.ts
   verifyAuthToken.ts
@@ -713,6 +752,7 @@ migrations/
   20260212000003_rls_policies.sql
   20260212000004_profiles_billing_optimization.sql
   20260213000005_collab_and_storage.sql
+  20260615000001_cast_sessions.sql
 README.md
 
 scripts/
@@ -820,6 +860,7 @@ world-record/
 e2e/
 accessibility-audit.spec.ts
 ai-designer.spec.ts
+akasha-cast.spec.ts
 auth-gate.spec.ts
 auth-post-login-restore.spec.ts
 auth-private-routes.spec.ts
@@ -1043,11 +1084,18 @@ rfc/
   001-curved-walls.md
   002-dxf-import.md
   005-building-codes.md
+  006-bim-graph-layer.md
+  007-production-collaboration.md
+  008-sheet-set-export.md
+  009-compliance-jurisdiction-v1.md
   README.md
+roadmap/
+  WORLD_CLASS_PLAN.md
 route-manifest-schema.md
 SOFTWARE_INVENTORY.md
 SPEC.md
 specs/
+  AKASHA_CAST_v1.md
   ARCHITECTURE_COPILOT_v2.md
   CONSTRUCTION_COST_INTELLIGENCE.md
   COUNCIL_INTELLIGENCE.md

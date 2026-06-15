@@ -9,6 +9,7 @@ const expectedRoutePaths = [
   ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
   '/auth',
   '/reset-password',
+  '/cast/:token',
   '/404',
   '/editor',
   '/projects',
@@ -28,6 +29,7 @@ const expectedPublicRoutePaths = [
   ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
   '/auth',
   '/reset-password',
+  '/cast/:token',
   '/404',
 ];
 

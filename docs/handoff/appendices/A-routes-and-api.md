@@ -2,7 +2,7 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-15T06:45:27.301Z
+Generated: 2026-06-15T07:06:44.393Z
 
 ## Client routes (`src/routes.tsx`)
 
@@ -13,6 +13,7 @@ Generated: 2026-06-15T06:45:27.301Z
 | Pricing | `/pricing` | PricingPage | public | Flag: `VITE_PRICING_PAGE_ENABLED` |
 | Account Access | `/auth` | AuthPage | public |  |
 | Reset Password | `/reset-password` | ResetPasswordPage | public |  |
+| Akasha Cast Viewer | `/cast/:token` | CastViewerPage | public |  |
 | Not Found | `/404` | NotFoundPage | public |  |
 | Blueprint Editor | `/editor` | EditorPage | private |  |
 | Projects | `/projects` | ProjectsPage | private |  |
@@ -35,6 +36,9 @@ Pricing route conditional in source: `PRICING_PAGE_ENABLED` = true.
 |-----------|-------------|
 | `POST /api/ai/extract-requirements` | `api/ai/extract-requirements.ts` |
 | `POST /api/ai/parse-site-documents` | `api/ai/parse-site-documents.ts` |
+| `POST /api/cast/evidence` | `api/cast/evidence.ts` |
+| `POST /api/cast/join` | `api/cast/join.ts` |
+| `POST /api/cast/sessions` | `api/cast/sessions.ts` |
 | `POST /api/health` | `api/health.ts` |
 | `POST /api/stripe/create-checkout-session` | `api/stripe/create-checkout-session.ts` |
 | `POST /api/stripe/create-portal-session` | `api/stripe/create-portal-session.ts` |
@@ -44,6 +48,7 @@ Pricing route conditional in source: `PRICING_PAGE_ENABLED` = true.
 
 - `api/_lib/billingBackend.ts`
 - `api/_lib/billingSupabase.ts`
+- `api/_lib/castBackend.ts`
 - `api/_lib/stripeClient.ts`
 - `api/_lib/stripeInvoice.ts`
 - `api/_lib/verifyAuthToken.ts`

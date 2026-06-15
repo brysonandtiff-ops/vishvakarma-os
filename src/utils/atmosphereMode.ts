@@ -33,11 +33,15 @@ export function resolveDefaultAtmosphereMode(
       ? window.matchMedia(COARSE_POINTER_QUERY).matches
       : false);
 
+  if (isCoarsePointer) {
+    return 'standard';
+  }
+
   const cores =
     options.hardwareConcurrency ??
     (typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined);
 
-  if (isCoarsePointer && cores !== undefined && cores <= 4) {
+  if (cores !== undefined && cores <= 4) {
     return 'standard';
   }
 

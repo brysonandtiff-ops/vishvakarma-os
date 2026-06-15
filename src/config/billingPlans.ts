@@ -57,6 +57,7 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
       'Project Proof governance',
       'Vastu Harmony + Panchatattva scoring',
       'India NBC pre-check & INR cost regions',
+      'Akasha Cast (semantic lens broadcasting)',
     ],
   },
   enterprise: {
@@ -77,6 +78,7 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
       'Custom template library',
       'Indian residential sample library',
       'Collaboration (planned)',
+      'Akasha Cast role invites + evidence export',
     ],
   },
 };

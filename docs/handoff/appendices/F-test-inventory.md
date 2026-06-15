@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-15T06:45:27.301Z
+Generated: 2026-06-15T07:06:44.393Z
 
-## Vitest unit/integration (116 files)
+## Vitest unit/integration (119 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -30,13 +30,16 @@ Generated: 2026-06-15T06:45:27.301Z
 - `src/core/simulations/vastu.test.ts`
 - `src/data/cost/materialCatalog.test.ts`
 - `src/data/cost/regionalIndices.test.ts`
+- `src/domain/buildingGraph/manifestAdapter.test.ts`
 - `src/editor/localDraft.test.ts`
 - `src/editor/onboardingMemory.test.ts`
 - `src/modules/compliance/complianceModule.test.ts`
 - `src/modules/compliance/complianceReportExport.test.ts`
 - `src/modules/compliance/jurisdictionCompliance.test.ts`
+- `src/modules/compliance/rulePacks/auNccVol2H1.test.ts`
 - `src/modules/optimization/optimizationReportExport.test.ts`
 - `src/modules/permit/permitPackageExport.test.ts`
+- `src/modules/sheetSet/sheetSetComposer.test.ts`
 - `src/planning/candidateGenerator.test.ts`
 - `src/planning/planScoringEngine.test.ts`
 - `src/planning/planningPipeline.test.ts`
@@ -123,10 +126,11 @@ Generated: 2026-06-15T06:45:27.301Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (21 specs)
+## Playwright E2E (22 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
+- `e2e/akasha-cast.spec.ts`
 - `e2e/auth-gate.spec.ts`
 - `e2e/auth-post-login-restore.spec.ts`
 - `e2e/auth-private-routes.spec.ts`

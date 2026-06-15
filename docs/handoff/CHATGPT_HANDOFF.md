@@ -3,7 +3,7 @@
 **Document type:** Paste-ready context for ChatGPT and other AI assistants  
 **Product version:** v1.5.0  
 **Generated:** 2026-06-15  
-**Git SHA:** `c3d53895f93e78b0a67137015619eab9c8298270`  
+**Git SHA:** `6cca332b31aa7fe5199c8bf809703ea03dccdd5d`  
 **Canonical production URL:** https://vishvakarma-os.app  
 **Vercel fallback URL:** https://vishvakarma-os.vercel.app  
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
@@ -59,12 +59,12 @@ Target users: architects, interior designers, builders, students, and project ma
 | AI | Google Gemini via `api/ai/*` (requires `GEMINI_API_KEY`) |
 | Node | 20.x |
 | Package manager | pnpm 9.15.0 |
-| Client routes | 16 |
-| Serverless API handlers | 5 |
-| Postgres tables (core) | 10 |
-| npm scripts | 71 |
-| Unit tests (Vitest) | 114 |
-| E2E specs (Playwright) | 20 |
+| Client routes | 17 |
+| Serverless API handlers | 9 |
+| Postgres tables (core) | 13 |
+| npm scripts | 103 |
+| Unit tests (Vitest) | 119 |
+| E2E specs (Playwright) | 22 |
 | Release gates | 13 strict gates |
 
 ---
@@ -209,7 +209,7 @@ Browser → Vercel API routes → Stripe / Gemini / Supabase (service role)
 | AI | Google Gemini via `@google/generative-ai` |
 | Realtime (preview) | Yjs + y-websocket + optional Node collab server (`server/collab/`) |
 | Hosting | Vercel (static `dist/` + serverless API routes) |
-| Testing | Vitest (114 test files), Playwright (20 E2E specs) |
+| Testing | Vitest (119 test files), Playwright (22 E2E specs) |
 | Quality | Biome, tsgo, ast-grep, custom release/contract gates |
 | Runtime | Node 20.x, pnpm 9.15.0 |
 
@@ -551,7 +551,7 @@ These repo files contain extended detail if a human operator needs them:
 - Production: editor, 3D, auth, billing, governance, exports
 - Prototype: AI, optimization, compliance, cost, council (disclaimers required)
 - Preview/planned: collaboration, Enterprise SSO/API, full DXF pipeline
-- Git SHA: `c3d53895f93e78b0a67137015619eab9c8298270`
+- Git SHA: `6cca332b31aa7fe5199c8bf809703ea03dccdd5d`
 - Generated: 2026-06-15
 
 Safe to ask questions about implementation, features, architecture, marketing claims, or due diligence.

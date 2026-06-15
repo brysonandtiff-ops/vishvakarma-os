@@ -52,7 +52,7 @@ Vendored agent skills: [`.agents/skills/`](../../.agents/skills/) (Supabase skil
 |------|--------|-----------|
 | Real-time collaboration | Preview scaffold | [`src/collaboration/`](../../src/collaboration/), README |
 | Enterprise SSO / API | Listed as planned | [`src/config/billingPlans.ts`](../../src/config/billingPlans.ts) |
-| Operator Google sign-in evidence | May be incomplete | [`docs/release/evidence/auth-sign-in-proof.md`](../release/evidence/auth-sign-in-proof.md) |
+| Operator Google sign-in evidence | **Resolved — PASS** | [`docs/release/evidence/auth-sign-in-proof.md`](../release/evidence/auth-sign-in-proof.md) — Supabase Google OAuth on canonical `.app` origin verified 2026-06-14 |
 | Pricing page | Flag-gated | `VITE_PRICING_PAGE_ENABLED` |
 | Compliance engine | NCC/zoning stubs | PRODUCT_CAPABILITIES §8 |
 

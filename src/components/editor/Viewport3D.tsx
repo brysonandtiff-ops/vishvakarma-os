@@ -85,29 +85,29 @@ const ATMOSPHERE_MODES: Record<
   },
   premium: {
     label: 'Premium',
-    particleCount: 110,
-    particleOpacity: 0.34,
-    particleSize: 0.043,
+    particleCount: 80,
+    particleOpacity: 0.28,
+    particleSize: 0.04,
     godRays: true,
     sacredFloor: true,
     fogNear: 9,
     fogFar: 26,
-    autoRotate: true,
-    autoRotateSpeed: 0.22,
-    dpr: [1, 1.6],
+    autoRotate: false,
+    autoRotateSpeed: 0,
+    dpr: [1, 1.5],
   },
   cinematic: {
     label: 'Cinematic',
-    particleCount: 180,
-    particleOpacity: 0.46,
-    particleSize: 0.05,
+    particleCount: 140,
+    particleOpacity: 0.4,
+    particleSize: 0.048,
     godRays: true,
     sacredFloor: true,
     fogNear: 7,
     fogFar: 24,
     autoRotate: true,
-    autoRotateSpeed: 0.32,
-    dpr: [1, 1.85],
+    autoRotateSpeed: 0.24,
+    dpr: [1, 1.75],
   },
 };
 
@@ -496,6 +496,8 @@ function SacredAtmosphere({ mode, boostCinematic }: { mode: AtmospherePerformanc
 }
 
 function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: AtmospherePerformanceMode }) {
+  const castShadow = mode !== 'standard';
+  const shadowMap = mode === 'cinematic' ? 2048 : 1024;
   // Convert azimuth and elevation to 3D position
   const azimuthRad = (lighting.sunAzimuth * Math.PI) / 180;
   const elevationRad = (lighting.sunElevation * Math.PI) / 180;
@@ -514,9 +516,9 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
         position={[x, y, z]}
         intensity={lighting.intensity}
         color={ATMOSPHERE.sun}
-        castShadow
-        shadow-mapSize-width={mode === 'standard' ? 1024 : 2048}
-        shadow-mapSize-height={mode === 'standard' ? 1024 : 2048}
+        castShadow={castShadow}
+        shadow-mapSize-width={shadowMap}
+        shadow-mapSize-height={shadowMap}
         shadow-bias={-0.0002}
       />
       {mode !== 'standard' && (

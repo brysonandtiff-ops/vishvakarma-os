@@ -39,6 +39,7 @@ const APP_SMOKE_MATCH = [
   '**/ai-designer.spec.ts',
   '**/collaboration-sync.spec.ts',
   '**/compliance-gate.spec.ts',
+  '**/akasha-cast.spec.ts',
 ];
 
 const CROSS_BROWSER_SMOKE_MATCH = ['**/cross-browser-smoke.spec.ts'];

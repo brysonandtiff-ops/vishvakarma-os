@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react';
 import ProjectsPage from './pages/ProjectsPage';
 import ProfilePage from './pages/ProfilePage';
 import EditorPage from './pages/EditorPage';
@@ -15,7 +16,22 @@ import WorldRecordsPage from './pages/WorldRecordsPage';
 import OptimizationPage from './pages/OptimizationPage';
 import AuthPage from './pages/AuthPage';
 import NotFoundPage from './pages/NotFound';
-import type { ReactNode } from 'react';
+
+const CastViewerPage = lazy(() => import('./pages/CastViewerPage'));
+
+function lazyRoute(element: ReactNode) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+          Loading…
+        </div>
+      }
+    >
+      {element}
+    </Suspense>
+  );
+}
 
 export type RouteAccess = 'public' | 'private';
 
@@ -64,6 +80,13 @@ const routes: RouteConfig[] = [
     name: 'Reset Password',
     path: '/reset-password',
     element: <ResetPasswordPage />,
+    visible: false,
+    access: 'public',
+  },
+  {
+    name: 'Akasha Cast Viewer',
+    path: '/cast/:token',
+    element: lazyRoute(<CastViewerPage />),
     visible: false,
     access: 'public',
   },

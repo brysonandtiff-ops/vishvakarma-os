@@ -58,6 +58,17 @@ Valuation handoff pack with auto-generated appendices.
 
 Regenerate inventories: `pnpm run handoff:generate`
 
+### AI assistants (Cursor, ChatGPT, Codex)
+
+Onboarding for coding agents working in this repo.
+
+1. [handoff/CHATGPT_HANDOFF.md](./handoff/CHATGPT_HANDOFF.md) — paste-ready product and codebase context (start here)
+2. [handoff/HANDOFF.md](./handoff/HANDOFF.md) — valuation handoff index, truth hierarchy, annexes
+3. [.cursor/rules/](../.cursor/rules/) — Cursor agent rules (RepairBot, verify expectations)
+4. [.agents/skills/](../.agents/skills/) — vendored Supabase agent skills
+
+Work only inside `vishvakarma-os-live/`. See [AGENTS.md](../AGENTS.md) for the full agent onboarding brief.
+
 ---
 
 ## Current state references

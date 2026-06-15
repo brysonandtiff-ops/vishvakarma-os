@@ -1,6 +1,32 @@
 import { COMPASS_FILL, COMPASS_STROKE, GOLD_MUTED } from '@/core/sceneDrawingTokens';
-import { analyzeVastu, getVastuPlanCentroid, VASTU_DIRECTIONS, type VastuDirection } from '@/core/simulations/vastu';
+import { analyzeVastu, getVastuPlanCentroid, VASTU_DIRECTIONS, type VastuAnalysisResult, type VastuDirection } from '@/core/simulations/vastu';
 import type { ProjectManifest } from '@/types';
+
+const vastuAnalysisCache = new Map<string, VastuAnalysisResult>();
+
+function vastuGeometryHash(manifest: Pick<ProjectManifest, 'walls' | 'openings' | 'labels' | 'northOrientation'>): string {
+  return JSON.stringify({
+    walls: manifest.walls?.map((w) => [w.id, w.start, w.end]),
+    openings: manifest.openings?.map((o) => [o.id, o.wallId, o.position, o.type]),
+    labels: manifest.labels?.map((l) => [l.id, l.text, l.position]),
+    north: manifest.northOrientation ?? 0,
+  });
+}
+
+export function getCachedVastuAnalysis(
+  manifest: Pick<ProjectManifest, 'walls' | 'openings' | 'labels' | 'northOrientation'>,
+): VastuAnalysisResult {
+  const key = vastuGeometryHash(manifest);
+  const cached = vastuAnalysisCache.get(key);
+  if (cached) return cached;
+  const analysis = analyzeVastu(manifest);
+  vastuAnalysisCache.set(key, analysis);
+  if (vastuAnalysisCache.size > 24) {
+    const first = vastuAnalysisCache.keys().next().value;
+    if (first) vastuAnalysisCache.delete(first);
+  }
+  return analysis;
+}
 
 function sectorColor(score: number): string {
   if (score >= 75) return 'rgba(56, 142, 60, 0.18)';
@@ -32,7 +58,7 @@ export function drawVastuSectorOverlay(
 
   const center = getVastuPlanCentroid(manifest);
   const northOrientation = manifest.northOrientation ?? 0;
-  const analysis = analyzeVastu(manifest);
+  const analysis = getCachedVastuAnalysis(manifest);
   const scoreByDir = new Map(analysis.directions.map((d) => [d.direction, d.score]));
 
   ctx.save();

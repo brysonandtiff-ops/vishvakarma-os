@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-15T06:41:55.523Z",
-  "commit": "c34e682ca77ec8079d5c6fbf72cb7ad69b9ef8cd",
-  "distTotalBytes": 3308590,
-  "distTotalMb": 3.16,
+  "generatedAt": "2026-06-15T07:10:08.318Z",
+  "commit": "6cca332b31aa7fe5199c8bf809703ea03dccdd5d",
+  "distTotalBytes": 3344009,
+  "distTotalMb": 3.19,
   "budget": {
     "totalDistMb": 5,
     "chunks": {
@@ -16,17 +16,42 @@
     }
   },
   "chunks": {
-    "index": {
-      "bytes": 842973,
+    "AkashaCastPanel": {
+      "bytes": 4639,
       "files": [
-        "index-B-B5C1hD.css",
-        "index-BsEfKsxJ.js"
+        "AkashaCastPanel-DQlWZd9q.js"
+      ]
+    },
+    "CastIntentTimeline": {
+      "bytes": 2946,
+      "files": [
+        "CastIntentTimeline-Dlx58Nzq.js"
+      ]
+    },
+    "CastSessionManager": {
+      "bytes": 14204,
+      "files": [
+        "CastSessionManager-B1OlRBXp.js",
+        "CastSessionManager-CxEcJbef.js"
+      ]
+    },
+    "CastViewerPage": {
+      "bytes": 4880,
+      "files": [
+        "CastViewerPage-DbaE_q_n.js"
+      ]
+    },
+    "index": {
+      "bytes": 851323,
+      "files": [
+        "index-CAW6D0iq.css",
+        "index-DG-D16x_.js"
       ]
     },
     "monitoring": {
       "bytes": 70,
       "files": [
-        "monitoring-CyXhvrJO.js"
+        "monitoring-DvAa_JFH.js"
       ]
     },
     "planning.worker": {
@@ -54,27 +79,27 @@
       ]
     },
     "vendor-react": {
-      "bytes": 523528,
+      "bytes": 523619,
       "files": [
-        "vendor-react-DQlr6IZr.js"
+        "vendor-react-B4JxM335.js"
       ]
     },
     "vendor-supabase": {
       "bytes": 194237,
       "files": [
-        "vendor-supabase-_OpfxDlu.js"
+        "vendor-supabase-BH1w5gZM.js"
       ]
     },
     "vendor-ui": {
-      "bytes": 145665,
+      "bytes": 145978,
       "files": [
-        "vendor-ui-C6qlltuJ.js"
+        "vendor-ui-DhSe4nSq.js"
       ]
     },
     "Viewport3D": {
-      "bytes": 36205,
+      "bytes": 36201,
       "files": [
-        "Viewport3D-DGA9Pjeu.js"
+        "Viewport3D-BO4W69pP.js"
       ]
     }
   },
