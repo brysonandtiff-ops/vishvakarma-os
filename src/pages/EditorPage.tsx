@@ -1,6 +1,6 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -49,7 +49,6 @@ import FloorSwitcher from '@/components/editor/FloorSwitcher';
 import SaveModeBadge from '@/components/editor/SaveModeBadge';
 import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
-import EditorPerfHud from '@/components/editor/EditorPerfHud';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import { useGeometryRevision } from '@/hooks/useGeometryRevision';
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
@@ -890,21 +889,10 @@ function EditorWorkspace() {
                     onPanToWorld={handleMinimapPan}
                   />
                 )}
-                <EditorCompassCost
-                  northOrientation={northOrientation}
-                  jurisdiction={resolveJurisdiction(engine.getManifest())}
-                  regionId={resolveRegionId(engine.getManifest())}
-                  costItems={costItems}
-                  costRange={engine.getManifest().metadata.costIntelligence}
-                  onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
-                  onJurisdictionChange={(j: ProjectJurisdiction) => engine.setJurisdiction(j)}
-                  onRegionChange={(regionId) => engine.setRegionId(regionId)}
-                />
                 <RemoteCursorsOverlay
                   presences={collabPresences}
                   currentUserId={user?.id}
                 />
-                <EditorPerfHud />
                 <EditorPhasePills />
                 <RadialToolMenuTracker
                   visible={showRadialMenu}
