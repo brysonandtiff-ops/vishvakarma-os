@@ -135,6 +135,7 @@ export default function SpecCenterPage() {
   return (
     <AppLayout>
       <WorkspacePageShell variant="governance">
+        <div data-tutorial="spec-center-header">
         <WorkspacePageHeader
           variant="fullBleed"
           title="Spec Center"
@@ -165,6 +166,8 @@ export default function SpecCenterPage() {
             </>
           }
         />
+
+        </div>
 
         <WorkspacePageScroll>
           <div className="mx-auto max-w-5xl space-y-6 p-6 gov-content-area">

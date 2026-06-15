@@ -11,6 +11,7 @@ export default function OptimizationBatchHistory({
     <div
       className="rounded-2xl border border-border/60 p-4"
       data-testid="optimization-batch-history"
+      data-tutorial="optimization-history"
     >
       <h3 className="mb-3 font-semibold">Recent Optimization Runs</h3>
       <ul className="space-y-2">

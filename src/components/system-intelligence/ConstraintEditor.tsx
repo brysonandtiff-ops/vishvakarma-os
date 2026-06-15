@@ -62,6 +62,7 @@ export default function ConstraintEditor({
     <div
       className="space-y-4 rounded-2xl border border-border/60 bg-card/50 p-4 lg:p-6"
       data-testid="constraint-editor"
+      data-tutorial="optimization-intake"
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -173,6 +174,7 @@ export default function ConstraintEditor({
         disabled={loading || !values.prompt.trim()}
         className="w-full"
         data-testid="constraint-regenerate"
+        data-tutorial="optimization-run"
       >
         {loading ? 'Regenerating…' : dirty ? 'Regenerate with updated constraints' : 'Regenerate designs'}
       </Button>

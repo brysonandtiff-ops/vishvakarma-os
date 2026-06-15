@@ -197,7 +197,7 @@ export default function ProjectsPage() {
             </>
           }
           actions={
-            <Button asChild className="touch-target">
+            <Button asChild className="touch-target" data-tutorial="projects-new">
               <Link to="/editor">
                 <Plus className="mr-2 h-4 w-4" />
                 New in editor
@@ -245,6 +245,7 @@ export default function ProjectsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="max-w-xs"
                 aria-label="Search projects"
+                data-tutorial="projects-search"
               />
               <Button
                 variant={showArchived ? 'default' : 'outline'}
@@ -254,7 +255,7 @@ export default function ProjectsPage() {
                 {showArchived ? 'Hide archived' : 'Show archived'}
               </Button>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tutorial="projects-grid">
               {filteredProjects.map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
