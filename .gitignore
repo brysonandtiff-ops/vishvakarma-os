@@ -59,6 +59,7 @@ vitest-bail.txt
 test-run-final.txt
 test-final.txt
 device-e2e-last-run.txt
+pnpm-test-final.txt
 
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/
