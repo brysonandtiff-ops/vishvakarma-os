@@ -62,3 +62,24 @@ export async function emulateCoarsePointer(page: Page) {
     };
   });
 }
+
+export async function emulateFinePointer(page: Page) {
+  await page.addInitScript(() => {
+    const originalMatchMedia = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) => {
+      if (query.includes('pointer: coarse') || query.includes('hover: none')) {
+        return {
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: () => {},
+          removeListener: () => {},
+          addEventListener: () => {},
+          removeEventListener: () => {},
+          dispatchEvent: () => false,
+        } as MediaQueryList;
+      }
+      return originalMatchMedia(query);
+    };
+  });
+}

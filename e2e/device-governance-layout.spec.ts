@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import {
   androidTabletLandscape,
   assertNoHorizontalOverflow,
@@ -31,7 +31,7 @@ async function assertGovernancePage(
   path: string,
   heading: string | RegExp,
 ) {
-  await page.goto(path);
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
   const headingLocator =
     typeof heading === 'string'
       ? page.getByRole('heading', { name: heading, exact: true })

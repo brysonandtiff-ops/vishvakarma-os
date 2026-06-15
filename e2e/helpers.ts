@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+﻿import { expect, type Page } from '@playwright/test';
 
 /** 3D pane may render WebGL or a graceful fallback in headless WebKit/Firefox. */
 export async function expect3DPreviewPane(page: Page) {
@@ -139,4 +139,5 @@ export {
   assertNoHorizontalOverflow,
   assertTouchTargets,
   emulateCoarsePointer,
+  emulateFinePointer,
 } from './deviceTouchTargets';

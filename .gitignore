@@ -52,6 +52,11 @@ migration/export-*.json
 .cursor/debug-*.log
 .cursor/auto-ship/
 
+# Local test output captures
+test-output*.txt
+vitest-console.txt
+test-run-final.txt
+
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/
 
