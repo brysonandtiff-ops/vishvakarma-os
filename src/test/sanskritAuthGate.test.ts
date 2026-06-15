@@ -67,7 +67,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('vish-auth-logo-img');
     expect(authPage).toContain('vish-auth-wordmark-divider');
     expect(authPage).toContain('VISHVAKARMA.OS');
-    expect(authPage).toContain('iPad-Native Architecture Suite');
+    expect(authPage).toContain('vish-devanagari-hero');
+    expect(authPage).toContain('iPad-First Architecture Studio');
     expect(authPage).toContain('FoundersAcknowledgment');
     expect(authPage).toContain('variant="auth"');
     expect(read('src/brand/founders.ts')).toContain('TYRASIC CREATIONS');
@@ -75,7 +76,7 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('auth-trust-pillar-gates');
     expect(authPage).toContain('auth-trust-pillar-records');
-    expect(authPage).toContain('WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence');
+    expect(authPage).toContain('Release evidence pack');
     expect(authPage).toContain('WORLD_RECORD_HONESTY_DISCLAIMER');
     expect(authPage).toContain('destination="/releases"');
     expect(authPage).toContain('destination="/world-records"');

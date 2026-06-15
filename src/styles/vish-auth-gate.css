@@ -878,6 +878,11 @@
   opacity: 0.88;
 }
 
+.vish-auth-gate .vish-devanagari-hero {
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
+  letter-spacing: 0.08em;
+}
+
 .vish-auth-card-headline {
   letter-spacing: 0.04em;
   text-shadow: 0 1px 12px hsl(0 0% 0% / 0.35);

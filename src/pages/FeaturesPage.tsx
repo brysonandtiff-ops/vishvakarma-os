@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import {
   Box,
@@ -13,8 +14,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageMeta from '@/components/common/PageMeta';
 import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
+import { Button } from '@/components/ui/button';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
+import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
+import { useAuth } from '@/contexts/AuthContext';
 
 const INTERACTIVE_GUIDES = [
   {
@@ -78,6 +82,8 @@ const FEATURE_MODULES = [
 
 export default function FeaturesPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const startTo = user ? '/editor' : '/auth';
 
   const openGuideInEditor = (title: string, hint: string) => {
     toast.message(title, { description: `${hint} — opening the editor.` });
@@ -86,14 +92,24 @@ export default function FeaturesPage() {
 
   return (
     <MarketingLayout>
-      <PageMeta title="Features & Guides" description="Learn Vishvakarma.OS with interactive guides and feature reference." />
-      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8">
+      <PageMeta
+        title="Features & Guides — Vishvakarma.OS"
+        description="Interactive editor guides and a full feature reference for Vishvakarma.OS — 2D drafting, Sacred 3D View, exports, and India compliance."
+      />
+      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
         <MarketingPageHeader
           devanagari="मन्त्र यन्त्र वास्तु रचना"
-          title="Feature guides & Project Proof reference"
-          description="Step-by-step interactive guides open the editor with contextual hints"
+          hero
+          title={
+            <>
+              Interactive guides.
+              <br />
+              <span className="vish-hero-gold">Full feature reference.</span>
+            </>
+          }
+          description="Step-by-step guides open the editor with contextual hints for each workflow."
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricPill
             value={String(FEATURE_MODULES.filter((m) => m.ready).length)}
             label="ready now"
@@ -102,13 +118,14 @@ export default function FeaturesPage() {
           />
           <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" animate staggerIndex={1} />
           <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" animate staggerIndex={2} />
+          <MetricPill value={String(EXPORT_FORMAT_COUNT)} label="export formats" animate staggerIndex={3} />
         </div>
         <Tabs defaultValue="guides" className="mt-10">
           <TabsList className="vish-features-toggle h-auto w-full justify-start gap-1 bg-transparent p-0">
-            <TabsTrigger value="guides" className="rounded-xl data-[state=active]:bg-primary/15">
+            <TabsTrigger value="guides" className="rounded-xl">
               Getting Started
             </TabsTrigger>
-            <TabsTrigger value="features" className="rounded-xl data-[state=active]:bg-primary/15">
+            <TabsTrigger value="features" className="rounded-xl">
               All Features
             </TabsTrigger>
           </TabsList>
@@ -142,16 +159,28 @@ export default function FeaturesPage() {
                   badge={mod.ready ? 'Available' : 'Preview'}
                   description={
                     mod.ready
-                      ? 'Available now in editor.'
+                      ? 'Available now in the editor.'
                       : 'preview' in mod && mod.preview
-                        ? 'Preview — full collaboration ships in v2.'
-                        : 'Planned — remote collaboration in a future release.'
+                        ? 'Preview — collaboration planned for a future release.'
+                        : 'Planned for a future release.'
                   }
                 />
               ))}
             </div>
           </TabsContent>
         </Tabs>
+      </section>
+
+      <section className="border-t border-primary/15 px-4 py-16 md:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
+          <p className="mt-4 text-lg vish-text-heading">
+            Open the editor, load the sample project, and follow any guide above to draft your first floor plan.
+          </p>
+          <Button variant="gold" size="gold" className="mt-8" asChild>
+            <Link to={startTo}>{user ? 'Open Editor →' : 'Start Free →'}</Link>
+          </Button>
+        </div>
       </section>
     </MarketingLayout>
   );

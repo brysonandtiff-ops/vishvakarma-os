@@ -1,16 +1,18 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
 import { BillingPlanCard, type BillingActionType } from '@/components/billing/BillingPlanCard';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { PRICING_TIERS, STUDIO_TRIAL_LABEL } from '@/config/billingPlans';
-import { EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
+import { EXPORT_FORMAT_COUNT, EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBilling } from '@/hooks/useBilling';
 import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
 import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
+import { Button } from '@/components/ui/button';
 import {
   Accordion,
   AccordionContent,
@@ -21,9 +23,9 @@ import {
 type TierAction = BillingActionType;
 
 const TRUST_STATS = [
-  { value: 'Cloud', label: 'Supabase save' },
-  { value: '13', label: 'Release gates' },
-  { value: 'OS', label: 'Governance layer' },
+  { value: 'PNG+', label: 'Starter export' },
+  { value: String(EXPORT_FORMAT_COUNT), label: 'Studio formats' },
+  { value: '14-day', label: 'Studio trial' },
 ] as const;
 
 const STAGGER_CLASSES = ['vish-stagger-1', 'vish-stagger-2', 'vish-stagger-3'] as const;
@@ -143,13 +145,16 @@ export default function PricingPage() {
     },
     {
       q: 'Is there an iPad app?',
-      a: 'The web app is iPad-first with Apple Pencil support. A native Capacitor wrapper is planned for v2.',
+      a: 'The web app is iPad-first with Apple Pencil support. A native Capacitor wrapper is planned for a future release.',
     },
   ] as const;
 
   return (
     <MarketingLayout>
-      <PageMeta title="Pricing" description="Professional-grade tools. Fair, predictable pricing." />
+      <PageMeta
+        title="Pricing — Vishvakarma.OS"
+        description="Professional-grade architecture tools with fair, predictable pricing. Start free, upgrade when your practice demands it."
+      />
       <section className="mx-auto max-w-6xl px-4 pb-16 pt-14 md:px-8 md:pb-20 md:pt-20">
         <MarketingPageHeader
           devanagari="मूल्य नियोजन"
@@ -209,6 +214,18 @@ export default function PricingPage() {
               ))}
             </Accordion>
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-primary/15 px-4 py-16 md:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
+          <p className="mt-4 text-lg vish-text-heading">
+            Begin on the free Starter tier, or start a Studio trial when you need the full Export Package.
+          </p>
+          <Button variant="gold" size="gold" className="mt-8" asChild>
+            <Link to={workspaceTo}>{user ? 'Open Editor →' : 'Start Free →'}</Link>
+          </Button>
         </div>
       </section>
     </MarketingLayout>

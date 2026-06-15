@@ -248,6 +248,7 @@ export default function AuthPage() {
       <div className="vish-auth-shell relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-2 sm:gap-8">
         <div className="vish-auth-card-mockup w-full" data-testid="auth-mockup-card">
           <header className="vish-auth-card-header mb-6 flex flex-col items-center text-center">
+            <p className="vish-devanagari-hero mb-3 text-base sm:text-lg">ॐ श्री विश्वकर्मणे नमः</p>
             <div className="vish-auth-logo-hero">
               <div className="vish-auth-logo-mandala" aria-hidden="true">
                 <div className="vish-auth-logo-ring vish-auth-logo-ring-outer" />
@@ -275,7 +276,7 @@ export default function AuthPage() {
             </h1>
             <div className="vish-auth-wordmark-divider" aria-hidden="true" />
             <p className="vish-auth-card-tagline mt-2 text-xs text-primary/70">
-              iPad-Native Architecture Suite
+              iPad-First Architecture Studio
             </p>
             <p
               className="vish-auth-card-headline mt-3 text-sm font-medium text-foreground sm:text-base"
@@ -536,8 +537,10 @@ export default function AuthPage() {
           <AuthTrustPillar
             icon={Shield}
             badge="Release evidence"
-            title={`${WORLD_RECORD_METRIC_GATE_COUNT}-Gate Release Evidence`}
-            description="Automated pre-release checks in-repo — evidence, not a Guinness claim."
+            title="Release evidence pack"
+            metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
+            metricLabel="release checks"
+            description="Automated pre-release verification with audit trail — in-repo evidence, not marketing claims."
             destination="/releases"
             variant="gates"
             staggerClass="vish-stagger-2"
@@ -550,9 +553,9 @@ export default function AuthPage() {
           />
           <AuthTrustPillar
             icon={Trophy}
-            badge="Self-Verified"
+            badge="Self-verified"
             title="World Records Registry"
-            description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}. SHA-256 proof ledger.`}
+            description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}. SHA-256 proof ledger for reproducible claims.`}
             destination="/world-records"
             variant="records"
             staggerClass="vish-stagger-3"
