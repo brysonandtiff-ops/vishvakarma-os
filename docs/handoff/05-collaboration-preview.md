@@ -7,7 +7,7 @@ Real-time multi-user editing is **not** production-ready in v1.5. The codebase i
 - **Yjs CRDT bridge** — [`src/collaboration/crdt/manifestBridge.ts`](../../src/collaboration/crdt/manifestBridge.ts) syncs manifest fragments.
 - **WebSocket provider** — [`src/collaboration/sync/YjsWebSocketProvider.ts`](../../src/collaboration/sync/YjsWebSocketProvider.ts) connects to a collab server.
 - **Collab session singleton** — [`src/collaboration/sync/CollabSession.ts`](../../src/collaboration/sync/CollabSession.ts) manages connect/disconnect and presence.
-- **Remote cursors** — [`RemoteCursorsOverlay`](../../src/components/editor/RemoteCursorsOverlay.tsx) on the editor canvas when presence is active.
+- **Remote cursors** — [`RemoteCursorsOverlay`](../../src/components/editor/collaboration/RemoteCursorsOverlay.tsx) on the editor canvas when presence is active.
 
 ## Local preview setup
 

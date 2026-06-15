@@ -83,7 +83,7 @@ These files were **reconciled during handoff** or marked as historical:
 
 ## Version history
 
-[`CHANGELOG.md`](../../CHANGELOG.md) — through v1.2.0 (2026-06-09).
+[`CHANGELOG.md`](../../CHANGELOG.md) — through v1.5.0 (2026-06-15).
 
 ## Risk summary for valuation reviewers
 

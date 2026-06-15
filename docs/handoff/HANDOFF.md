@@ -135,11 +135,12 @@ Verify completeness: `pnpm run handoff:verify`
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `pnpm run handoff:generate` | **PASS** | 16 routes, 5 API handlers, 71 scripts, 10 tables |
+| `pnpm run handoff:generate` | **PASS** | 16 routes, 6 API handlers, 96 scripts, 10 tables |
 | `pnpm run handoff:verify` | **PASS** | All annexes and appendices present |
+| `pnpm run docs:verify` | **PASS** | Documentation program link and version checks |
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |
 | ChatGPT handoff doc | **PASS** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) at v1.5.0 |
-| Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `c3d53895f93e78b0a67137015619eab9c8298270` |
+| Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `b15a92d5f5cc5846937674957de39fd9cc45684e` |
 
 **Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
 
@@ -149,6 +150,7 @@ Verify completeness: `pnpm run handoff:verify`
 cd vishvakarma-os-live
 pnpm run handoff:generate
 pnpm run handoff:verify
+pnpm run docs:verify
 pnpm run lint:types
 pnpm run verify:ci
 ```
