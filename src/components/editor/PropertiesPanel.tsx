@@ -252,7 +252,7 @@ export default function PropertiesPanel({
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent className="max-h-[min(42vh,24rem)] overflow-y-auto">{morePanel}</CollapsibleContent>
+            <CollapsibleContent className={`max-h-[min(42vh,24rem)] overflow-y-auto ${moreOpen ? 'vish-panel-reveal' : ''}`}>{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
       </div>
@@ -411,7 +411,7 @@ export default function PropertiesPanel({
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent className="max-h-[min(42vh,24rem)] overflow-y-auto">{morePanel}</CollapsibleContent>
+            <CollapsibleContent className={`max-h-[min(42vh,24rem)] overflow-y-auto ${moreOpen ? 'vish-panel-reveal' : ''}`}>{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
       </div>

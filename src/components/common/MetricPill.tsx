@@ -24,7 +24,7 @@ export default function MetricPill({
   return (
     <div
       className={cn(
-        'vish-stat-pill min-w-[7rem] flex-1 text-center',
+        'vish-stat-pill min-w-[7rem] flex-1 text-center vish-metric-pill-hover',
         animate && 'vish-fade-rise vish-stat-pill--interactive',
         staggerClass,
         className

@@ -15,7 +15,7 @@ export function WelcomeOverlay({
   if (!open) return null;
   return (
     <div className="vish-editor-overlay-backdrop absolute inset-0 z-20 flex items-center justify-center p-6">
-      <div className="vish-onboarding-modal vish-glass-panel vish-glass-panel--interactive vish-fade-rise max-w-md rounded-2xl p-6 text-center">
+      <div className="vish-onboarding-modal vish-glass-panel vish-glass-panel--interactive vish-fade-rise max-w-md rounded-2xl p-6 text-center" data-testid="first-run-welcome">
         <p className="vish-eyebrow text-primary">Creation Ritual</p>
         <h2 className="mt-3 text-xl font-bold vish-text-heading">Welcome to Vishvakarma.OS</h2>
         <p className="mt-2 text-sm vish-text-body">Draw your first floor plan or start from a template.</p>

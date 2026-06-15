@@ -55,7 +55,7 @@ export default function FeaturesPage() {
         title="Features & Guides — Vishvakarma.OS"
         description="Interactive editor guides and a full feature reference for Vishvakarma.OS — 2D drafting, Sacred 3D View, exports, and India compliance."
       />
-      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16 vish-stagger-children">
         <MarketingPageHeader
           devanagari="मन्त्र यन्त्र वास्तु रचना"
           hero

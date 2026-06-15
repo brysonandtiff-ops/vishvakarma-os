@@ -3,6 +3,7 @@ import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
 import PageSection from '@/components/common/PageSection';
+import PageSectionGrid from '@/components/common/PageSectionGrid';
 import { Button } from '@/components/ui/button';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
@@ -115,9 +116,9 @@ export default function LandingPage() {
         title="Built for professional delivery"
         description="A governed architectural workstation — specs, exports, and audit trail built in."
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <PageSectionGrid cols={2} className="mt-2">
           {PROOF.map((item) => (
-            <div key={item.title} className="vish-feature-grid-card flex gap-4 p-5">
+            <div key={item.title} className="vish-feature-grid-card vish-pressable flex gap-4 p-5">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
                 <item.icon className="h-5 w-5" />
               </span>
@@ -127,7 +128,7 @@ export default function LandingPage() {
               </div>
             </div>
           ))}
-        </div>
+        </PageSectionGrid>
       </PageSection>
 
       <section className="border-t border-primary/15 px-4 py-16 md:px-8">

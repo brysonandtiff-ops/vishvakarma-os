@@ -80,8 +80,9 @@ function NavItem({
           group flex h-10 items-center rounded-xl transition-all duration-150 tap-highlight-none
           ${collapsed ? 'w-10 justify-center mx-auto' : 'gap-2.5 px-2.5'}
           ${isActive
-            ? 'vish-shell-nav-active text-ws-active border border-ws-active/35'
+            ? 'vish-shell-nav-active vish-nav-active-glow text-ws-active border border-ws-active/35'
             : 'text-ws-text-dim hover:bg-ws-hover hover:text-ws-text border border-transparent'}
+          vish-pressable
         `}
       >
         <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`} />
@@ -285,7 +286,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
       <WorkspaceCommandPalette />
       {!immersive && (
       <aside
-        className={`relative hidden shrink-0 border-r border-ws-border lg:block ${collapsed ? 'w-16' : 'w-60'}`}
+        className={`relative hidden shrink-0 border-r border-ws-border transition-[width] duration-300 ease-out lg:block ${collapsed ? 'w-16' : 'w-60'}`}
       >
         <SidebarContent collapsed={collapsed} />
         <button

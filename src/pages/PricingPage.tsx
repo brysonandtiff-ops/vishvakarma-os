@@ -155,7 +155,7 @@ export default function PricingPage() {
         title="Pricing — Vishvakarma.OS"
         description="Professional-grade architecture tools with fair, predictable pricing. Start free, upgrade when your practice demands it."
       />
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-14 md:px-8 md:pb-20 md:pt-20">
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-14 md:px-8 md:pb-20 md:pt-20 vish-stagger-children">
         <MarketingPageHeader
           devanagari="मूल्य नियोजन"
           hero

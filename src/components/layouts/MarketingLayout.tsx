@@ -15,7 +15,7 @@ export function MarketingLayout({ children, enableRain = true }: MarketingLayout
       enableRain={enableRain}
       header={<MarketingNav />}
     >
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 vish-page-enter">{children}</div>
       <MarketingFooter />
     </SacredBackground>
   );

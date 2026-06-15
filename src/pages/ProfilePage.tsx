@@ -14,6 +14,7 @@ import { useBilling } from '@/hooks/useBilling';
 import { billingPlanLabel } from '@/types/billing';
 import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
 import BillingBanner from '@/components/billing/BillingBanner';
+import StudioAudioSettings from '@/components/profile/StudioAudioSettings';
 import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
 
 export default function ProfilePage() {
@@ -95,6 +96,10 @@ export default function ProfilePage() {
             <BillingBanner billing={billing} loading={billingLoading} error={billingError} />
           </div>
         )}
+
+        <div className="mb-6">
+          <StudioAudioSettings />
+        </div>
 
         <div className="space-y-4 rounded-2xl border border-dashed border-border/70 bg-card/80 p-6 shadow-sm">
           <div className="flex items-start gap-3">

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface WorkspacePageHeaderProps {
   title: string;
@@ -7,6 +8,7 @@ interface WorkspacePageHeaderProps {
   actions?: ReactNode;
   stats?: ReactNode;
   variant?: 'fullBleed' | 'inset';
+  animate?: boolean;
 }
 
 export default function WorkspacePageHeader({
@@ -16,16 +18,19 @@ export default function WorkspacePageHeader({
   actions,
   stats,
   variant = 'inset',
+  animate = true,
 }: WorkspacePageHeaderProps) {
   const inset = variant === 'inset';
 
   return (
     <header
-      className={`gov-page-header shrink-0 ${
+      className={cn(
+        'gov-page-header shrink-0',
+        animate && 'vish-panel-reveal',
         inset
           ? 'mb-6 rounded-xl border border-border/60 bg-card/80 px-5 py-5 shadow-sm md:px-6 md:py-6'
-          : 'border-b border-border/60 bg-card/40 px-6 py-5 md:px-8'
-      }`}
+          : 'border-b border-border/60 bg-card/40 px-6 py-5 md:px-8',
+      )}
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 space-y-2">

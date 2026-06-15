@@ -86,6 +86,7 @@ import { enforce } from '@/governance/core/enforcer';
 import { getFailFindings } from '@/services/compliance/complianceGate';
 import { filterWallsByFloor } from '@/utils/floorHelpers';
 import { findAllRoomFaces, polygonCentroid } from '@/utils/roomCalculations';
+import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -987,7 +988,10 @@ function EditorWorkspace() {
                   gridVisible={gridVisible}
                   snapEnabled={snapEnabled}
                   gridSize={gridSize}
-                  onWallAdd={(wall) => engine.addWall(wall)}
+                  onWallAdd={(wall) => {
+                    engine.addWall(wall);
+                    playStudioSound('wallPlace');
+                  }}
                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
                   onOpeningAdd={(opening) => engine.addOpening(opening)}
                   onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}

@@ -245,7 +245,7 @@ export default function AuthPage() {
       <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
 
       <div className="vish-auth-shell relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-2 sm:gap-8">
-        <div className="vish-auth-card-mockup w-full" data-testid="auth-mockup-card">
+        <div className="vish-auth-card-mockup vish-page-enter w-full" data-testid="auth-mockup-card">
           <header className="vish-auth-card-header mb-6 flex flex-col items-center text-center">
             <p className="vish-devanagari-hero mb-3 text-base sm:text-lg">ॐ श्री विश्वकर्मणे नमः</p>
             <div className="vish-auth-logo-hero">

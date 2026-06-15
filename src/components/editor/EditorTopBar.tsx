@@ -185,7 +185,7 @@ export default function EditorTopBar({
                 <ChevronDown className="h-3 w-3 opacity-70" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuContent align="start" className="vish-fade-rise w-44">
               {MODES.map((mode) => (
                 <DropdownMenuItem
                   key={mode.id}
@@ -227,7 +227,7 @@ export default function EditorTopBar({
                 <FolderOpen className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="vish-fade-rise w-48">
               <DropdownMenuItem onClick={onNewProject}>
                 <Plus className="mr-2 h-4 w-4" />
                 New project
@@ -299,7 +299,7 @@ export default function EditorTopBar({
                 <MoreHorizontal className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="vish-fade-rise w-52">
               <DropdownMenuItem onClick={() => onTogglePresentationLock?.()}>
                 <Lock className="mr-2 h-4 w-4" />
                 {presentationLock ? 'Unlock presentation' : 'Presentation lock'}

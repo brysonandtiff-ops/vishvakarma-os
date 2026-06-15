@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import { studioToast } from '@/lib/studioToast';
+import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import { applyArchitectureRepairs } from '@/services/architecture-bot/repairOrchestrator';
 import { countActionableIssues, scanArchitectureIssues } from '@/services/architecture-bot/scanIssues';
 import type {
@@ -54,6 +55,7 @@ export function useArchitectureBot({
 
   const rescan = useCallback(() => {
     setScanning(true);
+    playStudioSound('botScan');
     setScanGeneration((value) => value + 1);
     window.setTimeout(() => setScanning(false), 450);
   }, []);
@@ -72,17 +74,20 @@ export function useArchitectureBot({
       const escalatedCount = summary.escalated.length;
 
       if (appliedCount > 0 && escalatedCount > 0) {
-        toast.success(`Applied ${appliedCount} fix${appliedCount === 1 ? '' : 'es'}`, {
+        playStudioSound('fixPartial');
+        studioToast.success(`Applied ${appliedCount} fix${appliedCount === 1 ? '' : 'es'}`, {
           description: `${escalatedCount} item${escalatedCount === 1 ? '' : 's'} need Architecture Copilot.`,
         });
       } else if (appliedCount > 0) {
-        toast.success(`Applied ${appliedCount} fix${appliedCount === 1 ? '' : 'es'}.`);
+        playStudioSound('fixSuccess');
+        studioToast.success(`Applied ${appliedCount} fix${appliedCount === 1 ? '' : 'es'}.`);
       } else if (escalatedCount > 0) {
-        toast.message('Architecture Copilot opened', {
-          description: 'Complex layout issues need AI-assisted redesign.',
+        playStudioSound('botAttention');
+        studioToast.message('Review remaining issues', {
+          description: 'Complex layout issues may need Architecture Copilot.',
         });
       } else {
-        toast.message('Nothing to auto-fix', {
+        studioToast.message('Nothing to auto-fix', {
           description: 'Review compliance details or adjust the plan manually.',
         });
       }
@@ -91,9 +96,17 @@ export function useArchitectureBot({
     }
   }, [callbacks, issues, manifest, rescan]);
 
-  const openPanel = useCallback(() => setPanelOpen(true), []);
+  const openPanel = useCallback(() => {
+    playStudioSound('panelOpen');
+    setPanelOpen(true);
+  }, []);
   const closePanel = useCallback(() => setPanelOpen(false), []);
-  const togglePanel = useCallback(() => setPanelOpen((open) => !open), []);
+  const togglePanel = useCallback(() => {
+    setPanelOpen((open) => {
+      if (!open) playStudioSound('panelOpen');
+      return !open;
+    });
+  }, []);
 
   return {
     issues: issues as ArchitectureIssue[],

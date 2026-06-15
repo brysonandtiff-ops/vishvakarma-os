@@ -6,6 +6,7 @@ import { RouteGuard } from '@/components/common/RouteGuard';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TutorialProvider } from '@/tutorial/TutorialProvider';
+import { StudioAudioProvider } from '@/modules/studio-audio/StudioAudioProvider';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -19,6 +20,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
+        <StudioAudioProvider>
         <TutorialProvider>
         <RouteGuard>
           <IntersectObserver />
@@ -39,6 +41,7 @@ const App: React.FC = () => {
           <Toaster />
         </RouteGuard>
         </TutorialProvider>
+        </StudioAudioProvider>
       </AuthProvider>
     </Router>
   );

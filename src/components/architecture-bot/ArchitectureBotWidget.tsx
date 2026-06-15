@@ -38,7 +38,8 @@ export default function ArchitectureBotWidget({
       data-testid="architecture-bot-widget"
     >
       {panelOpen && (
-        <ArchitectureBotPanel
+        <div className="vish-arch-bot-panel-rise">
+          <ArchitectureBotPanel
           issues={issues}
           fixing={fixing}
           onFixEverything={onFixEverything}
@@ -46,11 +47,12 @@ export default function ArchitectureBotWidget({
           onOpenCompliance={onOpenCompliance}
           onClose={onClosePanel}
         />
+        </div>
       )}
 
       <button
         type="button"
-        className="touch-target rounded-2xl outline-none ring-offset-background transition hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-primary"
+        className="vish-pressable touch-target rounded-2xl outline-none ring-offset-background transition hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-primary"
         onClick={onTogglePanel}
         aria-label={panelOpen ? 'Close Architecture Bot' : 'Open Architecture Bot'}
         aria-expanded={panelOpen}

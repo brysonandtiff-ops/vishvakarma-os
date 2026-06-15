@@ -1,7 +1,7 @@
-// Tool rail — working drafting tools only
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import type { ToolType, WorkspaceMode } from '@/types';
 import { BASE_TOOL_IDS, TOOL_META } from '@/editor/toolMeta';
+import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 
 interface ToolRailProps {
   currentTool: ToolType;
@@ -43,7 +43,7 @@ function ToolButton({
   return (
     <button
       type="button"
-      className={`architect-tool-button ${isActive ? 'active' : ''}`}
+      className={`architect-tool-button vish-pressable ${isActive ? 'active' : ''}`}
       onClick={onClick}
       aria-label={meta.label}
       aria-pressed={isActive}
@@ -62,9 +62,17 @@ function ToolButton({
 export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', onToolChange }: ToolRailProps) {
   const modeToolIds = MODE_TOOL_IDS[workspaceMode] ?? [];
 
+  const handleToolChange = useCallback(
+    (tool: ToolType) => {
+      if (tool !== currentTool) playStudioSound('toolSelect');
+      onToolChange(tool);
+    },
+    [currentTool, onToolChange],
+  );
+
   return (
     <div
-      className="vish-tool-rail architect-tool-dock flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
+      className="vish-tool-rail architect-tool-dock vish-stagger-children flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
       data-testid="tool-rail"
       data-tutorial="tool-rail"
     >
@@ -74,7 +82,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
           key={toolId}
           toolId={toolId}
           isActive={currentTool === toolId}
-          onClick={() => onToolChange(toolId)}
+          onClick={() => handleToolChange(toolId)}
         />
       ))}
       {modeToolIds.length > 0 && (
@@ -85,7 +93,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
               key={toolId}
               toolId={toolId}
               isActive={currentTool === toolId}
-              onClick={() => onToolChange(toolId)}
+              onClick={() => handleToolChange(toolId)}
             />
           ))}
         </>
