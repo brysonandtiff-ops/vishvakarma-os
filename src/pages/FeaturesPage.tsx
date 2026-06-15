@@ -20,50 +20,7 @@ import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader'
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
 
-const INTERACTIVE_GUIDES = [
-  {
-    title: 'Your First Floor Plan',
-    steps: ['Load sample project', 'Draw walls (W)', 'Place door and window', 'Toggle 3D view'],
-    icon: PenLine,
-    editorHint: 'Start with Wall (W) and sample project',
-  },
-  {
-    title: 'Sacred 3D View Walkthrough',
-    steps: ['Draw enclosed room', 'Open 3D panel', 'Orbit and inspect openings', 'Adjust solar timeline'],
-    icon: Box,
-    editorHint: 'Press 3 or tap the 3D toggle',
-  },
-  {
-    title: 'Export Package',
-    steps: ['Open Export dialog', 'Choose PDF or PNG', 'Download manifest JSON', 'Verify round-trip import'],
-    icon: FileOutput,
-    editorHint: 'Open Export from the editor menu',
-  },
-  {
-    title: 'Cloud Save & Local Draft',
-    steps: ['Check save badge', 'Save project', 'Reload browser', 'Recover local draft if needed'],
-    icon: Cloud,
-    editorHint: 'Save badge shows cloud vs local draft',
-  },
-  {
-    title: 'Vastu Harmony Overview',
-    steps: ['Switch to Draft mode', 'Select Vastu tool', 'Adjust north orientation', 'Review 8-sector overlay'],
-    icon: Compass,
-    editorHint: 'Switch to Draft mode and select Vastu tool',
-  },
-  {
-    title: 'India Locale & NBC',
-    steps: ['Open locale pill (IN/AU)', 'Select India + metro', 'Review NBC compliance panel', 'Load Vastu 2BHK sample'],
-    icon: Compass,
-    editorHint: 'Use the globe locale control on the canvas',
-  },
-  {
-    title: 'MEP & Routing Analysis',
-    steps: ['Switch to MEP mode', 'Place symbols on plan', 'Review routing panel', 'Inspect fixtures in 3D'],
-    icon: Route,
-    editorHint: 'Switch to MEP workspace mode',
-  },
-] as const;
+import { TUTORIAL_GUIDE_CARDS } from '@/tutorial/tutorialCatalog';
 
 const FEATURE_MODULES = [
   { name: '2D Drafting', ready: true, icon: PenLine },
@@ -85,9 +42,11 @@ export default function FeaturesPage() {
   const { user } = useAuth();
   const startTo = user ? '/editor' : '/auth';
 
-  const openGuideInEditor = (title: string, hint: string) => {
-    toast.message(title, { description: `${hint} — opening the editor.` });
-    navigate('/editor');
+  const openGuideTour = (trackId: string, title: string) => {
+    const track = TUTORIAL_GUIDE_CARDS.find((g) => g.trackId === trackId);
+    const route = trackId === 'projects-library' ? '/projects' : trackId === 'design-optimization' ? '/optimization' : trackId === 'governance-os' ? '/spec-center' : '/editor';
+    navigate(`${route}?tutorial=${trackId}`);
+    toast.message(title, { description: 'In-app tour starting…' });
   };
 
   return (
@@ -117,7 +76,7 @@ export default function FeaturesPage() {
             staggerIndex={0}
           />
           <MetricPill value={String(FEATURE_MODULES.length)} label="feature modules" animate staggerIndex={1} />
-          <MetricPill value={String(INTERACTIVE_GUIDES.length)} label="getting started guides" animate staggerIndex={2} />
+          <MetricPill value={String(TUTORIAL_GUIDE_CARDS.length)} label="getting started guides" animate staggerIndex={2} />
           <MetricPill value={String(EXPORT_FORMAT_COUNT)} label="export formats" animate staggerIndex={3} />
         </div>
         <Tabs defaultValue="guides" className="mt-10">
@@ -131,13 +90,13 @@ export default function FeaturesPage() {
           </TabsList>
           <TabsContent value="guides" className="mt-8">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {INTERACTIVE_GUIDES.map((guide) => (
+              {TUTORIAL_GUIDE_CARDS.map((guide) => (
                 <FeatureCard
                   key={guide.title}
                   title={guide.title}
                   icon={guide.icon}
-                  badge="Interactive guide"
-                  onClick={() => openGuideInEditor(guide.title, guide.editorHint)}
+                  badge="In-app tour"
+                  onClick={() => openGuideTour(guide.trackId, guide.title)}
                   footer={
                     <ol className="vish-feature-grid-card__steps list-inside list-decimal space-y-1.5">
                       {guide.steps.map((step) => (

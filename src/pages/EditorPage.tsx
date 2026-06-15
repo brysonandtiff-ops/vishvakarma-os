@@ -34,8 +34,7 @@ import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
 import ArchitectureBotWidget from '@/components/architecture-bot/ArchitectureBotWidget';
 import { useArchitectureBot } from '@/components/architecture-bot/useArchitectureBot';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
-import { startTutorial, shouldAutoStartEssentials, useTutorial } from '@/tutorial/TutorialProvider';
-import { openTutorialHub } from '@/tutorial/TutorialProvider';
+import { openTutorialHub, startTutorial, shouldAutoStartEssentials, useTutorial } from '@/tutorial/TutorialProvider';
 import { VastuPanel } from '@/components/editor/panels/VastuPanel';
 import { ComplianceBanner } from '@/components/editor/panels/ComplianceBanner';
 import { CompliancePanel, useComplianceReport } from '@/components/editor/panels/CompliancePanel';
@@ -1058,21 +1057,24 @@ function EditorWorkspace() {
                   currentTool={currentTool}
                   onSelectTool={setTool}
                 />
-                {showOnboarding && !welcomeOpen && (
-                  <OnboardingPanel
-                    onLoadSample={openSamplePicker}
-                    onNewProject={() => setNewProjectOpen(true)}
-                    showLocalDraftNotice={!backendStatus.isConfigured}
-                  />
-                )}
                 <WelcomeOverlay
                   open={welcomeOpen && showOnboarding}
                   onDismiss={() => {
                     dismissOnboarding();
                     setWelcomeOpen(false);
                   }}
-                  onNewProject={() => setNewProjectOpen(true)}
-                  onLoadSample={openSamplePicker}
+                  onNewProject={() => {
+                    setNewProjectOpen(true);
+                    dismissOnboarding();
+                    setWelcomeOpen(false);
+                    maybeStartEssentialsTour();
+                  }}
+                  onLoadSample={() => {
+                    openSamplePicker();
+                    dismissOnboarding();
+                    setWelcomeOpen(false);
+                    maybeStartEssentialsTour();
+                  }}
                 />
                 <ArchitectureBotWidget
                   visible={!presentationLock && !(welcomeOpen && showOnboarding)}
@@ -1095,6 +1097,7 @@ function EditorWorkspace() {
                 className={`vish-3d-viewport-pane flex shrink-0 flex-col border-l border-ws-border ${
                   presentationLock ? 'w-96 md:w-[28rem] lg:w-[32rem]' : 'w-80 md:w-96'
                 }`}
+                data-tutorial="viewport-3d"
               >
                 <div className="ws-pane-header">
                   <span className="ws-pane-label">3D Preview</span>
