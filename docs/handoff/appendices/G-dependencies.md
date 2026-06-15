@@ -2,11 +2,11 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-14T13:35:29.007Z
+Generated: 2026-06-15T06:00:02.958Z
 
-Package: `vishvakarma-os` v1.3.0
+Package: `vishvakarma-os` v1.5.0
 
-## Production (72)
+## Production (75)
 
 | Package | Version |
 |---------|--------|
@@ -42,7 +42,9 @@ Package: `vishvakarma-os` v1.3.0
 | @radix-ui/react-tooltip | ^1.2.8 |
 | @react-three/drei | catalog: |
 | @react-three/fiber | catalog: |
+| @react-three/postprocessing | catalog: |
 | @supabase/supabase-js | ^2.49.1 |
+| @vercel/analytics | ^2.0.1 |
 | axios | ^1.13.1 |
 | class-variance-authority | ^0.7.1 |
 | clsx | ^2.1.1 |
@@ -57,6 +59,7 @@ Package: `vishvakarma-os` v1.3.0
 | lucide-react | ^0.576.0 |
 | motion | ^12.23.25 |
 | next-themes | ^0.4.6 |
+| postprocessing | catalog: |
 | qrcode | ^1.5.4 |
 | react | ^18.0.0 |
 | react-day-picker | ^9.13.0 |

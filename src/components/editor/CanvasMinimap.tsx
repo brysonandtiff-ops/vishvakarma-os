@@ -1,5 +1,8 @@
 import type { MouseEvent } from 'react';
-import type { CanvasViewportState, Wall } from '@/types';
+import type { CanvasViewportState, Room, Wall } from '@/types';
+import { getRoomTypeFillStyle } from '@/domain/rooms/roomTypeColors';
+import { getVerticesForRoom } from '@/utils/roomCalculations';
+import { CANVAS_PAPER_FILL, GOLD, INK } from '@/core/sceneDrawingTokens';
 
 function wallBounds(walls: Wall[]) {
   if (walls.length === 0) {
@@ -21,11 +24,15 @@ function wallBounds(walls: Wall[]) {
 
 export default function CanvasMinimap({
   walls,
+  rooms = [],
+  roomWallSource,
   canvasViewport,
   canvasSize,
   onPanToWorld,
 }: {
   walls: Wall[];
+  rooms?: Room[];
+  roomWallSource?: Wall[];
   canvasViewport: CanvasViewportState;
   canvasSize: { width: number; height: number };
   onPanToWorld: (point: { x: number; y: number }) => void;
@@ -36,6 +43,7 @@ export default function CanvasMinimap({
   const mapW = 120;
   const mapH = 90;
   const scale = Math.min(mapW / worldW, mapH / worldH);
+  const wallSource = roomWallSource ?? walls;
 
   const toMap = (x: number, y: number) => ({
     x: (x - bounds.minX) * scale,
@@ -64,17 +72,34 @@ export default function CanvasMinimap({
 
   return (
     <div
-      className="pointer-events-auto absolute bottom-14 right-3 z-20 rounded-xl border border-primary/20 bg-black/40 p-1 shadow-lg backdrop-blur-md"
+      className="vish-minimap pointer-events-auto absolute bottom-14 right-3 z-20 p-1"
       data-testid="canvas-minimap"
     >
       <svg
         width={mapW}
         height={mapH}
-        className="block cursor-crosshair rounded-lg bg-[#f5f1e8]/90"
+        className="vish-minimap__svg block cursor-crosshair rounded-lg"
         onClick={handleClick}
         role="img"
         aria-label="Canvas minimap — click to pan"
       >
+        <rect width="100%" height="100%" fill={CANVAS_PAPER_FILL} rx="8" />
+        {rooms.map((room) => {
+          const vertices = getVerticesForRoom(room, wallSource);
+          if (vertices.length < 3) return null;
+          const points = vertices.map((v) => {
+            const p = toMap(v.x, v.y);
+            return `${p.x},${p.y}`;
+          }).join(' ');
+          return (
+            <polygon
+              key={room.id}
+              points={points}
+              fill={getRoomTypeFillStyle(room.roomType)}
+              stroke="none"
+            />
+          );
+        })}
         {walls.map((wall) => {
           const a = toMap(wall.start.x, wall.start.y);
           const b = toMap(wall.end.x, wall.end.y);
@@ -85,7 +110,7 @@ export default function CanvasMinimap({
               y1={a.y}
               x2={b.x}
               y2={b.y}
-              stroke="#2c1810"
+              stroke={INK}
               strokeWidth={2}
             />
           );
@@ -96,8 +121,9 @@ export default function CanvasMinimap({
           width={viewRect.w}
           height={viewRect.h}
           fill="rgba(184, 148, 31, 0.15)"
-          stroke="#b8941f"
+          stroke={GOLD}
           strokeWidth={1.5}
+          rx="1"
         />
       </svg>
     </div>

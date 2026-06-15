@@ -257,7 +257,7 @@ export function drawPatternOverlay2D(
   height: number,
   alpha = 0.35,
 ) {
-  const step = 6;
+  const step = 3;
   ctx.save();
   ctx.globalAlpha = alpha;
   for (let py = y; py < y + height; py += step) {

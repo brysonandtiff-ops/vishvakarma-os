@@ -1,8 +1,8 @@
 # Vishvakarma.OS — Valuation Handoff Pack
 
 **Document type:** Technical due diligence and operator transition handoff  
-**Product version:** v1.2.0  
-**Audit date:** 2026-06-13  
+**Product version:** v1.5.0  
+**Audit date:** 2026-06-15  
 **Canonical production URL:** https://vishvakarma-os.app  
 **Vercel fallback URL:** https://vishvakarma-os.vercel.app  
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
@@ -17,6 +17,7 @@ This pack is the **single entry point** for valuation, acquisition due diligence
 
 | Audience | Recommended reading order |
 |----------|---------------------------|
+| **ChatGPT / AI assistant** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) — single paste-ready doc (start here for AI context) |
 | **Executive / investor** | This page (Executive summary) → [Annex 01](./01-product-and-business.md) → [Annex 10](./10-ip-risks-roadmap-and-gaps.md) |
 | **Technical acquirer** | Annexes 02–06 → Appendices A–H → [SOFTWARE_INVENTORY.md](../SOFTWARE_INVENTORY.md) |
 | **Operator / DevOps** | [Annex 07](./07-integrations-and-accounts.md) → [Annex 08](./08-operations-and-deployment.md) → [Operator Annex template](./templates/OPERATOR_ANNEX.template.md) → [OPERATOR_CHECKLIST.md](../release/OPERATOR_CHECKLIST.md) |
@@ -46,7 +47,7 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** de
 
 | Fact | Value |
 |------|-------|
-| Product version | 1.2.0 |
+| Product version | 1.5.0 |
 | Canonical production URL | https://vishvakarma-os.app |
 | Vercel fallback URL | https://vishvakarma-os.vercel.app |
 | Supabase project ref | `jyocvwipthswfcmvqgqe` |
@@ -134,12 +135,11 @@ Verify completeness: `pnpm run handoff:verify`
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `pnpm run handoff:generate` | **PASS** | 16 routes, 5 API handlers, 69 scripts, 10 tables |
+| `pnpm run handoff:generate` | **PASS** | 16 routes, 5 API handlers, 71 scripts, 10 tables |
 | `pnpm run handoff:verify` | **PASS** | All annexes and appendices present |
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |
-| `pnpm run verify:ci` | **PENDING** | Re-run after canonical-domain commit push |
-| Canonical auth proof | **PASS** | `customDomainAuthRetest: passed` on https://vishvakarma-os.app |
-| Git SHA (pre-commit) | See [MANIFEST.json](./appendices/MANIFEST.json) | Regenerated after canonical-domain auth cleanup |
+| ChatGPT handoff doc | **PASS** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) at v1.5.0 |
+| Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `c3d53895f93e78b0a67137015619eab9c8298270` |
 
 **Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
 

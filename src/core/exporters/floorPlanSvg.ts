@@ -1,5 +1,9 @@
 import type { Opening, ProjectManifest, Wall } from '@/types';
+import { CANVAS_PAPER_FILL } from '@/core/sceneDrawingTokens';
 import { getVerticesForRoom } from '@/utils/roomCalculations';
+import { getRoomTypeFillStyle } from '@/domain/rooms/roomTypeColors';
+import { buildOpeningSvgMarkup, buildWallSegmentsSvg } from '@/components/editor/blueprint/openingSymbols';
+import { buildRoomLabelSvg } from '@/components/editor/blueprint/drawRooms';
 
 export interface FloorPlanSvgOptions {
   includeRooms?: boolean;
@@ -19,12 +23,16 @@ function escapeXml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function buildWallLines(walls: Wall[]): string {
-  return walls
-    .map(
-      (w) =>
-        `<line class="wall" x1="${w.start.x}" y1="${w.start.y}" x2="${w.end.x}" y2="${w.end.y}" stroke="#2c1810" stroke-width="${Math.max(w.thickness, 4)}" stroke-linecap="square" />`,
-    )
+function buildWallLines(manifest: ProjectManifest): string {
+  const openingsByWall = new Map<string, Opening[]>();
+  for (const opening of manifest.openings ?? []) {
+    const list = openingsByWall.get(opening.wallId) ?? [];
+    list.push(opening);
+    openingsByWall.set(opening.wallId, list);
+  }
+
+  return manifest.walls
+    .map((wall) => buildWallSegmentsSvg(wall, openingsByWall.get(wall.id) ?? []))
     .join('');
 }
 
@@ -33,16 +41,7 @@ function buildOpeningMarkers(walls: Wall[], openings: Opening[]): string {
     .map((opening) => {
       const wall = walls.find((w) => w.id === opening.wallId);
       if (!wall) return '';
-
-      const dx = wall.end.x - wall.start.x;
-      const dy = wall.end.y - wall.start.y;
-      const length = Math.hypot(dx, dy);
-      if (length === 0) return '';
-
-      const cx = wall.start.x + dx * opening.position;
-      const cy = wall.start.y + dy * opening.position;
-
-      return `<circle class="${opening.type}" cx="${cx}" cy="${cy}" r="6" fill="${opening.type === 'door' ? '#C85A54' : '#D4A13D'}" />`;
+      return buildOpeningSvgMarkup(wall, opening);
     })
     .join('');
 }
@@ -62,18 +61,22 @@ export function buildFloorPlanSvg(
     ...options,
   };
 
-  const walls = buildWallLines(manifest.walls);
+  const walls = buildWallLines(manifest);
   const openings = buildOpeningMarkers(manifest.walls, manifest.openings ?? []);
 
-  const rooms = opts.includeRooms
+  const roomFills = opts.includeRooms
     ? (manifest.rooms ?? [])
         .map((room) => {
           const vertices = getVerticesForRoom(room, manifest.walls);
           if (vertices.length < 3) return '';
           const points = vertices.map((v) => `${v.x},${v.y}`).join(' ');
-          return `<polygon class="room" points="${points}" fill="rgba(180,140,60,0.15)" stroke="rgba(180,140,60,0.45)" stroke-width="1.5" />`;
+          return `<polygon class="room" points="${points}" fill="${getRoomTypeFillStyle(room.roomType)}" stroke="rgba(180,140,60,0.35)" stroke-width="1.25" />`;
         })
         .join('')
+    : '';
+
+  const roomLabels = opts.includeRooms
+    ? (manifest.rooms ?? []).map((room) => buildRoomLabelSvg(room)).join('')
     : '';
 
   const labels = opts.includeLabels
@@ -129,5 +132,5 @@ export function buildFloorPlanSvg(
       ? `<g class="compass" transform="translate(1128,72) rotate(${manifest.northOrientation ?? 0})"><circle r="36" fill="rgba(180,140,60,0.08)" stroke="rgba(180,140,60,0.8)" /><text y="-20" text-anchor="middle" font-size="11" fill="#6b4f2a">N</text></g>`
       : '';
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="100%" height="100%" fill="#f5f1e8"/>${walls}${rooms}${openings}${furniture}${mep}${landscape}${dimensions}${labels}${compass}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="100%" height="100%" fill="${CANVAS_PAPER_FILL}"/>${roomFills}${walls}${openings}${roomLabels}${furniture}${mep}${landscape}${dimensions}${labels}${compass}</svg>`;
 }

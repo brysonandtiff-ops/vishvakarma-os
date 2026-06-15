@@ -857,6 +857,8 @@ function EditorWorkspace() {
                 {!presentationLock && walls.length > 0 && (
                   <CanvasMinimap
                     walls={walls}
+                    rooms={rooms}
+                    roomWallSource={engine.getManifest().walls}
                     canvasViewport={canvasViewport}
                     canvasSize={{
                       width: canvasStageRef.current?.clientWidth ?? 800,

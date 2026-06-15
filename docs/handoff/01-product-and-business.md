@@ -11,7 +11,7 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** co
 | PRD | [`docs/prd.md`](../prd.md) |
 | Audited capabilities | [`docs/PRODUCT_CAPABILITIES.md`](../PRODUCT_CAPABILITIES.md) |
 | Technical inventory | [`docs/SOFTWARE_INVENTORY.md`](../SOFTWARE_INVENTORY.md) |
-| Version | `1.2.0` — [`src/config/appVersion.ts`](../../src/config/appVersion.ts), [`package.json`](../../package.json) |
+| Version | `1.5.0` — [`src/config/appVersion.ts`](../../src/config/appVersion.ts), [`package.json`](../../package.json) |
 
 **Canonical production URL:** https://vishvakarma-os.app  
 **Vercel fallback URL:** https://vishvakarma-os.vercel.app

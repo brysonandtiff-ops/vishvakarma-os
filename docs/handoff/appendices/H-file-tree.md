@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-14T13:35:29.007Z
+Generated: 2026-06-15T06:00:02.958Z
 
 ```
 src/
@@ -102,8 +102,15 @@ components/
       PlanExplanationPanel.tsx
       PlanningShortlistPanel.tsx
       SitePlanPreview.tsx
+    blueprint/
+      drawRooms.ts
+      drawSymbols.ts
+      drawWalls.ts
+      inputHandlers.ts
+      openingSymbols.ts
     BlueprintCanvas.tsx
     blueprintCanvasDrawing.ts
+    CanvasMinimap.tsx
     collaboration/
       CollaboratorAvatars.tsx
       FollowViewportToggle.tsx
@@ -112,6 +119,7 @@ components/
     DraftRecoveryDialog.tsx
     EditorCollaborationBar.tsx
     EditorCompassCost.tsx
+    EditorLayerPanel.tsx
     EditorMenuSheet.tsx
     EditorPhasePills.tsx
     EditorTopBar.tsx
@@ -270,6 +278,7 @@ core/
   floorPlanEngine.test.ts
   floorPlanEngine.ts
   importers/
+    dxfImport.test.ts
     dxfImport.ts
   manifestSchema.ts
   projectExport.test.ts
@@ -350,6 +359,7 @@ domain/
   rooms/
     adjacencyRule.ts
     roomType.ts
+    roomTypeColors.ts
   schedules/
     scheduleTypes.ts
 editor/
@@ -471,7 +481,10 @@ rules/
     smokeAlarmZoneRule.ts
   nbc/
     bedroomSizeRule.ts
+    deadEndCorridorRule.ts
     habitableRoomHeightRule.ts
+    rampGradientRule.ts
+    stairRiseRunRule.ts
     stairWidthRule.ts
   ncc/
     bedroomEgressRule.test.ts
@@ -580,6 +593,7 @@ test/
   automatedTestSuite.test.ts
   billingBanner.test.ts
   billingPlans.test.ts
+  blueprintDrawing.test.ts
   canvasEngine.test.ts
   canvasPointerCoords.test.ts
   canvasSelection.test.ts
@@ -593,6 +607,8 @@ test/
   editorWorkflow.test.ts
   elementLock.test.ts
   export.test.ts
+  fixtures/
+    dxf-lwpolyline-sample.dxf
   formatValidator.test.ts
   functionalWiring.test.ts
   generateColumnGlb.test.ts
@@ -604,6 +620,7 @@ test/
   localDraft.test.ts
   loginDataSetup.test.ts
   manifestBridge.test.ts
+  manifestGeometry.test.ts
   marketingRoutes.test.tsx
   multiUserGovernance.test.ts
   officialLogoBrand.test.ts
@@ -651,12 +668,15 @@ utils/
   floorHelpers.test.ts
   floorHelpers.ts
   keyboardShortcuts.ts
+  manifestGeometry.ts
   measurements.ts
   minimalPdf.ts
   projectThumbnail.ts
   roomCalculations.ts
   scrollFocusedFieldIntoView.ts
   sha256.ts
+  wallDrawConstraints.test.ts
+  wallDrawConstraints.ts
 vish-theme.css
 vite-env.d.ts
 
@@ -860,6 +880,7 @@ handoff/
   02-repository-topology.md
   03-architecture-and-data-flow.md
   04-application-surface.md
+  05-collaboration-preview.md
   05-data-model-and-migrations.md
   06-security-and-compliance.md
   07-integrations-and-accounts.md

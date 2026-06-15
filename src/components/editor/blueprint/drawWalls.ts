@@ -1,16 +1,17 @@
-import type { Point2D, Wall } from '@/types';
+import type { Opening, Point2D, Wall } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 import { isWallSelected } from '@/editor/canvasSelection';
 import {
-  drawWall,
   drawWallMeasurement,
   drawWallEndpointHandles,
   drawWallPreview,
 } from '@/components/editor/blueprintCanvasDrawing';
+import { drawWallWithGaps } from '@/components/editor/blueprint/openingSymbols';
 
 export interface DrawWallsLayerOptions {
   walls: Wall[];
   displayWalls: Wall[];
+  openings: Opening[];
   selectedWallId?: string;
   selectedWallIds?: string[];
   hoveredWall: string | null;
@@ -27,6 +28,7 @@ export interface DrawWallsLayerOptions {
 export function drawWallsLayer(ctx: CanvasRenderingContext2D, options: DrawWallsLayerOptions) {
   const {
     displayWalls,
+    openings,
     selectedWallId,
     selectedWallIds,
     hoveredWall,
@@ -43,7 +45,8 @@ export function drawWallsLayer(ctx: CanvasRenderingContext2D, options: DrawWalls
 
   for (const wall of displayWalls) {
     const selected = isWallSelected(wall.id, selectedWallId, selectedWallIds);
-    drawWall(ctx, wall, {
+    const wallOpenings = openings.filter((opening) => opening.wallId === wall.id);
+    drawWallWithGaps(ctx, wall, wallOpenings, {
       selected,
       hovered: wall.id === hoveredWall,
       snapEnabled,

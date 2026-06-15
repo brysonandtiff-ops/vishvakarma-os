@@ -1,5 +1,5 @@
 import type { FurnitureItem, LandscapeElement, Point2D } from '@/types';
-import { FABRIC, FABRIC_LIGHT, GOLD_MUTED, INK, WOOD, WOOD_DARK, WOOD_LIGHT, CHIP_FILL } from '@/core/sceneDrawingTokens';
+import { FABRIC, FABRIC_LIGHT, GOLD, GOLD_MUTED, INK, WOOD, WOOD_DARK, WOOD_LIGHT, CHIP_FILL } from '@/core/sceneDrawingTokens';
 import { drawPatternOverlay2D } from '@/core/texturePatterns';
 
 // ---------------------------------------------------------------------------
@@ -277,9 +277,11 @@ export function drawFurniture2D(
   ctx.rotate(((item.rotation ?? 0) * Math.PI) / 180);
 
   if (highlighted) {
-    ctx.strokeStyle = '#B8941F';
+    ctx.strokeStyle = GOLD;
     ctx.lineWidth = 2;
-    ctx.strokeRect(-hw - 3, -hd - 3, width + 6, depth + 6);
+    ctx.beginPath();
+    ctx.roundRect(-hw - 3, -hd - 3, width + 6, depth + 6, 3);
+    ctx.stroke();
   }
 
   drawFurnitureSilhouette(ctx, item.type, hw, hd);
@@ -303,9 +305,11 @@ export function drawStair2D(
   ctx.rotate((direction * Math.PI) / 180);
 
   if (highlighted) {
-    ctx.strokeStyle = '#B8941F';
+    ctx.strokeStyle = GOLD;
     ctx.lineWidth = 2;
-    ctx.strokeRect(-hw - 3, -hd - 3, width + 6, depth + 6);
+    ctx.beginPath();
+    ctx.roundRect(-hw - 3, -hd - 3, width + 6, depth + 6, 3);
+    ctx.stroke();
   }
 
   ctx.fillStyle = 'rgba(44, 44, 44, 0.08)';

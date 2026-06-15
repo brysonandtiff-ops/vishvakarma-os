@@ -42,6 +42,7 @@ export const WINDOW_GHOST = 'rgba(200, 150, 58, 0.4)';
 /** Rooms */
 export const ROOM_FILL = 'rgba(180, 140, 60, 0.12)';
 export const ROOM_STROKE = 'rgba(180, 140, 60, 0.45)';
+export const ROOM_STROKE_SOFT = 'rgba(180, 140, 60, 0.35)';
 export const ROOM_LABEL = '#6b4f2a';
 
 /** MEP — muted architectural tones (distinct, warm palette) */
@@ -88,3 +89,46 @@ export const ATMOSPHERE = {
 /** Grid spacing aligned with CSS blueprint-grid (20px minor, 100px major) */
 export const GRID_MINOR_PX = 20;
 export const GRID_MAJOR_FACTOR = 5;
+
+/** Edge fade for grid lines near canvas bounds (fraction of visible span) */
+export const GRID_FADE_MARGIN = 0.08;
+
+/** Subtle paper vignette at canvas edges */
+export const PAPER_VIGNETTE = 'rgba(44, 28, 16, 0.04)';
+
+/** Canvas typography — matches architect-measurement / workstation mono */
+export const CANVAS_FONT_MONO = 'bold 12px "IBM Plex Mono", "SF Mono", Monaco, monospace';
+export const CANVAS_FONT_MONO_SM = 'bold 10px "IBM Plex Mono", "SF Mono", Monaco, monospace';
+export const CANVAS_FONT_MONO_XS = '9px "IBM Plex Mono", "SF Mono", Monaco, monospace';
+export const CANVAS_FONT_SANS = '12px system-ui, -apple-system, sans-serif';
+export const CANVAS_FONT_LABEL = 'bold 11px system-ui, -apple-system, sans-serif';
+export const CANVAS_FONT_COMPASS = 'bold 11px system-ui, -apple-system, sans-serif';
+
+export interface WorldBounds {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export function gridMinorStroke(alpha: number): string {
+  return `rgba(212, 207, 196, ${0.55 * alpha})`;
+}
+
+export function gridMajorStroke(alpha: number): string {
+  return `rgba(184, 148, 31, ${0.28 * alpha})`;
+}
+
+export function computeVisibleGridBounds(
+  canvasWidth: number,
+  canvasHeight: number,
+  viewport: { panX: number; panY: number; zoom: number },
+): WorldBounds {
+  const { panX, panY, zoom } = viewport;
+  return {
+    left: -panX / zoom,
+    top: -panY / zoom,
+    width: canvasWidth / zoom,
+    height: canvasHeight / zoom,
+  };
+}

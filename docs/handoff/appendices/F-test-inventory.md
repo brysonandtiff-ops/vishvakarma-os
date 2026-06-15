@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-14T13:35:29.007Z
+Generated: 2026-06-15T06:00:02.958Z
 
-## Vitest unit/integration (109 files)
+## Vitest unit/integration (114 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -22,8 +22,10 @@ Generated: 2026-06-14T13:35:29.007Z
 - `src/core/exporters/dxfExport.test.ts`
 - `src/core/exporters/floorPlanSvg.test.ts`
 - `src/core/floorPlanEngine.test.ts`
+- `src/core/importers/dxfImport.test.ts`
 - `src/core/projectExport.test.ts`
 - `src/core/projectModel.test.ts`
+- `src/core/simulations/panchatattva.test.ts`
 - `src/core/simulations/tvashtar.test.ts`
 - `src/core/simulations/vastu.test.ts`
 - `src/data/cost/materialCatalog.test.ts`
@@ -31,6 +33,7 @@ Generated: 2026-06-14T13:35:29.007Z
 - `src/editor/localDraft.test.ts`
 - `src/modules/compliance/complianceModule.test.ts`
 - `src/modules/compliance/complianceReportExport.test.ts`
+- `src/modules/compliance/jurisdictionCompliance.test.ts`
 - `src/modules/optimization/optimizationReportExport.test.ts`
 - `src/modules/permit/permitPackageExport.test.ts`
 - `src/planning/candidateGenerator.test.ts`
@@ -88,6 +91,7 @@ Generated: 2026-06-14T13:35:29.007Z
 - `src/test/localDraft.test.ts`
 - `src/test/loginDataSetup.test.ts`
 - `src/test/manifestBridge.test.ts`
+- `src/test/manifestGeometry.test.ts`
 - `src/test/marketingRoutes.test.tsx`
 - `src/test/multiUserGovernance.test.ts`
 - `src/test/officialLogoBrand.test.ts`
@@ -115,6 +119,7 @@ Generated: 2026-06-14T13:35:29.007Z
 - `src/test/worldRecordRegistry.test.ts`
 - `src/utils/costEstimate.test.ts`
 - `src/utils/floorHelpers.test.ts`
+- `src/utils/wallDrawConstraints.test.ts`
 
 ## Playwright E2E (20 specs)
 

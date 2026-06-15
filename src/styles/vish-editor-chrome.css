@@ -380,7 +380,12 @@
   padding: 1rem 1.25rem;
   border-radius: 1rem;
   border: 1px dashed hsl(var(--ws-active) / 0.35);
-  background: hsl(var(--ws-canvas-surface) / 0.92);
+  border-top: 3px solid hsl(var(--ws-active) / 0.55);
+  background:
+    linear-gradient(hsl(var(--ws-active) / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--ws-active) / 0.04) 1px, transparent 1px),
+    hsl(var(--ws-canvas-surface) / 0.92);
+  background-size: 20px 20px, 20px 20px, auto;
   box-shadow: 0 12px 40px hsl(0 0% 0% / 0.12);
   text-align: center;
 }
@@ -442,6 +447,26 @@
     0 28px 80px hsl(0 0% 0% / 0.32),
     0 4px 12px hsl(0 0% 0% / 0.08);
   border-radius: 0.65rem;
+}
+
+.vish-minimap {
+  border-radius: 0.85rem;
+  border: 1px solid hsl(var(--ws-active) / 0.22);
+  background: hsl(var(--ws-panel) / 0.72);
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.08),
+    0 16px 40px hsl(0 0% 0% / 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.vish-minimap__svg {
+  background-color: hsl(var(--ws-canvas-surface) / 0.95);
+}
+
+.vish-canvas-hud-badge {
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--ws-active) / 0.08),
+    0 4px 12px hsl(0 0% 0% / 0.12);
 }
 
 .vish-workspace-shell .ws-panel-light {
