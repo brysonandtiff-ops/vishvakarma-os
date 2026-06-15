@@ -1,8 +1,12 @@
+import {
+  atmosphereModeForProfile,
+  readStoredPerformanceProfile,
+  resolvePerformanceProfile,
+} from '@/utils/performanceProfile';
+
 export type AtmospherePerformanceMode = 'standard' | 'premium' | 'cinematic';
 
 export const ATMOSPHERE_STORAGE_KEY = 'vishvakarma.os.3d.atmosphere.v1';
-
-const COARSE_POINTER_QUERY = '(pointer: coarse)';
 
 export function resolveDefaultAtmosphereMode(
   options: {
@@ -27,25 +31,8 @@ export function resolveDefaultAtmosphereMode(
     return stored;
   }
 
-  const isCoarsePointer =
-    options.isCoarsePointer ??
-    (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-      ? window.matchMedia(COARSE_POINTER_QUERY).matches
-      : false);
-
-  if (isCoarsePointer) {
-    return 'standard';
-  }
-
-  const cores =
-    options.hardwareConcurrency ??
-    (typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined);
-
-  if (cores !== undefined && cores <= 4) {
-    return 'standard';
-  }
-
-  return 'premium';
+  const profile = readStoredPerformanceProfile() ?? resolvePerformanceProfile();
+  return atmosphereModeForProfile(profile);
 }
 
 export function readStoredAtmosphereMode(): AtmospherePerformanceMode | null {

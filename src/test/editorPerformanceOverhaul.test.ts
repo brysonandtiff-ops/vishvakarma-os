@@ -338,9 +338,58 @@ describe('Editor performance overhaul — mock audit suite', () => {
     wiring(
       'p2-3d-frameloop',
       '2',
-      'Viewport3D uses demand render loop',
-      () => read('src/components/editor/Viewport3D.tsx').includes('frameloop="demand"'),
-      'Viewport3D still uses continuous Canvas render loop',
+      'Viewport3D uses demand render loop (always during walk)',
+      () => {
+        const source = read('src/components/editor/Viewport3D.tsx');
+        return source.includes("frameloop={walkMode ? 'always' : 'demand'}");
+      },
+      'Viewport3D missing demand/always Canvas frameloop gating',
+    );
+
+    wiring(
+      'p2-3d-room-fps',
+      '2',
+      'Room meshes use cached faces, tier LOD, and batching',
+      () => {
+        const rooms = read('src/components/editor/sceneRoomMeshes.tsx');
+        const batch = read('src/components/editor/sceneRoomBatch.tsx');
+        return (
+          rooms.includes('getCachedRoomFaces') &&
+          rooms.includes('shouldBatchRooms') &&
+          rooms.includes('atmosphereMode') &&
+          batch.includes('mergeGeometries')
+        );
+      },
+      'sceneRoomMeshes missing cached faces, atmosphere LOD, or batch path',
+    );
+
+    wiring(
+      'p2-3d-profile-atmosphere',
+      '2',
+      'Performance profile syncs 3D atmosphere in Viewport3D',
+      () => {
+        const viewport = read('src/components/editor/Viewport3D.tsx');
+        const panel = read('src/components/editor/panels/PerformanceProfilePanel.tsx');
+        const atmosphere = read('src/utils/atmosphereMode.ts');
+        return (
+          viewport.includes('PERFORMANCE_PROFILE_EVENT') &&
+          viewport.includes('effectiveAtmosphereMode') &&
+          panel.includes('dispatchPerformanceProfileChange') &&
+          atmosphere.includes('atmosphereModeForProfile')
+        );
+      },
+      'Performance profile → atmosphere wiring incomplete',
+    );
+
+    wiring(
+      'p2-3d-walk-postfx',
+      '2',
+      'Walk mode disables cinematic post-FX pipeline',
+      () =>
+        read('src/components/editor/Viewport3D.tsx').includes(
+          'cinematicBoost && !presentationLock && !walkMode',
+        ),
+      'ScenePostProcessing still enabled during walk mode',
     );
 
     wiring(

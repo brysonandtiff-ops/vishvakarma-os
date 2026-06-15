@@ -1,6 +1,8 @@
 import { memo, useEffect, useState } from 'react';
+import { persistAtmosphereMode } from '@/utils/atmosphereMode';
 import {
   atmosphereModeForProfile,
+  dispatchPerformanceProfileChange,
   persistPerformanceProfile,
   readStoredPerformanceProfile,
   resolvePerformanceProfile,
@@ -22,6 +24,12 @@ function PerformanceProfilePanel() {
     persistPerformanceProfile(profile);
   }, [profile]);
 
+  const selectProfile = (next: PerformanceProfile) => {
+    setProfile(next);
+    persistAtmosphereMode(atmosphereModeForProfile(next));
+    dispatchPerformanceProfileChange(next);
+  };
+
   return (
     <div className="space-y-2 px-4">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Performance profile</p>
@@ -35,7 +43,7 @@ function PerformanceProfilePanel() {
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border bg-background/40 text-foreground hover:border-primary/40'
             }`}
-            onClick={() => setProfile(option.id)}
+            onClick={() => selectProfile(option.id)}
           >
             <span className="font-medium">{option.label}</span>
             <span className="mt-0.5 block text-[11px] text-muted-foreground">

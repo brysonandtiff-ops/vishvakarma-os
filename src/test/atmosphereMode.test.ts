@@ -12,25 +12,7 @@ describe('resolveDefaultAtmosphereMode', () => {
     expect(resolveDefaultAtmosphereMode({ prefersReducedMotion: true, storedMode: 'cinematic' })).toBe('standard');
   });
 
-  it('defaults to standard on coarse pointer devices for touch-first performance', () => {
-    expect(
-      resolveDefaultAtmosphereMode({
-        prefersReducedMotion: false,
-        isCoarsePointer: true,
-        hardwareConcurrency: 8,
-        storedMode: null,
-      }),
-    ).toBe('standard');
-  });
-
-  it('downgrades to standard on low-core coarse devices', () => {
-    expect(
-      resolveDefaultAtmosphereMode({
-        prefersReducedMotion: false,
-        isCoarsePointer: true,
-        hardwareConcurrency: 4,
-        storedMode: null,
-      }),
-    ).toBe('standard');
+  it('falls back to performance profile mapping when no stored atmosphere', () => {
+    expect(resolveDefaultAtmosphereMode({ storedMode: null })).toBe('premium');
   });
 });

@@ -1,17 +1,17 @@
 {
   "suite": "editor-performance-overhaul",
-  "generatedAt": "2026-06-15T10:51:37.900Z",
-  "commitSha": "ccbc07d3c3455e8d9cb28d2b65a430c943fcb794",
+  "generatedAt": "2026-06-15T14:55:37.946Z",
+  "commitSha": "1d1a74ce625872048558d559304dc1b997110ce8",
   "summary": {
-    "pass": 24,
+    "pass": 27,
     "fail": 0,
     "warn": 0,
-    "total": 24
+    "total": 27
   },
   "metrics": {
     "canvasSchedulerCoalesced": true,
-    "spatialIndexMs": 2.667300000000978,
-    "linearScanMs": 4.71129999999539
+    "spatialIndexMs": 5.361699999999473,
+    "linearScanMs": 4.961399999998321
   },
   "checks": [
     {
@@ -47,7 +47,7 @@
       "phase": "1",
       "name": "Spatial index hit-test parity + mock benchmark",
       "status": "PASS",
-      "detail": "indexed=2.67ms linear=4.71ms parity=w200"
+      "detail": "indexed=5.36ms linear=4.96ms parity=w200"
     },
     {
       "id": "p1-overlay-cache",
@@ -136,7 +136,28 @@
     {
       "id": "p2-3d-frameloop",
       "phase": "2",
-      "name": "Viewport3D uses demand render loop",
+      "name": "Viewport3D uses demand render loop (always during walk)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-room-fps",
+      "phase": "2",
+      "name": "Room meshes use cached faces, tier LOD, and batching",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-profile-atmosphere",
+      "phase": "2",
+      "name": "Performance profile syncs 3D atmosphere in Viewport3D",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-walk-postfx",
+      "phase": "2",
+      "name": "Walk mode disables cinematic post-FX pipeline",
       "status": "PASS",
       "detail": ""
     },

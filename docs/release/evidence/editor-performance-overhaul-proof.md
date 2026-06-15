@@ -1,20 +1,20 @@
 # Editor Performance Overhaul — Proof Matrix
 
-Generated at: 2026-06-15T10:51:37.900Z
-Commit: `ccbc07d3c3455e8d9cb28d2b65a430c943fcb794`
+Generated at: 2026-06-15T14:55:37.946Z
+Commit: `1d1a74ce625872048558d559304dc1b997110ce8`
 
 ## Summary
 
 | Pass | Fail | Warn | Total |
 |------|------|------|-------|
-| 24 | 0 | 0 | 24 |
+| 27 | 0 | 0 | 27 |
 
 ## Mock metrics
 
 | Metric | Value |
 |--------|-------|
-| Spatial index (300 lookups) | 2.67 ms |
-| Linear scan (300 lookups) | 4.71 ms |
+| Spatial index (300 lookups) | 5.36 ms |
+| Linear scan (300 lookups) | 4.96 ms |
 | Canvas rAF coalesced | yes |
 
 ## Checklist
@@ -25,7 +25,7 @@ Commit: `ccbc07d3c3455e8d9cb28d2b65a430c943fcb794`
 | 0 | p0-compliance-pan | Geometry manifest excludes camera pan/zoom | **PASS** | camera omitted from getGeometryManifest() |
 | 0 | p0-undo-coalesce | Undo coalesces continuous wall drag | **PASS** | single undo restores pre-drag wall |
 | 1 | p1-canvas-raf | Canvas rAF scheduler coalesces draws | **PASS** | 3 requestDraw → 1 flush |
-| 1 | p1-spatial-index | Spatial index hit-test parity + mock benchmark | **PASS** | indexed=2.67ms linear=4.71ms parity=w200 |
+| 1 | p1-spatial-index | Spatial index hit-test parity + mock benchmark | **PASS** | indexed=5.36ms linear=4.96ms parity=w200 |
 | 1 | p1-overlay-cache | Vastu analysis memoized by geometry hash | **PASS** | same object reference |
 | 2 | p2-3d-demand | Bloom pipeline gated by wall count | **PASS** | cap=250 |
 | 2 | p2-wall-batch | Wall batch helper thresholds | **PASS** | >=10 walls, non-cinematic |
@@ -38,7 +38,10 @@ Commit: `ccbc07d3c3455e8d9cb28d2b65a430c943fcb794`
 | 1 | p1-blueprint-raf | BlueprintCanvas uses canvas render scheduler | **PASS** | — |
 | 4 | p4-draft-worker | Draft autosave scheduled via worker helper | **PASS** | — |
 | 4 | p4-crdt-batch | CRDT remote updates batched at animation frame | **PASS** | — |
-| 2 | p2-3d-frameloop | Viewport3D uses demand render loop | **PASS** | — |
+| 2 | p2-3d-frameloop | Viewport3D uses demand render loop (always during walk) | **PASS** | — |
+| 2 | p2-3d-room-fps | Room meshes use cached faces, tier LOD, and batching | **PASS** | — |
+| 2 | p2-3d-profile-atmosphere | Performance profile syncs 3D atmosphere in Viewport3D | **PASS** | — |
+| 2 | p2-3d-walk-postfx | Walk mode disables cinematic post-FX pipeline | **PASS** | — |
 | 2 | p2-3d-deferred | EditorPage defers 3D geometry props | **PASS** | — |
 | 3 | p3-lazy-routes | Non-editor routes lazy-loaded | **PASS** | — |
 | 5 | p5-deferred-governance | Production governance deferred via requestIdleCallback | **PASS** | — |

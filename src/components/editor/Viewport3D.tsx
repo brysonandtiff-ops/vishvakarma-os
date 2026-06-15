@@ -20,6 +20,11 @@ import {
   resolveDefaultAtmosphereMode,
   type AtmospherePerformanceMode,
 } from '@/utils/atmosphereMode';
+import {
+  atmosphereModeForProfile,
+  PERFORMANCE_PROFILE_EVENT,
+  type PerformanceProfile,
+} from '@/utils/performanceProfile';
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
@@ -695,7 +700,13 @@ function BuildingSceneLayers({
       <>
         <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
         <TerrainMeshes terrain={terrain} />
-        <RoomVolumeMeshes rooms={rooms} walls={walls} origin={sceneOrigin} floorMaterial={floorMaterial} />
+        <RoomVolumeMeshes
+          rooms={rooms}
+          walls={walls}
+          origin={sceneOrigin}
+          floorMaterial={floorMaterial}
+          atmosphereMode={atmosphereMode}
+        />
         <StairMeshes staircases={staircases} origin={sceneOrigin} />
         {batchWalls ? (
           <>
@@ -778,19 +789,32 @@ function BuildingSceneLayers({
                 walls={floorWalls}
                 origin={sceneOrigin}
                 floorMaterial={floorMaterial}
+                atmosphereMode={atmosphereMode}
               />
             )}
             <StairMeshes staircases={floorStairs} origin={sceneOrigin} />
-            {floorWalls.map((wall) => (
-              <WallMesh
-                key={wall.id}
-                wall={wall}
-                openings={floorOpenings}
-                customMaterials={materials}
-                origin={sceneOrigin}
-                ghost={!isActive}
-              />
-            ))}
+            {shouldBatchWalls(floorWalls.length, atmosphereMode) ? (
+              <>
+                <BatchedWallMeshes
+                  walls={floorWalls}
+                  customMaterials={materials}
+                  origin={sceneOrigin}
+                  castShadow={atmosphereMode !== 'standard'}
+                />
+                <OpeningMarkers walls={floorWalls} openings={floorOpenings} origin={sceneOrigin} />
+              </>
+            ) : (
+              floorWalls.map((wall) => (
+                <WallMesh
+                  key={wall.id}
+                  wall={wall}
+                  openings={floorOpenings}
+                  customMaterials={materials}
+                  origin={sceneOrigin}
+                  ghost={!isActive}
+                />
+              ))
+            )}
             {isActive &&
               floorFurniture.map((item) => (
                 <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
@@ -852,15 +876,28 @@ export default function Viewport3D({
     setAtmosphereModeState(mode);
     persistAtmosphereMode(mode);
   };
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const profile = (event as CustomEvent<PerformanceProfile>).detail;
+      setAtmosphereModeState(atmosphereModeForProfile(profile));
+    };
+    window.addEventListener(PERFORMANCE_PROFILE_EVENT, handler);
+    return () => window.removeEventListener(PERFORMANCE_PROFILE_EVENT, handler);
+  }, []);
+
   useEffect(() => {
     if (!walkMode || !isCoarsePointer) {
       touchMoveRef.current = { x: 0, z: 0 };
     }
   }, [walkMode, isCoarsePointer]);
 
-  const cinematicBoost = atmosphereMode === 'cinematic' && !isCoarsePointer;
+  const effectiveAtmosphereMode: AtmospherePerformanceMode =
+    walkMode && isCoarsePointer ? 'standard' : atmosphereMode;
 
-  const atmosphereConfig = ATMOSPHERE_MODES[atmosphereMode];
+  const cinematicBoost = effectiveAtmosphereMode === 'cinematic' && !isCoarsePointer;
+
+  const atmosphereConfig = ATMOSPHERE_MODES[effectiveAtmosphereMode];
 
   const setTouchMove = (x: number, z: number) => {
     touchMoveRef.current = { x, z };
@@ -906,29 +943,29 @@ export default function Viewport3D({
           }
         >
           <Canvas
-            frameloop="demand"
-            shadows={atmosphereMode !== 'standard'}
+            frameloop={walkMode ? 'always' : 'demand'}
+            shadows={effectiveAtmosphereMode !== 'standard'}
             dpr={atmosphereConfig.dpr}
-            gl={{ antialias: atmosphereMode !== 'standard', alpha: false, powerPreference: atmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
+            gl={{ antialias: effectiveAtmosphereMode !== 'standard', alpha: false, powerPreference: effectiveAtmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
             style={{ width: '100%', height: '100%' }}
           >
             <DemandRenderInvalidator
               geometryKey={geometryRevision}
-              atmosphereMode={atmosphereMode}
+              atmosphereMode={effectiveAtmosphereMode}
               walkMode={walkMode}
             />
             <RendererSetup
-              mode={atmosphereMode}
+              mode={effectiveAtmosphereMode}
               postFxActive={isPostFxPipelineActive(
-                atmosphereMode,
+                effectiveAtmosphereMode,
                 allWallsForOrigin.length,
-                cinematicBoost && !presentationLock,
+                cinematicBoost && !presentationLock && !walkMode,
               )}
             />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-            <SceneEnvironment mode={atmosphereMode} />
+            <SceneEnvironment mode={effectiveAtmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>
                 <OrbitControls
@@ -959,9 +996,9 @@ export default function Viewport3D({
               />
             )}
 
-            <Lighting lighting={lighting} mode={atmosphereMode} />
-            <SacredAtmosphere mode={atmosphereMode} boostCinematic={cinematicBoost} />
-            <SceneContactShadows mode={atmosphereMode} />
+            <Lighting lighting={lighting} mode={effectiveAtmosphereMode} />
+            <SacredAtmosphere mode={effectiveAtmosphereMode} boostCinematic={cinematicBoost} />
+            <SceneContactShadows mode={effectiveAtmosphereMode} />
 
             <BuildingSceneLayers
               walls={walls}
@@ -985,13 +1022,13 @@ export default function Viewport3D({
               manifestMepSymbols={manifestMepSymbols}
               manifestFixtures={manifestFixtures}
               manifestStaircases={manifestStaircases}
-              atmosphereMode={atmosphereMode}
+              atmosphereMode={effectiveAtmosphereMode}
             />
 
             <ScenePostProcessing
-              mode={atmosphereMode}
+              mode={effectiveAtmosphereMode}
               wallCount={allWallsForOrigin.length}
-              enabled={cinematicBoost && !presentationLock}
+              enabled={cinematicBoost && !presentationLock && !walkMode}
             />
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
