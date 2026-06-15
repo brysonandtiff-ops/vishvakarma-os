@@ -172,6 +172,7 @@ export default function ReleasesPage() {
   return (
     <>
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="Release Center"
@@ -200,7 +201,7 @@ export default function ReleasesPage() {
         />
 
         <WorkspacePageScroll>
-          <div className="mx-auto max-w-5xl space-y-6 p-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
 
             {/* Verification snapshot — from gate-ui-status.json (pnpm run release:gates) */}

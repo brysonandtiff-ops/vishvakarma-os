@@ -301,7 +301,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
       <WorkspaceCommandPalette />
       {showDesktopSidebar && (
       <aside
-        className={`relative hidden shrink-0 border-r border-ws-border transition-[width] duration-300 ease-out tablet:block ${collapsed ? 'w-16' : 'w-60'}`}
+        className={`relative hidden shrink-0 border-r border-ws-border transition-[width] duration-300 ease-out tablet:block ${collapsed ? 'w-[var(--vish-sidebar-collapsed)]' : 'w-[var(--vish-sidebar-width)]'}`}
       >
         <SidebarContent collapsed={collapsed} />
         <button

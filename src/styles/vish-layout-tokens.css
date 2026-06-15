@@ -26,6 +26,19 @@
 
   /* Primary workspace breakpoint — matches tailwind `tablet` and ipad-workspace.css */
   --vish-tablet-min: 1194px;
+
+  /* Content rhythm */
+  --vish-content-max-prose: 42rem;
+  --vish-card-radius: 0.75rem;
+  --vish-card-radius-lg: 1rem;
+  --vish-card-padding: 1.25rem;
+  --vish-card-padding-md: 1.5rem;
+  --vish-toolbar-gap: 0.75rem;
+
+  /* Document vs governance header */
+  --vish-doc-header-bg: hsl(var(--card) / 0.8);
+  --vish-doc-header-border: hsl(var(--border) / 0.6);
+  --vish-gov-header-bg: linear-gradient(135deg, hsl(220 14% 12%), hsl(220 14% 9%));
 }
 
 @media (min-width: 768px) {
@@ -63,4 +76,41 @@
   display: flex;
   flex-direction: column;
   gap: var(--vish-section-gap);
+}
+
+.vish-page-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vish-toolbar-gap);
+}
+
+.vish-marketing-section {
+  width: 100%;
+  max-width: var(--vish-page-marketing);
+  margin-inline: auto;
+  padding-inline: var(--vish-page-padding-x);
+}
+
+.vish-doc-page-header {
+  background: var(--vish-doc-header-bg);
+  border-color: var(--vish-doc-header-border);
+}
+
+.vish-marketing-section--bordered {
+  border-top: 1px solid hsl(var(--primary) / 0.15);
+}
+
+.vish-marketing-hero {
+  width: 100%;
+  max-width: var(--vish-page-marketing);
+  margin-inline: auto;
+  padding: 3.5rem var(--vish-page-padding-x) 3rem;
+}
+
+@media (min-width: 768px) {
+  .vish-marketing-hero {
+    padding-top: 5rem;
+    padding-bottom: 4rem;
+  }
 }

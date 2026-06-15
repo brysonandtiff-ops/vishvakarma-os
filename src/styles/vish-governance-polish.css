@@ -5,6 +5,23 @@
   position: relative;
 }
 
+.vish-workspace-shell .vish-gov-page-header ~ * [role='tablist'] {
+  align-items: stretch;
+  gap: var(--vish-toolbar-gap);
+  min-height: var(--vish-nav-row-height);
+}
+
+.vish-workspace-shell .vish-gov-page-header ~ * [role='tab'] {
+  min-height: var(--vish-nav-row-height);
+  display: inline-flex;
+  align-items: center;
+}
+
+.vish-governance-shell .gov-content-area {
+  padding-inline: var(--vish-page-padding-x);
+  padding-block: var(--vish-page-padding-y);
+}
+
 .vish-governance-shell .gov-scroll-area [data-radix-scroll-area-viewport],
 .vish-governance-shell .gov-content-area {
   background:
@@ -23,7 +40,7 @@
   }
 }
 
-.vish-workspace-shell .gov-page-header {
+.vish-workspace-shell .vish-gov-page-header {
   position: relative;
   overflow: hidden;
   background:
@@ -35,7 +52,7 @@
     inset 0 -1px 0 hsl(43 80% 65% / 0.18);
 }
 
-.vish-workspace-shell .gov-page-header::before {
+.vish-workspace-shell .vish-gov-page-header::before {
   content: 'ॐ शासन · प्रमाण · लेखा';
   position: absolute;
   right: 1.5rem;
@@ -52,20 +69,20 @@
   pointer-events: none;
 }
 
-.vish-workspace-shell .gov-page-header h1 {
+.vish-workspace-shell .vish-gov-page-header h1 {
   letter-spacing: -0.02em;
   color: hsl(var(--ws-text));
 }
 
-.vish-workspace-shell .gov-page-header p {
+.vish-workspace-shell .vish-gov-page-header p {
   max-width: 44rem;
   color: hsl(var(--ws-text-dim));
 }
 
-.vish-workspace-shell .gov-page-header .rounded,
-.vish-workspace-shell .gov-page-header .rounded-xl,
-.vish-workspace-shell .gov-page-header .rounded-2xl,
-.vish-workspace-shell .gov-page-header ~ * [class*='rounded'][class*='border'] {
+.vish-workspace-shell .vish-gov-page-header .rounded,
+.vish-workspace-shell .vish-gov-page-header .rounded-xl,
+.vish-workspace-shell .vish-gov-page-header .rounded-2xl,
+.vish-workspace-shell .vish-gov-page-header ~ * [class*='rounded'][class*='border'] {
   border-color: hsl(43 38% 52% / 0.28);
   background:
     linear-gradient(165deg, hsl(220 14% 13%), hsl(220 14% 10%));
@@ -73,75 +90,75 @@
   box-shadow: 0 8px 22px hsl(0 0% 0% / 0.18);
 }
 
-.vish-workspace-shell .gov-page-header .tabular-nums {
+.vish-workspace-shell .vish-gov-page-header .tabular-nums {
   text-shadow: 0 0 18px hsl(43 90% 58% / 0.12);
 }
 
-.vish-workspace-shell .gov-page-header + [data-radix-scroll-area-viewport],
-.vish-workspace-shell .gov-page-header ~ [data-radix-scroll-area-viewport] {
+.vish-workspace-shell .vish-gov-page-header + [data-radix-scroll-area-viewport],
+.vish-workspace-shell .vish-gov-page-header ~ [data-radix-scroll-area-viewport] {
   background:
     radial-gradient(circle at 100% 0%, hsl(43 80% 70% / 0.06), transparent 22rem),
     linear-gradient(180deg, hsl(220 14% 11%), hsl(220 14% 9%));
 }
 
-.vish-workspace-shell .gov-page-header button,
-.vish-workspace-shell .gov-page-header [role='button'] {
+.vish-workspace-shell .vish-gov-page-header button,
+.vish-workspace-shell .vish-gov-page-header [role='button'] {
   border-radius: 0.9rem;
 }
 
-.vish-workspace-shell .gov-page-header button:not(:disabled) {
+.vish-workspace-shell .vish-gov-page-header button:not(:disabled) {
   box-shadow: 0 10px 22px hsl(39 45% 30% / 0.08);
 }
 
-.vish-workspace-shell .gov-page-header ~ * [data-state='active'],
-.vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active'] {
+.vish-workspace-shell .vish-gov-page-header ~ * [data-state='active'],
+.vish-workspace-shell .vish-gov-page-header ~ * [role='tab'][data-state='active'] {
   box-shadow:
     inset 0 1px 0 hsl(43 80% 80% / 0.35),
     0 10px 22px hsl(39 45% 30% / 0.08);
 }
 
-.vish-workspace-shell .gov-page-header ~ * .border-primary,
-.vish-workspace-shell .gov-page-header ~ * .border-primary\/60 {
+.vish-workspace-shell .vish-gov-page-header ~ * .border-primary,
+.vish-workspace-shell .vish-gov-page-header ~ * .border-primary\/60 {
   box-shadow:
     0 18px 52px hsl(39 45% 30% / 0.11),
     0 0 0 1px hsl(43 72% 58% / 0.12);
 }
 
-.vish-workspace-shell .gov-page-header ~ * .border-dashed {
+.vish-workspace-shell .vish-gov-page-header ~ * .border-dashed {
   background:
     radial-gradient(circle at center, hsl(43 80% 82% / 0.08), transparent 16rem),
     hsl(220 14% 11% / 0.84);
   border-color: hsl(43 34% 52% / 0.36);
 }
 
-.vish-workspace-shell .gov-page-header ~ * .font-mono,
-.vish-workspace-shell .gov-page-header ~ * .font-technical {
+.vish-workspace-shell .vish-gov-page-header ~ * .font-mono,
+.vish-workspace-shell .vish-gov-page-header ~ * .font-technical {
   letter-spacing: 0.02em;
 }
 
 @media (max-width: 900px) {
-  .vish-workspace-shell .gov-page-header::before {
+  .vish-workspace-shell .vish-gov-page-header::before {
     display: none;
   }
 }
 
-.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
-.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
+.vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
+.vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border']:hover,
-.vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border:hover {
+.vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border']:hover,
+.vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border:hover {
   transform: translateY(-1px);
   border-color: hsl(43 72% 58% / 0.42);
   box-shadow: 0 12px 28px hsl(0 0% 0% / 0.22);
 }
 
-.vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active'] {
+.vish-workspace-shell .vish-gov-page-header ~ * [role='tab'][data-state='active'] {
   position: relative;
 }
 
-.vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']::after {
+.vish-workspace-shell .vish-gov-page-header ~ * [role='tab'][data-state='active']::after {
   content: '';
   position: absolute;
   inset: auto 0.65rem 0.2rem;
@@ -156,7 +173,7 @@
   50% { opacity: 1; }
 }
 
-.vish-workspace-shell .gov-page-header ~ * .border-dashed:hover {
+.vish-workspace-shell .vish-gov-page-header ~ * .border-dashed:hover {
   border-color: hsl(43 50% 52% / 0.5);
   background:
     radial-gradient(circle at center, hsl(43 80% 82% / 0.12), transparent 16rem),
@@ -169,7 +186,7 @@
 
 .vish-governance-shell .vish-glass-panel,
 .vish-governance-shell .crystal-surface,
-.vish-workspace-shell .gov-page-header ~ * .vish-glass-panel {
+.vish-workspace-shell .vish-gov-page-header ~ * .vish-glass-panel {
   box-shadow:
     0 24px 70px hsl(0 0% 0% / 0.45),
     0 0 44px hsl(var(--vish-gold) / 0.1),
@@ -182,18 +199,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vish-workspace-shell .gov-page-header,
-  .vish-workspace-shell .gov-page-header * {
+  .vish-workspace-shell .vish-gov-page-header,
+  .vish-workspace-shell .vish-gov-page-header * {
     scroll-behavior: auto !important;
   }
 
-  .vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']::after,
+  .vish-workspace-shell .vish-gov-page-header ~ * [role='tab'][data-state='active']::after,
   .vish-workspace-shell .vish-gov-card-dark {
     animation: none !important;
   }
 
-  .vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
-  .vish-workspace-shell .gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
+  .vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] [class*='rounded-xl'][class*='border'],
+  .vish-workspace-shell .vish-gov-page-header ~ * [data-radix-scroll-area-viewport] .rounded-lg.border {
     transition: none;
   }
 }

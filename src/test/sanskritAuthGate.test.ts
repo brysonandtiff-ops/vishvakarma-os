@@ -47,7 +47,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('showEmailSignIn');
     expect(authPage).toContain('showGoogleSignIn');
     expect(authPage).toContain('Continue with Google');
-    expect(authPage).toContain('vish-gold-button--with-icon');
+    expect(authPage).toContain('variant="gold"');
+    expect(authPage).toContain('GoogleMarkIcon');
     expect(authPage).toContain('Send secure access link');
     expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).not.toContain('signInWithApple');

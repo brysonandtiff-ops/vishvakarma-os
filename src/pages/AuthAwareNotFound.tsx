@@ -19,6 +19,7 @@ export default function AuthAwareNotFound() {
         <PageMeta title="404 — Not Found" description="This Vishvakarma.OS route does not exist." />
         <WorkspacePageShell width="standard">
           <WorkspacePageHeader
+            zone="document"
             eyebrow="Workspace"
             title="Route not found"
             description="This path is not part of the Vishvakarma.OS workspace manifest."
@@ -41,7 +42,7 @@ export default function AuthAwareNotFound() {
   return (
     <MarketingLayout>
       <PageMeta title="404 — Not Found" description="This Vishvakarma.OS route does not exist." />
-      <section className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
+      <section className="vish-marketing-section flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
         <MarketingPageHeader
           devanagari="मार्ग न लभते"
           title={<span className="text-7xl font-bold tracking-tight">404</span>}

@@ -61,28 +61,29 @@ export default function CastViewerPage() {
   );
 
   return (
-    <div className="flex h-screen min-h-0 flex-col bg-ws-canvas" data-testid="cast-viewer-page">
-      <header className="flex items-center justify-between border-b border-ws-border bg-ws-toolbar px-4 py-3">
-        <div className="flex items-center gap-3">
-          <img src={OFFICIAL_LOGO_SRC} alt="" className="h-8 w-8 rounded-lg object-cover" />
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Akasha Cast</p>
-            <p className="text-sm font-semibold text-ws-text">{projectName}</p>
+    <div className="vish-cast-viewer flex h-[100dvh] min-h-0 flex-col bg-ws-canvas" data-testid="cast-viewer-page">
+      <header className="vish-cast-header flex min-h-nav-row shrink-0 items-center justify-between gap-4 border-b border-ws-border bg-ws-toolbar px-page-x py-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <img src={OFFICIAL_LOGO_SRC} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+          <div className="min-w-0">
+            <p className="vish-eyebrow text-primary">Akasha Cast</p>
+            <p className="truncate text-sm font-semibold text-ws-text">{projectName}</p>
           </div>
         </div>
-        <label className="flex items-center gap-2 text-[10px] uppercase tracking-wide text-ws-text-dim">
+        <label className="flex shrink-0 items-center gap-2 rounded-full border border-ws-border bg-ws-sidebar/60 px-3 py-2 text-[10px] uppercase tracking-wide text-ws-text-dim touch-target">
           <input
             type="checkbox"
             checked={followPresenter}
             onChange={(event) => toggleFollow(event.target.checked)}
             data-testid="cast-follow-presenter"
+            className="h-4 w-4"
           />
           Follow presenter
         </label>
       </header>
 
       {error && (
-        <div className="px-4 py-6 text-sm text-destructive" data-testid="cast-viewer-error">
+        <div className="px-page-x py-6 text-sm text-destructive" data-testid="cast-viewer-error">
           {error}
         </div>
       )}
@@ -92,7 +93,7 @@ export default function CastViewerPage() {
       )}
 
       {!error && ready && (
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_18rem]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_min(18rem,100%)]">
           <div className="min-h-[20rem] lg:min-h-0" data-testid="cast-viewer-3d">
             <Suspense fallback={<Viewport3DLoading />}>
               <Viewport3D
@@ -121,20 +122,16 @@ export default function CastViewerPage() {
               />
             </Suspense>
           </div>
-          <aside className="space-y-4 overflow-y-auto border-t border-ws-border bg-black/20 p-4 lg:border-l lg:border-t-0">
+          <aside className="vish-cast-sidebar vish-section-stack overflow-y-auto border-t border-ws-border bg-black/25 p-card-md lg:border-l lg:border-t-0">
             <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                Active lenses
-              </p>
+              <p className="mb-2 vish-eyebrow text-muted-foreground">Active lenses</p>
               <CastLensBadges lenses={lenses} />
             </div>
             {lenses.vastu && layerVisibility.vastuOverlay && (
               <p className="text-[10px] text-primary">Vastu overlay enabled on presenter channel</p>
             )}
             <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                Intent relay
-              </p>
+              <p className="mb-2 vish-eyebrow text-muted-foreground">Intent relay</p>
               <CastIntentTimeline intents={intents} />
             </div>
             <p className="text-[10px] leading-relaxed text-ws-text-dim">

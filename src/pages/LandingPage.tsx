@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
-import PageSection from '@/components/common/PageSection';
 import PageSectionGrid from '@/components/common/PageSectionGrid';
+import MarketingSection from '@/components/marketing/MarketingSection';
 import { Button } from '@/components/ui/button';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
+import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 
 const STATS = [
   { value: 'Live 2D↔3D', label: 'One manifest' },
@@ -38,7 +38,7 @@ export default function LandingPage() {
         title="Vishvakarma.OS — iPad-First Architecture Studio"
         description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
       />
-      <section className="mx-auto max-w-6xl px-4 pb-12 pt-14 md:px-8 md:pb-16 md:pt-20">
+      <section className="vish-marketing-hero vish-page-enter">
         <p className="vish-devanagari-hero mb-4">ॐ श्री विश्वकर्मणे नमः</p>
         <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">
           iPad-first architecture studio.
@@ -47,32 +47,31 @@ export default function LandingPage() {
           <br />
           Export-ready deliverables.
         </h1>
-        <p className="mt-8 max-w-2xl text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
+        <p className="mt-8 max-w-prose-content text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
           Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays,
           NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
-          <Button variant="gold" size="gold" asChild>
+          <Button variant="gold" size="gold" className="touch-target" asChild>
             <Link to={startTo}>Start Free →</Link>
           </Button>
-          <Button variant="goldOutline" size="gold" asChild>
+          <Button variant="goldOutline" size="gold" className="touch-target" asChild>
             <Link to="/features">See All Features</Link>
           </Button>
         </div>
-        <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:mt-20">
           {STATS.map((stat, index) => (
             <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
           ))}
         </div>
       </section>
 
-      <PageSection
-        className="mx-auto max-w-6xl border-t border-primary/15 px-4 md:px-8"
+      <MarketingSection
         title="Blueprint to chamber"
         description="One floor plan powers 2D drafting, live 3D preview, and every export format."
       >
         <div className="grid gap-6 lg:grid-cols-2">
-          <figure className="vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
+          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-2d.png"
               alt="2D blueprint editor with sample floor plan"
@@ -83,7 +82,7 @@ export default function LandingPage() {
               2D Blueprint Canvas
             </figcaption>
           </figure>
-          <figure className="vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
+          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-3d.png"
               alt="Live 3D model chamber with extruded walls"
@@ -108,16 +107,16 @@ export default function LandingPage() {
             </li>
           ))}
         </ol>
-      </PageSection>
+      </MarketingSection>
 
-      <PageSection
-        className="mx-auto max-w-6xl px-4 md:px-8"
+      <MarketingSection
+        bordered={false}
         title="Built for professional delivery"
         description="A governed architectural workstation — specs, exports, and audit trail built in."
       >
         <PageSectionGrid cols={2} className="mt-2">
           {PROOF.map((item) => (
-            <div key={item.title} className="vish-feature-grid-card vish-pressable flex gap-4 p-5">
+            <div key={item.title} className="vish-feature-grid-card vish-pressable flex gap-4 rounded-card-lg p-5">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
                 <item.icon className="h-5 w-5" />
               </span>
@@ -128,15 +127,15 @@ export default function LandingPage() {
             </div>
           ))}
         </PageSectionGrid>
-      </PageSection>
+      </MarketingSection>
 
-      <section className="border-t border-primary/15 px-4 py-16 md:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="vish-marketing-section vish-marketing-section--bordered py-16">
+        <div className="mx-auto max-w-prose-content text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
           <p className="mt-4 text-lg vish-text-heading">
             Load the sample project, draw your first walls, and export a deliverable package in minutes.
           </p>
-          <Button variant="gold" size="gold" className="mt-8" asChild>
+          <Button variant="gold" size="gold" className="mt-8 touch-target" asChild>
             <Link to={startTo}>Create Your First Floor Plan →</Link>
           </Button>
         </div>

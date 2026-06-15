@@ -15,15 +15,15 @@ export function WelcomeOverlay({
   if (!open) return null;
   return (
     <div className="vish-editor-overlay-backdrop absolute inset-0 z-20 flex items-center justify-center p-6">
-      <div className="vish-onboarding-modal vish-glass-panel vish-glass-panel--interactive vish-fade-rise max-w-md rounded-2xl p-6 text-center" data-testid="first-run-welcome">
+      <div className="vish-onboarding-modal vish-glass-panel vish-glass-panel--interactive vish-fade-rise max-w-md rounded-card-lg p-card-md text-center" data-testid="first-run-welcome">
         <p className="vish-eyebrow text-primary">Creation Ritual</p>
         <h2 className="mt-3 text-xl font-bold vish-text-heading">Welcome to Vishvakarma.OS</h2>
-        <p className="mt-2 text-sm vish-text-body">Draw your first floor plan or start from a template.</p>
-        <div className="mt-6 flex flex-col gap-2">
-          <Button type="button" variant="gold" size="full" onClick={() => { onNewProject(); onDismiss(); }}>
+        <p className="mt-2 max-w-prose-content mx-auto text-sm vish-text-body">Draw your first floor plan or start from a template.</p>
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="button" variant="gold" size="full" className="touch-target" onClick={() => { onNewProject(); onDismiss(); }}>
             New project
           </Button>
-          <Button type="button" variant="goldOutline" size="full" onClick={() => { onLoadSample(); onDismiss(); }}>
+          <Button type="button" variant="goldOutline" size="full" className="touch-target" onClick={() => { onLoadSample(); onDismiss(); }}>
             Load sample
           </Button>
           <Link to="/features" className="text-xs text-primary" onClick={onDismiss}>

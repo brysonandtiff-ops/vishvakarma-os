@@ -19,12 +19,12 @@ describe('Governance visual polish', () => {
   it('keeps the shared governance page visual system targeted to existing surfaces', () => {
     const styles = read('src/styles/vish-governance-polish.css');
 
-    expect(styles).toContain('.vish-workspace-shell .gov-page-header');
+    expect(styles).toContain('.vish-workspace-shell .vish-gov-page-header');
     expect(styles).toContain('ॐ शासन · प्रमाण · लेखा');
-    expect(styles).toContain('.vish-workspace-shell .gov-page-header h1');
-    expect(styles).toContain('.vish-workspace-shell .gov-page-header .tabular-nums');
-    expect(styles).toContain(".vish-workspace-shell .gov-page-header ~ * [role='tab'][data-state='active']");
-    expect(styles).toContain('.vish-workspace-shell .gov-page-header ~ * .border-dashed');
+    expect(styles).toContain('.vish-workspace-shell .vish-gov-page-header h1');
+    expect(styles).toContain('.vish-workspace-shell .vish-gov-page-header .tabular-nums');
+    expect(styles).toContain(".vish-workspace-shell .vish-gov-page-header ~ * [role='tab'][data-state='active']");
+    expect(styles).toContain('.vish-workspace-shell .vish-gov-page-header ~ * .border-dashed');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('.vish-gov-card-dark');
     expect(styles).toContain('@keyframes vish-gov-tab-glow');
@@ -48,6 +48,7 @@ describe('Governance visual polish', () => {
     }
 
     const header = read('src/components/common/WorkspacePageHeader.tsx');
+    expect(header).toContain('vish-gov-page-header');
     expect(header).toContain('gov-page-header');
   });
 
@@ -63,6 +64,7 @@ describe('Governance visual polish', () => {
     expect(profile).toContain('WorkspacePageHeader');
     expect(profile).not.toContain('<AppLayout');
     expect(appRoutes).toContain('WorkspaceDocumentLayout');
+    expect(header).toContain('vish-gov-page-header');
     expect(header).toContain('gov-page-header');
     expect(shell).toContain("variant?: 'governance' | 'document'");
   });

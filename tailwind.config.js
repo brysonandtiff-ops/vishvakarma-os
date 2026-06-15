@@ -32,6 +32,7 @@ export default {
                 'page-standard': 'var(--vish-page-standard)',
                 'page-wide': 'var(--vish-page-wide)',
                 'page-marketing': 'var(--vish-page-marketing)',
+                'prose-content': 'var(--vish-content-max-prose)',
             },
             spacing: {
                 'page-x': 'var(--vish-page-padding-x)',
@@ -39,6 +40,9 @@ export default {
                 'section': 'var(--vish-section-gap)',
                 'panel': 'var(--vish-panel-gap)',
                 'nav-row': 'var(--vish-nav-row-height)',
+                'toolbar': 'var(--vish-toolbar-gap)',
+                'card': 'var(--vish-card-padding)',
+                'card-md': 'var(--vish-card-padding-md)',
             },
             fontSize: {
                 eyebrow: ['0.625rem', { lineHeight: '1', letterSpacing: '0.24em', fontWeight: '700' }],
@@ -142,7 +146,9 @@ export default {
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
-                sm: 'calc(var(--radius) - 4px)'
+                sm: 'calc(var(--radius) - 4px)',
+                card: 'var(--vish-card-radius)',
+                'card-lg': 'var(--vish-card-radius-lg)',
             },
             backgroundImage: {
                 'gradient-primary': 'var(--gradient-primary)',

@@ -4,7 +4,6 @@ import { appendFileSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { runCommandSync } from '../lib/run-command.mjs';
 import {
   buildCommitMessage,
   filterStageablePaths,
@@ -43,7 +42,18 @@ function logEvent(repoRoot, entry) {
 }
 
 function git(args, repoRoot) {
-  return runCommandSync('git', args, { cwd: repoRoot });
+  const result = spawnSync('git', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  // Porcelain lines often start with a leading space (e.g. " M path"); never trimStart stdout.
+  return {
+    ok: result.status === 0,
+    stdout: result.stdout?.trimEnd() ?? '',
+    stderr: result.stderr?.trimEnd() ?? '',
+    code: result.status ?? 1,
+  };
 }
 
 function pnpm(args, repoRoot, timeoutMs) {

@@ -68,6 +68,7 @@ export default function RegistryPage() {
   return (
     <>
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="Registry Center"
@@ -88,7 +89,7 @@ export default function RegistryPage() {
         />
 
         <WorkspacePageScroll>
-          <div className="p-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

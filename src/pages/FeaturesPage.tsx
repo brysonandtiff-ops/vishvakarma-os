@@ -54,7 +54,7 @@ export default function FeaturesPage() {
         title="Features & Guides — Vishvakarma.OS"
         description="Interactive editor guides and a full feature reference for Vishvakarma.OS — 2D drafting, Sacred 3D View, exports, and India compliance."
       />
-      <section className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16 vish-stagger-children">
+      <section className="vish-marketing-hero vish-stagger-children py-12 md:py-16">
         <MarketingPageHeader
           devanagari="मन्त्र यन्त्र वास्तु रचना"
           hero
@@ -79,7 +79,7 @@ export default function FeaturesPage() {
           <MetricPill value={String(EXPORT_FORMAT_COUNT)} label="export formats" animate staggerIndex={3} />
         </div>
         <Tabs defaultValue="guides" className="mt-10">
-          <TabsList className="vish-features-toggle h-auto w-full justify-start gap-1 bg-transparent p-0">
+          <TabsList className="vish-features-toggle h-auto min-h-nav-row w-full justify-start gap-1 bg-transparent p-0">
             <TabsTrigger value="guides" className="rounded-xl">
               Getting Started
             </TabsTrigger>
@@ -88,7 +88,7 @@ export default function FeaturesPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="guides" className="mt-8">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {TUTORIAL_GUIDE_CARDS.map((guide) => (
                 <FeatureCard
                   key={guide.title}
@@ -129,8 +129,8 @@ export default function FeaturesPage() {
         </Tabs>
       </section>
 
-      <section className="border-t border-primary/15 px-4 py-16 md:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="vish-marketing-section vish-marketing-section--bordered py-16">
+        <div className="mx-auto max-w-prose-content text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
           <p className="mt-4 text-lg vish-text-heading">
             Open the editor, load the sample project, and follow any guide above to draft your first floor plan.

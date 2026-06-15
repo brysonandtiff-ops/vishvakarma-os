@@ -75,6 +75,7 @@ export default function WorldRecordsPage() {
   return (
     <>
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="World Record Registry"
@@ -95,7 +96,7 @@ export default function WorldRecordsPage() {
         />
 
         <WorkspacePageScroll>
-          <div className="space-y-6 p-4 md:p-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             {error && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

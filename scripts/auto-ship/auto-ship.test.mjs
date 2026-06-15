@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCommitMessage,
+  extractPorcelainPath,
   filterStageablePaths,
   isExcludedPath,
   isMutatingTool,
@@ -36,6 +37,11 @@ describe('auto-ship-lib', () => {
       excludePatterns,
     );
     expect(paths).toEqual(['src/pages/EditorPage.tsx', 'src/cast/types.ts']);
+  });
+
+  it('parses porcelain paths when the first status column is a leading space', () => {
+    expect(extractPorcelainPath(' M docs/design/page.png')).toBe('docs/design/page.png');
+    expect(extractPorcelainPath('M docs/design/page.png')).toBeNull();
   });
 
   it('builds commit messages with trigger and file summary', () => {

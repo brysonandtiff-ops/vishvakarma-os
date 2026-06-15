@@ -51,7 +51,7 @@ export function AuthLayout({ children, variant = 'gate', className }: AuthLayout
         </>
       )}
 
-      <div className="vish-auth-shell relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-2 sm:gap-8">
+      <div className="vish-auth-shell relative z-10 flex w-full max-w-lg flex-col items-center justify-center gap-6 px-2 sm:max-w-xl sm:gap-8">
         {children ?? <Outlet />}
       </div>
     </div>

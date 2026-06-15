@@ -4,6 +4,7 @@ import { CreditCard, LogOut, Mail, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import StatPill from '@/components/common/StatPill';
 import WorkspacePanel from '@/components/common/WorkspacePanel';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
@@ -79,14 +80,15 @@ export default function ProfilePage() {
       <PageMeta title="Profile" description="Your Vishvakarma.OS account and workspace mode." />
       <div className="vish-section-stack">
         <WorkspacePageHeader
+          zone="document"
           eyebrow="Account"
           title="Profile"
           description="Workspace session, backend mode, and sign-out controls."
           stats={
-            <span className="vish-stat-pill-depth rounded-full border border-dashed border-border/70 bg-muted/30 px-3 py-1 text-xs font-semibold text-foreground">
+            <StatPill>
               {saveLabel} · session {mode}
               {stripeEnabled && !billingLoading ? ` · ${planLabel}` : ''}
-            </span>
+            </StatPill>
           }
         />
 

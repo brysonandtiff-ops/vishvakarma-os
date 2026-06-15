@@ -465,11 +465,11 @@ export default function AuthPage() {
                 type="button"
                 variant="gold"
                 size="full"
-                className="vish-gold-button--with-icon"
+                className="touch-target gap-3"
                 disabled={submitting || !isConfigured || showConfigRequired || embeddedAuthBrowser}
                 onClick={() => void handleGoogleSignIn()}
               >
-                <span className="vish-gold-button__icon">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm bg-white p-0.5">
                   <GoogleMarkIcon />
                 </span>
                 {submitting ? 'Connecting to Google…' : 'Continue with Google'}

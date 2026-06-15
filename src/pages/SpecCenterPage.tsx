@@ -135,6 +135,7 @@ export default function SpecCenterPage() {
     <>
         <div data-tutorial="spec-center-header">
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="Spec Center"
@@ -169,7 +170,7 @@ export default function SpecCenterPage() {
         </div>
 
         <WorkspacePageScroll>
-          <div className="mx-auto max-w-5xl space-y-6 p-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             {loadError && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

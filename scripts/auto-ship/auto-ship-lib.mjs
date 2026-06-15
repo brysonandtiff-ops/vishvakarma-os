@@ -36,14 +36,18 @@ export function isExcludedPath(relativePath, excludePatterns) {
   return excludePatterns.some((pattern) => new RegExp(pattern, 'i').test(normalized));
 }
 
+export function extractPorcelainPath(line) {
+  const trimmed = line.trimEnd();
+  if (trimmed.length < 4 || trimmed[2] !== ' ') return null;
+  const rawPath = trimmed.slice(3).trimStart();
+  if (!rawPath) return null;
+  return rawPath.includes(' -> ') ? rawPath.split(' -> ').pop()?.trim() ?? rawPath : rawPath;
+}
+
 export function filterStageablePaths(porcelainLines, excludePatterns) {
   const paths = [];
   for (const line of porcelainLines) {
-    const trimmed = line.trimEnd();
-    if (!trimmed.trim()) continue;
-    // Porcelain is "XY path" — X may be a leading space; never trimStart the line.
-    const rawPath = trimmed.length > 3 ? trimmed.slice(3).trimStart() : '';
-    const filePath = rawPath.includes(' -> ') ? rawPath.split(' -> ').pop()?.trim() ?? rawPath : rawPath;
+    const filePath = extractPorcelainPath(line);
     if (!filePath || isExcludedPath(filePath, excludePatterns)) continue;
     paths.push(filePath);
   }

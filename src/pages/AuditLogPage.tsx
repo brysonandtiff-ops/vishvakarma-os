@@ -4,9 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import PageStateBlock from '@/components/common/PageStateBlock';
+import PageToolbar from '@/components/common/PageToolbar';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import WorkspacePanel from '@/components/common/WorkspacePanel';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getAuditLogs } from '@/db/api';
@@ -84,6 +87,7 @@ export default function AuditLogPage() {
   return (
     <>
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="Audit Log"
@@ -116,28 +120,28 @@ export default function AuditLogPage() {
         />
 
         <WorkspacePageScroll>
-          <div className="px-6 py-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
+            <PageToolbar>
+              <Button variant="outline" size="sm" onClick={loadLogs} className="touch-target" disabled={loading}>
+                <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                Refresh timeline
+              </Button>
+            </PageToolbar>
             {error && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                {error}
-              </div>
+              <PageStateBlock variant="error" title={error} onRetry={loadLogs} />
             )}
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="mt-3 text-sm">Loading audit timeline…</p>
-              </div>
+              <PageStateBlock variant="loading" title="Loading audit timeline…" />
             ) : logs.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
+              <WorkspacePanel tone="governance" padded={false} className="py-12 text-center">
                 <History className="mx-auto h-10 w-10 text-muted-foreground/40" />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">No audit events yet</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   System activity will appear here as you interact with Vishvakarma.OS
                 </p>
-                <div className="mt-5 flex flex-col items-center gap-2">
-                  <Button size="sm" className="gap-2" onClick={() => navigate('/editor')}>
+                <div className="mt-5 flex flex-col items-center gap-2 px-4 pb-4">
+                  <Button size="sm" className="touch-target gap-2" onClick={() => navigate('/editor')}>
                     <ArrowRight className="h-3.5 w-3.5" />
                     Open the Editor
                   </Button>
@@ -145,7 +149,7 @@ export default function AuditLogPage() {
                     Create a project, add walls, or submit a change request to seed the log
                   </p>
                 </div>
-              </div>
+              </WorkspacePanel>
             ) : (
               <div className="space-y-8">
                 {Object.entries(groupedLogs).map(([date, dateLogs]) => (
@@ -175,7 +179,7 @@ export default function AuditLogPage() {
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+                            <div className="min-w-0 flex-1 rounded-card-lg border border-border bg-card px-4 py-3 shadow-sm">
                               <div className="flex flex-wrap items-center gap-2 mb-2">
                                 {getActionBadge(log.action)}
                                 <Badge variant="outline" className="h-5 text-[10px] px-2 capitalize">

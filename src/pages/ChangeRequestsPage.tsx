@@ -115,6 +115,7 @@ export default function ChangeRequestsPage() {
   return (
     <>
         <WorkspacePageHeader
+          zone="governance"
           variant="fullBleed"
           eyebrow="Governance"
           title="Change Requests"
@@ -135,7 +136,7 @@ export default function ChangeRequestsPage() {
         />
 
         <WorkspacePageScroll>
-          <div className="p-6 gov-content-area">
+          <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
               <TabsList className="mb-6 flex-wrap">

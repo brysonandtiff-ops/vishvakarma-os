@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, Loader2, MoreHorizontal, PenTool, Plus } from 'lucide-react';
+import { FolderOpen, MoreHorizontal, PenTool, Plus } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
+import PageStateBlock from '@/components/common/PageStateBlock';
+import PageToolbar from '@/components/common/PageToolbar';
+import StatPill from '@/components/common/StatPill';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import WorkspaceEmptyState, { WorkspaceEmptyStateAction } from '@/components/common/WorkspaceEmptyState';
 import {
@@ -177,6 +180,7 @@ export default function ProjectsPage() {
     <>
       <PageMeta title="Projects" description="Open and manage your Vishvakarma.OS floor plans." />
       <WorkspacePageHeader
+          zone="document"
           eyebrow="Workspace"
           title="Your projects"
           description={
@@ -186,12 +190,8 @@ export default function ProjectsPage() {
           }
           stats={
             <>
-              <span className="vish-stat-pill-depth rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums text-foreground">
-                {projects.length} project{projects.length === 1 ? '' : 's'}
-              </span>
-              <span className="vish-stat-pill-depth rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
-                {cloudLabel}
-              </span>
+              <StatPill>{projects.length} project{projects.length === 1 ? '' : 's'}</StatPill>
+              <StatPill>{cloudLabel}</StatPill>
             </>
           }
           actions={
@@ -204,21 +204,15 @@ export default function ProjectsPage() {
           }
         />
 
-        {loading && (
-          <div className="mt-12 flex flex-col items-center gap-3 text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-            <p className="text-sm">Loading projects…</p>
-          </div>
-        )}
+        {loading && <PageStateBlock variant="loading" title="Loading projects…" />}
 
         {!loading && error && (
-          <div className="mt-8 rounded-2xl border border-destructive/30 bg-destructive/10 p-6 text-center">
-            <p className="font-semibold text-destructive">Cloud unavailable</p>
-            <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-            <Button variant="outline" className="mt-4 touch-target" onClick={() => void loadProjects()}>
-              Retry
-            </Button>
-          </div>
+          <PageStateBlock
+            variant="error"
+            title="Cloud unavailable"
+            description={error}
+            onRetry={() => void loadProjects()}
+          />
         )}
 
         {!loading && !error && projects.length === 0 && (
@@ -237,31 +231,32 @@ export default function ProjectsPage() {
 
         {!loading && !error && projects.length > 0 && (
           <>
-            <div className="flex flex-wrap items-center gap-3">
+            <PageToolbar className="mt-2">
               <Input
                 placeholder="Search projects…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-xs"
+                className="max-w-xs touch-target"
                 aria-label="Search projects"
                 data-tutorial="projects-search"
               />
               <Button
                 variant={showArchived ? 'default' : 'outline'}
                 size="sm"
+                className="touch-target"
                 onClick={() => setShowArchived((v) => !v)}
               >
                 {showArchived ? 'Hide archived' : 'Show archived'}
               </Button>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 tablet:grid-cols-3" data-tutorial="projects-grid">
+            </PageToolbar>
+            <div className="mt-section grid gap-section sm:grid-cols-2 tablet:grid-cols-3" data-tutorial="projects-grid">
               {filteredProjects.map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
                   <article
                     key={project.id}
-                    className="vish-crafted-card flex flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
+                    className="vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
                   >
                     <div className="vish-frame-bezel relative aspect-[4/3] border-b border-border/60 bg-muted/30">
                       {thumb ? (

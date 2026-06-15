@@ -239,7 +239,7 @@
 }
 
 .vish-workspace-shell .vish-editor-topbar {
-  min-height: 3.35rem;
+  min-height: var(--vish-nav-row-height);
 }
 
 .vish-editor-topbar-grid {
@@ -248,7 +248,7 @@
   align-items: center;
   column-gap: 0.5rem;
   padding: 0 0.75rem;
-  min-height: 3rem;
+  min-height: var(--vish-nav-row-height);
 }
 
 .vish-editor-topbar-center {

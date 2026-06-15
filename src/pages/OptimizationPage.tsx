@@ -294,13 +294,14 @@ export default function OptimizationPage() {
     <>
       <PageMeta title="Design Optimization" description="Compare and rank AI-generated design candidates" />
       <WorkspacePageHeader
+        zone="governance"
         variant="fullBleed"
         eyebrow="Design"
         title="Design Battle"
         description="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
       />
       <WorkspacePageScroll>
-        <div className="vish-section-stack px-6 py-6 gov-content-area">
+        <div className="vish-section-stack gov-content-area">
         <PrototypeModuleNotice variant="optimization" />
 
         <OptimizationBatchHistory records={batchHistory} />
