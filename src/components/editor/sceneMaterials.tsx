@@ -106,13 +106,29 @@ function RemoteTexturedMaterial({
 export function WallSurfaceMaterial({
   materialId,
   customMaterials = [],
+  ghost = false,
 }: {
   materialId: string;
   customMaterials?: Material[];
+  ghost?: boolean;
 }) {
   const visual = getMaterialVisual(materialId, customMaterials);
   const allMaterials = [...MATERIAL_PRESETS, ...customMaterials];
   const material = allMaterials.find((entry) => entry.id === materialId);
+
+  if (ghost) {
+    return (
+      // @ts-expect-error - React Three Fiber JSX types
+      <meshStandardMaterial
+        color={visual.color}
+        transparent
+        opacity={0.28}
+        depthWrite={false}
+        roughness={visual.roughness}
+        metalness={visual.metalness}
+      />
+    );
+  }
 
   if (visual.textureUrl) {
     return (

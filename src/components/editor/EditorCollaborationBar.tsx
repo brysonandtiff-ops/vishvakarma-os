@@ -94,7 +94,7 @@ export default function EditorCollaborationBar({
     ? 'Save project to collaborate'
     : backendReady
       ? active
-        ? `Collaboration active · ${onlineCount} online`
+        ? `Live sync (preview) · ${onlineCount} online`
         : 'Connecting collaboration…'
       : 'Local session';
 

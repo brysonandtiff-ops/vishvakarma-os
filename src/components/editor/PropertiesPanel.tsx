@@ -10,6 +10,7 @@ import { Trash2, DoorOpen, SquareDashed, ChevronDown } from 'lucide-react';
 import { getToolDefaults } from '@/components/editor/toolDefaults';
 import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
 import { ROOM_TYPES, roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
+import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 
 interface PropertiesPanelProps {
@@ -30,6 +31,7 @@ interface PropertiesPanelProps {
   onLabelDelete?: (labelId: string) => void;
   onFixtureUpdate?: (fixtureId: string, updates: Partial<FixtureItem>) => void;
   onFixtureDelete?: (fixtureId: string) => void;
+  unitSystem?: UnitSystem;
   morePanel?: React.ReactNode;
 }
 
@@ -92,6 +94,7 @@ export default function PropertiesPanel({
   onLabelDelete,
   onFixtureUpdate,
   onFixtureDelete,
+  unitSystem = 'metric',
   morePanel,
 }: PropertiesPanelProps) {
   const [moreOpen, setMoreOpen] = useState(false);
@@ -276,7 +279,9 @@ export default function PropertiesPanel({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-ws-text-faint">Length</span>
-              <span className="font-mono text-[11px] text-ws-text">{Math.round(wallLength)}px</span>
+              <span className="font-mono text-[11px] text-ws-text">
+                {formatDimensionBySystem(wallLength, unitSystem, 2)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-ws-text-faint">ID</span>

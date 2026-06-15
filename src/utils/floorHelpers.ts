@@ -46,6 +46,11 @@ export function filterByFloorIndex<T extends { floorIndex?: number }>(items: T[]
   return items.filter((item) => (item.floorIndex ?? 0) === floorIndex);
 }
 
+/** Floor elevation is stored in centimeters (matches wall height units). */
+export function floorElevationMeters(elevation: number): number {
+  return elevation / 100;
+}
+
 export function createFloor(name: string, elevation: number, index: number): BuildingFloor {
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || `level-${index}`;
   return {

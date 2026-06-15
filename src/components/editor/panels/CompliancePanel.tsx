@@ -31,6 +31,7 @@ export function CompliancePanel({
 }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [expanded, setExpanded] = useState<ComplianceCategory | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<ComplianceCategory | 'all'>('all');
 
   const jurisdiction = resolveJurisdiction(manifest);
   const codeLabel = complianceCodeLabel(jurisdiction);
@@ -81,8 +82,34 @@ export function CompliancePanel({
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+            categoryFilter === 'all' ? 'bg-primary/15 text-primary' : 'bg-muted/60 text-muted-foreground'
+          }`}
+          onClick={() => setCategoryFilter('all')}
+        >
+          All
+        </button>
+        {report.categories.map((cat) => (
+          <button
+            key={cat.category}
+            type="button"
+            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+              categoryFilter === cat.category ? 'bg-primary/15 text-primary' : 'bg-muted/60 text-muted-foreground'
+            }`}
+            onClick={() => setCategoryFilter(cat.category)}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
       <ul className="space-y-1.5">
-        {report.categories.map((cat) => {
+        {report.categories
+          .filter((cat) => categoryFilter === 'all' || cat.category === categoryFilter)
+          .map((cat) => {
           const catFindings = report.results
             .filter((r) => r.category === cat.category)
             .flatMap((r) => r.findings);

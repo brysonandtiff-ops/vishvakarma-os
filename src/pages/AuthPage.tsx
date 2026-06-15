@@ -101,6 +101,11 @@ export default function AuthPage() {
     location.state !== null &&
     'message' in location.state &&
     (location.state as { message: unknown }).message === 'password-reset-unavailable';
+  const sessionRestoreTimeoutNotice =
+    typeof location.state === 'object' &&
+    location.state !== null &&
+    'message' in location.state &&
+    (location.state as { message: unknown }).message === 'session-restore-timeout';
   const showEmailSignIn = !capabilitiesLoading && winner === 'email';
   const showGoogleSignIn = !capabilitiesLoading && winner === 'google';
   const showSignInUnavailable = !capabilitiesLoading && winner === 'none';
@@ -216,6 +221,7 @@ export default function AuthPage() {
     (needsEmailForLink && showEmailSignIn) ||
     Boolean(emailLinkError || error) ||
     passwordResetNotice ||
+    sessionRestoreTimeoutNotice ||
     capabilitiesLoading ||
     (showGoogleSignIn && embeddedAuthBrowser);
 
@@ -344,6 +350,12 @@ export default function AuthPage() {
           {passwordResetNotice && (
             <AuthStatusBanner variant="info" data-testid="auth-password-reset-notice">
               Password reset is not available — request a new secure access link below instead.
+            </AuthStatusBanner>
+          )}
+
+          {sessionRestoreTimeoutNotice && (
+            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-session-restore-timeout">
+              Your saved session could not be restored. Sign in again with Google to continue.
             </AuthStatusBanner>
           )}
 

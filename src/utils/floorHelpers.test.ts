@@ -3,6 +3,7 @@ import { createEmptyProjectManifest } from '@/core/projectModel';
 import {
   createFloor,
   ensureDefaultFloors,
+  floorElevationMeters,
   filterOpeningsByFloor,
   filterWallsByFloor,
   getActiveFloor,
@@ -41,5 +42,10 @@ describe('floorHelpers', () => {
   it('returns the active floor entry', () => {
     const manifest = ensureDefaultFloors(createEmptyProjectManifest('Active'));
     expect(getActiveFloor(manifest).name).toBe('Ground Floor');
+  });
+
+  it('maps floor elevation cm to meters for 3D stacking', () => {
+    expect(floorElevationMeters(280)).toBe(2.8);
+    expect(floorElevationMeters(0)).toBe(0);
   });
 });

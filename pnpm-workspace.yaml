@@ -4,6 +4,8 @@ packages:
 catalog:
   "@react-three/drei": 9.122.0
   "@react-three/fiber": 8.18.0
+  "@react-three/postprocessing": 2.16.3
+  postprocessing: 6.36.4
   three: 0.180.0
 
 lockfileIncludeTarballUrl: false

@@ -7,6 +7,7 @@ import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
 import { importProject, type ImportResult } from '@/modules/import';
 import type { ProjectManifest } from '@/types';
 import { scaleManifestGeometry } from '@/utils/manifestGeometry';
+import { toast } from 'sonner';
 
 export default function ImportFloorPlanDialog({
   open,
@@ -64,6 +65,11 @@ export default function ImportFloorPlanDialog({
         ? scaleManifestGeometry(preview.manifest, dxfScale)
         : preview.manifest;
     onImported(manifest);
+    if (preview.warnings.length > 0) {
+      toast.message(`Imported with ${preview.warnings.length} warning(s)`, {
+        description: preview.warnings[0],
+      });
+    }
     onOpenChange(false);
     resetState();
   };
@@ -86,7 +92,7 @@ export default function ImportFloorPlanDialog({
           </div>
           <DialogTitle>Import Floor Plan</DialogTitle>
           <DialogDescription>
-            Restore a Vishvakarma JSON export, SVG floor plan, or DXF LINE geometry into the editor.
+            Restore a Vishvakarma JSON export, SVG floor plan, or DXF LINE / LWPOLYLINE geometry into the editor.
           </DialogDescription>
         </DialogHeader>
 
@@ -96,7 +102,7 @@ export default function ImportFloorPlanDialog({
             <ul className="mt-2 list-inside list-disc space-y-1 text-xs">
               <li>JSON — full Vishvakarma project manifest</li>
               <li>SVG — round-trip Vishvakarma floor plan export</li>
-              <li>DXF — LINE wall geometry (scale preview shown)</li>
+              <li>DXF — LINE and LWPOLYLINE wall geometry (export DWG as DXF)</li>
             </ul>
             {isCoarsePointer && (
               <p className="mt-3 text-xs text-muted-foreground">

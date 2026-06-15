@@ -7,24 +7,10 @@ import { canvasToWorld, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { FloorSurfaceMaterial } from '@/components/editor/sceneMaterials';
 import { getVerticesForRoom } from '@/utils/roomCalculations';
 import { roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
-
-const ROOM_TYPE_FLOOR_COLORS: Partial<Record<RoomType, string>> = {
-  Living: '#c4a574',
-  Dining: '#b89a68',
-  Kitchen: '#8b7355',
-  MasterBedroom: '#9a8468',
-  Bedroom: '#a89070',
-  Bathroom: '#7a8a9a',
-  Ensuite: '#8a9aaa',
-  Garage: '#6b6b6b',
-  Study: '#8b7d6b',
-  Entry: '#a89880',
-};
+import { getRoomTypeFloorColor } from '@/domain/rooms/roomTypeColors';
 
 function roomFloorColor(room: Room, fallback: string): string {
-  const type = room.roomType as RoomType | undefined;
-  if (type && ROOM_TYPE_FLOOR_COLORS[type]) return ROOM_TYPE_FLOOR_COLORS[type]!;
-  return fallback;
+  return getRoomTypeFloorColor(room.roomType, fallback);
 }
 
 function buildShapeGeometry(vertices: { x: number; z: number }[]): THREE.ShapeGeometry | null {

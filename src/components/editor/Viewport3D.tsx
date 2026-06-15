@@ -4,7 +4,8 @@ import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
-import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase } from '@/types';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase, BuildingFloor } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
 import { TerrainMeshes } from '@/components/editor/sceneTerrainMeshes';
@@ -22,6 +23,13 @@ import {
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
+import {
+  floorElevationMeters,
+  filterByFloorIndex,
+  filterOpeningsByFloor,
+  filterRoomsByFloor,
+  filterWallsByFloor,
+} from '@/utils/floorHelpers';
 
 // ---------------------------------------------------------------------------
 // WebGL capability pre-check
@@ -196,6 +204,17 @@ interface Viewport3DProps {
   floorMaterial?: string;
   walkMode?: boolean;
   presentationLock?: boolean;
+  floors?: BuildingFloor[];
+  activeFloorIndex?: number;
+  showAllFloorsIn3D?: boolean;
+  onShowAllFloorsIn3DChange?: (value: boolean) => void;
+  manifestWalls?: Wall[];
+  manifestOpenings?: Opening[];
+  manifestRooms?: Room[];
+  manifestFurniture?: FurnitureItem[];
+  manifestMepSymbols?: MepSymbol[];
+  manifestFixtures?: FixtureItem[];
+  manifestStaircases?: Staircase[];
 }
 
 function MepMarker({ symbol, origin }: { symbol: MepSymbol; origin: SceneOrigin }) {
@@ -255,11 +274,13 @@ function WallMesh({
   openings,
   customMaterials = [],
   origin,
+  ghost = false,
 }: {
   wall: Wall;
   openings: Opening[];
   customMaterials?: Material[];
   origin: SceneOrigin;
+  ghost?: boolean;
 }) {
   const length = Math.sqrt(
     Math.pow(wall.end.x - wall.start.x, 2) + Math.pow(wall.end.y - wall.start.y, 2)
@@ -286,7 +307,11 @@ function WallMesh({
       >
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100, wall.height / 100, wall.thickness / 100]} />
-        <WallSurfaceMaterial materialId={wall.material} customMaterials={customMaterials} />
+        <WallSurfaceMaterial
+          materialId={wall.material}
+          customMaterials={customMaterials}
+          ghost={ghost}
+        />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       {/* Edge highlight for wall extrusion */}
@@ -295,7 +320,7 @@ function WallMesh({
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <boxGeometry args={[length / 100 + 0.004, wall.height / 100 + 0.004, wall.thickness / 100 + 0.004]} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
-        <meshBasicMaterial color={ATMOSPHERE.gridPrimary} wireframe transparent opacity={0.08} />
+        <meshBasicMaterial color={ATMOSPHERE.gridPrimary} wireframe transparent opacity={ghost ? 0.04 : 0.08} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       
@@ -524,6 +549,183 @@ function TouchWalkRig({ moveRef }: { moveRef: MutableRefObject<{ x: number; z: n
   return null;
 }
 
+const BLOOM_WALL_CAP = 200;
+
+function CinematicBloom({ enabled, wallCount }: { enabled: boolean; wallCount: number }) {
+  if (!enabled || wallCount > BLOOM_WALL_CAP) return null;
+  return (
+    <EffectComposer>
+      <Bloom intensity={0.5} luminanceThreshold={0.85} luminanceSmoothing={0.9} mipmapBlur />
+    </EffectComposer>
+  );
+}
+
+function BuildingSceneLayers({
+  walls,
+  openings,
+  furniture,
+  materials,
+  mepSymbols,
+  fixtures,
+  landscapeElements,
+  terrain,
+  rooms,
+  staircases,
+  floorMaterial,
+  floors = [],
+  activeFloorIndex = 0,
+  showAllFloorsIn3D = true,
+  manifestWalls,
+  manifestOpenings,
+  manifestRooms,
+  manifestFurniture,
+  manifestMepSymbols,
+  manifestFixtures,
+  manifestStaircases,
+}: {
+  walls: Wall[];
+  openings: Opening[];
+  furniture: FurnitureItem[];
+  materials: Material[];
+  mepSymbols: MepSymbol[];
+  fixtures: FixtureItem[];
+  landscapeElements: LandscapeElement[];
+  terrain: TerrainPatch[];
+  rooms: Room[];
+  staircases: Staircase[];
+  floorMaterial: string;
+  floors?: BuildingFloor[];
+  activeFloorIndex?: number;
+  showAllFloorsIn3D?: boolean;
+  manifestWalls?: Wall[];
+  manifestOpenings?: Opening[];
+  manifestRooms?: Room[];
+  manifestFurniture?: FurnitureItem[];
+  manifestMepSymbols?: MepSymbol[];
+  manifestFixtures?: FixtureItem[];
+  manifestStaircases?: Staircase[];
+}) {
+  const allWalls = manifestWalls ?? walls;
+  const sceneOrigin = useMemo(
+    () => computeSceneOrigin(allWalls.length > 0 ? allWalls : walls),
+    [allWalls, walls],
+  );
+
+  const useStack =
+    showAllFloorsIn3D &&
+    floors.length > 1 &&
+    manifestWalls &&
+    manifestWalls.length > 0;
+
+  if (!useStack) {
+    return (
+      <>
+        <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
+        <TerrainMeshes terrain={terrain} />
+        <RoomVolumeMeshes rooms={rooms} walls={walls} origin={sceneOrigin} floorMaterial={floorMaterial} />
+        <StairMeshes staircases={staircases} origin={sceneOrigin} />
+        {walls.map((wall) => (
+          <WallMesh
+            key={wall.id}
+            wall={wall}
+            openings={openings}
+            customMaterials={materials}
+            origin={sceneOrigin}
+          />
+        ))}
+        {furniture.map((item) => (
+          <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
+        ))}
+        {mepSymbols.map((symbol) => (
+          <MepMarker key={symbol.id} symbol={symbol} origin={sceneOrigin} />
+        ))}
+        {fixtures.map((fixture) => (
+          <FixtureLight key={fixture.id} fixture={fixture} origin={sceneOrigin} />
+        ))}
+        {landscapeElements.map((element) => (
+          <LandscapeMesh key={element.id} element={element} origin={sceneOrigin} />
+        ))}
+      </>
+    );
+  }
+
+  const sortedFloorIndices = floors
+    .map((_, index) => index)
+    .sort((a, b) => {
+      if (a === activeFloorIndex) return -1;
+      if (b === activeFloorIndex) return 1;
+      return a - b;
+    })
+    .slice(0, 4);
+
+  const allOpenings = manifestOpenings ?? openings;
+  const allRooms = manifestRooms ?? rooms;
+  const allFurniture = manifestFurniture ?? furniture;
+  const allMep = manifestMepSymbols ?? mepSymbols;
+  const allFixtures = manifestFixtures ?? fixtures;
+  const allStairs = manifestStaircases ?? staircases;
+
+  return (
+    <>
+      <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
+      <TerrainMeshes terrain={terrain} />
+      {landscapeElements.map((element) => (
+        <LandscapeMesh key={element.id} element={element} origin={sceneOrigin} />
+      ))}
+      {sortedFloorIndices.map((floorIndex) => {
+        const floor = floors[floorIndex];
+        const isActive = floorIndex === activeFloorIndex;
+        const yOffset = floorElevationMeters(floor.elevation);
+        const floorWalls = filterWallsByFloor(manifestWalls!, floorIndex);
+        const floorOpenings = filterOpeningsByFloor(allOpenings, manifestWalls!, floorIndex);
+        const floorRooms = filterRoomsByFloor(allRooms, floorIndex);
+        const floorStairs = filterByFloorIndex(allStairs, floorIndex);
+        const floorFurniture = filterByFloorIndex(allFurniture, floorIndex);
+        const floorMep = filterByFloorIndex(allMep, floorIndex);
+        const floorFixtures = filterByFloorIndex(allFixtures, floorIndex);
+
+        return (
+          // @ts-expect-error - React Three Fiber JSX types
+          <group key={floor.id} position={[0, yOffset, 0]}>
+            {isActive && (
+              <RoomVolumeMeshes
+                rooms={floorRooms}
+                walls={floorWalls}
+                origin={sceneOrigin}
+                floorMaterial={floorMaterial}
+              />
+            )}
+            <StairMeshes staircases={floorStairs} origin={sceneOrigin} />
+            {floorWalls.map((wall) => (
+              <WallMesh
+                key={wall.id}
+                wall={wall}
+                openings={floorOpenings}
+                customMaterials={materials}
+                origin={sceneOrigin}
+                ghost={!isActive}
+              />
+            ))}
+            {isActive &&
+              floorFurniture.map((item) => (
+                <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
+              ))}
+            {isActive &&
+              floorMep.map((symbol) => (
+                <MepMarker key={symbol.id} symbol={symbol} origin={sceneOrigin} />
+              ))}
+            {isActive &&
+              floorFixtures.map((fixture) => (
+                <FixtureLight key={fixture.id} fixture={fixture} origin={sceneOrigin} />
+              ))}
+            {/* @ts-expect-error - React Three Fiber JSX types */}
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
 export default function Viewport3D({
   walls,
   openings,
@@ -539,10 +741,25 @@ export default function Viewport3D({
   floorMaterial = 'material-concrete',
   walkMode = false,
   presentationLock = false,
+  floors = [],
+  activeFloorIndex = 0,
+  showAllFloorsIn3D = true,
+  onShowAllFloorsIn3DChange,
+  manifestWalls,
+  manifestOpenings,
+  manifestRooms,
+  manifestFurniture,
+  manifestMepSymbols,
+  manifestFixtures,
+  manifestStaircases,
 }: Viewport3DProps) {
   const isCoarsePointer = useCoarsePointer();
   const touchMoveRef = useRef({ x: 0, z: 0 });
-  const sceneOrigin = useMemo(() => computeSceneOrigin(walls), [walls]);
+  const allWallsForOrigin = manifestWalls ?? walls;
+  const sceneOrigin = useMemo(
+    () => computeSceneOrigin(allWallsForOrigin.length > 0 ? allWallsForOrigin : walls),
+    [allWallsForOrigin, walls],
+  );
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
@@ -628,30 +845,34 @@ export default function Viewport3D({
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} boostCinematic={cinematicBoost} />
 
-            <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
-            <TerrainMeshes terrain={terrain} />
-            <RoomVolumeMeshes rooms={rooms} walls={walls} origin={sceneOrigin} floorMaterial={floorMaterial} />
-            <StairMeshes staircases={staircases} origin={sceneOrigin} />
+            <BuildingSceneLayers
+              walls={walls}
+              openings={openings}
+              furniture={furniture}
+              materials={materials}
+              mepSymbols={mepSymbols}
+              fixtures={fixtures}
+              landscapeElements={landscapeElements}
+              terrain={terrain}
+              rooms={rooms}
+              staircases={staircases}
+              floorMaterial={floorMaterial}
+              floors={floors}
+              activeFloorIndex={activeFloorIndex}
+              showAllFloorsIn3D={showAllFloorsIn3D}
+              manifestWalls={manifestWalls}
+              manifestOpenings={manifestOpenings}
+              manifestRooms={manifestRooms}
+              manifestFurniture={manifestFurniture}
+              manifestMepSymbols={manifestMepSymbols}
+              manifestFixtures={manifestFixtures}
+              manifestStaircases={manifestStaircases}
+            />
 
-            {walls.map((wall) => (
-              <WallMesh key={wall.id} wall={wall} openings={openings} customMaterials={materials} origin={sceneOrigin} />
-            ))}
-
-            {furniture.map((item) => (
-              <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
-            ))}
-
-            {mepSymbols.map((symbol) => (
-              <MepMarker key={symbol.id} symbol={symbol} origin={sceneOrigin} />
-            ))}
-
-            {fixtures.map((fixture) => (
-              <FixtureLight key={fixture.id} fixture={fixture} origin={sceneOrigin} />
-            ))}
-
-            {landscapeElements.map((element) => (
-              <LandscapeMesh key={element.id} element={element} origin={sceneOrigin} />
-            ))}
+            <CinematicBloom
+              enabled={cinematicBoost && !presentationLock}
+              wallCount={allWallsForOrigin.length}
+            />
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <gridHelper args={[20, 20, ATMOSPHERE.gridPrimary, ATMOSPHERE.gridSecondary]} />
@@ -709,6 +930,19 @@ export default function Viewport3D({
           </div>
         )}
         {/* Atmosphere mode controls */}
+        {!presentationLock && onShowAllFloorsIn3DChange && floors.length > 1 && (
+          <div className="absolute left-3 top-3 rounded-xl border border-primary/20 bg-black/40 px-2 py-1.5 shadow-2xl backdrop-blur-md">
+            <label className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={showAllFloorsIn3D}
+                onChange={(e) => onShowAllFloorsIn3DChange(e.target.checked)}
+                className="h-3 w-3 accent-primary"
+              />
+              Stack floors
+            </label>
+          </div>
+        )}
         {!presentationLock && (
         <div className="absolute right-3 top-3 space-y-2 text-right">
           <div className="rounded-xl border border-primary/25 bg-black/35 px-3 py-2 shadow-2xl backdrop-blur-md">

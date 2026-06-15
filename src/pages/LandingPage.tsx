@@ -11,15 +11,15 @@ import { useAuth } from '@/contexts/AuthContext';
 const STATS = [
   { value: 'Live 2D↔3D', label: 'One manifest' },
   { value: String(EXPORT_FORMAT_COUNT), label: 'Export formats' },
-  { value: '13', label: 'Release gates' },
+  { value: 'Vastu + NBC', label: 'India compliance' },
   { value: '44px', label: 'Touch targets' },
 ] as const;
 
 const PROOF = [
-  { icon: Shield, title: 'Governance OS', desc: 'Specs, registry, change requests, and audit trail built in.' },
+  { icon: Shield, title: 'Spec governance', desc: 'Locked specs, change requests, and audit trail for accountable delivery.' },
   { icon: FileOutput, title: 'Export Package', desc: 'JSON, PNG, PDF, DXF, and SVG from one floor plan source.' },
   { icon: Box, title: 'Sacred 3D View', desc: 'Walls and openings extrude live as you draft on the blueprint canvas.' },
-  { icon: Layers, title: 'Multi-floor ready', desc: 'Floor switcher and per-level geometry scaffold for v2 stacking.' },
+  { icon: Layers, title: 'Multi-floor ready', desc: 'Per-floor geometry and floor switcher for multi-level projects.' },
 ] as const;
 
 const WORKFLOW = [
@@ -35,28 +35,28 @@ export default function LandingPage() {
   return (
     <MarketingLayout>
       <PageMeta
-        title="Vishvakarma.OS — iPad-Native Architecture Studio"
-        description="Draw floor plans, inspect Sacred 3D View, export your Project Proof. Premium architecture studio in your browser."
+        title="Vishvakarma.OS — iPad-First Architecture Studio"
+        description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
       />
       <section className="mx-auto max-w-6xl px-4 pb-12 pt-14 md:px-8 md:pb-16 md:pt-20">
         <p className="vish-devanagari-hero mb-4">ॐ श्री विश्वकर्मणे नमः</p>
         <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">
-          iPad-native architecture studio.
+          iPad-first architecture studio.
           <br />
           <span className="vish-hero-gold">Sacred 3D View.</span>
           <br />
-          Export Package ready.
+          Export-ready deliverables.
         </h1>
         <p className="mt-8 max-w-2xl text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
           Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays,
-          NBC India pre-checks, INR cost regions, and professional Export Package delivery — Cloud Save when configured, Local Draft always available.
+          NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Button variant="gold" size="gold" asChild>
-            <Link to={startTo}>Start Free — Protected Workspace →</Link>
+            <Link to={startTo}>Start Free →</Link>
           </Button>
           <Button variant="goldOutline" size="gold" asChild>
-            <Link to="/features">▷ See All Features</Link>
+            <Link to="/features">See All Features</Link>
           </Button>
         </div>
         <div className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -69,14 +69,14 @@ export default function LandingPage() {
       <PageSection
         className="mx-auto max-w-6xl border-t border-primary/15 px-4 md:px-8"
         title="Blueprint to chamber"
-        description="One manifest powers 2D drafting, 3D preview, and every export format."
+        description="One floor plan powers 2D drafting, live 3D preview, and every export format."
       >
         <div className="grid gap-6 lg:grid-cols-2">
           <figure className="overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-2d.png"
               alt="2D blueprint editor with sample floor plan"
-              className="h-auto w-full object-cover"
+              className="aspect-[16/10] h-auto w-full object-cover"
               loading="lazy"
             />
             <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
@@ -87,7 +87,7 @@ export default function LandingPage() {
             <img
               src="/marketing/product-3d.png"
               alt="Live 3D model chamber with extruded walls"
-              className="h-auto w-full object-cover"
+              className="aspect-[16/10] h-auto w-full object-cover"
               loading="lazy"
             />
             <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
@@ -110,7 +110,11 @@ export default function LandingPage() {
         </ol>
       </PageSection>
 
-      <PageSection className="mx-auto max-w-6xl px-4 md:px-8" title="Built for professional proof" description="Not just a drawing toy — a governed architectural workstation.">
+      <PageSection
+        className="mx-auto max-w-6xl px-4 md:px-8"
+        title="Built for professional delivery"
+        description="A governed architectural workstation — specs, exports, and audit trail built in."
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           {PROOF.map((item) => (
             <div key={item.title} className="vish-feature-grid-card flex gap-4 p-5">
@@ -128,9 +132,9 @@ export default function LandingPage() {
 
       <section className="border-t border-primary/15 px-4 py-16 md:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to draft</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
           <p className="mt-4 text-lg vish-text-heading">
-            Load the sample project, draw your first walls, and export a Project Proof in minutes.
+            Load the sample project, draw your first walls, and export a deliverable package in minutes.
           </p>
           <Button variant="gold" size="gold" className="mt-8" asChild>
             <Link to={startTo}>Create Your First Floor Plan →</Link>

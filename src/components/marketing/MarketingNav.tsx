@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 function navLinkClass(pathname: string, href: string) {
   const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -64,17 +64,23 @@ export function MarketingNav() {
           </SheetTrigger>
           <SheetContent side="right" className="vish-sacred-stage w-72 border-l border-primary/20 p-0">
             <nav className="flex flex-col gap-1 p-6 pt-12" aria-label="Marketing mobile">
-              <Link to="/features" className={cn(navLinkClass(pathname, '/features'), 'rounded-lg px-3 py-2.5')} onClick={() => {}}>
-                Features
-              </Link>
-              {PRICING_PAGE_ENABLED && (
-                <Link to="/pricing" className={cn(navLinkClass(pathname, '/pricing'), 'rounded-lg px-3 py-2.5')}>
-                  Pricing
+              <SheetClose asChild>
+                <Link to="/features" className={cn(navLinkClass(pathname, '/features'), 'rounded-lg px-3 py-2.5')}>
+                  Features
                 </Link>
+              </SheetClose>
+              {PRICING_PAGE_ENABLED && (
+                <SheetClose asChild>
+                  <Link to="/pricing" className={cn(navLinkClass(pathname, '/pricing'), 'rounded-lg px-3 py-2.5')}>
+                    Pricing
+                  </Link>
+                </SheetClose>
               )}
-              <Button variant="gold" size="full" className="mt-4 text-[0.65rem]" asChild>
-                <Link to={ctaTo}>{ctaLabel}</Link>
-              </Button>
+              <SheetClose asChild>
+                <Button variant="gold" size="full" className="mt-4 text-[0.65rem]" asChild>
+                  <Link to={ctaTo}>{ctaLabel}</Link>
+                </Button>
+              </SheetClose>
             </nav>
           </SheetContent>
         </Sheet>

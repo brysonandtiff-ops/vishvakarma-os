@@ -8,6 +8,9 @@ import { smokeAlarmZoneRule } from '@/rules/fire/smokeAlarmZoneRule';
 import { nbcBedroomSizeRule } from '@/rules/nbc/bedroomSizeRule';
 import { nbcHabitableRoomHeightRule } from '@/rules/nbc/habitableRoomHeightRule';
 import { nbcStairWidthRule } from '@/rules/nbc/stairWidthRule';
+import { nbcStairRiseRunRule } from '@/rules/nbc/stairRiseRunRule';
+import { nbcRampGradientRule } from '@/rules/nbc/rampGradientRule';
+import { nbcDeadEndCorridorRule } from '@/rules/nbc/deadEndCorridorRule';
 import { bedroomEgressRule } from '@/rules/ncc/bedroomEgressRule';
 import { bedroomSizeRule } from '@/rules/ncc/bedroomSizeRule';
 import { habitableRoomHeightRule } from '@/rules/ncc/habitableRoomHeightRule';
@@ -38,6 +41,9 @@ const NBC_RULES: ComplianceRule[] = [
   nbcBedroomSizeRule,
   nbcHabitableRoomHeightRule,
   nbcStairWidthRule,
+  nbcStairRiseRunRule,
+  nbcRampGradientRule,
+  nbcDeadEndCorridorRule,
 ];
 
 const ALL_RULES: ComplianceRule[] = [...NCC_RULES, ...NBC_RULES, ...SHARED_RULES];

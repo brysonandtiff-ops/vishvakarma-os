@@ -49,6 +49,7 @@ export interface EditorSessionState {
   description?: string;
   canvasViewport: CanvasViewportState;
   layerVisibility: EditorLayerVisibility;
+  showAllFloorsIn3D: boolean;
 }
 
 export interface FloorPlanSnapshot {
@@ -72,6 +73,7 @@ const DEFAULT_SESSION: EditorSessionState = {
   projectName: 'Untitled Project',
   canvasViewport: { ...DEFAULT_CANVAS_VIEWPORT },
   layerVisibility: { ...DEFAULT_LAYER_VISIBILITY },
+  showAllFloorsIn3D: true,
 };
 
 export class FloorPlanEngine {
@@ -322,6 +324,14 @@ export class FloorPlanEngine {
 
   getLayerVisibility(): EditorLayerVisibility {
     return this.session.layerVisibility;
+  }
+
+  setShowAllFloorsIn3D(value: boolean): void {
+    this.touchSession({ showAllFloorsIn3D: value });
+  }
+
+  getShowAllFloorsIn3D(): boolean {
+    return this.session.showAllFloorsIn3D;
   }
 
   private withActiveFloor<T extends { floorIndex?: number }>(item: T): T {

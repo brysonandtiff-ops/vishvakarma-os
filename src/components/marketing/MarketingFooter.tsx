@@ -13,7 +13,7 @@ export function MarketingFooter() {
     <footer className="border-t border-primary/20 px-4 py-12 md:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <img src={OFFICIAL_LOGO_SRC} alt="" className="h-10 w-10 rounded-lg object-cover" />
+          <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS" className="h-10 w-10 rounded-lg object-cover" />
           <span className="text-xs font-bold tracking-[0.24em] vish-text-heading">VISHVAKARMA.OS</span>
         </div>
         <nav className="flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">

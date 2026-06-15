@@ -2,6 +2,11 @@
   "version": "1.0.0",
   "name": "Full Feature Showcase",
   "description": "Combined furniture, landscape, MEP, fixtures, labels, and dimensions",
+  "floors": [
+    { "id": "floor-g", "name": "Ground Floor", "elevation": 0 },
+    { "id": "floor-1", "name": "First Floor", "elevation": 280 }
+  ],
+  "activeFloorIndex": 0,
   "walls": [
     {
       "id": "w-n",
@@ -58,6 +63,42 @@
       "thickness": 10,
       "height": 240,
       "material": "material-concrete"
+    },
+    {
+      "id": "w-n2",
+      "start": { "x": 300, "y": 240 },
+      "end": { "x": 600, "y": 240 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-paint",
+      "floorIndex": 1
+    },
+    {
+      "id": "w-e2",
+      "start": { "x": 600, "y": 240 },
+      "end": { "x": 600, "y": 440 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-paint",
+      "floorIndex": 1
+    },
+    {
+      "id": "w-s2",
+      "start": { "x": 600, "y": 440 },
+      "end": { "x": 300, "y": 440 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-paint",
+      "floorIndex": 1
+    },
+    {
+      "id": "w-w2",
+      "start": { "x": 300, "y": 440 },
+      "end": { "x": 300, "y": 240 },
+      "thickness": 10,
+      "height": 240,
+      "material": "material-paint",
+      "floorIndex": 1
     }
   ],
   "openings": [

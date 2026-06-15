@@ -368,6 +368,25 @@ export function drawDimension(
   ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), midX, midY);
 }
 
+export function drawWallEndpointHandles(
+  ctx: CanvasRenderingContext2D,
+  wall: Wall,
+  options?: { activeEnd?: 'start' | 'end' },
+) {
+  const radius = 7;
+  for (const end of ['start', 'end'] as const) {
+    const point = end === 'start' ? wall.start : wall.end;
+    const active = options?.activeEnd === end;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = active ? GOLD_BRIGHT : CHIP_FILL;
+    ctx.fill();
+    ctx.strokeStyle = active ? GOLD_BRIGHT : GOLD;
+    ctx.lineWidth = active ? 2 : 1.5;
+    ctx.stroke();
+  }
+}
+
 export function pointToLineDistance(point: Point2D, lineStart: Point2D, lineEnd: Point2D): number {
   const a = point.x - lineStart.x;
   const b = point.y - lineStart.y;

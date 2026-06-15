@@ -12,6 +12,9 @@ describe('jurisdiction compliance routing', () => {
   it('uses NBC rules for India jurisdiction', () => {
     const rules = getComplianceRulesForJurisdiction('in');
     expect(rules.some((r) => r.id.startsWith('nbc-'))).toBe(true);
+    expect(rules.some((r) => r.id === 'nbc-stair-rise-run')).toBe(true);
+    expect(rules.some((r) => r.id === 'access-ramp-gradient')).toBe(true);
+    expect(rules.some((r) => r.id === 'fire-dead-end-corridor')).toBe(true);
     expect(rules.some((r) => r.id.startsWith('ncc-'))).toBe(false);
   });
 

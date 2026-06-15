@@ -19,6 +19,10 @@ export const NBC_IN_THRESHOLDS = {
   minStairWidthM: 0.9,
   minWallHeightM: 2.75,
   minVentilationOpeningSqM: 0.3,
+  maxStairRiseCm: 19,
+  minStairRunCm: 25,
+  maxRampGradientPercent: 8,
+  maxDeadEndCorridorM: 6,
 } as const;
 
 export const COMPLIANCE_CATEGORY_LABELS: Record<

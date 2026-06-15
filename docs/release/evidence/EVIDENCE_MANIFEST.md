@@ -6,7 +6,7 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Field | Value |
 |---|---|
-| Current target version | v1.4.0 |
+| Current target version | v1.5.0 |
 | Release owner | Bryson Erdmann / TYRASIC CREATIONS |
 | Review date | 2026-06-14 |
 | Final status | **v1.4 editor upgrade** — unit tests green locally |
@@ -46,9 +46,20 @@ This file is the production release evidence ledger. It must be updated whenever
 | iPad walk mode | Touch pad + `TouchWalkRig` in `Viewport3D` |
 | AI → editor handoff | `manifestTransformer` roomType/floorIndex |
 
+## v1.5 Feature Evidence
+
+| Feature | Proof |
+|---|---|
+| Orthogonal wall draw + endpoint drag | `wallDrawConstraints.ts`, `BlueprintCanvas` + `PropertiesPanel` metric length |
+| 2D room-type fills | `roomTypeColors.ts`, `drawRooms.ts` |
+| Stacked 3D floors | `Viewport3D` `BuildingSceneLayers` + `showAllFloorsIn3D` session |
+| Cinematic bloom | `CinematicBloom` + `@react-three/postprocessing` |
+| DXF LWPOLYLINE | `dxfImport.ts` + fixture test |
+| NBC rule depth | `nbc-stair-rise-run`, `access-ramp-gradient`, `fire-dead-end-corridor` |
+| Collab preview | `05-collaboration-preview.md`, `EditorCollaborationBar` label |
+
 ## Stop-Ship Review
 
-- [x] v1.4 visual/feature upgrade implemented on `main`
-- [x] Full Vitest suite green (681 tests)
-- [x] Typecheck green
-- [x] Evidence ledger synced to v1.4.0
+- [x] v1.5 editor CAD polish implemented on `main`
+- [x] Typecheck + unit tests green
+- [x] Evidence ledger synced to v1.5.0

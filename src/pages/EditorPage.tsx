@@ -139,6 +139,7 @@ function EditorWorkspace() {
   const presentationLock = session.presentationLock;
   const canvasViewport = session.canvasViewport;
   const layerVisibility = session.layerVisibility;
+  const showAllFloorsIn3D = session.showAllFloorsIn3D;
   const canvasStageRef = useRef<HTMLDivElement>(null);
 
   const [unitSystem] = useState<UnitSystem>('metric');
@@ -819,6 +820,7 @@ function EditorWorkspace() {
                   snapEnabled={snapEnabled}
                   gridSize={gridSize}
                   onWallAdd={(wall) => engine.addWall(wall)}
+                  onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
                   onOpeningAdd={(opening) => engine.addOpening(opening)}
                   onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
                   onLabelAdd={(label) => engine.addLabel(label)}
@@ -931,6 +933,17 @@ function EditorWorkspace() {
                       floorMaterial={engine.getManifest().floorMaterial}
                       walkMode={workspaceMode === 'walk'}
                       presentationLock={presentationLock}
+                      floors={engine.getManifest().floors ?? []}
+                      activeFloorIndex={engine.getManifest().activeFloorIndex ?? 0}
+                      showAllFloorsIn3D={showAllFloorsIn3D}
+                      onShowAllFloorsIn3DChange={(value) => engine.setShowAllFloorsIn3D(value)}
+                      manifestWalls={engine.getManifest().walls}
+                      manifestOpenings={engine.getManifest().openings}
+                      manifestRooms={engine.getManifest().rooms ?? []}
+                      manifestFurniture={engine.getManifest().furniture ?? []}
+                      manifestMepSymbols={engine.getManifest().mepSymbols ?? []}
+                      manifestFixtures={engine.getManifest().fixtures ?? []}
+                      manifestStaircases={engine.getManifest().staircases ?? []}
                     />
                   </Suspense>
                 </div>
@@ -967,6 +980,7 @@ function EditorWorkspace() {
                 engine.removeFixture(fixtureId);
                 setSelectedFixtureId(undefined);
               }}
+              unitSystem={unitSystem}
               morePanel={morePanel}
             />
           </aside>

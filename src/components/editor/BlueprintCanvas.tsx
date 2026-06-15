@@ -21,7 +21,7 @@ import type {
   Wall,
 } from '@/types';
 import { DEFAULT_LAYER_VISIBILITY } from '@/types';
-import { buildOrderedVertices, getVerticesForRoom } from '@/utils/roomCalculations';
+import { buildOrderedVertices } from '@/utils/roomCalculations';
 import {
   checkOpeningOverlap,
   isOpeningInBounds,
@@ -32,9 +32,6 @@ import {
   drawGrid,
   drawOpening,
   drawPreviewOpening,
-  drawWall,
-  drawWallMeasurement,
-  drawWallPreview,
   pointToLineDistance,
 } from './blueprintCanvasDrawing';
 import {
@@ -67,8 +64,6 @@ import {
   CANVAS_PAPER_FILL,
   INK_LABEL,
   MEP_COLORS,
-  ROOM_FILL,
-  ROOM_LABEL,
   ROOM_STROKE,
 } from '@/core/sceneDrawingTokens';
 import {
@@ -79,6 +74,19 @@ import {
   pointsNear,
 } from '@/core/sceneTerrainCatalog';
 import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
+import { drawRoomsLayer } from '@/components/editor/blueprint/drawRooms';
+import { drawWallsLayer } from '@/components/editor/blueprint/drawWalls';
+import {
+  getInputModeFromPointerType,
+  getHitAreaForMode,
+  type CanvasInputMode,
+} from '@/components/editor/blueprint/inputHandlers';
+import {
+  constrainToOrthogonal,
+  enforceMinWallLength,
+  getWallEndpointAtPoint,
+  MIN_WALL_LENGTH_PX,
+} from '@/utils/wallDrawConstraints';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -98,6 +106,7 @@ interface BlueprintCanvasProps {
   snapEnabled: boolean;
   gridSize: number;
   onWallAdd: (wall: Wall) => void;
+  onWallUpdate?: (wallId: string, updates: Partial<Wall>) => void;
   onOpeningAdd: (opening: Opening) => void;
   onOpeningUpdate?: (openingId: string, updates: Partial<Opening>) => void;
   onLabelAdd?: (label: Label) => void;
@@ -147,18 +156,14 @@ const COLUMN_PRESET = FURNITURE_PRESETS.find((entry) => entry.type === 'column')
 const LANDSCAPE_TYPE_CYCLE = [...LANDSCAPE_TYPES];
 
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
-type InputMode = 'mouse' | 'touch' | 'pen';
+type InputMode = CanvasInputMode;
 
 function getHitArea(mode: InputMode, base = 10) {
-  if (mode === 'pen') return base + 8;
-  if (mode === 'touch') return base + 16;
-  return base;
+  return getHitAreaForMode(mode, base);
 }
 
 function getInputMode(event: CanvasPointerEvent): InputMode {
-  if (event.pointerType === 'pen') return 'pen';
-  if (event.pointerType === 'touch') return 'touch';
-  return 'mouse';
+  return getInputModeFromPointerType(event.pointerType);
 }
 
 function positionOnWall(point: Point2D, wall: Wall): number {
@@ -194,6 +199,7 @@ export default function BlueprintCanvas({
   snapEnabled,
   gridSize,
   onWallAdd,
+  onWallUpdate,
   onOpeningAdd,
   onOpeningUpdate,
   onLabelAdd,
@@ -259,6 +265,11 @@ export default function BlueprintCanvas({
   const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
   const [stairDirectionIndex, setStairDirectionIndex] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
+  const [draggingWallEndpoint, setDraggingWallEndpoint] = useState<{
+    wallId: string;
+    end: 'start' | 'end';
+  } | null>(null);
+  const [dragWallEndpointPosition, setDragWallEndpointPosition] = useState<Point2D | null>(null);
   const panOriginRef = useRef<{ clientX: number; clientY: number; panX: number; panY: number } | null>(null);
   const roomWallSource = manifestWalls ?? walls;
 
@@ -295,13 +306,13 @@ export default function BlueprintCanvas({
     [snapEnabled, walls]
   );
 
-  const getCanvasPoint = useCallback(
+  const getRawCanvasPoint = useCallback(
     (event: Pick<CanvasPointerEvent, 'clientX' | 'clientY'>): Point2D => {
       const canvas = canvasRef.current;
       if (!canvas) return { x: 0, y: 0 };
 
       const rect = canvas.getBoundingClientRect();
-      const raw = mapPointerToWorldCoords(
+      return mapPointerToWorldCoords(
         event.clientX,
         event.clientY,
         rect,
@@ -309,10 +320,38 @@ export default function BlueprintCanvas({
         canvas.height,
         canvasViewport,
       );
-      return snapToNearbyEndpoint(snapToGrid(raw));
     },
-    [canvasViewport, snapToGrid, snapToNearbyEndpoint],
+    [canvasViewport],
   );
+
+  const applyPointSnaps = useCallback(
+    (point: Point2D): Point2D => snapToNearbyEndpoint(snapToGrid(point)),
+    [snapToGrid, snapToNearbyEndpoint],
+  );
+
+  const getWallDrawPoint = useCallback(
+    (event: Pick<CanvasPointerEvent, 'clientX' | 'clientY' | 'shiftKey'>, origin: Point2D): Point2D => {
+      let point = getRawCanvasPoint(event);
+      if (event.shiftKey) {
+        point = constrainToOrthogonal(origin, point);
+      }
+      return applyPointSnaps(point);
+    },
+    [applyPointSnaps, getRawCanvasPoint],
+  );
+
+  const getCanvasPoint = useCallback(
+    (event: Pick<CanvasPointerEvent, 'clientX' | 'clientY'>): Point2D => {
+      return applyPointSnaps(getRawCanvasPoint(event));
+    },
+    [applyPointSnaps, getRawCanvasPoint],
+  );
+
+  const getSingleSelectedWallId = useCallback((): string | undefined => {
+    if (selectedWallIds?.length === 1) return selectedWallIds[0];
+    if (selectedWallId && !selectedWallIds?.length) return selectedWallId;
+    return undefined;
+  }, [selectedWallId, selectedWallIds]);
 
   const openLabelEdit = useCallback(
     (label: Label) => {
@@ -484,6 +523,25 @@ export default function BlueprintCanvas({
         onWallSelect(undefined);
         onWallsSelect?.([]);
         return;
+      }
+
+      const singleWallId = getSingleSelectedWallId();
+      if (singleWallId && onWallUpdate) {
+        const selectedWallForDrag = walls.find((w) => w.id === singleWallId);
+        if (selectedWallForDrag) {
+          const hitRadius = getHitArea(mode, 8) / canvasViewport.zoom;
+          const endpoint = getWallEndpointAtPoint(point, selectedWallForDrag, hitRadius);
+          if (endpoint) {
+            onOpeningSelect?.(undefined);
+            onLabelSelect?.(undefined);
+            onFixtureSelect?.(undefined);
+            setDraggingWallEndpoint({ wallId: singleWallId, end: endpoint });
+            setDragWallEndpointPosition(
+              endpoint === 'start' ? selectedWallForDrag.start : selectedWallForDrag.end,
+            );
+            return;
+          }
+        }
       }
 
       const wall = getWallAtPoint(point, getHitArea(mode, 5));
@@ -661,7 +719,18 @@ export default function BlueprintCanvas({
     onPointerCanvasMove?.(point);
 
     if (isDrawing && startPoint && currentTool === 'wall') {
-      setCurrentPoint(point);
+      setCurrentPoint(getWallDrawPoint(event, startPoint));
+      return;
+    }
+
+    if (draggingWallEndpoint && onWallUpdate) {
+      const wall = walls.find((candidate) => candidate.id === draggingWallEndpoint.wallId);
+      if (wall) {
+        const fixed = draggingWallEndpoint.end === 'start' ? wall.end : wall.start;
+        let next = applyPointSnaps(getRawCanvasPoint(event));
+        next = enforceMinWallLength(fixed, next, MIN_WALL_LENGTH_PX);
+        setDragWallEndpointPosition(next);
+      }
       return;
     }
 
@@ -708,8 +777,8 @@ export default function BlueprintCanvas({
   const finishWallDrawing = (event: CanvasPointerEvent) => {
     if (!isDrawing || !startPoint || currentTool !== 'wall') return;
 
-    const end = getCanvasPoint(event);
-    if (Math.hypot(end.x - startPoint.x, end.y - startPoint.y) > 10) {
+    const end = getWallDrawPoint(event, startPoint);
+    if (Math.hypot(end.x - startPoint.x, end.y - startPoint.y) > MIN_WALL_LENGTH_PX) {
       onWallAdd({
         id: `wall-${Date.now()}`,
         start: startPoint,
@@ -743,10 +812,17 @@ export default function BlueprintCanvas({
       onFurnitureUpdate(draggingFurnitureId, { position: dragFurniturePosition });
     }
 
+    if (draggingWallEndpoint && onWallUpdate && dragWallEndpointPosition) {
+      const { wallId, end } = draggingWallEndpoint;
+      onWallUpdate(wallId, end === 'start' ? { start: dragWallEndpointPosition } : { end: dragWallEndpointPosition });
+    }
+
     setDraggingOpeningId(null);
     setDragOpeningPosition(null);
     setDraggingFurnitureId(null);
     setDragFurniturePosition(null);
+    setDraggingWallEndpoint(null);
+    setDragWallEndpointPosition(null);
 
     if (marqueeRect && currentTool === 'select') {
       const end = getCanvasPoint(event);
@@ -793,6 +869,8 @@ export default function BlueprintCanvas({
     setDragOpeningPosition(null);
     setDraggingFurnitureId(null);
     setDragFurniturePosition(null);
+    setDraggingWallEndpoint(null);
+    setDragWallEndpointPosition(null);
     setDimensionStart(null);
     setIsDrawing(false);
     setStartPoint(null);
@@ -885,18 +963,41 @@ export default function BlueprintCanvas({
     }
 
     if (layerVisibility.walls) {
-      for (const wall of walls) {
-        const selected = isWallSelected(wall.id, selectedWallId, selectedWallIds);
-        drawWall(ctx, wall, {
-          selected,
-          hovered: wall.id === hoveredWall,
-          snapEnabled,
-        });
-
-        if ((selected || (wall.id === hoveredWall && currentTool === 'measure')) && !isDrawing) {
-          drawWallMeasurement(ctx, wall, unitSystem);
+      const displayWalls = walls.map((wall) => {
+        if (
+          draggingWallEndpoint &&
+          dragWallEndpointPosition &&
+          wall.id === draggingWallEndpoint.wallId
+        ) {
+          return draggingWallEndpoint.end === 'start'
+            ? { ...wall, start: dragWallEndpointPosition }
+            : { ...wall, end: dragWallEndpointPosition };
         }
-      }
+        return wall;
+      });
+
+      const singleSelectedId =
+        selectedWallIds?.length === 1
+          ? selectedWallIds[0]
+          : selectedWallId && !selectedWallIds?.length
+            ? selectedWallId
+            : undefined;
+
+      drawWallsLayer(ctx, {
+        walls,
+        displayWalls,
+        selectedWallId,
+        selectedWallIds,
+        hoveredWall,
+        currentTool,
+        snapEnabled,
+        unitSystem,
+        isDrawing,
+        singleSelectedId,
+        draggingWallEndpoint,
+        startPoint,
+        currentPoint,
+      });
     }
 
     if (layerVisibility.openings) {
@@ -929,28 +1030,7 @@ export default function BlueprintCanvas({
     }
 
     if (layerVisibility.rooms) {
-      for (const room of rooms) {
-        const vertices = getVerticesForRoom(room, roomWallSource);
-        if (vertices.length >= 3) {
-          ctx.beginPath();
-          ctx.moveTo(vertices[0].x, vertices[0].y);
-          for (let i = 1; i < vertices.length; i++) {
-            ctx.lineTo(vertices[i].x, vertices[i].y);
-          }
-          ctx.closePath();
-          ctx.fillStyle = ROOM_FILL;
-          ctx.fill();
-          ctx.strokeStyle = ROOM_STROKE;
-          ctx.lineWidth = 1.25;
-          ctx.stroke();
-        }
-
-        if (room.center) {
-          ctx.fillStyle = ROOM_LABEL;
-          ctx.font = '12px sans-serif';
-          ctx.fillText(`${room.name}${room.area ? ` · ${room.area.toFixed(1)} m²` : ''}`, room.center.x, room.center.y);
-        }
-      }
+      drawRoomsLayer(ctx, rooms, roomWallSource);
     }
 
     if (layerVisibility.furniture) {
@@ -1046,8 +1126,8 @@ export default function BlueprintCanvas({
       drawPreviewOpening(ctx, previewOpening, walls, unitSystem);
     }
 
-    if (isDrawing && startPoint && currentPoint) {
-      drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
+    if (isDrawing && startPoint && currentTool === 'wall') {
+      // preview rendered in drawWallsLayer
     }
 
     if (marqueeRect && currentTool === 'select') {
@@ -1098,7 +1178,7 @@ export default function BlueprintCanvas({
       ctx.fillText('N', 0, -radius + 18);
       ctx.restore();
     }
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
     <div

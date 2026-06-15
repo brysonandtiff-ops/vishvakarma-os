@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseProjectManifestJson } from '@/core/projectExport';
 import { computeSceneOrigin } from '@/core/sceneVisualCatalog';
-import { detectRoomAtPoint } from '@/utils/roomCalculations';
+import { detectRoomAtPoint, getVerticesForRoom } from '@/utils/roomCalculations';
 
 describe('2D/3D parity', () => {
   it('sample project wall and opening counts match manifest', () => {
@@ -62,6 +62,28 @@ describe('2D/3D parity', () => {
     expect(detected).not.toBeNull();
     expect(detected!.center).toBeDefined();
     expect((detected!.area ?? 0)).toBeGreaterThan(0);
+
+    const vertices = getVerticesForRoom(detected!, manifest.walls);
+    expect(vertices.length).toBeGreaterThanOrEqual(3);
+    const areaPx =
+      vertices.reduce((sum, v, i) => {
+        const next = vertices[(i + 1) % vertices.length];
+        return sum + v.x * next.y - next.x * v.y;
+      }, 0) / 2;
+    expect(Math.abs(areaPx)).toBeGreaterThan(0);
+    const centroid = detected!.center!;
+    expect(Number.isFinite(centroid.x)).toBe(true);
+    expect(Number.isFinite(centroid.y)).toBe(true);
+  });
+
+  it('showcase includes multi-floor walls for stacked 3D demo', () => {
+    const samplePath = resolve(process.cwd(), 'public/samples/full-feature-showcase.json');
+    const parsed = parseProjectManifestJson(readFileSync(samplePath, 'utf8'));
+    expect(parsed.ok).toBe(true);
+    const manifest = parsed.manifest!;
+    expect(manifest.floors?.length).toBeGreaterThanOrEqual(2);
+    const upperFloorWalls = manifest.walls.filter((w) => (w.floorIndex ?? 0) === 1);
+    expect(upperFloorWalls.length).toBeGreaterThanOrEqual(4);
   });
 
   it('furniture and landscape showcase elements have finite placement data', () => {

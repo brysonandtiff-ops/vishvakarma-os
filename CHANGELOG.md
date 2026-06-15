@@ -2,6 +2,24 @@
 
 All notable changes to Vishvakarma.OS are documented in this file.
 
+## [1.5.0] - 2026-06-14
+
+### Added
+- Orthogonal wall draw lock (Shift) and wall endpoint drag with live metric length in properties
+- 2D room-type fill palette matching 3D room tints
+- Stacked multi-floor 3D preview with ghost lower floors and “Stack floors” toggle
+- Cinematic bloom via `@react-three/postprocessing` (desktop, gated, wall-count cap)
+- DXF `LWPOLYLINE` import alongside LINE entities
+- NBC stub rules: stair rise/run, ramp gradient, dead-end corridor
+- Compliance panel category filter chips
+- Collaboration preview handoff doc (`docs/handoff/05-collaboration-preview.md`)
+- Blueprint canvas modularization (`blueprint/drawRooms`, `drawWalls`, `inputHandlers`)
+
+### Changed
+- `full-feature-showcase.json` includes second floor walls for stacked 3D demo
+- Properties panel shows wall length in metric/imperial via `formatDimensionBySystem`
+- Collaboration bar label: “Live sync (preview)” when connected
+
 ## [1.4.0] - 2026-06-14
 
 ### Added
