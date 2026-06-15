@@ -45,7 +45,7 @@ export function MarketingNav() {
         <nav className="hidden items-center gap-2 md:flex" aria-label="Marketing">
           {navLinks}
           <span className="mx-2 h-5 w-px bg-primary/20" aria-hidden />
-          <Button variant="gold" size="gold" asChild>
+          <Button variant="gold" size="gold" asChild className="touch-target">
             <Link to={ctaTo} className="px-5 py-2.5 text-[0.65rem]">
               {ctaLabel}
             </Link>

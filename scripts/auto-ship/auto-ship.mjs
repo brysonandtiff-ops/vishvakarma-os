@@ -68,13 +68,6 @@ function pnpm(args, repoRoot, timeoutMs) {
   });
 }
 
-function writeLock(repoRoot, config) {
-  const lockPath = join(repoRoot, '.cursor', 'auto-ship', '.lock');
-  mkdirSync(join(repoRoot, '.cursor', 'auto-ship'), { recursive: true });
-  writeFileSync(lockPath, `${JSON.stringify({ timestamp: Date.now() })}\n`, 'utf8');
-  return lockPath;
-}
-
 export async function runAutoShip(rawArgv = process.argv.slice(2)) {
   const options = parseArgs(rawArgv);
   const config = loadConfig();
@@ -133,7 +126,10 @@ export async function runAutoShip(rawArgv = process.argv.slice(2)) {
     return { ok: true, dryRun: true, stageable };
   }
 
-  writeLock(repoRoot, config);
+  if (!acquireDebounceLock(lockPath, config.debounceMs)) {
+    logEvent(repoRoot, { trigger: options.trigger, skipped: true, reason: 'debounced-before-lint' });
+    return { ok: true, skipped: true, reason: 'debounced' };
+  }
 
   const lint = pnpm(['run', 'lint:types'], repoRoot, config.lintTimeoutMs);
   if (lint.status !== 0) {

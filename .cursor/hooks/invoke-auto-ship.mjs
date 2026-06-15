@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findGitRoot } from '../../scripts/auto-ship/auto-ship-lib.mjs';
+import { resolveRepoRootFromHook } from '../../scripts/auto-ship/auto-ship-lib.mjs';
 import { runAutoShip } from '../../scripts/auto-ship/auto-ship.mjs';
 
 const hookDir = dirname(fileURLToPath(import.meta.url));
@@ -30,18 +29,7 @@ export function readStdinJson() {
 }
 
 export function resolveRepoRoot() {
-  const fromCwd = findGitRoot(process.cwd());
-  if (fromCwd) return fromCwd;
-
-  let cursor = hookDir;
-  for (let i = 0; i < 8; i += 1) {
-    if (existsSync(join(cursor, '.git'))) return cursor;
-    const parent = dirname(cursor);
-    if (parent === cursor) break;
-    cursor = parent;
-  }
-
-  return findGitRoot(process.cwd());
+  return resolveRepoRootFromHook(hookDir, process.cwd());
 }
 
 export async function invokeAutoShip(args) {

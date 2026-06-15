@@ -7,6 +7,8 @@ import {
   isExcludedPath,
   isMutatingTool,
   normalizeRepoPath,
+  parseShellExitCode,
+  readDebounceLockTimestamp,
   shouldAcquireDebounceLock,
   shouldSkipCommand,
 } from './auto-ship-lib.mjs';

@@ -449,11 +449,18 @@
   }
 }
 
-@media (pointer: coarse), (max-width: 430px) {
+@media (pointer: coarse), (max-width: 1194px) {
   .vish-marketing-nav-link {
     min-height: 44px;
   }
 
+  .vish-marketing-nav-menu-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (pointer: coarse), (max-width: 430px) {
   .vish-features-toggle button,
   .vish-features-toggle [role='tab'] {
     min-height: 44px;

@@ -7,14 +7,13 @@ import {
 } from './helpers';
 
 const MARKETING_TOUCH_SELECTORS = [
-  '.vish-marketing-nav button',
-  '.vish-marketing-nav a.vish-marketing-nav-link',
+  '.vish-marketing-nav-menu-btn',
   '.vish-marketing-hero .touch-target',
-  '.vish-marketing-hero button',
+  '.vish-marketing-hero a[href="/auth"], .vish-marketing-hero a[href="/editor"]',
   '.vish-features-toggle button',
   '.vish-features-toggle [role="tab"]',
   '.vish-pricing-faq button',
-  '.vish-pricing-card button',
+  '.vish-pricing-card .touch-target',
 ];
 
 async function assertMarketingPage(

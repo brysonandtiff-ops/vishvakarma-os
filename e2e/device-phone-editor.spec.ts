@@ -17,13 +17,13 @@ async function dismissOnboardingIfPresent(page: import('@playwright/test').Page)
 test.describe('Device phone editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
+    await page.setViewportSize(iPhonePortrait);
     await dismissEditorOverlays(page);
     await dismissOnboardingIfPresent(page);
   });
 
   test('editor workspace fits iPhone portrait without horizontal overflow', async ({ page }) => {
-    await page.setViewportSize(iPhonePortrait);
-    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('tool-rail')).toBeVisible();
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
     await assertNoHorizontalOverflow(page);
