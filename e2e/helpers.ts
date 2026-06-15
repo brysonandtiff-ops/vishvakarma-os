@@ -12,7 +12,20 @@ export async function resetWorkspacePrefs(page: Page) {
   await page.addInitScript(() => {
     window.localStorage.removeItem('vishvakarma:workspace:prefs');
     window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
+    window.localStorage.setItem('vishvakarma.os.tutorialDismissed.v1', '1');
   });
+}
+
+export async function dismissTutorialIfPresent(page: Page) {
+  const skipTutorial = page.getByRole('button', { name: /skip tutorial/i });
+  if (await skipTutorial.isVisible().catch(() => false)) {
+    await skipTutorial.click({ force: true });
+  }
+
+  const tutorialClose = page.locator('[data-testid="tutorial-card"] button[aria-label="Skip tutorial"]');
+  if (await tutorialClose.isVisible().catch(() => false)) {
+    await tutorialClose.click({ force: true });
+  }
 }
 
 export async function gotoAppPath(page: Page, path: string) {
@@ -94,6 +107,8 @@ export async function dismissEditorOverlays(page: Page) {
   if (await declineAnalytics.isVisible().catch(() => false)) {
     await declineAnalytics.click();
   }
+
+  await dismissTutorialIfPresent(page);
 }
 
 /** Open a non-immersive workspace page where the desktop sidebar is visible at lg breakpoints. */

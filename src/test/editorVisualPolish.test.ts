@@ -58,8 +58,10 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('useFloorPlanEngine');
     expect(editor).toContain('vish-canvas-empty-hint');
     expect(editor).toContain('vish-editor-mantra-watermark');
-    expect(editor).toContain('showOnboarding && !welcomeOpen');
-    expect(editor).toContain('<OnboardingPanel');
+    expect(editor).toContain('WelcomeOverlay');
+    expect(editor).toContain('startTutorial');
+    expect(editor).toContain('maybeStartEssentialsTour');
+    expect(editor).toContain('Take the tour');
     expect(editor).toContain('<StatusBar');
     expect(editor).toContain('<EditorTopBar');
     expect(editor).toContain('fileStrip={fileStrip}');
@@ -67,21 +69,18 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('immersive');
   });
 
-  it('protects first-run demo and governance proof product polish', () => {
-    const onboarding = read('src/components/editor/OnboardingPanel.tsx');
+  it('protects first-run welcome and tutorial product polish', () => {
     const proofPanel = read('src/components/editor/ProjectProofPanel.tsx');
     const editor = read('src/pages/EditorPage.tsx');
+    const topBar = read('src/components/editor/EditorTopBar.tsx');
+    const tutorial = read('src/tutorial/TutorialEngine.tsx');
 
     const welcome = read('src/components/editor/WelcomeOverlay.tsx');
     expect(welcome).toContain('variant="gold"');
     expect(welcome).toContain('vish-editor-overlay-backdrop');
-    expect(onboarding).toContain('variant="gold"');
-    expect(onboarding).toContain('data-testid="first-run-welcome"');
-    expect(onboarding).toContain('Build your first verified blueprint');
-    expect(onboarding).toContain('Load Demo Blueprint');
-    expect(onboarding).toContain('Start Blank Project');
-    expect(proofPanel).toContain('data-testid="project-proof-panel"');
-    expect(proofPanel).toContain('Visible governance status for demo confidence');
+    expect(tutorial).toContain('data-testid="tutorial-overlay"');
+    expect(topBar).toContain('TutorialHelpButton');
+    expect(proofPanel).toContain('data-tutorial="project-proof"');
     expect(proofPanel).toContain('Project Proof');
     expect(editor).toContain('<ProjectProofPanel');
   });
