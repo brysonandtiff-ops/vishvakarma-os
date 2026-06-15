@@ -215,6 +215,7 @@ export class ManifestCollabBridge {
   private remoteListener: ((manifest: ProjectManifest, isRemote: boolean) => void) | null = null;
   private localOrigin: symbol;
   private undoManager: Y.UndoManager;
+  private pendingRemoteFrame = 0;
 
   constructor(manifest?: ProjectManifest) {
     this.handles = createManifestDoc();
@@ -245,7 +246,15 @@ export class ManifestCollabBridge {
     this.handles.doc.on('update', (_update, origin) => {
       if (!this.remoteListener) return;
       const isRemote = origin !== this.localOrigin && origin !== null;
-      this.remoteListener(manifestFromDoc(this.handles), isRemote);
+      if (!isRemote) {
+        this.remoteListener(manifestFromDoc(this.handles), false);
+        return;
+      }
+      if (this.pendingRemoteFrame) return;
+      this.pendingRemoteFrame = window.requestAnimationFrame(() => {
+        this.pendingRemoteFrame = 0;
+        this.remoteListener?.(manifestFromDoc(this.handles), true);
+      });
     });
   }
 
@@ -310,6 +319,10 @@ export class ManifestCollabBridge {
   }
 
   destroy(): void {
+    if (this.pendingRemoteFrame) {
+      window.cancelAnimationFrame(this.pendingRemoteFrame);
+      this.pendingRemoteFrame = 0;
+    }
     this.undoManager.destroy();
     this.handles.doc.destroy();
     this.remoteListener = null;

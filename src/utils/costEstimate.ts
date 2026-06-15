@@ -71,3 +71,24 @@ export function calculateProjectCostItems(manifest: ProjectManifest): CostItem[]
 export function sumCostItems(items: CostItem[]): number {
   return items.reduce((sum, item) => sum + item.amount, 0);
 }
+
+const COST_FIELDS: (keyof ProjectManifest)[] = [
+  'walls',
+  'openings',
+  'furniture',
+  'mepSymbols',
+  'landscapeElements',
+  'materials',
+  'fixtures',
+  'staircases',
+  'floors',
+  'terrain',
+  'rooms',
+  'roofs',
+  'plumbingRuns',
+  'ceilingZones',
+];
+
+export function partialTouchesCost(partial: Partial<ProjectManifest>): boolean {
+  return COST_FIELDS.some((key) => key in partial && partial[key] !== undefined);
+}

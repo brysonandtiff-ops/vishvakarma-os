@@ -1,22 +1,22 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import ProjectsPage from './pages/ProjectsPage';
-import ProfilePage from './pages/ProfilePage';
 import EditorPage from './pages/EditorPage';
-import LandingPage from './pages/LandingPage';
-import FeaturesPage from './pages/FeaturesPage';
-import PricingPage from './pages/PricingPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 import { PRICING_PAGE_ENABLED } from './config/marketingFeatures';
-import SpecCenterPage from './pages/SpecCenterPage';
-import RegistryPage from './pages/RegistryPage';
-import ChangeRequestsPage from './pages/ChangeRequestsPage';
-import ReleasesPage from './pages/ReleasesPage';
-import AuditLogPage from './pages/AuditLogPage';
-import WorldRecordsPage from './pages/WorldRecordsPage';
-import OptimizationPage from './pages/OptimizationPage';
-import AuthPage from './pages/AuthPage';
-import NotFoundPage from './pages/NotFound';
 
+const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const SpecCenterPage = lazy(() => import('./pages/SpecCenterPage'));
+const RegistryPage = lazy(() => import('./pages/RegistryPage'));
+const ChangeRequestsPage = lazy(() => import('./pages/ChangeRequestsPage'));
+const ReleasesPage = lazy(() => import('./pages/ReleasesPage'));
+const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
+const WorldRecordsPage = lazy(() => import('./pages/WorldRecordsPage'));
+const OptimizationPage = lazy(() => import('./pages/OptimizationPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFound'));
 const CastViewerPage = lazy(() => import('./pages/CastViewerPage'));
 
 function lazyRoute(element: ReactNode) {
@@ -47,14 +47,14 @@ const routes: RouteConfig[] = [
   {
     name: 'Landing',
     path: '/',
-    element: <LandingPage />,
+    element: lazyRoute(<LandingPage />),
     visible: false,
     access: 'public',
   },
   {
     name: 'Features',
     path: '/features',
-    element: <FeaturesPage />,
+    element: lazyRoute(<FeaturesPage />),
     visible: false,
     access: 'public',
   },
@@ -63,7 +63,7 @@ const routes: RouteConfig[] = [
         {
           name: 'Pricing',
           path: '/pricing',
-          element: <PricingPage />,
+          element: lazyRoute(<PricingPage />),
           visible: false,
           access: 'public' as const,
         },
@@ -72,14 +72,14 @@ const routes: RouteConfig[] = [
   {
     name: 'Account Access',
     path: '/auth',
-    element: <AuthPage />,
+    element: lazyRoute(<AuthPage />),
     visible: false,
     access: 'public',
   },
   {
     name: 'Reset Password',
     path: '/reset-password',
-    element: <ResetPasswordPage />,
+    element: lazyRoute(<ResetPasswordPage />),
     visible: false,
     access: 'public',
   },
@@ -93,7 +93,7 @@ const routes: RouteConfig[] = [
   {
     name: 'Not Found',
     path: '/404',
-    element: <NotFoundPage />,
+    element: lazyRoute(<NotFoundPage />),
     visible: false,
     access: 'public',
   },
@@ -107,63 +107,63 @@ const routes: RouteConfig[] = [
   {
     name: 'Projects',
     path: '/projects',
-    element: <ProjectsPage />,
+    element: lazyRoute(<ProjectsPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Design Optimization',
     path: '/optimization',
-    element: <OptimizationPage />,
+    element: lazyRoute(<OptimizationPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Profile',
     path: '/profile',
-    element: <ProfilePage />,
+    element: lazyRoute(<ProfilePage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Spec Center',
     path: '/spec-center',
-    element: <SpecCenterPage />,
+    element: lazyRoute(<SpecCenterPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Registry Center',
     path: '/registry',
-    element: <RegistryPage />,
+    element: lazyRoute(<RegistryPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Change Requests',
     path: '/change-requests',
-    element: <ChangeRequestsPage />,
+    element: lazyRoute(<ChangeRequestsPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Release Center',
     path: '/releases',
-    element: <ReleasesPage />,
+    element: lazyRoute(<ReleasesPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'World Records',
     path: '/world-records',
-    element: <WorldRecordsPage />,
+    element: lazyRoute(<WorldRecordsPage />),
     visible: true,
     access: 'private',
   },
   {
     name: 'Audit Log',
     path: '/audit',
-    element: <AuditLogPage />,
+    element: lazyRoute(<AuditLogPage />),
     visible: true,
     access: 'private',
   },

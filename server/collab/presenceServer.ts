@@ -36,10 +36,6 @@ function isOriginAllowed(origin: string | undefined): boolean {
   return ALLOWED_ORIGINS.includes(normalized);
 }
 
-function parseTokenFromUrl(url: string | undefined): string | null {
-  return parseAuthTokenFromUrl(url).token;
-}
-
 const server = http.createServer((_req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('Vishvakarma collab presence server');

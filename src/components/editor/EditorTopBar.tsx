@@ -52,6 +52,7 @@ interface EditorTopBarProps {
   onSaveProject?: () => void;
   onLoadSample?: () => void;
   onOpenAIDesigner?: () => void;
+  onOpenArchitectureBot?: () => void;
   onOpenEditorMenu?: () => void;
   onOpenGovernance?: () => void;
   onUndo?: () => void;
@@ -146,6 +147,7 @@ export default function EditorTopBar({
   onSaveProject,
   onLoadSample,
   onOpenAIDesigner,
+  onOpenArchitectureBot,
   onOpenEditorMenu,
   onOpenGovernance,
   onUndo,
@@ -260,6 +262,12 @@ export default function EditorTopBar({
                     Architecture Copilot
                   </DropdownMenuItem>
                 </>
+              )}
+              {onOpenArchitectureBot && (
+                <DropdownMenuItem onClick={onOpenArchitectureBot} data-testid="editor-architecture-bot">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Architecture Bot
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

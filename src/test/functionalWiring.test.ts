@@ -18,6 +18,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
       '/auth',
       '/reset-password',
+      '/cast/:token',
       '/404',
       '/editor',
       '/projects',
@@ -40,6 +41,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
       '/auth',
       '/reset-password',
+      '/cast/:token',
       '/404',
     ];
     for (const path of publicPaths) {

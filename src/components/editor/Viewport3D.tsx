@@ -54,6 +54,22 @@ function resolveInitialAtmosphereMode(): AtmospherePerformanceMode {
   return resolveDefaultAtmosphereMode({ storedMode: readStoredAtmosphereMode() });
 }
 
+function DemandRenderInvalidator({
+  geometryKey,
+  atmosphereMode,
+  walkMode,
+}: {
+  geometryKey: number;
+  atmosphereMode: AtmospherePerformanceMode;
+  walkMode: boolean;
+}) {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    invalidate();
+  }, [atmosphereMode, geometryKey, invalidate, walkMode]);
+  return null;
+}
+
 const ATMOSPHERE_MODES: Record<
   AtmospherePerformanceMode,
   {
@@ -215,6 +231,7 @@ interface Viewport3DProps {
   manifestMepSymbols?: MepSymbol[];
   manifestFixtures?: FixtureItem[];
   manifestStaircases?: Staircase[];
+  geometryRevision?: number;
 }
 
 function MepMarker({ symbol, origin }: { symbol: MepSymbol; origin: SceneOrigin }) {
@@ -743,6 +760,7 @@ export default function Viewport3D({
   manifestMepSymbols,
   manifestFixtures,
   manifestStaircases,
+  geometryRevision = 0,
 }: Viewport3DProps) {
   const isCoarsePointer = useCoarsePointer();
   const touchMoveRef = useRef({ x: 0, z: 0 });
@@ -797,11 +815,17 @@ export default function Viewport3D({
           }
         >
           <Canvas
-            shadows
+            frameloop="demand"
+            shadows={atmosphereMode !== 'standard'}
             dpr={atmosphereConfig.dpr}
             gl={{ antialias: atmosphereMode !== 'standard', alpha: false, powerPreference: atmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
             style={{ width: '100%', height: '100%' }}
           >
+            <DemandRenderInvalidator
+              geometryKey={geometryRevision}
+              atmosphereMode={atmosphereMode}
+              walkMode={walkMode}
+            />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />

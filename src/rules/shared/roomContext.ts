@@ -1,10 +1,12 @@
 import { PX_PER_METER } from '@/domain/constants';
+import type { RoomType } from '@/domain/rooms/roomType';
 import { calculateRoomStats } from '@/utils/roomCalculations';
 import type { Point2D, ProjectManifest, Room, Wall } from '@/types';
 
 export interface ResolvedRoom {
   id: string;
   name: string;
+  roomType?: RoomType;
   isBedroom: boolean;
   areaSqM: number;
   widthM: number;
@@ -44,6 +46,7 @@ function resolveRoomMetrics(room: Room, walls: Wall[], gridSize: number): Resolv
   return {
     id: room.id,
     name: room.name,
+    roomType: room.roomType as RoomType | undefined,
     isBedroom: isBedroomName(room.name),
     areaSqM,
     widthM: Math.min(widthM, depthM),

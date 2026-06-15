@@ -58,6 +58,37 @@ export function drawPaperBackground(
 }
 
 export function drawGrid(ctx: CanvasRenderingContext2D, bounds: WorldBounds, gridSize: number) {
+  const pattern = createGridPattern(ctx, gridSize);
+  if (pattern) {
+    ctx.save();
+    ctx.fillStyle = pattern;
+    ctx.fillRect(bounds.left, bounds.top, bounds.width, bounds.height);
+    ctx.restore();
+    return;
+  }
+
+  drawGridLines(ctx, bounds, gridSize);
+}
+
+function createGridPattern(ctx: CanvasRenderingContext2D, gridSize: number): CanvasPattern | null {
+  if (typeof document === 'undefined') return null;
+  const tile = document.createElement('canvas');
+  tile.width = gridSize;
+  tile.height = gridSize;
+  const tileCtx = tile.getContext('2d');
+  if (!tileCtx) return null;
+  tileCtx.strokeStyle = gridMinorStroke(0.35);
+  tileCtx.lineWidth = 1;
+  tileCtx.beginPath();
+  tileCtx.moveTo(gridSize, 0);
+  tileCtx.lineTo(gridSize, gridSize);
+  tileCtx.moveTo(0, gridSize);
+  tileCtx.lineTo(gridSize, gridSize);
+  tileCtx.stroke();
+  return ctx.createPattern(tile, 'repeat');
+}
+
+function drawGridLines(ctx: CanvasRenderingContext2D, bounds: WorldBounds, gridSize: number) {
   const fadeMargin = Math.min(bounds.width, bounds.height) * GRID_FADE_MARGIN;
   const edgeFade = (coord: number, min: number, max: number) => {
     const d = Math.min(coord - min, max - coord);

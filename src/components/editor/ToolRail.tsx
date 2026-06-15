@@ -1,4 +1,5 @@
 // Tool rail — working drafting tools only
+import { memo } from 'react';
 import type { ToolType, WorkspaceMode } from '@/types';
 import { BASE_TOOL_IDS, TOOL_META } from '@/editor/toolMeta';
 
@@ -57,7 +58,7 @@ function ToolButton({
   );
 }
 
-export default function ToolRail({ currentTool, workspaceMode = 'draft', onToolChange }: ToolRailProps) {
+export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', onToolChange }: ToolRailProps) {
   const modeToolIds = MODE_TOOL_IDS[workspaceMode] ?? [];
 
   return (
@@ -89,4 +90,4 @@ export default function ToolRail({ currentTool, workspaceMode = 'draft', onToolC
       )}
     </div>
   );
-}
+});

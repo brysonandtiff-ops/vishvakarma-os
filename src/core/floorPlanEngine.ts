@@ -6,7 +6,7 @@ import {
   PROJECT_SPEC_VERSION,
 } from '@/core/projectModel';
 import { VersionControlHooks } from '@/modules/versionControlHooks';
-import { calculateProjectCostItems } from '@/utils/costEstimate';
+import { calculateProjectCostItems, partialTouchesCost } from '@/utils/costEstimate';
 import { createFloor, ensureDefaultFloors, filterWallsByFloor, getActiveFloorIndex } from '@/utils/floorHelpers';
 import { detectRoomAtPoint, detectRoomFromWalls, findAllRoomFaces, polygonCentroid, squarePixelsToSquareMeters } from '@/utils/roomCalculations';
 import type { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
@@ -85,6 +85,8 @@ export class FloorPlanEngine {
   private session: EditorSessionState;
   private versionControl: VersionControlHooks;
   private listeners = new Set<() => void>();
+  private geometryListeners = new Set<() => void>();
+  private sessionListeners = new Set<() => void>();
   private viewportListeners = new Set<() => void>();
   private revision = 0;
   private geometryRevision = 0;
@@ -126,6 +128,16 @@ export class FloorPlanEngine {
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  };
+
+  subscribeGeometry = (listener: () => void): (() => void) => {
+    this.geometryListeners.add(listener);
+    return () => this.geometryListeners.delete(listener);
+  };
+
+  subscribeSession = (listener: () => void): (() => void) => {
+    this.sessionListeners.add(listener);
+    return () => this.sessionListeners.delete(listener);
   };
 
   subscribeViewport = (listener: () => void): (() => void) => {
@@ -184,6 +196,9 @@ export class FloorPlanEngine {
     for (const listener of this.listeners) {
       listener();
     }
+    for (const listener of this.sessionListeners) {
+      listener();
+    }
   }
 
   private notifyGeometry(_snapshotLabel = 'Edit'): void {
@@ -191,6 +206,9 @@ export class FloorPlanEngine {
     this.revision += 1;
     this.rebuildSnapshot();
     for (const listener of this.listeners) {
+      listener();
+    }
+    for (const listener of this.geometryListeners) {
       listener();
     }
   }
@@ -201,6 +219,12 @@ export class FloorPlanEngine {
     this.revision += 1;
     this.rebuildSnapshot();
     for (const listener of this.listeners) {
+      listener();
+    }
+    for (const listener of this.geometryListeners) {
+      listener();
+    }
+    for (const listener of this.sessionListeners) {
       listener();
     }
   }
@@ -321,7 +345,7 @@ export class FloorPlanEngine {
       },
     };
 
-    if (!partial.costItems) {
+    if (!partial.costItems && partialTouchesCost(partial)) {
       nextManifest.costItems = calculateProjectCostItems(nextManifest);
     }
 

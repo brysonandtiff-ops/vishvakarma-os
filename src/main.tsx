@@ -44,15 +44,25 @@ if (isE2eBuild || import.meta.env.DEV) {
 
 bootstrapClientGovernanceState();
 
-// Run enforcement check on startup
-const startupEnforcement = enforce();
+const logStartupEnforcement = (startupEnforcement: ReturnType<typeof enforce>) => {
+  if (!startupEnforcement.success) {
+    console.warn('[STARTUP] Governance enforcement detected issues:', startupEnforcement.errors);
+    console.warn('[STARTUP] Auto-repairs applied:', startupEnforcement.repairs);
+  }
+  console.log(
+    `[STARTUP] Governance enforcement completed in ${startupEnforcement.metrics.totalTime.toFixed(2)}ms`,
+  );
+};
 
-if (!startupEnforcement.success) {
-  console.warn('[STARTUP] Governance enforcement detected issues:', startupEnforcement.errors);
-  console.warn('[STARTUP] Auto-repairs applied:', startupEnforcement.repairs);
+const runStartupEnforcement = () => {
+  logStartupEnforcement(enforce());
+};
+
+if (import.meta.env.PROD && typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+  window.requestIdleCallback(runStartupEnforcement, { timeout: 4000 });
+} else {
+  runStartupEnforcement();
 }
-
-console.log(`[STARTUP] Governance enforcement completed in ${startupEnforcement.metrics.totalTime.toFixed(2)}ms`);
 
 // ============================================================================
 // APP INITIALIZATION

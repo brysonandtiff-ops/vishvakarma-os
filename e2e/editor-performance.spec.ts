@@ -20,7 +20,7 @@ test.describe('editor performance smoke', () => {
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
     const elapsed = Date.now() - started;
     console.log(`editor-canvas-interactive-ms=${elapsed}`);
-    expect(elapsed).toBeLessThan(45_000);
+    expect(elapsed).toBeLessThan(35_000);
   });
 
   test('3D preview becomes visible within budget after sample load', async ({ page }) => {
@@ -33,6 +33,6 @@ test.describe('editor performance smoke', () => {
     await expect3DPreviewPane(page);
     const elapsed = Date.now() - started;
     console.log(`editor-3d-preview-ms=${elapsed}`);
-    expect(elapsed).toBeLessThan(60_000);
+    expect(elapsed).toBeLessThan(45_000);
   });
 });

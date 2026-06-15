@@ -1,18 +1,46 @@
 # Performance Notes
 
-Generated from commit: `44a5863faf32b1f14175f69968ac0d2f6dce1236`
-Generated at: 2026-06-14T07:04:51.594Z
-Operator: automated local verify
-Result: PASS — build artifact produced locally
+## Editor performance overhaul (2026-06)
 
-## Build size
+Hot-path fixes shipped across the blueprint editor:
 
-| Metric | Value |
+| Area | Change |
 |---|---|
-| dist/ total | Run `pnpm run production:evidence` to refresh |
+| Viewport pan/zoom | `setCanvasViewport()` notifies viewport listeners only — compliance and undo no longer run on pan |
+| Compliance | Keyed on `geometryRevision` via `getGeometryManifest()` (camera excluded) |
+| Undo | `beginEditTransaction()` / `commitEditTransaction()` coalesce drag snapshots |
+| 2D canvas | rAF dirty scheduler + spatial index for hit-tests |
+| 3D | `frameloop="demand"`, atmosphere tiers, batched walls (10+), bloom single-pass |
+| Background | Worker draft save, incremental cost invalidation, cached room faces, batched CRDT remote apply |
+| Profiles | Draft / Studio / Presentation in Properties → More panel |
+
+## Dev HUD
+
+- Query: `?perf=1`
+- Storage: `localStorage.setItem('vishvakarma.os.perf.hud', '1')`
+
+## Verification
+
+| Check | Command |
+|---|---|
+| Types | `pnpm run lint:types` |
+| Unit | `pnpm run test` |
+| **Overhaul mock audit** | `pnpm run test:perf-overhaul` |
+| E2E perf | `pnpm run test:e2e:perf` |
+| Bundle | `pnpm run perf:gates` |
+
+Proof matrix: [`editor-performance-overhaul-proof.md`](editor-performance-overhaul-proof.md)
+
+## Targets (SPEC)
+
+- 2D frame budget: **16ms** (iPad Safari PWA)
+- 3D geometry sync: **200ms** after edit commit
 
 ## Runtime Interaction Checks
 
-- Build completes under local verify pipeline.
-- 3D vendor chunk isolated via `manualChunks` in vite.config.ts.
-- Manual iPad interaction and 3D update latency still require device evidence.
+- Viewport pan/zoom does not trigger compliance recompute or undo snapshots (geometry revision unchanged).
+- Wall drag edits coalesce into a single undo step via edit transactions.
+- 2D canvas draw requests coalesce through the rAF scheduler; spatial index used for hit-tests at scale.
+- 3D viewport uses demand rendering; bloom and wall batching gated by performance profile and wall count.
+- Draft autosave runs off the main thread; cost and room-face caches skip session-only edits.
+- Manual iPad Safari PWA interaction and measured frame times still require device evidence before strict launch sign-off.

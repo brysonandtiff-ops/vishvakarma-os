@@ -15,6 +15,7 @@ describe('marketing routes', () => {
       expect(paths).not.toContain('/pricing');
     }
     expect(paths).toContain('/auth');
+    expect(paths).toContain('/cast/:token');
     expect(paths).toContain('/404');
   });
 

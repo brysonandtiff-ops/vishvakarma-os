@@ -83,4 +83,31 @@ describe('FloorPlanEngine', () => {
     engine.removeFixture('fx1');
     expect(engine.buildManifest().fixtures).toHaveLength(0);
   });
+
+  it('panning bumps viewport revision without geometry revision', () => {
+    const engine = FloorPlanEngine.getInstance();
+    const geometryBefore = engine.getGeometryRevision();
+    const viewportBefore = engine.getViewportRevision();
+    engine.setCanvasViewport({ panX: 40, panY: -20 });
+    expect(engine.getGeometryRevision()).toBe(geometryBefore);
+    expect(engine.getViewportRevision()).toBeGreaterThan(viewportBefore);
+  });
+
+  it('coalesces undo snapshots during edit transactions', () => {
+    const engine = FloorPlanEngine.getInstance();
+    engine.addWall({
+      id: 'w1',
+      start: { x: 0, y: 0 },
+      end: { x: 100, y: 0 },
+      thickness: 200,
+      height: 2800,
+      material: 'material-concrete',
+    });
+    engine.beginEditTransaction();
+    engine.updateWall('w1', { start: { x: 5, y: 0 } });
+    engine.updateWall('w1', { start: { x: 10, y: 0 } });
+    engine.commitEditTransaction();
+    engine.undo();
+    expect(engine.getWalls()[0]?.start.x).toBe(0);
+  });
 });

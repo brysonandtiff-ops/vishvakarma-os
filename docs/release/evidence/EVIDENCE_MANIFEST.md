@@ -18,6 +18,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Verify workflow | Install, lint, tests, route smoke, build | PASS | Local `pnpm run lint:types`, `pnpm run test`, `pnpm run build` |
 | 2D/3D parity | Polygon room volumes + dynamic origin | PASS | [`2d-3d-parity-proof.md`](2d-3d-parity-proof.md) |
 | iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts) |
+| Editor perf overhaul | Mock audit + wiring matrix | PASS | [`editor-performance-overhaul-proof.md`](editor-performance-overhaul-proof.md) — `pnpm run test:perf-overhaul` |
 
 ## Backend Evidence
 

@@ -147,7 +147,6 @@ if (existsSync(join(root, 'src/db/supabase.ts'))) {
 }
 
 const supabaseProviderRequired = [
-  'completePostAuthRedirect',
   'hydrateSupabaseAuthSession',
   'readCachedAuthBootstrap',
   'POST_AUTH_DESTINATION',
@@ -158,6 +157,18 @@ for (const phrase of supabaseProviderRequired) {
   if (!supabaseProvider.includes(phrase)) {
     failures.push(`src/contexts/SupabaseAuthProvider.tsx is missing auth phrase: ${phrase}`);
   }
+}
+
+const hasPostAuthLanding =
+  supabaseProvider.includes('completePostAuthRedirect') ||
+  (supabaseProvider.includes('POST_AUTH_DESTINATION') &&
+    supabaseProvider.includes('navigate(') &&
+    supabaseProvider.includes("location.pathname !== '/auth'"));
+
+if (!hasPostAuthLanding) {
+  failures.push(
+    'src/contexts/SupabaseAuthProvider.tsx must land signed-in users on POST_AUTH_DESTINATION (completePostAuthRedirect or React Router navigate)',
+  );
 }
 
 if (!routeGuard.includes('hasCachedAuthSession')) {

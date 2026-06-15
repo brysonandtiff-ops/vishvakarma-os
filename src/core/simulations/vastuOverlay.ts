@@ -3,6 +3,7 @@ import { analyzeVastu, getVastuPlanCentroid, VASTU_DIRECTIONS, type VastuAnalysi
 import type { ProjectManifest } from '@/types';
 
 const vastuAnalysisCache = new Map<string, VastuAnalysisResult>();
+const vastuSectorBitmapCache = new Map<string, HTMLCanvasElement>();
 
 function vastuGeometryHash(manifest: Pick<ProjectManifest, 'walls' | 'openings' | 'labels' | 'northOrientation'>): string {
   return JSON.stringify({
@@ -58,11 +59,44 @@ export function drawVastuSectorOverlay(
 
   const center = getVastuPlanCentroid(manifest);
   const northOrientation = manifest.northOrientation ?? 0;
-  const analysis = getCachedVastuAnalysis(manifest);
-  const scoreByDir = new Map(analysis.directions.map((d) => [d.direction, d.score]));
+  const bitmapKey = `${vastuGeometryHash(manifest)}:${radius}:${northOrientation}`;
+  let bitmap = vastuSectorBitmapCache.get(bitmapKey);
+  if (!bitmap && typeof document !== 'undefined') {
+    bitmap = document.createElement('canvas');
+    bitmap.width = Math.ceil(radius * 2);
+    bitmap.height = Math.ceil(radius * 2);
+    const bitmapCtx = bitmap.getContext('2d');
+    if (bitmapCtx) {
+      bitmapCtx.translate(radius, radius);
+      drawVastuSectorsToContext(bitmapCtx, manifest, radius);
+      vastuSectorBitmapCache.set(bitmapKey, bitmap);
+      if (vastuSectorBitmapCache.size > 16) {
+        const first = vastuSectorBitmapCache.keys().next().value;
+        if (first) vastuSectorBitmapCache.delete(first);
+      }
+    }
+  }
+
+  if (bitmap) {
+    ctx.drawImage(bitmap, center.x - radius, center.y - radius);
+    return;
+  }
 
   ctx.save();
   ctx.translate(center.x, center.y);
+  drawVastuSectorsToContext(ctx, manifest, radius);
+  ctx.restore();
+}
+
+function drawVastuSectorsToContext(
+  ctx: CanvasRenderingContext2D,
+  manifest: Pick<ProjectManifest, 'walls' | 'openings' | 'labels' | 'northOrientation'>,
+  radius: number,
+): void {
+  const northOrientation = manifest.northOrientation ?? 0;
+  const analysis = getCachedVastuAnalysis(manifest);
+  const scoreByDir = new Map(analysis.directions.map((d) => [d.direction, d.score]));
+
   ctx.rotate(((northOrientation - 90) * Math.PI) / 180);
 
   for (let i = 0; i < 8; i++) {
@@ -99,6 +133,4 @@ export function drawVastuSectorOverlay(
   ctx.beginPath();
   ctx.arc(0, 0, 4, 0, Math.PI * 2);
   ctx.fill();
-
-  ctx.restore();
 }

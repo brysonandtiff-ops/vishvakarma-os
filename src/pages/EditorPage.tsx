@@ -31,6 +31,8 @@ import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
 import NewProjectDialog from '@/components/editor/NewProjectDialog';
 import SamplePickerDialog from '@/components/editor/SamplePickerDialog';
 import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
+import ArchitectureBotWidget from '@/components/architecture-bot/ArchitectureBotWidget';
+import { useArchitectureBot } from '@/components/architecture-bot/useArchitectureBot';
 import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
 import { VastuPanel } from '@/components/editor/panels/VastuPanel';
@@ -82,6 +84,8 @@ import { resolveJurisdiction, resolveRegionId } from '@/domain/projects/jurisdic
 import type { ProjectJurisdiction } from '@/domain/projects/jurisdiction';
 import { enforce } from '@/governance/core/enforcer';
 import { getFailFindings } from '@/services/compliance/complianceGate';
+import { filterWallsByFloor } from '@/utils/floorHelpers';
+import { findAllRoomFaces, polygonCentroid } from '@/utils/roomCalculations';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -661,6 +665,91 @@ function EditorWorkspace() {
     projectName,
   }, 0, geometryRevision);
   const complianceFailSummary = getFailFindings(complianceReport)[0]?.message;
+
+  const handleDetectAllRooms = useCallback(() => {
+    const manifest = engine.getManifest();
+    const floorWalls = filterWallsByFloor(manifest.walls, activeFloorIndex);
+    const faces = findAllRoomFaces(floorWalls);
+    let count = 0;
+
+    for (const face of faces) {
+      const center = polygonCentroid(face.vertices);
+      if (!center) continue;
+      const key = face.wallIds.join(',');
+      const existing = engine.getManifest().rooms ?? [];
+      if (existing.some((room) => room.wallIds.join(',') === key)) continue;
+      const room = engine.detectRoomAtPoint(center, `Room ${count + 1}`);
+      if (room) count += 1;
+    }
+
+    return count;
+  }, [activeFloorIndex, engine]);
+
+  const handleRepairGovernanceState = useCallback(() => {
+    let count = 0;
+    try {
+      if (localStorage.getItem('governance-event-log') === null) {
+        localStorage.setItem('governance-event-log', JSON.stringify([]));
+        count += 1;
+      }
+      if (localStorage.getItem('version-control-state') === null) {
+        localStorage.setItem(
+          'version-control-state',
+          JSON.stringify({ history: [], currentIndex: -1, maxHistory: 50 }),
+        );
+        count += 1;
+      }
+      if (localStorage.getItem('theme') === null) {
+        localStorage.setItem('theme', 'dark');
+        count += 1;
+      }
+      if (localStorage.getItem('accessibility-settings') === null) {
+        localStorage.setItem(
+          'accessibility-settings',
+          JSON.stringify({
+            highContrast: false,
+            reducedMotion: false,
+            screenReaderEnabled: false,
+            keyboardNavigationEnabled: true,
+          }),
+        );
+        count += 1;
+      }
+    } catch {
+      // localStorage may be unavailable
+    }
+    return count;
+  }, []);
+
+  const handleOpenCompliancePanel = useCallback(() => {
+    document.querySelector('[data-testid="compliance-panel"]')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  }, []);
+
+  const architectureBotCallbacks = useMemo(
+    () => ({
+      onDetectAllRooms: handleDetectAllRooms,
+      onUpdateWall: (wallId: string, updates: { height: number }) => engine.updateWall(wallId, updates),
+      onUpdateOpening: (openingId: string, updates: { width: number }) =>
+        engine.updateOpening(openingId, updates),
+      onUpdateRoom: (roomId: string, updates: { name: string }) => engine.updateRoom(roomId, updates),
+      onSetJurisdiction: (jurisdiction: ProjectJurisdiction) => engine.setJurisdiction(jurisdiction),
+      onRepairGovernanceState: handleRepairGovernanceState,
+      onOpenCopilot: () => setAiDesignerOpen(true),
+      onOpenCompliance: handleOpenCompliancePanel,
+    }),
+    [engine, handleDetectAllRooms, handleOpenCompliancePanel, handleRepairGovernanceState],
+  );
+
+  const architectureBot = useArchitectureBot({
+    manifest: geometryManifest,
+    projectId: currentProject?.id,
+    projectName,
+    revision: geometryRevision,
+    callbacks: architectureBotCallbacks,
+  });
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
   const deferredWalls = useDeferredValue(walls);
@@ -798,6 +887,9 @@ function EditorWorkspace() {
           onSaveProject={() => void handleSaveProject()}
           onLoadSample={openSamplePicker}
           onOpenAIDesigner={() => setAiDesignerOpen(true)}
+          onOpenArchitectureBot={() => {
+            architectureBot.openPanel();
+          }}
           savingProject={savingProject}
           onOpenEditorMenu={() => setEditorMenuOpen(true)}
           onOpenGovernance={openNav}
@@ -942,6 +1034,19 @@ function EditorWorkspace() {
                   onNewProject={() => setNewProjectOpen(true)}
                   onLoadSample={openSamplePicker}
                 />
+                <ArchitectureBotWidget
+                  visible={!presentationLock && !(welcomeOpen && showOnboarding)}
+                  panelOpen={architectureBot.panelOpen}
+                  issues={architectureBot.issues}
+                  issueCount={architectureBot.issueCount}
+                  animationState={architectureBot.animationState}
+                  fixing={architectureBot.fixing}
+                  onTogglePanel={architectureBot.togglePanel}
+                  onClosePanel={architectureBot.closePanel}
+                  onFixEverything={() => void architectureBot.fixEverything()}
+                  onOpenCopilot={() => setAiDesignerOpen(true)}
+                  onOpenCompliance={handleOpenCompliancePanel}
+                />
               </div>
             </section>
 
@@ -983,6 +1088,7 @@ function EditorWorkspace() {
                       manifestMepSymbols={engine.getManifest().mepSymbols ?? []}
                       manifestFixtures={engine.getManifest().fixtures ?? []}
                       manifestStaircases={engine.getManifest().staircases ?? []}
+                      geometryRevision={geometryRevision}
                     />
                   </Suspense>
                 </div>

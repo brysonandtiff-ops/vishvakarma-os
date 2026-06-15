@@ -60,9 +60,15 @@ Local drafts are device-specific. Cloud save (Studio+) persists across devices.
 
 ### Poor 3D performance
 
+- Open **Properties → More → Performance profile** and choose **Draft** (iPad default) or **Studio**
 - Reduce open browser tabs
-- Use Standard atmosphere mode
-- Large projects with many walls may slow older iPads
+- Use Standard atmosphere mode in the 3D header if Presentation profile was selected
+- Large projects with many walls may slow older iPads — wall batching activates automatically at 10+ walls outside cinematic mode
+
+### Editor feels slow while panning
+
+- Pan/zoom should no longer re-run compliance; if the compliance panel flickers while panning, refresh the app
+- Enable the dev perf HUD with `?perf=1` to inspect geometry vs viewport revision counters
 
 ---
 

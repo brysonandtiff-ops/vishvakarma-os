@@ -12,7 +12,7 @@ describe('resolveDefaultAtmosphereMode', () => {
     expect(resolveDefaultAtmosphereMode({ prefersReducedMotion: true, storedMode: 'cinematic' })).toBe('standard');
   });
 
-  it('defaults to premium on Retina iPad-like coarse pointer with enough cores', () => {
+  it('defaults to standard on coarse pointer devices for touch-first performance', () => {
     expect(
       resolveDefaultAtmosphereMode({
         prefersReducedMotion: false,
@@ -20,7 +20,7 @@ describe('resolveDefaultAtmosphereMode', () => {
         hardwareConcurrency: 8,
         storedMode: null,
       }),
-    ).toBe('premium');
+    ).toBe('standard');
   });
 
   it('downgrades to standard on low-core coarse devices', () => {

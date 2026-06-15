@@ -189,6 +189,25 @@ export function findAllRoomFaces(walls: Wall[]): RoomFace[] {
   return faces;
 }
 
+const roomFaceCache = new Map<string, RoomFace[]>();
+
+function roomFaceCacheKey(walls: Wall[]): string {
+  return walls.map((wall) => `${wall.id}:${wall.start.x},${wall.start.y},${wall.end.x},${wall.end.y}`).join('|');
+}
+
+export function getCachedRoomFaces(walls: Wall[]): RoomFace[] {
+  const key = roomFaceCacheKey(walls);
+  const cached = roomFaceCache.get(key);
+  if (cached) return cached;
+  const faces = findAllRoomFaces(walls);
+  roomFaceCache.set(key, faces);
+  if (roomFaceCache.size > 32) {
+    const first = roomFaceCache.keys().next().value;
+    if (first) roomFaceCache.delete(first);
+  }
+  return faces;
+}
+
 export function calculateRoomStats(walls: Wall[]): RoomStats {
   if (walls.length === 0) {
     return { area: 0, perimeter: 0, wallCount: 0, isEnclosed: false };
