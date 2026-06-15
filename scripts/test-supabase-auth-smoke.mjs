@@ -125,6 +125,26 @@ async function main() {
   results.google.config = true;
   results.emailLink.config = true;
 
+  const authorizeRes = await fetch(
+    `${url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(`${DEPLOYMENT_URL.replace(/\/$/, '')}/auth`)}`,
+    { redirect: 'manual', headers: { apikey: anonKey } }
+  );
+  const authorizeLocation = authorizeRes.headers.get('location') ?? '';
+  const clientIdMatch = authorizeLocation.match(/client_id=([^&]+)/);
+  const googleClientId = clientIdMatch ? decodeURIComponent(clientIdMatch[1]) : '';
+  const googleClientIdValid =
+    googleClientId.endsWith('.apps.googleusercontent.com') &&
+    !googleClientId.includes('env(') &&
+    !googleClientId.includes('SUPABASE_AUTH');
+
+  if (!googleClientIdValid) {
+    results.google.config = false;
+    results.google.liveSignIn = false;
+    results.google.liveSignInNote =
+      'Supabase Google client_id is misconfigured (literal env placeholder or missing). Run: node scripts/setup-supabase-auth-providers.mjs';
+    console.error('[FAIL] Invalid Supabase Google client_id:', googleClientId || '(missing)');
+  }
+
   if (!configOnly) {
     const otpRes = await fetch(`${url}/auth/v1/otp`, {
       method: 'POST',
@@ -146,10 +166,12 @@ async function main() {
         ? 'OTP response 422 — email OTP not part of v1.2.0 launch path; Google OAuth is primary'
         : `OTP response ${otpRes.status}`;
 
-    results.google.liveSignIn = true;
-    results.google.liveSignInNote = isCanonicalDeployment
-      ? 'Supabase Google provider enabled; live proof run against canonical .app origin.'
-      : 'Supabase Google provider assumed enabled when URL + anon key configured; verify in dashboard.';
+    results.google.liveSignIn = googleClientIdValid;
+    results.google.liveSignInNote = !googleClientIdValid
+      ? results.google.liveSignInNote
+      : isCanonicalDeployment
+        ? 'Supabase Google provider enabled; live proof run against canonical .app origin.'
+        : 'Supabase Google provider assumed enabled when URL + anon key configured; verify in dashboard.';
   } else {
     results.emailLink.liveSendNote =
       'Skipped in --config-only mode — email OTP not part of v1.2.0 public launch sign-in path';
