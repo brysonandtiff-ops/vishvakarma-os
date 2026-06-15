@@ -136,13 +136,15 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     setActiveTrackId(null);
     setStepIndex(0);
     clearTutorialQuery();
-  }, [activeTrackId, clearTutorialQuery, persistProgress, progress]);
+  }, [activeTrackId, clearTutorialQuery, persistProgress]);
 
   const skipTrack = useCallback(() => {
     if (!activeTrackId) return;
-    const nextProgress = { ...progress };
-    delete nextProgress.lastStep[activeTrackId];
-    persistProgress({ ...nextProgress, lastActiveTrackId: undefined });
+    persistProgress((prev) => {
+      const lastStep = { ...prev.lastStep };
+      delete lastStep[activeTrackId];
+      return { ...prev, lastStep, lastActiveTrackId: undefined };
+    });
     setActiveTrackId(null);
     setStepIndex(0);
     clearTutorialQuery();
@@ -157,24 +159,24 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     }
     const nextStep = activeTrack.steps[nextIndex];
     setStepIndex(nextIndex);
-    persistProgress(setTrackStep(activeTrackId, nextStep.id, progress));
+    persistProgress((prev) => setTrackStep(activeTrackId, nextStep.id, prev));
     if (nextStep.route && location.pathname !== nextStep.route) {
       pendingRouteNav.current = nextStep.route;
       navigate(nextStep.route);
     }
-  }, [activeTrack, activeTrackId, completeTrack, location.pathname, navigate, persistProgress, progress, stepIndex]);
+  }, [activeTrack, activeTrackId, completeTrack, location.pathname, navigate, persistProgress, stepIndex]);
 
   const back = useCallback(() => {
     if (!activeTrack || !activeTrackId || stepIndex <= 0) return;
     const prevIndex = stepIndex - 1;
     const prevStep = activeTrack.steps[prevIndex];
     setStepIndex(prevIndex);
-    persistProgress(setTrackStep(activeTrackId, prevStep.id, progress));
+    persistProgress((prev) => setTrackStep(activeTrackId, prevStep.id, prev));
     if (prevStep.route && location.pathname !== prevStep.route) {
       pendingRouteNav.current = prevStep.route;
       navigate(prevStep.route);
     }
-  }, [activeTrack, activeTrackId, location.pathname, navigate, persistProgress, progress, stepIndex]);
+  }, [activeTrack, activeTrackId, location.pathname, navigate, persistProgress, stepIndex]);
 
   const openHub = useCallback(() => setHubOpen(true), []);
   const closeHub = useCallback(() => setHubOpen(false), []);
