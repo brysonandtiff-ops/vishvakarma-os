@@ -60,6 +60,9 @@ test-run-final.txt
 test-final.txt
 device-e2e-last-run.txt
 pnpm-test-final.txt
+missing-tests.txt
+missing-tests-output.txt
+final-test-run.txt
 
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/

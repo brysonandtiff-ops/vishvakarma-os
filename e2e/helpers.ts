@@ -4,7 +4,7 @@
 export async function expect3DPreviewPane(page: Page) {
   await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
   const fallback = page.getByText('3D Preview Unavailable');
-  const canvas = page.locator('.bg-ws-canvas canvas').first();
+  const canvas = page.locator('.vish-3d-viewport-pane canvas').first();
   await expect(fallback.or(canvas)).toBeVisible({ timeout: 15_000 });
 }
 
