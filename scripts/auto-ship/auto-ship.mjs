@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-import { appendFileSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
+  acquireDebounceLock,
   buildCommitMessage,
   filterStageablePaths,
   findGitRoot,

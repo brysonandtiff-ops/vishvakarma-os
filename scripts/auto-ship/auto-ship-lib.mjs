@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,9 +11,9 @@ export function loadConfig() {
   return JSON.parse(raw);
 }
 
-export function findGitRoot(startDir = process.cwd()) {
+export function findGitRoot(startDir = process.cwd(), maxDepth = 20) {
   let current = resolve(startDir);
-  for (let depth = 0; depth < 20; depth += 1) {
+  for (let depth = 0; depth < maxDepth; depth += 1) {
     if (existsSync(join(current, '.git'))) {
       return current;
     }
@@ -22,6 +22,19 @@ export function findGitRoot(startDir = process.cwd()) {
     current = parent;
   }
   return null;
+}
+
+/** Prefer the repo that owns project hooks (nested workspace safe). */
+export function resolveRepoRootFromHook(hookDir, cwd = process.cwd()) {
+  const fromHook = findGitRoot(hookDir, 8);
+  if (fromHook) return fromHook;
+  return findGitRoot(cwd);
+}
+
+export function parseShellExitCode(raw) {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const parsed = Number.parseInt(String(raw ?? ''), 10);
+  return Number.isNaN(parsed) ? 1 : parsed;
 }
 
 export function shouldSkipCommand(command, skipPatterns) {
@@ -111,14 +124,27 @@ export function isDirectEntry(moduleUrl, entryScript) {
   }
 }
 
-export function shouldAcquireDebounceLock(lockPath, debounceMs, now = Date.now()) {
-  if (!existsSync(lockPath)) return true;
+export function readDebounceLockTimestamp(lockPath) {
+  if (!existsSync(lockPath)) return null;
   try {
-    const raw = readFileSync(lockPath, 'utf8');
-    const parsed = JSON.parse(raw);
-    const ts = typeof parsed.timestamp === 'number' ? parsed.timestamp : 0;
-    return now - ts >= debounceMs;
+    const parsed = JSON.parse(readFileSync(lockPath, 'utf8'));
+    return typeof parsed.timestamp === 'number' ? parsed.timestamp : null;
   } catch {
-    return true;
+    return null;
   }
+}
+
+export function shouldAcquireDebounceLock(lockPath, debounceMs, now = Date.now()) {
+  const ts = readDebounceLockTimestamp(lockPath);
+  if (ts === null) return true;
+  return now - ts >= debounceMs;
+}
+
+/** Re-check debounce and write the lock atomically before lint/commit. */
+export function acquireDebounceLock(lockPath, debounceMs, now = Date.now()) {
+  const ts = readDebounceLockTimestamp(lockPath);
+  if (ts !== null && now - ts < debounceMs) return false;
+  mkdirSync(dirname(lockPath), { recursive: true });
+  writeFileSync(lockPath, `${JSON.stringify({ timestamp: now })}\n`, 'utf8');
+  return true;
 }
