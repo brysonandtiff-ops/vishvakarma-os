@@ -58,6 +58,7 @@ const GATE_ICONS: Record<string, LucideIcon> = {
   'gate-16': FileInput,
   'gate-17': Layers,
   'gate-18': AlertCircle,
+  'gate-19': Target,
 };
 
 const GATE_UI_DETAILS: Record<string, { message: string; evidence: string[]; link?: string }> = {
@@ -139,6 +140,11 @@ const GATE_UI_DETAILS: Record<string, { message: string; evidence: string[]; lin
   'gate-18': {
     message: 'Compliance, council, and cost exports include prototype disclaimers',
     evidence: ['src/governance/gates/decisionIntelligenceDisclaimer.test.ts', 'node scripts/verify-gates-14-18.mjs --gate=18'],
+  },
+  'gate-19': {
+    message: 'Multi-device touch audit evidence attached',
+    link: '/docs/release/evidence/device-hardening-audit.md',
+    evidence: ['docs/release/evidence/device-hardening-audit.md', 'e2e/device-governance-layout.spec.ts'],
   },
 };
 

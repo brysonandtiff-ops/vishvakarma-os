@@ -146,6 +146,14 @@
       "description": "Compliance/council/cost exports include prototype disclaimer string",
       "category": "automated",
       "command": "node scripts/verify-gates-14-18.mjs --gate=18"
+    },
+    {
+      "id": "gate-19",
+      "number": 19,
+      "name": "Multi-device touch audit",
+      "description": "Touch-safe controls verified for iPad, iPhone, Android tablet, desktop, and marketing surfaces",
+      "category": "evidence",
+      "evidencePath": "docs/release/evidence/device-hardening-audit.md"
     }
   ]
 }
