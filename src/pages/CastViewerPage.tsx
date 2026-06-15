@@ -62,7 +62,7 @@ export default function CastViewerPage() {
 
   return (
     <div className="vish-cast-viewer flex h-[100dvh] min-h-0 flex-col bg-ws-canvas" data-testid="cast-viewer-page">
-      <header className="vish-cast-header flex min-h-nav-row shrink-0 items-center justify-between gap-4 border-b border-ws-border bg-ws-toolbar px-page-x py-2">
+      <header className="vish-cast-header vish-cast-viewer-controls flex min-h-nav-row shrink-0 items-center justify-between gap-4 border-b border-ws-border bg-ws-toolbar px-page-x py-2">
         <div className="flex min-w-0 items-center gap-3">
           <img src={OFFICIAL_LOGO_SRC} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
           <div className="min-w-0">

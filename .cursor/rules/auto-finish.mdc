@@ -7,6 +7,8 @@ alwaysApply: true
 
 When building or changing anything in `vishvakarma-os-live`, run end-to-end without asking permission. The user should not need follow-up steps when you are done.
 
+**Instruction precedence:** See [AGENTS.md](../../AGENTS.md) — user message overrides > this rule > AGENTS.md > global Cursor user rules. Ship is the default for build tasks unless the user says not to commit in the same message.
+
 ## Work autonomously
 
 - Implement the full solution in one pass. Do not stop to ask whether to run tests, commit, or push.

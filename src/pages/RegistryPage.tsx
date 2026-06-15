@@ -106,7 +106,7 @@ export default function RegistryPage() {
             <Tabs value={selectedType} onValueChange={setSelectedType}>
               <TabsList className="mb-6">
                 {types.map((type) => (
-                  <TabsTrigger key={type} value={type} className="capitalize">
+                  <TabsTrigger key={type} value={type} className="touch-target min-h-[44px] min-w-[44px] capitalize">
                     {type}
                     {type !== 'all' && typeCounts[type as keyof typeof typeCounts] > 0 && (
                       <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">

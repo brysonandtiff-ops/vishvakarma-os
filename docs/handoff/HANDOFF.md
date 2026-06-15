@@ -17,7 +17,8 @@ This pack is the **single entry point** for valuation, acquisition due diligence
 
 | Audience | Recommended reading order |
 |----------|---------------------------|
-| **ChatGPT / AI assistant** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) — single paste-ready doc (start here for AI context) |
+| **Cursor / coding agents** | [AGENTS.md](../../AGENTS.md) — verify, ship, precedence (start here) |
+| **ChatGPT / AI assistant** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) — single paste-ready doc |
 | **Executive / investor** | This page (Executive summary) → [Annex 01](./01-product-and-business.md) → [Annex 10](./10-ip-risks-roadmap-and-gaps.md) |
 | **Technical acquirer** | Annexes 02–06 → Appendices A–H → [SOFTWARE_INVENTORY.md](../SOFTWARE_INVENTORY.md) |
 | **Operator / DevOps** | [Annex 07](./07-integrations-and-accounts.md) → [Annex 08](./08-operations-and-deployment.md) → [Operator Annex template](./templates/OPERATOR_ANNEX.template.md) → [OPERATOR_CHECKLIST.md](../release/OPERATOR_CHECKLIST.md) |

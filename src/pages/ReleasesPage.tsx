@@ -357,7 +357,7 @@ export default function ReleasesPage() {
                     >
                       {/* Gate header row — always visible */}
                       <button
-                        className="flex w-full items-start gap-4 p-4 text-left"
+                        className="touch-target flex w-full min-h-[44px] items-start gap-4 p-4 text-left"
                         onClick={() => toggleGate(gate.id)}
                         aria-expanded={isExpanded}
                         aria-label={`${gate.name} — ${gate.status}`}

@@ -1,16 +1,34 @@
 # Vishvakarma.OS — Agent Onboarding
 
-Short onboarding for Cursor, ChatGPT, Codex, and other coding agents.
+Short onboarding for Cursor, ChatGPT, Codex, and other coding agents working in this repo.
 
 ## Start here
 
-1. [docs/handoff/CHATGPT_HANDOFF.md](./docs/handoff/CHATGPT_HANDOFF.md) — paste-ready product and codebase context
-2. [docs/handoff/HANDOFF.md](./docs/handoff/HANDOFF.md) — valuation handoff index, annexes, appendices
+1. **This file** — verify, ship, precedence, auth gotchas
+2. [docs/handoff/CHATGPT_HANDOFF.md](./docs/handoff/CHATGPT_HANDOFF.md) — paste-ready product and codebase context
+3. [docs/handoff/HANDOFF.md](./docs/handoff/HANDOFF.md) — valuation handoff index, annexes, appendices
 
 ## Workspace boundary
 
 - **Work only in `vishvakarma-os-live/`** — this directory is the git root and contains all application code
 - The parent `Vishvakarma-os/` folder is a thin workspace wrapper; do not create parallel app trees there
+- Open Cursor at `vishvakarma-os-live` when possible so hooks resolve the correct git root
+
+## Instruction precedence
+
+When agent instructions conflict, use this order:
+
+| Priority | Source | Applies when |
+|----------|--------|--------------|
+| 1 | **User message in the current turn** | Explicit overrides win (e.g. “do not commit”, “only explain”) |
+| 2 | **[`.cursor/rules/auto-finish.mdc`](./.cursor/rules/auto-finish.mdc)** | Build/change tasks in this repo — verify and ship by default |
+| 3 | **This file (`AGENTS.md`)** | Onboarding, verify matrix, auth gotchas, evidence limits |
+| 4 | **[`.cursor/rules/repairbot.mdc`](./.cursor/rules/repairbot.mdc)** | RepairBot tiers after substantive code edits |
+| 5 | Global Cursor user rules | Generic commit/PR habits — **superseded here** for routine build tasks |
+
+**Ship default:** For implementation tasks, hooks + auto-finish commit and push after `lint:types` passes. Do not ask permission to ship at the end. Skip ship only when the user explicitly says not to commit/push **in the same message**.
+
+**Manual git:** Do not run `git commit` / `git push` during normal agent work — [auto-ship hooks](./docs/operations/AUTO_SHIP_HOOKS.md) handle it. Use git manually only when fixing auto-ship failures or when `VISH_AUTO_SHIP=0`.
 
 ## Verify matrix
 
@@ -21,10 +39,74 @@ Run checks that match what you changed:
 | Any code change | `pnpm run lint:types` |
 | Logic, components, routes | `pnpm run test` (+ `pnpm run test:routes` if routes touched) |
 | Build, config, deps | `pnpm run build` |
+| Auth / Supabase | `pnpm run auth:gates`, `pnpm run test:supabase-auth` |
+| Billing / Stripe | `pnpm run verify:stripe-billing` (when env allows) |
 | Docs or handoff | `pnpm run handoff:verify` and `pnpm run docs:verify` |
-| Before declaring done | `pnpm run verify:ci` |
+| Before declaring a feature done | `pnpm run repairbot:medium` or `pnpm run verify:ci` |
 
 Regenerate handoff appendices after inventory-affecting changes: `pnpm run handoff:generate`
+
+### Pipeline tiers
+
+Unified runner: `node scripts/run-pipeline.mjs --tier=<name>` (alias: `pnpm run pipeline -- --tier=<name>`).
+
+| Tier | Command | When to use |
+|------|---------|-------------|
+| `verify` | `pnpm run verify` | Local pre-push — lint, gates, test, build, perf |
+| `verify:ci` | `pnpm run verify:ci` | Pre-deploy — adds `test:routes` |
+| `ci` | `pnpm run ci` | Full GitHub Actions parity (needs live Supabase env for some steps) |
+| `release` | `pnpm run release:gates` | 13-gate release manifest |
+| `post-deploy` | `pnpm run stability:post-deploy` | Production smoke after Vercel deploy |
+| `repairbot:fast` | `pnpm run repairbot:fast` | After routine edits |
+| `repairbot:medium` | `pnpm run repairbot:medium` | Before declaring a feature done |
+| `repairbot:full` | `pnpm run repairbot:full` | Push-level verification |
+
+Manifest: [`scripts/lib/pipeline-manifest.json`](./scripts/lib/pipeline-manifest.json). Appendix: [docs/handoff/appendices/E-verify-scripts.md](./docs/handoff/appendices/E-verify-scripts.md).
+
+## How to ship
+
+1. Make changes; run the verify matrix above for your change type
+2. **Auto-ship hooks** (if enabled): debounce → `git status` → `pnpm run lint:types` → commit → `git push origin HEAD`
+3. Report: what shipped, checks run, commit SHA (or blocker)
+
+| Action | Command |
+|--------|---------|
+| Ship now (manual) | `pnpm run auto-ship` |
+| Preview without commit | `pnpm run auto-ship:dry` |
+| Disable hooks | `$env:VISH_AUTO_SHIP="0"` (PowerShell) or `set VISH_AUTO_SHIP=0` (CMD) |
+| Install user-global hooks | `pnpm run auto-ship:install-user` then restart Cursor |
+| Logs | `.cursor/auto-ship/run.log` (gitignored) |
+
+Full operator doc: [docs/operations/AUTO_SHIP_HOOKS.md](./docs/operations/AUTO_SHIP_HOOKS.md)
+
+### Windows / PowerShell
+
+- Use `Set-Location path; command` — older PowerShell does not support `&&`
+- Hooks invoke `node` directly; ensure Node 20+ and `git` are on `PATH`
+- Auto-ship runs `pnpm.cmd` with shell for lint on Windows
+
+## Auth gotchas (Supabase + Google OAuth)
+
+Production auth is **Supabase-only**. Common agent mistakes:
+
+| Gotcha | Fix |
+|--------|-----|
+| Placeholder anon key | Replace `your-supabase-anon-key` in `.env.local` — copy from Supabase Dashboard → API |
+| Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarma-os.app` prod; `http://127.0.0.1:5173` local) |
+| Google OAuth redirect | Google Cloud client needs `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback` |
+| Supabase redirect URLs | Dashboard → Auth → URL config must list `/auth` and `/editor` for each origin |
+| `VITE_*` not updating after env change | Vite inlines at **build time** — redeploy Vercel after env edits |
+| Legacy Firebase vars | Remove `VITE_FIREBASE_*` / `VITE_BACKEND_PROVIDER` from Vercel if present |
+
+Template: [`.env.example`](./.env.example). Operator setup: [docs/release/SUPABASE_AUTH_SETUP.md](./docs/release/SUPABASE_AUTH_SETUP.md), [docs/release/VERCEL_ENV.md](./docs/release/VERCEL_ENV.md).
+
+Verify auth changes:
+
+```bash
+pnpm run auth:gates
+pnpm run test:supabase-auth
+pnpm run verify:production-auth-flow   # when env allows
+```
 
 ## Truth hierarchy
 
@@ -47,11 +129,11 @@ After substantive code edits, run RepairBot per [.cursor/rules/repairbot.mdc](./
 - `pnpm run repairbot:full` — before push-level verification
 - `pnpm run repairbot:status` — check repo health
 
-Fix escalations before finishing. Do not auto-commit broken type or test failures.
+Fix escalations before finishing. Do not ship broken type or test failures — lint blocks auto-ship.
 
 ## Agent rules and skills
 
-- [.cursor/rules/](./.cursor/rules/) — Cursor rules (RepairBot, verify expectations)
+- [.cursor/rules/](./.cursor/rules/) — Cursor rules (auto-finish, RepairBot)
 - [.agents/skills/](./.agents/skills/) — vendored Supabase skills
 
 ## PARTIAL evidence — do not over-claim
@@ -63,12 +145,10 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 | Blueprint editor: draw wall, opening, properties | [functional-workflow-proof.md](./docs/release/evidence/functional-workflow-proof.md) | E2E coverage incomplete for full editor workflow |
 | Save/load/export/import data preservation | [save-load-proof.md](./docs/release/evidence/save-load-proof.md), functional-workflow-proof | Cloud reload on Supabase needs live operator proof |
 | Release Center and Audit Log empty/loading states | functional-workflow-proof | Governance UI states not fully evidenced |
-| iPad/coarse-pointer controls | [ipad-touch-audit.md](./docs/release/evidence/ipad-touch-audit.md), functional-workflow-proof | Touch audit PARTIAL beyond auth page layout |
+| Collaboration preview touch chrome | [collaboration-preview-hardening.md](./docs/release/evidence/collaboration-preview-hardening.md) | Preview-only — not production co-editing |
 
 **Resolved (was a gap):** Google OAuth sign-in — PASS in [auth-sign-in-proof.md](./docs/release/evidence/auth-sign-in-proof.md).
 
+**Resolved (was a gap):** iPad/coarse-pointer controls — PASS in [device-hardening-audit.md](./docs/release/evidence/device-hardening-audit.md). Physical iPad Home Screen install and Pencil draw remain manual — see [DEVICE_HARDENING_RUNBOOK.md](./docs/release/DEVICE_HARDENING_RUNBOOK.md).
+
 **Out of scope for doc-only agents:** Editor E2E React #185 and screenshot pack (P1 code work).
-
-## Git policy
-
-**Do not auto-commit or push** unless the user explicitly asks. Leave changes staged or unstaged for human review.

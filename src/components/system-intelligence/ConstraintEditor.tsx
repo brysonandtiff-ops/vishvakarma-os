@@ -172,7 +172,7 @@ export default function ConstraintEditor({
       <Button
         onClick={onRegenerate}
         disabled={loading || !values.prompt.trim()}
-        className="w-full"
+        className="touch-target w-full min-h-[44px]"
         data-testid="constraint-regenerate"
         data-tutorial="optimization-run"
       >

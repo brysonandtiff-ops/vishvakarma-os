@@ -200,7 +200,7 @@ export default function AuditLogPage() {
                                 <div className="mt-2">
                                   <button
                                     onClick={() => togglePayload(log.id)}
-                                    className="flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                                    className="touch-target flex min-h-[44px] items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors hover:text-muted-foreground"
                                     aria-expanded={expandedPayloads.has(log.id)}
                                   >
                                     {expandedPayloads.has(log.id)

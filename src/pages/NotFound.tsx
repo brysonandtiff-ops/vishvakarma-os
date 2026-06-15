@@ -19,10 +19,10 @@ export default function NotFound() {
         />
         <h1 className="sr-only">Route not found</h1>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Button variant="gold" size="gold" asChild>
+          <Button variant="gold" size="gold" asChild className="touch-target">
             <Link to="/">Return home</Link>
           </Button>
-          <Button variant="goldOutline" size="gold" asChild>
+          <Button variant="goldOutline" size="gold" asChild className="touch-target">
             <Link to={editorTo}>Open editor</Link>
           </Button>
         </div>

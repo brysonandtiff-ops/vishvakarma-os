@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { appendFileSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
   buildCommitMessage,
   filterStageablePaths,
   findGitRoot,
+  isDirectEntry,
   loadConfig,
   parsePorcelain,
   shouldAcquireDebounceLock,
@@ -45,6 +45,7 @@ function git(args, repoRoot) {
   const result = spawnSync('git', args, {
     cwd: repoRoot,
     encoding: 'utf8',
+    shell: process.platform === 'win32',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   // Porcelain lines often start with a leading space (e.g. " M path"); never trimStart stdout.
@@ -199,7 +200,7 @@ export async function runAutoShip(rawArgv = process.argv.slice(2)) {
   };
 }
 
-if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
+if (isDirectEntry(import.meta.url, process.argv[1])) {
   runAutoShip()
     .then((result) => {
       if (!result.ok && !result.skipped) {

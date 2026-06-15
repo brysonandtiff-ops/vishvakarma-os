@@ -3,8 +3,10 @@ import {
   buildCommitMessage,
   extractPorcelainPath,
   filterStageablePaths,
+  isDirectEntry,
   isExcludedPath,
   isMutatingTool,
+  normalizeRepoPath,
   shouldAcquireDebounceLock,
   shouldSkipCommand,
 } from './auto-ship-lib.mjs';
@@ -42,6 +44,20 @@ describe('auto-ship-lib', () => {
   it('parses porcelain paths when the first status column is a leading space', () => {
     expect(extractPorcelainPath(' M docs/design/page.png')).toBe('docs/design/page.png');
     expect(extractPorcelainPath('M docs/design/page.png')).toBeNull();
+  });
+
+  it('normalizes Windows paths and quoted porcelain entries', () => {
+    expect(normalizeRepoPath('src\\pages\\EditorPage.tsx')).toBe('src/pages/EditorPage.tsx');
+    expect(extractPorcelainPath('?? "docs/foo bar.md"')).toBe('docs/foo bar.md');
+    expect(
+      filterStageablePaths(['?? src\\cast\\types.ts'], excludePatterns),
+    ).toEqual(['src/cast/types.ts']);
+  });
+
+  it('detects direct entry on Windows paths', () => {
+    const moduleUrl = new URL('file:///C:/repo/scripts/auto-ship/auto-ship.mjs');
+    expect(isDirectEntry(moduleUrl, 'C:\\repo\\scripts\\auto-ship\\auto-ship.mjs')).toBe(true);
+    expect(isDirectEntry(moduleUrl, 'C:\\repo\\scripts\\other.mjs')).toBe(false);
   });
 
   it('builds commit messages with trigger and file summary', () => {

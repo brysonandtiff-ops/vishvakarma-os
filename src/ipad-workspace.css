@@ -1,4 +1,4 @@
-/* Vishvakarma.OS — iPad workspace polish layer
+/* Vishvakarma.OS — device workspace polish layer (iPad-first, phone + tablet)
  * Tablet max width aligns with iPad Pro 12.9" landscape (1194 CSS px). */
 
 :root {
@@ -321,6 +321,7 @@
 
   .vish-governance-page [role='tab'] {
     min-height: 44px;
+    min-width: 44px;
   }
 
   .vish-workspace-sidebar button[aria-label='Expand sidebar'],
@@ -374,5 +375,61 @@
   .ws-status-bar {
     gap: 8px;
     overflow-x: auto;
+  }
+}
+
+/* Phone (≤430px) — iPhone Pro Max logical width */
+@media (max-width: 430px) {
+  .vish-marketing-page {
+    padding-left: max(var(--vish-page-padding-x), var(--vish-safe-left));
+    padding-right: max(var(--vish-page-padding-x), var(--vish-safe-right));
+    padding-bottom: max(1rem, var(--vish-safe-bottom));
+  }
+
+  .vish-governance-page {
+    padding-inline: max(0.75rem, var(--vish-safe-left)) max(0.75rem, var(--vish-safe-right));
+  }
+
+  .vish-workspace-shell .vish-mobile-nav-fab {
+    bottom: calc(0.75rem + var(--vish-safe-bottom));
+    left: calc(0.75rem + var(--vish-safe-left));
+  }
+
+  .vish-cast-viewer-controls {
+    padding-bottom: max(0.75rem, var(--vish-safe-bottom));
+    padding-left: max(0.75rem, var(--vish-safe-left));
+    padding-right: max(0.75rem, var(--vish-safe-right));
+  }
+}
+
+@media (max-width: 430px) and (pointer: coarse) {
+  .vish-tool-rail {
+    min-height: 78px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vish-tool-rail button {
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .ws-status-bar .ws-status-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Collaboration preview bar — touch-safe on coarse pointer */
+@media (pointer: coarse) {
+  .vish-editor-collaboration-bar button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 720px) {
+  .vish-editor-collaboration-bar__label {
+    display: none;
   }
 }

@@ -73,7 +73,7 @@ export function BillingPlanCard({
       </div>
 
       <BillingActions
-        className="mt-6"
+        className="touch-target mt-6 min-h-[44px]"
         cta={cta}
         action={action}
         to={to}

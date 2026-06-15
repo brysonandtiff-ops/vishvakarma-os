@@ -43,7 +43,7 @@ Manual iPad Safari proof still required before public release:
 10. Capture screenshots or video for release evidence.
 
 ### Physical Device Evidence Log
-*(Automated Playwright captures in `docs/release/evidence/`; Home Screen install still requires a physical iPad.)*
+*(Automated Playwright captures in `docs/release/evidence/`; Home Screen install still requires a physical iPad — see [DEVICE_HARDENING_RUNBOOK.md](./DEVICE_HARDENING_RUNBOOK.md).)*
 - [ ] **Home Screen icon installed:** (e.g., `ipad_homescreen.png`) — manual Safari Share → Add to Home Screen
 - [x] **Auth page (Portrait):** `ipad-auth-portrait.png`
 - [x] **Auth page (Landscape):** `ipad-auth-landscape.png`

@@ -31,8 +31,18 @@ export function shouldSkipCommand(command, skipPatterns) {
   return skipPatterns.some((pattern) => new RegExp(pattern, 'i').test(normalized));
 }
 
+export function normalizeRepoPath(relativePath) {
+  const unquoted =
+    relativePath.length >= 2 &&
+    relativePath.startsWith('"') &&
+    relativePath.endsWith('"')
+      ? relativePath.slice(1, -1)
+      : relativePath;
+  return unquoted.replaceAll('\\', '/');
+}
+
 export function isExcludedPath(relativePath, excludePatterns) {
-  const normalized = relativePath.replaceAll('\\', '/');
+  const normalized = normalizeRepoPath(relativePath);
   return excludePatterns.some((pattern) => new RegExp(pattern, 'i').test(normalized));
 }
 
@@ -41,7 +51,8 @@ export function extractPorcelainPath(line) {
   if (trimmed.length < 4 || trimmed[2] !== ' ') return null;
   const rawPath = trimmed.slice(3).trimStart();
   if (!rawPath) return null;
-  return rawPath.includes(' -> ') ? rawPath.split(' -> ').pop()?.trim() ?? rawPath : rawPath;
+  const pathPart = rawPath.includes(' -> ') ? rawPath.split(' -> ').pop()?.trim() ?? rawPath : rawPath;
+  return normalizeRepoPath(pathPart);
 }
 
 export function filterStageablePaths(porcelainLines, excludePatterns) {
@@ -84,6 +95,20 @@ export function isMutatingTool(toolName) {
     name.includes('applypatch') ||
     name.includes('apply_patch')
   );
+}
+
+export function isDirectEntry(moduleUrl, entryScript) {
+  if (!entryScript || typeof entryScript !== 'string') return false;
+  try {
+    const modulePath = fileURLToPath(moduleUrl);
+    const entryPath = resolve(entryScript);
+    if (process.platform === 'win32') {
+      return modulePath.toLowerCase() === entryPath.toLowerCase();
+    }
+    return modulePath === entryPath;
+  } catch {
+    return false;
+  }
 }
 
 export function shouldAcquireDebounceLock(lockPath, debounceMs, now = Date.now()) {

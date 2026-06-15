@@ -80,10 +80,10 @@ export default function FeaturesPage() {
         </div>
         <Tabs defaultValue="guides" className="mt-10">
           <TabsList className="vish-features-toggle h-auto min-h-nav-row w-full justify-start gap-1 bg-transparent p-0">
-            <TabsTrigger value="guides" className="rounded-xl">
+            <TabsTrigger value="guides" className="touch-target rounded-xl">
               Getting Started
             </TabsTrigger>
-            <TabsTrigger value="features" className="rounded-xl">
+            <TabsTrigger value="features" className="touch-target rounded-xl">
               All Features
             </TabsTrigger>
           </TabsList>
@@ -96,6 +96,7 @@ export default function FeaturesPage() {
                   icon={guide.icon}
                   badge="In-app tour"
                   onClick={() => openGuideTour(guide.trackId, guide.title)}
+                  className="touch-target min-h-[44px]"
                   footer={
                     <ol className="vish-feature-grid-card__steps list-inside list-decimal space-y-1.5">
                       {guide.steps.map((step) => (
@@ -135,7 +136,7 @@ export default function FeaturesPage() {
           <p className="mt-4 text-lg vish-text-heading">
             Open the editor, load the sample project, and follow any guide above to draft your first floor plan.
           </p>
-          <Button variant="gold" size="gold" className="mt-8" asChild>
+          <Button variant="gold" size="gold" className="mt-8 touch-target" asChild>
             <Link to={startTo}>{user ? 'Open Editor →' : 'Start Free →'}</Link>
           </Button>
         </div>

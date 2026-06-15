@@ -222,7 +222,7 @@ export default function WorldRecordsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <Button type="button" size="sm" variant="outline" asChild>
+                    <Button type="button" size="sm" variant="outline" className="touch-target" asChild>
                       <a href="/world-record/latest-measurement.json" target="_blank" rel="noreferrer">
                         <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                         Measurement JSON

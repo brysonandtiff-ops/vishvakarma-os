@@ -203,7 +203,7 @@ export default function PricingPage() {
                   value={`faq-${index}`}
                   className="border-primary/20 last:border-b-0"
                 >
-                  <AccordionTrigger className="py-4 text-sm font-semibold vish-text-heading hover:no-underline hover:text-primary [&[data-state=open]]:text-primary">
+                  <AccordionTrigger className="touch-target min-h-[44px] py-4 text-sm font-semibold vish-text-heading hover:no-underline hover:text-primary [&[data-state=open]]:text-primary">
                     {item.q}
                   </AccordionTrigger>
                   <AccordionContent className="text-sm leading-relaxed vish-text-body">
@@ -222,7 +222,7 @@ export default function PricingPage() {
           <p className="mt-4 text-lg vish-text-heading">
             Begin on the free Starter tier, or start a Studio trial when you need the full Export Package.
           </p>
-          <Button variant="gold" size="gold" className="mt-8" asChild>
+          <Button variant="gold" size="gold" className="mt-8 touch-target" asChild>
             <Link to={workspaceTo}>{user ? 'Open Editor →' : 'Start Free →'}</Link>
           </Button>
         </div>

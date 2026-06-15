@@ -45,9 +45,17 @@ pnpm run auto-ship:dry       # log what would ship, no commit
 
 ```bash
 set VISH_AUTO_SHIP=0        # Windows CMD
-$env:VISH_AUTO_SHIP="0"     # PowerShell
+$env:VISH_AUTO_SHIP="0"     # PowerShell (session)
 export VISH_AUTO_SHIP=0     # macOS/Linux
 ```
+
+## Windows / PowerShell
+
+- Hooks run `node` directly — Node 20+ and `git` must be on `PATH`
+- Auto-ship invokes `pnpm.cmd` with shell for `lint:types`
+- Git porcelain paths with backslashes or quotes are normalized before staging
+- In agent shell commands, use `Set-Location path; command` — older PowerShell does not support `&&`
+- Open Cursor at `vishvakarma-os-live` so `findGitRoot` resolves the app repo (not the parent wrapper)
 
 ## Logs
 

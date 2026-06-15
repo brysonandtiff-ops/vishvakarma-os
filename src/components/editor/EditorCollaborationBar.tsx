@@ -101,16 +101,16 @@ export default function EditorCollaborationBar({
 
   return (
     <div
-      className="flex items-center gap-1.5 rounded-lg border border-ws-border bg-ws-toolbar px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ws-text-dim"
+      className="vish-editor-collaboration-bar flex min-h-[44px] items-center gap-1.5 rounded-lg border border-ws-border bg-ws-toolbar px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ws-text-dim"
       data-testid="editor-collaboration-bar"
     >
-      <Users className="h-3 w-3 text-primary" />
+      <Users className="h-4 w-4 shrink-0 text-primary" aria-hidden />
       <CollaboratorAvatars users={users} />
       <FollowViewportToggle
         presences={presences}
         onFollow={(presence) => onFollowViewport?.(presence.viewport)}
       />
-      {label}
+      <span className="vish-editor-collaboration-bar__label">{label}</span>
     </div>
   );
 }

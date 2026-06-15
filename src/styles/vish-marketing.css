@@ -448,3 +448,29 @@
     opacity: 1;
   }
 }
+
+@media (pointer: coarse), (max-width: 430px) {
+  .vish-marketing-nav-link {
+    min-height: 44px;
+  }
+
+  .vish-features-toggle button,
+  .vish-features-toggle [role='tab'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .vish-pricing-faq button {
+    min-height: 44px;
+  }
+
+  .vish-feature-grid-card[type='button'] {
+    min-height: 44px;
+  }
+
+  .vish-marketing-page .vish-gold-button,
+  .vish-marketing-page a.bg-primary {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

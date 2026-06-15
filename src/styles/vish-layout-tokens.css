@@ -24,7 +24,15 @@
   --vish-sidebar-width: 15rem;
   --vish-sidebar-collapsed: 4rem;
 
-  /* Primary workspace breakpoint — matches tailwind `tablet` and ipad-workspace.css */
+  /*
+   * Device breakpoint ladder (single authority):
+   *   430px  phone max (--vish-phone-max)
+   *   720px  compact editor chrome
+   *   768px  mobile sidebar / marketing md
+   *   980px  portrait horizontal tool rail
+   *  1194px  tablet min (--vish-tablet-min) — iPad Pro 12.9" landscape
+   */
+  --vish-phone-max: 430px;
   --vish-tablet-min: 1194px;
 
   /* Content rhythm */

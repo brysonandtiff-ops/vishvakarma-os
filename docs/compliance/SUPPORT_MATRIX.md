@@ -46,14 +46,16 @@ Security reporting: [SECURITY.md](../../SECURITY.md)
 
 ## Device targets
 
-| Device | Status |
-|--------|--------|
-| iPad (Safari PWA) | Primary production target |
-| Desktop (Chrome, Safari, Firefox) | Supported |
-| iPhone | Supported — smaller viewport |
-| Android tablet | Best-effort |
+| Device | Status | Automated E2E |
+|--------|--------|-----------------|
+| iPad (Safari PWA) | Primary production target | `ipad-editor-layout`, `device-governance-layout`, `device-marketing-layout` |
+| iPhone | Supported — phone breakpoint 430px | `device-phone-editor`, `device-marketing-layout` |
+| Android tablet | Best-effort — coarse pointer CSS | `device-governance-layout` (1280×800) |
+| Desktop (Chrome, Safari, Firefox) | Supported — fine pointer walk mode | `device-desktop-layout` |
 
-Touch minimum target: **44×44 px** (see [release/evidence/ipad-touch-audit.md](../release/evidence/ipad-touch-audit.md))
+Touch minimum target: **44×44 px** (see [release/evidence/device-hardening-audit.md](../release/evidence/device-hardening-audit.md))
+
+Manual physical iPad steps: [release/DEVICE_HARDENING_RUNBOOK.md](../release/DEVICE_HARDENING_RUNBOOK.md)
 
 ---
 
