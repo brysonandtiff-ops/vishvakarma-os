@@ -81,9 +81,12 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
   const activeTrack = activeTrackId ? getTutorialTrack(activeTrackId) ?? null : null;
 
-  const persistProgress = useCallback((next: TutorialProgress) => {
-    setProgress(next);
-    saveTutorialProgress(next);
+  const persistProgress = useCallback((updater: (prev: TutorialProgress) => TutorialProgress) => {
+    setProgress((prev) => {
+      const next = updater(prev);
+      saveTutorialProgress(next);
+      return next;
+    });
   }, []);
 
   const clearTutorialQuery = useCallback(() => {
@@ -104,7 +107,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
       const clamped = Math.max(0, Math.min(startAt, track.steps.length - 1));
       setStepIndex(clamped);
       const step = track.steps[clamped];
-      persistProgress(setTrackStep(trackId, step.id, progress));
+      persistProgress((prev) => setTrackStep(trackId, step.id, prev));
       if (track.defaultRoute && location.pathname !== track.defaultRoute && !step?.route) {
         pendingRouteNav.current = track.defaultRoute;
         navigate(track.defaultRoute);
@@ -113,7 +116,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
         navigate(step.route);
       }
     },
-    [location.pathname, navigate, persistProgress, progress],
+    [location.pathname, navigate, persistProgress],
   );
 
   const resumeTrack = useCallback(
@@ -129,7 +132,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
 
   const completeTrack = useCallback(() => {
     if (!activeTrackId) return;
-    persistProgress(markTrackCompleted(activeTrackId, progress));
+    persistProgress((prev) => markTrackCompleted(activeTrackId, prev));
     setActiveTrackId(null);
     setStepIndex(0);
     clearTutorialQuery();
