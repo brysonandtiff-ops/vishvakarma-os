@@ -79,6 +79,11 @@ export function saveLocalDraft(payload: LocalDraftPayload) {
   return true;
 }
 
+/** Debounced callers use this alias; persists synchronously until worker offload ships. */
+export function scheduleLocalDraftSave(payload: LocalDraftPayload) {
+  return saveLocalDraft(payload);
+}
+
 export function readLocalDraft(): LocalDraftPayload | null {
   if (!hasStorage()) return null;
 

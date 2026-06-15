@@ -49,6 +49,9 @@ import FloorSwitcher from '@/components/editor/FloorSwitcher';
 import SaveModeBadge from '@/components/editor/SaveModeBadge';
 import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
+import EditorCompassCost from '@/components/editor/EditorCompassCost';
+import EditorPerfHud from '@/components/editor/EditorPerfHud';
+import PerformanceProfilePanel from '@/components/editor/panels/PerformanceProfilePanel';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import { useGeometryRevision } from '@/hooks/useGeometryRevision';
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
@@ -63,6 +66,7 @@ import {
   hasMeaningfulDraftContent,
   readLocalDraft,
   saveLocalDraft,
+  scheduleLocalDraftSave,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
@@ -296,7 +300,7 @@ function EditorWorkspace() {
         manifest: buildManifest(),
       });
 
-      if (saveLocalDraft(payload)) {
+      if (scheduleLocalDraftSave(payload)) {
         setLastDraftSavedAt(payload.savedAt);
         setSaveState((state) => (state === 'cloud-saved' ? 'cloud-saved' : 'local-draft'));
       }
@@ -659,6 +663,15 @@ function EditorWorkspace() {
   const complianceFailSummary = getFailFindings(complianceReport)[0]?.message;
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
+  const deferredWalls = useDeferredValue(walls);
+  const deferredOpenings = useDeferredValue(openings);
+  const deferredFurniture = useDeferredValue(furniture);
+  const deferredRooms = useDeferredValue(rooms);
+  const deferredFixtures = useDeferredValue(fixtures);
+  const deferredStaircases = useDeferredValue(staircases);
+  const deferredTerrain = useDeferredValue(terrain);
+  const deferredLandscape = useDeferredValue(landscapeElements);
+  const deferredMepSymbols = useDeferredValue(mepSymbols);
 
   const fileStrip = (
     <>
@@ -687,6 +700,8 @@ function EditorWorkspace() {
           onChange={(patch) => engine.setLayerVisibility(patch)}
         />
       </div>
+      <div className="mx-4 h-px bg-border" />
+      <PerformanceProfilePanel />
       <div className="mx-4 h-px bg-border" />
       {workspaceMode === 'mep' && (
         <div className="px-4">
@@ -889,10 +904,21 @@ function EditorWorkspace() {
                     onPanToWorld={handleMinimapPan}
                   />
                 )}
+                <EditorCompassCost
+                  northOrientation={northOrientation}
+                  jurisdiction={resolveJurisdiction(engine.getManifest())}
+                  regionId={resolveRegionId(engine.getManifest())}
+                  costItems={costItems}
+                  costRange={engine.getManifest().metadata.costIntelligence}
+                  onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
+                  onJurisdictionChange={(j: ProjectJurisdiction) => engine.setJurisdiction(j)}
+                  onRegionChange={(regionId) => engine.setRegionId(regionId)}
+                />
                 <RemoteCursorsOverlay
                   presences={collabPresences}
                   currentUserId={user?.id}
                 />
+                <EditorPerfHud />
                 <EditorPhasePills />
                 <RadialToolMenuTracker
                   visible={showRadialMenu}
@@ -932,17 +958,17 @@ function EditorWorkspace() {
                 <div className="flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
                     <Viewport3D
-                      walls={walls}
-                      openings={openings}
+                      walls={deferredWalls}
+                      openings={deferredOpenings}
                       lighting={lighting}
-                      furniture={furniture}
+                      furniture={deferredFurniture}
                       materials={materials}
-                      mepSymbols={mepSymbols}
-                      fixtures={fixtures}
-                      landscapeElements={landscapeElements}
-                      terrain={terrain}
-                      rooms={rooms}
-                      staircases={staircases}
+                      mepSymbols={deferredMepSymbols}
+                      fixtures={deferredFixtures}
+                      landscapeElements={deferredLandscape}
+                      terrain={deferredTerrain}
+                      rooms={deferredRooms}
+                      staircases={deferredStaircases}
                       floorMaterial={engine.getManifest().floorMaterial}
                       walkMode={workspaceMode === 'walk'}
                       presentationLock={presentationLock}
