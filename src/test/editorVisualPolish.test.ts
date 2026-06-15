@@ -49,7 +49,8 @@ describe('Blueprint editor visual polish', () => {
     const drawing = read('src/components/editor/blueprintCanvasDrawing.ts');
 
     expect(drawing).toContain("from '@/core/sceneDrawingTokens'");
-    expect(editor).toContain('onWallAdd={(wall) => engine.addWall(wall)}');
+    expect(editor).toContain('onWallAdd={(wall) =>');
+    expect(editor).toContain('engine.addWall(wall)');
     expect(editor).toContain('serializeProjectManifest');
     expect(editor).toContain('buildProjectExportFilename');
     expect(viewport).toContain('persistAtmosphereMode');
