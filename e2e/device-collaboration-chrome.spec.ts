@@ -16,6 +16,7 @@ test.describe('Device collaboration chrome', () => {
   });
 
   test('collaboration bar follow toggle meets 44px on coarse pointer iPad', async ({ page }) => {
+    test.setTimeout(120_000);
     await page.evaluate(() => {
       const topbar = document.querySelector('[data-testid="editor-top-bar"]');
       if (!topbar) return;

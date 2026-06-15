@@ -86,6 +86,18 @@ export async function openAIDesigner(page: Page) {
   await page.getByTestId('editor-ai-designer').click();
 }
 
+
+export async function selectWorkspaceMode(page: Page, mode: RegExp) {
+  const tab = page.getByRole('tab', { name: mode });
+  if (await tab.isVisible().catch(() => false)) {
+    await tab.click();
+    return;
+  }
+  const badge = page.getByTestId('editor-mode-badge');
+  await expect(badge).toBeVisible({ timeout: 15_000 });
+  await badge.click();
+  await page.getByRole('menuitem', { name: mode }).click();
+}
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
