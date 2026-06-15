@@ -15,15 +15,21 @@ import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-function findGitRoot(startDir = process.cwd()) {
+function findGitRoot(startDir = process.cwd(), maxDepth = 20) {
   let current = resolve(startDir);
-  for (let depth = 0; depth < 20; depth += 1) {
+  for (let depth = 0; depth < maxDepth; depth += 1) {
     if (existsSync(join(current, '.git'))) return current;
     const parent = dirname(current);
     if (parent === current) break;
     current = parent;
   }
   return null;
+}
+
+function parseShellExitCode(raw) {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const parsed = Number.parseInt(String(raw ?? ''), 10);
+  return Number.isNaN(parsed) ? 1 : parsed;
 }
 
 export function readStdinJson() {
@@ -51,7 +57,8 @@ export async function invokeAutoShip(args) {
     encoding: 'utf8',
     shell: false,
   });
-  return { ok: result.status === 0, skipped: result.status === 0, exitCode: result.status ?? 1 };
+  const exitCode = result.status ?? 1;
+  return { ok: exitCode === 0, exitCode };
 }
 `;
 

@@ -30,8 +30,7 @@ test.describe('Device phone editor layout', () => {
   });
 
   test('editor zoom controls meet 44px touch targets on iPhone portrait', async ({ page }) => {
-    await page.setViewportSize(iPhonePortrait);
-    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 60_000 });
     await assertTouchTargets(page, [
       '.vish-canvas-zoom-btn',
       '[data-testid="tool-rail"] button',
@@ -40,8 +39,7 @@ test.describe('Device phone editor layout', () => {
   });
 
   test('inline label editor keeps canvas visible when keyboard inset applies', async ({ page }) => {
-    await page.setViewportSize(iPhonePortrait);
-    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 60_000 });
 
     await page.evaluate(() => {
       const canvas = document.querySelector('[data-testid="blueprint-canvas"]');

@@ -39,6 +39,7 @@ requirePhrase(indexHtml, 'interactive-widget=resizes-content', 'index.html keybo
 const marketingCss = readRequired('src/styles/vish-marketing.css');
 requirePhrase(marketingCss, '@media (pointer: coarse)', 'vish-marketing.css coarse pointer rules');
 requirePhrase(marketingCss, 'max-width: 1194px', 'vish-marketing.css tablet touch rules');
+requirePhrase(marketingCss, 'min-height: 44px', 'vish-marketing.css touch targets');
 
 const requiredE2E = [
   'e2e/device-governance-layout.spec.ts',

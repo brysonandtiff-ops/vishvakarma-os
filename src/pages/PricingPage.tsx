@@ -77,7 +77,7 @@ export default function PricingPage() {
             checkoutPlan: null as CheckoutPlan | null,
           };
         }
-        if (plan === 'studio' && isStudio) {
+        if (plan === 'studio' && (isStudio || isEnterprise)) {
           return {
             label: 'Manage subscription →',
             action: 'portal' as TierAction,

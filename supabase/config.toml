@@ -1,4 +1,4 @@
-# Vishvakarma.OS — Supabase Auth + Postgres (production default when VITE_BACKEND_PROVIDER=supabase)
+# Vishvakarma.OS — Supabase Auth + Postgres (production backend)
 
 project_id = "jyocvwipthswfcmvqgqe"
 

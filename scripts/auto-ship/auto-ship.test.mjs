@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
+  acquireDebounceLock,
   buildCommitMessage,
   extractPorcelainPath,
   filterStageablePaths,
@@ -9,6 +13,7 @@ import {
   normalizeRepoPath,
   parseShellExitCode,
   readDebounceLockTimestamp,
+  resolveRepoRootFromHook,
   shouldAcquireDebounceLock,
   shouldSkipCommand,
 } from './auto-ship-lib.mjs';
@@ -76,5 +81,32 @@ describe('auto-ship-lib', () => {
 
   it('respects debounce lock ttl when lock file is absent', () => {
     expect(shouldAcquireDebounceLock('/missing/lock/file', 10_000, 20_000)).toBe(true);
+    expect(readDebounceLockTimestamp('/missing/lock/file')).toBeNull();
+  });
+
+  it('parses shell exit codes from hook payloads', () => {
+    expect(parseShellExitCode(0)).toBe(0);
+    expect(parseShellExitCode('1')).toBe(1);
+    expect(parseShellExitCode('not-a-number')).toBe(1);
+    expect(parseShellExitCode(undefined)).toBe(1);
+  });
+
+  it('acquireDebounceLock writes lock and blocks concurrent acquires', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'auto-ship-lock-'));
+    const lockPath = join(dir, '.lock');
+    try {
+      expect(acquireDebounceLock(lockPath, 10_000, 20_000)).toBe(true);
+      expect(readFileSync(lockPath, 'utf8')).toContain('"timestamp":20000');
+      expect(acquireDebounceLock(lockPath, 10_000, 25_000)).toBe(false);
+      expect(acquireDebounceLock(lockPath, 10_000, 31_000)).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('prefers hook repo over cwd when both have .git', () => {
+    const hookDir = 'C:\\wrapper\\vishvakarma-os-live\\.cursor\\hooks';
+    const cwd = 'C:\\wrapper';
+    expect(resolveRepoRootFromHook(hookDir, cwd)).toBe('C:\\wrapper\\vishvakarma-os-live');
   });
 });

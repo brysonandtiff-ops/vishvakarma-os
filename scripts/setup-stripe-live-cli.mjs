@@ -216,8 +216,6 @@ async function main() {
     APP_URL,
     VITE_STRIPE_BILLING_ENABLED: 'true',
     VITE_PRICING_PAGE_ENABLED: 'true',
-    VITE_BACKEND_PROVIDER: 'firebase',
-    BACKEND_PROVIDER: 'firebase',
   };
   if (liveSecret) envUpdates.STRIPE_SECRET_KEY = liveSecret;
 

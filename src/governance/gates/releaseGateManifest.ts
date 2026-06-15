@@ -85,8 +85,8 @@ const GATE_UI_DETAILS: Record<string, { message: string; evidence: string[]; lin
     evidence: ['CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy'],
   },
   'gate-6': {
-    message: 'Firebase variables documented in .env.example',
-    evidence: ['VITE_FIREBASE_* keys present in template'],
+    message: 'Supabase variables documented in .env.example',
+    evidence: ['VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY present in template'],
   },
   'gate-7': {
     message: 'Unit tests pass under pnpm run release:gates:strict',
