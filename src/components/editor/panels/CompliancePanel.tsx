@@ -147,6 +147,33 @@ export function CompliancePanel({
                           <span className="font-medium text-foreground">{linkedRoom.name}: </span>
                         ) : null}
                         {finding.message}
+                        {finding.citation ? (
+                          <span
+                            className="mt-0.5 block text-[10px] text-muted-foreground/90"
+                            data-testid={`compliance-citation_${finding.ruleId}`}
+                          >
+                            <span className="font-semibold text-foreground/80">
+                              {finding.citation.code}
+                              {finding.citation.clause ? ` · ${finding.citation.clause}` : ''}
+                            </span>
+                            {' — '}
+                            {finding.citation.summary}
+                            {finding.citation.sourceUrl ? (
+                              <>
+                                {' '}
+                                <a
+                                  href={finding.citation.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary underline-offset-2 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Source
+                                </a>
+                              </>
+                            ) : null}
+                          </span>
+                        ) : null}
                       </span>
                     </li>
                     );
