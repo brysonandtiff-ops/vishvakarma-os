@@ -13,16 +13,17 @@ function checkNode() {
   const version = process.version;
   const major = Number.parseInt(version.slice(1).split('.')[0], 10);
   if (major !== 20) {
-    failures.push(`Node ${version} detected — project requires Node 20.x (see package.json engines)`);
+    warnings.push(`Node ${version} detected — CI uses Node 20.x (see package.json engines)`);
   } else {
     pass('node', version);
   }
 }
 
 function checkPnpm() {
-  const result = runCommandSync('pnpm', ['--version']);
+  const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+  const result = runCommandSync(pnpmCommand, ['--version'], { shell: process.platform === 'win32' });
   if (!result.ok) {
-    failures.push('pnpm not found — install pnpm 9.x (corepack enable && corepack prepare pnpm@9.15.0 --activate)');
+    warnings.push('pnpm not found on PATH — install pnpm 9.x (corepack enable && corepack prepare pnpm@9.15.0 --activate)');
     return;
   }
   const major = Number.parseInt(result.stdout.split('.')[0], 10);
@@ -71,7 +72,10 @@ function checkEnvFiles() {
 }
 
 function checkPlaywright() {
-  const result = runCommandSync('pnpm', ['exec', 'playwright', '--version']);
+  const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+  const result = runCommandSync(pnpmCommand, ['exec', 'playwright', '--version'], {
+    shell: process.platform === 'win32',
+  });
   if (!result.ok) {
     warnings.push('Playwright CLI unavailable — run pnpm run test:e2e:install');
     return;

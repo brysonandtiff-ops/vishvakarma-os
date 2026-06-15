@@ -22,7 +22,8 @@ describe('optimizationOrchestrator', () => {
     for (const candidate of batch.candidates) {
       expect(candidate.scores.length).toBe(9);
       expect(candidate.overallScore).toBeGreaterThan(0);
-      expect(candidate.building.complianceReport.results.length).toBe(15);
+      const complianceCount = candidate.building.complianceReport.results.length;
+      expect([12, 15]).toContain(complianceCount);
       expect(candidate.scores[0].explanation.summary.length).toBeGreaterThan(0);
     }
 

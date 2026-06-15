@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
 ```
 src/
@@ -111,6 +111,7 @@ components/
     BlueprintCanvas.tsx
     blueprintCanvasDrawing.ts
     CanvasMinimap.tsx
+    CinematicBloom.tsx
     collaboration/
       CollaboratorAvatars.tsx
       FollowViewportToggle.tsx
@@ -368,6 +369,7 @@ editor/
   localDraft.ts
   localProject.ts
   localProjects.ts
+  onboardingMemory.test.ts
   onboardingMemory.ts
   toolMeta.ts
 global.d.ts
@@ -684,6 +686,7 @@ api/
 ai/
   extract-requirements.ts
   parse-site-documents.ts
+health.ts
 stripe/
   create-checkout-session.ts
   create-portal-session.ts
@@ -714,6 +717,11 @@ README.md
 
 scripts/
 deploy-vercel.sh
+docs/
+  verify-documentation.mjs
+dx/
+  doctor.mjs
+  local-stack.mjs
 enforce-build.js
 extract-stripe-cli-key.mjs
 fetch-stripe-live-key.mjs
@@ -728,13 +736,24 @@ import-stripe-live-key-from-clipboard.mjs
 install-workspace-root-package.mjs
 lib/
   canonical-origin.mjs
+  cli.mjs
   load-gate-manifest.mjs
+  parse-dist-assets.mjs
+  pipeline-manifest.json
+  probe-http.mjs
+  run-command.mjs
 load-env-file.mjs
 migration/
   export-supabase.mjs
   import-supabase.mjs
   validate-migration.mjs
 open-external-url.mjs
+performance/
+  bundle-budget.json
+  check-bundle-budget.mjs
+  lighthouse-budget.json
+  report-bundle.mjs
+  run-lighthouse.mjs
 production/
   generate-evidence.mjs
   generate-functional-proof.mjs
@@ -765,6 +784,7 @@ run-e2e-gates.mjs
 run-live-billing-rollout.mjs
 run-local-preview-playwright.mjs
 run-page-reference-pack.mjs
+run-pipeline.mjs
 run-screenshot-pack.mjs
 set-stripe-secret-env.mjs
 setup-scene-models.mjs
@@ -772,6 +792,10 @@ setup-stripe-live-cli.mjs
 setup-stripe-live.mjs
 setup-stripe-products.mjs
 setup-supabase-auth-providers.mjs
+stability/
+  check-monitoring.mjs
+  post-deploy-smoke.mjs
+  probe-health.mjs
 stripe-cli-login.mjs
 sync-pwa-icon-svgs.mjs
 test-supabase-auth-smoke.mjs
@@ -795,6 +819,7 @@ collaboration-sync.spec.ts
 compliance-gate.spec.ts
 cross-browser-smoke.spec.ts
 editor-features.spec.ts
+editor-performance.spec.ts
 governance-smoke.spec.ts
 helpers.ts
 ipad-editor-layout.spec.ts
@@ -809,7 +834,47 @@ release-screenshot-pack.spec.ts
 workspace-navigation.spec.ts
 
 docs/
+adr/
+  001-supabase-production-backend.md
+  002-vite-spa-react-router.md
+  003-project-manifest-source-of-truth.md
+  004-thirteen-gate-release-pipeline.md
+  005-stripe-entitlement-model.md
+  README.md
+archive/
+  build-history/
+    COMPLETE_SUMMARY.md
+    FINAL_VERIFICATION_REPORT.md
+    GATE7_COMPLETE.md
+    NEXT_PHASE_IMPLEMENTATION.md
+    NEXT_STEPS.md
+    PHASE2_COMPLETE_VERIFICATION.md
+    PHASE2_FINAL_REPORT.md
+    PHASE2_PROGRESS.md
+    PHASE2_VERIFICATION.md
+    PRE_NEXT_PHASE_VERIFICATION.md
+    PROJECT_STATUS_REPORT.md
+    SCREENSHOT_ANALYSIS.md
+    STEP10_COMPLETE.md
+    STEP3_COMPLETE.md
+    STEP4_COMPLETE.md
+    STEP5_COMPLETE.md
+    STEP6_COMPLETE.md
+    STEP6_IMPLEMENTATION_SUMMARY.md
+    STEP6_VERIFICATION_REPORT.md
+    STEP7_IMPLEMENTATION_SUMMARY.md
+    STEP7_VERIFICATION_REPORT.md
+    STEP8_IMPLEMENTATION_SUMMARY.md
+    STEP8_VERIFICATION_REPORT.md
+    STEP_VERIFICATION_COMPLETE.md
+    STEP_VERIFICATION_SUMMARY.md
+    VERIFICATION_REPORT.md
+  README.md
 BRAND_LOCK.md
+compliance/
+  DATA_PROCESSING.md
+  PRIVACY.md
+  SUPPORT_MATRIX.md
 CURRENT_PRODUCTION_ARCHITECTURE.md
 design/
   page-references/
@@ -870,6 +935,14 @@ design/
   VISHVAKARMA_OS_Complete_Overview_v2.pdf
 developer/
   API.md
+  ARCHITECTURE.md
+  CI_CD.md
+  CONTRIBUTING_EXTENDED.md
+  DATA_MODEL.md
+  ONBOARDING.md
+  openapi.yaml
+  TESTING.md
+DOCUMENTATION_STANDARDS.md
 FINAL_BUILD_REPORT.md
 FLAWLESS_USE_IMPLEMENTATION_GATES.md
 FLAWLESS_USE_VALUE_PLAN.md
@@ -897,14 +970,24 @@ handoff/
     G-dependencies.md
     H-file-tree.md
     MANIFEST.json
+  CHATGPT_HANDOFF.md
   HANDOFF.md
   templates/
     OPERATOR_ANNEX.template.md
 IMPLEMENTATION_SUMMARY.md
 LAUNCH_READINESS.md
+operations/
+  ACCOUNT_TRANSFER.md
+  DEPLOYMENT_RUNBOOK.md
+  ENVIRONMENT_MATRIX.md
+  INCIDENT_RESPONSE.md
+  MONITORING.md
+  README.md
+  ROLLBACK.md
 prd.md
 PRODUCT_CAPABILITIES.md
 project-manifest-schema.md
+PROPRIETARY_NOTICE.md
 README.md
 REGISTRY.md
 release/
@@ -913,6 +996,7 @@ release/
     2d-3d-parity-proof.md
     auth-sign-in-proof.md
     build-output.txt
+    bundle-budget-report.json
     EVIDENCE_MANIFEST.md
     FINAL_CLEANUP_EVIDENCE.md
     functional-workflow-proof.md
@@ -965,17 +1049,20 @@ specs/
   PROJECT_ROLES_AND_PERMISSIONS.md
   SYSTEM_CONTRACT_LAYER.md
   VASTU_HARMONY_v1.md
-STEP10_COMPLETE.md
 testing/
   EDITOR_WORKFLOWS.md
 user/
+  BILLING_AND_PLANS.md
   EXPORT_LIMITATIONS.md
   FAQ.md
   GETTING_STARTED.md
   KEYBOARD_SHORTCUTS.md
+  README.md
   STUB_TOOLS.md
   TOOL_REFERENCE.md
+  TROUBLESHOOTING.md
   VIDEO_TUTORIAL_SCRIPTS.md
+  WORKFLOWS.md
 v2/
   ARCHITECTURE.md
 world-record/
@@ -1052,6 +1139,7 @@ world-record/
 PULL_REQUEST_TEMPLATE.md
 workflows/
   e2e.yml
+  lighthouse.yml
   verify.yml
 
 ```

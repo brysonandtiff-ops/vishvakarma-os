@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-06-15T06:19:10.880Z",
+  "commit": "b15a92d5f5cc5846937674957de39fd9cc45684e",
+  "distTotalBytes": 3305157,
+  "distTotalMb": 3.15,
+  "budget": {
+    "totalDistMb": 5,
+    "chunks": {
+      "vendor-3d": 1150000,
+      "vendor-ui": 400000,
+      "vendor-react": 550000,
+      "vendor-supabase": 210000,
+      "vendor-misc": 480000,
+      "index": 880000,
+      "Viewport3D": 40000
+    }
+  },
+  "chunks": {
+    "index": {
+      "bytes": 842990,
+      "files": [
+        "index-B-B5C1hD.css",
+        "index-Cg-dBBCG.js"
+      ]
+    },
+    "monitoring": {
+      "bytes": 70,
+      "files": [
+        "monitoring-CrnGA79c.js"
+      ]
+    },
+    "planning.worker": {
+      "bytes": 4336,
+      "files": [
+        "planning.worker-C8slriou.js"
+      ]
+    },
+    "rolldown": {
+      "bytes": 986,
+      "files": [
+        "rolldown-runtime-BE_SCnlJ.js"
+      ]
+    },
+    "vendor-3d": {
+      "bytes": 1100899,
+      "files": [
+        "vendor-3d-Du_P0AUp.js"
+      ]
+    },
+    "vendor-misc": {
+      "bytes": 456241,
+      "files": [
+        "vendor-misc-_FelAZbb.js"
+      ]
+    },
+    "vendor-react": {
+      "bytes": 523528,
+      "files": [
+        "vendor-react-DtI3J3pI.js"
+      ]
+    },
+    "vendor-supabase": {
+      "bytes": 194237,
+      "files": [
+        "vendor-supabase-C9V3XiLz.js"
+      ]
+    },
+    "vendor-ui": {
+      "bytes": 145665,
+      "files": [
+        "vendor-ui-DEznmHpf.js"
+      ]
+    },
+    "Viewport3D": {
+      "bytes": 36205,
+      "files": [
+        "Viewport3D-CTIj13u4.js"
+      ]
+    }
+  },
+  "passed": true,
+  "failures": []
+}

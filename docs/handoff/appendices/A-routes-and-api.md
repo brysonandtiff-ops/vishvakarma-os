@@ -2,7 +2,7 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
 ## Client routes (`src/routes.tsx`)
 
@@ -35,6 +35,7 @@ Pricing route conditional in source: `PRICING_PAGE_ENABLED` = true.
 |-----------|-------------|
 | `POST /api/ai/extract-requirements` | `api/ai/extract-requirements.ts` |
 | `POST /api/ai/parse-site-documents` | `api/ai/parse-site-documents.ts` |
+| `POST /api/health` | `api/health.ts` |
 | `POST /api/stripe/create-checkout-session` | `api/stripe/create-checkout-session.ts` |
 | `POST /api/stripe/create-portal-session` | `api/stripe/create-portal-session.ts` |
 | `POST /api/stripe/webhook` | `api/stripe/webhook.ts` |

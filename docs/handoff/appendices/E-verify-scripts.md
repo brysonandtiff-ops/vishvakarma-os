@@ -2,7 +2,7 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
 ## npm verify / gates scripts
 
@@ -15,9 +15,9 @@ Generated: 2026-06-15T06:00:02.958Z
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |
 | `flawless:gates` | `node scripts/quality/check-flawless-use-gates.mjs` |
 | `release:gates` | `node scripts/verify-all.js` |
-| `verify` | `pnpm run lint && pnpm run contract:gates && pnpm run auth:gates && pnpm run flawless:gates && pnpm run launch:evidence && pnpm run test && pnpm run build` |
-| `verify:ci` | `pnpm run verify && pnpm run test:routes` |
-| `ci` | `pnpm run lint && pnpm run contract:gates && node scripts/quality/check-vercel-security.mjs && pnpm run launch:evidence && pnpm run test:coverage && pnpm run test:anchors && pnpm run test:routes && pnpm run build` |
+| `verify` | `node scripts/run-pipeline.mjs --tier=verify` |
+| `verify:ci` | `node scripts/run-pipeline.mjs --tier=verify:ci` |
+| `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
 | `production:verify-env` | `node scripts/production/verify-env.mjs` |
 | `verify:supabase-schema` | `node scripts/verify-supabase-schema.mjs` |
 | `verify:supabase-schema:live` | `node scripts/verify-supabase-schema.mjs --live` |
@@ -30,6 +30,8 @@ Generated: 2026-06-15T06:00:02.958Z
 | `production:manual-evidence` | `node scripts/production/generate-manual-evidence.mjs` |
 | `production:functional-proof` | `node scripts/production/generate-functional-proof.mjs` |
 | `production:functional-proof:quick` | `node scripts/production/generate-functional-proof.mjs --skip-e2e` |
+| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs` |
+| `stability:gates` | `node scripts/stability/check-monitoring.mjs && node scripts/quality/check-editor-export-canonical.mjs && node scripts/verify-supabase-schema.mjs` |
 
 ## `scripts/quality/*`
 

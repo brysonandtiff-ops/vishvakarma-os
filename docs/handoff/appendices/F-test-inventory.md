@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
-## Vitest unit/integration (114 files)
+## Vitest unit/integration (116 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -31,6 +31,7 @@ Generated: 2026-06-15T06:00:02.958Z
 - `src/data/cost/materialCatalog.test.ts`
 - `src/data/cost/regionalIndices.test.ts`
 - `src/editor/localDraft.test.ts`
+- `src/editor/onboardingMemory.test.ts`
 - `src/modules/compliance/complianceModule.test.ts`
 - `src/modules/compliance/complianceReportExport.test.ts`
 - `src/modules/compliance/jurisdictionCompliance.test.ts`
@@ -68,6 +69,7 @@ Generated: 2026-06-15T06:00:02.958Z
 - `src/test/automatedTestSuite.test.ts`
 - `src/test/billingBanner.test.ts`
 - `src/test/billingPlans.test.ts`
+- `src/test/blueprintDrawing.test.ts`
 - `src/test/canvasEngine.test.ts`
 - `src/test/canvasPointerCoords.test.ts`
 - `src/test/canvasSelection.test.ts`
@@ -121,7 +123,7 @@ Generated: 2026-06-15T06:00:02.958Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (20 specs)
+## Playwright E2E (21 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -132,6 +134,7 @@ Generated: 2026-06-15T06:00:02.958Z
 - `e2e/compliance-gate.spec.ts`
 - `e2e/cross-browser-smoke.spec.ts`
 - `e2e/editor-features.spec.ts`
+- `e2e/editor-performance.spec.ts`
 - `e2e/governance-smoke.spec.ts`
 - `e2e/ipad-editor-layout.spec.ts`
 - `e2e/ipad-production-readiness.spec.ts`

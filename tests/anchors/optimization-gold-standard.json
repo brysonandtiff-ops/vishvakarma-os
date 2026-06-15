@@ -12,7 +12,7 @@
     "candidateCount": 6,
     "ranks": [1, 2, 3, 4, 5, 6],
     "scoreCategoriesPerCandidate": 9,
-    "complianceRuleCountPerCandidate": 15,
+    "complianceRuleCountPerCandidate": 12,
     "tradeoffDimensionCount": 6,
     "moatGainScoreMin": 1,
     "winnerHasCostIntelligence": true

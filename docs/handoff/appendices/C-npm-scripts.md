@@ -2,23 +2,29 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
-Total: 71 scripts
+Total: 96 scripts
 
 | Script | Command |
 |--------|--------|
 | `assets:apple-touch-icon` | `node scripts/generate-apple-touch-icon.mjs` |
 | `assets:pwa-icons` | `node scripts/sync-pwa-icon-svgs.mjs && node scripts/generate-pwa-png-icons.mjs` |
+| `assets:samples` | `node scripts/generate-sample-json.mjs` |
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |
 | `build` | `vite build` |
+| `build:gate` | `node --import tsx scripts/enforce-build.js` |
 | `capture:page-references` | `node scripts/run-page-reference-pack.mjs` |
-| `ci` | `pnpm run lint && pnpm run contract:gates && node scripts/quality/check-vercel-security.mjs && pnpm run launch:evidence && pnpm run test:coverage && pnpm run test:anchors && pnpm run test:routes && pnpm run build` |
+| `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
 | `collab:server` | `node --import tsx server/collab/presenceServer.ts` |
 | `collab:server:dev` | `node --import tsx --watch server/collab/presenceServer.ts` |
 | `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-project-roles.mjs` |
 | `deploy:vercel` | `bash scripts/deploy-vercel.sh` |
 | `dev` | `vite --host 127.0.0.1` |
+| `docs:verify` | `node scripts/docs/verify-documentation.mjs` |
+| `doctor` | `node scripts/dx/doctor.mjs` |
+| `dx:doctor` | `node scripts/dx/doctor.mjs` |
+| `dx:stack` | `node scripts/dx/local-stack.mjs` |
 | `fetch:stripe-live-key` | `node scripts/fetch-stripe-live-key.mjs` |
 | `flawless:gates` | `node scripts/quality/check-flawless-use-gates.mjs` |
 | `handoff:generate` | `node scripts/handoff/generate-handoff-appendices.mjs` |
@@ -34,6 +40,19 @@ Total: 71 scripts
 | `lint:types` | `tsgo -p tsconfig.check.json && tsgo -p tsconfig.api-check.json` |
 | `marketing:assets` | `node scripts/run-local-preview-playwright.mjs --project=screenshot-pack marketing-asset-pack.spec.ts` |
 | `migration:import-supabase` | `node scripts/migration/import-supabase.mjs` |
+| `ops:admin:setup` | `node scripts/production/setup-admin.mjs` |
+| `ops:coowner:setup` | `node scripts/production/setup-co-owner.mjs` |
+| `ops:migration:export` | `node scripts/migration/export-supabase.mjs` |
+| `ops:migration:validate` | `node scripts/migration/validate-migration.mjs` |
+| `ops:stripe:push-env` | `node scripts/push-stripe-env-vercel.mjs` |
+| `ops:stripe:rollout` | `node scripts/run-live-billing-rollout.mjs` |
+| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs` |
+| `perf:lighthouse` | `node scripts/performance/run-lighthouse.mjs` |
+| `perf:lighthouse:prod` | `node scripts/performance/run-lighthouse.mjs --url=https://vishvakarma-os.app` |
+| `perf:report` | `node scripts/performance/report-bundle.mjs` |
+| `perf:report:baseline` | `node scripts/performance/report-bundle.mjs --update-baseline` |
+| `pipeline` | `node scripts/run-pipeline.mjs` |
+| `prebuild` | `node --import tsx scripts/enforce-build.js` |
 | `preview` | `vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e` | `vite build --mode e2e && vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e:local` | `vite build --mode e2e-local && vite preview --host 127.0.0.1 --port 4173` |
@@ -56,6 +75,11 @@ Total: 71 scripts
 | `setup:stripe-live:cli` | `node scripts/setup-stripe-live-cli.mjs --push-vercel` |
 | `setup:supabase-auth` | `node scripts/setup-supabase-auth-providers.mjs` |
 | `setup:supabase-auth:full` | `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push && node scripts/setup-supabase-auth-providers.mjs` |
+| `stability:gates` | `node scripts/stability/check-monitoring.mjs && node scripts/quality/check-editor-export-canonical.mjs && node scripts/verify-supabase-schema.mjs` |
+| `stability:health` | `node scripts/stability/probe-health.mjs` |
+| `stability:health:prod` | `node scripts/stability/probe-health.mjs --prod` |
+| `stability:post-deploy` | `node scripts/stability/post-deploy-smoke.mjs` |
+| `stability:supabase-drift` | `node scripts/verify-supabase-schema.mjs --drift` |
 | `test` | `vitest run` |
 | `test:anchors` | `vitest run src/test/regressionAnchors.test.ts` |
 | `test:coverage` | `vitest run --coverage` |
@@ -65,13 +89,14 @@ Total: 71 scripts
 | `test:e2e:auth` | `node scripts/run-auth-gate-playwright.mjs` |
 | `test:e2e:cross-browser` | `node scripts/run-cross-browser-gates.mjs` |
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
+| `test:e2e:perf` | `node scripts/run-local-preview-playwright.mjs --project=editor-performance` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |
 | `test:screenshots` | `node scripts/run-screenshot-pack.mjs` |
 | `test:supabase-auth` | `node scripts/test-supabase-auth-smoke.mjs --config-only` |
 | `test:supabase-auth:full` | `node scripts/test-supabase-auth-smoke.mjs --write-capabilities` |
 | `test:supabase-auth:write` | `node scripts/test-supabase-auth-smoke.mjs --write-capabilities` |
-| `verify` | `pnpm run lint && pnpm run contract:gates && pnpm run auth:gates && pnpm run flawless:gates && pnpm run launch:evidence && pnpm run test && pnpm run build` |
-| `verify:ci` | `pnpm run verify && pnpm run test:routes` |
+| `verify` | `node scripts/run-pipeline.mjs --tier=verify` |
+| `verify:ci` | `node scripts/run-pipeline.mjs --tier=verify:ci` |
 | `verify:live-auth-flow` | `node scripts/verify-live-auth-flow.mjs --skip-interactive` |
 | `verify:live-auth-flow:interactive` | `node scripts/verify-live-auth-flow.mjs` |
 | `verify:production-auth-flow` | `node scripts/verify-production-auth-flow.mjs` |

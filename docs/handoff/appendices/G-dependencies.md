@@ -2,7 +2,7 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-15T06:00:02.958Z
+Generated: 2026-06-15T06:35:48.392Z
 
 Package: `vishvakarma-os` v1.5.0
 
@@ -42,7 +42,7 @@ Package: `vishvakarma-os` v1.5.0
 | @radix-ui/react-tooltip | ^1.2.8 |
 | @react-three/drei | catalog: |
 | @react-three/fiber | catalog: |
-| @react-three/postprocessing | catalog: |
+| @sentry/react | ^9.22.0 |
 | @supabase/supabase-js | ^2.49.1 |
 | @vercel/analytics | ^2.0.1 |
 | axios | ^1.13.1 |
@@ -86,7 +86,7 @@ Package: `vishvakarma-os` v1.5.0
 | yjs | ^13.6.31 |
 | zod | ^3.25.76 |
 
-## Development (27)
+## Development (28)
 
 | Package | Version |
 |---------|--------|
@@ -109,6 +109,7 @@ Package: `vishvakarma-os` v1.5.0
 | @vitest/ui | ^4.0.18 |
 | autoprefixer | ^10.4.21 |
 | jsdom | ^28.1.0 |
+| lighthouse | ^12.6.0 |
 | postcss | ^8.5.6 |
 | tailwindcss | ^3.4.11 |
 | tsx | ^4.22.4 |
