@@ -6,3 +6,4 @@ export * from './sync/CollabSession';
 export * from './sync/CollabTransportAdapter';
 export * from './sync/YjsWebSocketProvider';
 export * from './sync/SupabaseSnapshotProvider';
+export * from './presenceReadOnly';

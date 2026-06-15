@@ -7,6 +7,7 @@
 import { backendStatus } from '@/backend/backendConfig';
 import { resolveSupabaseSessionForApi } from '@/backend/supabase/supabaseAuthGateway';
 import { CollabSession } from '@/collaboration/sync/CollabSession';
+import { isCollabReadOnlyMode } from '@/collaboration/presenceReadOnly';
 import type { Presence } from '@/collaboration/types';
 import type { ProjectManifest } from '@/types';
 
@@ -137,6 +138,7 @@ export class CollaborationEngine {
       userId,
       userName,
       getIdToken,
+      readOnly: isCollabReadOnlyMode(),
       initialManifest: options?.initialManifest,
       onManifestChange: (manifest, isRemote) => {
         this.manifestHandler?.(manifest, isRemote);

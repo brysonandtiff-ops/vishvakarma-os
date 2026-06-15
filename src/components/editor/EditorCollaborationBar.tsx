@@ -3,6 +3,7 @@ import { Users } from 'lucide-react';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
+import { collabPresenceModeLabel } from '@/collaboration/presenceReadOnly';
 import {
   connectToRoom,
   disconnectFromRoom,
@@ -94,7 +95,7 @@ export default function EditorCollaborationBar({
     ? 'Save project to collaborate'
     : backendReady
       ? active
-        ? `Live sync (preview) · ${onlineCount} online`
+        ? `${collabPresenceModeLabel()} · ${onlineCount} online`
         : 'Connecting collaboration…'
       : 'Local session';
 

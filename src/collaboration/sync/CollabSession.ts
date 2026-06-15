@@ -31,6 +31,7 @@ export class CollabSession {
   private messageCallbacks = new Set<(message: CollaborationMessage) => void>();
   private presenceCallbacks = new Set<(presences: Presence[]) => void>();
   private options: CollabSessionOptions | null = null;
+  private readOnly = false;
 
   static getInstance(): CollabSession {
     if (!CollabSession.instance) {
@@ -66,6 +67,7 @@ export class CollabSession {
     if (this.connected) return;
 
     this.options = options;
+    this.readOnly = options.readOnly ?? false;
     this.roomId = options.projectId;
     this.currentUserId = options.userId;
 
@@ -150,6 +152,7 @@ export class CollabSession {
   }
 
   applyPartial(partial: Partial<ProjectManifest>, label = 'Edit'): void {
+    if (this.readOnly) return;
     this.bridge?.applyPartial(partial, label);
   }
 
