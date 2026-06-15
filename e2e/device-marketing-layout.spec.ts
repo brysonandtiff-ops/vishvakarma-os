@@ -51,15 +51,31 @@ test.describe('Device marketing layout', () => {
   test('pricing page fits iPad portrait when enabled', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
     await page.goto('/pricing');
-    const pricingHeading = page.getByRole('heading', { name: /professional-grade tools/i });
+
+    const pricingHeading = page.getByRole('heading', {
+      name: /professional-grade tools|fair, predictable pricing/i,
+    });
     const notFound = page.getByRole('heading', { name: /404|not found|route not found/i });
-    if (await pricingHeading.isVisible().catch(() => false)) {
+
+    const pricingVisible = await pricingHeading
+      .first()
+      .isVisible({ timeout: 15_000 })
+      .catch(() => false);
+    if (pricingVisible) {
       await assertNoHorizontalOverflow(page);
       await assertTouchTargets(page, MARKETING_TOUCH_SELECTORS);
-    } else if (await notFound.isVisible().catch(() => false)) {
-      test.skip(true, 'Pricing page disabled in this build');
-    } else {
-      await expect(pricingHeading).toBeVisible({ timeout: 10_000 });
+      return;
     }
+
+    const routeMissing = await notFound
+      .first()
+      .isVisible({ timeout: 5_000 })
+      .catch(() => false);
+    if (routeMissing) {
+      test.skip(true, 'Pricing page disabled in this build');
+      return;
+    }
+
+    await expect(pricingHeading.first()).toBeVisible({ timeout: 10_000 });
   });
 });
