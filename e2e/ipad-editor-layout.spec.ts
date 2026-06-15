@@ -25,6 +25,7 @@ async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
       '[data-testid="tool-rail"] button',
       '.bg-ws-canvas > .flex.shrink-0 button',
       '.vish-3d-atmosphere-btn',
+      '.vish-canvas-zoom-btn',
       '.vish-properties-panel button',
       '.vish-notifications-strip button',
     ];
@@ -103,6 +104,54 @@ test.describe('iPad editor layout', () => {
     });
     expect(metrics).not.toBeNull();
     expect(metrics?.maxWidthOk).toBe(true);
+  });
+
+  test('editor keeps horizontal layout on iPad landscape', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
+
+    const flexDirection = await page.evaluate(() => {
+      const row = document.querySelector('.bg-ws-canvas > div.flex.flex-1.overflow-hidden');
+      return row ? window.getComputedStyle(row).flexDirection : null;
+    });
+    expect(flexDirection).toBe('row');
+  });
+
+  test('canvas zoom in button updates status bar readout', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+
+    const zoomBefore = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
+    expect(zoomBefore).toContain('100%');
+
+    await page.getByRole('button', { name: 'Zoom in' }).first().click();
+    await page.waitForTimeout(200);
+
+    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
+    expect(zoomAfter).not.toContain('100%');
+  });
+
+  test('pan tool is available in tool rail', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('tool-rail')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('tool-rail').getByRole('button', { name: 'Pan', exact: true })).toBeVisible();
+  });
+
+  test('minimap responds to pointer tap', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await page.getByRole('button', { name: 'Project actions' }).click();
+    await page.getByRole('menuitem', { name: 'Load sample' }).click();
+    await page.getByRole('button', { name: 'Load Blueprint' }).click();
+    await page.waitForTimeout(1200);
+
+    await expect(page.getByTestId('canvas-minimap')).toBeVisible({ timeout: 30_000 });
+
+    const minimap = page.getByTestId('canvas-minimap');
+    const box = await minimap.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    await page.waitForTimeout(150);
+    await expect(minimap).toBeVisible();
   });
 
   test('blueprint canvas wheel zoom updates status bar readout', async ({ page }) => {

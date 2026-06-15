@@ -14,6 +14,8 @@ export const GRID_MAJOR = 'rgba(184, 148, 31, 0.28)';
 
 /** Wall depth shadow (subtle ink offset) */
 export const WALL_SHADOW = 'rgba(44, 28, 16, 0.18)';
+/** Wall highlight pass (opposite shadow offset) */
+export const WALL_HIGHLIGHT = 'rgba(44, 44, 44, 0.12)';
 
 /** Architectural ink + gold selection — matches --ws-active family */
 export const INK = '#2C2C2C';
@@ -72,17 +74,17 @@ export const COMPASS_FILL = 'rgba(180, 140, 60, 0.08)';
 
 /** 3D atmosphere */
 export const ATMOSPHERE = {
-  background: '#14100A',
-  fog: '#17120A',
+  background: '#120E08',
+  fog: '#1A140C',
   particle: '#F4C34F',
-  godRay: '#F5D76A',
+  godRay: '#F8E08A',
   sun: '#FFE3A3',
-  fillWarm: '#F2C45A',
-  accentWarm: '#D99B25',
-  accentCool: '#7A4B10',
-  gridPrimary: '#C99A27',
+  fillWarm: '#F5D070',
+  accentWarm: '#E8A820',
+  accentCool: '#6A4010',
+  gridPrimary: '#D4A832',
   gridSecondary: '#5C4B2A',
-  leaf: '#388e3c',
+  leaf: '#3d8b42',
   bark: '#5c3d1e',
 } as const;
 

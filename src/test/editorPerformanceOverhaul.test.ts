@@ -11,7 +11,7 @@ import {
   createCanvasRenderScheduler,
   createEmptyDirtyFlags,
 } from '@/components/editor/blueprint/canvasRenderLoop';
-import { isBloomPipelineActive } from '@/components/editor/CinematicBloom';
+import { isBloomPipelineActive, isPostFxPipelineActive } from '@/components/editor/ScenePostProcessing';
 import { shouldBatchWalls } from '@/components/editor/sceneWallBatch';
 import { FloorPlanEngine } from '@/core/floorPlanEngine';
 import { getCachedVastuAnalysis } from '@/core/simulations/vastuOverlay';

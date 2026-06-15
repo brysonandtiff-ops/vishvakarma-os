@@ -17,8 +17,7 @@ import {
   ChevronRight,
   Rocket,
 } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getReleases } from '@/db/api';
@@ -171,10 +170,10 @@ export default function ReleasesPage() {
   }
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="Release Center"
           description="Release gates, version control, and evidence packs"
           actions={
@@ -500,7 +499,6 @@ export default function ReleasesPage() {
             </div>
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
-    </AppLayout>
+    </>
   );
 }

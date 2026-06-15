@@ -1,0 +1,345 @@
+/* Vishvakarma.OS — Copilot swan mark motion (shared across bot widget + copilot surfaces) */
+
+.vish-copilot-swan {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vish-copilot-swan--xs {
+  width: 1rem;
+  height: 1rem;
+}
+
+.vish-copilot-swan--sm {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.vish-copilot-swan--md {
+  width: 2rem;
+  height: 2rem;
+}
+
+.vish-copilot-swan--lg {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.vish-copilot-swan--fab {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.vish-arch-bot-character {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vish-copilot-swan__aura {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--primary) / 0.28);
+  animation: vish-mandala-drift 18s linear infinite;
+  pointer-events: none;
+}
+
+.vish-copilot-swan__aura--outer {
+  inset: -0.35rem;
+  border-color: hsl(var(--primary) / 0.14);
+  animation-duration: 24s;
+  animation-direction: reverse;
+}
+
+.vish-copilot-swan--fab .vish-copilot-swan__aura--outer {
+  inset: -0.35rem;
+}
+
+.vish-copilot-swan--xs .vish-copilot-swan__aura,
+.vish-copilot-swan--sm .vish-copilot-swan__aura,
+.vish-copilot-swan--md .vish-copilot-swan__aura {
+  display: none;
+}
+
+.vish-copilot-swan__tile {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0.65rem;
+  background:
+    radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.22), transparent 55%),
+    hsl(var(--ws-toolbar, var(--background)) / 0.92);
+  border: 1px solid hsl(var(--primary) / 0.35);
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.08),
+    0 4px 12px hsl(0 0% 0% / 0.2);
+}
+
+.vish-copilot-swan--fab .vish-copilot-swan__tile {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1.1rem;
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.08),
+    0 10px 28px hsl(0 0% 0% / 0.28);
+}
+
+.vish-copilot-swan--xs .vish-copilot-swan__tile,
+.vish-copilot-swan--sm .vish-copilot-swan__tile {
+  border-radius: 0.35rem;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.12);
+}
+
+.vish-copilot-swan__tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 0%, hsl(var(--primary) / 0.16) 48%, transparent 58%);
+  transform: translateX(-120%);
+  opacity: 0;
+}
+
+.vish-copilot-swan--generating .vish-copilot-swan__tile::after {
+  animation: vish-copilot-scan-shimmer 4.8s ease-in-out infinite;
+  opacity: 1;
+}
+
+.vish-copilot-swan__logo-wrap {
+  position: relative;
+  width: 88%;
+  height: 88%;
+  overflow: hidden;
+}
+
+.vish-copilot-swan__logo-body,
+.vish-copilot-swan__logo-wing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vish-copilot-swan__logo-body {
+  z-index: 1;
+}
+
+.vish-copilot-swan__logo-wing {
+  z-index: 2;
+  clip-path: polygon(0 0, 100% 0, 100% 42%, 0 38%);
+  transform-origin: 52% 38%;
+}
+
+.vish-copilot-swan--frames .vish-copilot-swan__logo-wing {
+  clip-path: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: vish-copilot-wing-flap-frames 2.8s steps(3) infinite;
+}
+
+.vish-copilot-swan--idle .vish-copilot-swan__logo-wing {
+  animation: vish-copilot-wing-flap 2.8s ease-in-out infinite;
+}
+
+.vish-copilot-swan--healthy .vish-copilot-swan__logo-wing {
+  animation: vish-copilot-wing-flap 3.4s ease-in-out infinite;
+}
+
+.vish-copilot-swan--healthy .vish-copilot-swan__tile {
+  animation: vish-auth-logo-breathe 4.2s ease-in-out infinite;
+}
+
+.vish-copilot-swan--attention .vish-copilot-swan__logo-wing {
+  animation: vish-copilot-wing-flap 1.6s ease-in-out infinite;
+}
+
+.vish-copilot-swan--attention .vish-copilot-swan__tile {
+  animation: vish-copilot-attention-glow 2.4s ease-in-out infinite;
+}
+
+.vish-copilot-swan--scanning .vish-copilot-swan__logo-wing {
+  animation: none;
+  transform: rotate(0deg);
+}
+
+.vish-copilot-swan--scanning .vish-copilot-swan__aura {
+  animation: vish-copilot-scan-spin 1.4s linear infinite;
+}
+
+.vish-copilot-swan--fixing .vish-copilot-swan__logo-wing {
+  animation: vish-copilot-wing-flap 0.75s ease-in-out infinite;
+}
+
+.vish-copilot-swan--fixing .vish-copilot-swan__tile {
+  animation: vish-copilot-fix-pulse 0.85s ease-in-out infinite;
+}
+
+.vish-copilot-swan--generating .vish-copilot-swan__logo-wing {
+  animation: vish-copilot-wing-flap 2s ease-in-out infinite;
+}
+
+.vish-copilot-swan__sparkle {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.1rem;
+  z-index: 2;
+  color: hsl(var(--primary));
+  filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.55));
+  pointer-events: none;
+}
+
+.vish-copilot-swan--attention .vish-copilot-swan__sparkle {
+  animation: vish-copilot-sparkle-twinkle 1.8s ease-in-out infinite;
+}
+
+.vish-copilot-swan--xs .vish-copilot-swan__sparkle,
+.vish-copilot-swan--sm .vish-copilot-swan__sparkle {
+  display: none;
+}
+
+.vish-copilot-swan__badge {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.15rem;
+  z-index: 3;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+  box-shadow: 0 0 0 2px hsl(var(--ws-canvas, var(--background)));
+}
+
+/* Architecture Bot layout helpers (panel + root positioning) */
+
+.vish-arch-bot-root {
+  pointer-events: auto;
+}
+
+.vish-arch-bot-panel {
+  width: min(22rem, calc(100vw - 2rem));
+}
+
+@keyframes vish-copilot-wing-flap {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+  25% {
+    transform: rotate(-8deg) scaleY(0.96);
+  }
+  50% {
+    transform: rotate(0deg) scaleY(1.02);
+  }
+  75% {
+    transform: rotate(8deg) scaleY(0.96);
+  }
+}
+
+@keyframes vish-copilot-wing-flap-frames {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes vish-copilot-sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes vish-copilot-scan-shimmer {
+  0%,
+  100% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateX(120%);
+    opacity: 0.28;
+  }
+  80% {
+    opacity: 0;
+  }
+}
+
+@keyframes vish-copilot-scan-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vish-copilot-fix-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.08),
+      0 10px 28px hsl(0 0% 0% / 0.28);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.25),
+      0 0 18px hsl(var(--primary) / 0.35),
+      0 10px 28px hsl(0 0% 0% / 0.28);
+  }
+}
+
+@keyframes vish-copilot-attention-glow {
+  0%,
+  100% {
+    border-color: hsl(var(--primary) / 0.35);
+  }
+  50% {
+    border-color: hsl(var(--primary) / 0.72);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-copilot-swan__aura,
+  .vish-copilot-swan__logo-wing,
+  .vish-copilot-swan__tile,
+  .vish-copilot-swan__tile::after,
+  .vish-copilot-swan__sparkle {
+    animation: none !important;
+  }
+
+  .vish-copilot-swan--scanning .vish-copilot-swan__logo-wing {
+    transform: none;
+  }
+}

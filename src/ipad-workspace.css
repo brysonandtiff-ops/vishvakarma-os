@@ -154,9 +154,98 @@
   .vish-tool-rail [data-radix-popper-content-wrapper] {
     display: none !important;
   }
+
+  /* Canvas HUD zoom controls */
+  .vish-canvas-hud-badge,
+  .vish-canvas-zoom-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .vish-canvas-zoom-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  /* Governance + workspace action buttons */
+  .vish-governance-page button,
+  .vish-workspace-shell .vish-governance-page button {
+    min-height: 44px;
+  }
+
+  .vish-workspace-sidebar button[aria-label='Expand sidebar'],
+  .vish-workspace-sidebar button[aria-label='Collapse sidebar'] {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Properties panel delete controls */
+  .vish-properties-panel button[aria-label^='Delete'] {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Slider thumbs — larger hit area on touch */
+  [role='slider'] {
+    min-height: 44px;
+  }
+
+  button[role='slider'],
+  .vish-slider-thumb {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Portrait: lift minimap above phase pills / walk pad */
+  @media (orientation: portrait) {
+    .vish-minimap {
+      bottom: calc(5.5rem + var(--vish-safe-bottom));
+    }
+  }
+
+  /* Governance FAB clearance for prototype disclaimer */
+  .vish-workspace-shell:not([data-immersive='true']) [data-testid='prototype-disclaimer-badge'] {
+    bottom: calc(5rem + var(--vish-safe-bottom));
+  }
 }
 
-@media (max-width: 1194px) {
+/* iPad landscape (1024–1194): keep horizontal editor with narrower side panels */
+@media (orientation: landscape) and (min-width: 1024px) and (max-width: 1194px) {
+  .bg-ws-canvas > div.flex.flex-1.overflow-hidden {
+    flex-direction: row;
+  }
+
+  .bg-ws-canvas section.w-80,
+  .bg-ws-canvas section.md\:w-96 {
+    width: min(280px, 28vw) !important;
+    max-width: min(280px, 28vw);
+    min-height: 0;
+    max-height: none;
+    flex-shrink: 0;
+    border-left: 1px solid hsl(var(--ws-border));
+    border-top: 0;
+  }
+
+  .bg-ws-canvas aside.w-72 {
+    width: min(240px, 24vw) !important;
+    max-width: min(240px, 24vw);
+    max-height: none;
+    flex-shrink: 0;
+    border-left: 1px solid hsl(var(--border));
+    border-top: 0;
+  }
+}
+
+/* iPad portrait and narrow widths: stack panels vertically */
+@media (orientation: portrait) and (max-width: 1194px) {
   .bg-ws-canvas > div.flex.flex-1.overflow-hidden {
     flex-direction: column;
   }
@@ -222,6 +311,22 @@
   .bg-ws-canvas section.md\:w-96 {
     min-height: 220px;
     max-height: 28dvh;
+  }
+}
+
+@media (max-width: 1194px) {
+  .vish-governance-page button:not([aria-hidden='true']) {
+    min-height: 44px;
+  }
+
+  .vish-governance-page [role='tab'] {
+    min-height: 44px;
+  }
+
+  .vish-workspace-sidebar button[aria-label='Expand sidebar'],
+  .vish-workspace-sidebar button[aria-label='Collapse sidebar'] {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

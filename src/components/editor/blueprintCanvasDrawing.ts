@@ -18,6 +18,7 @@ import {
   INK,
   PAPER_VIGNETTE,
   WALL_SHADOW,
+  WALL_HIGHLIGHT,
   WINDOW,
   WINDOW_GHOST,
   computeVisibleGridBounds,
@@ -159,6 +160,13 @@ export function drawWall(
   ctx.lineTo(wall.end.x + 1.5, wall.end.y + 1.5);
   ctx.stroke();
 
+  ctx.strokeStyle = WALL_HIGHLIGHT;
+  ctx.lineWidth = wall.thickness;
+  ctx.beginPath();
+  ctx.moveTo(wall.start.x - 0.75, wall.start.y - 0.75);
+  ctx.lineTo(wall.end.x - 0.75, wall.end.y - 0.75);
+  ctx.stroke();
+
   if (state.hovered && !state.selected) {
     ctx.strokeStyle = GOLD_HOVER;
     ctx.lineWidth = wall.thickness + 5;
@@ -208,6 +216,11 @@ export function drawWallMeasurement(ctx: CanvasRenderingContext2D, wall: Wall, u
 
   ctx.fillStyle = CHIP_FILL;
   ctx.fillRect(x - 38, y - 13, 76, 26);
+  ctx.strokeStyle = 'rgba(44, 28, 16, 0.22)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 38, y - 11, 76, 26);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+  ctx.strokeRect(x - 39, y - 14, 76, 26);
   ctx.strokeStyle = GOLD;
   ctx.lineWidth = 1.25;
   ctx.strokeRect(x - 38, y - 13, 76, 26);

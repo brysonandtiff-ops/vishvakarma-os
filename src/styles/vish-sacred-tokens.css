@@ -3,9 +3,8 @@
 :root {
   --vish-obsidian: 0 0% 2.5%;
   --vish-chrome: 0 0% 3%;
-  --vish-gold: 42 60% 56%;
+  /* --vish-gold / --vish-gold-glow: canonical values in vish-tokens.css */
   --vish-gold-muted: 42 35% 38%;
-  --vish-gold-glow: 42 90% 62%;
   --vish-canvas-paper: #f6f1e7;
   --vish-text: 0 0% 98%;
   --vish-text-muted: 0 0% 65%;

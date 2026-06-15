@@ -1,6 +1,7 @@
-import { Eye, EyeOff, Magnet } from 'lucide-react';
+import { Eye, EyeOff, Magnet, Minus, Plus } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';
-import { STATUS_TOOL_HINTS, TOOL_META } from '@/editor/toolMeta';
+import { STATUS_TOOL_HINTS, TOUCH_STATUS_HINTS, TOOL_META } from '@/editor/toolMeta';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import type { ToolType } from '@/types';
 
 export default function StatusBar({
@@ -13,6 +14,8 @@ export default function StatusBar({
   canvasZoom,
   onToggleDimensions,
   onResetViewport,
+  onZoomIn,
+  onZoomOut,
 }: {
   currentTool: ToolType;
   wallCount: number;
@@ -23,10 +26,14 @@ export default function StatusBar({
   canvasZoom?: number;
   onToggleDimensions: () => void;
   onResetViewport?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
 }) {
+  const isCoarsePointer = useCoarsePointer();
   const meta = TOOL_META[currentTool];
   const ToolIcon = meta?.icon;
-  const hint = STATUS_TOOL_HINTS[currentTool];
+  const hint = isCoarsePointer ? TOUCH_STATUS_HINTS[currentTool] : STATUS_TOOL_HINTS[currentTool];
+  const showTouchZoom = isCoarsePointer && onZoomIn && onZoomOut;
 
   return (
     <div className="ws-status-bar">
@@ -55,6 +62,26 @@ export default function StatusBar({
             <span>Zoom</span>
             <span className="text-ws-text">{Math.round(canvasZoom * 100)}%</span>
           </div>
+          {showTouchZoom && (
+            <button
+              type="button"
+              className="ws-status-item touch-target shrink-0"
+              onClick={onZoomOut}
+              aria-label="Zoom out"
+            >
+              <Minus className="h-3 w-3" aria-hidden />
+            </button>
+          )}
+          {showTouchZoom && (
+            <button
+              type="button"
+              className="ws-status-item touch-target shrink-0"
+              onClick={onZoomIn}
+              aria-label="Zoom in"
+            >
+              <Plus className="h-3 w-3" aria-hidden />
+            </button>
+          )}
           <div className="ws-status-divider" />
         </>
       )}

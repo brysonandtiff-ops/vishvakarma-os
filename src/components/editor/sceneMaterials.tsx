@@ -1,43 +1,60 @@
 /// <reference path="../../three.d.ts" />
-import { useEffect, useMemo, useRef } from 'react';
+import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import type { Material } from '@/types';
 import {
   createPatternCanvas,
+  createProceduralNormalCanvas,
   type PatternKey,
 } from '@/core/texturePatterns';
 import {
-  getPatternForMaterialType,
-  getPresetPatternForMaterial,
-} from '@/core/sceneTextureCatalog';
+  getPbrBundleForMaterialType,
+  getPbrBundleForPreset,
+  GLASS_SURFACE,
+  pbrTextureUrl,
+  type PbrBundleConfig,
+} from '@/core/scenePbrCatalog';
 import { MATERIAL_PRESETS, getMaterialVisual } from '@/components/editor/MaterialPicker';
 
-const textureCache = new Map<PatternKey, THREE.CanvasTexture>();
+const textureCache = new Map<string, THREE.CanvasTexture>();
+const patternCache = new Map<PatternKey, THREE.CanvasTexture>();
+const normalCache = new Map<PatternKey, THREE.CanvasTexture>();
+
+function configureRepeat(texture: THREE.Texture, repeat: [number, number]) {
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(repeat[0], repeat[1]);
+  texture.needsUpdate = true;
+}
 
 function getCachedPatternTexture(key: PatternKey): THREE.CanvasTexture | null {
-  if (textureCache.has(key)) {
-    return textureCache.get(key)!;
-  }
+  if (patternCache.has(key)) return patternCache.get(key)!;
   const canvas = createPatternCanvas(key);
   if (!canvas) return null;
   const texture = new THREE.CanvasTexture(canvas);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(4, 4);
+  configureRepeat(texture, [4, 4]);
   texture.colorSpace = THREE.SRGBColorSpace;
-  texture.needsUpdate = true;
-  textureCache.set(key, texture);
+  patternCache.set(key, texture);
+  return texture;
+}
+
+function getCachedNormalTexture(key: PatternKey): THREE.CanvasTexture | null {
+  if (normalCache.has(key)) return normalCache.get(key)!;
+  const canvas = createProceduralNormalCanvas(key);
+  if (!canvas) return null;
+  const texture = new THREE.CanvasTexture(canvas);
+  configureRepeat(texture, [4, 4]);
+  texture.colorSpace = THREE.LinearSRGBColorSpace;
+  normalCache.set(key, texture);
   return texture;
 }
 
 export function usePatternTexture(key: PatternKey, repeat: [number, number] = [4, 4]) {
   return useMemo(() => {
     const texture = getCachedPatternTexture(key);
-    if (texture) {
-      texture.repeat.set(repeat[0], repeat[1]);
-    }
+    if (texture) texture.repeat.set(repeat[0], repeat[1]);
     return texture;
   }, [key, repeat[0], repeat[1]]);
 }
@@ -50,6 +67,8 @@ export function PatternStandardMaterial({
   repeat = [4, 4],
   transparent = false,
   opacity = 1,
+  alphaMap,
+  normalMap,
 }: {
   pattern: PatternKey;
   color?: string;
@@ -58,8 +77,19 @@ export function PatternStandardMaterial({
   repeat?: [number, number];
   transparent?: boolean;
   opacity?: number;
+  alphaMap?: THREE.Texture | null;
+  normalMap?: THREE.Texture | null;
 }) {
   const map = usePatternTexture(pattern, repeat);
+  const proceduralNormal = useMemo(
+    () => normalMap ?? getCachedNormalTexture(pattern),
+    [normalMap, pattern],
+  );
+
+  if (proceduralNormal && !normalMap) {
+    proceduralNormal.repeat.set(repeat[0], repeat[1]);
+  }
+
   if (!map) {
     return (
       // @ts-expect-error - React Three Fiber JSX types
@@ -69,6 +99,9 @@ export function PatternStandardMaterial({
         metalness={metalness}
         transparent={transparent}
         opacity={opacity}
+        alphaMap={alphaMap ?? undefined}
+        normalMap={proceduralNormal ?? undefined}
+        normalScale={proceduralNormal ? new THREE.Vector2(0.35, 0.35) : undefined}
       />
     );
   }
@@ -81,7 +114,149 @@ export function PatternStandardMaterial({
       metalness={metalness}
       transparent={transparent}
       opacity={opacity}
+      alphaMap={alphaMap ?? undefined}
+      normalMap={proceduralNormal ?? undefined}
+      normalScale={proceduralNormal ? new THREE.Vector2(0.35, 0.35) : undefined}
     />
+  );
+}
+
+function BundledPbrMapsMaterial({
+  bundle,
+  color = '#ffffff',
+  roughness,
+  metalness,
+  repeat,
+  transparent = false,
+  opacity = 1,
+  alphaMap,
+}: {
+  bundle: PbrBundleConfig;
+  color?: string;
+  roughness?: number;
+  metalness?: number;
+  repeat?: [number, number];
+  transparent?: boolean;
+  opacity?: number;
+  alphaMap?: THREE.Texture | null;
+}) {
+  const tileRepeat = repeat ?? bundle.repeat;
+  const [colorMap, normalMap, roughnessMap] = useTexture([
+    pbrTextureUrl(bundle.folder, 'color'),
+    pbrTextureUrl(bundle.folder, 'normal'),
+    pbrTextureUrl(bundle.folder, 'roughness'),
+  ]);
+
+  useEffect(() => {
+    for (const tex of [colorMap, normalMap, roughnessMap]) {
+      configureRepeat(tex, tileRepeat);
+    }
+    colorMap.colorSpace = THREE.SRGBColorSpace;
+    normalMap.colorSpace = THREE.LinearSRGBColorSpace;
+    roughnessMap.colorSpace = THREE.LinearSRGBColorSpace;
+  }, [colorMap, normalMap, roughnessMap, tileRepeat]);
+
+  if (bundle.physical) {
+    return (
+      // @ts-expect-error - React Three Fiber JSX types
+      <meshPhysicalMaterial
+        map={colorMap}
+        normalMap={normalMap}
+        roughnessMap={roughnessMap}
+        color={color}
+        roughness={roughness ?? bundle.roughness}
+        metalness={metalness ?? bundle.metalness}
+        transparent={transparent}
+        opacity={opacity}
+        transmission={bundle.transmission ?? 0.55}
+        ior={bundle.ior ?? 1.33}
+        alphaMap={alphaMap ?? undefined}
+      />
+    );
+  }
+
+  return (
+    // @ts-expect-error - React Three Fiber JSX types
+    <meshStandardMaterial
+      map={colorMap}
+      normalMap={normalMap}
+      roughnessMap={roughnessMap}
+      color={color}
+      roughness={roughness ?? bundle.roughness}
+      metalness={metalness ?? bundle.metalness}
+      transparent={transparent}
+      opacity={opacity}
+      alphaMap={alphaMap ?? undefined}
+    />
+  );
+}
+
+class PbrTextureErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { failed: boolean }
+> {
+  constructor(props: { fallback: ReactNode; children: ReactNode }) {
+    super(props);
+    this.state = { failed: false };
+  }
+
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true };
+  }
+
+  render() {
+    if (this.state.failed) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+export function PbrSurfaceMaterial({
+  bundle,
+  color = '#ffffff',
+  roughness,
+  metalness,
+  repeat,
+  transparent = false,
+  opacity = 1,
+  alphaMap,
+}: {
+  bundle: PbrBundleConfig;
+  color?: string;
+  roughness?: number;
+  metalness?: number;
+  repeat?: [number, number];
+  transparent?: boolean;
+  opacity?: number;
+  alphaMap?: THREE.Texture | null;
+}) {
+  const fallback = (
+    <PatternStandardMaterial
+      pattern={bundle.fallbackPattern}
+      color={color}
+      roughness={roughness ?? bundle.roughness}
+      metalness={metalness ?? bundle.metalness}
+      repeat={repeat ?? bundle.repeat}
+      transparent={transparent}
+      opacity={opacity}
+      alphaMap={alphaMap}
+    />
+  );
+
+  return (
+    <PbrTextureErrorBoundary fallback={fallback}>
+      <Suspense fallback={fallback}>
+        <BundledPbrMapsMaterial
+          bundle={bundle}
+          color={color}
+          roughness={roughness}
+          metalness={metalness}
+          repeat={repeat}
+          transparent={transparent}
+          opacity={opacity}
+          alphaMap={alphaMap}
+        />
+      </Suspense>
+    </PbrTextureErrorBoundary>
   );
 }
 
@@ -141,13 +316,26 @@ export function WallSurfaceMaterial({
     );
   }
 
-  const pattern = material?.type
-    ? getPatternForMaterialType(material.type)
-    : getPresetPatternForMaterial(materialId);
+  if (materialId === 'material-glass') {
+    return (
+      <PbrSurfaceMaterial
+        bundle={GLASS_SURFACE}
+        color={visual.color}
+        roughness={visual.roughness}
+        metalness={visual.metalness}
+        transparent
+        opacity={0.72}
+      />
+    );
+  }
+
+  const bundle = material?.type
+    ? getPbrBundleForMaterialType(material.type)
+    : getPbrBundleForPreset(materialId);
 
   return (
-    <PatternStandardMaterial
-      pattern={pattern}
+    <PbrSurfaceMaterial
+      bundle={bundle}
       color={visual.color}
       roughness={visual.roughness}
       metalness={visual.metalness}
@@ -202,6 +390,49 @@ export function AnimatedWaterMaterial({
   );
 }
 
+export function ExteriorFloorMaterial({
+  floorMaterial: _floorMaterial,
+  customMaterials: _customMaterials = [],
+}: {
+  floorMaterial: string;
+  customMaterials?: Material[];
+}) {
+  const alphaMap = useMemo(() => {
+    if (typeof document === 'undefined') return null;
+    const cacheKey = 'exterior-floor-alpha';
+    if (textureCache.has(cacheKey)) return textureCache.get(cacheKey)!;
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const gradient = ctx.createRadialGradient(256, 256, 48, 256, 256, 256);
+      gradient.addColorStop(0, 'rgba(255,255,255,1)');
+      gradient.addColorStop(0.62, 'rgba(255,255,255,0.82)');
+      gradient.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 512, 512);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.LinearSRGBColorSpace;
+    textureCache.set(cacheKey, texture);
+    return texture;
+  }, []);
+
+  return (
+    <PbrSurfaceMaterial
+      bundle={getPbrBundleForMaterialType('grass')}
+      color="#4a7c59"
+      roughness={0.94}
+      metalness={0.02}
+      repeat={[8, 8]}
+      transparent
+      opacity={0.88}
+      alphaMap={alphaMap}
+    />
+  );
+}
+
 export function FloorSurfaceMaterial({
   floorMaterial,
   customMaterials = [],
@@ -213,8 +444,8 @@ export function FloorSurfaceMaterial({
 }) {
   if (exterior) {
     return (
-      <PatternStandardMaterial
-        pattern="grass"
+      <PbrSurfaceMaterial
+        bundle={getPbrBundleForMaterialType('grass')}
         color="#4a7c59"
         roughness={0.92}
         metalness={0.02}
@@ -240,13 +471,13 @@ export function FloorSurfaceMaterial({
     );
   }
 
-  const pattern = material?.type
-    ? getPatternForMaterialType(material.type)
-    : getPresetPatternForMaterial(floorMaterial);
+  const bundle = material?.type
+    ? getPbrBundleForMaterialType(material.type)
+    : getPbrBundleForPreset(floorMaterial);
 
   return (
-    <PatternStandardMaterial
-      pattern={pattern}
+    <PbrSurfaceMaterial
+      bundle={bundle}
       color={visual.color || '#DCD0B8'}
       roughness={visual.roughness}
       metalness={visual.metalness}

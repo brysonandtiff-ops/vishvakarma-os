@@ -15,7 +15,6 @@ import PageMeta from '@/components/common/PageMeta';
 import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
 import { Button } from '@/components/ui/button';
-import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +49,7 @@ export default function FeaturesPage() {
   };
 
   return (
-    <MarketingLayout>
+    <>
       <PageMeta
         title="Features & Guides — Vishvakarma.OS"
         description="Interactive editor guides and a full feature reference for Vishvakarma.OS — 2D drafting, Sacred 3D View, exports, and India compliance."
@@ -141,6 +140,6 @@ export default function FeaturesPage() {
           </Button>
         </div>
       </section>
-    </MarketingLayout>
+    </>
   );
 }

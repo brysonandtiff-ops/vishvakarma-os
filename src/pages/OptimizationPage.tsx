@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import { PrototypeModuleNotice } from '@/components/common/PrototypeDisclaimer';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
-import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import OptimizationBatchHistory from '@/components/optimization/OptimizationBatchHistory';
 import OptimizationDashboard from '@/components/optimization/OptimizationDashboard';
 import ComputeOverlay from '@/components/system-intelligence/ComputeOverlay';
@@ -292,20 +291,22 @@ export default function OptimizationPage() {
   };
 
   return (
-    <AppLayout>
+    <>
       <PageMeta title="Design Optimization" description="Compare and rank AI-generated design candidates" />
-      <WorkspacePageShell>
-        <WorkspacePageHeader
-          title="Design Battle"
-          description="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
-        />
-
+      <WorkspacePageHeader
+        variant="fullBleed"
+        eyebrow="Design"
+        title="Design Battle"
+        description="Generate 5 strategy-driven candidates, score them, and pick the best plan for your site."
+      />
+      <WorkspacePageScroll>
+        <div className="vish-section-stack px-6 py-6 gov-content-area">
         <PrototypeModuleNotice variant="optimization" />
 
         <OptimizationBatchHistory records={batchHistory} />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(280px,320px)_1fr]">
-          <div className="lg:sticky lg:top-4 lg:self-start">
+        <div className="grid gap-6 tablet:grid-cols-[minmax(280px,320px)_1fr]">
+          <div className="tablet:sticky tablet:top-4 tablet:self-start">
             <ConstraintEditor
               values={constraints}
               onChange={setConstraints}
@@ -318,7 +319,7 @@ export default function OptimizationPage() {
           <div className="relative min-w-0 space-y-6">
             {loading && (
               <div
-                className="relative space-y-4 rounded-2xl border border-border/60 p-6"
+                className="vish-crafted-card relative space-y-4 rounded-2xl border border-border/60 p-6"
                 data-testid="optimization-loading"
               >
                 <ComputeOverlay
@@ -335,7 +336,7 @@ export default function OptimizationPage() {
             )}
 
             {!loading && !batch && (
-              <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+              <div className="vish-crafted-card rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
                 Set your constraints and click Regenerate to compare 5 strategy-driven designs.
               </div>
             )}
@@ -363,7 +364,8 @@ export default function OptimizationPage() {
             )}
           </div>
         </div>
-      </WorkspacePageShell>
-    </AppLayout>
+        </div>
+      </WorkspacePageScroll>
+    </>
   );
 }

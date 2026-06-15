@@ -1,7 +1,12 @@
 export const PATTERN_KEYS = [
   'paint',
+  'paper',
+  'plaster',
   'wood',
   'concrete',
+  'marble',
+  'tile',
+  'metal',
   'grass',
   'stone',
   'fabric',
@@ -12,7 +17,7 @@ export const PATTERN_KEYS = [
 
 export type PatternKey = (typeof PATTERN_KEYS)[number];
 
-export const DEFAULT_PATTERN_SIZE = 256;
+export const DEFAULT_PATTERN_SIZE = 512;
 
 function hash2(x: number, y: number, seed = 0): number {
   let h = (x * 374761393 + y * 668265263 + seed * 982451653) | 0;
@@ -54,16 +59,100 @@ function rgb(r: number, g: number, b: number) {
   return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }
 
+function drawPaperPattern(ctx: CanvasRenderingContext2D, size: number) {
+  ctx.fillStyle = '#FDF9F5';
+  ctx.fillRect(0, 0, size, size);
+  for (let y = 0; y < size; y += 2) {
+    for (let x = 0; x < size; x += 2) {
+      const n = fractalNoise(x / 22, y / 22, 14, 4);
+      const v = 248 + n * 7;
+      ctx.fillStyle = rgb(v, v - 2, v - 6);
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+}
+
 function drawPaintPattern(ctx: CanvasRenderingContext2D, size: number) {
   ctx.fillStyle = '#f5f0e8';
   ctx.fillRect(0, 0, size, size);
   for (let y = 0; y < size; y += 2) {
     for (let x = 0; x < size; x += 2) {
-      const n = fractalNoise(x / 18, y / 18, 1, 3);
+      const n = fractalNoise(x / 18, y / 18, 1, 4);
       const v = 240 + n * 15;
       ctx.fillStyle = rgb(v, v - 4, v - 10);
       ctx.fillRect(x, y, 2, 2);
     }
+  }
+}
+
+function drawPlasterPattern(ctx: CanvasRenderingContext2D, size: number) {
+  ctx.fillStyle = '#f0ebe3';
+  ctx.fillRect(0, 0, size, size);
+  for (let y = 0; y < size; y += 2) {
+    for (let x = 0; x < size; x += 2) {
+      const n = fractalNoise(x / 14, y / 14, 30, 5);
+      const v = 235 + n * 18;
+      ctx.fillStyle = rgb(v, v - 3, v - 8);
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+  for (let i = 0; i < 24; i += 1) {
+    const x = hash2(i, 0, 31) * size;
+    const y = hash2(i, 1, 32) * size;
+    ctx.fillStyle = `rgba(180, 170, 155, ${0.04 + hash2(i, 2, 33) * 0.06})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + hash2(i, 3, 34) * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawMarblePattern(ctx: CanvasRenderingContext2D, size: number) {
+  ctx.fillStyle = '#e8e4dc';
+  ctx.fillRect(0, 0, size, size);
+  for (let y = 0; y < size; y += 2) {
+    for (let x = 0; x < size; x += 2) {
+      const vein = Math.sin((x / size) * Math.PI * 6 + fractalNoise(x / 20, y / 20, 40, 3) * 4) * 0.5 + 0.5;
+      const n = fractalNoise(x / 12, y / 12, 41, 4);
+      const v = 210 + vein * 35 + n * 20;
+      ctx.fillStyle = rgb(v, v - 2, v - 6);
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+}
+
+function drawTilePattern(ctx: CanvasRenderingContext2D, size: number) {
+  ctx.fillStyle = '#c8c0b0';
+  ctx.fillRect(0, 0, size, size);
+  const cell = size / 8;
+  for (let row = 0; row < 8; row += 1) {
+    for (let col = 0; col < 8; col += 1) {
+      const n = fractalNoise(col, row, 50, 2);
+      const v = 170 + n * 50;
+      ctx.fillStyle = rgb(v + 10, v, v - 12);
+      ctx.fillRect(col * cell + 2, row * cell + 2, cell - 4, cell - 4);
+      ctx.strokeStyle = 'rgba(80, 70, 55, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(col * cell + 1, row * cell + 1, cell - 2, cell - 2);
+    }
+  }
+}
+
+function drawMetalPattern(ctx: CanvasRenderingContext2D, size: number) {
+  ctx.fillStyle = '#b8860b';
+  ctx.fillRect(0, 0, size, size);
+  for (let y = 0; y < size; y += 1) {
+    const brush = Math.sin((y / size) * Math.PI * 24) * 0.15 + fractalNoise(0, y / 8, 60, 3) * 0.25;
+    const v = 160 + brush * 60;
+    ctx.fillStyle = rgb(v + 20, v, v - 40);
+    ctx.fillRect(0, y, size, 1);
+  }
+  for (let x = 0; x < size; x += 4) {
+    ctx.strokeStyle = `rgba(255, 220, 140, ${0.06 + hash2(x, 0, 61) * 0.08})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + hash2(x, 1, 62) * 2, size);
+    ctx.stroke();
   }
 }
 
@@ -196,8 +285,13 @@ function drawWaterNormalPattern(ctx: CanvasRenderingContext2D, size: number) {
 
 const DRAWERS: Record<PatternKey, (ctx: CanvasRenderingContext2D, size: number) => void> = {
   paint: drawPaintPattern,
+  paper: drawPaperPattern,
+  plaster: drawPlasterPattern,
   wood: drawWoodPattern,
   concrete: drawConcretePattern,
+  marble: drawMarblePattern,
+  tile: drawTilePattern,
+  metal: drawMetalPattern,
   grass: drawGrassPattern,
   stone: drawStonePattern,
   fabric: drawFabricPattern,
@@ -221,12 +315,65 @@ export function createPatternCanvas(key: PatternKey, size = DEFAULT_PATTERN_SIZE
   return canvas;
 }
 
+/** Height-from-noise normal map for procedural 3D bump when photo normals are unavailable */
+export function createProceduralNormalCanvas(key: PatternKey, size = DEFAULT_PATTERN_SIZE): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null;
+  const heightCanvas = createPatternCanvas(key, size);
+  if (!heightCanvas) return null;
+  const hCtx = heightCanvas.getContext('2d');
+  if (!hCtx) return null;
+  const heightData = hCtx.getImageData(0, 0, size, size).data;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  const image = ctx.createImageData(size, size);
+  const strength = 2.4;
+
+  function heightAt(x: number, y: number): number {
+    const cx = ((x % size) + size) % size;
+    const cy = ((y % size) + size) % size;
+    const idx = (cy * size + cx) * 4;
+    return heightData[idx] / 255;
+  }
+
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const dx = (heightAt(x + 1, y) - heightAt(x - 1, y)) * strength;
+      const dy = (heightAt(x, y + 1) - heightAt(x, y - 1)) * strength;
+      const nx = -dx;
+      const ny = -dy;
+      const nz = 1;
+      const len = Math.hypot(nx, ny, nz) || 1;
+      const idx = (y * size + x) * 4;
+      image.data[idx] = Math.round(((nx / len) * 0.5 + 0.5) * 255);
+      image.data[idx + 1] = Math.round(((ny / len) * 0.5 + 0.5) * 255);
+      image.data[idx + 2] = Math.round(((nz / len) * 0.5 + 0.5) * 255);
+      image.data[idx + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  return canvas;
+}
+
 export function samplePatternColor(key: PatternKey, x: number, y: number): string {
   const seed = PATTERN_KEYS.indexOf(key) + 1;
   const n = fractalNoise(x / 24, y / 24, seed, 3);
   switch (key) {
     case 'paint':
       return rgb(240 + n * 12, 236 + n * 12, 228 + n * 12);
+    case 'plaster':
+      return rgb(235 + n * 14, 232 + n * 14, 224 + n * 14);
+    case 'marble':
+      return rgb(210 + n * 30, 208 + n * 28, 200 + n * 26);
+    case 'tile':
+      return rgb(170 + n * 40, 165 + n * 38, 155 + n * 35);
+    case 'metal':
+      return rgb(160 + n * 50, 130 + n * 40, 60 + n * 30);
+    case 'paper':
+      return rgb(248 + n * 7, 246 + n * 7, 242 + n * 7);
     case 'wood':
       return rgb(140 + n * 40, 100 + n * 30, 50 + n * 20);
     case 'concrete':

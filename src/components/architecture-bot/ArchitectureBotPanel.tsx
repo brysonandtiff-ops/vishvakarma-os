@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckCircle2, Loader2, Sparkles, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { Button } from '@/components/ui/button';
 import type { ArchitectureIssue } from '@/services/architecture-bot/types';
 
@@ -101,13 +102,14 @@ export default function ArchitectureBotPanel({
             </>
           ) : (
             <>
-              <Sparkles className="mr-2 h-4 w-4" />
+              <CopilotSwanMark motion={fixing ? 'fixing' : 'idle'} size="xs" className="mr-2" />
               Fix everything
             </>
           )}
         </Button>
         {needsCopilot && onOpenCopilot && (
           <Button type="button" variant="goldOutline" size="full" className="min-h-[44px]" onClick={onOpenCopilot}>
+            <CopilotSwanMark motion="idle" size="xs" className="mr-2" />
             Open Copilot
           </Button>
         )}

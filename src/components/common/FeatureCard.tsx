@@ -25,7 +25,7 @@ export default function FeatureCard({
     <Wrapper
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`vish-feature-grid-card vish-glass-panel--interactive group flex h-full flex-col rounded-xl p-5 text-left ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`vish-feature-grid-card vish-glass-panel vish-glass-depth vish-glass-panel--interactive group flex h-full flex-col rounded-xl p-5 text-left ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         {Icon && (

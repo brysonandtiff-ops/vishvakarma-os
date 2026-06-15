@@ -16,12 +16,13 @@ describe('Sanskrit auth gate design', () => {
   });
 
   it('keeps the canvas Sanskrit rain and mandala layers on the auth page', () => {
+    const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
     const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
 
-    expect(authPage).toContain('vish-auth-gate');
-    expect(authPage).toContain('SanskritRainBackground');
-    expect(authPage).toContain('preset="auth"');
+    expect(authLayout).toContain('vish-auth-gate');
+    expect(authLayout).toContain('SanskritRainBackground');
+    expect(authLayout).toContain("preset={isBoot ? 'boot' : 'auth'}");
     expect(rainBackground).toContain('SANSKRIT_MATRIX_COLUMNS');
     expect(rainBackground).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
@@ -31,9 +32,9 @@ describe('Sanskrit auth gate design', () => {
     expect(rainBackground).toContain('EmberParticle');
     expect(rainBackground).toContain('visibilitychange');
     expect(rainBackground).toContain('fadeTrail');
-    expect(authPage).toContain('vish-auth-aurora');
-    expect(authPage).toContain('vish-mandala-aura');
-    expect(authPage).toContain('vish-mandala-ring-outer');
+    expect(authLayout).toContain('vish-auth-aurora');
+    expect(authLayout).toContain('vish-mandala-aura');
+    expect(authLayout).toContain('vish-mandala-ring-outer');
     expect(authPage).toContain('vish-auth-card-mockup');
   });
 
@@ -145,7 +146,9 @@ describe('Sanskrit auth gate design', () => {
     expect(appLayout).toContain('vish-shell-logo');
     expect(appLayout).toContain('vish-shell-nav-active');
     expect(appLayout).toContain('FoundersAcknowledgment');
-    expect(appLayout).toContain('Workspace account');
+    expect(appLayout).toContain('accountInitials');
+    expect(appLayout).toContain('variant="workstation"');
+    expect(appLayout).toContain('{plan}');
     expect(appLayout).toContain('Architecture workstation');
     expect(styles).toContain('.vish-workspace-sidebar');
     expect(styles).toContain('.vish-shell-nav-active');
@@ -155,6 +158,7 @@ describe('Sanskrit auth gate design', () => {
   it('keeps animation CSS premium, responsive, and reduced-motion safe', () => {
     const styles = read('src/styles/vish-auth-gate.css');
     const layers = read('src/styles/vish-sacred-layers.css');
+    const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const routeGuard = read('src/components/common/RouteGuard.tsx');
 
     expect(styles).toContain('.vish-sanskrit-rain-canvas');
@@ -171,9 +175,9 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('.vish-auth-founders-line');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');
-    expect(routeGuard).toContain('SanskritRainBackground');
-    expect(routeGuard).toContain('preset="boot"');
-    expect(routeGuard).toContain('vish-boot-aurora');
+    expect(routeGuard).toContain('AuthLayout');
+    expect(routeGuard).toContain('variant="boot"');
+    expect(authLayout).toContain('vish-boot-aurora');
     expect(routeGuard).toContain('vish-fade-rise');
     expect(styles).toContain('.vish-auth-logo-hero');
     expect(styles).toContain('.vish-auth-logo-wrap');

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FolderOpen, Loader2, MoreHorizontal, PenTool, Plus } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
-import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
+import WorkspaceEmptyState, { WorkspaceEmptyStateAction } from '@/components/common/WorkspaceEmptyState';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,10 +174,9 @@ export default function ProjectsPage() {
   const cloudLabel = backendStatus.isConfigured ? 'Supabase Cloud Save' : 'Local Draft';
 
   return (
-    <AppLayout>
+    <>
       <PageMeta title="Projects" description="Open and manage your Vishvakarma.OS floor plans." />
-      <WorkspacePageShell>
-        <WorkspacePageHeader
+      <WorkspacePageHeader
           eyebrow="Workspace"
           title="Your projects"
           description={
@@ -188,10 +186,10 @@ export default function ProjectsPage() {
           }
           stats={
             <>
-              <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums text-foreground">
+              <span className="vish-stat-pill-depth rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold tabular-nums text-foreground">
                 {projects.length} project{projects.length === 1 ? '' : 's'}
               </span>
-              <span className="rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
+              <span className="vish-stat-pill-depth rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
                 {cloudLabel}
               </span>
             </>
@@ -224,16 +222,17 @@ export default function ProjectsPage() {
         )}
 
         {!loading && !error && projects.length === 0 && (
-          <div className="mt-8 rounded-2xl border border-dashed border-primary/25 bg-card/40 p-10 text-center">
-            <FolderOpen className="mx-auto h-10 w-10 text-primary/60" aria-hidden="true" />
-            <p className="mt-4 font-semibold text-foreground">No projects yet</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Open the editor to create a floor plan, load the sample project, or save a local draft.
-            </p>
-            <Button asChild className="mt-6 touch-target">
-              <Link to="/editor">Open editor</Link>
-            </Button>
-          </div>
+          <WorkspaceEmptyState
+            className="mt-8"
+            icon={<FolderOpen className="mx-auto h-10 w-10" aria-hidden="true" />}
+            title="No projects yet"
+            description="Open the editor to create a floor plan, load the sample project, or save a local draft."
+            action={
+              <WorkspaceEmptyStateAction asChild>
+                <Link to="/editor">Open editor</Link>
+              </WorkspaceEmptyStateAction>
+            }
+          />
         )}
 
         {!loading && !error && projects.length > 0 && (
@@ -255,16 +254,16 @@ export default function ProjectsPage() {
                 {showArchived ? 'Hide archived' : 'Show archived'}
               </Button>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-tutorial="projects-grid">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 tablet:grid-cols-3" data-tutorial="projects-grid">
               {filteredProjects.map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
                   <article
                     key={project.id}
-                    className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
+                    className="vish-crafted-card flex flex-col overflow-hidden rounded-2xl border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
                   >
-                    <div className="relative aspect-[4/3] border-b border-border/60 bg-muted/30">
+                    <div className="vish-frame-bezel relative aspect-[4/3] border-b border-border/60 bg-muted/30">
                       {thumb ? (
                         <img src={thumb} alt="" className="h-full w-full object-contain p-3" />
                       ) : (
@@ -320,7 +319,6 @@ export default function ProjectsPage() {
             </div>
           </>
         )}
-      </WorkspacePageShell>
 
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent className="vish-dialog-chrome">
@@ -343,6 +341,6 @@ export default function ProjectsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </>
   );
 }

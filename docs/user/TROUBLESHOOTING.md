@@ -84,7 +84,7 @@ Re-add PWA from Safari share sheet after clearing old icon.
 
 ### Keyboard covers editor on iPad
 
-Use landscape orientation; keyboard toolbar should adjust safe areas on current builds.
+Current builds apply `visualViewport` keyboard inset to the canvas stage and shift inline label editors above the keyboard. Use landscape when possible; pinch-zoom and status-bar zoom buttons are available if the canvas feels cramped.
 
 ---
 

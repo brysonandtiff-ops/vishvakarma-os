@@ -64,3 +64,27 @@
     opacity: 0.35;
   }
 }
+
+.vish-editor-sidebar-section {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid hsl(var(--ws-border));
+}
+
+.vish-editor-sidebar-action {
+  border-color: hsl(var(--ws-border));
+  background: hsl(var(--ws-toolbar) / 0.45);
+  color: hsl(var(--ws-text-dim));
+}
+
+.vish-editor-sidebar-action:hover:not(:disabled) {
+  border-color: hsl(var(--ws-border-subtle));
+  background: hsl(var(--ws-hover));
+  color: hsl(var(--ws-text));
+}
+
+.vish-editor-sidebar-action.border-primary\/50 {
+  border-color: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--ws-text));
+}

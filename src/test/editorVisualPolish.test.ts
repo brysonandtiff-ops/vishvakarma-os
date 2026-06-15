@@ -13,6 +13,7 @@ describe('Blueprint editor visual polish', () => {
     const main = read('src/main.tsx');
 
     expect(main).toContain('./styles/vish-tokens.css');
+    expect(main).toContain('./styles/vish-realism.css');
     expect(main).toContain('./styles/vish-editor-chrome.css');
     expect(main).toContain('./styles/vish-mockup-system.css');
     expect(main).toContain('./styles/vish-editor-mantra.css');
@@ -21,6 +22,13 @@ describe('Blueprint editor visual polish', () => {
   it('keeps premium Vishvakarma workspace styling targeted to existing editor surfaces', () => {
     const styles = read('src/styles/vish-editor-chrome.css');
     const mockup = read('src/styles/vish-mockup-system.css');
+    const realism = read('src/styles/vish-realism.css');
+
+    expect(realism).toContain('.vish-paper-grain');
+    expect(realism).toContain('.vish-crafted-card');
+    expect(realism).toContain('.vish-realism-viewport-frame');
+    expect(realism).toContain('.vish-frame-bezel');
+    expect(realism).toContain('--vish-depth-md');
 
     expect(styles).toContain('.vish-workspace-shell .bg-ws-canvas');
     expect(styles).toContain('ॐ वास्तु · शिल्प · प्रमाण');
@@ -45,16 +53,21 @@ describe('Blueprint editor visual polish', () => {
   it('does not alter the editor drawing/event wiring while adding visual polish', () => {
     const editor = read('src/pages/EditorPage.tsx');
     const viewport = read('src/components/editor/Viewport3D.tsx');
+    const routes = read('src/AppRoutes.tsx');
 
     const drawing = read('src/components/editor/blueprintCanvasDrawing.ts');
+    const canvas = read('src/components/editor/BlueprintCanvas.tsx');
 
     expect(drawing).toContain("from '@/core/sceneDrawingTokens'");
+    expect(drawing).toContain('WALL_HIGHLIGHT');
+    expect(canvas).toContain('vish-paper-grain');
     expect(editor).toContain('onWallAdd={(wall) =>');
     expect(editor).toContain('engine.addWall(wall)');
     expect(editor).toContain('serializeProjectManifest');
     expect(editor).toContain('buildProjectExportFilename');
     expect(viewport).toContain('persistAtmosphereMode');
     expect(viewport).toContain('resolveDefaultAtmosphereMode');
+    expect(viewport).toContain('SceneContactShadows');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
     expect(editor).toContain('vish-canvas-empty-hint');
@@ -67,7 +80,7 @@ describe('Blueprint editor visual polish', () => {
     expect(editor).toContain('<EditorTopBar');
     expect(editor).toContain('fileStrip={fileStrip}');
     expect(editor).toContain('<EditorPhasePills />');
-    expect(editor).toContain('immersive');
+    expect(routes).toContain('immersive');
   });
 
   it('protects first-run welcome and tutorial product polish', () => {

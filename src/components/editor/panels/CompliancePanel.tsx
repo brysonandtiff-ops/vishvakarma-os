@@ -62,7 +62,7 @@ export function CompliancePanel({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 gap-1 px-2 text-[10px]"
+          className="touch-target min-h-[44px] gap-1 px-3 text-[10px]"
           onClick={() => setRefreshKey((k) => k + 1)}
           data-testid="compliance-rerun"
         >

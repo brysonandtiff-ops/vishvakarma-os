@@ -237,13 +237,13 @@ export function validateMaterial(material: Material, index: number): ValidationE
   }
   
   // Type validation
-  if (!['paint', 'wood', 'concrete', 'custom'].includes(material.type)) {
+  if (!['paint', 'wood', 'concrete', 'stone', 'tile', 'metal', 'glass', 'custom'].includes(material.type)) {
     errors.push({
       entity: 'Material',
       field: `materials[${index}].type`,
       value: material.type,
-      rule: 'must be paint, wood, concrete, or custom',
-      message: 'Material type must be paint, wood, concrete, or custom',
+      rule: 'must be paint, wood, concrete, stone, tile, metal, glass, or custom',
+      message: 'Material type must be paint, wood, concrete, stone, tile, metal, glass, or custom',
     });
   }
   

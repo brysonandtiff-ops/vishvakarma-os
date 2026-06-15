@@ -167,6 +167,20 @@
   animation: vish-fade-rise 480ms ease-out both;
 }
 
+.vish-governance-shell .vish-glass-panel,
+.vish-governance-shell .crystal-surface,
+.vish-workspace-shell .gov-page-header ~ * .vish-glass-panel {
+  box-shadow:
+    0 24px 70px hsl(0 0% 0% / 0.45),
+    0 0 44px hsl(var(--vish-gold) / 0.1),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.16),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.32);
+}
+
+.vish-governance-shell .crystal-surface {
+  border-color: hsl(43 38% 52% / 0.32);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vish-workspace-shell .gov-page-header,
   .vish-workspace-shell .gov-page-header * {

@@ -1,5 +1,4 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
@@ -22,7 +21,6 @@ import {
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
-import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -122,7 +120,6 @@ export default function AuthPage() {
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser || Boolean((emailLinkError ?? error) && isEmbeddedAuthErrorMessage(emailLinkError ?? error ?? ''));
-  const { bottomInset: keyboardBottomInset, isKeyboardOpen } = useVisualViewportInset();
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -225,26 +222,7 @@ export default function AuthPage() {
     (showGoogleSignIn && embeddedAuthBrowser);
 
   return (
-    <main
-      className="vish-auth-gate vish-dark-stage relative flex min-h-[100dvh] items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-8 sm:py-10"
-      aria-labelledby="auth-page-title"
-      style={isKeyboardOpen ? { paddingBottom: `${keyboardBottomInset + 16}px` } : undefined}
-    >
-      <SanskritRainBackground preset="auth" className="pointer-events-none absolute inset-0" />
-
-      <div className="vish-auth-aurora pointer-events-none absolute inset-0" aria-hidden="true" />
-
-      <div className="vish-yantra-grid pointer-events-none absolute inset-0" aria-hidden="true" />
-
-      <div className="vish-mandala-aura pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="vish-mandala-ring vish-mandala-ring-outer" />
-        <div className="vish-mandala-ring vish-mandala-ring-mid" />
-        <div className="vish-mandala-ring vish-mandala-ring-inner" />
-      </div>
-
-      <div className="vish-auth-orb pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full" aria-hidden="true" />
-
-      <div className="vish-auth-shell relative z-10 flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-2 sm:gap-8">
+    <>
         <div className="vish-auth-card-mockup vish-page-enter w-full" data-testid="auth-mockup-card">
           <header className="vish-auth-card-header mb-6 flex flex-col items-center text-center">
             <p className="vish-devanagari-hero mb-3 text-base sm:text-lg">ॐ श्री विश्वकर्मणे नमः</p>
@@ -567,7 +545,6 @@ export default function AuthPage() {
           />
           </div>
         </section>
-      </div>
-    </main>
+    </>
   );
 }

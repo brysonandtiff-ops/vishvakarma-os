@@ -1,10 +1,10 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
-import type { ErrorInfo, ReactNode, MutableRefObject } from 'react';
+import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
-import { CinematicBloom } from '@/components/editor/CinematicBloom';
+import { OrbitControls, PerspectiveCamera, PointerLockControls, ContactShadows, Environment } from '@react-three/drei';
+import { ScenePostProcessing, isPostFxPipelineActive } from '@/components/editor/ScenePostProcessing';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase, BuildingFloor } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
@@ -23,6 +23,9 @@ import {
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
+import { HDRI_STUDIO_ARCH } from '@/core/scenePbrCatalog';
+import { resolveAmbientIntensity, resolveSunColor } from '@/core/lightingPresets';
+import { BatchedWallMeshes, OpeningMarkers, shouldBatchWalls } from '@/components/editor/sceneWallBatch';
 import {
   floorElevationMeters,
   filterByFloorIndex,
@@ -115,12 +118,12 @@ const ATMOSPHERE_MODES: Record<
   cinematic: {
     label: 'Cinematic',
     particleCount: 140,
-    particleOpacity: 0.4,
+    particleOpacity: 0.36,
     particleSize: 0.048,
     godRays: true,
     sacredFloor: true,
-    fogNear: 7,
-    fogFar: 24,
+    fogNear: 8,
+    fogFar: 28,
     autoRotate: true,
     autoRotateSpeed: 0.24,
     dpr: [1, 1.75],
@@ -355,10 +358,12 @@ function WallMesh({
               {/* @ts-expect-error - React Three Fiber JSX types */}
               <boxGeometry args={[opening.width / 100, opening.height / 100, wall.thickness / 100 + 0.02]} />
               {/* @ts-expect-error - React Three Fiber JSX types */}
-              <meshStandardMaterial
+                <meshStandardMaterial
                 color={opening.type === 'door' ? DOOR : WINDOW}
                 transparent
-                opacity={opening.type === 'door' ? 0.35 : 0.55}
+                opacity={opening.type === 'door' ? 0.35 : 0.48}
+                roughness={opening.type === 'door' ? 0.62 : 0.08}
+                metalness={opening.type === 'door' ? 0.05 : 0.02}
                 emissive={opening.type === 'door' ? '#3a100d' : '#392400'}
                 emissiveIntensity={0.14}
               />
@@ -379,7 +384,13 @@ function WallMesh({
                 {/* @ts-expect-error - React Three Fiber JSX types */}
                 <boxGeometry args={[opening.width / 100 - 0.04, opening.height / 100 - 0.04, 0.01]} />
                 {/* @ts-expect-error - React Three Fiber JSX types */}
-                <meshStandardMaterial color="#a8d8ff" transparent opacity={0.45} />
+                <meshStandardMaterial
+                  color={WINDOW}
+                  transparent
+                  opacity={0.42}
+                  roughness={0.08}
+                  metalness={0.02}
+                />
                 {/* @ts-expect-error - React Three Fiber JSX types */}
               </mesh>
             )}
@@ -388,6 +399,23 @@ function WallMesh({
         );
       })}
     </>
+  );
+}
+
+function SceneContactShadows({ mode }: { mode: AtmospherePerformanceMode }) {
+  const reducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (mode === 'standard' || reducedMotion) return null;
+
+  return (
+    <ContactShadows
+      opacity={mode === 'cinematic' ? 0.58 : 0.48}
+      scale={24}
+      blur={2.4}
+      far={8}
+      resolution={mode === 'cinematic' ? 512 : 256}
+      color={ATMOSPHERE.fog}
+    />
   );
 }
 
@@ -512,10 +540,39 @@ function SacredAtmosphere({ mode, boostCinematic }: { mode: AtmospherePerformanc
   );
 }
 
+function RendererSetup({
+  mode,
+  postFxActive,
+}: {
+  mode: AtmospherePerformanceMode;
+  postFxActive: boolean;
+}) {
+  const { gl } = useThree();
+
+  useEffect(() => {
+    gl.toneMapping = postFxActive ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
+    gl.toneMappingExposure = mode === 'cinematic' ? 1.12 : mode === 'premium' ? 1.02 : 0.98;
+    gl.shadowMap.type = mode !== 'standard' ? THREE.PCFSoftShadowMap : THREE.BasicShadowMap;
+  }, [gl, mode, postFxActive]);
+
+  return null;
+}
+
+function SceneEnvironment({ mode }: { mode: AtmospherePerformanceMode }) {
+  if (mode === 'standard') return null;
+
+  return (
+    <Environment
+      files={HDRI_STUDIO_ARCH}
+      background={false}
+      environmentIntensity={mode === 'cinematic' ? 0.82 : 0.52}
+    />
+  );
+}
+
 function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: AtmospherePerformanceMode }) {
   const castShadow = mode !== 'standard';
   const shadowMap = mode === 'cinematic' ? 2048 : 1024;
-  // Convert azimuth and elevation to 3D position
   const azimuthRad = (lighting.sunAzimuth * Math.PI) / 180;
   const elevationRad = (lighting.sunElevation * Math.PI) / 180;
 
@@ -523,20 +580,23 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   const x = distance * Math.cos(elevationRad) * Math.sin(azimuthRad);
   const y = distance * Math.sin(elevationRad);
   const z = distance * Math.cos(elevationRad) * Math.cos(azimuthRad);
+  const sunColor = resolveSunColor(lighting.timeOfDay, lighting.sunElevation);
+  const ambientIntensity = resolveAmbientIntensity(mode, lighting.timeOfDay, lighting.sunElevation);
 
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <ambientLight intensity={mode === 'standard' ? 0.46 : 0.5} />
+      <ambientLight intensity={ambientIntensity} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <directionalLight
         position={[x, y, z]}
         intensity={lighting.intensity}
-        color={ATMOSPHERE.sun}
+        color={sunColor}
         castShadow={castShadow}
         shadow-mapSize-width={shadowMap}
         shadow-mapSize-height={shadowMap}
         shadow-bias={-0.0002}
+        shadow-normalBias={0.02}
       />
       {mode !== 'standard' && (
         <>
@@ -590,6 +650,7 @@ function BuildingSceneLayers({
   manifestMepSymbols,
   manifestFixtures,
   manifestStaircases,
+  atmosphereMode = 'premium',
 }: {
   walls: Wall[];
   openings: Opening[];
@@ -612,6 +673,7 @@ function BuildingSceneLayers({
   manifestMepSymbols?: MepSymbol[];
   manifestFixtures?: FixtureItem[];
   manifestStaircases?: Staircase[];
+  atmosphereMode?: AtmospherePerformanceMode;
 }) {
   const allWalls = manifestWalls ?? walls;
   const sceneOrigin = useMemo(
@@ -626,21 +688,36 @@ function BuildingSceneLayers({
     manifestWalls.length > 0;
 
   if (!useStack) {
+    const batchWalls = shouldBatchWalls(walls.length, atmosphereMode);
+    const castShadow = atmosphereMode !== 'standard';
+
     return (
       <>
         <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
         <TerrainMeshes terrain={terrain} />
         <RoomVolumeMeshes rooms={rooms} walls={walls} origin={sceneOrigin} floorMaterial={floorMaterial} />
         <StairMeshes staircases={staircases} origin={sceneOrigin} />
-        {walls.map((wall) => (
-          <WallMesh
-            key={wall.id}
-            wall={wall}
-            openings={openings}
-            customMaterials={materials}
-            origin={sceneOrigin}
-          />
-        ))}
+        {batchWalls ? (
+          <>
+            <BatchedWallMeshes
+              walls={walls}
+              customMaterials={materials}
+              origin={sceneOrigin}
+              castShadow={castShadow}
+            />
+            <OpeningMarkers walls={walls} openings={openings} origin={sceneOrigin} />
+          </>
+        ) : (
+          walls.map((wall) => (
+            <WallMesh
+              key={wall.id}
+              wall={wall}
+              openings={openings}
+              customMaterials={materials}
+              origin={sceneOrigin}
+            />
+          ))
+        )}
         {furniture.map((item) => (
           <FurnitureMesh key={item.id} item={item} origin={sceneOrigin} />
         ))}
@@ -770,6 +847,7 @@ export default function Viewport3D({
     [allWallsForOrigin, walls],
   );
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
+  const [penPointerActive, setPenPointerActive] = useState(false);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
     persistAtmosphereMode(mode);
@@ -786,6 +864,14 @@ export default function Viewport3D({
 
   const setTouchMove = (x: number, z: number) => {
     touchMoveRef.current = { x, z };
+  };
+
+  const handlePenPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'pen') setPenPointerActive(true);
+  };
+
+  const handlePenPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'pen') setPenPointerActive(false);
   };
 
   useEffect(() => {
@@ -808,7 +894,12 @@ export default function Viewport3D({
   return (
     <div className="flex h-full w-full flex-col">
       <Viewport3DHeader wallCount={walls.length} atmosphereMode={atmosphereMode} />
-      <div className="relative flex-1 overflow-hidden bg-[var(--vish-3d-bg)]">
+      <div
+        className="relative flex-1 overflow-hidden bg-[var(--vish-3d-bg)]"
+        onPointerDown={handlePenPointerDown}
+        onPointerUp={handlePenPointerUp}
+        onPointerCancel={handlePenPointerUp}
+      >
         <WebGLErrorBoundary
           fallback={
             <Viewport3DFallback reason="WebGL context creation failed (BindToCurrentSequence). The 3D renderer could not initialise." />
@@ -826,15 +917,25 @@ export default function Viewport3D({
               atmosphereMode={atmosphereMode}
               walkMode={walkMode}
             />
+            <RendererSetup
+              mode={atmosphereMode}
+              postFxActive={isPostFxPipelineActive(
+                atmosphereMode,
+                allWallsForOrigin.length,
+                cinematicBoost && !presentationLock,
+              )}
+            />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
+            <SceneEnvironment mode={atmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>
                 <OrbitControls
                   enableDamping
                   dampingFactor={0.08}
                   enablePan={false}
+                  enableRotate={!penPointerActive}
                   enableZoom
                   minDistance={2}
                   maxDistance={24}
@@ -850,6 +951,7 @@ export default function Viewport3D({
                 enableDamping
                 dampingFactor={0.06}
                 enablePan
+                enableRotate={!penPointerActive}
                 enableZoom
                 autoRotate={atmosphereConfig.autoRotate}
                 autoRotateSpeed={atmosphereConfig.autoRotateSpeed}
@@ -859,6 +961,7 @@ export default function Viewport3D({
 
             <Lighting lighting={lighting} mode={atmosphereMode} />
             <SacredAtmosphere mode={atmosphereMode} boostCinematic={cinematicBoost} />
+            <SceneContactShadows mode={atmosphereMode} />
 
             <BuildingSceneLayers
               walls={walls}
@@ -882,11 +985,13 @@ export default function Viewport3D({
               manifestMepSymbols={manifestMepSymbols}
               manifestFixtures={manifestFixtures}
               manifestStaircases={manifestStaircases}
+              atmosphereMode={atmosphereMode}
             />
 
-            <CinematicBloom
-              enabled={cinematicBoost && !presentationLock}
+            <ScenePostProcessing
+              mode={atmosphereMode}
               wallCount={allWallsForOrigin.length}
+              enabled={cinematicBoost && !presentationLock}
             />
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
@@ -903,7 +1008,7 @@ export default function Viewport3D({
           </p>
         )}
         {walkMode && isCoarsePointer && (
-          <div className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 backdrop-blur-md">
+          <div className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 touch-none backdrop-blur-md">
             <span />
             <button
               type="button"

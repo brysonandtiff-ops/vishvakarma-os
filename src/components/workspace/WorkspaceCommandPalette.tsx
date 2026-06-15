@@ -2,16 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   CircleHelp,
-  Database,
-  FileText,
-  FolderOpen,
-  GitPullRequest,
-  History,
   LogOut,
-  Package,
   PenTool,
-  Trophy,
-  User,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -28,20 +20,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import routes from '@/routes';
+import { ROUTE_ICONS } from '@/config/RouteNavConfig';
 
 export const OPEN_COMMAND_PALETTE_EVENT = 'vish:open-command-palette';
-
-const ROUTE_ICONS: Record<string, LucideIcon> = {
-  '/editor': PenTool,
-  '/projects': FolderOpen,
-  '/profile': User,
-  '/spec-center': FileText,
-  '/registry': Database,
-  '/change-requests': GitPullRequest,
-  '/releases': Package,
-  '/world-records': Trophy,
-  '/audit': History,
-};
 
 // Navigable targets are derived from the production route manifest, so the
 // palette can only ever route to locked, private routes. No drift possible.

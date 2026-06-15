@@ -2,6 +2,7 @@ import {
   Columns3,
   Compass,
   DoorOpen,
+  Hand,
   Layers,
   MousePointer2,
   MoveHorizontal,
@@ -30,6 +31,12 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
     label: 'Select',
     shortcut: 'V',
     hint: 'Select, marquee, and inspect elements',
+  },
+  pan: {
+    icon: Hand,
+    label: 'Pan',
+    shortcut: 'H',
+    hint: 'Drag to move canvas',
   },
   wall: {
     icon: Square,
@@ -114,6 +121,7 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
 
 export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   select: 'Select — click to inspect, Shift+click multi-select, drag empty to marquee',
+  pan: 'Pan — drag to move the canvas view',
   wall: 'Wall — tap start, tap end. Snap joins corners.',
   door: 'Door — tap a wall to place a door.',
   window: 'Window — tap a wall to place a window.',
@@ -130,8 +138,28 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   terrain: 'Terrain — tap vertices, click the first point to close the contour.',
 };
 
+export const TOUCH_STATUS_HINTS: Record<ToolType, string> = {
+  select: 'Select — tap to inspect · pinch to zoom · two fingers to pan',
+  pan: 'Pan — drag with one finger to move the canvas',
+  wall: 'Wall — tap start, tap end · pinch to zoom',
+  door: 'Door — tap a wall to place · two fingers to pan',
+  window: 'Window — tap a wall to place · two fingers to pan',
+  measure: 'Measure — tap walls to inspect dimensions',
+  text: 'Label — tap to place · double-tap label to edit',
+  dimension: 'Dimension — tap start, then end point',
+  room: 'Room — tap enclosed area to detect rooms',
+  column: 'Column — tap canvas to place markers',
+  stair: 'Stair — tap to place; each tap rotates direction',
+  vastu: 'Vastu — harmony compass overlay',
+  mep: 'MEP — tap to cycle symbols and fixtures',
+  furniture: 'Furniture — tap canvas to place',
+  landscape: 'Landscape — tap to place garden elements',
+  terrain: 'Terrain — tap vertices, tap first point to close',
+};
+
 export const BASE_TOOL_IDS: ToolType[] = [
   'select',
+  'pan',
   'wall',
   'door',
   'window',
@@ -141,6 +169,7 @@ export const BASE_TOOL_IDS: ToolType[] = [
 ];
 
 export const RADIAL_TOOL_IDS: ToolType[] = [
+  'pan',
   'wall',
   'door',
   'window',

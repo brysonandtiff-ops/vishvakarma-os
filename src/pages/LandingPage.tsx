@@ -5,7 +5,6 @@ import MetricPill from '@/components/common/MetricPill';
 import PageSection from '@/components/common/PageSection';
 import PageSectionGrid from '@/components/common/PageSectionGrid';
 import { Button } from '@/components/ui/button';
-import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -34,7 +33,7 @@ export default function LandingPage() {
   const startTo = user ? '/editor' : '/auth';
 
   return (
-    <MarketingLayout>
+    <>
       <PageMeta
         title="Vishvakarma.OS — iPad-First Architecture Studio"
         description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
@@ -73,7 +72,7 @@ export default function LandingPage() {
         description="One floor plan powers 2D drafting, live 3D preview, and every export format."
       >
         <div className="grid gap-6 lg:grid-cols-2">
-          <figure className="overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
+          <figure className="vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-2d.png"
               alt="2D blueprint editor with sample floor plan"
@@ -84,7 +83,7 @@ export default function LandingPage() {
               2D Blueprint Canvas
             </figcaption>
           </figure>
-          <figure className="overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
+          <figure className="vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-3d.png"
               alt="Live 3D model chamber with extruded walls"
@@ -142,6 +141,6 @@ export default function LandingPage() {
           </Button>
         </div>
       </section>
-    </MarketingLayout>
+    </>
   );
 }

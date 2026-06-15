@@ -11,9 +11,12 @@ import {
 } from '@/core/sceneVisualCatalog';
 import {
   AnimatedWaterMaterial,
+  ExteriorFloorMaterial,
   FloorSurfaceMaterial,
   PatternStandardMaterial,
+  PbrSurfaceMaterial,
 } from '@/components/editor/sceneMaterials';
+import { getPbrBundleForMaterialType, getPbrBundleForSurfaceRole } from '@/core/scenePbrCatalog';
 import { GltfModelBody } from '@/components/editor/sceneGltfModels';
 import { resolveModelUrl } from '@/core/sceneModelCatalog';
 
@@ -26,20 +29,44 @@ import {
   WOOD_LIGHT,
 } from '@/core/sceneDrawingTokens';
 
-function WoodMaterial({ color = WOOD, roughness = 0.72 }: { color?: string; roughness?: number }) {
-  return <PatternStandardMaterial pattern="wood" color={color} roughness={roughness} metalness={0.05} />;
+function WoodMaterial({ color = WOOD, roughness = 0.68 }: { color?: string; roughness?: number }) {
+  return (
+    <PbrSurfaceMaterial
+      bundle={getPbrBundleForMaterialType('wood')}
+      color={color}
+      roughness={roughness}
+      metalness={0.05}
+    />
+  );
 }
 
-function FabricMaterial({ color = FABRIC, roughness = 0.88 }: { color?: string; roughness?: number }) {
-  return <PatternStandardMaterial pattern="fabric" color={color} roughness={roughness} metalness={0} />;
+function FabricMaterial({ color = FABRIC, roughness = 0.9 }: { color?: string; roughness?: number }) {
+  return (
+    <PbrSurfaceMaterial
+      bundle={getPbrBundleForSurfaceRole('fabric')}
+      color={color}
+      roughness={roughness}
+      metalness={0}
+    />
+  );
 }
 
 function LeafMaterial({ color = ATMOSPHERE.leaf, roughness = 0.85 }: { color?: string; roughness?: number }) {
-  return <PatternStandardMaterial pattern="leaf" color={color} roughness={roughness} metalness={0.02} repeat={[3, 3]} />;
+  return (
+    <PatternStandardMaterial pattern="leaf" color={color} roughness={roughness} metalness={0.02} repeat={[3, 3]} />
+  );
 }
 
 function BarkMaterial() {
-  return <PatternStandardMaterial pattern="bark" color={ATMOSPHERE.bark} roughness={0.9} metalness={0.02} repeat={[1, 4]} />;
+  return (
+    <PbrSurfaceMaterial
+      bundle={getPbrBundleForSurfaceRole('bark')}
+      color={ATMOSPHERE.bark}
+      roughness={0.9}
+      metalness={0.02}
+      repeat={[1, 4]}
+    />
+  );
 }
 
 function FurnitureLegs({ hw, hd, legH = 0.08 }: { hw: number; hd: number; legH?: number }) {
@@ -296,6 +323,180 @@ function ColumnMesh({ hw }: { hw: number; hd: number }) {
   );
 }
 
+function MandirMesh({ hw, hd }: { hw: number; hd: number }) {
+  const baseH = 0.12;
+  const bodyH = 0.55;
+  const domeH = 0.22;
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH / 2, 0]} castShadow receiveShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2, baseH, hd * 2]} />
+        <WoodMaterial color={WOOD_DARK} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH + bodyH / 2, 0]} castShadow receiveShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 1.85, bodyH, hd * 1.85]} />
+        <WoodMaterial color={WOOD_LIGHT} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, baseH + bodyH + domeH / 2, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <sphereGeometry args={[hw * 0.55, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <PbrSurfaceMaterial bundle={getPbrBundleForMaterialType('metal')} color="#D4A832" roughness={0.35} metalness={0.88} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+    </>
+  );
+}
+
+function PujaShelfMesh({ hw, hd }: { hw: number; hd: number }) {
+  const shelfH = hd * 2;
+  const depths = [-hd * 0.55, 0, hd * 0.55];
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, shelfH / 2, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2, shelfH, hd * 2]} />
+        <WoodMaterial color={WOOD} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {depths.map((z) => (
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={z} position={[0, shelfH * 0.35, z]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <boxGeometry args={[hw * 1.85, 0.03, hd * 1.6]} />
+          <WoodMaterial color={WOOD_LIGHT} roughness={0.55} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+function DiwanMesh({ hw, hd }: { hw: number; hd: number }) {
+  const seatH = 0.22;
+  const backH = 0.28;
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, seatH / 2 + 0.08, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2 - 0.1, seatH, hd * 2 - 0.14]} />
+        <FabricMaterial color={FABRIC} roughness={0.88} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, backH / 2 + 0.08, -hd + 0.08]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2 - 0.08, backH, 0.12]} />
+        <WoodMaterial color={WOOD_DARK} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      <FurnitureLegs hw={hw} hd={hd} legH={0.08} />
+    </>
+  );
+}
+
+function CharpaiMesh({ hw, hd }: { hw: number; hd: number }) {
+  const frameH = 0.14;
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, frameH / 2, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2 - 0.06, 0.04, hd * 2 - 0.06]} />
+        <WoodMaterial color={WOOD_DARK} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, frameH / 2 + 0.02, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2 - 0.12, 0.02, hd * 2 - 0.12]} />
+        <FabricMaterial color={FABRIC_LIGHT} roughness={0.92} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {([
+        [-hw + 0.06, -hd + 0.06],
+        [hw - 0.06, -hd + 0.06],
+        [-hw + 0.06, hd - 0.06],
+        [hw - 0.06, hd - 0.06],
+      ] as const).map(([lx, lz]) => (
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={`${lx}-${lz}`} position={[lx, frameH / 2, lz]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <cylinderGeometry args={[0.025, 0.025, frameH, 8]} />
+          <WoodMaterial color={WOOD_DARK} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+function JaliScreenMesh({ hw, hd }: { hw: number; hd: number }) {
+  const panelH = hd * 2;
+  const rows = 4;
+  const cols = 6;
+  const cells: ReactNode[] = [];
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const cx = -hw + hw * 0.25 + col * (hw * 0.32);
+      const cy = panelH * 0.15 + row * (panelH * 0.2);
+      cells.push(
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={`${row}-${col}`} position={[cx, cy, 0]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <boxGeometry args={[hw * 0.22, panelH * 0.14, 0.02]} />
+          <PbrSurfaceMaterial bundle={getPbrBundleForMaterialType('metal')} color="#C99A27" roughness={0.4} metalness={0.85} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>,
+      );
+    }
+  }
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, panelH / 2, -0.04]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2, panelH, 0.06]} />
+        <WoodMaterial color={WOOD_DARK} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {cells}
+    </>
+  );
+}
+
+function ModularKitchenBaseMesh({ hw, hd }: { hw: number; hd: number }) {
+  const h = hd * 2;
+  return (
+    <>
+      {/* @ts-expect-error - React Three Fiber JSX types */}
+      <mesh position={[0, h / 2, 0]} castShadow>
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+        <boxGeometry args={[hw * 2, h, hd * 2]} />
+        <WoodMaterial color={WOOD_LIGHT} roughness={0.58} />
+        {/* @ts-expect-error - React Three Fiber JSX types */}
+      </mesh>
+      {[1, 2, 3].map((i) => (
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={i} position={[-hw + (hw * 2 * i) / 4, h / 2, hd - 0.01]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <boxGeometry args={[0.02, h - 0.04, 0.02]} />
+          <WoodMaterial color={WOOD_DARK} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 function GenericFurnitureMesh({ hw, hd, height }: { hw: number; hd: number; height: number }) {
   return (
     // @ts-expect-error - React Three Fiber JSX types
@@ -322,6 +523,18 @@ function furnitureHeight(type: string): number {
       return 0.28;
     case 'column':
       return 2.32;
+    case 'mandir':
+      return 0.89;
+    case 'puja_shelf':
+      return 0.5;
+    case 'diwan':
+      return 0.36;
+    case 'charpai':
+      return 0.14;
+    case 'jali_screen':
+      return 0.55;
+    case 'modular_kitchen_base':
+      return 0.45;
     case 'desk':
       return 0.47;
     case 'dining_table':
@@ -360,6 +573,18 @@ export function ParametricFurnitureBody({
       return <NightstandMesh hw={hw} hd={hd} />;
     case 'column':
       return <ColumnMesh hw={hw} hd={hd} />;
+    case 'mandir':
+      return <MandirMesh hw={hw} hd={hd} />;
+    case 'puja_shelf':
+      return <PujaShelfMesh hw={hw} hd={hd} />;
+    case 'diwan':
+      return <DiwanMesh hw={hw} hd={hd} />;
+    case 'charpai':
+      return <CharpaiMesh hw={hw} hd={hd} />;
+    case 'jali_screen':
+      return <JaliScreenMesh hw={hw} hd={hd} />;
+    case 'modular_kitchen_base':
+      return <ModularKitchenBaseMesh hw={hw} hd={hd} />;
     default:
       return <GenericFurnitureMesh hw={hw} hd={hd} height={height} />;
   }
@@ -372,6 +597,7 @@ export function FurnitureMesh({ item, origin }: { item: FurnitureItem; origin?: 
   const hd = pxToM(item.depth ?? defaults.depth) / 2;
   const height = furnitureHeight(item.type);
   const yOffset = item.type === 'bed' || item.type === 'sofa' || item.type === 'chair' || item.type === 'column'
+    || item.type === 'mandir' || item.type === 'diwan' || item.type === 'charpai'
     ? 0
     : height / 2;
   const modelUrl = resolveModelUrl('furniture', item.type, item.modelUrl);
@@ -407,33 +633,26 @@ function TreeMesh() {
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0, 0.08, 0]} castShadow>
+      <mesh position={[0, 0.1, 0]} castShadow>
         {/* @ts-expect-error - React Three Fiber JSX types */}
-        <cylinderGeometry args={[0.05, 0.07, 0.16, 8]} />
+        <cylinderGeometry args={[0.06, 0.09, 0.22, 12]} />
         <BarkMaterial />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0, 0.42, 0]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <sphereGeometry args={[0.24, 12, 12]} />
-        <LeafMaterial color="#2e7d32" roughness={0.82} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[-0.1, 0.35, 0.06]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <sphereGeometry args={[0.14, 10, 10]} />
-        <LeafMaterial color="#388e3c" roughness={0.85} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0.1, 0.38, -0.05]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <sphereGeometry args={[0.12, 10, 10]} />
-        <LeafMaterial color="#43a047" roughness={0.85} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
+      {([
+        [0, 0.48, 0, 0.28],
+        [-0.14, 0.38, 0.08, 0.18],
+        [0.14, 0.4, -0.08, 0.17],
+        [0.05, 0.55, 0.1, 0.14],
+      ] as const).map(([px, py, pz, r]) => (
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={`${px}-${py}`} position={[px, py, pz]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <sphereGeometry args={[r, 16, 16]} />
+          <LeafMaterial color="#2e7d32" roughness={0.82} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      ))}
     </>
   );
 }
@@ -442,26 +661,25 @@ function PineMesh() {
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0, 0.08, 0]}>
+      <mesh position={[0, 0.1, 0]} castShadow>
         {/* @ts-expect-error - React Three Fiber JSX types */}
-        <cylinderGeometry args={[0.04, 0.06, 0.16, 8]} />
+        <cylinderGeometry args={[0.05, 0.07, 0.2, 12]} />
         <BarkMaterial />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0, 0.32, 0]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <coneGeometry args={[0.2, 0.38, 8]} />
-        <LeafMaterial color="#2e7d32" roughness={0.82} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <mesh position={[0, 0.52, 0]} castShadow>
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-        <coneGeometry args={[0.15, 0.28, 8]} />
-        <LeafMaterial color="#388e3c" roughness={0.82} />
-        {/* @ts-expect-error - React Three Fiber JSX types */}
-      </mesh>
+      {([
+        [0.24, 0.34],
+        [0.18, 0.52],
+        [0.12, 0.68],
+      ] as const).map(([radius, y], i) => (
+        // @ts-expect-error - React Three Fiber JSX types
+        <mesh key={i} position={[0, y, 0]} castShadow>
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+          <coneGeometry args={[radius, 0.28, 14]} />
+          <LeafMaterial color={i === 0 ? '#2e7d32' : '#388e3c'} roughness={0.82} />
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </mesh>
+      ))}
     </>
   );
 }
@@ -649,7 +867,7 @@ export function SceneFloor({
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
         {/* @ts-expect-error - React Three Fiber JSX types */}
         <planeGeometry args={[28, 28]} />
-        <FloorSurfaceMaterial floorMaterial={floorMaterial} customMaterials={customMaterials} exterior />
+        <ExteriorFloorMaterial floorMaterial={floorMaterial} customMaterials={customMaterials} />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
       {/* @ts-expect-error - React Three Fiber JSX types */}

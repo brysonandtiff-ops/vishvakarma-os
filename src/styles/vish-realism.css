@@ -1,0 +1,173 @@
+/* Vishvakarma.OS — realism depth utilities (brand-safe: gold/cream/ink only) */
+
+:root {
+  --vish-depth-sm: 0 2px 6px hsl(var(--vish-shadow)), inset 0 1px 0 hsl(0 0% 100% / 0.06);
+  --vish-depth-md: 0 14px 36px hsl(var(--vish-shadow)), 0 0 28px hsl(var(--vish-gold) / 0.08);
+  --vish-paper-grain-opacity: 0.052;
+}
+
+/* ── Paper fiber overlay (static; animated drift disabled under reduced motion) ── */
+
+.vish-paper-grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.vish-paper-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: var(--vish-paper-grain-opacity);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: multiply;
+  z-index: 1;
+}
+
+@keyframes vish-paper-grain-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-0.5%, 0.25%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vish-paper-grain--animated::after {
+    animation: vish-paper-grain-drift 32s linear infinite;
+  }
+}
+
+/* ── Crafted cream card (workspace document zone) ── */
+
+.vish-crafted-card {
+  position: relative;
+  border: 1px solid hsl(var(--primary) / 0.18);
+  background:
+    radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.06), transparent 14rem),
+    linear-gradient(165deg, hsl(var(--card)), hsl(var(--card) / 0.94));
+  box-shadow: var(--vish-depth-sm);
+  transition:
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.vish-crafted-card:hover {
+  border-color: hsl(var(--primary) / 0.34);
+  box-shadow: var(--vish-depth-md);
+  transform: translateY(-1px);
+}
+
+/* ── 3D viewport frame (sacred chamber vignette) ── */
+
+.vish-realism-viewport-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.vish-realism-viewport-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 48px hsl(30 20% 4% / 0.55),
+    inset 0 0 0 1px hsl(var(--vish-gold) / 0.12);
+}
+
+.vish-realism-viewport-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle at 50% 38%, transparent 42%, hsl(30 18% 6% / 0.28) 100%);
+}
+
+/* Auto-apply to workspace cards without per-page class churn */
+.vish-workspace-shell .rounded-2xl.border.bg-card,
+.vish-workspace-shell article.rounded-2xl.border.bg-card {
+  border-color: hsl(var(--primary) / 0.16);
+  background:
+    radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.05), transparent 12rem),
+    linear-gradient(165deg, hsl(var(--card)), hsl(var(--card) / 0.95));
+  box-shadow: var(--vish-depth-sm);
+}
+
+.vish-workspace-shell .rounded-2xl.border.bg-card:hover,
+.vish-workspace-shell article.rounded-2xl.border.bg-card:hover {
+  border-color: hsl(var(--primary) / 0.26);
+  box-shadow: var(--vish-depth-md);
+}
+
+/* ── Dark chrome bevel (tool rails, panels) ── */
+
+.vish-ink-depth {
+  box-shadow:
+    inset 0 1px 0 hsl(var(--ws-active) / 0.1),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.22),
+    0 8px 24px hsl(0 0% 0% / 0.18);
+}
+
+/* ── Glass panel depth extension ── */
+
+.vish-glass-depth {
+  box-shadow:
+    0 24px 70px hsl(0 0% 0% / 0.45),
+    0 0 44px hsl(var(--vish-gold) / 0.1),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.16),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.35);
+}
+
+.vish-glass-panel.vish-glass-depth,
+.vish-glass-panel--interactive.vish-glass-depth {
+  border-color: hsl(var(--vish-gold) / 0.34);
+}
+
+/* ── Product / thumbnail bezel ── */
+
+.vish-frame-bezel {
+  position: relative;
+  border: 1px solid hsl(var(--primary) / 0.28);
+  background: hsl(var(--card) / 0.6);
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 100% / 0.08),
+    inset 0 2px 8px hsl(var(--vish-shadow)),
+    0 12px 32px hsl(var(--vish-shadow));
+}
+
+.vish-frame-bezel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 hsl(var(--primary) / 0.14);
+}
+
+/* ── Workspace stat pill depth ── */
+
+.vish-stat-pill-depth {
+  box-shadow:
+    inset 0 1px 0 hsl(var(--primary) / 0.12),
+    0 4px 14px hsl(var(--vish-shadow));
+  border-color: hsl(var(--primary) / 0.22) !important;
+}
+
+/* ── Document page ambient wash ── */
+
+.vish-document-ambient {
+  background:
+    radial-gradient(circle at 50% -8%, hsl(42 65% 88% / 0.38), transparent 36rem),
+    hsl(var(--background));
+}
+
+/* ── Workstation button micro-inset ── */
+
+.vish-workspace-shell [class*='workstation'] {
+  box-shadow: inset 0 1px 0 hsl(var(--ws-active) / 0.06);
+}

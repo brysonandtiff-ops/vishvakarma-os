@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { useNavigate } from 'react-router-dom';
-import { FileDown, Loader2, Sparkles } from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -362,6 +363,12 @@ export default function AIDesignerDialog({
 
   const deliverablesMacroStep: MacroStep = 'Export';
   const generateMacroStep: MacroStep = stage ? pipelineStageToMacro(stage) : 'Generate';
+  const isCopilotGenerating =
+    generating ||
+    parsing ||
+    selectingRunnerUp ||
+    Boolean(stage && stage !== 'complete' && stage !== 'error');
+  const copilotSwanMotion = isCopilotGenerating ? 'generating' : 'idle';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -374,7 +381,7 @@ export default function AIDesignerDialog({
             Architecture Copilot
           </div>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <CopilotSwanMark motion={copilotSwanMotion} size="sm" />
             AI Architecture Copilot
           </DialogTitle>
           <DialogDescription>

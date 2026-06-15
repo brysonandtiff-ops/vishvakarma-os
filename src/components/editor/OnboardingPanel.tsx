@@ -15,6 +15,11 @@ const ONBOARDING_STEPS = [
     detail: 'Open 3D only when needed. The heavy WebGL engine stays deferred.',
   },
   {
+    sanskrit: 'चलन',
+    english: 'Navigate',
+    detail: 'Pinch to zoom, drag two fingers to pan, or use the Pan tool for one-handed moves.',
+  },
+  {
     sanskrit: 'प्रमाण',
     english: 'Prove',
     detail: 'Use Project Proof to show save mode, structure, spec, and export readiness.',

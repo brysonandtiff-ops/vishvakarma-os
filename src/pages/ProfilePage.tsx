@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CreditCard, LogOut, Mail, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import AppLayout from '@/components/layouts/AppLayout';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
-import WorkspacePageShell from '@/components/layouts/WorkspacePageShell';
+import WorkspacePanel from '@/components/common/WorkspacePanel';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
@@ -76,15 +75,15 @@ export default function ProfilePage() {
   };
 
   return (
-    <AppLayout>
+    <>
       <PageMeta title="Profile" description="Your Vishvakarma.OS account and workspace mode." />
-      <WorkspacePageShell className="max-w-2xl">
+      <div className="vish-section-stack">
         <WorkspacePageHeader
           eyebrow="Account"
           title="Profile"
           description="Workspace session, backend mode, and sign-out controls."
           stats={
-            <span className="rounded-full border border-dashed border-border/70 bg-muted/30 px-3 py-1 text-xs font-semibold text-foreground">
+            <span className="vish-stat-pill-depth rounded-full border border-dashed border-border/70 bg-muted/30 px-3 py-1 text-xs font-semibold text-foreground">
               {saveLabel} · session {mode}
               {stripeEnabled && !billingLoading ? ` · ${planLabel}` : ''}
             </span>
@@ -92,16 +91,17 @@ export default function ProfilePage() {
         />
 
         {stripeEnabled && user && (
-          <div className="mb-6">
+          <WorkspacePanel title="Billing" tone="light">
             <BillingBanner billing={billing} loading={billingLoading} error={billingError} />
-          </div>
+          </WorkspacePanel>
         )}
 
-        <div className="mb-6">
+        <WorkspacePanel title="Studio audio" description="Workspace sound feedback and ambience.">
           <StudioAudioSettings />
-        </div>
+        </WorkspacePanel>
 
-        <div className="space-y-4 rounded-2xl border border-dashed border-border/70 bg-card/80 p-6 shadow-sm">
+        <WorkspacePanel title="Account details" tone="light" padded>
+          <div className="space-y-4">
           <div className="flex items-start gap-3">
             <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             <div>
@@ -148,9 +148,10 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-        </div>
+          </div>
+        </WorkspacePanel>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button variant="outline" asChild className="touch-target">
             <Link to="/projects">View projects</Link>
           </Button>
@@ -199,7 +200,7 @@ export default function ProfilePage() {
             Sign out
           </Button>
         </div>
-      </WorkspacePageShell>
-    </AppLayout>
+      </div>
+    </>
   );
 }

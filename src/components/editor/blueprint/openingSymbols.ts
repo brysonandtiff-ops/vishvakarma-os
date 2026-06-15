@@ -13,6 +13,7 @@ import {
   GOLD_PREVIEW,
   INK,
   WALL_SHADOW,
+  WALL_HIGHLIGHT,
   WINDOW,
   WINDOW_GHOST,
 } from '@/core/sceneDrawingTokens';
@@ -140,6 +141,7 @@ export function drawWallWithGaps(
 
   if (inkSegments.length > 0) {
     drawWallSegmentStrokes(ctx, wall, inkSegments, WALL_SHADOW, wall.thickness + 2, 1.5);
+    drawWallSegmentStrokes(ctx, wall, inkSegments, WALL_HIGHLIGHT, wall.thickness, -0.75);
   }
 
   if (state.hovered && !state.selected && inkSegments.length > 0) {
@@ -239,6 +241,13 @@ export function drawDoorSymbol(
 
   drawJambTicks(ctx, span, color);
 
+  ctx.strokeStyle = options.preview ? 'rgba(200, 90, 84, 0.35)' : 'rgba(200, 90, 84, 0.55)';
+  ctx.lineWidth = 0.75;
+  ctx.beginPath();
+  ctx.moveTo(hingeX + (leafEndX - hingeX) * 0.08, hingeY + (leafEndY - hingeY) * 0.08);
+  ctx.lineTo(leafEndX - (leafEndX - hingeX) * 0.06, leafEndY - (leafEndY - hingeY) * 0.06);
+  ctx.stroke();
+
   if (options.highlighted) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
@@ -299,6 +308,28 @@ export function drawWindowSymbol(
   ctx.stroke();
 
   drawJambTicks(ctx, span, color, 5);
+
+  ctx.strokeStyle = options.preview ? 'rgba(200, 150, 58, 0.35)' : 'rgba(200, 150, 58, 0.55)';
+  ctx.lineWidth = 0.75;
+  const innerGap = gap * 0.45;
+  const innerA = {
+    x1: center.x - cos * halfWidthPx * 0.88 + perpX * innerGap,
+    y1: center.y - sin * halfWidthPx * 0.88 + perpY * innerGap,
+    x2: center.x + cos * halfWidthPx * 0.88 + perpX * innerGap,
+    y2: center.y + sin * halfWidthPx * 0.88 + perpY * innerGap,
+  };
+  const innerB = {
+    x1: center.x - cos * halfWidthPx * 0.88 - perpX * innerGap,
+    y1: center.y - sin * halfWidthPx * 0.88 - perpY * innerGap,
+    x2: center.x + cos * halfWidthPx * 0.88 - perpX * innerGap,
+    y2: center.y + sin * halfWidthPx * 0.88 - perpY * innerGap,
+  };
+  for (const line of [innerA, innerB]) {
+    ctx.beginPath();
+    ctx.moveTo(line.x1, line.y1);
+    ctx.lineTo(line.x2, line.y2);
+    ctx.stroke();
+  }
 
   if (options.highlighted) {
     ctx.strokeStyle = color;

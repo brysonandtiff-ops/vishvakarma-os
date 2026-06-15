@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import { useRef, type PointerEvent } from 'react';
 import type { CanvasViewportState, Room, Wall } from '@/types';
 import { getRoomTypeFillStyle } from '@/domain/rooms/roomTypeColors';
 import { getVerticesForRoom } from '@/utils/roomCalculations';
@@ -37,6 +37,8 @@ export default function CanvasMinimap({
   canvasSize: { width: number; height: number };
   onPanToWorld: (point: { x: number; y: number }) => void;
 }) {
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const bounds = wallBounds(walls);
   const worldW = bounds.maxX - bounds.minX;
   const worldH = bounds.maxY - bounds.minY;
@@ -61,27 +63,51 @@ export default function CanvasMinimap({
     h: viewWorldH * scale,
   };
 
-  const handleClick = (event: MouseEvent<SVGSVGElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const mx = event.clientX - rect.left;
-    const my = event.clientY - rect.top;
+  const panFromClient = (clientX: number, clientY: number) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const mx = clientX - rect.left;
+    const my = clientY - rect.top;
     const worldX = bounds.minX + mx / scale;
     const worldY = bounds.minY + my / scale;
     onPanToWorld({ x: worldX, y: worldY });
   };
 
+  const handlePointerDown = (event: PointerEvent<SVGSVGElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    panFromClient(event.clientX, event.clientY);
+  };
+
+  const handlePointerMove = (event: PointerEvent<SVGSVGElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    event.preventDefault();
+    panFromClient(event.clientX, event.clientY);
+  };
+
+  const handlePointerUp = (event: PointerEvent<SVGSVGElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
   return (
     <div
-      className="vish-minimap pointer-events-auto absolute bottom-14 right-3 z-20 p-1"
+      className="vish-minimap pointer-events-auto absolute bottom-14 right-3 z-20 flex min-h-[44px] min-w-[44px] items-center justify-center p-1 touch-manipulation"
       data-testid="canvas-minimap"
     >
       <svg
+        ref={svgRef}
         width={mapW}
         height={mapH}
         className="vish-minimap__svg block cursor-crosshair rounded-lg"
-        onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         role="img"
-        aria-label="Canvas minimap — click to pan"
+        aria-label="Canvas minimap — tap or drag to pan"
       >
         <rect width="100%" height="100%" fill={CANVAS_PAPER_FILL} rx="8" />
         {rooms.map((room) => {

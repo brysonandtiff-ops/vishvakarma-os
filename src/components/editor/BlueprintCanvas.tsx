@@ -5,6 +5,11 @@ import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
 import { mapCanvasBufferToDisplay, mapCanvasBufferToWorld, mapPointerToCanvasBuffer, mapPointerToWorldCoords, mapWorldToCanvasBuffer } from '@/utils/canvasPointerCoords';
+import {
+  computeStepZoomFactor,
+  computeWheelZoomFactor,
+  computeZoomedViewport,
+} from '@/utils/canvasViewportZoom';
 import type {
   CanvasViewportState,
   DimensionAnnotation,
@@ -81,8 +86,14 @@ import { drawWallsLayer } from '@/components/editor/blueprint/drawWalls';
 import {
   getInputModeFromPointerType,
   getHitAreaForMode,
+  isEraserPointerButton,
   type CanvasInputMode,
 } from '@/components/editor/blueprint/inputHandlers';
+import {
+  ActivePointerTracker,
+  computeClientCentroid,
+  pointerPairDistance,
+} from '@/utils/canvasTouchGestures';
 import {
   constrainToOrthogonal,
   enforceMinWallLength,
@@ -161,8 +172,26 @@ const LANDSCAPE_TYPE_CYCLE = [...LANDSCAPE_TYPES];
 type CanvasPointerEvent = PointerEvent<HTMLCanvasElement>;
 type InputMode = CanvasInputMode;
 
+const DOUBLE_TAP_MS = 300;
+const DOUBLE_TAP_PX = 24;
+
 function getHitArea(mode: InputMode, base = 10) {
   return getHitAreaForMode(mode, base);
+}
+
+function computeLabelKeyboardOffset(
+  containerTop: number,
+  labelDisplayY: number,
+  keyboardBottomInset: number,
+): number {
+  if (keyboardBottomInset <= 80) return 0;
+  const labelTop = containerTop + labelDisplayY - 28;
+  const labelBottom = labelTop + 36;
+  const visibleBottom = window.innerHeight - keyboardBottomInset;
+  if (labelBottom > visibleBottom) {
+    return labelBottom - visibleBottom + 8;
+  }
+  return 0;
 }
 
 function getInputMode(event: CanvasPointerEvent): InputMode {
@@ -291,7 +320,139 @@ export default function BlueprintCanvas({
   } | null>(null);
   const [dragWallEndpointPosition, setDragWallEndpointPosition] = useState<Point2D | null>(null);
   const panOriginRef = useRef<{ clientX: number; clientY: number; panX: number; panY: number } | null>(null);
+  const pointerTrackerRef = useRef(new ActivePointerTracker());
+  const pinchSessionRef = useRef<{
+    startDistance: number;
+    startZoom: number;
+    prevCentroidClient: { x: number; y: number };
+  } | null>(null);
+  const lastLabelTapRef = useRef<{
+    time: number;
+    labelId: string;
+    clientX: number;
+    clientY: number;
+  } | null>(null);
+  const [isPinching, setIsPinching] = useState(false);
+
+  const cancelTransientInteractions = useCallback(() => {
+    if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
+      floorPlanEngine.abortEditTransaction();
+    }
+    setIsPanning(false);
+    panOriginRef.current = null;
+    setIsDrawing(false);
+    setStartPoint(null);
+    setCurrentPoint(null);
+    setDraggingOpeningId(null);
+    setDragOpeningPosition(null);
+    setDraggingFurnitureId(null);
+    setDragFurniturePosition(null);
+    setDraggingWallEndpoint(null);
+    setDragWallEndpointPosition(null);
+    setMarqueeRect(null);
+    setPreviewOpening(null);
+  }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, floorPlanEngine]);
+
   const spatialIndexRef = useRef(new SpatialIndex());
+
+  const syncActivePointer = useCallback((event: CanvasPointerEvent) => {
+    pointerTrackerRef.current.set(event.pointerId, {
+      pointerId: event.pointerId,
+      pointerType: event.pointerType,
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }, []);
+
+  const clearActivePointer = useCallback((pointerId: number) => {
+    pointerTrackerRef.current.delete(pointerId);
+    if (pointerTrackerRef.current.size() < 2) {
+      setIsPinching(false);
+      pinchSessionRef.current = null;
+    }
+  }, []);
+
+  const beginPinchIfReady = useCallback(() => {
+    const tracker = pointerTrackerRef.current;
+    if (!tracker.shouldEnterTouchGesture()) return false;
+    const touchPointers = tracker.touchPointers();
+    if (touchPointers.length < 2) return false;
+    const startDistance = pointerPairDistance(touchPointers[0]!, touchPointers[1]!);
+    const prevCentroidClient = computeClientCentroid(touchPointers);
+    cancelTransientInteractions();
+    pinchSessionRef.current = {
+      startDistance,
+      startZoom: canvasViewport.zoom,
+      prevCentroidClient,
+    };
+    setIsPinching(true);
+    return true;
+  }, [cancelTransientInteractions, canvasViewport.zoom]);
+
+  const applyPinchGesture = useCallback(() => {
+    const session = pinchSessionRef.current;
+    const tracker = pointerTrackerRef.current;
+    if (!session || tracker.touchPointers().length < 2) return;
+    const touchPointers = tracker.touchPointers();
+    const nextCentroid = computeClientCentroid(touchPointers);
+    const nextDistance = pointerPairDistance(touchPointers[0]!, touchPointers[1]!);
+    const factor = nextDistance / (session.startDistance > 0 ? session.startDistance : 1);
+    const newZoom = session.startZoom * factor;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
+    const centroidBuffer = mapPointerToCanvasBuffer(
+      nextCentroid.x,
+      nextCentroid.y,
+      rect,
+      canvas.width,
+      canvas.height,
+    );
+    const panDxBuffer = (nextCentroid.x - session.prevCentroidClient.x) * scaleX;
+    const panDyBuffer = (nextCentroid.y - session.prevCentroidClient.y) * scaleY;
+
+    const zoomPatch = computeZoomedViewport(
+      canvasViewport,
+      newZoom,
+      centroidBuffer.x,
+      centroidBuffer.y,
+    );
+    applyViewportChange({
+      zoom: zoomPatch.zoom,
+      panX: (zoomPatch.panX ?? canvasViewport.panX) + panDxBuffer,
+      panY: (zoomPatch.panY ?? canvasViewport.panY) + panDyBuffer,
+    });
+    session.prevCentroidClient = nextCentroid;
+  }, [applyViewportChange, canvasViewport]);
+
+  const stepCanvasZoom = useCallback(
+    (direction: 'in' | 'out') => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const anchorBuffer = mapPointerToCanvasBuffer(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+        rect,
+        canvas.width,
+        canvas.height,
+      );
+      const factor = computeStepZoomFactor(direction);
+      applyViewportChange(
+        computeZoomedViewport(
+          canvasViewport,
+          canvasViewport.zoom * factor,
+          anchorBuffer.x,
+          anchorBuffer.y,
+        ),
+      );
+    },
+    [applyViewportChange, canvasViewport],
+  );
+
   const dirtyFlagsRef = useRef<CanvasDirtyFlags>(createEmptyDirtyFlags());
   const drawSceneRef = useRef<() => void>(() => undefined);
   useEffect(() => {
@@ -510,11 +671,123 @@ export default function BlueprintCanvas({
     onOpeningAdd(opening);
   };
 
-  const handlePointerDown = (event: CanvasPointerEvent) => {
-    if (interactionLocked && event.button !== 1 && !(event.button === 0 && event.shiftKey)) {
+  const runHoverPreview = useCallback(
+    (point: Point2D, mode: InputMode) => {
+      setHoveredPoint(point);
+      onPointerCanvasMove?.(point);
+
+      const wall = getWallAtPoint(point, getHitArea(mode));
+      const opening = getOpeningAtPoint(point, mode);
+      setHoveredWall(wall?.id ?? null);
+      setHoveredOpening(opening?.id ?? null);
+
+      if ((currentTool === 'door' || currentTool === 'window') && wall) {
+        const dx = wall.end.x - wall.start.x;
+        const dy = wall.end.y - wall.start.y;
+        const wallLength = Math.hypot(dx, dy);
+        const t = Math.max(
+          0,
+          Math.min(
+            1,
+            ((point.x - wall.start.x) * dx + (point.y - wall.start.y) * dy) / (wallLength * wallLength),
+          ),
+        );
+        setPreviewOpening({
+          position: { x: wall.start.x + dx * t, y: wall.start.y + dy * t },
+          wallId: wall.id,
+          type: currentTool,
+        });
+        return;
+      }
+
+      setPreviewOpening(null);
+    },
+    [currentTool, getOpeningAtPoint, getWallAtPoint, onPointerCanvasMove],
+  );
+
+  const handleEraserPointerDown = (event: CanvasPointerEvent, mode: InputMode) => {
+    const point = getCanvasPoint(event);
+    const opening = getOpeningAtPoint(point, mode);
+    if (opening) {
+      if (selectedOpeningId === opening.id) {
+        onOpeningSelect?.(undefined);
+      } else {
+        onOpeningSelect?.(opening.id);
+        onWallSelect(undefined);
+        onWallsSelect?.([]);
+        onLabelSelect?.(undefined);
+      }
       return;
     }
+
+    const wall = getWallAtPoint(point, getHitArea(mode, 5));
+    if (wall) {
+      const isSelected =
+        selectedWallId === wall.id || (selectedWallIds?.includes(wall.id) ?? false);
+      if (isSelected) {
+        onWallSelect(undefined);
+        onWallsSelect?.([]);
+      } else {
+        if (onWallsSelect) {
+          onWallsSelect([wall.id]);
+        } else {
+          onWallSelect(wall.id);
+        }
+        onOpeningSelect?.(undefined);
+        onLabelSelect?.(undefined);
+      }
+    }
+  };
+
+  const handlePointerDown = (event: CanvasPointerEvent) => {
+    if (pointerTrackerRef.current.shouldRejectIncoming(event.pointerType)) {
+      return;
+    }
+
+    syncActivePointer(event);
+
+    if (pointerTrackerRef.current.shouldEnterTouchGesture()) {
+      event.preventDefault();
+      beginPinchIfReady();
+      return;
+    }
+
+    if (isPinching) {
+      event.preventDefault();
+      return;
+    }
+
+    const allowsPanWhileLocked =
+      currentTool === 'pan' && event.button === 0 ||
+      event.button === 1 ||
+      (event.button === 0 && event.shiftKey);
+
+    if (interactionLocked && !allowsPanWhileLocked) {
+      return;
+    }
+
+    if (isEraserPointerButton(event.button)) {
+      event.preventDefault();
+      const mode = getInputMode(event);
+      setInputMode(mode);
+      handleEraserPointerDown(event, mode);
+      return;
+    }
+
     if (event.button === 1 || (event.button === 0 && event.shiftKey)) {
+      event.preventDefault();
+      panOriginRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        panX: canvasViewport.panX,
+        panY: canvasViewport.panY,
+      };
+      setIsPanning(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+      return;
+    }
+
+    if (currentTool === 'pan' && event.button === 0) {
       event.preventDefault();
       panOriginRef.current = {
         clientX: event.clientX,
@@ -567,10 +840,31 @@ export default function BlueprintCanvas({
 
       const label = getLabelAtPoint(point);
       if (label) {
+        const now = Date.now();
+        const lastTap = lastLabelTapRef.current;
+        const isDoubleTap =
+          lastTap &&
+          lastTap.labelId === label.id &&
+          now - lastTap.time < DOUBLE_TAP_MS &&
+          Math.hypot(event.clientX - lastTap.clientX, event.clientY - lastTap.clientY) < DOUBLE_TAP_PX;
+
+        if (isDoubleTap && onLabelUpdate) {
+          openLabelEdit(label);
+          lastLabelTapRef.current = null;
+          return;
+        }
+
         if (selectedLabelId === label.id && onLabelUpdate) {
           openLabelEdit(label);
           return;
         }
+
+        lastLabelTapRef.current = {
+          time: now,
+          labelId: label.id,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
         onLabelSelect?.(label.id);
         onFixtureSelect?.(undefined);
         onOpeningSelect?.(undefined);
@@ -762,8 +1056,21 @@ export default function BlueprintCanvas({
 
   const handlePointerMove = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    syncActivePointer(event);
+
+    if (isPinching && pointerTrackerRef.current.touchPointers().length >= 2) {
+      applyPinchGesture();
+      return;
+    }
+
     const mode = getInputMode(event);
     setInputMode(mode);
+
+    if (event.pointerType === 'pen' && event.buttons === 0) {
+      const hoverPoint = applyPointSnaps(getRawCanvasPoint(event));
+      runHoverPreview(hoverPoint, mode);
+      return;
+    }
 
     if (isPanning && panOriginRef.current) {
       const canvas = canvasRef.current;
@@ -784,7 +1091,18 @@ export default function BlueprintCanvas({
     onPointerCanvasMove?.(point);
 
     if (isDrawing && startPoint && currentTool === 'wall') {
-      setCurrentPoint(getWallDrawPoint(event, startPoint));
+      const nativeEvent = event.nativeEvent as globalThis.PointerEvent;
+      const coalescedEvents =
+        typeof nativeEvent.getCoalescedEvents === 'function' ? nativeEvent.getCoalescedEvents() : [nativeEvent];
+      const lastCoalesced = coalescedEvents[coalescedEvents.length - 1];
+      const drawEvent = lastCoalesced
+        ? {
+            clientX: lastCoalesced.clientX,
+            clientY: lastCoalesced.clientY,
+            shiftKey: event.shiftKey,
+          }
+        : event;
+      setCurrentPoint(getWallDrawPoint(drawEvent, startPoint));
       return;
     }
 
@@ -861,6 +1179,16 @@ export default function BlueprintCanvas({
 
   const handlePointerUp = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    const wasMultiTouch = isPinching || pointerTrackerRef.current.shouldEnterTouchGesture();
+    clearActivePointer(event.pointerId);
+
+    if (wasMultiTouch) {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      return;
+    }
+
     if (isPanning) {
       setIsPanning(false);
       panOriginRef.current = null;
@@ -930,6 +1258,13 @@ export default function BlueprintCanvas({
 
   const handlePointerCancel = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    clearActivePointer(event.pointerId);
+    if (isPinching) {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      return;
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -1003,14 +1338,15 @@ export default function BlueprintCanvas({
         canvas.width,
         canvas.height,
       );
-      const worldBefore = mapCanvasBufferToWorld(buffer, canvasViewport);
-      const factor = event.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.min(4, Math.max(0.25, canvasViewport.zoom * factor));
-      applyViewportChange({
-        zoom: newZoom,
-        panX: buffer.x - worldBefore.x * newZoom,
-        panY: buffer.y - worldBefore.y * newZoom,
-      });
+      const factor = computeWheelZoomFactor(event.deltaY);
+      applyViewportChange(
+        computeZoomedViewport(
+          canvasViewport,
+          canvasViewport.zoom * factor,
+          buffer.x,
+          buffer.y,
+        ),
+      );
     };
 
     container.addEventListener('wheel', onWheel, { passive: false });
@@ -1250,7 +1586,7 @@ export default function BlueprintCanvas({
   return (
     <div
       ref={containerRef}
-      className="relative w-full max-w-full touch-manipulation"
+      className="vish-paper-grain vish-paper-grain--animated relative w-full max-w-full touch-manipulation"
       style={{
         width: canvasMetrics.displayWidth,
         height: canvasMetrics.displayHeight,
@@ -1261,10 +1597,27 @@ export default function BlueprintCanvas({
       <span className="vish-canvas-hud-badge rounded-md border border-primary/25 bg-background/90 px-2 py-1 text-[10px] font-mono text-foreground shadow-sm backdrop-blur-sm">
         {(canvasViewport.zoom * 100).toFixed(0)}%
       </span>
+      <button
+        type="button"
+        aria-label="Zoom out"
+        className="vish-canvas-zoom-btn touch-target pointer-events-auto rounded-md border border-border bg-background/90 text-muted-foreground shadow-sm backdrop-blur-sm active:text-foreground"
+        onClick={() => stepCanvasZoom('out')}
+      >
+        −
+      </button>
+      <button
+        type="button"
+        aria-label="Zoom in"
+        className="vish-canvas-zoom-btn touch-target pointer-events-auto rounded-md border border-border bg-background/90 text-muted-foreground shadow-sm backdrop-blur-sm active:text-foreground"
+        onClick={() => stepCanvasZoom('in')}
+      >
+        +
+      </button>
       {handleResetViewport && canvasViewport.zoom !== 1 && (
         <button
           type="button"
-          className="vish-canvas-hud-badge pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm hover:text-foreground"
+          aria-label="Reset canvas view"
+          className="vish-canvas-hud-badge pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm active:text-foreground"
           onClick={handleResetViewport}
         >
           Reset view
@@ -1282,6 +1635,8 @@ export default function BlueprintCanvas({
             canvasMetrics.displayHeight,
           )
         : { x: 0, y: 0 };
+      const containerTop = containerRef.current?.getBoundingClientRect().top ?? 0;
+      const keyboardOffset = computeLabelKeyboardOffset(containerTop, displayPos.y, keyboardBottomInset);
       return (
       <input
         ref={labelInputRef}
@@ -1299,7 +1654,7 @@ export default function BlueprintCanvas({
         className="absolute z-10 rounded border border-primary bg-background px-2 py-1 text-sm shadow-md"
         style={{
           left: displayPos.x,
-          top: displayPos.y - 28,
+          top: displayPos.y - 28 - keyboardOffset,
         }}
         autoFocus
         aria-label="Edit label text"

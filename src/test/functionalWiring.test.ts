@@ -58,11 +58,16 @@ describe('Vishvakarma.OS functional wiring guard', () => {
 
   it('keeps App routing driven by the canonical route manifest', () => {
     const app = read('src/App.tsx');
+    const appRoutes = read('src/AppRoutes.tsx');
 
-    expect(app).toContain('import routes from \'./routes\'');
-    expect(app).toContain('routes.map((route) =>');
-    expect(app).toContain('<Route key={route.path} path={route.path} element={route.element} />');
-    expect(app).toContain('<Route path="*" element={<NotFound />} />');
+    expect(app).toContain('import { AppRoutes } from \'@/AppRoutes\'');
+    expect(app).toContain('<AppRoutes />');
+    expect(appRoutes).toContain('path="/editor"');
+    expect(appRoutes).toContain('path="/projects"');
+    expect(appRoutes).toContain('path="/optimization"');
+    expect(appRoutes).toContain('WorkspaceDocumentLayout');
+    expect(appRoutes).toContain('WorkspaceGovernanceLayout');
+    expect(appRoutes).toContain('<AuthAwareNotFound />');
   });
 
   it('keeps protected routing enforced through RouteGuard', () => {

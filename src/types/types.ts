@@ -32,7 +32,7 @@ export interface Opening {
 export interface Material {
   id: string;
   name: string;
-  type: 'paint' | 'wood' | 'concrete' | 'custom';
+  type: 'paint' | 'wood' | 'concrete' | 'stone' | 'tile' | 'metal' | 'glass' | 'custom';
   color: string;
   roughness: number;
   metalness?: number;
@@ -360,6 +360,7 @@ export interface RouteManifestEntry {
 
 export type ToolType =
   | 'select'
+  | 'pan'
   | 'wall'
   | 'door'
   | 'window'

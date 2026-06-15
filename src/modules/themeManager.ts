@@ -1,10 +1,6 @@
 /**
- * Theme Manager Module
- * 
- * Manages theming system aligned with Swan-V Primary Mark branding.
- * Enforces contrast rules and theme propagation across all UI surfaces.
- * 
- * Part of STEP 9 - Theming & Accessibility
+ * @deprecated Use CSS variables in src/styles/vish-tokens.css and vish-layout-tokens.css.
+ * Retained for legacy tests only — not wired to production UI.
  */
 
 export interface ThemeColors {

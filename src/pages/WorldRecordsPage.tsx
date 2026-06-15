@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Copy, ExternalLink, Loader2, ShieldCheck, Trophy } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
@@ -74,10 +73,10 @@ export default function WorldRecordsPage() {
   const proposedCount = records.filter((record) => record.status === 'proposed').length;
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="World Record Registry"
           description="Measurable claims with SHA-256 evidence — honest status labels only"
           actions={
@@ -192,7 +191,7 @@ export default function WorldRecordsPage() {
                     <div className="rounded-lg border border-border bg-muted/30 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Evidence SHA-256</p>
-                        <Button type="button" size="sm" variant="ghost" className="h-7 px-2" onClick={() => copyHash(record.evidenceHash)}>
+                        <Button type="button" size="sm" variant="ghost" className="touch-target px-3" onClick={() => copyHash(record.evidenceHash)}>
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -239,7 +238,6 @@ export default function WorldRecordsPage() {
             )}
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
-    </AppLayout>
+    </>
   );
 }

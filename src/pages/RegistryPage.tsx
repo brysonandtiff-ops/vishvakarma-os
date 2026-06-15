@@ -12,8 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, Database, Wrench, Box, Layers, Loader2, AlertCircle } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
@@ -67,10 +66,10 @@ export default function RegistryPage() {
   };
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="Registry Center"
           description="Component and feature registry — track every system element"
           actions={<NewRegistryDialog onEntryCreated={loadEntries} />}
@@ -206,8 +205,7 @@ export default function RegistryPage() {
             )}
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
-    </AppLayout>
+    </>
   );
 }
 

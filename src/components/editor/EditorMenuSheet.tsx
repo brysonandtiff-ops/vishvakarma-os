@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+/** @deprecated Use EditorSidebarSections in AppLayout workspace sidebar instead. Kept for safe rollback. */
 import {
   Box,
   Download,
@@ -7,8 +9,8 @@ import {
   Plus,
   Save,
   Package,
-  Sparkles,
 } from 'lucide-react';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 
@@ -29,12 +31,12 @@ interface EditorMenuSheetProps {
 }
 
 function MenuAction({
-  icon: Icon,
+  icon,
   label,
   onClick,
   active,
 }: {
-  icon: typeof Plus;
+  icon: ReactNode;
   label: string;
   onClick: () => void;
   active?: boolean;
@@ -46,7 +48,7 @@ function MenuAction({
       className={`touch-target h-12 w-full justify-start gap-3 text-sm ${active ? 'border-primary/50 bg-primary/10' : ''}`}
       onClick={onClick}
     >
-      <Icon className="h-4 w-4 shrink-0" />
+      <span className="flex h-4 w-4 shrink-0 items-center justify-center">{icon}</span>
       {label}
     </Button>
   );
@@ -83,16 +85,22 @@ export default function EditorMenuSheet({
         </SheetHeader>
         <div className="flex flex-col gap-2 p-4">
           <p className="px-1 text-[10px] font-semibold uppercase tracking-widest text-ws-text-faint">Project</p>
-          <MenuAction icon={Plus} label="New project" onClick={() => run(onNewProject)} />
-          <MenuAction icon={FolderOpen} label="Open project" onClick={() => run(onOpenProject)} />
-          <MenuAction icon={Save} label="Save" onClick={() => run(onSave)} />
-          <MenuAction icon={Download} label="Import floor plan" onClick={() => run(onImport)} />
-          <MenuAction icon={FileDown} label="Export floor plan" onClick={() => run(onExport)} />
-          <MenuAction icon={Package} label="Load sample blueprint" onClick={() => run(onLoadSample)} />
-          {onAIDesigner && <MenuAction icon={Sparkles} label="Architecture Copilot" onClick={() => run(onAIDesigner)} />}
+          <MenuAction icon={<Plus className="h-4 w-4" />} label="New project" onClick={() => run(onNewProject)} />
+          <MenuAction icon={<FolderOpen className="h-4 w-4" />} label="Open project" onClick={() => run(onOpenProject)} />
+          <MenuAction icon={<Save className="h-4 w-4" />} label="Save" onClick={() => run(onSave)} />
+          <MenuAction icon={<Download className="h-4 w-4" />} label="Import floor plan" onClick={() => run(onImport)} />
+          <MenuAction icon={<FileDown className="h-4 w-4" />} label="Export floor plan" onClick={() => run(onExport)} />
+          <MenuAction icon={<Package className="h-4 w-4" />} label="Load sample blueprint" onClick={() => run(onLoadSample)} />
+          {onAIDesigner && (
+            <MenuAction
+              icon={<CopilotSwanMark motion="idle" size="xs" />}
+              label="Architecture Copilot"
+              onClick={() => run(onAIDesigner)}
+            />
+          )}
           <p className="mt-2 px-1 text-[10px] font-semibold uppercase tracking-widest text-ws-text-faint">View</p>
-          <MenuAction icon={Box} label={show3DView ? 'Hide 3D view' : 'Show 3D view'} active={show3DView} onClick={() => run(onToggle3D)} />
-          <MenuAction icon={Grid3x3} label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={() => run(onToggleGrid)} />
+          <MenuAction icon={<Box className="h-4 w-4" />} label={show3DView ? 'Hide 3D view' : 'Show 3D view'} active={show3DView} onClick={() => run(onToggle3D)} />
+          <MenuAction icon={<Grid3x3 className="h-4 w-4" />} label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={() => run(onToggleGrid)} />
         </div>
       </SheetContent>
     </Sheet>

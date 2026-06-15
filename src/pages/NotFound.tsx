@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
 import { Button } from '@/components/ui/button';
-import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -10,7 +9,7 @@ export default function NotFound() {
   const editorTo = user ? '/editor' : '/auth';
 
   return (
-    <MarketingLayout>
+    <>
       <PageMeta title="404 — Not Found" description="This Vishvakarma.OS route does not exist." />
       <section className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
         <MarketingPageHeader
@@ -28,6 +27,6 @@ export default function NotFound() {
           </Button>
         </div>
       </section>
-    </MarketingLayout>
+    </>
   );
 }

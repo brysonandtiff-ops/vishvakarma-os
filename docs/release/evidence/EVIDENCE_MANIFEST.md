@@ -17,7 +17,7 @@ This file is the production release evidence ledger. It must be updated whenever
 |---|---|---|---|
 | Verify workflow | Install, lint, tests, route smoke, build | PASS | Local `pnpm run lint:types`, `pnpm run test`, `pnpm run build` |
 | 2D/3D parity | Polygon room volumes + dynamic origin | PASS | [`2d-3d-parity-proof.md`](2d-3d-parity-proof.md) |
-| iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts) |
+| iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts), [`e2e/ipad-governance-layout.spec.ts`](../../../e2e/ipad-governance-layout.spec.ts) |
 | Editor perf overhaul | Mock audit + wiring matrix | PASS | [`editor-performance-overhaul-proof.md`](editor-performance-overhaul-proof.md) — `pnpm run test:perf-overhaul` |
 
 ## Backend Evidence
@@ -32,8 +32,8 @@ This file is the production release evidence ledger. It must be updated whenever
 |---|---|---|---|---|
 | Desktop Chrome | Save/load determinism | PASS | Automated | `saveLoadDeterminism.test.ts` |
 | Desktop Chrome | 2D/3D parity | PASS | Automated | `parity2d3d.test.ts` |
-| iPad / tablet | Touch target audit | PASS | Playwright coarse-pointer | `ipad-editor-layout.spec.ts` |
-| iPad / tablet | Canvas zoom readout | PASS | Playwright | Wheel zoom status bar smoke |
+| iPad / tablet | Touch target audit | PASS | Playwright coarse-pointer | `ipad-editor-layout.spec.ts`, `ipad-governance-layout.spec.ts` |
+| iPad / tablet | Canvas zoom readout | PASS | Playwright | Wheel + touch zoom button status bar smoke |
 
 ## v1.4 Feature Evidence
 

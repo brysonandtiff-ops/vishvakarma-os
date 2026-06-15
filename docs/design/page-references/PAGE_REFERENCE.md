@@ -2,7 +2,7 @@
 
 Visual reference screenshots for every route and key UI state. Use these when designing or refactoring individual pages.
 
-**Captured:** 2026-06-08 (refreshed 21:04 AWST) — regenerate after UI polish pass: `pnpm run capture:page-references`  
+**Captured:** 2026-06-15 — regenerate after UI polish pass: `pnpm run capture:page-references`  
 **Viewport:** iPad landscape 1194×834  
 **Command:** `pnpm run capture:page-references`  
 **Output:** `docs/design/page-references/`

@@ -14,11 +14,12 @@ function deriveAnimationState(
   fixing: boolean,
   scanning: boolean,
   issueCount: number,
+  panelOpen: boolean,
 ): ArchitectureBotAnimationState {
   if (fixing) return 'fixing';
   if (scanning) return 'scanning';
-  if (issueCount === 0) return 'healthy';
   if (issueCount > 0) return 'attention';
+  if (panelOpen) return 'healthy';
   return 'idle';
 }
 
@@ -51,7 +52,7 @@ export function useArchitectureBot({
   );
 
   const issueCount = countActionableIssues(issues);
-  const animationState = deriveAnimationState(fixing, scanning, issueCount);
+  const animationState = deriveAnimationState(fixing, scanning, issueCount, panelOpen);
 
   const rescan = useCallback(() => {
     setScanning(true);

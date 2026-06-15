@@ -7,7 +7,7 @@ import {
 export function PrototypeDisclaimerBadge() {
   return (
     <div
-      className="pointer-events-none fixed bottom-16 left-3 z-50 max-w-[min(100vw-1.5rem,20rem)] text-[11px] tracking-wide text-primary/60 lg:bottom-3"
+      className="pointer-events-none fixed bottom-16 left-3 z-50 max-w-[min(100vw-1.5rem,20rem)] text-[11px] tracking-wide text-primary/60 tablet:bottom-20 lg:bottom-3"
       data-testid="prototype-disclaimer-badge"
       aria-hidden="true"
     >

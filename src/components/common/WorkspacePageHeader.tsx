@@ -28,7 +28,7 @@ export default function WorkspacePageHeader({
         'gov-page-header shrink-0',
         animate && 'vish-panel-reveal',
         inset
-          ? 'mb-6 rounded-xl border border-border/60 bg-card/80 px-5 py-5 shadow-sm md:px-6 md:py-6'
+          ? 'vish-crafted-card mb-6 rounded-xl border border-border/60 bg-card/80 px-5 py-5 shadow-sm md:px-6 md:py-6'
           : 'border-b border-border/60 bg-card/40 px-6 py-5 md:px-8',
       )}
     >
@@ -37,7 +37,7 @@ export default function WorkspacePageHeader({
           {eyebrow && (
             <p className="vish-eyebrow text-primary">{eyebrow}</p>
           )}
-          <h1 className="text-lg font-bold tracking-tight text-foreground">{title}</h1>
+          <h1 className="text-page-title md:text-page-title-lg font-bold tracking-tight text-foreground">{title}</h1>
           {description && (
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{description}</p>
           )}

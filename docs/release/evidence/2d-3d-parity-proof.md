@@ -1,11 +1,17 @@
 # 2D / 3D Parity Proof
 
-Generated from commit: `v1.3.0 editor visual upgrade`
+Generated from commit: `max realism visual upgrade`
 Deployment URL: https://vishvakarma-os.app
 Vercel fallback URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-14T21:30:00.000Z
+Generated at: 2026-06-15T18:30:00.000Z
 Operator: automated local verify
-Result: PASS — sample project counts, scene origin, and room detection verified
+Result: PASS — bundled PBR catalog, expanded material presets, Indian furniture parametric meshes, and shared pattern keys verified
+
+## Max realism upgrade (2026-06-15)
+
+- 2D pattern overlays extended for `plaster`, `marble`, `tile`, `metal` (512px procedural fallback).
+- Material picker swatches render pattern previews aligned with 3D `PbrSurfaceMaterial` bundles.
+- Indian furniture types (`mandir`, `diwan`, `charpai`, `jali_screen`, `puja_shelf`, `modular_kitchen_base`) use dedicated parametric 3D meshes matching 2D silhouettes.
 
 ## Purpose
 

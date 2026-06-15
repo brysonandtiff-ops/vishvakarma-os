@@ -25,6 +25,7 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
 
     expect(source).toContain(`OFFICIAL_LOGO_SRC = '${officialLogoPath}'`);
     expect(source).toContain(`OFFICIAL_LOGO_FAVICON_SRC = '${officialLogoPath}'`);
+    expect(source).toContain('COPILOT_SWAN_FLAP_FRAMES');
     expect(source).not.toContain('/logo.webp');
   });
 

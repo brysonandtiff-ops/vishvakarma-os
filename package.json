@@ -60,6 +60,7 @@
     "pipeline": "node scripts/run-pipeline.mjs",
     "production:verify-env": "node scripts/production/verify-env.mjs",
     "setup:scene-models": "node scripts/setup-scene-models.mjs",
+    "setup:scene-textures": "node scripts/setup-scene-textures.mjs",
     "verify:supabase-schema": "node scripts/verify-supabase-schema.mjs",
     "verify:supabase-schema:live": "node scripts/verify-supabase-schema.mjs --live",
     "verify:production-auth-flow": "node scripts/verify-production-auth-flow.mjs",

@@ -33,7 +33,7 @@ export function MarketingNav() {
 
   return (
     <header className="vish-marketing-nav sticky top-0 z-50 px-4 py-3 md:px-8 md:py-4">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+      <div className="mx-auto flex max-w-page-marketing items-center justify-between gap-4">
         <Link to="/" className="vish-marketing-nav-brand flex items-center gap-3 no-underline">
           <span className="vish-marketing-nav-logo">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS" className="h-9 w-9 rounded-xl object-cover" />

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { editorDialogClassNameLg } from '@/lib/editorDialog';
@@ -114,7 +115,7 @@ export default function NewProjectDialog({
                 onOpenAIDesigner();
               }}
             >
-              <Sparkles className="h-4 w-4" />
+              <CopilotSwanMark motion="idle" size="sm" />
               Start with Architecture Copilot
             </Button>
           )}

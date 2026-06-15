@@ -1,0 +1,66 @@
+/* Vishvakarma.OS — Layout, spacing, and page-width tokens (single authority) */
+
+:root {
+  /* Page container widths */
+  --vish-page-narrow: 42rem;      /* profile / account */
+  --vish-page-standard: 72rem;    /* projects, optimization */
+  --vish-page-wide: 88rem;        /* governance cluster */
+  --vish-page-marketing: 72rem;   /* marketing sections */
+
+  /* Page padding */
+  --vish-page-padding-x: 1.5rem;
+  --vish-page-padding-y: 2rem;
+  --vish-page-padding-x-md: 2rem;
+  --vish-page-padding-y-md: 2rem;
+
+  /* Section rhythm */
+  --vish-section-gap: 1.5rem;
+  --vish-section-gap-lg: 2rem;
+  --vish-panel-gap: 1rem;
+  --vish-panel-padding: 1.25rem;
+
+  /* Nav chrome */
+  --vish-nav-row-height: 2.75rem; /* 44px touch target */
+  --vish-sidebar-width: 15rem;
+  --vish-sidebar-collapsed: 4rem;
+
+  /* Primary workspace breakpoint — matches tailwind `tablet` and ipad-workspace.css */
+  --vish-tablet-min: 1194px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --vish-page-padding-x: var(--vish-page-padding-x-md);
+    --vish-section-gap: var(--vish-section-gap-lg);
+  }
+}
+
+/* Page container utilities */
+.vish-page-container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--vish-page-padding-x);
+  padding-block: var(--vish-page-padding-y);
+}
+
+.vish-page-container--narrow {
+  max-width: var(--vish-page-narrow);
+}
+
+.vish-page-container--standard {
+  max-width: var(--vish-page-standard);
+}
+
+.vish-page-container--wide {
+  max-width: var(--vish-page-wide);
+}
+
+.vish-page-container--marketing {
+  max-width: var(--vish-page-marketing);
+}
+
+.vish-section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vish-section-gap);
+}

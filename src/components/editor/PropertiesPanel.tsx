@@ -341,7 +341,7 @@ export default function PropertiesPanel({
                       <button
                         type="button"
                         onClick={() => onOpeningDelete(opening.id)}
-                        className="flex h-5 w-5 items-center justify-center rounded text-ws-text-faint transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-ws-text-faint transition-colors hover:bg-destructive/20 hover:text-destructive active:bg-destructive/20 active:text-destructive"
                         aria-label={`Delete ${opening.type}`}
                       >
                         <Trash2 className="h-3 w-3" />

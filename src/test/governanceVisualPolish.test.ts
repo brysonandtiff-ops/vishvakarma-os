@@ -38,13 +38,13 @@ describe('Governance visual polish', () => {
       'src/pages/ReleasesPage.tsx',
       'src/pages/AuditLogPage.tsx',
       'src/pages/WorldRecordsPage.tsx',
+      'src/pages/OptimizationPage.tsx',
     ];
 
     for (const page of pages) {
       const source = read(page);
-      expect(source).toContain('WorkspacePageShell');
       expect(source).toContain('WorkspacePageHeader');
-      expect(source).toContain('AppLayout');
+      expect(source).not.toContain('<AppLayout');
     }
 
     const header = read('src/components/common/WorkspacePageHeader.tsx');
@@ -56,11 +56,13 @@ describe('Governance visual polish', () => {
     const profile = read('src/pages/ProfilePage.tsx');
     const header = read('src/components/common/WorkspacePageHeader.tsx');
     const shell = read('src/components/layouts/WorkspacePageShell.tsx');
+    const appRoutes = read('src/AppRoutes.tsx');
 
     expect(projects).toContain('WorkspacePageHeader');
-    expect(projects).toContain('WorkspacePageShell');
+    expect(projects).not.toContain('<AppLayout');
     expect(profile).toContain('WorkspacePageHeader');
-    expect(profile).toContain('WorkspacePageShell');
+    expect(profile).not.toContain('<AppLayout');
+    expect(appRoutes).toContain('WorkspaceDocumentLayout');
     expect(header).toContain('gov-page-header');
     expect(shell).toContain("variant?: 'governance' | 'document'");
   });

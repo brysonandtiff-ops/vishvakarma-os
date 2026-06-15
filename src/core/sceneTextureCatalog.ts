@@ -5,10 +5,14 @@ import { LANDSCAPE_TYPES } from '@/core/sceneVisualCatalog';
 export type SurfaceRole = 'wood' | 'fabric' | 'leaf' | 'bark' | 'stone' | 'grass' | 'water';
 
 const MATERIAL_TYPE_PATTERNS: Record<string, PatternKey> = {
-  paint: 'paint',
+  paint: 'plaster',
   wood: 'wood',
   concrete: 'concrete',
-  custom: 'paint',
+  stone: 'marble',
+  tile: 'tile',
+  metal: 'metal',
+  glass: 'paint',
+  custom: 'plaster',
 };
 
 export function getPatternForMaterialType(type: string): PatternKey {
@@ -20,7 +24,11 @@ export function getPresetPatternForMaterial(materialId: string): PatternKey {
   if (preset) return getPatternForMaterialType(preset.type);
   if (materialId.includes('wood')) return 'wood';
   if (materialId.includes('concrete')) return 'concrete';
-  return 'paint';
+  if (materialId.includes('marble') || materialId.includes('stone')) return 'marble';
+  if (materialId.includes('tile')) return 'tile';
+  if (materialId.includes('metal')) return 'metal';
+  if (materialId.includes('glass')) return 'plaster';
+  return 'plaster';
 }
 
 export function getPatternForSurfaceRole(role: SurfaceRole): PatternKey {

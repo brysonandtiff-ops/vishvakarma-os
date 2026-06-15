@@ -10,7 +10,8 @@ import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
 import { Box } from 'lucide-react';
-import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
+import { useGovernanceNav } from '@/components/layouts/AppLayout';
+import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import CanvasMinimap from '@/components/editor/CanvasMinimap';
 import EditorLayerPanel from '@/components/editor/EditorLayerPanel';
@@ -24,7 +25,6 @@ import SolarTimeline from '@/components/editor/SolarTimeline';
 import ToolRail from '@/components/editor/ToolRail';
 import { createProject, getProjects, updateProject } from '@/db/api';
 import DraftRecoveryDialog from '@/components/editor/DraftRecoveryDialog';
-import EditorMenuSheet from '@/components/editor/EditorMenuSheet';
 import ExportFloorPlanDialog from '@/components/editor/ExportFloorPlanDialog';
 import { usePlanTier } from '@/hooks/usePlanTier';
 import ImportFloorPlanDialog from '@/components/editor/ImportFloorPlanDialog';
@@ -56,6 +56,9 @@ import EditorPerfHud from '@/components/editor/EditorPerfHud';
 import PerformanceProfilePanel from '@/components/editor/panels/PerformanceProfilePanel';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import { useGeometryRevision } from '@/hooks/useGeometryRevision';
+import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
+import { mapPointerToCanvasBuffer } from '@/utils/canvasPointerCoords';
+import { computeStepZoomFactor, computeZoomedViewport } from '@/utils/canvasViewportZoom';
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
 import type { Presence } from '@/collaboration/types';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
@@ -91,11 +94,7 @@ import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
 export default function EditorPage() {
-  return (
-    <AppLayout immersive>
-      <EditorWorkspace />
-    </AppLayout>
-  );
+  return <EditorWorkspace />;
 }
 
 function EditorWorkspace() {
@@ -162,6 +161,7 @@ function EditorWorkspace() {
   const layerVisibility = session.layerVisibility;
   const showAllFloorsIn3D = session.showAllFloorsIn3D;
   const canvasStageRef = useRef<HTMLDivElement>(null);
+  const { bottomInset: keyboardBottomInset } = useVisualViewportInset();
 
   const [unitSystem] = useState<UnitSystem>('metric');
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
@@ -180,7 +180,6 @@ function EditorWorkspace() {
   const [aiDesignerOpen, setAiDesignerOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [editorMenuOpen, setEditorMenuOpen] = useState(false);
   const [freshSignIn] = useState(() => consumeFreshSignIn());
   const [welcomeOpen, setWelcomeOpen] = useState(() => !freshSignIn && !isOnboardingDismissed());
   const [selectedLabelId, setSelectedLabelId] = useState<string | undefined>();
@@ -240,6 +239,35 @@ function EditorWorkspace() {
       });
     },
     [canvasViewport.zoom, engine],
+  );
+
+  const handleStepZoom = useCallback(
+    (direction: 'in' | 'out') => {
+      const canvasEl = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+      if (!canvasEl) {
+        const factor = computeStepZoomFactor(direction);
+        engine.setCanvasViewport({ zoom: canvasViewport.zoom * factor });
+        return;
+      }
+      const rect = canvasEl.getBoundingClientRect();
+      const anchorBuffer = mapPointerToCanvasBuffer(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+        rect,
+        canvasEl.width,
+        canvasEl.height,
+      );
+      const factor = computeStepZoomFactor(direction);
+      engine.setCanvasViewport(
+        computeZoomedViewport(
+          canvasViewport,
+          canvasViewport.zoom * factor,
+          anchorBuffer.x,
+          anchorBuffer.y,
+        ),
+      );
+    },
+    [canvasViewport, engine],
   );
 
   const buildManifest = useCallback((): ProjectManifest => {
@@ -372,8 +400,7 @@ function EditorWorkspace() {
         newProjectOpen ||
         loadDialogOpen ||
         exportDialogOpen ||
-        importDialogOpen ||
-        editorMenuOpen
+        importDialogOpen
       ) {
         return;
       }
@@ -424,6 +451,9 @@ function EditorWorkspace() {
       } else if (event.key === 'u' || event.key === 'U') {
         event.preventDefault();
         setTool('stair');
+      } else if (event.key === 'h' || event.key === 'H') {
+        event.preventDefault();
+        setTool('pan');
       } else if (event.key === 'g' || event.key === 'G') {
         event.preventDefault();
         engine.setGridVisible(!gridVisible);
@@ -452,7 +482,6 @@ function EditorWorkspace() {
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [
-    editorMenuOpen,
     engine,
     exportDialogOpen,
     gridVisible,
@@ -783,6 +812,33 @@ function EditorWorkspace() {
     revision: geometryRevision,
     callbacks: architectureBotCallbacks,
   });
+
+  const editorSidebarConfig = useMemo(
+    () => ({
+      onNewProject: () => setNewProjectOpen(true),
+      onOpenProject: () => setLoadDialogOpen(true),
+      onSave: () => void handleSaveProject(),
+      onImport: () => setImportDialogOpen(true),
+      onExport: () => setExportDialogOpen(true),
+      onLoadSample: openSamplePicker,
+      onAIDesigner: () => setAiDesignerOpen(true),
+      onToggle3D: () => engine.setShow3D(!show3DView),
+      onToggleGrid: () => engine.setGridVisible(!gridVisible),
+      show3DView,
+      gridVisible,
+      savingProject,
+    }),
+    [
+      engine,
+      gridVisible,
+      handleSaveProject,
+      openSamplePicker,
+      savingProject,
+      show3DView,
+    ],
+  );
+  useRegisterEditorSidebar(editorSidebarConfig);
+
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
   const deferredWalls = useDeferredValue(walls);
@@ -924,7 +980,7 @@ function EditorWorkspace() {
             architectureBot.openPanel();
           }}
           savingProject={savingProject}
-          onOpenEditorMenu={() => setEditorMenuOpen(true)}
+          onOpenEditorMenu={openNav}
           onOpenGovernance={openNav}
           onUndo={handleUndo}
           onRedo={handleRedo}
@@ -948,6 +1004,11 @@ function EditorWorkspace() {
               <div
                 ref={canvasStageRef}
                 className="vish-canvas-stage relative flex-1 overflow-auto p-4"
+                style={
+                  keyboardBottomInset > 80
+                    ? { paddingBottom: keyboardBottomInset + 16 }
+                    : undefined
+                }
               >
                 <p className="vish-editor-mantra-watermark" aria-hidden="true">
                   ॐ वास्तु · शिल्प · प्रमाण
@@ -1098,7 +1159,7 @@ function EditorWorkspace() {
 
             {show3DView && (
               <section
-                className={`vish-3d-viewport-pane flex shrink-0 flex-col border-l border-ws-border ${
+                className={`vish-3d-viewport-pane vish-realism-viewport-frame flex shrink-0 flex-col border-l border-ws-border ${
                   presentationLock ? 'w-96 md:w-[28rem] lg:w-[32rem]' : 'w-80 md:w-96'
                 }`}
                 data-tutorial="viewport-3d"
@@ -1144,7 +1205,7 @@ function EditorWorkspace() {
           </div>
 
           {!presentationLock && !zenMode && (
-          <aside className="vish-dark-panel ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
+          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
             <PropertiesPanel
               currentTool={currentTool}
               selectedWall={selectedWall}
@@ -1189,24 +1250,11 @@ function EditorWorkspace() {
           canvasZoom={canvasViewport.zoom}
           onToggleDimensions={() => engine.setDimensionVisibility(!engine.getDimensionVisibility())}
           onResetViewport={() => engine.resetCanvasViewport()}
+          onZoomIn={() => handleStepZoom('in')}
+          onZoomOut={() => handleStepZoom('out')}
         />
       </div>
 
-      <EditorMenuSheet
-        open={editorMenuOpen}
-        onOpenChange={setEditorMenuOpen}
-        onNewProject={() => setNewProjectOpen(true)}
-        onOpenProject={() => setLoadDialogOpen(true)}
-        onSave={handleSaveProject}
-        onImport={() => setImportDialogOpen(true)}
-        onExport={() => setExportDialogOpen(true)}
-        onLoadSample={openSamplePicker}
-        onAIDesigner={() => setAiDesignerOpen(true)}
-        onToggle3D={() => engine.setShow3D(!show3DView)}
-        onToggleGrid={() => engine.setGridVisible(!gridVisible)}
-        show3DView={show3DView}
-        gridVisible={gridVisible}
-      />
       <DraftRecoveryDialog
         open={recoveryDialogOpen}
         draft={recoveryDraft}

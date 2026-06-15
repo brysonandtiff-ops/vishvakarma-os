@@ -15,7 +15,6 @@ import {
   Redo2,
   Route,
   Save,
-  Sparkles,
   Sofa,
   Undo2,
   Upload,
@@ -30,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import type { WorkspaceMode } from '@/types';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
@@ -168,7 +168,7 @@ export default function EditorTopBar({
       <div className="vish-editor-topbar-grid">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (
-            <IconButton label="Open editor menu" onClick={onOpenEditorMenu}>
+            <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>
               <Menu className="h-4 w-4" />
             </IconButton>
           )}
@@ -264,14 +264,14 @@ export default function EditorTopBar({
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onOpenAIDesigner} data-testid="editor-ai-designer">
-                    <Sparkles className="mr-2 h-4 w-4" />
+                    <CopilotSwanMark motion="idle" size="xs" className="mr-2" />
                     Architecture Copilot
                   </DropdownMenuItem>
                 </>
               )}
               {onOpenArchitectureBot && (
                 <DropdownMenuItem onClick={onOpenArchitectureBot} data-testid="editor-architecture-bot">
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <CopilotSwanMark motion="idle" size="xs" className="mr-2" />
                   Architecture Bot
                 </DropdownMenuItem>
               )}

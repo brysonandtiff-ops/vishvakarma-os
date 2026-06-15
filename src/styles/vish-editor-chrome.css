@@ -15,6 +15,14 @@
   box-shadow: inset -1px 0 0 hsl(var(--ws-active) / 0.1);
 }
 
+.vish-workspace-shell .architect-tool-dock.vish-ink-depth,
+.vish-workspace-shell .architect-tool-dock {
+  box-shadow:
+    inset -1px 0 0 hsl(var(--ws-active) / 0.1),
+    inset 0 1px 0 hsl(var(--ws-active) / 0.08),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.2);
+}
+
 .architect-tool-button {
   position: relative;
   display: flex;
@@ -444,7 +452,7 @@
   box-shadow:
     inset 0 0 0 1px hsl(var(--ws-active) / 0.1),
     inset 0 0 90px hsl(var(--ws-active) / 0.05),
-    0 28px 80px hsl(0 0% 0% / 0.32),
+    var(--vish-depth-md),
     0 4px 12px hsl(0 0% 0% / 0.08);
   border-radius: 0.65rem;
 }
@@ -531,11 +539,18 @@
   }
 }
 
-/* Immersive editor FAB reposition */
+/* Immersive editor FAB — sit below top bar, clear of primary controls */
 .vish-workspace-shell[data-immersive='true'] .vish-mobile-nav-fab {
   bottom: auto;
-  top: calc(0.75rem + var(--vish-safe-top));
-  left: calc(0.75rem + var(--vish-safe-left));
+  top: calc(4.5rem + var(--vish-safe-top, 0px));
+  left: calc(0.75rem + var(--vish-safe-left, 0px));
+  z-index: 35;
+}
+
+@media (max-width: 1193px) {
+  .vish-workspace-shell[data-immersive='true'] .vish-editor-topbar {
+    padding-left: calc(3.25rem + var(--vish-safe-left, 0px));
+  }
 }
 
 @media (pointer: coarse), (hover: none) {
@@ -570,6 +585,29 @@
   min-width: 16rem;
   max-width: min(52vw, 36rem);
   position: relative;
+  background:
+    radial-gradient(circle at 50% 0%, hsl(43 48% 22% / 0.22), transparent 55%),
+    radial-gradient(circle at 100% 100%, hsl(30 24% 8% / 0.65), transparent 45%),
+    var(--vish-3d-bg);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.1),
+    inset 0 0 0 1px hsl(var(--vish-gold) / 0.08);
+}
+
+.vish-3d-viewport-pane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    hsl(0 0% 100% / 0.04) 2px,
+    hsl(0 0% 100% / 0.04) 3px
+  );
 }
 
 @media (pointer: fine) {
@@ -593,7 +631,7 @@
 }
 
 :root {
-  --vish-3d-bg: #14100a;
+  --vish-3d-bg: #120e08;
 }
 
 .vish-3d-viewport-header {
@@ -621,6 +659,13 @@
 .vish-3d-badge-muted {
   background: hsl(var(--ws-border-subtle));
   border: 1px solid hsl(var(--ws-border));
+}
+
+.vish-3d-atmosphere-btn.bg-primary {
+  box-shadow:
+    0 0 0 1px hsl(var(--vish-gold) / 0.42),
+    0 0 16px hsl(var(--vish-gold) / 0.28),
+    inset 0 1px 0 hsl(0 0% 100% / 0.12);
 }
 
 .vish-3d-orbit-hint {
@@ -869,152 +914,10 @@
   line-height: 1.55;
 }
 
-/* ── Architecture Bot (floating AI assistant) ── */
-
-.vish-arch-bot-root {
-  pointer-events: auto;
-}
-
-.vish-arch-bot-character {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.5rem;
-  height: 4.5rem;
-}
-
-.vish-arch-bot-aura {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 1px solid hsl(var(--primary) / 0.28);
-  animation: vish-mandala-drift 18s linear infinite;
-}
-
-.vish-arch-bot-aura--outer {
-  inset: -0.35rem;
-  border-color: hsl(var(--primary) / 0.14);
-  animation-duration: 24s;
-  animation-direction: reverse;
-}
-
-.vish-arch-bot-logo-tile {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 1.1rem;
-  background:
-    radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.22), transparent 55%),
-    hsl(var(--ws-toolbar) / 0.92);
-  border: 1px solid hsl(var(--primary) / 0.35);
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.08),
-    0 10px 28px hsl(0 0% 0% / 0.28);
-}
-
-.vish-arch-bot-sparkle {
-  position: absolute;
-  top: -0.15rem;
-  right: -0.1rem;
-  z-index: 2;
-  color: hsl(var(--primary));
-  filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.55));
-}
-
-.vish-arch-bot-badge {
-  position: absolute;
-  top: -0.2rem;
-  right: -0.15rem;
-  z-index: 3;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.25rem;
-  border-radius: 9999px;
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
-  font-size: 0.625rem;
-  font-weight: 700;
-  line-height: 1.25rem;
-  text-align: center;
-  box-shadow: 0 0 0 2px hsl(var(--ws-canvas));
-}
-
-.vish-arch-bot-idle .vish-arch-bot-logo-tile {
-  animation: vish-auth-logo-breathe 4.2s ease-in-out infinite;
-}
-
-.vish-arch-bot-scan .vish-arch-bot-aura {
-  animation: vish-arch-bot-scan-spin 1.4s linear infinite;
-}
-
-.vish-arch-bot-fix .vish-arch-bot-logo-tile {
-  animation: vish-arch-bot-fix-pulse 0.85s ease-in-out infinite;
-}
-
-.vish-arch-bot-success .vish-arch-bot-logo-tile {
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.2),
-    0 0 24px hsl(var(--primary) / 0.35),
-    0 10px 28px hsl(0 0% 0% / 0.28);
-}
-
-.vish-arch-bot-attention .vish-arch-bot-logo-tile {
-  animation: vish-arch-bot-attention-glow 2.4s ease-in-out infinite;
-}
-
-.vish-arch-bot-panel {
-  width: min(22rem, calc(100vw - 2rem));
-}
-
-@keyframes vish-arch-bot-scan-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes vish-arch-bot-fix-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 0 1px hsl(var(--primary) / 0.08),
-      0 10px 28px hsl(0 0% 0% / 0.28);
-  }
-  50% {
-    transform: scale(1.04);
-    box-shadow:
-      0 0 0 1px hsl(var(--primary) / 0.25),
-      0 0 18px hsl(var(--primary) / 0.35),
-      0 10px 28px hsl(0 0% 0% / 0.28);
-  }
-}
-
-@keyframes vish-arch-bot-attention-glow {
-  0%,
-  100% {
-    border-color: hsl(var(--primary) / 0.35);
-  }
-  50% {
-    border-color: hsl(var(--primary) / 0.72);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .vish-editor-overlay-backdrop,
   .vish-workspace-shell .architect-tool-button.active,
-  .vish-3d-loading-icon,
-  .vish-arch-bot-idle .vish-arch-bot-logo-tile,
-  .vish-arch-bot-scan .vish-arch-bot-aura,
-  .vish-arch-bot-fix .vish-arch-bot-logo-tile,
-  .vish-arch-bot-attention .vish-arch-bot-logo-tile {
+  .vish-3d-loading-icon {
     animation: none !important;
   }
 

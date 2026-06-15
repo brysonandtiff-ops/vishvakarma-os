@@ -7,22 +7,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import {
-  PenTool,
-  FileText,
-  Database,
-  GitPullRequest,
-  Package,
-  History,
-  Menu,
   LogOut,
-  Search,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  FolderOpen,
-  User,
-  UserCircle,
-  Trophy,
-  Sparkles,
+  Search,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCallback, useEffect, useState, createContext, useContext } from 'react';
@@ -31,6 +20,19 @@ import { WorkspaceNotifications } from '@/components/workspace/WorkspaceNotifica
 import { loadWorkspacePrefs, saveWorkspacePrefs } from '@/components/workspace/workspaceMemory';
 import { getCommandPaletteShortcutLabel } from '@/utils/commandPaletteShortcut';
 import { PrototypeDisclaimerBadge } from '@/components/common/PrototypeDisclaimer';
+import { Badge } from '@/components/ui/badge';
+import {
+  NAV_GROUPS,
+  NAV_GROUP_LABELS,
+  WORKSPACE_NAV,
+  type RouteNavItem,
+} from '@/config/RouteNavConfig';
+import { useBilling } from '@/hooks/useBilling';
+import EditorSidebarSections from '@/components/editor/EditorSidebarSections';
+import {
+  EditorSidebarProvider,
+  useEditorSidebarConfig,
+} from '@/components/editor/EditorSidebarContext';
 import '@/styles/vish-workspace-shell.css';
 
 function openCommandPalette() {
@@ -48,18 +50,13 @@ export function useGovernanceNav() {
   return useContext(GovernanceNavContext);
 }
 
-const allNav = [
-  { name: 'Blueprint Editor', path: '/editor', icon: PenTool, group: 'EDITOR' },
-  { name: 'Projects', path: '/projects', icon: FolderOpen, group: 'EDITOR' },
-  { name: 'Design Optimization', path: '/optimization', icon: Sparkles, group: 'EDITOR' },
-  { name: 'Profile', path: '/profile', icon: User, group: 'EDITOR' },
-  { name: 'Spec Center',      path: '/spec-center',      icon: FileText,       group: 'GOVERNANCE' },
-  { name: 'Registry',         path: '/registry',         icon: Database,       group: 'GOVERNANCE' },
-  { name: 'Change Requests',  path: '/change-requests',  icon: GitPullRequest, group: 'GOVERNANCE' },
-  { name: 'Release Center',   path: '/releases',         icon: Package,        group: 'GOVERNANCE' },
-  { name: 'World Records',    path: '/world-records',    icon: Trophy,         group: 'GOVERNANCE' },
-  { name: 'Audit Log',        path: '/audit',            icon: History,        group: 'SYSTEM' },
-];
+const allNav = WORKSPACE_NAV;
+
+function accountInitials(label: string): string {
+  const parts = label.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
+  return (label.slice(0, 2) || 'VK').toUpperCase();
+}
 
 function NavItem({
   item,
@@ -67,7 +64,7 @@ function NavItem({
   collapsed,
   onClick,
 }: {
-  item: typeof allNav[0];
+  item: RouteNavItem;
   isActive: boolean;
   collapsed: boolean;
   onClick?: () => void;
@@ -77,7 +74,7 @@ function NavItem({
     <Link to={item.path} onClick={onClick} aria-label={item.name}>
       <div
         className={`
-          group flex h-10 items-center rounded-xl transition-all duration-150 tap-highlight-none
+          group flex min-h-nav-row items-center rounded-xl transition-all duration-150 tap-highlight-none
           ${collapsed ? 'w-10 justify-center mx-auto' : 'gap-2.5 px-2.5'}
           ${isActive
             ? 'vish-shell-nav-active vish-nav-active-glow text-ws-active border border-ws-active/35'
@@ -120,12 +117,11 @@ function SidebarContent({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, mode, signOut } = useAuth();
-  const groups = ['EDITOR', 'GOVERNANCE', 'SYSTEM'] as const;
-  const groupLabels: Record<string, string> = {
-    EDITOR: 'Editor',
-    GOVERNANCE: 'Governance',
-    SYSTEM: 'System',
-  };
+  const { plan } = useBilling();
+  const groups = NAV_GROUPS;
+  const groupLabels = NAV_GROUP_LABELS;
+  const isEditorRoute = location.pathname === '/editor';
+  const editorConfig = useEditorSidebarConfig();
   const accountLabel = profile?.full_name || user?.email || 'Local User';
   const paletteShortcut = getCommandPaletteShortcutLabel();
 
@@ -212,6 +208,13 @@ function SidebarContent({
                       onClick={onNavigate}
                     />
                   ))}
+                  {group === 'EDITOR' && isEditorRoute && editorConfig && (
+                    <EditorSidebarSections
+                      config={editorConfig}
+                      collapsed={collapsed}
+                      onAfterAction={onNavigate}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -226,14 +229,14 @@ function SidebarContent({
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex h-8 w-8 mx-auto items-center justify-center rounded-xl text-ws-text-faint hover:bg-ws-hover hover:text-ws-text"
-                  aria-label="Sign out"
+                  className="mx-auto flex h-10 w-10 min-h-nav-row min-w-[2.75rem] items-center justify-center rounded-xl border border-ws-border bg-ws-toolbar/60 text-[10px] font-bold text-ws-text"
+                  aria-label={`${accountLabel} — sign out`}
                 >
-                  <UserCircle className="h-4 w-4" />
+                  {accountInitials(accountLabel)}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={6} className="text-xs">
-                {accountLabel}
+                {accountLabel} · {plan}
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -242,10 +245,18 @@ function SidebarContent({
                 <div className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_10px_hsl(142_60%_45%/0.75)]" />
                 <p className="text-[10px] text-ws-text-dim">Session · {mode}</p>
               </div>
-              <div className="vish-shell-account flex items-center justify-between gap-2 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2 py-2">
-                <div className="min-w-0">
+              <div className="vish-shell-account flex items-center gap-2 rounded-xl border border-ws-border bg-ws-toolbar/60 px-2 py-2">
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ws-border bg-ws-sidebar text-[10px] font-bold text-ws-text"
+                  aria-hidden="true"
+                >
+                  {accountInitials(accountLabel)}
+                </div>
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-[10px] font-medium text-ws-text">{accountLabel}</p>
-                  <p className="text-[10px] text-ws-text-faint">Workspace account</p>
+                  <Badge variant="workstation" className="mt-1 px-1.5 py-0 text-[9px] uppercase tracking-wider">
+                    {plan}
+                  </Badge>
                 </div>
                 <Button
                   type="button"
@@ -267,6 +278,9 @@ function SidebarContent({
 }
 
 export default function AppLayout({ children, immersive = false }: AppLayoutProps) {
+  const location = useLocation();
+  const isEditorRoute = location.pathname === '/editor';
+  const showDesktopSidebar = !immersive || isEditorRoute;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [prefs, setPrefs] = useState(() => loadWorkspacePrefs());
 
@@ -282,17 +296,18 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
 
   return (
     <GovernanceNavContext.Provider value={{ openNav }}>
-    <div className="vish-workspace-shell flex min-h-screen w-full bg-background" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
+    <EditorSidebarProvider>
+    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
       <WorkspaceCommandPalette />
-      {!immersive && (
+      {showDesktopSidebar && (
       <aside
-        className={`relative hidden shrink-0 border-r border-ws-border transition-[width] duration-300 ease-out lg:block ${collapsed ? 'w-16' : 'w-60'}`}
+        className={`relative hidden shrink-0 border-r border-ws-border transition-[width] duration-300 ease-out tablet:block ${collapsed ? 'w-16' : 'w-60'}`}
       >
         <SidebarContent collapsed={collapsed} />
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="absolute -right-4 top-20 z-10 hidden h-8 w-8 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text-dim shadow-lg hover:bg-ws-hover hover:text-ws-text lg:flex tap-highlight-none transition-all duration-200"
+          className="absolute -right-4 top-20 z-10 hidden h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text-dim shadow-lg hover:bg-ws-hover hover:text-ws-text tablet:flex tap-highlight-none transition-all duration-200 touch-target"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -306,7 +321,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
             variant="ghost"
             size="icon"
             className={`vish-mobile-nav-fab fixed z-40 h-12 w-12 min-h-[44px] min-w-[44px] rounded-full border border-ws-border bg-ws-sidebar text-ws-text shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-ws-hover touch-target ${
-              immersive ? 'lg:hidden' : 'left-4 bottom-4 lg:hidden'
+              immersive ? 'left-4 top-[calc(var(--vish-safe-top,0px)+4.5rem)] tablet:hidden' : 'left-4 bottom-4 tablet:hidden'
             }`}
             aria-label="Open navigation"
           >
@@ -332,6 +347,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
       </main>
       <PrototypeDisclaimerBadge />
     </div>
+    </EditorSidebarProvider>
     </GovernanceNavContext.Provider>
   );
 }

@@ -27,6 +27,25 @@ export default {
                 /** iPad Pro 12.9" landscape — matches ipad-workspace.css --vish-tablet-max */
                 tablet: '1194px',
             },
+            maxWidth: {
+                'page-narrow': 'var(--vish-page-narrow)',
+                'page-standard': 'var(--vish-page-standard)',
+                'page-wide': 'var(--vish-page-wide)',
+                'page-marketing': 'var(--vish-page-marketing)',
+            },
+            spacing: {
+                'page-x': 'var(--vish-page-padding-x)',
+                'page-y': 'var(--vish-page-padding-y)',
+                'section': 'var(--vish-section-gap)',
+                'panel': 'var(--vish-panel-gap)',
+                'nav-row': 'var(--vish-nav-row-height)',
+            },
+            fontSize: {
+                eyebrow: ['0.625rem', { lineHeight: '1', letterSpacing: '0.24em', fontWeight: '700' }],
+                wordmark: ['0.65rem', { lineHeight: '1', letterSpacing: '0.24em', fontWeight: '700' }],
+                'page-title': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.02em', fontWeight: '700' }],
+                'page-title-lg': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.02em', fontWeight: '700' }],
+            },
             colors: {
                 border: 'hsl(var(--border))',
                 borderColor: {

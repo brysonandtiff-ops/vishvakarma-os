@@ -58,7 +58,10 @@ export default function ArchitectureBotWidget({
         aria-expanded={panelOpen}
         data-testid="architecture-bot-toggle"
       >
-        <ArchitectureBotCharacter state={animationState} issueCount={issueCount} />
+        <ArchitectureBotCharacter
+          state={animationState}
+          issueCount={issueCount}
+        />
       </button>
     </div>
   );

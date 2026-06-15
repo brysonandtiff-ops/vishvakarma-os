@@ -1,3 +1,4 @@
+/** @deprecated Use src/styles/vish-tokens.css — not consumed by Tailwind or production UI. */
 // Architect's Table Theme Tokens
 // Warm, tactile drafting table aesthetic for Blueprint Editor workspace
 

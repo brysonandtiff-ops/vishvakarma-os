@@ -11,8 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
@@ -133,11 +132,11 @@ export default function SpecCenterPage() {
   }
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <div data-tutorial="spec-center-header">
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="Spec Center"
           description="Centralized specification management with governance enforcement"
           actions={
@@ -321,7 +320,6 @@ export default function SpecCenterPage() {
             </div>
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
 
       <Dialog open={fullSpecOpen} onOpenChange={setFullSpecOpen}>
         <DialogContent className="max-w-3xl">
@@ -361,6 +359,6 @@ export default function SpecCenterPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 }

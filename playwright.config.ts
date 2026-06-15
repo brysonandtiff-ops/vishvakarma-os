@@ -30,6 +30,7 @@ const AUTH_GATE_MATCH = [
 
 const APP_SMOKE_MATCH = [
   '**/ipad-editor-layout.spec.ts',
+  '**/ipad-governance-layout.spec.ts',
   '**/governance-smoke.spec.ts',
   '**/editor-features.spec.ts',
   '**/marketing-pages.spec.ts',

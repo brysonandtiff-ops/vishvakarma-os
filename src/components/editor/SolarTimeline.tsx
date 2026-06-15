@@ -2,8 +2,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Sun, Sunrise, Sunset } from 'lucide-react';
 import type { LightingConfig } from '@/types';
+import { LIGHTING_PRESETS } from '@/core/lightingPresets';
 
 interface SolarTimelineProps {
   lighting: LightingConfig;
@@ -13,7 +15,6 @@ interface SolarTimelineProps {
 export default function SolarTimeline({ lighting, onLightingChange }: SolarTimelineProps) {
   const handleTimeChange = (value: number[]) => {
     const timeOfDay = value[0];
-    // Calculate sun elevation based on time (simple sine curve)
     const sunElevation = Math.max(0, Math.sin(((timeOfDay - 6) / 12) * Math.PI) * 90);
 
     onLightingChange({
@@ -54,6 +55,24 @@ export default function SolarTimeline({ lighting, onLightingChange }: SolarTimel
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <Label className="text-xs">Presets</Label>
+          <div className="flex flex-wrap gap-1.5">
+            {LIGHTING_PRESETS.map((preset) => (
+              <Button
+                key={preset.id}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 touch-target px-2 text-[10px] font-semibold uppercase tracking-wide"
+                onClick={() => onLightingChange({ ...lighting, ...preset.lighting })}
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         {/* Time of Day */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">

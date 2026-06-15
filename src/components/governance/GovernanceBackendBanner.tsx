@@ -39,12 +39,12 @@ export function GovernanceBackendBanner() {
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <Button asChild size="sm" variant="outline" className="touch-target h-8">
+        <Button asChild size="sm" variant="outline" className="touch-target h-11 min-h-[44px]">
           <Link to="/auth">Connect</Link>
         </Button>
         <button
           type="button"
-          className="touch-target flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="touch-target flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           aria-label="Dismiss banner"
           onClick={dismiss}
         >

@@ -12,8 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
@@ -114,10 +113,10 @@ export default function ChangeRequestsPage() {
   };
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="Change Requests"
           description="Structured change management — no ad-hoc modifications"
           actions={<NewChangeRequestDialog onRequestCreated={loadRequests} />}
@@ -141,7 +140,7 @@ export default function ChangeRequestsPage() {
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
               <TabsList className="mb-6 flex-wrap">
                 {statuses.map((status) => (
-                  <TabsTrigger key={status} value={status} className="capitalize">
+                  <TabsTrigger key={status} value={status} className="touch-target min-h-[44px] capitalize">
                     {status}
                     {status !== 'all' && statusCounts[status as keyof typeof statusCounts] > 0 && (
                       <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
@@ -214,16 +213,16 @@ export default function ChangeRequestsPage() {
                             <div className="flex shrink-0 gap-2">
                               {request.status === 'pending' && (
                                 <>
-                                  <Button size="sm" variant="default" onClick={() => handleApprove(request.id)} className="h-8 touch-target">
+                                  <Button size="sm" variant="default" onClick={() => handleApprove(request.id)} className="touch-target">
                                     <Check className="mr-1.5 h-3.5 w-3.5" /> Approve
                                   </Button>
-                                  <Button size="sm" variant="destructive" onClick={() => handleReject(request.id)} className="h-8 touch-target">
+                                  <Button size="sm" variant="destructive" onClick={() => handleReject(request.id)} className="touch-target">
                                     <X className="mr-1.5 h-3.5 w-3.5" /> Reject
                                   </Button>
                                 </>
                               )}
                               {request.status === 'approved' && (
-                                <Button size="sm" variant="outline" onClick={() => handleImplement(request.id)} className="h-8 touch-target">
+                                <Button size="sm" variant="outline" onClick={() => handleImplement(request.id)} className="touch-target">
                                   <Clock className="mr-1.5 h-3.5 w-3.5" /> Mark Implemented
                                 </Button>
                               )}
@@ -238,8 +237,7 @@ export default function ChangeRequestsPage() {
             </Tabs>
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
-    </AppLayout>
+    </>
   );
 }
 
@@ -284,7 +282,7 @@ function NewChangeRequestDialog({ onRequestCreated }: { onRequestCreated: () => 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="shrink-0 touch-target" disabled={!cloudReady} title={cloudReady ? undefined : 'Sign in with Supabase to create change requests — go to Account Access'}>
+        <Button size="lg" className="shrink-0 touch-target h-11 min-h-[44px]" disabled={!cloudReady} title={cloudReady ? undefined : 'Sign in with Supabase to create change requests — go to Account Access'}>
           <Plus className="mr-2 h-4 w-4" />
           New Request
         </Button>

@@ -65,10 +65,13 @@ describe('RadialToolMenu', () => {
     expect(screen.getByLabelText('Wall')).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('does not render on coarse pointers', () => {
+  it('renders larger radial toolbar on coarse pointers', () => {
     mockMatchMedia(true);
 
-    const { container } = render(<RadialToolMenu {...defaultProps} />);
-    expect(container).toBeEmptyDOMElement();
+    render(<RadialToolMenu {...defaultProps} />);
+
+    expect(screen.getByTestId('radial-tool-menu')).toBeInTheDocument();
+    expect(screen.getByLabelText('Pan')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Column')).not.toBeInTheDocument();
   });
 });

@@ -59,10 +59,11 @@ React Three Fiber and Three.js translate the 2D manifest into 3D geometry. Walls
 - Improved door/window geometry (wall notch + hinged panel / framed glass).
 - Walk mode: first-person `PointerLockControls` on desktop; orbit controls remain on coarse-pointer (iPad) devices.
 - Floor-scoped walls, openings, rooms, and fixtures in the 3D preview.
-- Solar timeline: azimuth, elevation, intensity.
-- Atmosphere modes: standard, premium, cinematic.
-- Procedural PBR materials for walls, floors, furniture, and landscape.
-- Phase 3 GLTF/GLB furniture and landscape model support with parametric fallback meshes.
+- Solar timeline: azimuth, elevation, intensity, and one-click presets (Dawn, Noon, Golden Hour, Dusk, Night).
+- Atmosphere modes: standard, premium, cinematic — tier-gated IBL (HDRI), PCF soft shadows, contact shadows, SSAO, bloom, and ACES tone mapping in cinematic mode.
+- Bundled CC0 PBR texture library (ambientCG) with normal/roughness maps for walls, floors, furniture, and landscape; procedural 512px patterns as fallback.
+- Seven built-in material presets: paint, wood, concrete, marble, ceramic tile, brass trim, and glass panel.
+- Phase 3 GLTF/GLB furniture and landscape model support with parametric fallback meshes, including Indian furniture silhouettes (mandir, diwan, jali, charpai, puja shelf, modular kitchen).
 - Phase 4 terrain patches: 2D contour drawing, elevation presets, and 3D extrusion.
 - Service-worker/PWA shell support for stronger iPad usage.
 

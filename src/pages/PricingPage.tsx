@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
 import MetricPill from '@/components/common/MetricPill';
 import { BillingPlanCard, type BillingActionType } from '@/components/billing/BillingPlanCard';
-import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { PRICING_TIERS, STUDIO_TRIAL_LABEL } from '@/config/billingPlans';
 import { EXPORT_FORMAT_COUNT, EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
@@ -150,7 +149,7 @@ export default function PricingPage() {
   ] as const;
 
   return (
-    <MarketingLayout>
+    <>
       <PageMeta
         title="Pricing — Vishvakarma.OS"
         description="Professional-grade architecture tools with fair, predictable pricing. Start free, upgrade when your practice demands it."
@@ -228,6 +227,6 @@ export default function PricingPage() {
           </Button>
         </div>
       </section>
-    </MarketingLayout>
+    </>
   );
 }

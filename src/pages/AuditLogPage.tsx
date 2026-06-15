@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
-import AppLayout from '@/components/layouts/AppLayout';
-import WorkspacePageShell, { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
@@ -83,10 +82,10 @@ export default function AuditLogPage() {
   }, {});
 
   return (
-    <AppLayout>
-      <WorkspacePageShell variant="governance">
+    <>
         <WorkspacePageHeader
           variant="fullBleed"
+          eyebrow="Governance"
           title="Audit Log"
           description="Immutable chronological record of all system events"
           actions={
@@ -225,7 +224,6 @@ export default function AuditLogPage() {
             )}
           </div>
         </WorkspacePageScroll>
-      </WorkspacePageShell>
-    </AppLayout>
+    </>
   );
 }

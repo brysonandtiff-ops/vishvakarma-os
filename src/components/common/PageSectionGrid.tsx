@@ -17,9 +17,9 @@ export default function PageSectionGrid({
   const colClass =
     cols === 2
       ? 'sm:grid-cols-2'
-      : cols === 4
-        ? 'sm:grid-cols-2 lg:grid-cols-4'
-        : 'sm:grid-cols-2 lg:grid-cols-3';
+      :         cols === 4
+        ? 'sm:grid-cols-2 tablet:grid-cols-4'
+        : 'sm:grid-cols-2 tablet:grid-cols-3';
 
   return (
     <div

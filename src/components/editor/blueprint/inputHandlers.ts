@@ -11,3 +11,8 @@ export function getHitAreaForMode(mode: CanvasInputMode, base = 10): number {
   if (mode === 'touch') return base + 16;
   return base;
 }
+
+/** Standard eraser end on pen / USB tablet styluses (Pointer Events button 5). */
+export function isEraserPointerButton(button: number): boolean {
+  return button === 5;
+}

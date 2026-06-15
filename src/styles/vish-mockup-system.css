@@ -182,16 +182,17 @@
   position: relative;
   width: min(100%, 26rem);
   border-radius: 1.25rem;
-  border: 1px solid hsl(var(--vish-gold) / 0.32);
+  border: 1px solid hsl(var(--vish-gold) / 0.36);
   background:
     linear-gradient(165deg, hsl(0 0% 7% / 0.9), hsl(0 0% 2% / 0.96));
   backdrop-filter: blur(28px) saturate(1.2);
   box-shadow:
+    var(--vish-depth-md),
     0 32px 80px hsl(0 0% 0% / 0.65),
-    0 0 56px hsl(var(--vish-gold) / 0.1),
-    0 0 0 1px hsl(43 65% 52% / 0.12),
-    inset 0 1px 0 hsl(43 90% 72% / 0.16),
-    inset 0 -1px 0 hsl(0 0% 0% / 0.35);
+    0 0 56px hsl(var(--vish-gold) / 0.14),
+    0 0 0 1px hsl(43 65% 52% / 0.14),
+    inset 0 1px 0 hsl(43 90% 72% / 0.18),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.38);
   padding: 2rem 1.75rem 1.5rem;
   animation: vish-auth-card-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
   overflow: hidden;
