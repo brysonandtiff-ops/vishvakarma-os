@@ -204,9 +204,8 @@ test.describe('page reference pack', () => {
     await shot(page, 'editor', '15-new-project-dialog.png');
     await page.keyboard.press('Escape');
 
-    await clickForce(page, /open editor menu/i);
-    await expect(page.getByText(/Editor menu/i)).toBeVisible();
-    await clickDom(page, /open project/i);
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /^open/i }).click();
     await expect(page.getByRole('heading', { name: /open project/i })).toBeVisible();
     await shot(page, 'editor', '16-open-project-dialog.png');
     await page.keyboard.press('Escape');

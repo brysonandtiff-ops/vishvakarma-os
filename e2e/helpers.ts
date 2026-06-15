@@ -126,3 +126,17 @@ export async function expandSidebarIfCollapsed(page: Page) {
 
 export const iPadLandscape = { width: 1180, height: 820 };
 export const iPadPortrait = { width: 820, height: 1180 };
+/** iPhone 14/15 class portrait */
+export const iPhonePortrait = { width: 390, height: 844 };
+/** iPhone landscape — keyboard + safe-area smoke */
+export const iPhoneLandscape = { width: 844, height: 390 };
+/** Galaxy Tab class landscape */
+export const androidTabletLandscape = { width: 1280, height: 800 };
+/** Desktop fine-pointer baseline */
+export const desktopLandscape = { width: 1280, height: 800 };
+
+export {
+  assertNoHorizontalOverflow,
+  assertTouchTargets,
+  emulateCoarsePointer,
+} from './deviceTouchTargets';
