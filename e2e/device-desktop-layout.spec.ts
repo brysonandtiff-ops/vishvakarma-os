@@ -4,6 +4,7 @@ import {
   dismissEditorOverlays,
   emulateFinePointer,
   expect3DPreviewPane,
+  hasWebGL3DPreview,
   resetWorkspacePrefs,
   selectWorkspaceMode,
 } from './helpers';
@@ -25,12 +26,7 @@ test.describe('Desktop fine-pointer editor chrome', () => {
     await toggle3d.click();
     await expect3DPreviewPane(page);
 
-    const webglUnavailable = page.getByText('3D Preview Unavailable');
-    const webglCanvas = page.locator('.vish-3d-viewport-pane canvas').first();
-    if (
-      (await webglUnavailable.isVisible().catch(() => false)) ||
-      !(await webglCanvas.isVisible().catch(() => false))
-    ) {
+    if (!(await hasWebGL3DPreview(page))) {
       test.skip(true, 'WebGL unavailable in this environment');
     }
 

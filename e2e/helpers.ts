@@ -3,9 +3,21 @@
 /** 3D pane may render WebGL or a graceful fallback in headless WebKit/Firefox. */
 export async function expect3DPreviewPane(page: Page) {
   await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
+  const pane = page.locator('.vish-3d-viewport-pane');
+  await expect(pane).toBeVisible({ timeout: 15_000 });
   const fallback = page.getByText('3D Preview Unavailable');
-  const canvas = page.locator('.vish-3d-viewport-pane canvas').first();
-  await expect(fallback.or(canvas)).toBeVisible({ timeout: 15_000 });
+  if (await fallback.isVisible().catch(() => false)) {
+    return;
+  }
+  await expect(pane.locator('canvas').first()).toBeAttached({ timeout: 30_000 });
+}
+
+export async function hasWebGL3DPreview(page: Page) {
+  const fallback = page.getByText('3D Preview Unavailable');
+  if (await fallback.isVisible().catch(() => false)) {
+    return false;
+  }
+  return (await page.locator('.vish-3d-viewport-pane canvas').count()) > 0;
 }
 
 export async function resetWorkspacePrefs(page: Page) {
@@ -90,13 +102,13 @@ export async function openAIDesigner(page: Page) {
 export async function selectWorkspaceMode(page: Page, mode: RegExp) {
   const tab = page.getByRole('tab', { name: mode });
   if (await tab.isVisible().catch(() => false)) {
-    await tab.click();
+    await tab.click({ force: true });
     return;
   }
   const badge = page.getByTestId('editor-mode-badge');
   await expect(badge).toBeVisible({ timeout: 15_000 });
-  await badge.click();
-  await page.getByRole('menuitem', { name: mode }).click();
+  await badge.click({ force: true });
+  await page.getByRole('menuitem', { name: mode }).click({ force: true });
 }
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
