@@ -4,35 +4,13 @@
  * Run: node scripts/production/generate-evidence.mjs
  */
 
-import { execSync } from 'child_process';
-import { readFile, writeFile, stat } from 'fs/promises';
-import { join } from 'path';
-
-function run(command) {
-  return execSync(command, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-}
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { runCommand, getCommitSha, dirSizeBytes } from '../lib/run-command.mjs';
+import { parseDistAssets, formatBytes } from '../lib/parse-dist-assets.mjs';
 
 function timestamp() {
   return new Date().toISOString();
-}
-
-async function getCommitSha() {
-  try {
-    return run('git rev-parse HEAD');
-  } catch {
-    return 'unknown';
-  }
-}
-
-async function dirSizeBytes(dir) {
-  try {
-    const output = run(process.platform === 'win32'
-      ? `powershell -Command "(Get-ChildItem -Recurse '${dir}' | Measure-Object -Property Length -Sum).Sum"`
-      : `du -sb "${dir}" | cut -f1`);
-    return Number.parseInt(output, 10) || 0;
-  } catch {
-    return 0;
-  }
 }
 
 async function main() {
@@ -42,26 +20,31 @@ async function main() {
   const evidenceDir = join(root, 'docs', 'release', 'evidence');
 
   console.log('Running lint...');
-  const lintOutput = run('pnpm run lint');
+  const lintOutput = runCommand('pnpm run lint').stdout;
 
   console.log('Running unit tests...');
-  const testOutput = run('pnpm run test');
+  const testOutput = runCommand('pnpm run test').stdout;
 
   console.log('Running route smoke tests...');
-  const routeOutput = run('pnpm run test:routes');
+  const routeOutput = runCommand('pnpm run test:routes').stdout;
 
   console.log('Running build...');
-  const buildOutput = run('pnpm run build');
+  const buildOutput = runCommand('pnpm run build').stdout;
+
+  console.log('Running bundle budget gate...');
+  runCommand('pnpm run perf:gates', { stdio: 'inherit' });
+  const bundleReport = runCommand('pnpm run perf:report').stdout;
 
   const distBytes = await dirSizeBytes(join(root, 'dist'));
   const distMb = (distBytes / (1024 * 1024)).toFixed(2);
+  const assets = await parseDistAssets(join(root, 'dist'));
 
   const latestCi = `# Latest CI / Local Verify Run
 
 Generated from commit: \`${sha}\`
 Generated at: ${generatedAt}
 Operator: automated local verify
-Result: PASS — local lint, test, route smoke, and build succeeded
+Result: PASS — local lint, test, route smoke, build, and bundle budget succeeded
 
 ## Workflow Run
 
@@ -74,6 +57,7 @@ pnpm run lint
 pnpm run test
 pnpm run test:routes
 pnpm run build
+pnpm run perf:gates
 \`\`\`
 
 ## Lint output (summary)
@@ -105,6 +89,11 @@ ${buildOutput.split('\n').slice(-12).join('\n')}
 - dist size: ${distMb} MB
 `;
 
+  const chunkLines = Object.entries(assets.chunks)
+    .sort((a, b) => b[1].bytes - a[1].bytes)
+    .map(([key, chunk]) => `| ${key} | ${formatBytes(chunk.bytes)} |`)
+    .join('\n');
+
   const performanceNotes = `# Performance Notes
 
 Generated from commit: \`${sha}\`
@@ -117,6 +106,16 @@ Result: PASS — build artifact produced locally
 | Metric | Value |
 |---|---|
 | dist/ total | ${distMb} MB |
+
+## Chunk breakdown
+
+| Chunk | Raw size |
+|---|---|
+${chunkLines}
+
+## Bundle report
+
+${bundleReport}
 
 ## Runtime Interaction Checks
 

@@ -19,4 +19,7 @@ fi
 echo "🚀 Deploying to Vercel (Production)..."
 npx vercel --prod
 
+echo "🔎 Running post-deploy smoke..."
+pnpm run stability:post-deploy
+
 echo "✅ Deployment complete!"

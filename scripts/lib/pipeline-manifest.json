@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "tiers": {
+    "verify": {
+      "description": "Local pre-push verification",
+      "steps": [
+        "pnpm run lint",
+        "pnpm run contract:gates",
+        "pnpm run auth:gates",
+        "pnpm run flawless:gates",
+        "pnpm run launch:evidence",
+        "pnpm run stability:gates",
+        "pnpm run test",
+        "pnpm run build",
+        "pnpm run perf:gates"
+      ]
+    },
+    "verify:ci": {
+      "description": "Pre-deploy verification with route smoke",
+      "extends": "verify",
+      "steps": [
+        "pnpm run lint",
+        "pnpm run contract:gates",
+        "pnpm run auth:gates",
+        "pnpm run flawless:gates",
+        "pnpm run launch:evidence",
+        "pnpm run stability:gates",
+        "pnpm run test",
+        "pnpm run test:routes",
+        "pnpm run build",
+        "pnpm run perf:gates"
+      ]
+    },
+    "ci": {
+      "description": "GitHub Actions verify job parity",
+      "steps": [
+        "pnpm run lint",
+        "node scripts/quality/check-vercel-security.mjs",
+        "pnpm run auth:gates",
+        "pnpm run flawless:gates",
+        "pnpm run test:supabase-auth",
+        "pnpm run verify:supabase-login-data",
+        "pnpm run verify:supabase-schema",
+        "pnpm run launch:evidence",
+        "pnpm run contract:gates",
+        "pnpm run stability:gates",
+        "pnpm run test:anchors",
+        "pnpm run test:coverage",
+        "pnpm run test:routes",
+        "pnpm run build",
+        "pnpm run perf:gates",
+        "pnpm run record:measure"
+      ]
+    },
+    "release": {
+      "description": "Honest release gate manifest",
+      "steps": [
+        "pnpm run release:gates"
+      ]
+    },
+    "post-deploy": {
+      "description": "Production smoke after Vercel deploy",
+      "steps": [
+        "pnpm run stability:post-deploy"
+      ]
+    }
+  }
+}

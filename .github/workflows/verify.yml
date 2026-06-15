@@ -49,6 +49,9 @@ jobs:
       - name: Auth configuration guard
         run: pnpm run auth:gates
 
+      - name: Flawless use gates
+        run: pnpm run flawless:gates
+
       - name: Supabase auth config smoke
         run: pnpm run test:supabase-auth
 
@@ -64,6 +67,9 @@ jobs:
       - name: System contract gates
         run: pnpm run contract:gates
 
+      - name: Stability gates
+        run: pnpm run stability:gates
+
       - name: Regression anchors
         run: pnpm run test:anchors
 
@@ -75,6 +81,9 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Bundle budget gate
+        run: pnpm run perf:gates
 
       - name: Generate world record measurement
         run: pnpm run record:measure
@@ -166,10 +175,6 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS: ${{ matrix.browser }}
           PLAYWRIGHT_HTML_REPORT: playwright-report-${{ matrix.browser }}
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
         run: pnpm run test:e2e
 
       - name: Upload Playwright report
@@ -209,9 +214,4 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run release gates
-        env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
         run: pnpm run release:gates

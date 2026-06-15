@@ -33,6 +33,7 @@ const REQUIRED_MIGRATION_FRAGMENTS = [
 ];
 
 const live = process.argv.includes('--live');
+const drift = process.argv.includes('--drift');
 const failures = [];
 
 function fail(message) {
@@ -127,6 +128,43 @@ if (live) {
   }
 } else {
   console.log('Static Supabase schema guard passed (use --live with env vars for remote probe).');
+}
+
+if (drift) {
+  const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceKey) {
+    fail('Drift check requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+  } else {
+    try {
+      const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          Accept: 'application/openapi+json',
+        },
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        fail(`PostgREST OpenAPI probe failed: ${response.status} ${body.slice(0, 200)}`);
+      } else {
+        const openapi = await response.json();
+        const paths = Object.keys(openapi.paths ?? {});
+        for (const table of EXPECTED_TABLES) {
+          const hasPath = paths.some((path) => path === `/${table}` || path.startsWith(`/${table}/`));
+          if (!hasPath) {
+            fail(`Live schema drift: missing REST path for ${table}`);
+          } else {
+            console.log(`OK drift ${table}`);
+          }
+        }
+      }
+    } catch (error) {
+      fail(`Drift probe error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 }
 
 if (failures.length > 0) {

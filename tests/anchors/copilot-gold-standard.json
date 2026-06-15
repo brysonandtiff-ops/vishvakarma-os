@@ -12,7 +12,7 @@
     "minWallCount": 8,
     "minScheduleRooms": 5,
     "minMaterialListRows": 1,
-    "complianceRuleCount": 12,
+    "complianceRuleCount": 15,
     "manifestValid": true,
     "costTotalMin": 1
   }

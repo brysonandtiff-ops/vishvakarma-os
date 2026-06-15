@@ -9,7 +9,7 @@
  * Usage: node scripts/enforce-build.js
  */
 
-import { blockBuildOnSpecMismatch, getSystemSpecHash } from '../src/governance/core/specHash.js';
+import { blockBuildOnSpecMismatch, getSystemSpecHash } from '../src/governance/core/specHash.ts';
 
 console.log('='.repeat(80));
 console.log('BUILD-TIME GOVERNANCE ENFORCEMENT');

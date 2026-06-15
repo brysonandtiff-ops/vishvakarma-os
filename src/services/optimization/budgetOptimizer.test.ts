@@ -29,6 +29,6 @@ describe('budgetOptimizer', () => {
 
     expect(result.building.costSummary.total).toBeGreaterThan(0);
     expect(result.adjustments.length).toBeGreaterThan(0);
-    expect(result.building.complianceReport.results.length).toBe(12);
+    expect(result.building.complianceReport.results.length).toBe(15);
   });
 });

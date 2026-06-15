@@ -1,0 +1,9 @@
+{
+  "routes": ["/", "/editor", "/projects"],
+  "profiles": ["mobile", "desktop"],
+  "thresholds": {
+    "largest-contentful-paint": 4000,
+    "cumulative-layout-shift": 0.1,
+    "total-blocking-time": 600
+  }
+}

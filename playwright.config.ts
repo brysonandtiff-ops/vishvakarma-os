@@ -144,5 +144,17 @@ export default defineConfig({
         env: appSmokeServerEnv,
       },
     },
+    {
+      name: 'editor-performance',
+      testMatch: ['**/editor-performance.spec.ts'],
+      use: { ...devices['Desktop Chrome'], hasTouch: true },
+      webServer: {
+        command: 'pnpm run preview:e2e:local',
+        url: previewUrl,
+        reuseExistingServer,
+        timeout: 300_000,
+        env: appSmokeServerEnv,
+      },
+    },
   ],
 });
