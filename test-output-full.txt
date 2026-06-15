@@ -1,0 +1,214 @@
+ WARN  Unsupported engine: wanted: {"node":"20.x"} (current: {"node":"v24.13.1","pnpm":"9.15.0"})
+
+> vishvakarma-os@1.5.0 test C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live
+> vitest run
+
+
+ RUN  v4.0.18 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Connected to room room-1 as Alice
+
+stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Already connected to collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Disconnected from collaboration room
+
+stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should not broadcast when not connected
+Not connected to collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Disconnected from collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Disconnected from collaboration room
+
+ ✓ src/test/collaborationEngine.test.ts (19 tests) 9669ms
+       ✓ should connect to room  761ms
+       ✓ should disconnect from room  566ms
+       ✓ should not connect if already connected  571ms
+       ✓ should add current user on connect  502ms
+       ✓ should get user by ID  522ms
+       ✓ should return undefined for non-existent user  531ms
+       ✓ should broadcast operation  504ms
+       ✓ should broadcast cursor position  512ms
+       ✓ should broadcast lock acquisition  501ms
+       ✓ should broadcast lock release  510ms
+       ✓ should broadcast chat message  528ms
+       ✓ should subscribe to messages  606ms
+       ✓ should unsubscribe from messages  527ms
+       ✓ should handle multiple subscribers  514ms
+       ✓ should handle simulated presence message  502ms
+       ✓ should handle simulated cursor message  508ms
+       ✓ should connect using convenience function  497ms
+       ✓ should disconnect using convenience function  498ms
+ ✓ src/test/KeyboardShortcuts.test.tsx (16 tests) 17375ms
+       ✓ should render trigger button  2698ms
+       ✓ should render keyboard icon in trigger button  496ms
+       ✓ should open dialog when trigger button is clicked  1750ms
+       ✓ should display all tool shortcuts  1264ms
+       ✓ should display all view shortcuts  1128ms
+       ✓ should display all edit shortcuts  1453ms
+       ✓ should display tips section  1314ms
+       ✓ should have proper ARIA attributes  1059ms
+       ✓ should use semantic kbd elements for shortcuts  590ms
+       ✓ should organize shortcuts into three sections  631ms
+       ✓ should display shortcuts in key-value pairs  797ms
+       ✓ should display exactly 5 tool shortcuts  451ms
+       ✓ should display exactly 3 view shortcuts  1539ms
+       ✓ should display exactly 2 edit shortcuts  862ms
+       ✓ should display exactly 4 tips  1182ms
+ ✓ src/test/editorSidebarIntegration.test.tsx (10 tests) 17417ms
+     ✓ renders project actions and view controls  666ms
+     ✓ uses dynamic view labels based on toggle state  4456ms
+     ✓ calls Architecture Copilot and view toggle handlers  1123ms
+     ✓ calls onAfterAction after each sidebar action  664ms
+     ✓ renders workspace navigation on non-editor routes without project actions  1512ms
+     ✓ does not show project actions on editor route before config registration  1768ms
+     ✓ shows project actions on editor route when config is registered  5155ms
+     ✓ opens Architecture Copilot dialog via registered sidebar callback  2060ms
+ ✓ src/test/PropertiesPanel.test.tsx (36 tests) 4305ms
+       ✓ should render delete button for each opening  659ms
+       ✓ should call onOpeningDelete when delete button is clicked  359ms
+       ✓ should call onWallDelete when delete wall button is clicked  351ms
+ ✓ src/test/FollowViewportToggle.test.tsx (2 tests) 1694ms
+     ✓ calls onFollow when a collaborator is selected  1507ms
+ ✓ src/test/collaborationPresence.test.ts (2 tests) 1751ms
+     ✓ connects locally without websocket URL  1091ms
+     ✓ tracks awareness updates through transport adapter  655ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should export and import project
+[GOVERNANCE ENFORCER] ✅ Enforcement passed (13.39ms)
+[SNAPSHOT] ✅ Created snapshot snapshot-1781544767666-c450f689 (hash: 3de7ce9cb7276e90e1bbc180242c0cbca58c358634dee181158280ad2bb55d4d)
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should preserve governance history
+[GOVERNANCE ENFORCER] ✅ Enforcement passed (2.74ms)
+[SNAPSHOT] ✅ Created snapshot snapshot-1781544767681-c7cc4199 (hash: cf32caa23f6c394def31dc4952be6c71ecf06bccc1f03f43ff37cb35fd9a81e8)
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should connect and disconnect
+Connected to room room-1 as Test User
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should connect and disconnect
+Disconnected from collaboration room
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should broadcast operations
+Connected to room room-1 as Test User
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > End-to-End Workflow > should complete full blueprint workflow
+[GOVERNANCE ENFORCER] ✅ Enforcement passed (1.43ms)
+[SNAPSHOT] ✅ Created snapshot snapshot-1781544768823-01f91073 (hash: d29918da7026b133f76ce75cdb65e274f6d12e68d3bee81d90bf4f6ff06c46a1)
+
+ ✓ src/test/automatedTestSuite.test.ts (20 tests) 1219ms
+       ✓ should connect and disconnect  727ms
+ ✓ src/test/RadialToolMenu.test.tsx (4 tests) 7726ms
+     ✓ renders radial toolbar with center select and ring tools  5922ms
+     ✓ calls onSelectTool when a ring tool is clicked  1313ms
+     ✓ marks the active tool with aria-pressed  372ms
+ ✓ src/test/ToolRail.test.tsx (5 tests) 10152ms
+       ✓ should render drafting tools and draft-mode tools  2092ms
+       ✓ uses production tool rail class for iPad layout  945ms
+       ✓ should call onToolChange when Wall tool is clicked  4998ms
+       ✓ should call onToolChange when Vastu tool is clicked in draft mode  1592ms
+       ✓ should apply active class to current tool  358ms
+ ✓ src/components/auth/AuthTrustPillar.test.tsx (2 tests) 1387ms
+     ✓ invokes learn-more handler on click  1196ms
+ ✓ src/backend/supabase/supabaseAuthCallback.test.ts (12 tests) 74ms
+ ✓ src/components/auth/AuthStatusBanner.test.tsx (3 tests) 5878ms
+     ✓ renders titled error banners as alerts with assertive live region  4706ms
+     ✓ uses success and info icons for non-error variants  977ms
