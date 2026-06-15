@@ -219,7 +219,7 @@ export function drawOpening(
     });
   }
 
-  if (highlighted) {
+  if (highlighted && !options.dragging) {
     drawOpeningHoverChip(ctx, wall, opening, {
       unitSystem: options.unitSystem,
       showDetails: true,

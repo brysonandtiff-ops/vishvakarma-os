@@ -32,6 +32,8 @@ describe('Blueprint editor visual polish', () => {
     expect(styles).toContain('.vish-workspace-shell .architect-canvas');
     expect(styles).toContain('.vish-3d-viewport-header');
     expect(styles).toContain('.vish-canvas-empty-hint');
+    expect(styles).toContain('.vish-minimap');
+    expect(styles).toContain('.vish-canvas-hud-badge');
     expect(styles).toContain('.vish-workspace-shell .ws-panel-dark');
     expect(styles).toContain('.ws-status-bar');
     expect(styles).toContain('.vish-radial-menu');
