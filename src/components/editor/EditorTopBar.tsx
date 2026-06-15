@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import type { WorkspaceMode } from '@/types';
+import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
 interface EditorTopBarProps {
   projectName: string;
@@ -76,12 +77,14 @@ function IconButton({
   active,
   children,
   disabled,
+  dataTutorial,
 }: {
   label: string;
   onClick?: () => void;
   active?: boolean;
   children: React.ReactNode;
   disabled?: boolean;
+  dataTutorial?: string;
 }) {
   return (
     <button
@@ -90,6 +93,7 @@ function IconButton({
       aria-pressed={active}
       disabled={disabled}
       onClick={onClick}
+      data-tutorial={dataTutorial}
       className={`vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors ${
         active
           ? 'border-primary/60 bg-primary/15 text-primary'
@@ -118,6 +122,7 @@ function ModeTabs({
           aria-selected={workspaceMode === mode.id}
           className={`vish-mode-tab shrink-0 ${workspaceMode === mode.id ? 'active' : ''}`}
           onClick={() => onWorkspaceModeChange(mode.id)}
+          data-tutorial={`mode-${mode.id}`}
         >
           <mode.icon className="h-3 w-3" />
           {mode.label}
@@ -216,6 +221,7 @@ export default function EditorTopBar({
               <button
                 type="button"
                 aria-label="Project actions"
+                data-tutorial="project-actions"
                 className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
               >
                 <FolderOpen className="h-4 w-4" />
@@ -272,7 +278,7 @@ export default function EditorTopBar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D}>
+          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
             <Box className="h-4 w-4" />
           </IconButton>
           <IconButton label="Toggle grid" active={gridVisible} onClick={onToggleGrid}>
@@ -282,11 +288,8 @@ export default function EditorTopBar({
             <Eye className="h-4 w-4" />
           </IconButton>
 
+          <TutorialHelpButton />
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="More editor actions"
                 className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
               >
                 <MoreHorizontal className="h-4 w-4" />

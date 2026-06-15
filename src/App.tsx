@@ -5,6 +5,7 @@ import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { RouteGuard } from '@/components/common/RouteGuard';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { TutorialProvider } from '@/tutorial/TutorialProvider';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
 import { Analytics } from '@vercel/analytics/react';
@@ -18,6 +19,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
+        <TutorialProvider>
         <RouteGuard>
           <IntersectObserver />
           <div className="flex flex-col min-h-screen">
@@ -36,6 +38,7 @@ const App: React.FC = () => {
           <Analytics />
           <Toaster />
         </RouteGuard>
+        </TutorialProvider>
       </AuthProvider>
     </Router>
   );

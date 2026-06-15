@@ -48,6 +48,7 @@ function ToolButton({
       aria-label={meta.label}
       aria-pressed={isActive}
       title={titleText}
+      data-tutorial={`tool-${toolId}`}
     >
       <Icon className="h-[18px] w-[18px]" />
       <span className="font-technical text-[9px] leading-none tracking-[0.06em]">{meta.label}</span>
@@ -65,6 +66,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
     <div
       className="vish-tool-rail architect-tool-dock flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
       data-testid="tool-rail"
+      data-tutorial="tool-rail"
     >
       <p className="vish-tool-section-label px-1">Base</p>
       {BASE_TOOL_IDS.map((toolId) => (

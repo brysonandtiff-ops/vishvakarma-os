@@ -1,0 +1,156 @@
+.vish-tutorial-root {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+}
+
+.vish-tutorial-scrim {
+  position: fixed;
+  pointer-events: auto;
+  background: rgb(8 12 20 / 0.62);
+  backdrop-filter: blur(1px);
+}
+
+.vish-tutorial-scrim--top,
+.vish-tutorial-scrim--bottom {
+  left: 0;
+  right: 0;
+}
+
+.vish-tutorial-scrim--bottom {
+  bottom: 0;
+}
+
+.vish-tutorial-scrim--left {
+  left: 0;
+}
+
+.vish-tutorial-scrim--right {
+  right: 0;
+}
+
+.vish-tutorial-scrim--full {
+  inset: 0;
+}
+
+.vish-tutorial-spotlight {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px hsl(39 90% 62% / 0.85), 0 0 24px hsl(39 90% 62% / 0.35);
+  z-index: 1;
+}
+
+.vish-tutorial-spotlight--pulse {
+  animation: vish-tutorial-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes vish-tutorial-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px hsl(39 90% 62% / 0.85), 0 0 24px hsl(39 90% 62% / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 3px hsl(39 90% 62% / 1), 0 0 32px hsl(39 90% 62% / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-tutorial-spotlight--pulse {
+    animation: none;
+  }
+}
+
+.vish-tutorial-card {
+  position: fixed;
+  z-index: 2;
+  width: min(22rem, calc(100vw - 2rem));
+  pointer-events: auto;
+  padding: 1rem 1.25rem 1.25rem;
+  border-radius: 1.25rem;
+}
+
+.vish-tutorial-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.vish-tutorial-card__track {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsl(var(--primary) / 0.8);
+}
+
+.vish-tutorial-card__progress {
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: var(--ws-text-faint, hsl(220 10% 55%));
+}
+
+.vish-tutorial-card__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 0.75rem;
+  color: var(--ws-text-dim, hsl(220 10% 65%));
+  transition: color 0.15s, background 0.15s;
+}
+
+.vish-tutorial-card__close:hover {
+  color: var(--ws-text, hsl(220 15% 92%));
+  background: var(--ws-hover, hsl(220 12% 18% / 0.5));
+}
+
+.vish-tutorial-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ws-text, hsl(220 15% 92%));
+  line-height: 1.35;
+}
+
+.vish-tutorial-card__body {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ws-text-dim, hsl(220 10% 72%));
+}
+
+.vish-tutorial-card__hint {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: hsl(var(--primary) / 0.85);
+}
+
+.vish-tutorial-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.vish-canvas-empty-hint__tour-link {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  min-height: 44px;
+}
+
+.vish-canvas-empty-hint__tour-link:hover {
+  color: hsl(var(--primary) / 0.85);
+}
