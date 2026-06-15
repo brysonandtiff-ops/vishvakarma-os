@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
-Total: 103 scripts
+Total: 111 scripts
 
 | Script | Command |
 |--------|--------|
@@ -12,15 +12,19 @@ Total: 103 scripts
 | `assets:pwa-icons` | `node scripts/sync-pwa-icon-svgs.mjs && node scripts/generate-pwa-png-icons.mjs` |
 | `assets:samples` | `node scripts/generate-sample-json.mjs` |
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |
+| `auto-ship` | `node scripts/auto-ship/auto-ship.mjs --trigger=manual` |
+| `auto-ship:dry` | `node scripts/auto-ship/auto-ship.mjs --trigger=manual --dry-run` |
+| `auto-ship:install-user` | `node scripts/auto-ship/install-user-hooks.mjs` |
 | `build` | `vite build` |
 | `build:gate` | `node --import tsx scripts/enforce-build.js` |
 | `capture:page-references` | `node scripts/run-page-reference-pack.mjs` |
 | `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
 | `collab:server` | `node --import tsx server/collab/presenceServer.ts` |
 | `collab:server:dev` | `node --import tsx --watch server/collab/presenceServer.ts` |
-| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-project-roles.mjs` |
+| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
 | `deploy:vercel` | `bash scripts/deploy-vercel.sh` |
 | `dev` | `vite --host 127.0.0.1` |
+| `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
 | `docs:verify` | `node scripts/docs/verify-documentation.mjs` |
 | `doctor` | `node scripts/dx/doctor.mjs` |
 | `dx:doctor` | `node scripts/dx/doctor.mjs` |
@@ -65,6 +69,7 @@ Total: 103 scripts
 | `push:supabase-env-vercel` | `node scripts/push-supabase-env-vercel.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
 | `record:measure` | `node scripts/world-record/measure-record.mjs` |
+| `record:perf-overhaul` | `node scripts/performance/record-editor-perf-proof.mjs` |
 | `release:gates` | `node scripts/verify-all.js` |
 | `release:gates:strict` | `node scripts/verify-all.js --strict` |
 | `repair:workspace-root` | `python scripts/repair-workspace-root-package.py` |
@@ -77,6 +82,7 @@ Total: 103 scripts
 | `repairbot:status` | `node scripts/repairbot/status.mjs` |
 | `repairbot:watch` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000` |
 | `setup:scene-models` | `node scripts/setup-scene-models.mjs` |
+| `setup:scene-textures` | `node scripts/setup-scene-textures.mjs` |
 | `setup:stripe` | `node scripts/setup-stripe-products.mjs` |
 | `setup:stripe-live` | `node scripts/setup-stripe-live.mjs` |
 | `setup:stripe-live:cli` | `node scripts/setup-stripe-live-cli.mjs --push-vercel` |
@@ -97,6 +103,7 @@ Total: 103 scripts
 | `test:e2e:cross-browser` | `node scripts/run-cross-browser-gates.mjs` |
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
 | `test:e2e:perf` | `node scripts/run-local-preview-playwright.mjs --project=editor-performance` |
+| `test:perf-overhaul` | `vitest run src/test/editorPerformanceOverhaul.test.ts` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |
 | `test:screenshots` | `node scripts/run-screenshot-pack.mjs` |
 | `test:supabase-auth` | `node scripts/test-supabase-auth-smoke.mjs --config-only` |
@@ -111,3 +118,4 @@ Total: 103 scripts
 | `verify:supabase-login-data` | `node scripts/verify-supabase-login-data.mjs` |
 | `verify:supabase-schema` | `node scripts/verify-supabase-schema.mjs` |
 | `verify:supabase-schema:live` | `node scripts/verify-supabase-schema.mjs --live` |
+| `verify:world-class-gates` | `node scripts/verify-gates-14-18.mjs` |

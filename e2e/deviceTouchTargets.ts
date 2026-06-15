@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+﻿import { expect, type Page } from '@playwright/test';
 
 export async function assertNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => {
@@ -44,12 +44,11 @@ export async function assertTouchTargets(
 export async function emulateCoarsePointer(page: Page) {
   await page.emulateMedia({ media: 'screen' });
   await page.addInitScript(() => {
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: (query: string) => {
-        const coarse = query.includes('pointer: coarse') || query.includes('hover: none');
+    const originalMatchMedia = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) => {
+      if (query.includes('pointer: coarse') || query.includes('hover: none')) {
         return {
-          matches: coarse,
+          matches: true,
           media: query,
           onchange: null,
           addListener: () => {},
@@ -58,7 +57,8 @@ export async function emulateCoarsePointer(page: Page) {
           removeEventListener: () => {},
           dispatchEvent: () => false,
         } as MediaQueryList;
-      },
-    });
+      }
+      return originalMatchMedia(query);
+    };
   });
 }

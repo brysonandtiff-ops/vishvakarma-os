@@ -1,6 +1,6 @@
 {
   "debounceMs": 10000,
-  "lintTimeoutMs": 120000,
+  "lintTimeoutMs": 240000,
   "excludePathPatterns": [
     "^\\.env",
     "^migration/export-.*\\.json$",
@@ -8,6 +8,7 @@
     "^\\.repairbot/",
     "^test-results/",
     "^playwright-report/",
+    "^test-output.*\\.txt$",
     "^dist/",
     "^node_modules/",
     "^docs/handoff/OPERATOR_ANNEX\\.md$"

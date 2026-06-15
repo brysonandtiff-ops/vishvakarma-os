@@ -136,12 +136,12 @@ Verify completeness: `pnpm run handoff:verify`
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `pnpm run handoff:generate` | **PASS** | 17 routes, 9 API handlers, 103 scripts, 13 tables |
+| `pnpm run handoff:generate` | **PASS** | 17 routes, 9 API handlers, 111 scripts, 13 tables |
 | `pnpm run handoff:verify` | **PASS** | All annexes and appendices present |
 | `pnpm run docs:verify` | **PASS** | Documentation program link and version checks |
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |
 | ChatGPT handoff doc | **PASS** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) at v1.5.0 |
-| Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `6cca332b31aa7fe5199c8bf809703ea03dccdd5d` |
+| Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `10f4dfbbd03f6fce420ef12e9ca4920c3b56fdb4` |
 
 **Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
 

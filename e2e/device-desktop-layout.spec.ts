@@ -1,11 +1,25 @@
 import { expect, test } from '@playwright/test';
-import { desktopLandscape, dismissEditorOverlays, resetWorkspacePrefs } from './helpers';
+import {
+  desktopLandscape,
+  dismissConsentIfPresent,
+  resetWorkspacePrefs,
+} from './helpers';
+
+async function openEditorDesktop(page: import('@playwright/test').Page) {
+  await page.goto('/editor', { waitUntil: 'domcontentloaded' });
+  await dismissConsentIfPresent(page);
+  const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
+  if (await skipWelcome.isVisible().catch(() => false)) {
+    await skipWelcome.click({ force: true });
+  }
+  await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 });
+}
 
 test.describe('Desktop fine-pointer editor chrome', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
     await page.setViewportSize(desktopLandscape);
-    await dismissEditorOverlays(page);
+    await openEditorDesktop(page);
   });
 
   test('walk mode shows pointer-lock hint on fine pointer desktop', async ({ page }) => {

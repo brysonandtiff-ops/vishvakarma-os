@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { appendFileSync, mkdirSync, unlinkSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
@@ -148,6 +148,10 @@ export async function runAutoShip(rawArgv = process.argv.slice(2)) {
   }
 
   for (const path of stageable) {
+    if (!existsSync(join(repoRoot, path))) {
+      logEvent(repoRoot, { trigger: options.trigger, skipped: true, reason: 'missing-path', path });
+      continue;
+    }
     const addResult = git(['add', '--', path], repoRoot);
     if (!addResult.ok) {
       logEvent(repoRoot, { trigger: options.trigger, ok: false, reason: 'git-add-failed', path, stderr: addResult.stderr });
@@ -156,7 +160,16 @@ export async function runAutoShip(rawArgv = process.argv.slice(2)) {
   }
 
   const commitMessage = buildCommitMessage(options.trigger, stageable);
-  const commit = git(['commit', '-m', commitMessage], repoRoot);
+  const msgRelPath = '.cursor/auto-ship/.commit-msg';
+  const msgPath = join(repoRoot, msgRelPath);
+  mkdirSync(join(repoRoot, '.cursor', 'auto-ship'), { recursive: true });
+  writeFileSync(msgPath, `${commitMessage}\n`, 'utf8');
+  const commit = git(['commit', '-F', msgRelPath], repoRoot);
+  try {
+    unlinkSync(msgPath);
+  } catch {
+    // ignore
+  }
   if (!commit.ok) {
     logEvent(repoRoot, { trigger: options.trigger, ok: false, reason: 'git-commit-failed', stderr: commit.stderr });
     return { ok: false, reason: 'git-commit-failed' };

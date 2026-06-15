@@ -2,24 +2,26 @@ import { expect, test } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
-  dismissEditorOverlays,
+  dismissConsentIfPresent,
   iPhonePortrait,
   resetWorkspacePrefs,
 } from './helpers';
 
-async function dismissOnboardingIfPresent(page: import('@playwright/test').Page) {
-  const dismiss = page.getByRole('button', { name: /dismiss|close|got it|skip/i });
-  if (await dismiss.first().isVisible().catch(() => false)) {
-    await dismiss.first().click();
+async function openEditorOnPhone(page: import('@playwright/test').Page) {
+  await page.goto('/editor', { waitUntil: 'domcontentloaded' });
+  await dismissConsentIfPresent(page);
+  const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
+  if (await skipWelcome.isVisible().catch(() => false)) {
+    await skipWelcome.click({ force: true });
   }
+  await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 });
 }
 
 test.describe('Device phone editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
     await page.setViewportSize(iPhonePortrait);
-    await dismissEditorOverlays(page);
-    await dismissOnboardingIfPresent(page);
+    await openEditorOnPhone(page);
   });
 
   test('editor workspace fits iPhone portrait without horizontal overflow', async ({ page }) => {

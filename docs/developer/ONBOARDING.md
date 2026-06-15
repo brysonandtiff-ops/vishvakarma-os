@@ -6,6 +6,8 @@
 
 Day-1 guide to run Vishvakarma.OS locally and ship your first change.
 
+**Cursor / coding agents:** start with [AGENTS.md](../../AGENTS.md) for verify, ship, and precedence rules.
+
 ---
 
 ## Prerequisites

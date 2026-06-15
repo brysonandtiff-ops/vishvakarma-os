@@ -67,11 +67,18 @@ const HOOK_ENTRIES = {
     file: 'after-shell-exec.mjs',
     timeout: 180,
     body: `import { invokeAutoShip, readStdinJson } from './invoke-auto-ship.mjs';
+
+function parseShellExitCode(raw) {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const parsed = Number.parseInt(String(raw ?? ''), 10);
+  return Number.isNaN(parsed) ? 1 : parsed;
+}
+
 async function main() {
   const payload = await readStdinJson();
   const command = payload.command ?? payload.shell_command ?? '';
-  const exitCode = payload.exit_code ?? payload.exitCode ?? 0;
-  await invokeAutoShip({ trigger: 'shell', command: String(command), exitCode: Number(exitCode) || 0 });
+  const exitCode = parseShellExitCode(payload.exit_code ?? payload.exitCode ?? 0);
+  await invokeAutoShip({ trigger: 'shell', command: String(command), exitCode });
   process.exit(0);
 }
 main().catch(() => process.exit(0));`,
@@ -107,7 +114,7 @@ main().catch(() => process.exit(0));`,
     body: `import { invokeAutoShip } from './invoke-auto-ship.mjs';
 async function main() {
   const result = await invokeAutoShip({ trigger: 'stop' });
-  if (!result.ok && !result.skipped) {
+  if (!result.ok) {
     process.stdout.write(JSON.stringify({ followup_message: 'Auto-ship failed. Check .cursor/auto-ship/run.log in the git repo.' }) + '\\n');
   }
   process.exit(0);

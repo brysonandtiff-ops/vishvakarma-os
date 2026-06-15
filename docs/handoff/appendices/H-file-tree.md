@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
 ```
 src/
@@ -29,6 +29,7 @@ ai/
       buildingRequestValidator.ts
       generatedBuildingValidator.ts
 App.tsx
+AppRoutes.tsx
 backend/
   authCapabilities.test.ts
   authCapabilities.ts
@@ -72,6 +73,8 @@ collaboration/
     manifestDoc.ts
   entities.ts
   index.ts
+  presenceReadOnly.test.ts
+  presenceReadOnly.ts
   sync/
     CollabSession.ts
     CollabTransportAdapter.ts
@@ -79,6 +82,12 @@ collaboration/
     YjsWebSocketProvider.ts
   types.ts
 components/
+  architecture-bot/
+    ArchitectureBotCharacter.tsx
+    ArchitectureBotPanel.tsx
+    ArchitectureBotWidget.test.tsx
+    ArchitectureBotWidget.tsx
+    useArchitectureBot.ts
   auth/
     AuthStatusBanner.test.tsx
     AuthStatusBanner.tsx
@@ -89,6 +98,8 @@ components/
     billingBannerMessage.ts
     BillingPlanCard.tsx
   brand/
+    CopilotSwanMark.test.tsx
+    CopilotSwanMark.tsx
     FoundersAcknowledgment.test.tsx
     FoundersAcknowledgment.tsx
   cast/
@@ -100,13 +111,21 @@ components/
     FeatureCard.tsx
     IntersectObserver.tsx
     MetricPill.tsx
+    PageContainer.tsx
     PageMeta.tsx
     PageSection.tsx
+    PageSectionGrid.tsx
+    PageStateBlock.tsx
+    PageToolbar.tsx
     PrototypeDisclaimer.test.tsx
     PrototypeDisclaimer.tsx
+    ResponsiveDataView.tsx
     RouteGuard.tsx
     SanskritRainBackground.tsx
+    StatPill.tsx
+    WorkspaceEmptyState.tsx
     WorkspacePageHeader.tsx
+    WorkspacePanel.tsx
   editor/
     ai-designer/
       AIDesignerDialog.tsx
@@ -119,6 +138,8 @@ components/
       PlanningShortlistPanel.tsx
       SitePlanPreview.tsx
     blueprint/
+      canvasLayers.ts
+      canvasRenderLoop.ts
       drawRooms.ts
       drawSymbols.ts
       drawWalls.ts
@@ -138,7 +159,10 @@ components/
     EditorCompassCost.tsx
     EditorLayerPanel.tsx
     EditorMenuSheet.tsx
+    EditorPerfHud.tsx
     EditorPhasePills.tsx
+    EditorSidebarContext.tsx
+    EditorSidebarSections.tsx
     EditorTopBar.tsx
     EditorVoiceMic.tsx
     ExportFloorPlanDialog.tsx
@@ -154,19 +178,24 @@ components/
       AkashaCastPanel.tsx
       ComplianceBanner.tsx
       CompliancePanel.tsx
+      PerformanceProfilePanel.tsx
       SimulationPanels.tsx
       VastuPanel.tsx
     ProjectProofPanel.tsx
     PropertiesPanel.tsx
     RadialToolMenu.tsx
+    RadialToolMenuTracker.tsx
     SamplePickerDialog.tsx
     SaveModeBadge.tsx
     SaveStateBadge.tsx
     sceneGltfModels.tsx
     sceneMaterials.tsx
     sceneMeshes.tsx
+    ScenePostProcessing.tsx
+    sceneRoomBatch.tsx
     sceneRoomMeshes.tsx
     sceneTerrainMeshes.tsx
+    sceneWallBatch.tsx
     SolarTimeline.tsx
     StatusBar.tsx
     toolDefaults.ts
@@ -179,12 +208,18 @@ components/
     GovernanceStatPill.tsx
   layouts/
     AppLayout.tsx
+    AppLayoutOutlet.tsx
+    AuthLayout.tsx
     MarketingLayout.tsx
+    RouteLoadingFallback.tsx
+    WorkspaceDocumentLayout.tsx
+    WorkspaceGovernanceLayout.tsx
     WorkspacePageShell.tsx
   marketing/
     MarketingFooter.tsx
     MarketingNav.tsx
     MarketingPageHeader.tsx
+    MarketingSection.tsx
     SacredBackground.tsx
     SacredCosmicLayer.tsx
     SacredMandalaLayer.tsx
@@ -206,6 +241,8 @@ components/
     TradeoffDeltaChart.tsx
     TradeoffPanel.tsx
     WinnerHeroPanel.tsx
+  profile/
+    StudioAudioSettings.tsx
   system-intelligence/
     ComputeOverlay.tsx
     ConstraintEditor.tsx
@@ -278,6 +315,7 @@ config/
   canonicalOrigin.ts
   coOwners.ts
   marketingFeatures.ts
+  RouteNavConfig.ts
 constants/
   prototypeDisclaimer.ts
 contexts/
@@ -298,6 +336,7 @@ core/
   importers/
     dxfImport.test.ts
     dxfImport.ts
+  lightingPresets.ts
   manifestSchema.ts
   projectExport.test.ts
   projectExport.ts
@@ -306,6 +345,7 @@ core/
   sampleCatalog.ts
   sceneDrawingTokens.ts
   sceneModelCatalog.ts
+  scenePbrCatalog.ts
   sceneTerrainCatalog.ts
   sceneTextureCatalog.ts
   sceneVisualCatalog.ts
@@ -387,12 +427,14 @@ domain/
     scheduleTypes.ts
 editor/
   canvasSelection.ts
+  draftSave.worker.ts
   localDraft.test.ts
   localDraft.ts
   localProject.ts
   localProjects.ts
   onboardingMemory.test.ts
   onboardingMemory.ts
+  spatialIndex.ts
   toolMeta.ts
 global.d.ts
 governance/
@@ -400,6 +442,7 @@ governance/
     enforcer.ts
     specHash.ts
   gates/
+    decisionIntelligenceDisclaimer.test.ts
     gate-manifest.json
     gate-ui-status.json
     releaseGateManifest.ts
@@ -419,6 +462,7 @@ hooks/
   useCloudSaveStatus.ts
   useCoarsePointer.ts
   useFloorPlanEngine.ts
+  useFloorPlanSession.ts
   useGeometryRevision.ts
   usePlanTier.ts
   useVisualViewportInset.ts
@@ -429,6 +473,7 @@ lib/
   editorDialog.ts
   logger.ts
   monitoring.ts
+  studioToast.ts
   utils.ts
 main.tsx
 modules/
@@ -469,10 +514,21 @@ modules/
   sheetSet/
     sheetSetComposer.test.ts
     sheetSetComposer.ts
+    sheetSetPdfExport.test.ts
+    sheetSetPdfExport.ts
+  studio-audio/
+    ambientLoop.ts
+    audioEngine.test.ts
+    audioEngine.ts
+    audioPrefs.ts
+    soundCatalog.ts
+    StudioAudioProvider.tsx
+    useStudioAudio.ts
   themeManager.ts
   versionControlHooks.ts
 pages/
   AuditLogPage.tsx
+  AuthAwareNotFound.tsx
   AuthPage.tsx
   CastViewerPage.tsx
   ChangeRequestsPage.tsx
@@ -540,6 +596,14 @@ rules/
     setbackRule.test.ts
     setbackRule.ts
 services/
+  architecture-bot/
+    issueCatalog.ts
+    repairActions.test.ts
+    repairActions.ts
+    repairOrchestrator.ts
+    scanIssues.test.ts
+    scanIssues.ts
+    types.ts
   billing/
     stripeCheckout.ts
   compliance/
@@ -611,14 +675,19 @@ services/
     zoningRules.ts
 styles/
   vish-auth-gate.css
+  vish-copilot-swan.css
   vish-editor-chrome.css
   vish-editor-mantra.css
   vish-governance-polish.css
+  vish-layout-tokens.css
   vish-marketing.css
   vish-mockup-system.css
+  vish-motion-system.css
+  vish-realism.css
   vish-sacred-layers.css
   vish-sacred-tokens.css
   vish-tokens.css
+  vish-tutorial.css
   vish-workspace-shell.css
 svg.d.ts
 test/
@@ -630,14 +699,21 @@ test/
   billingPlans.test.ts
   blueprintDrawing.test.ts
   canvasEngine.test.ts
+  canvasPerf.test.ts
   canvasPointerCoords.test.ts
   canvasSelection.test.ts
+  canvasTouchGestures.test.ts
+  canvasViewportZoom.test.ts
   collaborationEngine.test.ts
   collaborationPresence.test.ts
   commandPaletteShortcut.test.ts
   coOwners.test.ts
+  copilotSwanMotion.test.ts
   copilotUploadIpad.test.ts
   editorChrome.test.ts
+  editorPerformanceOverhaul.test.ts
+  editorPerformanceOverhaulProof.ts
+  editorSidebarIntegration.test.tsx
   editorVisualPolish.test.ts
   editorWorkflow.test.ts
   elementLock.test.ts
@@ -645,19 +721,23 @@ test/
   fixtures/
     dxf-layer-filter-sample.dxf
     dxf-lwpolyline-sample.dxf
+  FollowViewportToggle.test.tsx
   formatValidator.test.ts
   functionalWiring.test.ts
   generateColumnGlb.test.ts
   governanceLock.test.ts
   governanceVisualPolish.test.ts
   import.test.ts
+  inputHandlers.test.ts
   keyboardShortcuts.test.ts
   KeyboardShortcuts.test.tsx
+  lightingPresets.test.ts
   localDraft.test.ts
   loginDataSetup.test.ts
   manifestBridge.test.ts
   manifestGeometry.test.ts
   marketingRoutes.test.tsx
+  motionSystem.test.ts
   multiUserGovernance.test.ts
   officialLogoBrand.test.ts
   parity2d3d.test.ts
@@ -672,11 +752,15 @@ test/
   sanskritAuthGate.test.ts
   saveLoadDeterminism.test.ts
   sceneModelCatalog.test.ts
+  scenePbrCatalog.test.ts
+  sceneRoomBatch.test.ts
   sceneTerrainCatalog.test.ts
   sceneTextureCatalog.test.ts
   sceneVisualCatalog.test.ts
   setup.ts
+  spatialIndex.test.ts
   stressTest.test.ts
+  stripeInvoice.test.ts
   supabaseAuthRestore.test.ts
   texturePatterns.test.ts
   themeManager.test.ts
@@ -684,11 +768,24 @@ test/
   verificationWiring.test.ts
   versionControlHooks.test.ts
   workspaceCommandPalette.test.ts
+  workspaceLayoutPolish.test.ts
   worldRecordMeasure.test.ts
   worldRecordRegistry.test.ts
 theme/
   tokens.ts
 three.d.ts
+tutorial/
+  tutorialCatalog.test.ts
+  tutorialCatalog.ts
+  TutorialEngine.tsx
+  tutorialGuards.test.ts
+  tutorialGuards.ts
+  TutorialHelpButton.tsx
+  TutorialHub.tsx
+  tutorialMemory.test.ts
+  tutorialMemory.ts
+  TutorialProvider.tsx
+  types.ts
 types/
   billing.ts
   index.ts
@@ -697,6 +794,8 @@ types/
 utils/
   atmosphereMode.ts
   canvasPointerCoords.ts
+  canvasTouchGestures.ts
+  canvasViewportZoom.ts
   commandPaletteShortcut.ts
   costEstimate.test.ts
   costEstimate.ts
@@ -707,6 +806,7 @@ utils/
   manifestGeometry.ts
   measurements.ts
   minimalPdf.ts
+  performanceProfile.ts
   projectThumbnail.ts
   roomCalculations.ts
   scrollFocusedFieldIntoView.ts
@@ -756,6 +856,12 @@ migrations/
 README.md
 
 scripts/
+auto-ship/
+  auto-ship-config.json
+  auto-ship-lib.mjs
+  auto-ship.mjs
+  auto-ship.test.mjs
+  install-user-hooks.mjs
 deploy-vercel.sh
 docs/
   verify-documentation.mjs
@@ -793,6 +899,7 @@ performance/
   bundle-budget.json
   check-bundle-budget.mjs
   lighthouse-budget.json
+  record-editor-perf-proof.mjs
   report-bundle.mjs
   run-lighthouse.mjs
 production/
@@ -807,6 +914,7 @@ push-supabase-env-vercel.mjs
 quality/
   check-auth-config-guard.mjs
   check-build-gate.mjs
+  check-device-hardening.mjs
   check-editor-export-canonical.mjs
   check-flawless-use-gates.mjs
   check-forbidden-edges.mjs
@@ -836,6 +944,7 @@ run-pipeline.mjs
 run-screenshot-pack.mjs
 set-stripe-secret-env.mjs
 setup-scene-models.mjs
+setup-scene-textures.mjs
 setup-stripe-live-cli.mjs
 setup-stripe-live.mjs
 setup-stripe-products.mjs
@@ -848,6 +957,7 @@ stripe-cli-login.mjs
 sync-pwa-icon-svgs.mjs
 test-supabase-auth-smoke.mjs
 verify-all.js
+verify-gates-14-18.mjs
 verify-live-auth-flow.mjs
 verify-production-auth-flow.mjs
 verify-stripe-billing.mjs
@@ -867,6 +977,12 @@ auth-private-routes.spec.ts
 collaboration-sync.spec.ts
 compliance-gate.spec.ts
 cross-browser-smoke.spec.ts
+device-collaboration-chrome.spec.ts
+device-desktop-layout.spec.ts
+device-governance-layout.spec.ts
+device-marketing-layout.spec.ts
+device-phone-editor.spec.ts
+deviceTouchTargets.ts
 editor-features.spec.ts
 editor-performance.spec.ts
 governance-smoke.spec.ts
@@ -880,6 +996,7 @@ page-reference-pack-remainder.spec.ts
 page-reference-pack.spec.ts
 projects-profile.spec.ts
 release-screenshot-pack.spec.ts
+tutorial-essentials.spec.ts
 workspace-navigation.spec.ts
 
 docs/
@@ -1027,6 +1144,7 @@ IMPLEMENTATION_SUMMARY.md
 LAUNCH_READINESS.md
 operations/
   ACCOUNT_TRANSFER.md
+  AUTO_SHIP_HOOKS.md
   DEPLOYMENT_RUNBOOK.md
   ENVIRONMENT_MATRIX.md
   INCIDENT_RESPONSE.md
@@ -1041,11 +1159,16 @@ README.md
 REGISTRY.md
 release/
   DEPLOYMENT.md
+  DEVICE_HARDENING_RUNBOOK.md
   evidence/
     2d-3d-parity-proof.md
     auth-sign-in-proof.md
     build-output.txt
     bundle-budget-report.json
+    collaboration-preview-hardening.md
+    device-hardening-audit.md
+    editor-performance-overhaul-proof.json
+    editor-performance-overhaul-proof.md
     EVIDENCE_MANIFEST.md
     FINAL_CLEANUP_EVIDENCE.md
     functional-workflow-proof.md
@@ -1063,6 +1186,11 @@ release/
     screenshots/
       01-landing-hero.png
       02-auth-email-link.png
+      03-editor-2d-sample.png
+      04-editor-3d-premium.png
+      05-export-package-dialog.png
+      06-projects-empty.png
+      07-features-ready-badges.png
       README.md
     SCREENSHOT_PACK.md
     security-headers.md
@@ -1105,6 +1233,8 @@ specs/
   PROJECT_ROLES_AND_PERMISSIONS.md
   SYSTEM_CONTRACT_LAYER.md
   VASTU_HARMONY_v1.md
+spikes/
+  DWG_IMPORT_PIPELINE.md
 testing/
   EDITOR_WORKFLOWS.md
 user/
@@ -1135,6 +1265,8 @@ brand/
   vishvakarma-apple-touch-icon.png
   vishvakarma-official-logo.svg
 favicon.png
+hdri/
+  studio-arch.hdr
 icons/
   apple-touch-icon.svg
   favicon-32.png
@@ -1188,6 +1320,52 @@ samples/
   mep-lighting-showcase.json
   sample-house-01.json
   terrain-garden.json
+textures/
+  bark/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  concrete/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  fabric/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  grass/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  marble/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  metal/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  paint/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  plaster/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  README.md
+  stone/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  tile/
+    color.jpg
+    normal.jpg
+    roughness.jpg
+  wood/
+    color.jpg
+    normal.jpg
+    roughness.jpg
 world-record/
   latest-measurement.json
 

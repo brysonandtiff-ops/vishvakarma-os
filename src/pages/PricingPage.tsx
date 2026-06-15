@@ -92,7 +92,7 @@ export default function PricingPage() {
           checkoutPlan: plan,
         };
       },
-    [checkoutLoading, isStudio, stripeEnabled, user, workspaceTo]
+    [checkoutLoading, isEnterprise, isStudio, stripeEnabled, user, workspaceTo]
   );
 
   const studioCta = paidTierCta('studio', `Start ${STUDIO_TRIAL_LABEL} →`, 'studio');

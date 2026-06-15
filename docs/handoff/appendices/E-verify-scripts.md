@@ -2,19 +2,21 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
 ## npm verify / gates scripts
 
 | Script | Command |
 |--------|--------|
-| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-project-roles.mjs` |
+| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
+| `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
 | `hardening:gates` | `node scripts/quality/check-production-hardening.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
 | `project-roles:gates` | `node scripts/quality/check-project-roles.mjs` |
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |
 | `flawless:gates` | `node scripts/quality/check-flawless-use-gates.mjs` |
 | `release:gates` | `node scripts/verify-all.js` |
+| `verify:world-class-gates` | `node scripts/verify-gates-14-18.mjs` |
 | `verify` | `node scripts/run-pipeline.mjs --tier=verify` |
 | `verify:ci` | `node scripts/run-pipeline.mjs --tier=verify:ci` |
 | `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
@@ -37,6 +39,7 @@ Generated: 2026-06-15T07:06:44.393Z
 
 - `scripts/quality/check-auth-config-guard.mjs`
 - `scripts/quality/check-build-gate.mjs`
+- `scripts/quality/check-device-hardening.mjs`
 - `scripts/quality/check-editor-export-canonical.mjs`
 - `scripts/quality/check-flawless-use-gates.mjs`
 - `scripts/quality/check-forbidden-edges.mjs`

@@ -2,16 +2,22 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
-## Vitest unit/integration (119 files)
+## Vitest unit/integration (148 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
 - `src/backend/backendConfig.test.ts`
 - `src/backend/supabase/supabaseAuthCallback.test.ts`
+- `src/cast/CastIntentRelay.test.ts`
+- `src/cast/CastLensState.test.ts`
+- `src/cast/castTier.test.ts`
+- `src/collaboration/presenceReadOnly.test.ts`
+- `src/components/architecture-bot/ArchitectureBotWidget.test.tsx`
 - `src/components/auth/AuthStatusBanner.test.tsx`
 - `src/components/auth/AuthTrustPillar.test.tsx`
+- `src/components/brand/CopilotSwanMark.test.tsx`
 - `src/components/brand/FoundersAcknowledgment.test.tsx`
 - `src/components/common/PrototypeDisclaimer.test.tsx`
 - `src/components/optimization/MoatGainPanel.test.tsx`
@@ -33,6 +39,7 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/domain/buildingGraph/manifestAdapter.test.ts`
 - `src/editor/localDraft.test.ts`
 - `src/editor/onboardingMemory.test.ts`
+- `src/governance/gates/decisionIntelligenceDisclaimer.test.ts`
 - `src/modules/compliance/complianceModule.test.ts`
 - `src/modules/compliance/complianceReportExport.test.ts`
 - `src/modules/compliance/jurisdictionCompliance.test.ts`
@@ -40,12 +47,16 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/modules/optimization/optimizationReportExport.test.ts`
 - `src/modules/permit/permitPackageExport.test.ts`
 - `src/modules/sheetSet/sheetSetComposer.test.ts`
+- `src/modules/sheetSet/sheetSetPdfExport.test.ts`
+- `src/modules/studio-audio/audioEngine.test.ts`
 - `src/planning/candidateGenerator.test.ts`
 - `src/planning/planScoringEngine.test.ts`
 - `src/planning/planningPipeline.test.ts`
 - `src/rules/ncc/bedroomEgressRule.test.ts`
 - `src/rules/ncc/bedroomSizeRule.test.ts`
 - `src/rules/zoning/setbackRule.test.ts`
+- `src/services/architecture-bot/repairActions.test.ts`
+- `src/services/architecture-bot/scanIssues.test.ts`
 - `src/services/compliance/complianceAggregator.test.ts`
 - `src/services/copilot/ingestion/documentParsers.test.ts`
 - `src/services/copilot/ingestion/dxfBoundaryParser.test.ts`
@@ -63,6 +74,7 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/services/optimization/strategyProfiles.test.ts`
 - `src/services/optimization/tradeoffAnalyzer.test.ts`
 - `src/test/AppErrorBoundary.test.tsx`
+- `src/test/FollowViewportToggle.test.tsx`
 - `src/test/KeyboardShortcuts.test.tsx`
 - `src/test/PropertiesPanel.test.tsx`
 - `src/test/RadialToolMenu.test.tsx`
@@ -74,14 +86,20 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/test/billingPlans.test.ts`
 - `src/test/blueprintDrawing.test.ts`
 - `src/test/canvasEngine.test.ts`
+- `src/test/canvasPerf.test.ts`
 - `src/test/canvasPointerCoords.test.ts`
 - `src/test/canvasSelection.test.ts`
+- `src/test/canvasTouchGestures.test.ts`
+- `src/test/canvasViewportZoom.test.ts`
 - `src/test/coOwners.test.ts`
 - `src/test/collaborationEngine.test.ts`
 - `src/test/collaborationPresence.test.ts`
 - `src/test/commandPaletteShortcut.test.ts`
+- `src/test/copilotSwanMotion.test.ts`
 - `src/test/copilotUploadIpad.test.ts`
 - `src/test/editorChrome.test.ts`
+- `src/test/editorPerformanceOverhaul.test.ts`
+- `src/test/editorSidebarIntegration.test.tsx`
 - `src/test/editorVisualPolish.test.ts`
 - `src/test/editorWorkflow.test.ts`
 - `src/test/elementLock.test.ts`
@@ -92,12 +110,15 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/test/governanceLock.test.ts`
 - `src/test/governanceVisualPolish.test.ts`
 - `src/test/import.test.ts`
+- `src/test/inputHandlers.test.ts`
 - `src/test/keyboardShortcuts.test.ts`
+- `src/test/lightingPresets.test.ts`
 - `src/test/localDraft.test.ts`
 - `src/test/loginDataSetup.test.ts`
 - `src/test/manifestBridge.test.ts`
 - `src/test/manifestGeometry.test.ts`
 - `src/test/marketingRoutes.test.tsx`
+- `src/test/motionSystem.test.ts`
 - `src/test/multiUserGovernance.test.ts`
 - `src/test/officialLogoBrand.test.ts`
 - `src/test/parity2d3d.test.ts`
@@ -110,23 +131,31 @@ Generated: 2026-06-15T07:06:44.393Z
 - `src/test/sanskritAuthGate.test.ts`
 - `src/test/saveLoadDeterminism.test.ts`
 - `src/test/sceneModelCatalog.test.ts`
+- `src/test/scenePbrCatalog.test.ts`
+- `src/test/sceneRoomBatch.test.ts`
 - `src/test/sceneTerrainCatalog.test.ts`
 - `src/test/sceneTextureCatalog.test.ts`
 - `src/test/sceneVisualCatalog.test.ts`
+- `src/test/spatialIndex.test.ts`
 - `src/test/stressTest.test.ts`
+- `src/test/stripeInvoice.test.ts`
 - `src/test/supabaseAuthRestore.test.ts`
 - `src/test/texturePatterns.test.ts`
 - `src/test/themeManager.test.ts`
 - `src/test/verificationWiring.test.ts`
 - `src/test/versionControlHooks.test.ts`
 - `src/test/workspaceCommandPalette.test.ts`
+- `src/test/workspaceLayoutPolish.test.ts`
 - `src/test/worldRecordMeasure.test.ts`
 - `src/test/worldRecordRegistry.test.ts`
+- `src/tutorial/tutorialCatalog.test.ts`
+- `src/tutorial/tutorialGuards.test.ts`
+- `src/tutorial/tutorialMemory.test.ts`
 - `src/utils/costEstimate.test.ts`
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (22 specs)
+## Playwright E2E (28 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -137,6 +166,11 @@ Generated: 2026-06-15T07:06:44.393Z
 - `e2e/collaboration-sync.spec.ts`
 - `e2e/compliance-gate.spec.ts`
 - `e2e/cross-browser-smoke.spec.ts`
+- `e2e/device-collaboration-chrome.spec.ts`
+- `e2e/device-desktop-layout.spec.ts`
+- `e2e/device-governance-layout.spec.ts`
+- `e2e/device-marketing-layout.spec.ts`
+- `e2e/device-phone-editor.spec.ts`
 - `e2e/editor-features.spec.ts`
 - `e2e/editor-performance.spec.ts`
 - `e2e/governance-smoke.spec.ts`
@@ -149,6 +183,7 @@ Generated: 2026-06-15T07:06:44.393Z
 - `e2e/page-reference-pack.spec.ts`
 - `e2e/projects-profile.spec.ts`
 - `e2e/release-screenshot-pack.spec.ts`
+- `e2e/tutorial-essentials.spec.ts`
 - `e2e/workspace-navigation.spec.ts`
 
 ## Regression anchors

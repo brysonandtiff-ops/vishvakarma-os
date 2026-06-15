@@ -1,5 +1,7 @@
 # RELEASE.md - Release Gates and Evidence Requirements
 
+> **Historical:** This document describes the original v1.0 **10-gate** release model. The current production release pipeline uses **13 gates** — see [ADR-004: 13-gate release pipeline](./adr/004-thirteen-gate-release-pipeline.md) and [Operator checklist](./release/OPERATOR_CHECKLIST.md).
+
 ## Release Gates for Blueprint Editor
 
 Every release of Vishvakarma.OS must pass all gates before being marked "Ready for Release". These gates ensure quality, governance compliance, and deterministic behavior.
@@ -223,8 +225,8 @@ For each release, generate an evidence pack containing:
 - Environment (production/staging)
 
 ### 4. Test Logs
-- Output from `npm run lint`
-- Output from `npm run verify:all`
+- Output from `pnpm run lint`
+- Output from `pnpm run release:gates`
 - Smoke test results
 - Performance metrics
 
@@ -245,7 +247,7 @@ For each release, generate an evidence pack containing:
 
 Before marking a release as "Ready":
 
-- [ ] All 10 gates pass
+- [ ] All 13 gates pass (see [ADR-004](./adr/004-thirteen-gate-release-pipeline.md) and [OPERATOR_CHECKLIST](./release/OPERATOR_CHECKLIST.md); this document's 10-gate list is historical)
 - [ ] Evidence pack generated
 - [ ] Documentation updated
 - [ ] Change requests linked
@@ -291,10 +293,10 @@ The following violations will block release:
 
 ## CI Integration
 
-The `verify:all` script runs all gate checks:
+The `release:gates` script runs all gate checks:
 
 ```bash
-npm run verify:all
+pnpm run release:gates
 ```
 
 **Exit Codes**:

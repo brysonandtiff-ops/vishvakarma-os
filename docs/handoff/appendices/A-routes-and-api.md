@@ -2,7 +2,7 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
 ## Client routes (`src/routes.tsx`)
 

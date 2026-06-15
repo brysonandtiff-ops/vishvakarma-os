@@ -50,7 +50,7 @@ First visit: choose **New project** or **Load sample** on the welcome screen to 
 
 Toggle 3D with the viewport control. Adjust solar time with the lighting scrubber.
 
-Marketing guides on [/features](/features) deep-link into the matching in-app tour.
+Marketing guides on [/features](https://vishvakarma-os.app/features) deep-link into the matching in-app tour.
 
 ---
 

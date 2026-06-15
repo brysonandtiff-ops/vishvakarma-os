@@ -458,6 +458,12 @@
     min-height: 44px;
     min-width: 44px;
   }
+
+  .vish-marketing-page footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 @media (pointer: coarse), (max-width: 430px) {

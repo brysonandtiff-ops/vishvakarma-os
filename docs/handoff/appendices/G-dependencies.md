@@ -2,11 +2,11 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-15T07:06:44.393Z
+Generated: 2026-06-15T17:38:56.273Z
 
 Package: `vishvakarma-os` v1.5.0
 
-## Production (75)
+## Production (69)
 
 | Package | Version |
 |---------|--------|
@@ -43,19 +43,15 @@ Package: `vishvakarma-os` v1.5.0
 | @react-three/drei | catalog: |
 | @react-three/fiber | catalog: |
 | @sentry/react | ^9.22.0 |
-| @supabase/supabase-js | ^2.49.1 |
+| @supabase/supabase-js | ^2.108.2 |
 | @vercel/analytics | ^2.0.1 |
-| axios | ^1.13.1 |
 | class-variance-authority | ^0.7.1 |
 | clsx | ^2.1.1 |
 | cmdk | ^1.1.1 |
 | date-fns | ^3.6.0 |
 | embla-carousel-react | ^8.6.0 |
-| eventsource-parser | ^3.0.6 |
 | input-otp | ^1.4.2 |
 | jszip | ^3.10.1 |
-| ky | ^1.13.0 |
-| lib0 | ^0.2.117 |
 | lucide-react | ^0.576.0 |
 | motion | ^12.23.25 |
 | next-themes | ^0.4.6 |
@@ -68,12 +64,11 @@ Package: `vishvakarma-os` v1.5.0
 | react-helmet-async | ^2.0.5 |
 | react-hook-form | ^7.66.0 |
 | react-resizable-panels | ^2.1.8 |
-| react-router | ^7.9.5 |
-| react-router-dom | ^7.9.5 |
+| react-router | ^7.17.0 |
+| react-router-dom | ^7.17.0 |
 | recharts | 2.15.4 |
 | sonner | ^2.0.7 |
-| streamdown | ^1.4.0 |
-| stripe | ^22.2.0 |
+| stripe | ^22.2.1 |
 | tailwind-merge | ^3.3.1 |
 | tailwindcss-animate | ^1.0.7 |
 | tailwindcss-intersect | ^2.2.0 |
@@ -81,12 +76,11 @@ Package: `vishvakarma-os` v1.5.0
 | vaul | ^1.1.2 |
 | video-react | ^0.16.0 |
 | ws | ^8.21.0 |
-| y-indexeddb | ^9.0.12 |
 | y-websocket | ^3.0.0 |
 | yjs | ^13.6.31 |
 | zod | ^3.25.76 |
 
-## Development (28)
+## Development (27)
 
 | Package | Version |
 |---------|--------|
@@ -98,25 +92,24 @@ Package: `vishvakarma-os` v1.5.0
 | @testing-library/jest-dom | ^6.9.1 |
 | @testing-library/react | ^16.3.2 |
 | @testing-library/user-event | ^14.6.1 |
-| @types/jszip | ^3.4.1 |
 | @types/node | ^24.2.1 |
 | @types/react | ^19.2.2 |
 | @types/react-dom | ^19.2.2 |
 | @types/video-react | ^0.15.8 |
 | @typescript/native-preview | 7.0.0-dev.20251103.1 |
 | @vitejs/plugin-react | ^5.1.2 |
-| @vitest/coverage-v8 | ^4.0.18 |
-| @vitest/ui | ^4.0.18 |
+| @vitest/coverage-v8 | ^4.1.9 |
+| @vitest/ui | ^4.1.9 |
 | autoprefixer | ^10.4.21 |
 | jsdom | ^28.1.0 |
 | lighthouse | ^12.6.0 |
-| postcss | ^8.5.6 |
+| postcss | ^8.5.15 |
 | tailwindcss | ^3.4.11 |
 | tsx | ^4.22.4 |
 | typescript | ~5.9.3 |
 | vite | npm:rolldown-vite@7.2.10 |
 | vite-plugin-pwa | ^1.3.0 |
 | vite-plugin-svgr | ^4.5.0 |
-| vitest | ^4.0.18 |
+| vitest | ^4.1.9 |
 
 Run `pnpm licenses list` for license audit during due diligence.

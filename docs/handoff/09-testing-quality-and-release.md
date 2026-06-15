@@ -10,7 +10,7 @@
 |------|--------|
 | Config | [`vitest.config.ts`](../../vitest.config.ts) |
 | Setup | [`src/test/setup.ts`](../../src/test/setup.ts) |
-| Run | `pnpm test`, `pnpm test:coverage` |
+| Run | `pnpm run test`, `pnpm run test:coverage` |
 | Route smoke | `pnpm test:routes` — [`src/routes.production.test.tsx`](../../src/routes.production.test.tsx) |
 | Regression anchors | `pnpm test:anchors` — [`src/test/regressionAnchors.test.ts`](../../src/test/regressionAnchors.test.ts) |
 

@@ -53,10 +53,11 @@ function walkDir(dir, opts = {}) {
 function parseRoutes() {
   const src = read('src/routes.tsx');
   const routes = [];
-  const blockRe = /\{\s*name:\s*'([^']+)',\s*path:\s*'([^']+)',\s*element:\s*<(\w+)\s*\/>,[\s\S]*?access:\s*'(\w+)'/g;
+  const blockRe =
+    /name:\s*'([^']+)',\s*path:\s*'([^']+)',\s*element:\s*(?:lazyRoute\(<(\w+)\s*\/>\)|<(\w+)\s*\/>),[\s\S]*?access:\s*'(\w+)'(?:\s+as\s+const)?/g;
   let m;
   while ((m = blockRe.exec(src)) !== null) {
-    routes.push({ name: m[1], path: m[2], component: m[3], access: m[4] });
+    routes.push({ name: m[1], path: m[2], component: m[3] || m[4], access: m[5] });
   }
   const pricingFlag = src.includes('PRICING_PAGE_ENABLED');
   return { routes, pricingFlag };
