@@ -290,6 +290,10 @@ export default function EditorTopBar({
 
           <TutorialHelpButton />
           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="More editor actions"
                 className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
               >
                 <MoreHorizontal className="h-4 w-4" />

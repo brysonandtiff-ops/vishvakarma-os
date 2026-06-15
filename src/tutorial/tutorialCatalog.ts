@@ -201,7 +201,7 @@ export const TUTORIAL_TRACKS: TutorialTrack[] = [
         id: 'label-tool',
         title: 'Add room labels',
         body: 'Select Label (T) and tap a room center. Double-click a label on canvas to rename it.',
-        target: 'tool-label',
+        target: 'tool-text',
         placement: 'right',
       },
       {

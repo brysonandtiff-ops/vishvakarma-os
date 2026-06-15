@@ -1317,6 +1317,7 @@ export default function BlueprintCanvas({
       }}
       className={`architect-canvas vish-canvas-tool-${currentTool} touch-none select-none rounded-lg shadow-md`}
       data-testid="blueprint-canvas"
+      data-tutorial="blueprint-canvas"
       data-current-tool={currentTool}
       data-input-mode={inputMode}
       aria-label="2D blueprint drawing canvas"

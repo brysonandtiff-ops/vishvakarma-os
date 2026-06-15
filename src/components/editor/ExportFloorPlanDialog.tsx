@@ -83,7 +83,7 @@ export default function ExportFloorPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={editorDialogClassName}>
+      <DialogContent className={editorDialogClassName} data-tutorial="export-dialog">
         <DialogHeader className="items-center text-center">
           <div className="vish-logo-tile mb-2 flex h-16 w-16 items-center justify-center rounded-2xl p-1.5">
             <FileDown className="h-8 w-8 text-primary-foreground" />

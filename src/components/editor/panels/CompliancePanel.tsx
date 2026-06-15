@@ -56,7 +56,7 @@ export function CompliancePanel({
   };
 
   return (
-    <div className="space-y-3 px-4 py-3 text-xs" data-testid="compliance-panel">
+    <div className="space-y-3 px-4 py-3 text-xs" data-testid="compliance-panel" data-tutorial="compliance-panel">
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold uppercase tracking-[0.14em] text-primary">{codeLabel} Building Compliance</p>
         <Button

@@ -46,7 +46,7 @@ export default function SolarTimeline({ lighting, onLightingChange }: SolarTimel
   const TimeIcon = getTimeIcon();
 
   return (
-    <Card>
+    <Card data-tutorial="solar-timeline">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm">
           <TimeIcon className="h-4 w-4" />

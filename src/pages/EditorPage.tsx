@@ -828,7 +828,7 @@ function EditorWorkspace() {
         projectName={projectName}
       />
       <div className="mx-4 h-px bg-border" />
-      <div className="px-4 py-3">
+      <div className="px-4 py-3" data-tutorial="materials-panel">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Materials</p>
         <MaterialPicker
           materials={materials}

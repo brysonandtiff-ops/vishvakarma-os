@@ -24,7 +24,7 @@ export function VastuPanel({ manifest }: { manifest: ProjectManifest }) {
   const result = analyzeVastu(manifest);
 
   return (
-    <div className="vish-vastu-panel space-y-3 px-4 py-3 text-xs">
+    <div className="vish-vastu-panel space-y-3 px-4 py-3 text-xs" data-tutorial="vastu-panel">
       <p className="font-bold uppercase tracking-[0.14em] text-primary">Vastu Harmony</p>
       <p className="text-2xl font-bold text-ws-text">{result.harmonyPercent}%</p>
       <p className="text-ws-text-dim">

@@ -40,7 +40,7 @@ export default function EditorCompassCost({
   const regions = getRegionsForJurisdiction(jurisdiction);
 
   return (
-    <div className="vish-compass-cost-widget pointer-events-auto absolute bottom-4 right-4 z-20 flex flex-wrap items-center justify-end gap-2" data-testid="editor-compass-cost">
+    <div className="vish-compass-cost-widget pointer-events-auto absolute bottom-4 right-4 z-20 flex flex-wrap items-center justify-end gap-2" data-testid="editor-compass-cost" data-tutorial="locale-compass">
       <Popover open={localeOpen} onOpenChange={setLocaleOpen}>
         <PopoverTrigger asChild>
           <button
@@ -48,6 +48,7 @@ export default function EditorCompassCost({
             className="vish-canvas-overlay-pill gap-1.5"
             aria-label="Project locale"
             data-testid="editor-locale-toggle"
+            data-tutorial="editor-locale"
           >
             <Globe className="h-3.5 w-3.5 text-primary" />
             {jurisdiction === 'in' ? 'IN' : 'AU'}
@@ -78,6 +79,7 @@ export default function EditorCompassCost({
               value={regionId}
               onChange={(e) => onRegionChange(e.target.value)}
               data-testid="editor-region-select"
+              data-tutorial="editor-region"
             >
               {regions.map((r) => (
                 <option key={r.regionId} value={r.regionId}>

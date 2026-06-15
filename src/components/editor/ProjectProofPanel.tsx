@@ -66,7 +66,7 @@ export default function ProjectProofPanel({
   ];
 
   return (
-    <section className="m-4 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-white/70 to-white shadow-sm" data-testid="project-proof-panel">
+    <section className="m-4 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 via-white/70 to-white shadow-sm" data-testid="project-proof-panel" data-tutorial="project-proof">
       <div className="border-b border-primary/20 px-4 py-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
