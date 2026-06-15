@@ -54,7 +54,7 @@ export const AU_NCC_VOL2_H1_RULE_PACK: ComplianceRulePack = {
       },
     },
     {
-      ruleId: 'access-circulation',
+      ruleId: 'access-circulation-width',
       category: 'accessibility',
       thresholdKey: 'minHallwayWidthM',
       citation: {
@@ -64,7 +64,7 @@ export const AU_NCC_VOL2_H1_RULE_PACK: ComplianceRulePack = {
       },
     },
     {
-      ruleId: 'energy-thermal',
+      ruleId: 'energy-thermal-comfort',
       category: 'energy',
       citation: {
         code: 'NCC 2022 Vol 2',
@@ -73,7 +73,7 @@ export const AU_NCC_VOL2_H1_RULE_PACK: ComplianceRulePack = {
       },
     },
     {
-      ruleId: 'energy-glazing',
+      ruleId: 'energy-glazing-ratio',
       category: 'energy',
       citation: {
         code: 'NCC 2022 Vol 2',
@@ -107,7 +107,7 @@ export const AU_NCC_VOL2_H1_RULE_PACK: ComplianceRulePack = {
       },
     },
     {
-      ruleId: 'fire-smoke-zone',
+      ruleId: 'fire-smoke-alarm-zone',
       category: 'fire',
       citation: {
         code: 'NCC 2022 Vol 2',
