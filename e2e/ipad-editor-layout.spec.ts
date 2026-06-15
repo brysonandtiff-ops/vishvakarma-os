@@ -1,9 +1,11 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
+  dismissEditorOverlays,
   iPadLandscape,
   iPadPortrait,
+  resetWorkspacePrefs,
 } from './helpers';
 
 const EDITOR_TOUCH_SELECTORS = [
@@ -29,12 +31,8 @@ async function dismissOnboardingIfPresent(page: import('@playwright/test').Page)
 
 test.describe('iPad editor layout', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/editor');
-    const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
-    if (await skipWelcome.isVisible().catch(() => false)) {
-      await skipWelcome.click();
-    }
-    await dismissOnboardingIfPresent(page);
+    await resetWorkspacePrefs(page);
+    await dismissEditorOverlays(page);
   });
 
   test('editor workspace fits iPad landscape', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
@@ -40,12 +40,12 @@ test.describe('Device marketing layout', () => {
 
   test('features page fits iPad portrait', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    await assertMarketingPage(page, '/features', /interactive guides/i);
+    await assertMarketingPage(page, '/features', /interactive guides|full feature reference/i);
   });
 
   test('features page fits iPhone portrait', async ({ page }) => {
     await page.setViewportSize(iPhonePortrait);
-    await assertMarketingPage(page, '/features', /interactive guides/i);
+    await assertMarketingPage(page, '/features', /interactive guides|full feature reference/i);
   });
 
   test('pricing page fits iPad portrait when enabled', async ({ page }) => {

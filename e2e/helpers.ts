@@ -11,6 +11,8 @@ export async function expect3DPreviewPane(page: Page) {
 export async function resetWorkspacePrefs(page: Page) {
   await page.addInitScript(() => {
     window.localStorage.removeItem('vishvakarma:workspace:prefs');
+    window.localStorage.removeItem('vishvakarma.os.supabase.session.v1');
+    window.localStorage.removeItem('vishvakarma.os.supabase.pendingEmail.v1');
     window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
     window.localStorage.setItem('vishvakarma.os.tutorialDismissed.v1', '1');
   });

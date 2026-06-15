@@ -17,7 +17,7 @@
     "dev": "vite --host 127.0.0.1",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "preview:e2e": "vite build --mode e2e && vite preview --host 127.0.0.1 --port 4173",
-    "preview:e2e:local": "vite build --mode e2e-local && vite preview --host 127.0.0.1 --port 4173",
+    "preview:e2e:local": "node scripts/build-e2e-local.mjs && vite preview --host 127.0.0.1 --port 4173",
     "build": "vite build",
     "prebuild": "node --import tsx scripts/enforce-build.js",
     "build:gate": "node --import tsx scripts/enforce-build.js",

@@ -1,7 +1,7 @@
 ﻿import { expect, test } from '@playwright/test';
 import {
   assertTouchTargets,
-  dismissConsentIfPresent,
+  dismissEditorOverlays,
   emulateCoarsePointer,
   iPadLandscape,
   resetWorkspacePrefs,
@@ -12,13 +12,7 @@ test.describe('Device collaboration chrome', () => {
     await resetWorkspacePrefs(page);
     await emulateCoarsePointer(page);
     await page.setViewportSize(iPadLandscape);
-    await page.goto('/editor', { waitUntil: 'domcontentloaded' });
-    await dismissConsentIfPresent(page);
-    const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
-    if (await skipWelcome.isVisible().catch(() => false)) {
-      await skipWelcome.click({ force: true });
-    }
-    await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 });
+    await dismissEditorOverlays(page);
   });
 
   test('collaboration bar follow toggle meets 44px on coarse pointer iPad', async ({ page }) => {

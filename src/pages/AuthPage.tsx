@@ -392,6 +392,7 @@ export default function AuthPage() {
                 type="submit"
                 variant="gold"
                 size="full"
+                className="touch-target"
                 disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
               >
                 {needsEmailForLink

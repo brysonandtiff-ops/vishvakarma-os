@@ -55,7 +55,10 @@ migration/export-*.json
 # Local test output captures
 test-output*.txt
 vitest-console.txt
+vitest-bail.txt
 test-run-final.txt
+test-final.txt
+device-e2e-last-run.txt
 
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/

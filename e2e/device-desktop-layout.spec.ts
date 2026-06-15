@@ -1,28 +1,18 @@
 ﻿import { expect, test } from '@playwright/test';
 import {
   desktopLandscape,
-  dismissConsentIfPresent,
+  dismissEditorOverlays,
   emulateFinePointer,
   expect3DPreviewPane,
   resetWorkspacePrefs,
 } from './helpers';
-
-async function openEditorDesktop(page: import('@playwright/test').Page) {
-  await page.goto('/editor', { waitUntil: 'domcontentloaded' });
-  await dismissConsentIfPresent(page);
-  const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
-  if (await skipWelcome.isVisible().catch(() => false)) {
-    await skipWelcome.click({ force: true });
-  }
-  await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 });
-}
 
 test.describe('Desktop fine-pointer editor chrome', () => {
   test.beforeEach(async ({ page }) => {
     await emulateFinePointer(page);
     await resetWorkspacePrefs(page);
     await page.setViewportSize(desktopLandscape);
-    await openEditorDesktop(page);
+    await dismissEditorOverlays(page);
   });
 
   test('walk mode shows pointer-lock hint on fine pointer desktop', async ({ page }) => {
@@ -34,13 +24,9 @@ test.describe('Desktop fine-pointer editor chrome', () => {
     await toggle3d.click();
     await expect3DPreviewPane(page);
 
-    const walkTab = page.getByRole('button', { name: /^walk$/i });
-    if (await walkTab.isVisible()) {
-      await walkTab.click();
-    } else {
-      await page.getByTestId('editor-mode-badge').click();
-      await page.getByRole('menuitem', { name: /^walk$/i }).click();
-    }
+    const walkTab = page.getByRole('tab', { name: /^walk$/i });
+    await expect(walkTab).toBeVisible({ timeout: 15_000 });
+    await walkTab.click();
 
     await expect(page.locator('#vish-3d-walk-hint')).toContainText(/click canvas to enter walk/i, {
       timeout: 30_000,
