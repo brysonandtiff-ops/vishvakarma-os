@@ -106,6 +106,46 @@
       "description": "Machine-readable world record measurement artifact exists",
       "category": "automated",
       "evidencePath": "docs/world-record/latest-measurement.json"
+    },
+    {
+      "id": "gate-14",
+      "number": 14,
+      "name": "Compliance rule pack integrity",
+      "description": "Rule pack registry matches active jurisdiction rules; Vitest rulePacks/*.test.ts",
+      "category": "automated-strict",
+      "command": "node scripts/verify-gates-14-18.mjs --gate=14"
+    },
+    {
+      "id": "gate-15",
+      "number": 15,
+      "name": "BIM graph adapter parity",
+      "description": "manifestToBuildingGraph wall/opening/room counts match manifest",
+      "category": "automated-strict",
+      "command": "node scripts/verify-gates-14-18.mjs --gate=15"
+    },
+    {
+      "id": "gate-16",
+      "number": 16,
+      "name": "DXF import regression",
+      "description": "Fixtures: LINE, LWPOLYLINE, layer-filtered DXF",
+      "category": "automated-strict",
+      "command": "node scripts/verify-gates-14-18.mjs --gate=16"
+    },
+    {
+      "id": "gate-17",
+      "number": 17,
+      "name": "Sheet set composer scaffold",
+      "description": "Composer produces at least one sheet page descriptor from sample manifest",
+      "category": "automated",
+      "command": "node scripts/verify-gates-14-18.mjs --gate=17"
+    },
+    {
+      "id": "gate-18",
+      "number": 18,
+      "name": "Decision intelligence disclaimer present",
+      "description": "Compliance/council/cost exports include prototype disclaimer string",
+      "category": "automated",
+      "command": "node scripts/verify-gates-14-18.mjs --gate=18"
     }
   ]
 }

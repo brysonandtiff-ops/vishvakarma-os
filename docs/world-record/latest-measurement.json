@@ -2,7 +2,7 @@
   "product": "Vishvakarma.OS",
   "claimTitle": "Most enforced pre-release compliance gates in a browser-native architectural floor plan editor",
   "metricGateCount": 12,
-  "gateCount": 13,
+  "gateCount": 18,
   "gateNames": [
     "Governing spec present",
     "Registry present",
@@ -16,20 +16,25 @@
     "2D/3D parity",
     "iPad touch target audit",
     "Performance acceptable",
-    "World record evidence present"
+    "World record evidence present",
+    "Compliance rule pack integrity",
+    "BIM graph adapter parity",
+    "DXF import regression",
+    "Sheet set composer scaffold",
+    "Decision intelligence disclaimer present"
   ],
-  "testFileCount": 54,
-  "commit": "c15d0dda59bb1d8ab25226c3049320f7a76cd59c",
-  "timestamp": "2026-06-08T09:30:31.964Z",
+  "testFileCount": 151,
+  "commit": "ffca69a4ed5504383d8ac0eb793dbf9f1198eaba",
+  "timestamp": "2026-06-15T08:06:12.647Z",
   "reproduceCommand": "pnpm run record:measure",
   "status": "self_verified",
   "honestyNote": "Self-Verified Candidate — not an official Guinness World Records title until GWR adjudication completes and a certificate is attached.",
   "releaseGateSummary": {
-    "passed": 11,
+    "passed": 13,
     "manual": 0,
-    "failed": 2,
+    "failed": 0,
     "source": "gate-ui-status.json",
-    "generatedAt": "2026-06-08T09:20:28.705Z"
+    "generatedAt": "2026-06-14T11:21:54.711Z"
   },
-  "evidenceHash": "3074c81db6cbbf6f4c6b29a50cc1df35d83a5a6044dd9ff9b5b4768caedf0f58"
+  "evidenceHash": "d5e9bd25e0f3613849a71cc58c5a646817f85747a2b494de922bbe8f0d819a69"
 }

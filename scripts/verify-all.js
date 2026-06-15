@@ -24,6 +24,11 @@ const GATE_IDS = [
   'gate-11',
   'gate-12',
   'gate-13',
+  'gate-14',
+  'gate-15',
+  'gate-16',
+  'gate-17',
+  'gate-18',
 ];
 
 function mapGateUiStatus(scriptStatus) {
@@ -270,14 +275,14 @@ async function checkWorldRecordGate() {
     const gateCount = Number(measurement.gateCount ?? 0);
     const metricGateCount = Number(measurement.metricGateCount ?? 12);
 
-    if (gateCount < 13 || metricGateCount < 12) {
+    if (gateCount < 18 || metricGateCount < 12) {
       return fail(name, 'World record measurement reports insufficient gate count.', [
         `gateCount=${gateCount}`,
         `metricGateCount=${metricGateCount}`,
       ]);
     }
 
-    return pass(name, `World record artifact present with ${metricGateCount} metric gates.`);
+    return pass(name, `World record artifact present with ${metricGateCount} metric gates and ${gateCount} total gates.`);
   } catch (error) {
     return fail(name, 'World record measurement JSON is invalid.', [String(error)]);
   }
@@ -300,6 +305,11 @@ async function runAllGates() {
   gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));
   gates.push(await checkEvidenceGate('Gate 12: Performance acceptable', 'docs/release/evidence/performance-notes.md'));
   gates.push(await checkWorldRecordGate());
+  gates.push(await checkAutomatedCommandGate('Gate 14: Compliance rule pack integrity', 'node scripts/verify-gates-14-18.mjs --gate=14'));
+  gates.push(await checkAutomatedCommandGate('Gate 15: BIM graph adapter parity', 'node scripts/verify-gates-14-18.mjs --gate=15'));
+  gates.push(await checkAutomatedCommandGate('Gate 16: DXF import regression', 'node scripts/verify-gates-14-18.mjs --gate=16'));
+  gates.push(await checkAutomatedCommandGate('Gate 17: Sheet set composer scaffold', 'node scripts/verify-gates-14-18.mjs --gate=17'));
+  gates.push(await checkAutomatedCommandGate('Gate 18: Decision intelligence disclaimer present', 'node scripts/verify-gates-14-18.mjs --gate=18'));
 
   let passCount = 0;
   let manualCount = 0;

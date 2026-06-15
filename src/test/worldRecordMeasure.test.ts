@@ -7,8 +7,8 @@ describe('world record measurement artifact', () => {
   const docsPath = join(process.cwd(), 'docs', 'world-record', 'latest-measurement.json');
   const publicPath = join(process.cwd(), 'public', 'world-record', 'latest-measurement.json');
 
-  it('gate manifest defines 13 gates with metric count 12', () => {
-    expect(gateManifest.gates).toHaveLength(13);
+  it('gate manifest defines 18 gates with metric count 12', () => {
+    expect(gateManifest.gates).toHaveLength(18);
     const metricGates = gateManifest.gates.filter((gate) => gate.number <= 12);
     expect(metricGates).toHaveLength(12);
   });
@@ -28,8 +28,8 @@ describe('world record measurement artifact', () => {
     };
 
     expect(measurement.metricGateCount).toBe(12);
-    expect(measurement.gateCount).toBe(13);
-    expect(measurement.gateNames).toHaveLength(13);
+    expect(measurement.gateCount).toBe(18);
+    expect(measurement.gateNames).toHaveLength(18);
     expect(measurement.evidenceHash).toMatch(/^[a-f0-9]{64}$/);
     expect(measurement.reproduceCommand).toBe('pnpm run record:measure');
 
