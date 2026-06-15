@@ -49,7 +49,7 @@ import FloorSwitcher from '@/components/editor/FloorSwitcher';
 import SaveModeBadge from '@/components/editor/SaveModeBadge';
 import SaveStateBadge from '@/components/editor/SaveStateBadge';
 import StatusBar from '@/components/editor/StatusBar';
-import EditorCompassCost from '@/components/editor/EditorCompassCost';
+import EditorPerfHud from '@/components/editor/EditorPerfHud';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import { useGeometryRevision } from '@/hooks/useGeometryRevision';
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
@@ -81,7 +81,6 @@ import { enforce } from '@/governance/core/enforcer';
 import { getFailFindings } from '@/services/compliance/complianceGate';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
-const AkashaCastPanel = lazy(() => import('@/components/editor/panels/AkashaCastPanel'));
 
 export default function EditorPage() {
   return (
@@ -700,19 +699,6 @@ function EditorWorkspace() {
         <VayuJalaPanel manifest={geometryManifest} />
         <AgniThermalPanel manifest={geometryManifest} />
         <PanchatattvaPanel manifest={geometryManifest} />
-        <AkashaCastPanel
-          projectId={currentProject?.id}
-          userId={user?.id}
-          userName={user?.email?.split('@')[0] ?? 'Architect'}
-          manifest={geometryManifest}
-          onCastStart={() => engine.setPresentationLock(true)}
-          onCastStop={() => engine.setPresentationLock(false)}
-          onManifestChange={(nextManifest, isRemote) => {
-            if (isRemote) {
-              engine.applyRemoteManifest(nextManifest);
-            }
-          }}
-        />
       </div>
       <ProjectProofPanel
         projectName={projectName}
@@ -918,6 +904,7 @@ function EditorWorkspace() {
                   presences={collabPresences}
                   currentUserId={user?.id}
                 />
+                <EditorPerfHud />
                 <EditorPhasePills />
                 <RadialToolMenuTracker
                   visible={showRadialMenu}
