@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-15T06:19:10.880Z",
-  "commit": "b15a92d5f5cc5846937674957de39fd9cc45684e",
-  "distTotalBytes": 3305157,
-  "distTotalMb": 3.15,
+  "generatedAt": "2026-06-15T06:41:55.523Z",
+  "commit": "c34e682ca77ec8079d5c6fbf72cb7ad69b9ef8cd",
+  "distTotalBytes": 3308590,
+  "distTotalMb": 3.16,
   "budget": {
     "totalDistMb": 5,
     "chunks": {
@@ -17,16 +17,16 @@
   },
   "chunks": {
     "index": {
-      "bytes": 842990,
+      "bytes": 842973,
       "files": [
         "index-B-B5C1hD.css",
-        "index-Cg-dBBCG.js"
+        "index-BsEfKsxJ.js"
       ]
     },
     "monitoring": {
       "bytes": 70,
       "files": [
-        "monitoring-CrnGA79c.js"
+        "monitoring-CyXhvrJO.js"
       ]
     },
     "planning.worker": {
@@ -42,9 +42,9 @@
       ]
     },
     "vendor-3d": {
-      "bytes": 1100899,
+      "bytes": 1104349,
       "files": [
-        "vendor-3d-Du_P0AUp.js"
+        "vendor-3d-B1AZdABU.js"
       ]
     },
     "vendor-misc": {
@@ -56,25 +56,25 @@
     "vendor-react": {
       "bytes": 523528,
       "files": [
-        "vendor-react-DtI3J3pI.js"
+        "vendor-react-DQlr6IZr.js"
       ]
     },
     "vendor-supabase": {
       "bytes": 194237,
       "files": [
-        "vendor-supabase-C9V3XiLz.js"
+        "vendor-supabase-_OpfxDlu.js"
       ]
     },
     "vendor-ui": {
       "bytes": 145665,
       "files": [
-        "vendor-ui-DEznmHpf.js"
+        "vendor-ui-C6qlltuJ.js"
       ]
     },
     "Viewport3D": {
       "bytes": 36205,
       "files": [
-        "Viewport3D-CTIj13u4.js"
+        "Viewport3D-DGA9Pjeu.js"
       ]
     }
   },

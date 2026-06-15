@@ -1,180 +1,170 @@
-# API Reference (Gateway Layer)
+# API Reference
 
-Vishvakarma.OS uses a thin Firebase gateway layer. All UI and editor code should call `src/db/api.ts` for persistence — not Firestore clients directly.
+**Product version:** v1.5.0  
+**Last verified:** 2026-06-15  
+**Audience:** developer  
 
-When Firebase env vars are missing, read operations return empty arrays and write operations throw with a configuration error.
+Vishvakarma.OS uses a **Supabase-backed persistence facade** on the client and **Vercel serverless functions** for billing and AI. UI and editor code should call `src/db/api.ts` for persistence — not Supabase clients directly.
+
+Live route inventory: [handoff/appendices/A-routes-and-api.md](../handoff/appendices/A-routes-and-api.md)
+
+When Supabase env vars are missing, read operations return empty arrays and write operations throw with a configuration error. Optimization batches fall back to `localStorage`.
 
 ---
 
-## Projects — `src/db/api.ts`
+## Client persistence API — `src/db/api.ts`
+
+All functions require a configured Supabase backend for writes unless noted.
+
+### Projects
 
 | Function | Parameters | Returns | Description |
 |----------|------------|---------|-------------|
-| `getProjects()` | — | `Promise<Project[]>` | List all projects for the signed-in user |
-| `getProject(id)` | `id: string` | `Promise<Project \| null>` | Fetch a single project by id |
-| `createProject(name, description, manifest)` | `name`, optional `description`, `ProjectManifest` | `Promise<Project>` | Create project + audit log entry |
-| `updateProject(id, updates)` | `id`, partial `{ name, description, manifest }` | `Promise<Project>` | Update metadata/manifest + audit log |
+| `getProjects()` | — | `Promise<Project[]>` | List projects for the signed-in user |
+| `getProject(id)` | `id: string` | `Promise<Project \| null>` | Fetch a single project |
+| `createProject(name, description, manifest)` | name, optional description, `ProjectManifest` | `Promise<Project>` | Create project + audit log |
+| `updateProject(id, updates)` | id, partial `{ name, description, manifest }` | `Promise<Project>` | Update metadata/manifest + audit log |
 | `deleteProject(id)` | `id: string` | `Promise<void>` | Delete project + audit log |
 
----
-
-## Optimization Batches — `src/db/api.ts`
+### Optimization batches
 
 | Function | Parameters | Returns | Description |
 |----------|------------|---------|-------------|
-| `saveOptimizationBatch(batch)` | `OptimizationBatch` | `Promise<OptimizationBatchRecord>` | Persist lean batch summary + moat gain (Firestore or localStorage) |
-| `getOptimizationBatches(limit?)` | `limit` default 20 | `Promise<OptimizationBatchRecord[]>` | Recent optimization runs for current user |
-| `linkOptimizationBatchToProject(batchId, projectId, details?)` | batch id, project id, optional metadata | `Promise<OptimizationBatchRecord \| null>` | Link winner save to batch; writes audit log when configured |
+| `saveOptimizationBatch(batch)` | `OptimizationBatch` | `Promise<OptimizationBatchRecord>` | Persist batch summary (Supabase or localStorage) |
+| `getOptimizationBatches(limit?)` | limit default 20 | `Promise<OptimizationBatchRecord[]>` | Recent optimization runs |
+| `linkOptimizationBatchToProject(batchId, projectId, details?)` | batch id, project id, optional metadata | `Promise<OptimizationBatchRecord \| null>` | Link winner to project + audit log |
 
-### Firestore collection: `optimization_batches`
+### Governance — specs, registry, change requests, releases, audit
 
-```typescript
-interface OptimizationBatchRecord {
-  id: string;
-  userId: string;
-  input: { prompt: string; targetBudget?: number; lifestyleGoals?: string[]; sessionId?: string };
-  winnerId: string;
-  moatGain: MoatGainReport;
-  candidateSummaries: Array<{
-    id: string;
-    label: string;
-    overallScore: number;
-    rank: number;
-    estimatedCost: number;
-    costBestCase?: number;
-    costWorstCase?: number;
-    costMedian?: number;
-    costConfidence?: number;
-    costRiskLevel?: 'low' | 'medium' | 'high';
-    permitReady: boolean;
-  }>;
-  promotedProjectId?: string;
-  createdAt: string;
+| Domain | Read | Write |
+|--------|------|-------|
+| Specs | `getSpecs()`, `getSpecsByCategory(category)` | `createSpec()`, `updateSpec()` |
+| Registry | `getRegistryEntries()`, `getRegistryByType(type)` | `createRegistryEntry()` |
+| Change requests | `getChangeRequests()`, `getChangeRequestsByStatus(status)` | `createChangeRequest()`, `updateChangeRequest()` |
+| Releases | `getReleases()`, `getRelease(id)` | `createRelease()`, `updateRelease()` |
+| Audit | `getAuditLogs(limit?)`, `getAuditLogsByEntity(type, id)` | `createAuditLog()` (internal) |
+| Routes | `getRouteManifest()` | — |
+
+Implementation: `src/backend/supabase/supabaseGovernanceGateway.ts`, `supabaseProjectGateway.ts`, `supabaseOptimizationGateway.ts`.
+
+---
+
+## Serverless API — `api/`
+
+All authenticated routes verify the Supabase JWT via `api/_lib/verifySupabaseToken.ts` or `verifyAuthToken.ts`.
+
+### AI routes
+
+#### `POST /api/ai/extract-requirements`
+
+Extract structured building requirements from natural language.
+
+**Auth:** None (public; rate-limit at edge in production recommended)
+
+**Request body:**
+
+```json
+{
+  "prompt": "3 bedroom house with north-facing living room",
+  "parcelOverride": {}
 }
 ```
 
-Local fallback key: `optimization-batch-history` (max 20 records).
+**Response (200):**
 
-Gateway: `src/backend/firebase/firestoreOptimizationGateway.ts`
+```json
+{
+  "request": { /* BuildingRequest schema */ },
+  "source": "gemini" | "fallback"
+}
+```
 
----
+Uses `GEMINI_API_KEY` when set; falls back to local parser when Gemini is unavailable.
 
-## Specs
+**Handler:** `api/ai/extract-requirements.ts`
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getSpecs()` | — | `Promise<Spec[]>` | All locked specifications |
-| `getSpecsByCategory(category)` | `category: string` | `Promise<Spec[]>` | Filter specs by category |
-| `createSpec(spec)` | `Omit<Spec, 'id' \| 'created_at' \| 'updated_at'>` | `Promise<Spec>` | Create spec + audit log |
-| `updateSpec(id, updates)` | `id`, partial spec fields | `Promise<Spec>` | Update spec + audit log |
+#### `POST /api/ai/parse-site-documents`
 
----
+Parse uploaded site documents (plans, surveys) into structured data.
 
-## Registry
+**Auth:** Bearer Supabase JWT
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getRegistryEntries()` | — | `Promise<RegistryEntry[]>` | All registry entries |
-| `getRegistryByType(type)` | `type: string` | `Promise<RegistryEntry[]>` | Filter by entry type |
-| `createRegistryEntry(entry)` | `Omit<RegistryEntry, 'id' \| 'created_at'>` | `Promise<RegistryEntry>` | Create entry + audit log |
+**Request body:** Document payload (see handler for current schema)
 
----
+**Handler:** `api/ai/parse-site-documents.ts`
 
-## Change Requests
+### Stripe routes
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getChangeRequests()` | — | `Promise<ChangeRequest[]>` | All change requests |
-| `getChangeRequestsByStatus(status)` | `status: string` | `Promise<ChangeRequest[]>` | Filter by workflow status |
-| `createChangeRequest(request)` | request without id/timestamps | `Promise<ChangeRequest>` | Submit new CR + audit log |
-| `updateChangeRequest(id, updates)` | `id`, partial fields | `Promise<ChangeRequest>` | Update status/details; logs approval |
+#### `POST /api/stripe/create-checkout-session`
 
----
+Create a Stripe Checkout session for Studio or Enterprise subscription.
 
-## Releases
+**Auth:** Bearer Supabase JWT (401 if missing)
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getReleases()` | — | `Promise<Release[]>` | Firestore releases, or local fallback history |
-| `getRelease(id)` | `id: string` | `Promise<Release \| null>` | Single release record |
-| `createRelease(release)` | release without id/timestamps | `Promise<Release>` | Create release + audit log |
-| `updateRelease(id, updates)` | `id`, partial fields | `Promise<Release>` | Update release metadata/status |
+**Request body:**
 
----
+```json
+{
+  "plan": "studio" | "enterprise",
+  "origin": "https://vishvakarma-os.app"
+}
+```
 
-## Audit Logs
+**Response (200):**
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getAuditLogs(limit?)` | `limit` default 100 | `Promise<AuditLog[]>` | Recent audit events |
-| `getAuditLogsByEntity(type, id)` | entity type + id | `Promise<AuditLog[]>` | Events for a specific entity |
-| `createAuditLog(action, entityType, entityId, details)` | action metadata | `Promise<AuditLog \| null>` | Internal write; fails silently when unconfigured |
+```json
+{ "url": "https://checkout.stripe.com/..." }
+```
 
----
+Studio plans include a 14-day trial (`STUDIO_TRIAL_DAYS`).
 
-## Route Manifest
+**Handler:** `api/stripe/create-checkout-session.ts`
 
-| Function | Parameters | Returns | Description |
-|----------|------------|---------|-------------|
-| `getRouteManifest()` | — | `Promise<RouteManifestEntry[]>` | Deployed route registry from Firestore |
+#### `POST /api/stripe/create-portal-session`
 
----
+Create a Stripe Customer Portal session for billing management.
 
-## Backend Modules — `src/backend/`
+**Auth:** Bearer Supabase JWT
 
-| Module | Description |
-|--------|-------------|
-| `backendConfig.ts` | Reads `VITE_FIREBASE_*`, exposes `backendStatus.isConfigured` |
-| `fetchWithRetry.ts` | Exponential backoff for Firestore REST calls |
-| `firebase/firestoreProjectGateway.ts` | Low-level project CRUD |
-| `firebase/firestoreOptimizationGateway.ts` | Optimization batch persistence |
-| `firebase/firestoreGovernanceGateway.ts` | Specs, registry, releases, audit, route manifest |
-| `firebase/firestoreProfileGateway.ts` | User profile reads/writes |
-| `firebase/firebaseAuthGateway.ts` | Email link + OAuth session helpers |
-| `firebase/storageUpload.ts` | Custom material texture upload to Firebase Storage |
+**Response (200):**
+
+```json
+{ "url": "https://billing.stripe.com/..." }
+```
+
+**Handler:** `api/stripe/create-portal-session.ts`
+
+#### `POST /api/stripe/webhook`
+
+Stripe webhook endpoint. Requires raw body and `STRIPE_WEBHOOK_SECRET`.
+
+**Events handled:** subscription lifecycle, invoice payment — updates billing entitlements in Supabase via `api/_lib/billingSupabase.ts`.
+
+**Handler:** `api/stripe/webhook.ts`
 
 ---
 
-## Export — `src/core/exporters/`
+## Shared API libraries
 
-| Module | Formats | Notes |
-|--------|---------|-------|
-| `projectExport.ts` | JSON | Serialize/parse full `ProjectManifest` |
-| `floorPlanSvg.ts` | SVG | Shared builder for walls, openings, labels, dimensions |
-| `pngExport.ts` | PNG | Rasterized floor plan |
-| `pdfExport.ts` | PDF | Visual raster + text manifest summary |
-| `dxfExport.ts` | DXF | LINE entities for walls |
-
----
-
-## Floor Plan Engine — `src/core/floorPlanEngine.ts`
-
-Singleton editor state. React hooks consume via `useFloorPlanEngine()`.
-
-| Method | Description |
-|--------|-------------|
-| `loadManifest(manifest, projectName?)` | Replace editor state; ensures default floors |
-| `buildManifest()` | Current manifest snapshot for save/export |
-| `addWall(wall)` | Adds wall tagged with active `floorIndex` |
-| `setActiveFloorIndex(index)` | Switch visible floor (v2 scaffold) |
-| `addFloor(name?)` | Append a new `BuildingFloor` and switch to it |
-| `undo()` / `redo()` | Version-controlled history (50 states) |
-
-Floor filtering helpers live in `src/utils/floorHelpers.ts`.
+| File | Purpose |
+|------|---------|
+| `api/_lib/verifySupabaseToken.ts` | JWT verification |
+| `api/_lib/verifyAuthToken.ts` | Auth token resolution |
+| `api/_lib/stripeClient.ts` | Stripe client and price IDs |
+| `api/_lib/billingBackend.ts` | Billing record abstraction |
+| `api/_lib/billingSupabase.ts` | Supabase billing persistence |
+| `api/_lib/stripeInvoice.ts` | Invoice helpers |
 
 ---
 
-## Environment Variables
+## OpenAPI
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `VITE_FIREBASE_API_KEY` | Production | Firebase Web SDK |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Production | Auth redirect domain |
-| `VITE_FIREBASE_PROJECT_ID` | Production | Firestore project |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Optional | Texture uploads |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Production | Firebase app id bundle |
-| `VITE_FIREBASE_APP_ID` | Production | Firebase app id |
-| `VITE_E2E_ALLOW_LOCAL_ACCESS` | E2E only | Bypass auth gate in Playwright |
-| `VITE_PRICING_PAGE_ENABLED` | Optional | Register `/pricing` route |
+Machine-readable stub: [openapi.yaml](./openapi.yaml)
 
-See `docs/release/VERCEL_ENV.md` for production setup.
+---
+
+## Related
+
+- [DATA_MODEL.md](./DATA_MODEL.md) — Postgres tables and manifest schema
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — system overview
+- [handoff/appendices/B-environment-variables.md](../handoff/appendices/B-environment-variables.md) — env vars

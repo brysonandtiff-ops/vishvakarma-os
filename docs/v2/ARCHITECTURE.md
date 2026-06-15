@@ -1,5 +1,12 @@
 # v2.0 Architecture (Scaffolding)
 
+> **Forward-looking:** This document describes planned or preview features. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](../CURRENT_PRODUCTION_ARCHITECTURE.md).
+
+**Product version:** v1.5.0  
+**Last verified:** 2026-06-15  
+
+---
+
 ## Multi-story buildings
 
 - `BuildingFloor` entries in `manifest.floors[]`
@@ -15,10 +22,12 @@
 ## Real-time collaboration
 
 - Yjs CRDT on `ProjectManifest` via `src/collaboration/crdt/manifestBridge.ts`
-- `CollabSession` + Firebase-authenticated `server/collab/presenceServer.ts` (y-websocket relay)
+- `CollabSession` + Supabase-authenticated `server/collab/presenceServer.ts` (y-websocket relay)
 - Awareness-driven presence (cursor, viewport, focused entity) in editor overlay
-- Firestore `collabSnapshot` checkpoints + optional RTDB recovery channel
-- `collaborationEngine.ts` facade preserves local-only fallback when `VITE_COLLAB_WS_URL` is unset
+- Supabase-backed collaboration metadata; optional local fallback when `VITE_COLLAB_WS_URL` is unset
+- `collaborationEngine.ts` facade preserves local-only fallback when WebSocket URL is unset
+
+**Status:** Preview scaffold only. See [handoff/05-collaboration-preview.md](../handoff/05-collaboration-preview.md).
 
 ## Industry exports
 
@@ -28,5 +37,5 @@
 
 ## Mobile
 
-- Capacitor wrapper targeting iPad-first web app
-- Apple Pencil pressure via Capacitor plugin
+- PWA shell with iPad safe-area hardening (shipped in v1.x)
+- Touch-target CSS and radial menu (shipped)

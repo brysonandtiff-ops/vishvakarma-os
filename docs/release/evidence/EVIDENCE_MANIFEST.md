@@ -17,7 +17,7 @@ This file is the production release evidence ledger. It must be updated whenever
 |---|---|---|---|
 | Verify workflow | Install, lint, tests, route smoke, build | PASS | Local `pnpm run lint:types`, `pnpm run test`, `pnpm run build` |
 | 2D/3D parity | Polygon room volumes + dynamic origin | PASS | [`2d-3d-parity-proof.md`](2d-3d-parity-proof.md) |
-| iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../e2e/ipad-editor-layout.spec.ts) |
+| iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts) |
 
 ## Backend Evidence
 
@@ -53,7 +53,7 @@ This file is the production release evidence ledger. It must be updated whenever
 | Orthogonal wall draw + endpoint drag | `wallDrawConstraints.ts`, `BlueprintCanvas` + `PropertiesPanel` metric length |
 | 2D room-type fills | `roomTypeColors.ts`, `drawRooms.ts` |
 | Stacked 3D floors | `Viewport3D` `BuildingSceneLayers` + `showAllFloorsIn3D` session |
-| Cinematic bloom | `CinematicBloom` + `@react-three/postprocessing` |
+| Cinematic bloom | `CinematicBloom` + `postprocessing` (direct EffectComposer) |
 | DXF LWPOLYLINE | `dxfImport.ts` + fixture test |
 | NBC rule depth | `nbc-stair-rise-run`, `access-ramp-gradient`, `fire-dead-end-corridor` |
 | Collab preview | `05-collaboration-preview.md`, `EditorCollaborationBar` label |

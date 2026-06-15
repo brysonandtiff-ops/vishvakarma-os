@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "repairs": [
+    {
+      "id": "workspace-root",
+      "codes": ["WORKSPACE_ROOT_BAD", "WORKSPACE_ROOT_INVALID_JSON"],
+      "command": "pnpm run repair:workspace-root",
+      "confidence": "high",
+      "requiresCleanGit": false,
+      "maxAttempts": 1
+    },
+    {
+      "id": "rebuild-dist",
+      "codes": ["DIST_MISSING", "DIST_STALE"],
+      "command": "pnpm run build",
+      "confidence": "high",
+      "requiresCleanGit": false,
+      "maxAttempts": 1
+    },
+    {
+      "id": "pwa-icons",
+      "codes": ["PWA_ICONS_MISSING", "PNG_ICON_MISSING", "PNG_ICON_INVALID"],
+      "command": "pnpm run assets:pwa-icons",
+      "confidence": "high",
+      "requiresCleanGit": true,
+      "maxAttempts": 1
+    },
+    {
+      "id": "apple-touch-icon",
+      "codes": ["APPLE_TOUCH_ICON_MISSING"],
+      "command": "pnpm run assets:apple-touch-icon",
+      "confidence": "high",
+      "requiresCleanGit": true,
+      "maxAttempts": 1
+    },
+    {
+      "id": "sample-assets",
+      "codes": ["SAMPLE_JSON_MISSING"],
+      "command": "pnpm run assets:samples",
+      "confidence": "high",
+      "requiresCleanGit": true,
+      "maxAttempts": 1
+    },
+    {
+      "id": "playwright-install",
+      "codes": ["PLAYWRIGHT_MISSING"],
+      "command": "pnpm run test:e2e:install",
+      "confidence": "medium",
+      "requiresCleanGit": true,
+      "maxAttempts": 1
+    }
+  ],
+  "patterns": [
+    { "code": "PNG_ICON_MISSING", "match": "Missing PNG icon:", "needsAgent": false },
+    { "code": "PWA_ICONS_MISSING", "match": "Missing required file: public/icons", "needsAgent": false },
+    { "code": "PNG_ICON_INVALID", "match": "is not a valid PNG file", "needsAgent": false },
+    { "code": "APPLE_TOUCH_ICON_MISSING", "match": "apple-touch-icon", "needsAgent": false },
+    { "code": "SAMPLE_JSON_MISSING", "match": "Missing sample", "needsAgent": false },
+    { "code": "TYPES_ERROR", "match": "error TS", "needsAgent": true },
+    { "code": "TEST_FAILURE", "match": "Tests failed", "needsAgent": true },
+    { "code": "AST_GREP_VIOLATION", "match": "Error:", "scanHint": "lint:structure", "needsAgent": true },
+    { "code": "CONTRACT_VIOLATION", "match": "forbidden", "needsAgent": true },
+    { "code": "BUILD_FAILURE", "match": "Build failed", "needsAgent": true }
+  ]
+}

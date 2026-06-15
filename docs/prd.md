@@ -1,5 +1,7 @@
 # Requirements Document
 
+> **Historical:** This document describes v1.0-era scope. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
+
 ## 1. Application Overview
 
 ### 1.1 Application Name

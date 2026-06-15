@@ -1,0 +1,104 @@
+openapi: 3.1.0
+info:
+  title: Vishvakarma.OS Serverless API
+  version: 1.5.0
+  description: Vercel serverless routes for AI and Stripe billing.
+servers:
+  - url: https://vishvakarma-os.app
+    description: Production
+paths:
+  /api/ai/extract-requirements:
+    post:
+      summary: Extract building requirements from natural language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                parcelOverride:
+                  type: object
+      responses:
+        '200':
+          description: Extracted requirements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request:
+                    type: object
+                  source:
+                    type: string
+                    enum: [gemini, fallback]
+        '400':
+          description: Invalid request
+        '500':
+          description: Extraction failed
+  /api/ai/parse-site-documents:
+    post:
+      summary: Parse site documents with Gemini
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Parsed document data
+        '401':
+          description: Unauthorized
+  /api/stripe/create-checkout-session:
+    post:
+      summary: Create Stripe Checkout session
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan:
+                  type: string
+                  enum: [studio, enterprise]
+                origin:
+                  type: string
+      responses:
+        '200':
+          description: Checkout URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+        '401':
+          description: Unauthorized
+  /api/stripe/create-portal-session:
+    post:
+      summary: Create Stripe Customer Portal session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Portal URL
+        '401':
+          description: Unauthorized
+  /api/stripe/webhook:
+    post:
+      summary: Stripe webhook handler
+      responses:
+        '200':
+          description: Event processed
+        '400':
+          description: Invalid signature
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase access token

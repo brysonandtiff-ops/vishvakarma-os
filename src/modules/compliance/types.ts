@@ -15,4 +15,6 @@ export interface ComplianceAuditReport {
   results: ComplianceResult[];
   auditedAt: string;
   blocked: boolean;
+  /** Decision-support disclaimer for jurisdiction rule pack. */
+  disclaimer?: string;
 }

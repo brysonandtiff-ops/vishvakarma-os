@@ -8,7 +8,7 @@ All notable changes to Vishvakarma.OS are documented in this file.
 - Orthogonal wall draw lock (Shift) and wall endpoint drag with live metric length in properties
 - 2D room-type fill palette matching 3D room tints
 - Stacked multi-floor 3D preview with ghost lower floors and “Stack floors” toggle
-- Cinematic bloom via `@react-three/postprocessing` (desktop, gated, wall-count cap)
+- Cinematic bloom via `postprocessing` EffectComposer (desktop, gated, wall-count cap)
 - DXF `LWPOLYLINE` import alongside LINE entities
 - NBC stub rules: stair rise/run, ramp gradient, dead-end corridor
 - Compliance panel category filter chips

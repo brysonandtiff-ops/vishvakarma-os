@@ -1,7 +1,7 @@
 # Vishvakarma.OS — Software Inventory
 
 **Document type:** Technical inventory and valuation scope reference  
-**Product version:** v1.2.x  
+**Product version:** v1.5.0  
 **Codebase audit date:** 2026-06-13  
 **Production URL:** https://vishvakarma-os.app  
 **Vercel fallback URL:** https://vishvakarma-os.vercel.app  

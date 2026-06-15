@@ -2,6 +2,7 @@ export * from '@/domain/constants';
 export * from '@/domain/parcels/parcel';
 export * from '@/domain/buildings/buildingRequest';
 export * from '@/domain/buildings/generatedBuilding';
+export * from '@/domain/buildingGraph';
 export * from '@/domain/rooms/roomType';
 export * from '@/domain/rooms/adjacencyRule';
 export * from '@/domain/schedules/scheduleTypes';

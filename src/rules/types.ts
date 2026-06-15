@@ -11,6 +11,8 @@ export interface ComplianceFinding {
   message: string;
   roomId?: string;
   field?: string;
+  /** Optional NCC / planning citation (decision-support). */
+  citation?: import('@/modules/compliance/rulePacks/types').ComplianceCitation;
 }
 
 export interface ComplianceResult {

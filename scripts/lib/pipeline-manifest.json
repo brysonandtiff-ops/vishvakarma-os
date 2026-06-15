@@ -63,6 +63,26 @@
       "steps": [
         "pnpm run stability:post-deploy"
       ]
+    },
+    "repairbot:fast": {
+      "description": "RepairBot incremental env + static checks",
+      "steps": [
+        "node scripts/repairbot/lib/env-scan.mjs",
+        "pnpm run lint:types",
+        "pnpm run lint:deps"
+      ]
+    },
+    "repairbot:medium": {
+      "description": "RepairBot fast tier + structure and PWA gates",
+      "extends": "repairbot:fast",
+      "steps": [
+        "pnpm run lint:structure",
+        "pnpm run pwa:gates"
+      ]
+    },
+    "repairbot:full": {
+      "description": "RepairBot full verify parity",
+      "extends": "verify"
     }
   }
 }

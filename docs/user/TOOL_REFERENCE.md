@@ -1,5 +1,12 @@
 # Tool Reference
 
+**Product version:** v1.5.0  
+**Last verified:** 2026-06-15  
+
+Editor tools available from the tool rail in `/editor`. **Production** = shipped and verified. **Preview** = scaffold or partial implementation.
+
+---
+
 ## Working tools
 
 | Tool | Shortcut | Action |

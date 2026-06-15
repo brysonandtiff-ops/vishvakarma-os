@@ -2,7 +2,7 @@
 
 # Appendix D — Database Schema (from migrations)
 
-Generated: 2026-06-15T06:35:48.392Z
+Generated: 2026-06-15T06:45:27.301Z
 
 ## Migration files
 

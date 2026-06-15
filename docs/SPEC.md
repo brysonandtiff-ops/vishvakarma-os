@@ -1,5 +1,7 @@
 # SPEC.md - Vishvakarma.OS Specifications
 
+> **Historical:** This document describes v1.0-era scope. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
+
 Governance, Release, and Audit requirements apply to all locked specifications in this document.
 
 ## Blueprint Editor v1.0.0 [LOCKED]

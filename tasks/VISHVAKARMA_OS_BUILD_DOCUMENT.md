@@ -1,5 +1,7 @@
 # Vishvakarma.OS v1.0.0 — Complete Build Document
 
+> **Historical:** This document describes v1.0-era scope (editor at `/`, Firebase-era backend). For current production, see [docs/CURRENT_PRODUCTION_ARCHITECTURE.md](../docs/CURRENT_PRODUCTION_ARCHITECTURE.md).
+
 **Date**: 2026-02-15  
 **Version**: 1.0.0  
 **Status**: Production Ready  

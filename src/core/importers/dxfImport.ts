@@ -3,16 +3,52 @@ import type { ProjectManifest, Wall } from '@/types';
 
 const DXF_SCALE = 20;
 
+/** Layers treated as wall geometry when present (case-insensitive substring match). */
+export const DEFAULT_WALL_LAYER_PATTERNS = ['WALL', 'A-WALL', 'A_WALL', 'PARTITION'] as const;
+
 function mapPoint(x: number, y: number): { x: number; y: number } {
   return { x: x * DXF_SCALE + 200, y: -y * DXF_SCALE + 400 };
+}
+
+export interface DxfImportStats {
+  lineEntities: number;
+  lwPolylineEntities: number;
+  segmentsImported: number;
+  segmentsSkipped: number;
+  layersSeen: string[];
+  layersImported: string[];
+  layersSkipped: string[];
 }
 
 export interface DxfImportResult {
   manifest: ProjectManifest;
   warnings: string[];
+  stats: DxfImportStats;
 }
 
-type DxfSegment = { x1: number; y1: number; x2: number; y2: number };
+type DxfSegment = { x1: number; y1: number; x2: number; y2: number; layer: string };
+
+export interface DxfImportOptions {
+  /** When set, only import entities on matching layers. Defaults to wall-like layer names. */
+  wallLayerPatterns?: readonly string[];
+  /** Import all layers when no wall-like layers are detected. Default true. */
+  importAllLayersFallback?: boolean;
+}
+
+function layerMatchesPatterns(layer: string, patterns: readonly string[]): boolean {
+  const upper = layer.toUpperCase();
+  return patterns.some((pattern) => upper.includes(pattern.toUpperCase()));
+}
+
+function parseEntityLayer(lines: string[], entityIndex: number): string {
+  for (let j = entityIndex + 1; j < Math.min(entityIndex + 40, lines.length - 1); j += 2) {
+    const code = lines[j].trim();
+    const value = lines[j + 1]?.trim() ?? '';
+    if (code === '0') break;
+    if (code === '8') return value || '0';
+  }
+  return '0';
+}
 
 function parseDxfLines(content: string): DxfSegment[] {
   const lines = content.split(/\r?\n/);
@@ -21,6 +57,7 @@ function parseDxfLines(content: string): DxfSegment[] {
   for (let i = 0; i < lines.length - 1; i++) {
     if (lines[i].trim() !== 'LINE') continue;
 
+    const layer = parseEntityLayer(lines, i);
     let x1 = 0;
     let y1 = 0;
     let x2 = 0;
@@ -46,20 +83,29 @@ function parseDxfLines(content: string): DxfSegment[] {
     }
 
     if (hasStart && hasEnd) {
-      segments.push({ x1, y1, x2, y2 });
+      segments.push({ x1, y1, x2, y2, layer });
     }
   }
 
   return segments;
 }
 
-function parseDxfLwpolylines(content: string): Array<{ points: Array<{ x: number; y: number }>; closed: boolean }> {
+function parseDxfLwpolylines(content: string): Array<{
+  points: Array<{ x: number; y: number }>;
+  closed: boolean;
+  layer: string;
+}> {
   const lines = content.split(/\r?\n/);
-  const polylines: Array<{ points: Array<{ x: number; y: number }>; closed: boolean }> = [];
+  const polylines: Array<{
+    points: Array<{ x: number; y: number }>;
+    closed: boolean;
+    layer: string;
+  }> = [];
 
   for (let i = 0; i < lines.length - 1; i++) {
     if (lines[i].trim() !== 'LWPOLYLINE') continue;
 
+    const layer = parseEntityLayer(lines, i);
     let closed = false;
     const points: Array<{ x: number; y: number }> = [];
     let pendingX: number | null = null;
@@ -80,14 +126,18 @@ function parseDxfLwpolylines(content: string): Array<{ points: Array<{ x: number
     }
 
     if (points.length >= 2) {
-      polylines.push({ points, closed });
+      polylines.push({ points, closed, layer });
     }
   }
 
   return polylines;
 }
 
-function segmentsFromPolyline(points: Array<{ x: number; y: number }>, closed: boolean): DxfSegment[] {
+function segmentsFromPolyline(
+  points: Array<{ x: number; y: number }>,
+  closed: boolean,
+  layer: string,
+): DxfSegment[] {
   const segments: DxfSegment[] = [];
   for (let i = 0; i < points.length - 1; i += 1) {
     segments.push({
@@ -95,12 +145,13 @@ function segmentsFromPolyline(points: Array<{ x: number; y: number }>, closed: b
       y1: points[i].y,
       x2: points[i + 1].x,
       y2: points[i + 1].y,
+      layer,
     });
   }
   if (closed && points.length >= 3) {
     const last = points[points.length - 1];
     const first = points[0];
-    segments.push({ x1: last.x, y1: last.y, x2: first.x, y2: first.y });
+    segments.push({ x1: last.x, y1: last.y, x2: first.x, y2: first.y, layer });
   }
   return segments;
 }
@@ -120,34 +171,87 @@ function wallsFromSegments(segments: DxfSegment[], idPrefix: string): Wall[] {
   });
 }
 
-export function importDxfToManifest(content: string, projectName = 'Imported DXF'): DxfImportResult {
+function filterSegmentsByLayer(
+  segments: DxfSegment[],
+  options: DxfImportOptions,
+): { imported: DxfSegment[]; skipped: DxfSegment[]; layersSeen: string[] } {
+  const layersSeen = [...new Set(segments.map((s) => s.layer))];
+  const patterns = options.wallLayerPatterns ?? DEFAULT_WALL_LAYER_PATTERNS;
+  const wallLayers = layersSeen.filter((layer) => layerMatchesPatterns(layer, patterns));
+
+  let activeLayers: Set<string>;
+  if (wallLayers.length > 0) {
+    activeLayers = new Set(wallLayers);
+  } else if (options.importAllLayersFallback !== false) {
+    activeLayers = new Set(layersSeen);
+  } else {
+    activeLayers = new Set();
+  }
+
+  const imported = segments.filter((s) => activeLayers.has(s.layer));
+  const skipped = segments.filter((s) => !activeLayers.has(s.layer));
+  return { imported, skipped, layersSeen };
+}
+
+export function importDxfToManifest(
+  content: string,
+  projectName = 'Imported DXF',
+  options: DxfImportOptions = {},
+): DxfImportResult {
   const warnings: string[] = [];
   const lineSegments = parseDxfLines(content);
   const polylineSegments = parseDxfLwpolylines(content).flatMap((polyline) =>
-    segmentsFromPolyline(polyline.points, polyline.closed),
+    segmentsFromPolyline(polyline.points, polyline.closed, polyline.layer),
   );
-  const segments = [...lineSegments, ...polylineSegments];
+  const allSegments = [...lineSegments, ...polylineSegments];
 
-  if (segments.length === 0) {
+  if (allSegments.length === 0) {
     throw new Error('DXF import found no LINE or LWPOLYLINE wall geometry.');
   }
 
-  if (lineSegments.length === 0 && polylineSegments.length > 0) {
-    warnings.push('Imported LWPOLYLINE entities only — verify closed loops became wall segments.');
-  }
-  if (polylineSegments.length === 0 && lineSegments.length > 0) {
-    warnings.push('Imported LINE entities only.');
+  const { imported, skipped, layersSeen } = filterSegmentsByLayer(allSegments, options);
+  const layersImported = [...new Set(imported.map((s) => s.layer))];
+  const layersSkipped = [...new Set(skipped.map((s) => s.layer))];
+
+  if (imported.length === 0) {
+    throw new Error(
+      `DXF import found geometry but no segments matched wall layers: ${layersSeen.join(', ')}`,
+    );
   }
 
-  const walls = wallsFromSegments(segments, 'wall-dxf');
+  const stats: DxfImportStats = {
+    lineEntities: lineSegments.length,
+    lwPolylineEntities: parseDxfLwpolylines(content).length,
+    segmentsImported: imported.length,
+    segmentsSkipped: skipped.length,
+    layersSeen,
+    layersImported,
+    layersSkipped,
+  };
+
+  if (polylineSegments.length > 0 && lineSegments.length === 0) {
+    warnings.push('Imported LWPOLYLINE entities only — verify closed loops became wall segments.');
+  }
+  if (lineSegments.length > 0 && polylineSegments.length === 0) {
+    warnings.push('Imported LINE entities only.');
+  }
+  if (layersSkipped.length > 0) {
+    warnings.push(
+      `Skipped layers (${layersSkipped.join(', ')}) — not matched as wall layers. Imported: ${layersImported.join(', ')}.`,
+    );
+  }
+  if (layersImported.length > 0 && layersImported.some((l) => layerMatchesPatterns(l, DEFAULT_WALL_LAYER_PATTERNS))) {
+    warnings.push(`Wall layer mapping applied (${layersImported.join(', ')}).`);
+  }
 
   warnings.push('DXF scale assumed at 20px per drawing unit — verify dimensions after import.');
 
+  const walls = wallsFromSegments(imported, 'wall-dxf');
   const manifest = createProjectManifest({
     name: projectName.replace(/\.dxf$/i, ''),
     walls,
     openings: [],
   });
 
-  return { manifest, warnings };
+  return { manifest, warnings, stats };
 }

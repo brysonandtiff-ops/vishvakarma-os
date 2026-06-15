@@ -227,6 +227,14 @@ Vishvakarma.OS uses a **gold workstation** visual language:
 
 ## Documentation
 
+| Portal | Entry |
+|---|---|
+| **[docs/README.md](docs/README.md)** | Documentation hub — developer, operator, user, due diligence |
+| [developer/ONBOARDING.md](docs/developer/ONBOARDING.md) | New developer day-1 guide |
+| [operations/README.md](docs/operations/README.md) | Operator runbooks |
+| [user/README.md](docs/user/README.md) | End-user help |
+| [handoff/HANDOFF.md](docs/handoff/HANDOFF.md) | Valuation / due diligence pack |
+
 | Document | Description |
 |---|---|
 | [`docs/CURRENT_PRODUCTION_ARCHITECTURE.md`](docs/CURRENT_PRODUCTION_ARCHITECTURE.md) | Current Supabase production architecture addendum |
@@ -236,7 +244,7 @@ Vishvakarma.OS uses a **gold workstation** visual language:
 | [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Vercel env matrix |
 | [`docs/release/STRIPE_SETUP.md`](docs/release/STRIPE_SETUP.md) | Billing rollout guide |
 | [`docs/GOVERNANCE_QUICKSTART.md`](docs/GOVERNANCE_QUICKSTART.md) | Governance workflow |
-| [`docs/world-record/WORLD_RECORD_CLAIM.md`](docs/world-record/WORLD_RECORD_CLAIM.md) | Self-verified gate-count evidence |
+| [`docs/archive/README.md`](docs/archive/README.md) | Historical build snapshots |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |
 | [`supabase/README.md`](supabase/README.md) | Supabase schema and auth setup |
 | [`SECURITY.md`](SECURITY.md) | Security policy |

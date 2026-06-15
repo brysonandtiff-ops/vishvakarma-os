@@ -4,7 +4,7 @@ import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { CinematicBloom } from '@/components/editor/CinematicBloom';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase, BuildingFloor } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
@@ -547,17 +547,6 @@ function TouchWalkRig({ moveRef }: { moveRef: MutableRefObject<{ x: number; z: n
   });
 
   return null;
-}
-
-const BLOOM_WALL_CAP = 200;
-
-function CinematicBloom({ enabled, wallCount }: { enabled: boolean; wallCount: number }) {
-  if (!enabled || wallCount > BLOOM_WALL_CAP) return null;
-  return (
-    <EffectComposer>
-      <Bloom intensity={0.5} luminanceThreshold={0.85} luminanceSmoothing={0.9} mipmapBlur />
-    </EffectComposer>
-  );
 }
 
 function BuildingSceneLayers({

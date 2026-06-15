@@ -43,6 +43,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      - name: Verify documentation
+        run: pnpm run docs:verify
+
       - name: Check Vercel security headers
         run: node scripts/quality/check-vercel-security.mjs
 

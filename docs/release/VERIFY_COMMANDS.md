@@ -66,6 +66,18 @@ Promote admin after first Supabase sign-in: set `role = admin` on the user's row
 
 See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [supabase/README.md](../../supabase/README.md) for auth and schema setup.
 
+## Documentation Check
+
+After route, API, schema, script, or documentation changes:
+
+```bash
+pnpm run handoff:generate
+pnpm run handoff:verify
+pnpm run docs:verify
+```
+
+See [docs/DOCUMENTATION_STANDARDS.md](../DOCUMENTATION_STANDARDS.md).
+
 ## Final Evidence Check
 
 Use this only after all placeholders in the evidence files are filled:

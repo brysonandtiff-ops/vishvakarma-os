@@ -1,5 +1,6 @@
 import { resolveJurisdiction } from '@/domain/projects/jurisdiction';
 import { aggregateComplianceResults } from '@/services/compliance/complianceAggregator';
+import { getCitationForRule, getRulePackDisclaimer } from '@/modules/compliance/rulePacks';
 import { getComplianceRulesForJurisdiction } from '@/rules/registry';
 import type { ComplianceAuditReport } from '@/modules/compliance/types';
 import type { ComplianceResult } from '@/rules/types';
@@ -10,12 +11,24 @@ function runRules(project: Project): ComplianceResult[] {
   return getComplianceRulesForJurisdiction(jurisdiction).map((rule) => rule.validate(project));
 }
 
+function attachCitations(results: ComplianceResult[]): ComplianceResult[] {
+  return results.map((result) => ({
+    ...result,
+    findings: result.findings.map((finding) => ({
+      ...finding,
+      citation: finding.citation ?? getCitationForRule(finding.ruleId),
+    })),
+  }));
+}
+
 export function runComplianceAudit(project: Project): ComplianceAuditReport {
-  const results = runRules(project);
-  return aggregateComplianceResults(results, {
+  const jurisdiction = resolveJurisdiction(project.manifest);
+  const results = attachCitations(runRules(project));
+  const report = aggregateComplianceResults(results, {
     projectId: project.id,
     projectName: project.name,
   });
+  return { ...report, disclaimer: getRulePackDisclaimer(jurisdiction) };
 }
 
 export function runComplianceAuditFromManifest(

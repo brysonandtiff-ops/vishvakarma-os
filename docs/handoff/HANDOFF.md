@@ -135,7 +135,7 @@ Verify completeness: `pnpm run handoff:verify`
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `pnpm run handoff:generate` | **PASS** | 16 routes, 6 API handlers, 96 scripts, 10 tables |
+| `pnpm run handoff:generate` | **PASS** | 16 routes, 6 API handlers, 103 scripts, 10 tables |
 | `pnpm run handoff:verify` | **PASS** | All annexes and appendices present |
 | `pnpm run docs:verify` | **PASS** | Documentation program link and version checks |
 | `pnpm run lint:types` | **PASS** | tsgo app + api configs |

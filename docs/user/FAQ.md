@@ -1,27 +1,63 @@
 # FAQ
 
-## Why does sign-in say Firebase is not configured?
+**Product version:** v1.5.0  
+**Last verified:** 2026-06-15  
+**Audience:** user  
 
-Production auth uses Firebase email-link sign-in. Add the Firebase variables from `.env.example` to your deployment host or `.env.local`.
+---
+
+## How do I sign in?
+
+Production auth uses **Supabase** — email magic link or Google OAuth at `/auth`. See [GETTING_STARTED.md](./GETTING_STARTED.md).
+
+---
 
 ## Why are projects not saving to the cloud?
 
-Data persistence uses Supabase. Without `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, the app runs in local-only demo mode.
+Cloud save requires Supabase configuration and a signed-in account. **Studio** tier includes unlimited cloud projects. **Starter** allows one active project.
+
+Without cloud backend, the app uses **local draft** mode in your browser.
+
+---
 
 ## Can I use the editor without signing in?
 
-Only in local development with `VITE_ALLOW_LOCAL_DEMO=true`. Production builds require authentication for all workspace routes except `/auth`.
+On the hosted production app, workspace routes require authentication. Local developers can use `VITE_ALLOW_LOCAL_DEMO=true` in development only.
+
+---
+
+## Is compliance output a permit approval?
+
+**No.** NBC pre-check, cost intelligence, and council scoring are **decision-support prototypes** — not certified professional or regulatory approval. See [PRODUCT_CAPABILITIES.md](../PRODUCT_CAPABILITIES.md).
+
+---
 
 ## PDF export looks like a summary, not a drawing
 
-PDF export currently produces a printable project summary. Use SVG export for full vector floor plan detail.
+PDF export produces a printable **project summary**. Use SVG or DXF (Studio+) for vector floor plan detail. [EXPORT_LIMITATIONS.md](./EXPORT_LIMITATIONS.md)
+
+---
+
+## What browsers are supported?
+
+Chrome/Edge 90+, Firefox 88+, Safari/iOS 14+. WebGL 2 preferred for 3D. [compliance/SUPPORT_MATRIX.md](../compliance/SUPPORT_MATRIX.md)
+
+---
+
+## How do plans and billing work?
+
+Starter (free), Studio ($499/mo), Enterprise ($1,000/mo). [BILLING_AND_PLANS.md](./BILLING_AND_PLANS.md)
+
+---
 
 ## How do I clear a stuck collaboration session?
 
-Refresh the page. Collaboration rooms are scoped per project session and reset on disconnect.
+Refresh the page. Collaboration is preview-only; sessions reset on disconnect.
 
-## Troubleshooting
+---
 
-- **Blank editor after sign-in**: Check browser console for Supabase connection errors.
-- **3D viewport unavailable**: WebGL may be disabled; 2D editing remains available.
-- **Import failed**: Prefer JSON exports from Vishvakarma.OS; SVG import supports wall/opening geometry from app-generated SVG.
+## More help
+
+- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+- [WORKFLOWS.md](./WORKFLOWS.md)
+- [TOOL_REFERENCE.md](./TOOL_REFERENCE.md)

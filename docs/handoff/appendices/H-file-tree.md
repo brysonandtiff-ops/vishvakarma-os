@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-15T06:35:48.392Z
+Generated: 2026-06-15T06:45:27.301Z
 
 ```
 src/
@@ -741,6 +741,7 @@ lib/
   parse-dist-assets.mjs
   pipeline-manifest.json
   probe-http.mjs
+  resolve-tier-steps.mjs
   run-command.mjs
 load-env-file.mjs
 migration/
@@ -778,6 +779,13 @@ quality/
 refactor.cjs
 repair-workspace-root-package.py
 repair-workspace-root-package.sh
+repairbot/
+  lib/
+    classify.mjs
+    env-scan.mjs
+  repairbot.mjs
+  repairs.json
+  status.mjs
 run-auth-gate-playwright.mjs
 run-cross-browser-gates.mjs
 run-e2e-gates.mjs
@@ -1140,6 +1148,7 @@ PULL_REQUEST_TEMPLATE.md
 workflows/
   e2e.yml
   lighthouse.yml
+  repairbot.yml
   verify.yml
 
 ```

@@ -2,14 +2,18 @@ import { WebsocketProvider } from 'y-websocket';
 import type * as Y from 'yjs';
 import {
   DEFAULT_PRESENCE_VIEWPORT,
+  type CastAwarenessState,
   type CollabTransportConfig,
   type Presence,
 } from '@/collaboration/types';
+import type { CastBroadcastState } from '@/cast/types';
 import type { CollaborationMessage } from '@/modules/collaborationEngine';
 
 export interface YjsProviderOptions extends CollabTransportConfig {
   doc: Y.Doc;
   onStatusChange?: (status: 'connecting' | 'connected' | 'disconnected') => void;
+  authMode?: 'supabase' | 'cast';
+  castRole?: Presence['castRole'];
 }
 
 export class YjsWebSocketProvider {
@@ -17,6 +21,7 @@ export class YjsWebSocketProvider {
   private awareness: WebsocketProvider['awareness'] | null = null;
   private messageCallbacks = new Set<(message: CollaborationMessage) => void>();
   private presenceCallbacks = new Set<(presences: Presence[]) => void>();
+  private castCallbacks = new Set<(state: CastBroadcastState | null) => void>();
   private userColor: string;
   private connected = false;
 
@@ -29,6 +34,7 @@ export class YjsWebSocketProvider {
 
     const token = await this.options.getIdToken();
     const roomName = `project-${this.options.projectId}`;
+    const authParam = this.options.authMode === 'cast' ? 'castToken' : 'token';
 
     this.options.onStatusChange?.('connecting');
 
@@ -37,7 +43,13 @@ export class YjsWebSocketProvider {
       roomName,
       this.options.doc,
       {
-        params: { token, userId: this.options.userId, userName: this.options.userName },
+        params: {
+          [authParam]: token,
+          token,
+          userId: this.options.userId,
+          userName: this.options.userName,
+          castRole: this.options.castRole ?? '',
+        },
         connect: true,
       }
     );
@@ -52,6 +64,8 @@ export class YjsWebSocketProvider {
       viewport: DEFAULT_PRESENCE_VIEWPORT,
       activeTool: 'select',
       lastSeen: Date.now(),
+      castRole: this.options.castRole,
+      followPresenter: this.options.castRole === 'viewer',
     });
 
     this.provider.on('status', (event: { status: string }) => {
@@ -70,6 +84,7 @@ export class YjsWebSocketProvider {
 
     this.awareness.on('change', () => {
       this.emitPresences();
+      this.emitCastStates();
     });
 
   }
@@ -101,6 +116,17 @@ export class YjsWebSocketProvider {
     return () => this.presenceCallbacks.delete(callback);
   }
 
+  subscribeCastState(callback: (state: CastBroadcastState | null) => void): () => void {
+    this.castCallbacks.add(callback);
+    callback(this.getRemoteCastState());
+    return () => this.castCallbacks.delete(callback);
+  }
+
+  updateCastState(state: CastBroadcastState): void {
+    if (!this.awareness) return;
+    this.awareness.setLocalStateField('cast', state as unknown as CastAwarenessState);
+  }
+
   broadcast(message: CollaborationMessage): void {
     for (const callback of this.messageCallbacks) {
       callback(message);
@@ -129,12 +155,34 @@ export class YjsWebSocketProvider {
     const result: Presence[] = [];
     this.awareness.getStates().forEach((state, clientId) => {
       const user = state.user as Presence | undefined;
-      if (!user || user.userId === this.options.userId) return;
+      if (!user) return;
+      if (user.userId === this.options.userId && this.options.castRole !== 'presenter') return;
       if (this.awareness && this.awareness.meta.has(clientId)) {
         result.push({ ...user, lastSeen: user.lastSeen ?? Date.now() });
       }
     });
     return result;
+  }
+
+  getRemoteCastState(): CastBroadcastState | null {
+    if (!this.awareness) return null;
+    let found: CastBroadcastState | null = null;
+    this.awareness.getStates().forEach((state, clientId) => {
+      if (!this.awareness?.meta.has(clientId)) return;
+      const cast = state.cast as CastBroadcastState | undefined;
+      const user = state.user as Presence | undefined;
+      if (cast && user?.castRole === 'presenter') {
+        found = cast;
+      }
+    });
+    return found;
+  }
+
+  private emitCastStates(): void {
+    const state = this.getRemoteCastState();
+    for (const callback of this.castCallbacks) {
+      callback(state);
+    }
   }
 
   private emitPresences(): void {

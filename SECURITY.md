@@ -1,13 +1,19 @@
 # Security Policy — Vishvakarma.OS
 
+**Product version:** v1.5.0  
+**Last verified:** 2026-06-15  
+
 ## Supported versions
 
 | Version | Supported |
 |---------|-----------|
+| 1.5.x   | Yes       |
 | 1.2.x   | Yes       |
 | 1.1.x   | Yes       |
 | 1.0.x   | Yes       |
 | < 1.0   | No        |
+
+Security architecture details: [docs/handoff/06-security-and-compliance.md](docs/handoff/06-security-and-compliance.md)
 
 ## Reporting a vulnerability
 

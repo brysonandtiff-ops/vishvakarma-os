@@ -1,5 +1,7 @@
 # REGISTRY.md - Entity Registry and Schema Definitions
 
+> **Historical:** This document describes v1.0-era scope. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
+
 ## Overview
 
 The Registry defines all canonical entities in Vishvakarma.OS. Every entity must be registered here with complete schema, default values, and validation rules.

@@ -100,6 +100,8 @@ export class CollabSession {
         userId: options.userId,
         userName: options.userName,
         getIdToken: options.getIdToken,
+        authMode: options.authMode,
+        castRole: options.castRole ?? (options.readOnly || options.authMode === 'cast' ? 'viewer' : undefined),
       });
       await this.yjsProvider.connect();
       this.transport = {
@@ -190,5 +192,17 @@ export class CollabSession {
 
   getAwareness() {
     return this.yjsProvider?.getAwareness() ?? null;
+  }
+
+  subscribeCastState(callback: (state: import('@/cast/types').CastBroadcastState | null) => void): () => void {
+    if (this.yjsProvider) {
+      return this.yjsProvider.subscribeCastState(callback);
+    }
+    callback(null);
+    return () => {};
+  }
+
+  updateCastState(state: import('@/cast/types').CastBroadcastState): void {
+    this.yjsProvider?.updateCastState(state);
   }
 }

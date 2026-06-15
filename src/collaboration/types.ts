@@ -36,6 +36,8 @@ export interface CollaborativeEntity {
   updatedBy: string;
 }
 
+export type CastPresenceRole = 'presenter' | 'viewer';
+
 export interface Presence {
   userId: string;
   name: string;
@@ -45,6 +47,17 @@ export interface Presence {
   activeTool?: string;
   focusedEntityId?: string;
   lastSeen: number;
+  castRole?: CastPresenceRole;
+  followPresenter?: boolean;
+}
+
+export interface CastAwarenessState {
+  sessionId: string;
+  presenterUserId: string;
+  lenses: Record<string, unknown>;
+  chrono: Record<string, unknown>;
+  intentRelayEnabled: boolean;
+  viewport?: ViewportCameraState;
 }
 
 export const DEFAULT_PRESENCE_VIEWPORT: ViewportCameraState = {
@@ -65,4 +78,7 @@ export interface CollabSessionOptions extends CollabTransportConfig {
   initialManifest?: import('@/types').ProjectManifest;
   onManifestChange?: (manifest: import('@/types').ProjectManifest, isRemote: boolean) => void;
   onPresenceChange?: (presences: Presence[]) => void;
+  authMode?: 'supabase' | 'cast';
+  readOnly?: boolean;
+  castRole?: CastPresenceRole;
 }

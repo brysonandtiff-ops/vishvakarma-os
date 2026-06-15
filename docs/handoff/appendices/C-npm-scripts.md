@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-15T06:35:48.392Z
+Generated: 2026-06-15T06:45:27.301Z
 
-Total: 96 scripts
+Total: 103 scripts
 
 | Script | Command |
 |--------|--------|
@@ -69,6 +69,13 @@ Total: 96 scripts
 | `release:gates:strict` | `node scripts/verify-all.js --strict` |
 | `repair:workspace-root` | `python scripts/repair-workspace-root-package.py` |
 | `repair:workspace-root:bash` | `bash scripts/repair-workspace-root-package.sh` |
+| `repairbot` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast` |
+| `repairbot:dry` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --dry-run` |
+| `repairbot:fast` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast` |
+| `repairbot:full` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:full` |
+| `repairbot:medium` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:medium` |
+| `repairbot:status` | `node scripts/repairbot/status.mjs` |
+| `repairbot:watch` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000` |
 | `setup:scene-models` | `node scripts/setup-scene-models.mjs` |
 | `setup:stripe` | `node scripts/setup-stripe-products.mjs` |
 | `setup:stripe-live` | `node scripts/setup-stripe-live.mjs` |

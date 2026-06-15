@@ -12,12 +12,9 @@ catalogs:
     '@react-three/fiber':
       specifier: 8.18.0
       version: 8.18.0
-    '@react-three/postprocessing':
-      specifier: 2.16.3
-      version: 2.16.3
     postprocessing:
-      specifier: 6.37.8
-      version: 6.37.8
+      specifier: 6.39.1
+      version: 6.39.1
     three:
       specifier: 0.180.0
       version: 0.180.0
@@ -122,9 +119,6 @@ importers:
       '@react-three/fiber':
         specifier: 'catalog:'
         version: 8.18.0(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.180.0)
-      '@react-three/postprocessing':
-        specifier: 'catalog:'
-        version: 2.16.3(@react-three/fiber@8.18.0(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.180.0))(@types/three@0.182.0)(react@18.3.1)(three@0.180.0)
       '@sentry/react':
         specifier: ^9.22.0
         version: 9.47.1(react@18.3.1)
@@ -178,7 +172,7 @@ importers:
         version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       postprocessing:
         specifier: 'catalog:'
-        version: 6.37.8(three@0.180.0)
+        version: 6.39.1(three@0.180.0)
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -2503,13 +2497,6 @@ packages:
         optional: true
       react-native:
         optional: true
-
-  '@react-three/postprocessing@2.16.3':
-    resolution: {integrity: sha512-ftodXpUsy0/mzn0KqyV7MBau71dD9C5UOFnB3kHhCLNoxjKYQWZa9do0olJTSkl3owYXRfNHcLriK1Xn8wxZJw==}
-    peerDependencies:
-      '@react-three/fiber': '>=8.0'
-      react: '>=18.0'
-      three: '>= 0.138.0'
 
   '@rolldown/binding-android-arm64@1.0.0-beta.53':
     resolution: {integrity: sha512-Ok9V8o7o6YfSdTTYA/uHH30r3YtOxLD6G3wih/U9DO0ucBBFq8WPt/DslU53OgfteLRHITZny9N/qCUxMf9kjQ==}
@@ -5180,12 +5167,6 @@ packages:
       '@types/three': '>=0.134.0'
       three: '>=0.134.0'
 
-  maath@0.6.0:
-    resolution: {integrity: sha512-dSb2xQuP7vDnaYqfoKzlApeRcR2xtN8/f7WV/TMAkBC8552TwTLtOO0JTcSygkYMjNDPoo6V01jTw/aPi4JrMw==}
-    peerDependencies:
-      '@types/three': '>=0.144.0'
-      three: '>=0.144.0'
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -5437,12 +5418,6 @@ packages:
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
-
-  n8ao@1.10.2:
-    resolution: {integrity: sha512-gh4i0xFP8DiRaNoX75kPiG3kGl7PmX9SW/OIn3Sv/YZmHrA8faLdSU1MM6M4gKtfKpxDnZagodu8FKob5URCVw==}
-    peerDependencies:
-      postprocessing: '>=6.30.0'
-      three: '>=0.137'
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -5715,10 +5690,10 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  postprocessing@6.37.8:
-    resolution: {integrity: sha512-qTFUKS51z/fuw2U+irz4/TiKJ/0oI70cNtvQG1WxlPKvBdJUfS1CcFswJd5ATY3slotWfvkDDZAsj1X0fU8BOQ==}
+  postprocessing@6.39.1:
+    resolution: {integrity: sha512-R2dG2zy+BAx3USl5EHw+PvnrlbT5PKnZVp3se0HCR0pWH8WQdh742yNG4YWOsq6c0bFpffk0Gd2RqPeoP/wKng==}
     peerDependencies:
-      three: '>= 0.157.0 < 0.181.0'
+      three: '>= 0.168.0 < 0.185.0'
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -9443,19 +9418,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@react-three/postprocessing@2.16.3(@react-three/fiber@8.18.0(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.180.0))(@types/three@0.182.0)(react@18.3.1)(three@0.180.0)':
-    dependencies:
-      '@react-three/fiber': 8.18.0(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.180.0)
-      buffer: 6.0.3
-      maath: 0.6.0(@types/three@0.182.0)(three@0.180.0)
-      n8ao: 1.10.2(postprocessing@6.37.8(three@0.180.0))(three@0.180.0)
-      postprocessing: 6.37.8(three@0.180.0)
-      react: 18.3.1
-      three: 0.180.0
-      three-stdlib: 2.36.1(three@0.180.0)
-    transitivePeerDependencies:
-      - '@types/three'
-
   '@rolldown/binding-android-arm64@1.0.0-beta.53':
     optional: true
 
@@ -12237,11 +12199,6 @@ snapshots:
       '@types/three': 0.182.0
       three: 0.180.0
 
-  maath@0.6.0(@types/three@0.182.0)(three@0.180.0):
-    dependencies:
-      '@types/three': 0.182.0
-      three: 0.180.0
-
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -12729,11 +12686,6 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
-  n8ao@1.10.2(postprocessing@6.37.8(three@0.180.0))(three@0.180.0):
-    dependencies:
-      postprocessing: 6.37.8(three@0.180.0)
-      three: 0.180.0
-
   nanoid@3.3.11: {}
 
   netmask@2.1.1: {}
@@ -12988,7 +12940,7 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  postprocessing@6.37.8(three@0.180.0):
+  postprocessing@6.39.1(three@0.180.0):
     dependencies:
       three: 0.180.0
 
