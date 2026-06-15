@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PropertiesPanel from '@/components/editor/PropertiesPanel';
+import { formatDimensionBySystem } from '@/utils/measurements';
 import type { Wall, Opening } from '@/types';
 
 describe('PropertiesPanel', () => {
@@ -71,7 +72,7 @@ describe('PropertiesPanel', () => {
       render(<PropertiesPanel {...defaultProps} selectedWall={mockWall} />);
       
       expect(screen.getByText('Length')).toBeInTheDocument();
-      expect(screen.getByText('400px')).toBeInTheDocument();
+      expect(screen.getByText(formatDimensionBySystem(400, 'metric', 2))).toBeInTheDocument();
     });
 
     it('should display wall ID (truncated)', () => {
@@ -102,7 +103,7 @@ describe('PropertiesPanel', () => {
       render(<PropertiesPanel {...defaultProps} selectedWall={diagonalWall} />);
       
       // Length = sqrt(300^2 + 400^2) = 500
-      expect(screen.getByText('500px')).toBeInTheDocument();
+      expect(screen.getByText(formatDimensionBySystem(500, 'metric', 2))).toBeInTheDocument();
     });
   });
 
@@ -343,7 +344,7 @@ describe('PropertiesPanel', () => {
         <PropertiesPanel {...defaultProps} selectedWall={mockWall} />
       );
       
-      expect(screen.getByText('400px')).toBeInTheDocument();
+      expect(screen.getByText(formatDimensionBySystem(400, 'metric', 2))).toBeInTheDocument();
       
       const newWall: Wall = {
         ...mockWall,
@@ -352,7 +353,7 @@ describe('PropertiesPanel', () => {
       
       rerender(<PropertiesPanel {...defaultProps} selectedWall={newWall} />);
       
-      expect(screen.getByText('600px')).toBeInTheDocument();
+      expect(screen.getByText(formatDimensionBySystem(600, 'metric', 2))).toBeInTheDocument();
     });
 
     it('should update display when openings change', () => {
@@ -427,7 +428,7 @@ describe('PropertiesPanel', () => {
       
       render(<PropertiesPanel {...defaultProps} selectedWall={zeroLengthWall} />);
       
-      expect(screen.getByText('0px')).toBeInTheDocument();
+      expect(screen.getByText(formatDimensionBySystem(0, 'metric', 2))).toBeInTheDocument();
     });
 
     it('should handle opening with position 0', () => {

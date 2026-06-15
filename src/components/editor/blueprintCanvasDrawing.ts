@@ -1,5 +1,9 @@
 import type { DimensionAnnotation, Opening, Point2D, Wall } from '@/types';
 import {
+  CANVAS_FONT_MONO,
+  CANVAS_FONT_MONO_SM,
+  CANVAS_FONT_MONO_XS,
+  CANVAS_PAPER_FILL,
   CHIP_FILL,
   CHIP_FILL_ALPHA,
   CHIP_FILL_PREVIEW,
@@ -10,61 +14,103 @@ import {
   GOLD_BRIGHT,
   GOLD_HOVER,
   GOLD_PREVIEW,
-  GRID_MAJOR,
-  GRID_MINOR,
+  GRID_FADE_MARGIN,
   INK,
+  PAPER_VIGNETTE,
   WALL_SHADOW,
   WINDOW,
   WINDOW_GHOST,
+  computeVisibleGridBounds,
+  gridMajorStroke,
+  gridMinorStroke,
+  type WorldBounds,
 } from '@/core/sceneDrawingTokens';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
+import {
+  drawDoorSymbol,
+  drawOpeningDragHandles,
+  drawOpeningHoverChip,
+  drawWindowSymbol,
+} from '@/components/editor/blueprint/openingSymbols';
 
-export function drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, gridSize: number) {
-  const fadeMargin = Math.min(canvas.width, canvas.height) * 0.08;
-  const edgeFade = (coord: number, max: number) => {
-    const d = Math.min(coord, max - coord);
+export { computeVisibleGridBounds, type WorldBounds };
+
+export function drawPaperBackground(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  ctx.fillStyle = CANVAS_PAPER_FILL;
+  ctx.fillRect(0, 0, width, height);
+
+  const gradient = ctx.createRadialGradient(
+    width / 2,
+    height / 2,
+    Math.min(width, height) * 0.2,
+    width / 2,
+    height / 2,
+    Math.max(width, height) * 0.75,
+  );
+  gradient.addColorStop(0, 'rgba(253, 249, 245, 0)');
+  gradient.addColorStop(1, PAPER_VIGNETTE);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+}
+
+export function drawGrid(ctx: CanvasRenderingContext2D, bounds: WorldBounds, gridSize: number) {
+  const fadeMargin = Math.min(bounds.width, bounds.height) * GRID_FADE_MARGIN;
+  const edgeFade = (coord: number, min: number, max: number) => {
+    const d = Math.min(coord - min, max - coord);
     if (d >= fadeMargin) return 1;
     return Math.max(0.15, d / fadeMargin);
   };
 
+  const pad = gridSize;
+  const minX = bounds.left;
+  const maxX = bounds.left + bounds.width;
+  const minY = bounds.top;
+  const maxY = bounds.top + bounds.height;
+  const startX = Math.floor((minX - pad) / gridSize) * gridSize;
+  const endX = maxX + pad;
+  const startY = Math.floor((minY - pad) / gridSize) * gridSize;
+  const endY = maxY + pad;
+  const majorStep = gridSize * 5;
+
   ctx.lineWidth = 1;
-  for (let x = 0; x < canvas.width; x += gridSize) {
-    const alpha = edgeFade(x, canvas.width);
-    ctx.strokeStyle = GRID_MINOR.replace(')', ` / ${alpha})`).replace('rgba', 'rgba');
-    if (GRID_MINOR.startsWith('rgba')) {
-      ctx.strokeStyle = `rgba(212, 207, 196, ${0.55 * alpha})`;
-    } else {
-      ctx.strokeStyle = GRID_MINOR;
-    }
+  for (let x = startX; x <= endX; x += gridSize) {
+    const alpha = edgeFade(x, minX, maxX);
+    ctx.strokeStyle = gridMinorStroke(alpha);
     ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
+    ctx.moveTo(x, minY - pad);
+    ctx.lineTo(x, maxY + pad);
     ctx.stroke();
   }
-  for (let y = 0; y < canvas.height; y += gridSize) {
-    const alpha = edgeFade(y, canvas.height);
-    ctx.strokeStyle = `rgba(212, 207, 196, ${0.55 * alpha})`;
+  for (let y = startY; y <= endY; y += gridSize) {
+    const alpha = edgeFade(y, minY, maxY);
+    ctx.strokeStyle = gridMinorStroke(alpha);
     ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
+    ctx.moveTo(minX - pad, y);
+    ctx.lineTo(maxX + pad, y);
     ctx.stroke();
   }
 
   ctx.lineWidth = 2;
-  for (let x = 0; x < canvas.width; x += gridSize * 5) {
-    const alpha = edgeFade(x, canvas.width);
-    ctx.strokeStyle = `rgba(184, 148, 31, ${0.28 * alpha})`;
+  const majorStartX = Math.floor((minX - pad) / majorStep) * majorStep;
+  const majorStartY = Math.floor((minY - pad) / majorStep) * majorStep;
+  for (let x = majorStartX; x <= endX; x += majorStep) {
+    const alpha = edgeFade(x, minX, maxX);
+    ctx.strokeStyle = gridMajorStroke(alpha);
     ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
+    ctx.moveTo(x, minY - pad);
+    ctx.lineTo(x, maxY + pad);
     ctx.stroke();
   }
-  for (let y = 0; y < canvas.height; y += gridSize * 5) {
-    const alpha = edgeFade(y, canvas.height);
-    ctx.strokeStyle = `rgba(184, 148, 31, ${0.28 * alpha})`;
+  for (let y = majorStartY; y <= endY; y += majorStep) {
+    const alpha = edgeFade(y, minY, maxY);
+    ctx.strokeStyle = gridMajorStroke(alpha);
     ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
+    ctx.moveTo(minX - pad, y);
+    ctx.lineTo(maxX + pad, y);
     ctx.stroke();
   }
 }
@@ -74,7 +120,6 @@ export function drawWall(
   wall: Wall,
   state: { selected: boolean; hovered: boolean; snapEnabled: boolean },
 ) {
-  // Subtle depth shadow
   ctx.strokeStyle = WALL_SHADOW;
   ctx.lineWidth = wall.thickness + 2;
   ctx.lineCap = 'square';
@@ -136,7 +181,7 @@ export function drawWallMeasurement(ctx: CanvasRenderingContext2D, wall: Wall, u
   ctx.lineWidth = 1.25;
   ctx.strokeRect(x - 38, y - 13, 76, 26);
   ctx.fillStyle = INK;
-  ctx.font = 'bold 12px "SF Mono", Monaco, monospace';
+  ctx.font = CANVAS_FONT_MONO;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), x, y);
@@ -154,74 +199,32 @@ export function drawOpening(
     unitSystem: UnitSystem;
   },
 ) {
-  const position = options.dragging && options.dragPositionPercent !== undefined
-    ? options.dragPositionPercent
-    : opening.position;
-  const x = wall.start.x + (wall.end.x - wall.start.x) * position;
-  const y = wall.start.y + (wall.end.y - wall.start.y) * position;
-  const color = opening.type === 'door' ? DOOR : WINDOW;
+  const highlighted = options.hovered || options.selected || options.dragging;
 
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(x, y, options.hovered || options.selected ? 10 : 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = CHIP_STROKE;
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  if (opening.type === 'door') {
+    drawDoorSymbol(ctx, wall, opening, { highlighted });
+  } else {
+    drawWindowSymbol(ctx, wall, opening, { highlighted });
+  }
 
   if (options.selected || options.dragging) {
-    const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-    const handleOffset = 18;
-    for (const sign of [-1, 1]) {
-      const hx = x + Math.cos(wallAngle) * handleOffset * sign;
-      const hy = y + Math.sin(wallAngle) * handleOffset * sign;
-      ctx.fillStyle = GOLD;
-      ctx.beginPath();
-      ctx.arc(hx, hy, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = CHIP_STROKE;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
+    drawOpeningDragHandles(ctx, wall, opening);
   }
 
   if (options.dragging && options.dragPositionPercent !== undefined) {
-    ctx.fillStyle = CHIP_FILL_ALPHA;
-    ctx.fillRect(x - 28, y - 36, 56, 20);
-    ctx.strokeStyle = GOLD;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x - 28, y - 36, 56, 20);
-    ctx.fillStyle = INK;
-    ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`${Math.round(position * 100)}%`, x, y - 26);
+    drawOpeningHoverChip(ctx, wall, opening, {
+      unitSystem: options.unitSystem,
+      dragging: true,
+      dragPositionPercent: options.dragPositionPercent,
+    });
   }
 
-  if (!options.hovered && !options.selected && !options.dragging) return;
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(x, y, 14, 0, Math.PI * 2);
-  ctx.stroke();
-
-  const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
-  const labelX = x + Math.sin(wallAngle) * 40;
-  const labelY = y - Math.cos(wallAngle) * 40;
-
-  ctx.fillStyle = CHIP_FILL_ALPHA;
-  ctx.fillRect(labelX - 45, labelY - 22, 90, 44);
-  ctx.strokeStyle = color;
-  ctx.strokeRect(labelX - 45, labelY - 22, 90, 44);
-  ctx.fillStyle = INK;
-  ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(opening.type.toUpperCase(), labelX, labelY - 10);
-  ctx.font = '9px "SF Mono", Monaco, monospace';
-  ctx.fillText(`W: ${formatDimensionBySystem(opening.width * 2, options.unitSystem, 0)}`, labelX, labelY + 2);
-  ctx.fillText(`H: ${formatDimensionBySystem(opening.height * 2, options.unitSystem, 0)}`, labelX, labelY + 12);
+  if (highlighted) {
+    drawOpeningHoverChip(ctx, wall, opening, {
+      unitSystem: options.unitSystem,
+      showDetails: true,
+    });
+  }
 }
 
 export function drawPreviewOpening(
@@ -233,33 +236,45 @@ export function drawPreviewOpening(
   const wall = walls.find((item) => item.id === preview.wallId);
   if (!wall) return;
 
+  const wallLength = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
+  if (wallLength === 0) return;
+
+  const position = ((preview.position.x - wall.start.x) * (wall.end.x - wall.start.x)
+    + (preview.position.y - wall.start.y) * (wall.end.y - wall.start.y))
+    / (wallLength * wallLength);
+
+  const previewOpening: Opening = {
+    id: 'preview',
+    type: preview.type,
+    wallId: preview.wallId,
+    position: Math.max(0, Math.min(1, position)),
+    width: preview.type === 'door' ? 90 : 120,
+    height: preview.type === 'door' ? 210 : 120,
+  };
+
+  if (preview.type === 'door') {
+    drawDoorSymbol(ctx, wall, previewOpening, { preview: true, highlighted: true });
+  } else {
+    drawWindowSymbol(ctx, wall, previewOpening, { preview: true, highlighted: true });
+  }
+
   const color = preview.type === 'door' ? DOOR : WINDOW;
-  const width = preview.type === 'door' ? 90 : 120;
-  const height = preview.type === 'door' ? 210 : 120;
   const wallAngle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
   const labelX = preview.position.x + Math.sin(wallAngle) * 35;
   const labelY = preview.position.y - Math.cos(wallAngle) * 35;
-
-  ctx.fillStyle = preview.type === 'door' ? DOOR_GHOST : WINDOW_GHOST;
-  ctx.beginPath();
-  ctx.arc(preview.position.x, preview.position.y, 12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(preview.position.x, preview.position.y, 16, 0, Math.PI * 2);
-  ctx.stroke();
+  const width = preview.type === 'door' ? 90 : 120;
+  const height = preview.type === 'door' ? 210 : 120;
 
   ctx.fillStyle = CHIP_FILL_ALPHA;
   ctx.fillRect(labelX - 40, labelY - 20, 80, 40);
   ctx.strokeStyle = color;
   ctx.strokeRect(labelX - 40, labelY - 20, 80, 40);
   ctx.fillStyle = INK;
-  ctx.font = 'bold 10px "SF Mono", Monaco, monospace';
+  ctx.font = CANVAS_FONT_MONO_SM;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(preview.type.toUpperCase(), labelX, labelY - 8);
-  ctx.font = '9px "SF Mono", Monaco, monospace';
+  ctx.font = CANVAS_FONT_MONO_XS;
   ctx.fillText(
     `${formatDimensionBySystem(width * 2, unitSystem, 0)} × ${formatDimensionBySystem(height * 2, unitSystem, 0)}`,
     labelX,
@@ -288,7 +303,7 @@ export function drawWallPreview(
   ctx.fillStyle = CHIP_FILL;
   ctx.fillRect(midX - 34, midY - 20, 68, 20);
   ctx.fillStyle = INK;
-  ctx.font = '12px "SF Mono", Monaco, monospace';
+  ctx.font = CANVAS_FONT_MONO.replace('bold ', '');
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(formatDimensionBySystem(Math.hypot(end.x - start.x, end.y - start.y), unitSystem, 0), midX, midY - 10);
@@ -362,7 +377,7 @@ export function drawDimension(
   ctx.lineWidth = 1.25;
   ctx.strokeRect(midX - 38, midY - 13, 76, 26);
   ctx.fillStyle = INK;
-  ctx.font = 'bold 12px "SF Mono", Monaco, monospace';
+  ctx.font = CANVAS_FONT_MONO;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(formatDimensionBySystem(length, unitSystem, 0), midX, midY);

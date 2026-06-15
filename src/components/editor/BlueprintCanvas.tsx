@@ -31,7 +31,9 @@ import {
   drawDimension,
   drawGrid,
   drawOpening,
+  drawPaperBackground,
   drawPreviewOpening,
+  computeVisibleGridBounds,
   pointToLineDistance,
 } from './blueprintCanvasDrawing';
 import {
@@ -52,19 +54,11 @@ import {
 import {
   COMPASS_FILL,
   COMPASS_STROKE,
-  FIXTURE_LABEL,
-  FIXTURE_MEP_LABEL,
-  FIXTURE_MEP_STROKE,
-  FIXTURE_STROKE,
+  CANVAS_FONT_COMPASS,
+  CHIP_FILL_ALPHA,
   GOLD,
-  GOLD_GLOW,
-  GOLD_GLOW_SOFT,
-  GOLD_LIGHT,
   GOLD_MUTED,
-  CANVAS_PAPER_FILL,
   INK_LABEL,
-  MEP_COLORS,
-  ROOM_STROKE,
 } from '@/core/sceneDrawingTokens';
 import {
   drawTerrain2D,
@@ -74,7 +68,8 @@ import {
   pointsNear,
 } from '@/core/sceneTerrainCatalog';
 import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
-import { drawRoomsLayer } from '@/components/editor/blueprint/drawRooms';
+import { drawRoomFills, drawRoomLabels } from '@/components/editor/blueprint/drawRooms';
+import { drawMepSymbol2D, drawFixture2D } from '@/components/editor/blueprint/drawSymbols';
 import { drawWallsLayer } from '@/components/editor/blueprint/drawWalls';
 import {
   getInputModeFromPointerType,
@@ -951,15 +946,20 @@ export default function BlueprintCanvas({
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    ctx.fillStyle = CANVAS_PAPER_FILL;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawPaperBackground(ctx, canvas.width, canvas.height);
 
     ctx.save();
     ctx.translate(canvasViewport.panX, canvasViewport.panY);
     ctx.scale(canvasViewport.zoom, canvasViewport.zoom);
 
+    const gridBounds = computeVisibleGridBounds(canvas.width, canvas.height, canvasViewport);
+
     if (gridVisible) {
-      drawGrid(ctx, canvas, gridSize);
+      drawGrid(ctx, gridBounds, gridSize);
+    }
+
+    if (layerVisibility.rooms) {
+      drawRoomFills(ctx, rooms, roomWallSource);
     }
 
     if (layerVisibility.walls) {
@@ -986,6 +986,7 @@ export default function BlueprintCanvas({
       drawWallsLayer(ctx, {
         walls,
         displayWalls,
+        openings,
         selectedWallId,
         selectedWallIds,
         hoveredWall,
@@ -1014,23 +1015,26 @@ export default function BlueprintCanvas({
       }
     }
 
+    if (layerVisibility.rooms) {
+      drawRoomLabels(ctx, rooms);
+    }
+
     if (layerVisibility.labels) {
       for (const label of labels) {
         const isSelected = label.id === selectedLabelId;
-        ctx.fillStyle = label.color ?? INK_LABEL;
-        ctx.font = `${label.fontSize ?? 14}px sans-serif`;
+        const fontSize = label.fontSize ?? 14;
+        ctx.font = `${fontSize}px system-ui, sans-serif`;
+        const textWidth = ctx.measureText(label.text).width;
         if (isSelected) {
-          const textWidth = ctx.measureText(label.text).width;
+          ctx.fillStyle = CHIP_FILL_ALPHA;
+          ctx.fillRect(label.position.x - 6, label.position.y - fontSize - 4, textWidth + 12, fontSize + 8);
           ctx.strokeStyle = GOLD;
           ctx.lineWidth = 1;
-          ctx.strokeRect(label.position.x - 4, label.position.y - (label.fontSize ?? 14), textWidth + 8, (label.fontSize ?? 14) + 8);
+          ctx.strokeRect(label.position.x - 6, label.position.y - fontSize - 4, textWidth + 12, fontSize + 8);
         }
+        ctx.fillStyle = label.color ?? INK_LABEL;
         ctx.fillText(label.text, label.position.x, label.position.y);
       }
-    }
-
-    if (layerVisibility.rooms) {
-      drawRoomsLayer(ctx, rooms, roomWallSource);
     }
 
     if (layerVisibility.furniture) {
@@ -1042,52 +1046,17 @@ export default function BlueprintCanvas({
       }
 
       for (const staircase of staircases) {
-        drawStair2D(ctx, staircase.position, staircase.direction ?? 0);
+        drawStair2D(ctx, staircase.position, staircase.direction ?? 0, currentTool === 'measure');
       }
     }
 
     if (layerVisibility.mep) {
       for (const symbol of mepSymbols) {
-      const { x, y } = symbol.position;
-      const r = 9;
-      ctx.beginPath();
-      ctx.roundRect(x - r, y - r, r * 2, r * 2, 3);
-      ctx.fillStyle = MEP_COLORS[symbol.type];
-      ctx.fill();
-      ctx.strokeStyle = FIXTURE_MEP_STROKE;
-      ctx.lineWidth = 1.25;
-      ctx.stroke();
-      ctx.fillStyle = FIXTURE_MEP_LABEL;
-      ctx.font = 'bold 8px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(symbol.type.slice(0, 1).toUpperCase(), x, y);
-    }
+        drawMepSymbol2D(ctx, symbol, { highlighted: currentTool === 'measure' });
+      }
 
-    for (const fixture of fixtures) {
-      const { x, y } = fixture.position;
-      const selected = fixture.id === selectedFixtureId;
-      ctx.beginPath();
-      ctx.arc(x, y, 10, 0, Math.PI * 2);
-      ctx.fillStyle = selected ? GOLD_GLOW : GOLD_GLOW_SOFT;
-      ctx.fill();
-      ctx.strokeStyle = selected ? GOLD_LIGHT : GOLD_MUTED;
-      ctx.lineWidth = selected ? 2 : 1.5;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x, y - 6);
-      ctx.lineTo(x - 4, y + 2);
-      ctx.lineTo(x + 4, y + 2);
-      ctx.closePath();
-      ctx.fillStyle = GOLD_LIGHT;
-      ctx.fill();
-      ctx.strokeStyle = FIXTURE_STROKE;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = FIXTURE_LABEL;
-      ctx.font = '7px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(fixture.type.slice(0, 1).toUpperCase(), x, y + 14);
+      for (const fixture of fixtures) {
+        drawFixture2D(ctx, fixture, { selected: fixture.id === selectedFixtureId });
       }
     }
 
@@ -1159,6 +1128,12 @@ export default function BlueprintCanvas({
       ctx.save();
       ctx.translate(center.x, center.y);
       ctx.rotate(((northOrientation - 90) * Math.PI) / 180);
+
+      ctx.fillStyle = CHIP_FILL_ALPHA;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius + 6, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.strokeStyle = COMPASS_STROKE;
       ctx.fillStyle = COMPASS_FILL;
       ctx.lineWidth = 1.5;
@@ -1166,16 +1141,29 @@ export default function BlueprintCanvas({
       ctx.arc(0, 0, radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+
+      ctx.strokeStyle = COMPASS_STROKE;
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 4; i += 1) {
+        const angle = (i * Math.PI) / 2;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * (radius - 6), Math.sin(angle) * (radius - 6));
+        ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+        ctx.stroke();
+      }
+
       ctx.beginPath();
       ctx.moveTo(0, -radius);
       ctx.lineTo(0, radius);
       ctx.moveTo(-radius, 0);
       ctx.lineTo(radius, 0);
       ctx.stroke();
+
       ctx.fillStyle = GOLD_MUTED;
-      ctx.font = 'bold 11px sans-serif';
+      ctx.font = CANVAS_FONT_COMPASS;
       ctx.textAlign = 'center';
-      ctx.fillText('N', 0, -radius + 18);
+      ctx.textBaseline = 'middle';
+      ctx.fillText('N', 0, -radius + 16);
       ctx.restore();
     }
   }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
@@ -1191,13 +1179,13 @@ export default function BlueprintCanvas({
       }}
     >
     <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2">
-      <span className="rounded-md border border-primary/25 bg-background/90 px-2 py-1 text-[10px] font-mono text-foreground shadow-sm backdrop-blur-sm">
+      <span className="vish-canvas-hud-badge rounded-md border border-primary/25 bg-background/90 px-2 py-1 text-[10px] font-mono text-foreground shadow-sm backdrop-blur-sm">
         {(canvasViewport.zoom * 100).toFixed(0)}%
       </span>
       {onResetViewport && canvasViewport.zoom !== 1 && (
         <button
           type="button"
-          className="pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm hover:text-foreground"
+          className="vish-canvas-hud-badge pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm hover:text-foreground"
           onClick={onResetViewport}
         >
           Reset view
