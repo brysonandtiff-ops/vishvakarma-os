@@ -7,6 +7,7 @@ import { editorDialogClassName } from '@/lib/editorDialog';
 import { exportManifestToDxf } from '@/core/exporters/dxfExport';
 import { buildFloorPlanSvg, type FloorPlanSvgOptions } from '@/core/exporters/floorPlanSvg';
 import { downloadPdf } from '@/core/exporters/pdfExport';
+import { downloadSheetSetPdf } from '@/modules/sheetSet/sheetSetPdfExport';
 import { downloadBlob, exportManifestToPng } from '@/core/exporters/pngExport';
 import type { ProjectManifest } from '@/types';
 import { toast } from 'sonner';
@@ -15,6 +16,7 @@ const FORMAT_CHIPS = {
   json: 'Full manifest round-trip',
   png: 'Walls · openings · labels · dimensions',
   pdf: 'Walls · openings · labels · dimensions · title block',
+  sheetSet: 'Multi-page title · plan · elevation stub sheets',
   dxf: 'Walls · openings as LINE entities',
   svg: 'Vector floor plan — walls · openings · labels · dimensions',
 } as const;
@@ -139,6 +141,10 @@ export default function ExportFloorPlanDialog({
             <Badge className="bg-primary text-[9px] text-primary-foreground">Recommended</Badge>
           </p>
           <p className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="secondary" className="text-[9px]">Sheet set</Badge>
+            <span>{FORMAT_CHIPS.sheetSet}</span>
+          </p>
+          <p className="flex flex-wrap items-center gap-1.5">
             <Badge variant="secondary" className="text-[9px]">PNG</Badge>
             <span>{FORMAT_CHIPS.png}</span>
           </p>
@@ -164,6 +170,19 @@ export default function ExportFloorPlanDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button variant="outline" disabled={exportBlocked} onClick={exportPng} title={FORMAT_CHIPS.png}>PNG</Button>
           <Button variant="outline" disabled={exportBlocked} onClick={exportSvg} title={FORMAT_CHIPS.svg}>SVG</Button>
+          <Button
+            disabled={!canPdf || exportBlocked}
+            variant="outline"
+            title={FORMAT_CHIPS.sheetSet}
+            data-testid="export-sheet-set-pdf"
+            onClick={() => {
+              downloadSheetSetPdf(manifest);
+              onOpenChange(false);
+              toast.success('Sheet set PDF exported');
+            }}
+          >
+            Sheet set PDF
+          </Button>
           <Button
             disabled={!canPdf || exportBlocked}
             className="bg-primary text-primary-foreground"

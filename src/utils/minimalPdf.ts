@@ -44,6 +44,73 @@ export function buildTextPdf(title: string, lines: string[]): Uint8Array {
   return new TextEncoder().encode(pdf);
 }
 
+export interface MultiPagePdfSheet {
+  title: string;
+  lines: string[];
+}
+
+/** Multi-page PDF 1.4 — one text page per sheet descriptor. */
+export function buildMultiPageTextPdf(sheets: MultiPagePdfSheet[]): Uint8Array {
+  if (sheets.length === 0) {
+    return buildTextPdf('Empty sheet set', ['No pages composed.']);
+  }
+
+  const pageCount = sheets.length;
+  const pageObjectNums: number[] = [];
+  const contentObjectNums: number[] = [];
+  const objects: string[] = [];
+
+  // 1: Catalog
+  objects.push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+  // 2: Pages — kids filled after page nums known
+  const pagesPlaceholderIndex = objects.length;
+  objects.push('');
+
+  let nextObjNum = 3;
+  for (let i = 0; i < pageCount; i++) {
+    const pageObjNum = nextObjNum++;
+    const contentObjNum = nextObjNum++;
+    pageObjectNums.push(pageObjNum);
+    contentObjectNums.push(contentObjNum);
+
+    const sheet = sheets[i];
+    const bodyLines = [sheet.title, ...sheet.lines];
+    const textOps = bodyLines
+      .map((line, index) => `BT /F1 12 Tf 50 ${780 - index * 16} Td (${escapePdfText(line)}) Tj ET`)
+      .join('\n');
+    const content = `stream\n${textOps}\nendstream`;
+
+    objects.push(
+      `${pageObjNum} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${contentObjNum} 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n`,
+    );
+    objects.push(`${contentObjNum} 0 obj\n<< /Length ${byteLength(textOps)} >>\n${content}\nendobj\n`);
+  }
+
+  const fontObjNum = nextObjNum;
+  objects.push(`${fontObjNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n`);
+
+  const kids = pageObjectNums.map((n) => `${n} 0 R`).join(' ');
+  objects[pagesPlaceholderIndex] = `2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pageCount} >>\nendobj\n`;
+
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(byteLength(pdf));
+    pdf += object;
+  }
+
+  const xrefStart = byteLength(pdf);
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += '0000000000 65535 f \n';
+  for (let i = 1; i <= objects.length; i++) {
+    pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+
+  return new TextEncoder().encode(pdf);
+}
+
 export function pdfBytesToBlob(pdfBytes: Uint8Array): Blob {
   return new Blob([Uint8Array.from(pdfBytes)], { type: 'application/pdf' });
 }
