@@ -123,6 +123,13 @@ export default defineConfig({
         viewport: { width: 1194, height: 834 },
         hasTouch: true,
       },
+      webServer: {
+        command: 'pnpm run preview:e2e:local',
+        url: previewUrl,
+        reuseExistingServer,
+        timeout: 300_000,
+        env: appSmokeServerEnv,
+      },
     },
     {
       name: 'page-reference-pack',

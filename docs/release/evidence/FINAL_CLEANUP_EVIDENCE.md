@@ -56,7 +56,7 @@ Private: `/editor`, `/projects`, `/profile`, `/spec-center`, `/registry`, `/chan
 
 - [x] Automated pack script: `pnpm run test:screenshots` → [SCREENSHOT_PACK.md](./SCREENSHOT_PACK.md)
 - [x] Partial captures: `01-landing-hero.png`, `02-auth-email-link.png` in `screenshots/`
-- [ ] Items 03–07 pending editor render fix (React #185 on `/editor` in e2e preview)
+- [x] Automated items 03–07: `03-editor-2d-sample.png` through `07-features-ready-badges.png` (2026-06-15, e2e preview)
 - [ ] Manual items 8–12 (operator)
 
 ## Known limitations

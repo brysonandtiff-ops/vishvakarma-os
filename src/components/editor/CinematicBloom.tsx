@@ -5,9 +5,12 @@ import { BloomEffect, EffectComposer, EffectPass, RenderPass } from 'postprocess
 
 const BLOOM_WALL_CAP = 200;
 
-export function CinematicBloom({ enabled, wallCount }: { enabled: boolean; wallCount: number }) {
+export function isBloomPipelineActive(enabled: boolean, wallCount: number): boolean {
+  return enabled && wallCount <= BLOOM_WALL_CAP;
+}
+
+function BloomPipeline() {
   const { gl, scene, camera, size } = useThree();
-  const bloomEnabled = enabled && wallCount <= BLOOM_WALL_CAP;
 
   const composer = useMemo(() => {
     const instance = new EffectComposer(gl);
@@ -26,10 +29,16 @@ export function CinematicBloom({ enabled, wallCount }: { enabled: boolean; wallC
     composer.setSize(size.width, size.height);
   }, [composer, size.width, size.height]);
 
+  useEffect(() => () => composer.dispose(), [composer]);
+
   useFrame(() => {
-    if (!bloomEnabled) return;
     composer.render();
   }, 1);
 
   return null;
+}
+
+export function CinematicBloom({ enabled, wallCount }: { enabled: boolean; wallCount: number }) {
+  if (!isBloomPipelineActive(enabled, wallCount)) return null;
+  return <BloomPipeline />;
 }
