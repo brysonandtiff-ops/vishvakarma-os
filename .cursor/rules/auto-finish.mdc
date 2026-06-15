@@ -47,6 +47,20 @@ After verification passes:
 
 Skip commit and push only if the user explicitly says not to in the same message.
 
+## Hooks enforce ship (mechanical)
+
+Cursor hooks run **after every shell command**, **mutating tool**, **file edit**, and **agent stop**:
+
+- Config: [`.cursor/hooks.json`](../../.cursor/hooks.json)
+- Engine: [`scripts/auto-ship/auto-ship.mjs`](../../scripts/auto-ship/auto-ship.mjs)
+- Operator doc: [`docs/operations/AUTO_SHIP_HOOKS.md`](../../docs/operations/AUTO_SHIP_HOOKS.md)
+
+Pipeline: debounce → `git status` → `pnpm run lint:types` (block on fail) → commit → push.
+
+**Do not** run manual `git commit` / `git push` during normal agent work — hooks handle ship. Only use git manually when fixing auto-ship failures or when the user explicitly disables shipping (`VISH_AUTO_SHIP=0`).
+
+Disable temporarily: `VISH_AUTO_SHIP=0` in the environment.
+
 ## Done report
 
 End every completed build task with:

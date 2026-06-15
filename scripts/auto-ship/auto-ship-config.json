@@ -1,0 +1,21 @@
+{
+  "debounceMs": 10000,
+  "lintTimeoutMs": 120000,
+  "excludePathPatterns": [
+    "^\\.env",
+    "^migration/export-.*\\.json$",
+    "^\\.cursor/auto-ship/",
+    "^\\.repairbot/",
+    "^test-results/",
+    "^playwright-report/",
+    "^dist/",
+    "^node_modules/",
+    "^docs/handoff/OPERATOR_ANNEX\\.md$"
+  ],
+  "skipCommandPatterns": [
+    "auto-ship",
+    "git\\s+(commit|push|add|status|diff|log|fetch|pull|merge|rebase)",
+    "pnpm\\s+run\\s+(lint:types|test|auto-ship)",
+    "pnpm\\s+exec\\s+vitest"
+  ]
+}

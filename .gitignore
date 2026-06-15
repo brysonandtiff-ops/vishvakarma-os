@@ -50,6 +50,7 @@ migration/export-*.json
 
 # Cursor debug output (keep rules/mcp tracked)
 .cursor/debug-*.log
+.cursor/auto-ship/
 
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/

@@ -1,9 +1,32 @@
 {
   "version": 1,
   "hooks": {
+    "afterShellExecution": [
+      {
+        "command": "node .cursor/hooks/after-shell-exec.mjs",
+        "timeout": 180
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "node .cursor/hooks/after-tool-use.mjs",
+        "timeout": 180
+      }
+    ],
     "afterFileEdit": [
       {
         "command": "node .cursor/hooks/after-file-edit.mjs"
+      },
+      {
+        "command": "node .cursor/hooks/after-file-edit-ship.mjs",
+        "timeout": 180
+      }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/on-agent-stop.mjs",
+        "timeout": 180,
+        "loop_limit": 1
       }
     ]
   }

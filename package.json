@@ -116,7 +116,10 @@
     "ops:stripe:rollout": "node scripts/run-live-billing-rollout.mjs",
     "ops:admin:setup": "node scripts/production/setup-admin.mjs",
     "ops:coowner:setup": "node scripts/production/setup-co-owner.mjs",
-    "assets:samples": "node scripts/generate-sample-json.mjs"
+    "assets:samples": "node scripts/generate-sample-json.mjs",
+    "auto-ship": "node scripts/auto-ship/auto-ship.mjs --trigger=manual",
+    "auto-ship:dry": "node scripts/auto-ship/auto-ship.mjs --trigger=manual --dry-run",
+    "auto-ship:install-user": "node scripts/auto-ship/install-user-hooks.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
