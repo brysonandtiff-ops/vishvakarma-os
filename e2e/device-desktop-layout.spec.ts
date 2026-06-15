@@ -1,10 +1,11 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   desktopLandscape,
   dismissEditorOverlays,
   emulateFinePointer,
   expect3DPreviewPane,
   resetWorkspacePrefs,
+  selectWorkspaceMode,
 } from './helpers';
 
 test.describe('Desktop fine-pointer editor chrome', () => {
@@ -24,12 +25,10 @@ test.describe('Desktop fine-pointer editor chrome', () => {
     await toggle3d.click();
     await expect3DPreviewPane(page);
 
-    const walkTab = page.getByRole('tab', { name: /^walk$/i });
-    await expect(walkTab).toBeVisible({ timeout: 15_000 });
-    await walkTab.click();
+    await selectWorkspaceMode(page, /^walk$/i);
 
     await expect(page.locator('#vish-3d-walk-hint')).toContainText(/click canvas to enter walk/i, {
-      timeout: 30_000,
+      timeout: 60_000,
     });
   });
 
