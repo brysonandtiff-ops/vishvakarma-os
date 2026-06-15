@@ -33,8 +33,9 @@ import SamplePickerDialog from '@/components/editor/SamplePickerDialog';
 import AIDesignerDialog from '@/components/editor/ai-designer/AIDesignerDialog';
 import ArchitectureBotWidget from '@/components/architecture-bot/ArchitectureBotWidget';
 import { useArchitectureBot } from '@/components/architecture-bot/useArchitectureBot';
-import OnboardingPanel from '@/components/editor/OnboardingPanel';
 import { WelcomeOverlay } from '@/components/editor/WelcomeOverlay';
+import { startTutorial, shouldAutoStartEssentials, useTutorial } from '@/tutorial/TutorialProvider';
+import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import { VastuPanel } from '@/components/editor/panels/VastuPanel';
 import { ComplianceBanner } from '@/components/editor/panels/ComplianceBanner';
 import { CompliancePanel, useComplianceReport } from '@/components/editor/panels/CompliancePanel';
@@ -98,6 +99,7 @@ export default function EditorPage() {
 }
 
 function EditorWorkspace() {
+  const { updateEditorSnapshot } = useTutorial();
   const location = useLocation();
   const planTier = usePlanTier();
   const { openNav } = useGovernanceNav();
@@ -194,6 +196,37 @@ function EditorWorkspace() {
   const projectName = currentProject?.name || demoProjectName || session.projectName;
   const showOnboarding =
     !freshSignIn && walls.length === 0 && openings.length === 0 && !currentProject;
+
+  const maybeStartEssentialsTour = useCallback(() => {
+    if (shouldAutoStartEssentials()) {
+      startTutorial('essentials', { autoStart: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    updateEditorSnapshot({
+      currentTool,
+      wallsCount: walls.length,
+      openingsCount: openings.length,
+      show3DView,
+      hasUnsavedChanges,
+      exportDialogOpen,
+      workspaceMode,
+      labelsCount: labels.length,
+      dimensionsCount: dimensions.length,
+    });
+  }, [
+    currentTool,
+    walls.length,
+    openings.length,
+    show3DView,
+    hasUnsavedChanges,
+    exportDialogOpen,
+    workspaceMode,
+    labels.length,
+    dimensions.length,
+    updateEditorSnapshot,
+  ]);
 
   const handleMinimapPan = useCallback(
     (point: { x: number; y: number }) => {
@@ -926,6 +959,13 @@ function EditorWorkspace() {
                       <p className="vish-canvas-empty-hint__body">
                         Press W for Wall, C for Column, or load a sample blueprint to begin drafting.
                       </p>
+                      <button
+                        type="button"
+                        className="vish-canvas-empty-hint__tour-link"
+                        onClick={() => openTutorialHub()}
+                      >
+                        Take the tour
+                      </button>
                     </div>
                   </div>
                 )}
