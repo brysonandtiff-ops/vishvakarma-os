@@ -14,6 +14,7 @@ import type {
   CanvasViewportState,
   CostItem,
   DimensionAnnotation,
+  EditorLayerVisibility,
   FixtureItem,
   FurnitureItem,
   Label,
@@ -31,6 +32,7 @@ import type {
   Wall,
   WorkspaceMode,
 } from '@/types';
+import { DEFAULT_LAYER_VISIBILITY } from '@/types';
 
 export interface EditorSessionState {
   currentTool: ToolType;
@@ -46,6 +48,7 @@ export interface EditorSessionState {
   projectName: string;
   description?: string;
   canvasViewport: CanvasViewportState;
+  layerVisibility: EditorLayerVisibility;
 }
 
 export interface FloorPlanSnapshot {
@@ -68,6 +71,7 @@ const DEFAULT_SESSION: EditorSessionState = {
   presentationLock: false,
   projectName: 'Untitled Project',
   canvasViewport: { ...DEFAULT_CANVAS_VIEWPORT },
+  layerVisibility: { ...DEFAULT_LAYER_VISIBILITY },
 };
 
 export class FloorPlanEngine {
@@ -273,6 +277,7 @@ export class FloorPlanEngine {
     this.versionControl.saveVersion(this.manifest, 'Loaded', false);
     this.versionControl.updateCurrentManifest(this.manifest);
     this.skipVersionSnapshot = false;
+    this.refreshStoredRooms();
     this.notify();
   }
 
@@ -303,7 +308,25 @@ export class FloorPlanEngine {
   }
 
   setPresentationLock(enabled: boolean): void {
-    this.touchSession({ presentationLock: enabled });
+    this.touchSession({
+      presentationLock: enabled,
+      ...(enabled ? { show3DView: true } : {}),
+    });
+  }
+
+  setLayerVisibility(patch: Partial<EditorLayerVisibility>): void {
+    this.touchSession({
+      layerVisibility: { ...this.session.layerVisibility, ...patch },
+    });
+  }
+
+  getLayerVisibility(): EditorLayerVisibility {
+    return this.session.layerVisibility;
+  }
+
+  private withActiveFloor<T extends { floorIndex?: number }>(item: T): T {
+    const floorIndex = getActiveFloorIndex(this.manifest);
+    return { ...item, floorIndex: item.floorIndex ?? floorIndex };
   }
 
   setShow3D(show: boolean): void {
@@ -529,7 +552,7 @@ export class FloorPlanEngine {
   }
 
   addFixture(fixture: FixtureItem): void {
-    this.touchManifest({ fixtures: [...(this.manifest.fixtures ?? []), fixture] });
+    this.touchManifest({ fixtures: [...(this.manifest.fixtures ?? []), this.withActiveFloor(fixture)] });
   }
 
   updateFixture(fixtureId: string, updates: Partial<FixtureItem>): void {
@@ -585,11 +608,11 @@ export class FloorPlanEngine {
   }
 
   addFurniture(item: FurnitureItem): void {
-    this.touchManifest({ furniture: [...(this.manifest.furniture ?? []), item] });
+    this.touchManifest({ furniture: [...(this.manifest.furniture ?? []), this.withActiveFloor(item)] });
   }
 
   addStaircase(staircase: Staircase): void {
-    this.touchManifest({ staircases: [...(this.manifest.staircases ?? []), staircase] });
+    this.touchManifest({ staircases: [...(this.manifest.staircases ?? []), this.withActiveFloor(staircase)] });
   }
 
   getStaircases(): Staircase[] {
@@ -611,7 +634,7 @@ export class FloorPlanEngine {
   }
 
   addMepSymbol(symbol: MepSymbol): void {
-    this.touchManifest({ mepSymbols: [...(this.manifest.mepSymbols ?? []), symbol] });
+    this.touchManifest({ mepSymbols: [...(this.manifest.mepSymbols ?? []), this.withActiveFloor(symbol)] });
   }
 
   removeMepSymbol(symbolId: string): void {
@@ -622,7 +645,7 @@ export class FloorPlanEngine {
 
   addLandscapeElement(element: LandscapeElement): void {
     this.touchManifest({
-      landscapeElements: [...(this.manifest.landscapeElements ?? []), element],
+      landscapeElements: [...(this.manifest.landscapeElements ?? []), this.withActiveFloor(element)],
     });
   }
 
@@ -636,7 +659,7 @@ export class FloorPlanEngine {
 
   addTerrainPatch(patch: TerrainPatch): void {
     this.touchManifest({
-      terrain: [...(this.manifest.terrain ?? []), patch],
+      terrain: [...(this.manifest.terrain ?? []), this.withActiveFloor(patch)],
     });
   }
 

@@ -108,12 +108,22 @@ export function CompliancePanel({
               </button>
               {isOpen && catFindings.length > 0 && (
                 <ul className="space-y-1 border-t border-border/50 px-3 py-2 text-muted-foreground">
-                  {catFindings.map((finding, idx) => (
+                  {catFindings.map((finding, idx) => {
+                    const linkedRoom = finding.roomId
+                      ? manifest.rooms?.find((r) => r.id === finding.roomId)
+                      : undefined;
+                    return (
                     <li key={`${finding.ruleId}-${idx}`} className="flex gap-1.5">
                       <StatusIcon status={finding.status} />
-                      <span>{finding.message}</span>
+                      <span>
+                        {linkedRoom ? (
+                          <span className="font-medium text-foreground">{linkedRoom.name}: </span>
+                        ) : null}
+                        {finding.message}
+                      </span>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </li>

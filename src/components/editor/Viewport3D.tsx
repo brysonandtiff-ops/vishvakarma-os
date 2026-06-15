@@ -1,8 +1,8 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
-import type { ErrorInfo, ReactNode } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import type { ErrorInfo, ReactNode, MutableRefObject } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
@@ -426,9 +426,10 @@ function AtmosphericParticles({ mode }: { mode: AtmospherePerformanceMode }) {
   );
 }
 
-function GodRayShafts({ mode }: { mode: AtmospherePerformanceMode }) {
+function GodRayShafts({ mode, boostCinematic }: { mode: AtmospherePerformanceMode; boostCinematic?: boolean }) {
   const groupRef = useRef<THREE.Group | null>(null);
   const rayPositions = mode === 'cinematic' ? [-4.2, -1.4, 1.4, 4.2] : [-3.2, 0, 3.2];
+  const opacityBase = mode === 'cinematic' ? (boostCinematic ? 0.11 : 0.07) : 0.055;
 
   useFrame((state) => {
     if (!groupRef.current) return;
@@ -444,7 +445,7 @@ function GodRayShafts({ mode }: { mode: AtmospherePerformanceMode }) {
           {/* @ts-expect-error - React Three Fiber JSX types */}
           <planeGeometry args={[mode === 'cinematic' ? 1.55 : 1.35, mode === 'cinematic' ? 8 : 7]} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
-          <meshBasicMaterial color={ATMOSPHERE.godRay} transparent opacity={mode === 'cinematic' ? 0.07 : 0.055} depthWrite={false} side={THREE.DoubleSide} />
+          <meshBasicMaterial color={ATMOSPHERE.godRay} transparent opacity={opacityBase} depthWrite={false} side={THREE.DoubleSide} />
           {/* @ts-expect-error - React Three Fiber JSX types */}
         </mesh>
       ))}
@@ -453,14 +454,14 @@ function GodRayShafts({ mode }: { mode: AtmospherePerformanceMode }) {
   );
 }
 
-function SacredAtmosphere({ mode }: { mode: AtmospherePerformanceMode }) {
+function SacredAtmosphere({ mode, boostCinematic }: { mode: AtmospherePerformanceMode; boostCinematic?: boolean }) {
   const config = ATMOSPHERE_MODES[mode];
 
   return (
     <>
       {config.sacredFloor && <SacredFloorGeometry mode={mode} />}
       <AtmosphericParticles mode={mode} />
-      {config.godRays && <GodRayShafts mode={mode} />}
+      {config.godRays && <GodRayShafts mode={mode} boostCinematic={boostCinematic} />}
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <fog attach="fog" args={[ATMOSPHERE.fog, config.fogNear, config.fogFar]} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
@@ -505,6 +506,24 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   );
 }
 
+function TouchWalkRig({ moveRef }: { moveRef: MutableRefObject<{ x: number; z: number }> }) {
+  const { camera } = useThree();
+
+  useFrame((_, delta) => {
+    const { x, z } = moveRef.current;
+    if (x === 0 && z === 0) return;
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    forward.y = 0;
+    forward.normalize();
+    const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+    const motion = forward.multiplyScalar(-z).add(right.multiplyScalar(x));
+    camera.position.add(motion.multiplyScalar(2.8 * delta));
+  });
+
+  return null;
+}
+
 export default function Viewport3D({
   walls,
   openings,
@@ -522,13 +541,26 @@ export default function Viewport3D({
   presentationLock = false,
 }: Viewport3DProps) {
   const isCoarsePointer = useCoarsePointer();
+  const touchMoveRef = useRef({ x: 0, z: 0 });
   const sceneOrigin = useMemo(() => computeSceneOrigin(walls), [walls]);
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
     persistAtmosphereMode(mode);
   };
+  useEffect(() => {
+    if (!walkMode || !isCoarsePointer) {
+      touchMoveRef.current = { x: 0, z: 0 };
+    }
+  }, [walkMode, isCoarsePointer]);
+
+  const cinematicBoost = atmosphereMode === 'cinematic' && !isCoarsePointer;
+
   const atmosphereConfig = ATMOSPHERE_MODES[atmosphereMode];
+
+  const setTouchMove = (x: number, z: number) => {
+    touchMoveRef.current = { x, z };
+  };
 
   useEffect(() => {
     preloadSceneModels();
@@ -565,7 +597,21 @@ export default function Viewport3D({
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
-            {walkMode && !isCoarsePointer ? (
+            {walkMode && isCoarsePointer ? (
+              <>
+                <OrbitControls
+                  enableDamping
+                  dampingFactor={0.08}
+                  enablePan={false}
+                  enableZoom
+                  minDistance={2}
+                  maxDistance={24}
+                  target={[sceneOrigin.cx / 100, 1.6, sceneOrigin.cy / 100]}
+                  touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY }}
+                />
+                <TouchWalkRig moveRef={touchMoveRef} />
+              </>
+            ) : walkMode && !isCoarsePointer ? (
               <PointerLockControls selector="#vish-3d-walk-hint" />
             ) : (
               <OrbitControls
@@ -580,7 +626,7 @@ export default function Viewport3D({
             )}
 
             <Lighting lighting={lighting} mode={atmosphereMode} />
-            <SacredAtmosphere mode={atmosphereMode} />
+            <SacredAtmosphere mode={atmosphereMode} boostCinematic={cinematicBoost} />
 
             <SceneFloor floorMaterial={floorMaterial} customMaterials={materials} />
             <TerrainMeshes terrain={terrain} />
@@ -617,8 +663,50 @@ export default function Viewport3D({
             id="vish-3d-walk-hint"
             className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary"
           >
-            {isCoarsePointer ? 'Walk mode — use orbit to navigate' : 'Click canvas to enter walk · Esc to exit'}
+            {isCoarsePointer ? 'Drag to look · use pad to move' : 'Click canvas to enter walk · Esc to exit'}
           </p>
+        )}
+        {walkMode && isCoarsePointer && (
+          <div className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 backdrop-blur-md">
+            <span />
+            <button
+              type="button"
+              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              onPointerDown={() => setTouchMove(0, 1)}
+              onPointerUp={() => setTouchMove(0, 0)}
+              onPointerLeave={() => setTouchMove(0, 0)}
+            >
+              ↑
+            </button>
+            <span />
+            <button
+              type="button"
+              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              onPointerDown={() => setTouchMove(-1, 0)}
+              onPointerUp={() => setTouchMove(0, 0)}
+              onPointerLeave={() => setTouchMove(0, 0)}
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              onPointerDown={() => setTouchMove(0, -1)}
+              onPointerUp={() => setTouchMove(0, 0)}
+              onPointerLeave={() => setTouchMove(0, 0)}
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              onPointerDown={() => setTouchMove(1, 0)}
+              onPointerUp={() => setTouchMove(0, 0)}
+              onPointerLeave={() => setTouchMove(0, 0)}
+            >
+              →
+            </button>
+          </div>
         )}
         {/* Atmosphere mode controls */}
         {!presentationLock && (

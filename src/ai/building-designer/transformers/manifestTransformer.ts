@@ -55,6 +55,8 @@ export function buildManifestFromFloorPlan(
       .map((w) => w.id),
     center: { x: room.x + room.width / 2, y: room.y + room.depth / 2 },
     area: (room.width / 20) * (room.depth / 20),
+    roomType: room.type,
+    floorIndex: room.floor,
   }));
 
   const name = `${request.bedrooms}BR ${request.style} home`;

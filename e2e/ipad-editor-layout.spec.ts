@@ -124,6 +124,16 @@ test.describe('iPad editor layout', () => {
     expect(zoomAfter).not.toContain('100%');
   });
 
+  test('presentation lock hides tool rail', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('tool-rail')).toBeVisible({ timeout: 30_000 });
+    const presentationBtn = page.getByRole('button', { name: /presentation lock/i });
+    if (await presentationBtn.isVisible()) {
+      await presentationBtn.click();
+      await expect(page.getByTestId('tool-rail')).not.toBeVisible();
+    }
+  });
+
   test('captures iPad editor evidence screenshots', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });

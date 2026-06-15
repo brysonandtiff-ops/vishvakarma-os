@@ -2,6 +2,23 @@
 
 All notable changes to Vishvakarma.OS are documented in this file.
 
+## [1.4.0] - 2026-06-14
+
+### Added
+- Polygon 3D room floors and Text labels from detected room vertices
+- Editor canvas layer toggles (walls, rooms, furniture, MEP, Vastu, etc.)
+- Canvas minimap with viewport rectangle and click-to-pan
+- Presentation mode: hides tool rail and properties, enlarges 3D preview
+- `floorIndex` on furniture, MEP, landscape, terrain, and staircases with full floor filtering
+- DXF import scale slider in preview step
+- iPad touch-walk mode with on-screen move pad; cinematic god-ray boost on desktop
+- AI Designer handoff preserves `roomType` and `floorIndex` on rooms
+- Compliance panel links findings to room names when `roomId` is present
+
+### Changed
+- Room volumes use true polygon geometry instead of centroid squares
+- `refreshStoredRooms` runs after manifest load
+
 ## [1.3.0] - 2026-06-14
 
 ### Added

@@ -57,6 +57,7 @@ export interface TerrainPatch {
   id: string;
   points: Point2D[];
   elevation: number;
+  floorIndex?: number;
 }
 
 export interface LightingConfig {
@@ -100,12 +101,14 @@ export interface FurnitureItem {
   depth?: number;
   modelUrl?: string;
   modelScale?: number;
+  floorIndex?: number;
 }
 
 export interface MepSymbol {
   id: string;
   type: 'outlet' | 'switch' | 'hvac' | 'panel';
   position: Point2D;
+  floorIndex?: number;
 }
 
 export interface PlumbingRun {
@@ -122,6 +125,7 @@ export interface LandscapeElement {
   rotation?: number;
   modelUrl?: string;
   modelScale?: number;
+  floorIndex?: number;
 }
 
 export interface CostItem {
@@ -134,7 +138,34 @@ export interface Staircase {
   id: string;
   position: Point2D;
   direction: number;
+  floorIndex?: number;
 }
+
+export interface EditorLayerVisibility {
+  walls: boolean;
+  openings: boolean;
+  rooms: boolean;
+  furniture: boolean;
+  dimensions: boolean;
+  labels: boolean;
+  mep: boolean;
+  landscape: boolean;
+  terrain: boolean;
+  vastuOverlay: boolean;
+}
+
+export const DEFAULT_LAYER_VISIBILITY: EditorLayerVisibility = {
+  walls: true,
+  openings: true,
+  rooms: true,
+  furniture: true,
+  dimensions: true,
+  labels: true,
+  mep: true,
+  landscape: true,
+  terrain: true,
+  vastuOverlay: true,
+};
 
 export interface CeilingZone {
   id: string;

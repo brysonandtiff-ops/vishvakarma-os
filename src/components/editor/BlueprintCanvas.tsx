@@ -4,7 +4,9 @@ import { useCanvasResize } from '@/hooks/useCanvasResize';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { mapCanvasBufferToDisplay, mapCanvasBufferToWorld, mapPointerToCanvasBuffer, mapPointerToWorldCoords, mapWorldToCanvasBuffer } from '@/utils/canvasPointerCoords';
 import type {
+  CanvasViewportState,
   DimensionAnnotation,
+  EditorLayerVisibility,
   FixtureItem,
   FurnitureItem,
   Label,
@@ -17,8 +19,8 @@ import type {
   TerrainPatch,
   ToolType,
   Wall,
-  CanvasViewportState,
 } from '@/types';
+import { DEFAULT_LAYER_VISIBILITY } from '@/types';
 import { buildOrderedVertices, getVerticesForRoom } from '@/utils/roomCalculations';
 import {
   checkOpeningOverlap,
@@ -126,6 +128,8 @@ interface BlueprintCanvasProps {
   onCanvasViewportChange?: (viewport: Partial<CanvasViewportState>) => void;
   onResetViewport?: () => void;
   manifestWalls?: Wall[];
+  layerVisibility?: EditorLayerVisibility;
+  interactionLocked?: boolean;
 }
 
 const MEP_TYPES: MepSymbol['type'][] = ['outlet', 'switch', 'hvac', 'panel'];
@@ -220,6 +224,8 @@ export default function BlueprintCanvas({
   onCanvasViewportChange,
   onResetViewport,
   manifestWalls,
+  layerVisibility = DEFAULT_LAYER_VISIBILITY,
+  interactionLocked = false,
 }: BlueprintCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -404,6 +410,9 @@ export default function BlueprintCanvas({
   };
 
   const handlePointerDown = (event: CanvasPointerEvent) => {
+    if (interactionLocked && event.button !== 1 && !(event.button === 0 && event.shiftKey)) {
+      return;
+    }
     if (event.button === 1 || (event.button === 0 && event.shiftKey && onCanvasViewportChange)) {
       event.preventDefault();
       panOriginRef.current = {
@@ -875,79 +884,90 @@ export default function BlueprintCanvas({
       drawGrid(ctx, canvas, gridSize);
     }
 
-    for (const wall of walls) {
-      const selected = isWallSelected(wall.id, selectedWallId, selectedWallIds);
-      drawWall(ctx, wall, {
-        selected,
-        hovered: wall.id === hoveredWall,
-        snapEnabled,
-      });
+    if (layerVisibility.walls) {
+      for (const wall of walls) {
+        const selected = isWallSelected(wall.id, selectedWallId, selectedWallIds);
+        drawWall(ctx, wall, {
+          selected,
+          hovered: wall.id === hoveredWall,
+          snapEnabled,
+        });
 
-      if ((selected || (wall.id === hoveredWall && currentTool === 'measure')) && !isDrawing) {
-        drawWallMeasurement(ctx, wall, unitSystem);
-      }
-    }
-
-    for (const opening of openings) {
-      const wall = walls.find((item) => item.id === opening.wallId);
-      if (!wall) continue;
-      drawOpening(ctx, wall, opening, {
-        hovered: opening.id === hoveredOpening || opening.id === selectedOpeningId || currentTool === 'measure',
-        selected: opening.id === selectedOpeningId,
-        dragging: opening.id === draggingOpeningId,
-        dragPositionPercent: opening.id === draggingOpeningId ? dragOpeningPosition ?? undefined : undefined,
-        unitSystem,
-      });
-    }
-
-    for (const label of labels) {
-      const isSelected = label.id === selectedLabelId;
-      ctx.fillStyle = label.color ?? INK_LABEL;
-      ctx.font = `${label.fontSize ?? 14}px sans-serif`;
-      if (isSelected) {
-        const textWidth = ctx.measureText(label.text).width;
-        ctx.strokeStyle = GOLD;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(label.position.x - 4, label.position.y - (label.fontSize ?? 14), textWidth + 8, (label.fontSize ?? 14) + 8);
-      }
-      ctx.fillText(label.text, label.position.x, label.position.y);
-    }
-
-    for (const room of rooms) {
-      const vertices = getVerticesForRoom(room, roomWallSource);
-      if (vertices.length >= 3) {
-        ctx.beginPath();
-        ctx.moveTo(vertices[0].x, vertices[0].y);
-        for (let i = 1; i < vertices.length; i++) {
-          ctx.lineTo(vertices[i].x, vertices[i].y);
+        if ((selected || (wall.id === hoveredWall && currentTool === 'measure')) && !isDrawing) {
+          drawWallMeasurement(ctx, wall, unitSystem);
         }
-        ctx.closePath();
-        ctx.fillStyle = ROOM_FILL;
-        ctx.fill();
-        ctx.strokeStyle = ROOM_STROKE;
-        ctx.lineWidth = 1.25;
-        ctx.stroke();
-      }
-
-      if (room.center) {
-        ctx.fillStyle = ROOM_LABEL;
-        ctx.font = '12px sans-serif';
-        ctx.fillText(`${room.name}${room.area ? ` · ${room.area.toFixed(1)} m²` : ''}`, room.center.x, room.center.y);
       }
     }
 
-    for (const item of furniture) {
-      const pos = item.id === draggingFurnitureId && dragFurniturePosition
-        ? dragFurniturePosition
-        : item.position;
-      drawFurniture2D(ctx, item, pos, item.id === draggingFurnitureId);
+    if (layerVisibility.openings) {
+      for (const opening of openings) {
+        const wall = walls.find((item) => item.id === opening.wallId);
+        if (!wall) continue;
+        drawOpening(ctx, wall, opening, {
+          hovered: opening.id === hoveredOpening || opening.id === selectedOpeningId || currentTool === 'measure',
+          selected: opening.id === selectedOpeningId,
+          dragging: opening.id === draggingOpeningId,
+          dragPositionPercent: opening.id === draggingOpeningId ? dragOpeningPosition ?? undefined : undefined,
+          unitSystem,
+        });
+      }
     }
 
-    for (const staircase of staircases) {
-      drawStair2D(ctx, staircase.position, staircase.direction ?? 0);
+    if (layerVisibility.labels) {
+      for (const label of labels) {
+        const isSelected = label.id === selectedLabelId;
+        ctx.fillStyle = label.color ?? INK_LABEL;
+        ctx.font = `${label.fontSize ?? 14}px sans-serif`;
+        if (isSelected) {
+          const textWidth = ctx.measureText(label.text).width;
+          ctx.strokeStyle = GOLD;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(label.position.x - 4, label.position.y - (label.fontSize ?? 14), textWidth + 8, (label.fontSize ?? 14) + 8);
+        }
+        ctx.fillText(label.text, label.position.x, label.position.y);
+      }
     }
 
-    for (const symbol of mepSymbols) {
+    if (layerVisibility.rooms) {
+      for (const room of rooms) {
+        const vertices = getVerticesForRoom(room, roomWallSource);
+        if (vertices.length >= 3) {
+          ctx.beginPath();
+          ctx.moveTo(vertices[0].x, vertices[0].y);
+          for (let i = 1; i < vertices.length; i++) {
+            ctx.lineTo(vertices[i].x, vertices[i].y);
+          }
+          ctx.closePath();
+          ctx.fillStyle = ROOM_FILL;
+          ctx.fill();
+          ctx.strokeStyle = ROOM_STROKE;
+          ctx.lineWidth = 1.25;
+          ctx.stroke();
+        }
+
+        if (room.center) {
+          ctx.fillStyle = ROOM_LABEL;
+          ctx.font = '12px sans-serif';
+          ctx.fillText(`${room.name}${room.area ? ` · ${room.area.toFixed(1)} m²` : ''}`, room.center.x, room.center.y);
+        }
+      }
+    }
+
+    if (layerVisibility.furniture) {
+      for (const item of furniture) {
+        const pos = item.id === draggingFurnitureId && dragFurniturePosition
+          ? dragFurniturePosition
+          : item.position;
+        drawFurniture2D(ctx, item, pos, item.id === draggingFurnitureId);
+      }
+
+      for (const staircase of staircases) {
+        drawStair2D(ctx, staircase.position, staircase.direction ?? 0);
+      }
+    }
+
+    if (layerVisibility.mep) {
+      for (const symbol of mepSymbols) {
       const { x, y } = symbol.position;
       const r = 9;
       ctx.beginPath();
@@ -988,14 +1008,19 @@ export default function BlueprintCanvas({
       ctx.font = '7px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(fixture.type.slice(0, 1).toUpperCase(), x, y + 14);
+      }
     }
 
-    for (const patch of terrain) {
-      drawTerrain2D(ctx, patch);
+    if (layerVisibility.terrain) {
+      for (const patch of terrain) {
+        drawTerrain2D(ctx, patch);
+      }
     }
 
-    for (const element of landscapeElements) {
-      drawLandscape2D(ctx, element);
+    if (layerVisibility.landscape) {
+      for (const element of landscapeElements) {
+        drawLandscape2D(ctx, element);
+      }
     }
 
     if (currentTool === 'terrain' && terrainVertices.length > 0 && hoveredPoint) {
@@ -1007,7 +1032,7 @@ export default function BlueprintCanvas({
       );
     }
 
-    if (dimensionVisibility) {
+    if (layerVisibility.dimensions && dimensionVisibility) {
       for (const dimension of dimensions) {
         drawDimension(ctx, dimension, unitSystem);
       }
@@ -1038,7 +1063,7 @@ export default function BlueprintCanvas({
       ctx.restore();
     }
 
-    if (currentTool === 'vastu' && walls.length > 0) {
+    if (layerVisibility.vastuOverlay && currentTool === 'vastu' && walls.length > 0) {
       drawVastuSectorOverlay(
         ctx,
         { walls, openings, labels, northOrientation },
@@ -1073,7 +1098,7 @@ export default function BlueprintCanvas({
       ctx.fillText('N', 0, -radius + 18);
       ctx.restore();
     }
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, draggingFurnitureId, draggingOpeningId, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
 
   return (
     <div

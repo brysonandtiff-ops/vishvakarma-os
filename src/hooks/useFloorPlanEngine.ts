@@ -34,28 +34,28 @@ export function useFloorPlanEngine() {
   );
 
   const furniture = useMemo(
-    () => snapshot.manifest.furniture ?? [],
-    [snapshot.manifest.furniture],
+    () => filterByFloorIndex(snapshot.manifest.furniture ?? [], activeFloorIndex),
+    [snapshot.manifest.furniture, activeFloorIndex],
   );
   const mepSymbols = useMemo(
-    () => snapshot.manifest.mepSymbols ?? [],
-    [snapshot.manifest.mepSymbols],
+    () => filterByFloorIndex(snapshot.manifest.mepSymbols ?? [], activeFloorIndex),
+    [snapshot.manifest.mepSymbols, activeFloorIndex],
   );
   const landscapeElements = useMemo(
-    () => snapshot.manifest.landscapeElements ?? [],
-    [snapshot.manifest.landscapeElements],
+    () => filterByFloorIndex(snapshot.manifest.landscapeElements ?? [], activeFloorIndex),
+    [snapshot.manifest.landscapeElements, activeFloorIndex],
   );
   const terrain = useMemo(
-    () => snapshot.manifest.terrain ?? [],
-    [snapshot.manifest.terrain],
+    () => filterByFloorIndex(snapshot.manifest.terrain ?? [], activeFloorIndex),
+    [snapshot.manifest.terrain, activeFloorIndex],
   );
   const fixtures = useMemo(
     () => filterByFloorIndex(snapshot.manifest.fixtures ?? [], activeFloorIndex),
     [snapshot.manifest.fixtures, activeFloorIndex],
   );
   const staircases = useMemo(
-    () => snapshot.manifest.staircases ?? [],
-    [snapshot.manifest.staircases],
+    () => filterByFloorIndex(snapshot.manifest.staircases ?? [], activeFloorIndex),
+    [snapshot.manifest.staircases, activeFloorIndex],
   );
 
   return {

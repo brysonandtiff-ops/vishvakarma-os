@@ -1,6 +1,6 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,8 @@ import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomTyp
 import { Box } from 'lucide-react';
 import AppLayout, { useGovernanceNav } from '@/components/layouts/AppLayout';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
+import CanvasMinimap from '@/components/editor/CanvasMinimap';
+import EditorLayerPanel from '@/components/editor/EditorLayerPanel';
 import EditorTopBar from '@/components/editor/EditorTopBar';
 import RadialToolMenu from '@/components/editor/RadialToolMenu';
 import MaterialPicker from '@/components/editor/MaterialPicker';
@@ -136,6 +138,8 @@ function EditorWorkspace() {
   const zenMode = session.zenMode;
   const presentationLock = session.presentationLock;
   const canvasViewport = session.canvasViewport;
+  const layerVisibility = session.layerVisibility;
+  const canvasStageRef = useRef<HTMLDivElement>(null);
 
   const [unitSystem] = useState<UnitSystem>('metric');
   const [selectedMaterial, setSelectedMaterial] = useState('material-paint');
@@ -167,6 +171,20 @@ function EditorWorkspace() {
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
   const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
+
+  const handleMinimapPan = useCallback(
+    (point: { x: number; y: number }) => {
+      const stage = canvasStageRef.current;
+      const width = stage?.clientWidth ?? 800;
+      const height = stage?.clientHeight ?? 600;
+      const zoom = canvasViewport.zoom;
+      engine.setCanvasViewport({
+        panX: width / 2 - point.x * zoom,
+        panY: height / 2 - point.y * zoom,
+      });
+    },
+    [canvasViewport.zoom, engine],
+  );
 
   const buildManifest = useCallback((): ProjectManifest => {
     const manifest = engine.buildManifest();
@@ -542,7 +560,12 @@ function EditorWorkspace() {
       applyManifest({ ...manifest, name });
       setHasUnsavedChanges(true);
       setSaveState('local-draft');
-      toast.success(`Loaded AI design: ${name}`);
+      const roomCount = manifest.rooms?.length ?? 0;
+      toast.success(
+        roomCount > 0
+          ? `Loaded AI design: ${name} (${roomCount} rooms with types)`
+          : `Loaded AI design: ${name}`,
+      );
     },
     [applyManifest],
   );
@@ -638,6 +661,13 @@ function EditorWorkspace() {
 
   const morePanel = (
     <div className="space-y-3 px-0 py-2">
+      <div className="px-4">
+        <EditorLayerPanel
+          layers={layerVisibility}
+          onChange={(patch) => engine.setLayerVisibility(patch)}
+        />
+      </div>
+      <div className="mx-4 h-px bg-border" />
       {workspaceMode === 'mep' && (
         <div className="px-4">
           <TvashtarPanel manifest={manifest} />
@@ -738,15 +768,18 @@ function EditorWorkspace() {
         <ComplianceBanner report={complianceReport} />
 
         <div className="flex flex-1 overflow-hidden">
+          {!presentationLock && (
           <ToolRail
             currentTool={currentTool}
             workspaceMode={workspaceMode}
             onToolChange={setTool}
           />
+          )}
 
           <div className="flex flex-1 min-w-0 overflow-hidden">
             <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
               <div
+                ref={canvasStageRef}
                 className="vish-canvas-stage relative flex-1 overflow-auto p-4"
                 onPointerMove={(event) => {
                   const rect = event.currentTarget.getBoundingClientRect();
@@ -815,8 +848,21 @@ function EditorWorkspace() {
                   onCanvasViewportChange={(viewport) => engine.setCanvasViewport(viewport)}
                   onResetViewport={() => engine.resetCanvasViewport()}
                   manifestWalls={engine.getManifest().walls}
+                  layerVisibility={layerVisibility}
+                  interactionLocked={presentationLock}
                 />
                 </AppErrorBoundary>
+                {!presentationLock && walls.length > 0 && (
+                  <CanvasMinimap
+                    walls={walls}
+                    canvasViewport={canvasViewport}
+                    canvasSize={{
+                      width: canvasStageRef.current?.clientWidth ?? 800,
+                      height: canvasStageRef.current?.clientHeight ?? 600,
+                    }}
+                    onPanToWorld={handleMinimapPan}
+                  />
+                )}
                 <EditorCompassCost
                   northOrientation={northOrientation}
                   jurisdiction={resolveJurisdiction(engine.getManifest())}
@@ -859,7 +905,11 @@ function EditorWorkspace() {
             </section>
 
             {show3DView && (
-              <section className="vish-3d-viewport-pane flex w-80 shrink-0 flex-col border-l border-ws-border md:w-96">
+              <section
+                className={`vish-3d-viewport-pane flex shrink-0 flex-col border-l border-ws-border ${
+                  presentationLock ? 'w-96 md:w-[28rem] lg:w-[32rem]' : 'w-80 md:w-96'
+                }`}
+              >
                 <div className="ws-pane-header">
                   <span className="ws-pane-label">3D Preview</span>
                   <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Live sync</span>
@@ -888,6 +938,7 @@ function EditorWorkspace() {
             )}
           </div>
 
+          {!presentationLock && !zenMode && (
           <aside className="vish-dark-panel ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
             <PropertiesPanel
               currentTool={currentTool}
@@ -919,6 +970,7 @@ function EditorWorkspace() {
               morePanel={morePanel}
             />
           </aside>
+          )}
         </div>
 
         <StatusBar

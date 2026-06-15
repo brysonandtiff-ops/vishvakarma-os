@@ -6,6 +6,7 @@ import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { buildFloorPlanSvg } from '@/core/exporters/floorPlanSvg';
 import { importProject, type ImportResult } from '@/modules/import';
 import type { ProjectManifest } from '@/types';
+import { scaleManifestGeometry } from '@/utils/manifestGeometry';
 
 export default function ImportFloorPlanDialog({
   open,
@@ -20,11 +21,15 @@ export default function ImportFloorPlanDialog({
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<ImportResult | null>(null);
+  const [importKind, setImportKind] = useState<'json' | 'svg' | 'dxf' | null>(null);
+  const [dxfScale, setDxfScale] = useState(1);
   const isCoarsePointer = useCoarsePointer();
 
   const resetState = () => {
     setError(null);
     setPreview(null);
+    setImportKind(null);
+    setDxfScale(1);
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -42,6 +47,8 @@ export default function ImportFloorPlanDialog({
       }
 
       setPreview(result);
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      setImportKind(ext === 'dxf' ? 'dxf' : ext === 'svg' ? 'svg' : 'json');
     } catch (importError) {
       console.error('Import failed:', importError);
       setError('Import failed. Check the file format and try again.');
@@ -52,7 +59,11 @@ export default function ImportFloorPlanDialog({
 
   const applyImport = () => {
     if (!preview?.manifest) return;
-    onImported(preview.manifest);
+    const manifest =
+      importKind === 'dxf' && dxfScale !== 1
+        ? scaleManifestGeometry(preview.manifest, dxfScale)
+        : preview.manifest;
+    onImported(manifest);
     onOpenChange(false);
     resetState();
   };
@@ -116,6 +127,23 @@ export default function ImportFloorPlanDialog({
                   <li key={warning}>• {warning}</li>
                 ))}
               </ul>
+            )}
+            {importKind === 'dxf' && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground" htmlFor="dxf-scale">
+                  Scale adjustment ({dxfScale.toFixed(2)}×)
+                </label>
+                <input
+                  id="dxf-scale"
+                  type="range"
+                  min={0.25}
+                  max={4}
+                  step={0.05}
+                  value={dxfScale}
+                  onChange={(e) => setDxfScale(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
             )}
           </div>
         )}

@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
+import { Analytics } from '@vercel/analytics/react';
 
 initMonitoring();
 
@@ -32,6 +33,7 @@ const App: React.FC = () => {
             </main>
           </div>
           <AnalyticsConsentBanner />
+          <Analytics />
           <Toaster />
         </RouteGuard>
       </AuthProvider>
