@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
+  CircleHelp,
   Database,
   FileText,
   FolderOpen,
@@ -24,6 +25,8 @@ import {
   CommandShortcut,
 } from '@/components/ui/command';
 import { useAuth } from '@/contexts/AuthContext';
+import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
+import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import routes from '@/routes';
 
 export const OPEN_COMMAND_PALETTE_EVENT = 'vish:open-command-palette';
@@ -107,6 +110,27 @@ export function WorkspaceCommandPalette() {
               </CommandItem>
             );
           })}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Learn">
+          <CommandItem value="tutorials help hub" onSelect={() => { setOpen(false); openTutorialHub(); }}>
+            <CircleHelp />
+            <span>Tutorial hub</span>
+          </CommandItem>
+          {TUTORIAL_TRACKS.slice(0, 6).map((track) => (
+            <CommandItem
+              key={track.id}
+              value={`tutorial ${track.title} ${track.id}`}
+              onSelect={() => {
+                setOpen(false);
+                navigate(`${track.defaultRoute}?tutorial=${track.id}`);
+              }}
+            >
+              <CircleHelp />
+              <span>{track.title}</span>
+              <CommandShortcut>~{track.estMinutes}m</CommandShortcut>
+            </CommandItem>
+          ))}
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Session">

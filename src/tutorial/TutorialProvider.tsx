@@ -148,7 +148,7 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
     setActiveTrackId(null);
     setStepIndex(0);
     clearTutorialQuery();
-  }, [activeTrackId, clearTutorialQuery, persistProgress, progress]);
+  }, [activeTrackId, clearTutorialQuery, persistProgress]);
 
   const advance = useCallback(() => {
     if (!activeTrack || !activeTrackId) return;

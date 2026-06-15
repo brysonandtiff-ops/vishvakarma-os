@@ -148,11 +148,12 @@ export default function TutorialEngine() {
   }, [activeTrack, paused, remeasure, step]);
 
   useEffect(() => {
+    if (!activeTrack || !step) return;
     const blockingDialog = document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]');
-    const exportOpen = editorSnapshot.exportDialogOpen;
-    const shouldPause = Boolean(blockingDialog && !exportOpen);
+    const isExportStep = step.target === 'export-dialog' || editorSnapshot.exportDialogOpen;
+    const shouldPause = Boolean(blockingDialog && !isExportStep);
     setPaused(shouldPause);
-  }, [editorSnapshot.exportDialogOpen, setPaused, step?.id]);
+  }, [activeTrack, editorSnapshot.exportDialogOpen, setPaused, step]);
 
   if (!activeTrack || !step || paused) return null;
 
