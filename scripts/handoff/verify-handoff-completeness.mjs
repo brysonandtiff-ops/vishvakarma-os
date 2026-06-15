@@ -30,6 +30,7 @@ function warn(msg) {
 // Required annex files
 const annexes = [
   'HANDOFF.md',
+  'CHATGPT_HANDOFF.md',
   '01-product-and-business.md',
   '02-repository-topology.md',
   '03-architecture-and-data-flow.md',
