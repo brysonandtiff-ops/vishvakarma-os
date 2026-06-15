@@ -76,7 +76,6 @@ function GoogleMarkIcon() {
 export default function AuthPage() {
   const {
     user,
-    loading,
     isConfigured,
     mode,
     emailLinkState,
@@ -128,7 +127,7 @@ export default function AuthPage() {
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
 
-  if (!loading && user) {
+  if (user) {
     return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
 

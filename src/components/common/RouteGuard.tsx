@@ -90,16 +90,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
   const publicRoute = isPublicRoute(location.pathname);
   const gated = !allowLocalAccess;
   const restoringSession = !user && hasCachedAuthSession();
-  const awaitingAuth = loading || restoringSession;
+  const awaitingAuth = !user && (loading || restoringSession);
 
   useEffect(() => {
-    if (awaitingAuth) return;
     if (!gated) return;
-
-    if (!user && !publicRoute && !hasCachedAuthSession()) {
-      navigate('/auth', { state: { from: location.pathname }, replace: true });
-      return;
-    }
 
     if (user && location.pathname === '/auth') {
       const fromState =
@@ -109,6 +103,13 @@ export function RouteGuard({ children }: RouteGuardProps) {
       const dest = resolvePostAuthDestination(fromState);
       readAndClearAuthReturnPath();
       navigate(dest, { replace: true });
+      return;
+    }
+
+    if (awaitingAuth) return;
+
+    if (!user && !publicRoute && !hasCachedAuthSession()) {
+      navigate('/auth', { state: { from: location.pathname }, replace: true });
     }
   }, [awaitingAuth, gated, location.pathname, location.state, navigate, publicRoute, user]);
 

@@ -31,9 +31,8 @@ async function seedCachedSession(page: Page) {
 }
 
 async function expectEditorLanding(page: Page) {
-  await page.waitForTimeout(1500);
+  await page.waitForURL('**/editor**', { timeout: 15_000 });
 
-  expect(page.url()).toContain('/editor');
   expect(page.url()).not.toContain('/auth');
   await expect(page.getByTestId('auth-mockup-card')).toHaveCount(0);
 }

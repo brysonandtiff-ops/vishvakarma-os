@@ -95,7 +95,7 @@ export function resolvePostAuthDestination(fromState?: string | null): string {
   return POST_AUTH_DESTINATION;
 }
 
-/** Hard navigation to the post-sign-in route when the OAuth callback lands on /auth. */
+/** @deprecated Prefer SPA navigation via React Router after session is set. Kept for tests and emergency fallback. */
 export function completePostAuthRedirect(): boolean {
   if (typeof window === 'undefined' || !isAuthCallbackPath(window.location.pathname)) {
     return false;

@@ -14,7 +14,6 @@ import {
 } from '@/backend/supabase/supabaseAuthGateway';
 import {
   clearOAuthRedirectPending,
-  completePostAuthRedirect,
   consumeOAuthRedirectPending,
   expireStaleOAuthRedirectPending,
   formatAuthError,
@@ -28,6 +27,7 @@ import {
 } from '@/backend/supabase/supabaseOAuthGateway';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 import { ensureSupabaseProfile, getSupabaseProfile } from '@/backend/supabase/supabaseProfileGateway';
+import { markFreshSignIn } from '@/editor/onboardingMemory';
 import type { Profile } from '@/types';
 import {
   AuthContext,
@@ -105,10 +105,10 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile, user]);
 
   useEffect(() => {
-    if (loading || !user || location.pathname !== '/auth') return;
+    if (!user || location.pathname !== '/auth') return;
     readAndClearAuthReturnPath();
     navigate(POST_AUTH_DESTINATION, { replace: true });
-  }, [loading, user, location.pathname, navigate]);
+  }, [user, location.pathname, navigate]);
 
   const completeEmailLinkSignIn = useCallback(async (email: string) => {
     setEmailLinkError(null);
@@ -171,7 +171,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
             setUser(nextUser);
             setEmailLinkError(null);
             setEmailLinkState('idle');
-            if (completePostAuthRedirect()) return;
+            markFreshSignIn();
             void loadProfile(nextUser);
           } else if (consumeOAuthRedirectPending() || isSupabaseOAuthCallback()) {
             setEmailLinkError(formatOAuthRedirectIncompleteMessage());
@@ -205,7 +205,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         const nextUser = supabaseUserFromSession(hydratedSession);
         setSession(hydratedSession);
         setUser(nextUser);
-        if (completePostAuthRedirect()) return;
         void loadProfile(nextUser);
       } catch (error) {
         if (!mounted) return;
@@ -254,7 +253,9 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         setUser(nextUser);
         setEmailLinkState('idle');
         setEmailLinkError(null);
-        if (completePostAuthRedirect()) return;
+        if (event === 'SIGNED_IN') {
+          markFreshSignIn();
+        }
         void loadProfile(nextUser);
       } catch (error) {
         console.error('[Vishvakarma.OS] Supabase auth session sync failed:', error);
@@ -299,9 +300,11 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (result.session) {
+        const nextUser = supabaseUserFromSession(result.session);
         setSession(result.session);
-        setUser(supabaseUserFromSession(result.session));
-        await loadProfile(supabaseUserFromSession(result.session));
+        setUser(nextUser);
+        markFreshSignIn();
+        await loadProfile(nextUser);
       }
       return { error: null };
     } catch (error) {
@@ -321,9 +324,11 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (result.session) {
+        const nextUser = supabaseUserFromSession(result.session);
         setSession(result.session);
-        setUser(supabaseUserFromSession(result.session));
-        await loadProfile(supabaseUserFromSession(result.session));
+        setUser(nextUser);
+        markFreshSignIn();
+        await loadProfile(nextUser);
       }
       return { error: null };
     } catch (error) {

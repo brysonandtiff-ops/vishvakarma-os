@@ -135,7 +135,7 @@ describe('post-auth redirect helpers', () => {
     expect(resolvePostAuthDestination(null)).toBe('/editor');
   });
 
-  it('hard-redirects from /auth to /editor', () => {
+  it('hard-redirects from /auth to /editor when invoked directly', () => {
     const replace = vi.fn();
     vi.stubGlobal('window', {
       location: {

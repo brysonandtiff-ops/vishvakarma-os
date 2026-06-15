@@ -69,7 +69,7 @@ import {
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
 import { upsertLocalProject } from '@/editor/localProjects';
-import { dismissOnboarding, isOnboardingDismissed } from '@/editor/onboardingMemory';
+import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
@@ -159,7 +159,8 @@ function EditorWorkspace() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editorMenuOpen, setEditorMenuOpen] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState(() => !isOnboardingDismissed());
+  const [freshSignIn] = useState(() => consumeFreshSignIn());
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !freshSignIn && !isOnboardingDismissed());
   const [selectedLabelId, setSelectedLabelId] = useState<string | undefined>();
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | undefined>();
   const [savingProject, setSavingProject] = useState(false);
@@ -171,7 +172,8 @@ function EditorWorkspace() {
   const { user } = useAuth();
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
-  const showOnboarding = walls.length === 0 && openings.length === 0 && !currentProject;
+  const showOnboarding =
+    !freshSignIn && walls.length === 0 && openings.length === 0 && !currentProject;
 
   const handleMinimapPan = useCallback(
     (point: { x: number; y: number }) => {
