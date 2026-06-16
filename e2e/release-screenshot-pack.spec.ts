@@ -63,7 +63,9 @@ test.describe('release screenshot pack', () => {
     await dismissConsentIfPresent(page);
     await expect(page.getByRole('tab', { name: /all features/i })).toBeVisible();
     await page.getByRole('tab', { name: /all features/i }).click();
-    await expect(page.getByText(/Available now in the editor/i).first()).toBeVisible();
+    await expect(page.getByTestId('features-panel-all')).toBeVisible();
+    await expect(page.getByText(/2D Drafting/i).first()).toBeVisible();
+    await expect(page.getByText(/^Available$/i).first()).toBeVisible();
     await shot(page, '07-features-ready-badges.png');
   });
 });
