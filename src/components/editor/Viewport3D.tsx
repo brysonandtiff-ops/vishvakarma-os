@@ -1,6 +1,6 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
-import { Component, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls, ContactShadows, Environment } from '@react-three/drei';
@@ -75,6 +75,56 @@ function DemandRenderInvalidator({
   useEffect(() => {
     invalidate();
   }, [atmosphereMode, geometryKey, invalidate, walkMode]);
+  return null;
+}
+
+/**
+ * Recovers the 3D view after the browser drops the WebGL context.
+ *
+ * iPad Safari (and Android Chrome under memory pressure, or any PWA resumed
+ * from the background) routinely fires `webglcontextlost` and tears down the
+ * GPU context. That is an async event on the canvas element — it never throws
+ * during React render, so the WebGLErrorBoundary cannot catch it. Without this
+ * guard the canvas freezes to a black/blank frame with no way back.
+ *
+ * Calling `preventDefault()` on the loss event tells the browser it may attempt
+ * automatic restoration; on `webglcontextrestored` we `invalidate()` so the
+ * demand frameloop repaints the (re-uploaded) scene.
+ */
+function WebGLContextGuard({
+  onLost,
+  onRestored,
+}: {
+  onLost: () => void;
+  onRestored: () => void;
+}) {
+  const gl = useThree((state) => state.gl);
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+
+    const handleLost = (event: Event) => {
+      event.preventDefault();
+      console.warn('[Viewport3D] WebGL context lost — attempting recovery');
+      onLost();
+    };
+
+    const handleRestored = () => {
+      console.info('[Viewport3D] WebGL context restored');
+      onRestored();
+      invalidate();
+    };
+
+    canvas.addEventListener('webglcontextlost', handleLost, false);
+    canvas.addEventListener('webglcontextrestored', handleRestored, false);
+
+    return () => {
+      canvas.removeEventListener('webglcontextlost', handleLost, false);
+      canvas.removeEventListener('webglcontextrestored', handleRestored, false);
+    };
+  }, [gl, invalidate, onLost, onRestored]);
+
   return null;
 }
 
@@ -872,6 +922,18 @@ export default function Viewport3D({
   );
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const [penPointerActive, setPenPointerActive] = useState(false);
+  // WebGL context-loss recovery state (iPad Safari / backgrounded PWA / GPU reset).
+  const [contextLost, setContextLost] = useState(false);
+  const [canvasGeneration, setCanvasGeneration] = useState(0);
+
+  const handleContextLost = useCallback(() => setContextLost(true), []);
+  const handleContextRestored = useCallback(() => setContextLost(false), []);
+  const handleManualRestore = useCallback(() => {
+    setContextLost(false);
+    // Force a fresh Canvas mount so a brand-new WebGL context is created when
+    // the browser never fires `webglcontextrestored` on its own.
+    setCanvasGeneration((generation) => generation + 1);
+  }, []);
   const setAtmosphereMode = (mode: AtmospherePerformanceMode) => {
     setAtmosphereModeState(mode);
     persistAtmosphereMode(mode);
@@ -943,12 +1005,14 @@ export default function Viewport3D({
           }
         >
           <Canvas
+            key={canvasGeneration}
             frameloop={walkMode ? 'always' : 'demand'}
             shadows={effectiveAtmosphereMode !== 'standard'}
             dpr={atmosphereConfig.dpr}
             gl={{ antialias: effectiveAtmosphereMode !== 'standard', alpha: false, powerPreference: effectiveAtmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
             style={{ width: '100%', height: '100%' }}
           >
+            <WebGLContextGuard onLost={handleContextLost} onRestored={handleContextRestored} />
             <DemandRenderInvalidator
               geometryKey={geometryRevision}
               atmosphereMode={effectiveAtmosphereMode}
@@ -1035,6 +1099,24 @@ export default function Viewport3D({
             <gridHelper args={[20, 20, ATMOSPHERE.gridPrimary, ATMOSPHERE.gridSecondary]} />
           </Canvas>
         </WebGLErrorBoundary>
+
+        {contextLost && (
+          <div className="vish-3d-context-lost absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-black/70 px-6 text-center backdrop-blur-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/40 bg-primary/10">
+              <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+            </div>
+            <div className="max-w-[240px] space-y-1">
+              <p className="text-sm font-semibold text-ws-text">Restoring 3D view…</p>
+              <p className="text-xs text-pretty text-ws-text-dim">
+                The graphics context was reset by your device. Your design is safe — the 2D editor stays fully usable.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" className="vish-gold-action h-8 gap-1.5 text-xs" onClick={handleManualRestore}>
+              <RefreshCw className="h-3.5 w-3.5" />
+              Reload 3D view
+            </Button>
+          </div>
+        )}
 
         {walkMode && (
           <p

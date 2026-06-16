@@ -13,6 +13,22 @@ Result: **PASS** — automated Playwright coverage across iPad, iPhone, Android 
 | Android tablet landscape | 1280×800 + coarse pointer | Projects, editor smoke | `device-governance-layout.spec.ts` |
 | Desktop fine pointer | 1280×800 | Walk mode pointer-lock hint | `device-desktop-layout.spec.ts` |
 
+## WebGL resilience (mobile GPU reset)
+
+iPad Safari, backgrounded PWAs, and Android Chrome under memory pressure routinely
+drop the WebGL context (`webglcontextlost`). This is an async canvas event, so the
+React `WebGLErrorBoundary` cannot catch it. The 3D viewport now:
+
+- Listens for `webglcontextlost` / `webglcontextrestored` on the canvas
+  (`WebGLContextGuard` in `src/components/editor/Viewport3D.tsx`)
+- Calls `preventDefault()` so the browser attempts automatic restoration, then
+  `invalidate()`s the demand frameloop to repaint the re-uploaded scene
+- Shows a non-blocking "Restoring 3D view…" overlay with a manual **Reload 3D view**
+  control that remounts the canvas with a fresh context if auto-recovery never fires
+- Keeps the 2D blueprint editor fully usable throughout
+
+Enforced by `device-hardening:gates` (checks for the context-loss listeners in source).
+
 ## Touch target standard
 
 Minimum **44×44 px** on all interactive controls (Apple HIG). Enforced via:

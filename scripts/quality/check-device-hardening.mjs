@@ -41,6 +41,12 @@ requirePhrase(marketingCss, '@media (pointer: coarse)', 'vish-marketing.css coar
 requirePhrase(marketingCss, 'max-width: 1194px', 'vish-marketing.css tablet touch rules');
 requirePhrase(marketingCss, 'min-height: 44px', 'vish-marketing.css touch targets');
 
+// iPad Safari / backgrounded PWA / GPU reset drop the WebGL context async — the
+// 3D viewport must recover instead of freezing on a blank frame.
+const viewport3d = readRequired('src/components/editor/Viewport3D.tsx');
+requirePhrase(viewport3d, 'webglcontextlost', 'Viewport3D WebGL context-loss recovery');
+requirePhrase(viewport3d, 'webglcontextrestored', 'Viewport3D WebGL context-restore recovery');
+
 const requiredE2E = [
   'e2e/device-governance-layout.spec.ts',
   'e2e/device-marketing-layout.spec.ts',
