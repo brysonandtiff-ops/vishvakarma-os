@@ -60,8 +60,8 @@ function main() {
     process.exit(1);
   }
 
-  if (buildFailedGhost.length) {
-    warn('ci-github', `${buildFailedGhost.length} push run(s) hit deleted BuildFailed workflow — real workflows may not be dispatching on push`);
+  if (unnamedRuns.length) {
+    warn('ci-github', `${unnamedRuns.length} run(s) have empty workflowName — often the deleted BuildFailed ghost on push`);
   }
 
   pass('ci-github', 'at least one recent run is not startup_failure');
