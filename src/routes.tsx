@@ -18,6 +18,7 @@ const OptimizationPage = lazy(() => import('./pages/OptimizationPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 const CastViewerPage = lazy(() => import('./pages/CastViewerPage'));
+const ThreeDRoomPage = lazy(() => import('./pages/ThreeDRoomPage'));
 
 function lazyRoute(element: ReactNode) {
   return (
@@ -102,6 +103,13 @@ const routes: RouteConfig[] = [
     path: '/editor',
     element: <EditorPage />,
     visible: true,
+    access: 'private',
+  },
+  {
+    name: '3D Room',
+    path: '/3d-room',
+    element: lazyRoute(<ThreeDRoomPage />),
+    visible: false,
     access: 'private',
   },
   {
