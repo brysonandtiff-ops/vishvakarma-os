@@ -8,6 +8,7 @@ export interface EditorSidebarConfig {
   onExport: () => void;
   onLoadSample: () => void;
   onAIDesigner: () => void;
+  onOpen3DRoom?: () => void;
   onToggle3D: () => void;
   onToggleGrid: () => void;
   show3DView: boolean;
