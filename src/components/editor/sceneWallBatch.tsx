@@ -89,7 +89,7 @@ export function OpeningMarkers({
       {walls.flatMap((wall) => {
         const wallOpenings = openings.filter((opening) => opening.wallId === wall.id);
         const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-        const angle = Math.atan2(wall.end.y - wall.start.x, wall.end.x - wall.start.x);
+        const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
         const centerX = (wall.start.x + wall.end.x) / 2;
         const centerY = (wall.start.y + wall.end.y) / 2;
         const posX = (centerX - origin.cx) / 100;
