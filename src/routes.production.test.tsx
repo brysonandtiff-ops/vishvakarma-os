@@ -12,6 +12,7 @@ const expectedRoutePaths = [
   '/cast/:token',
   '/404',
   '/editor',
+  '/3d-room',
   '/projects',
   '/optimization',
   '/profile',
@@ -35,6 +36,7 @@ const expectedPublicRoutePaths = [
 
 const expectedPrivateRoutePaths = [
   '/editor',
+  '/3d-room',
   '/projects',
   '/optimization',
   '/profile',
