@@ -7,7 +7,7 @@ import {
   tierRank,
 } from '@/utils/adaptiveFrameGovernor';
 
-/** Feed `windows * framesPerWindow` frames of a fixed delta; return last outcome. */
+/** Feed `frames` frames of a fixed delta; return last outcome. */
 function feed(governor: FrameGovernor, ms: number, frames: number) {
   let last = governor.pushFrame(ms);
   for (let i = 1; i < frames; i += 1) last = governor.pushFrame(ms);
@@ -43,7 +43,7 @@ describe('FrameGovernor — adaptive capping', () => {
     const g = new FrameGovernor(fast);
     g.setCeiling('cinematic', { reset: true });
     expect(g.getCap()).toBe('cinematic');
-    // 40ms/frame ≈ 25fps, well under the 48fps floor. Two struggling windows.
+    // 40ms/frame ≈ 25fps, well under the 50fps floor. Two struggling windows.
     const out = feed(g, 40, 2 * fast.windowFrames);
     expect(g.getCap()).toBe('premium');
     expect(out.fps).not.toBeNull();
@@ -71,8 +71,19 @@ describe('FrameGovernor — adaptive capping', () => {
     g.setCeiling('cinematic', { reset: true });
     feed(g, 50, 8 * fast.windowFrames); // crater to standard
     expect(g.getCap()).toBe('standard');
-    // 8ms/frame ≈ 125fps, above the 75fps upgrade band; climb back up.
+    // 8ms/frame ≈ 125fps, above the upgrade band; climb back up.
     feed(g, 8, 12 * fast.windowFrames);
+    expect(g.getCap()).toBe('cinematic');
+  });
+
+  it('recovers on normal 60hz displays after sustained stable headroom', () => {
+    const g = new FrameGovernor({ windowFrames: 2, upgradeStreak: 2, upgradeCooldownWindows: 0 });
+    g.setCeiling('cinematic', { reset: true });
+    feed(g, 50, 8); // down to standard under bad load
+    expect(g.getCap()).toBe('standard');
+
+    // 60 Hz is the common iPad/laptop demo target; this must now recover.
+    feed(g, 1000 / 60, 8);
     expect(g.getCap()).toBe('cinematic');
   });
 
@@ -82,7 +93,7 @@ describe('FrameGovernor — adaptive capping', () => {
     // Long pauses between single rendered frames simulate the demand loop idling.
     for (let i = 0; i < 10; i += 1) {
       g.pushFrame(5000); // 5s gap — discarded
-      g.pushFrame(16);    // one healthy frame
+      g.pushFrame(16); // one healthy frame
     }
     expect(g.getCap()).toBe('cinematic');
   });
@@ -90,15 +101,18 @@ describe('FrameGovernor — adaptive capping', () => {
   it('holds steady at a comfortable-but-not-spare frame rate', () => {
     const g = new FrameGovernor(fast);
     g.setCeiling('cinematic', { reset: true });
-    // ~60fps sits between downgrade (48) and upgrade (75) thresholds → no churn.
-    feed(g, 1000 / 60, 20 * fast.windowFrames);
+    // ~55fps sits between downgrade (50) and upgrade (57) thresholds → no churn.
+    feed(g, 1000 / 55, 20 * fast.windowFrames);
     expect(g.getCap()).toBe('cinematic');
   });
 
-  it('exposes sane defaults', () => {
+  it('exposes FPS-stability defaults tuned for 60hz demo devices', () => {
     expect(DEFAULT_FRAME_GOVERNOR_CONFIG.downgradeFps).toBeLessThan(
       DEFAULT_FRAME_GOVERNOR_CONFIG.upgradeFps,
     );
-    expect(DEFAULT_FRAME_GOVERNOR_CONFIG.windowFrames).toBeGreaterThan(0);
+    expect(DEFAULT_FRAME_GOVERNOR_CONFIG.downgradeFps).toBe(50);
+    expect(DEFAULT_FRAME_GOVERNOR_CONFIG.upgradeFps).toBeLessThanOrEqual(60);
+    expect(DEFAULT_FRAME_GOVERNOR_CONFIG.windowFrames).toBe(30);
+    expect(DEFAULT_FRAME_GOVERNOR_CONFIG.downgradeStreak).toBe(1);
   });
 });

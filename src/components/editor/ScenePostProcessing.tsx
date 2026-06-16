@@ -12,7 +12,7 @@ import {
 } from 'postprocessing';
 import type { AtmospherePerformanceMode } from '@/utils/atmosphereMode';
 
-export const POST_FX_WALL_CAP = 200;
+export const POST_FX_WALL_CAP = 120;
 
 export function isPostFxPipelineActive(
   mode: AtmospherePerformanceMode,
@@ -38,19 +38,21 @@ function PostFxPipeline({ mode }: { mode: AtmospherePerformanceMode }) {
     const instance = new EffectComposer(gl);
     instance.addPass(new RenderPass(scene, camera));
 
+    // Keep cinematic polish, but use lower-cost SSAO/Bloom defaults so the
+    // first demo frames do not crater before the adaptive governor can retier.
     const ssao = new SSAOEffect(camera, undefined, {
-      intensity: 1.35,
-      radius: 0.18,
+      intensity: 1.05,
+      radius: 0.14,
       bias: 0.025,
-      samples: 9,
+      samples: 5,
     });
     instance.addPass(new EffectPass(camera, ssao));
 
     const bloom = new BloomEffect({
-      intensity: 0.52,
-      luminanceThreshold: 0.82,
-      luminanceSmoothing: 0.9,
-      mipmapBlur: true,
+      intensity: 0.42,
+      luminanceThreshold: 0.84,
+      luminanceSmoothing: 0.88,
+      mipmapBlur: false,
     });
 
     const toneMap =

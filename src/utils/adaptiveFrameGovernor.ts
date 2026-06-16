@@ -61,13 +61,17 @@ export interface FrameGovernorConfig {
 }
 
 export const DEFAULT_FRAME_GOVERNOR_CONFIG: FrameGovernorConfig = {
-  windowFrames: 48,
-  downgradeFps: 48,
-  upgradeFps: 75,
-  downgradeStreak: 2,
-  upgradeStreak: 6,
-  upgradeCooldownWindows: 8,
-  gapFrameMs: 120,
+  // Shorter windows let the 3D engine retier in roughly half a second on 60 Hz
+  // screens instead of waiting through several seconds of visible stutter.
+  windowFrames: 30,
+  downgradeFps: 50,
+  // 57 FPS lets normal 60 Hz displays recover. The previous 75 FPS threshold
+  // could never recover on most laptops/iPads once the viewport had downshifted.
+  upgradeFps: 57,
+  downgradeStreak: 1,
+  upgradeStreak: 8,
+  upgradeCooldownWindows: 10,
+  gapFrameMs: 160,
 };
 
 export interface FrameWindowOutcome {
