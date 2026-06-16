@@ -25,6 +25,8 @@ import {
   PERFORMANCE_PROFILE_EVENT,
   type PerformanceProfile,
 } from '@/utils/performanceProfile';
+import { minTier } from '@/utils/adaptiveFrameGovernor';
+import { AdaptiveFrameGovernor } from '@/components/editor/AdaptiveFrameGovernor';
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
 import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
@@ -922,6 +924,9 @@ export default function Viewport3D({
   );
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const [penPointerActive, setPenPointerActive] = useState(false);
+  // Adaptive FPS governor: caps the effective tier below the user's choice when
+  // measured frame time shows the device can't hold a smooth rate. null = no cap.
+  const [adaptiveCap, setAdaptiveCap] = useState<AtmospherePerformanceMode | null>(null);
   // WebGL context-loss recovery state (iPad Safari / backgrounded PWA / GPU reset).
   const [contextLost, setContextLost] = useState(false);
   const [canvasGeneration, setCanvasGeneration] = useState(0);
@@ -954,8 +959,24 @@ export default function Viewport3D({
     }
   }, [walkMode, isCoarsePointer]);
 
-  const effectiveAtmosphereMode: AtmospherePerformanceMode =
+  const baseAtmosphereMode: AtmospherePerformanceMode =
     walkMode && isCoarsePointer ? 'standard' : atmosphereMode;
+
+  // The governor never raises quality above the user's chosen tier — it only
+  // caps downward for smoothness. Every GPU cost knob (DPR, shadows, antialias,
+  // particles, god rays, environment, post-FX) is wired to this value, so a
+  // single cap scales the whole scene's cost up and down with real frame time.
+  const effectiveAtmosphereMode: AtmospherePerformanceMode = minTier(
+    baseAtmosphereMode,
+    adaptiveCap ?? baseAtmosphereMode,
+  );
+
+  // A manual tier change (or walk-mode transition) is fresh user intent — drop
+  // any adaptive cap so the chosen quality shows immediately; the governor then
+  // re-evaluates from the new ceiling.
+  useEffect(() => {
+    setAdaptiveCap(null);
+  }, [atmosphereMode, walkMode, isCoarsePointer]);
 
   const cinematicBoost = effectiveAtmosphereMode === 'cinematic' && !isCoarsePointer;
 
@@ -1013,6 +1034,7 @@ export default function Viewport3D({
             style={{ width: '100%', height: '100%' }}
           >
             <WebGLContextGuard onLost={handleContextLost} onRestored={handleContextRestored} />
+            <AdaptiveFrameGovernor ceiling={baseAtmosphereMode} onCapChange={setAdaptiveCap} />
             <DemandRenderInvalidator
               geometryKey={geometryRevision}
               atmosphereMode={effectiveAtmosphereMode}
