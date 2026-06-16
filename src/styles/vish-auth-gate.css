@@ -1532,6 +1532,7 @@
 @media (prefers-reduced-motion: reduce) {
   .vish-auth-gate,
   .vish-auth-gate::before,
+  .vish-devanagari-hero,
   .vish-auth-aurora,
   .vish-boot-aurora,
   .vish-mandala-ring-outer,
