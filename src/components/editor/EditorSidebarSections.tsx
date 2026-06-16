@@ -1,6 +1,7 @@
 import {
   Box,
   Download,
+  ExternalLink,
   FileDown,
   FolderOpen,
   Grid3x3,
@@ -11,6 +12,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
@@ -131,6 +133,8 @@ export default function EditorSidebarSections({
   collapsed = false,
   onAfterAction,
 }: EditorSidebarSectionsProps) {
+  const navigate = useNavigate();
+
   const projectActions: ActionDef[] = [
     {
       id: 'new-project',
@@ -186,6 +190,13 @@ export default function EditorSidebarSections({
   ];
 
   const viewActions: ActionDef[] = [
+    {
+      id: 'open-3d-room',
+      testId: 'editor-sidebar-open-3d-room',
+      icon: ExternalLink,
+      label: 'Open 3D Room',
+      onClick: () => navigate('/3d-room'),
+    },
     {
       id: 'toggle-3d',
       testId: 'editor-sidebar-toggle-3d',
