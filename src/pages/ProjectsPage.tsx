@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, MoreHorizontal, PenTool, Plus } from 'lucide-react';
+import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import PageStateBlock from '@/components/common/PageStateBlock';
 import PageToolbar from '@/components/common/PageToolbar';
@@ -31,8 +31,22 @@ import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localPro
 import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
 import type { Project } from '@/types';
+import {
+  buildSampleManifest,
+  getSampleDefinition,
+  getSampleFeatureBadges,
+  getSampleStats,
+} from '@/core/sampleCatalog';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
+
+const PROJECT_DEMO_SAMPLE_IDS = ['family-home-4br', 'duplex-two-floor', 'courtyard-villa-indian'] as const;
+
+const PROJECT_DEMO_EYEBROWS: Record<(typeof PROJECT_DEMO_SAMPLE_IDS)[number], string> = {
+  'family-home-4br': 'Family home walkthrough',
+  'duplex-two-floor': 'Multi-floor pilot',
+  'courtyard-villa-indian': 'Vastu showcase',
+};
 
 function isProjectArchived(project: Project): boolean {
   if (project.manifest.metadata.archived) return true;
@@ -58,6 +72,21 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showArchived, setShowArchived] = useState(false);
 
+  const demoSamples = useMemo(
+    () =>
+      PROJECT_DEMO_SAMPLE_IDS.map((sampleId) => {
+        const sample = getSampleDefinition(sampleId);
+        if (!sample) return null;
+        return {
+          sample,
+          eyebrow: PROJECT_DEMO_EYEBROWS[sampleId],
+          stats: getSampleStats(sample),
+          badges: getSampleFeatureBadges(sample),
+        };
+      }).filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
+    [],
+  );
+
   const loadProjects = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -80,6 +109,21 @@ export default function ProjectsPage() {
 
   const openProject = (project: Project) => {
     navigate('/editor', { state: { loadProject: project } });
+  };
+
+  const openDemoSample = (sampleId: string) => {
+    try {
+      const manifest = buildSampleManifest(sampleId);
+      navigate('/editor', {
+        state: {
+          loadManifest: manifest,
+          projectName: manifest.name,
+        },
+      });
+    } catch (err) {
+      console.error('Failed to open demo sample:', err);
+      toast.error('Failed to open demo sample');
+    }
   };
 
   const handleDeleteConfirmed = async () => {
@@ -216,17 +260,87 @@ export default function ProjectsPage() {
         )}
 
         {!loading && !error && projects.length === 0 && (
-          <WorkspaceEmptyState
-            className="mt-8"
-            icon={<FolderOpen className="mx-auto h-10 w-10" aria-hidden="true" />}
-            title="No projects yet"
-            description="Open the editor to create a floor plan, load the sample project, or save a local draft."
-            action={
-              <WorkspaceEmptyStateAction asChild>
-                <Link to="/editor">Open editor</Link>
-              </WorkspaceEmptyStateAction>
-            }
-          />
+          <div className="mt-8 space-y-6" data-testid="projects-empty-demo-samples">
+            <WorkspaceEmptyState
+              icon={<FolderOpen className="mx-auto h-10 w-10" aria-hidden="true" />}
+              title="No saved projects yet"
+              description="Open the editor to create a floor plan, or launch one of the local demo walkthroughs below. Demo projects do not write to Supabase until you save them."
+              action={
+                <WorkspaceEmptyStateAction asChild>
+                  <Link to="/editor">Open editor</Link>
+                </WorkspaceEmptyStateAction>
+              }
+            />
+
+            <section
+              className="vish-crafted-card rounded-card-lg border border-border bg-card/95 p-4 shadow-sm tablet:p-5"
+              aria-labelledby="demo-projects-title"
+            >
+              <div className="flex flex-col gap-2 border-b border-border/70 pb-4 tablet:flex-row tablet:items-end tablet:justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Demo-safe walkthroughs</p>
+                  <h2 id="demo-projects-title" className="mt-1 text-lg font-semibold text-foreground">
+                    Start with a ready blueprint
+                  </h2>
+                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                    These local fixtures give reviewers something real to open, inspect in 2D/3D, and export without needing cloud data first.
+                  </p>
+                </div>
+                <Button asChild variant="outline" className="touch-target self-start tablet:self-auto">
+                  <Link to="/features">View guided tours</Link>
+                </Button>
+              </div>
+
+              <div className="mt-4 grid gap-3 tablet:grid-cols-3">
+                {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
+                  <article
+                    key={sample.id}
+                    className="rounded-xl border border-border bg-background/85 p-4 shadow-sm"
+                    data-testid={`projects-demo-${sample.id}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
+                        <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
+                        <h3 className="mt-1 truncate text-sm font-semibold text-foreground">{sample.name}</h3>
+                      </div>
+                    </div>
+                    <p className="mt-3 min-h-[3rem] text-xs leading-5 text-muted-foreground">{sample.description}</p>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <span className="rounded-full border border-border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                        {stats.walls} walls
+                      </span>
+                      <span className="rounded-full border border-border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                        {stats.openings} openings
+                      </span>
+                      {badges.slice(0, 2).map((badge) => (
+                        <span
+                          key={badge}
+                          className="rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary"
+                        >
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
+                    <Button
+                      type="button"
+                      className="mt-4 w-full touch-target"
+                      onClick={() => openDemoSample(sample.id)}
+                      data-testid={`projects-open-demo-${sample.id}`}
+                    >
+                      Open demo in editor
+                    </Button>
+                  </article>
+                ))}
+              </div>
+
+              <p className="mt-4 text-xs text-muted-foreground">
+                Demo fixtures are generated in-browser from existing sample builders. They are for walkthroughs, screenshots, and pilot demos — not user cloud records until saved.
+              </p>
+            </section>
+          </div>
         )}
 
         {!loading && !error && projects.length > 0 && (
