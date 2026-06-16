@@ -88,11 +88,11 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('items-stretch');
     expect(authPage).toContain('Sign in to open Releases and inspect gate snapshots.');
     expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry at /world-records.');
-    expect(authPage).toContain('vish-gold-pill');
-    expect(authPage).toContain('vish-gold-pill--live');
-    expect(authPage).toContain('auth-supabase-badge');
-    expect(authPage).toContain('vish-auth-supabase-pill');
-    expect(authPage).toContain('Supabase Auth');
+    expect(authHeader).toContain('vish-gold-pill');
+    expect(authHeader).toContain('vish-gold-pill--live');
+    expect(authHeader).toContain('auth-supabase-badge');
+    expect(authHeader).toContain('vish-auth-supabase-pill');
+    expect(authHeader).toContain('Supabase Auth');
     expect(authPage).toContain('AuthStatusBanner');
     expect(authPage).toContain('auth-password-reset-notice');
     expect(authPage).toContain('variant="gates"');
