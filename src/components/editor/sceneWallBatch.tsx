@@ -17,8 +17,14 @@ function wallGeometryKey(walls: Wall[]): string {
     .join('|');
 }
 
-export function shouldBatchWalls(wallCount: number, atmosphereMode: string): boolean {
-  return wallCount >= BATCH_THRESHOLD && atmosphereMode !== 'cinematic';
+export function shouldBatchWalls(wallCount: number, _atmosphereMode: string): boolean {
+  // Wall batching is the cheapest way to stabilise the 3D viewport because it
+  // collapses many per-wall meshes/draw calls into one geometry. Cinematic mode
+  // used to opt out so every wall kept its edge-highlight mesh, which made FPS
+  // much easier to tank during demo recording. Keep the threshold identical
+  // across all atmosphere tiers so the adaptive governor can downshift visuals
+  // without still paying avoidable wall draw-call cost.
+  return wallCount >= BATCH_THRESHOLD;
 }
 
 export function BatchedWallMeshes({
@@ -83,7 +89,7 @@ export function OpeningMarkers({
       {walls.flatMap((wall) => {
         const wallOpenings = openings.filter((opening) => opening.wallId === wall.id);
         const length = Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
-        const angle = Math.atan2(wall.end.y - wall.start.y, wall.end.x - wall.start.x);
+        const angle = Math.atan2(wall.end.y - wall.start.x, wall.end.x - wall.start.x);
         const centerX = (wall.start.x + wall.end.x) / 2;
         const centerY = (wall.start.y + wall.end.y) / 2;
         const posX = (centerX - origin.cx) / 100;
