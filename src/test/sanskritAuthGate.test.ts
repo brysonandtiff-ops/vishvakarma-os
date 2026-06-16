@@ -40,15 +40,16 @@ describe('Sanskrit auth gate design', () => {
 
   it('shows only the verified auth winner from capabilities manifest', () => {
     const authPage = read('src/pages/AuthPage.tsx');
+    const googleButton = read('src/components/auth/AuthGoogleButton.tsx');
     const capabilities = read('src/backend/authCapabilities.ts');
     const manifest = read('public/auth-capabilities.json');
 
     expect(authPage).toContain('useAuthCapabilities');
     expect(authPage).toContain('showEmailSignIn');
     expect(authPage).toContain('showGoogleSignIn');
-    expect(authPage).toContain('Continue with Google');
+    expect(authPage).toContain('AuthGoogleButton');
     expect(authPage).toContain('variant="gold"');
-    expect(authPage).toContain('GoogleMarkIcon');
+    expect(googleButton).toContain('Continue with Google');
     expect(authPage).toContain('Send secure access link');
     expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).not.toContain('signInWithApple');
