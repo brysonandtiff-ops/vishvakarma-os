@@ -114,6 +114,7 @@
     "repairbot:watch": "node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000",
     "repairbot:dry": "node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --dry-run",
     "repairbot:status": "node scripts/repairbot/status.mjs",
+    "repairbot:ci-github": "node scripts/repairbot/ci-github-health.mjs",
     "dx:stack": "node scripts/dx/local-stack.mjs",
     "ops:migration:export": "node scripts/migration/export-supabase.mjs",
     "ops:migration:validate": "node scripts/migration/validate-migration.mjs",
