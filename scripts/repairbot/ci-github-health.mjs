@@ -42,7 +42,7 @@ function main() {
 
   for (const run of runs) {
     const label = run.conclusion === 'success' ? 'PASS' : run.conclusion === 'startup_failure' ? 'FAIL' : 'WARN';
-    const name = run.workflowName || run.path || run.displayTitle;
+    const name = run.workflowName || run.displayTitle;
     console.log(`  ${label} ${name} (${run.event}, ${run.conclusion})`);
   }
 
