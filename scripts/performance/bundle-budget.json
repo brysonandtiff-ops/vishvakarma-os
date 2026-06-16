@@ -1,12 +1,12 @@
 {
   "totalDistMb": 5,
   "chunks": {
-    "vendor-3d": 1150000,
+    "vendor-3d": 1250000,
     "vendor-ui": 400000,
     "vendor-react": 550000,
     "vendor-supabase": 210000,
     "vendor-misc": 480000,
     "index": 880000,
-    "Viewport3D": 40000
+    "Viewport3D": 55000
   }
 }

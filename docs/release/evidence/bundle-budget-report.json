@@ -1,57 +1,123 @@
 {
-  "generatedAt": "2026-06-15T07:10:08.318Z",
-  "commit": "6cca332b31aa7fe5199c8bf809703ea03dccdd5d",
-  "distTotalBytes": 3344009,
-  "distTotalMb": 3.19,
+  "generatedAt": "2026-06-16T03:39:09.945Z",
+  "commit": "eb8a56d421906a46d6e9b53a59b70557b94147b2",
+  "distTotalBytes": 3593761,
+  "distTotalMb": 3.43,
   "budget": {
     "totalDistMb": 5,
     "chunks": {
-      "vendor-3d": 1150000,
+      "vendor-3d": 1250000,
       "vendor-ui": 400000,
       "vendor-react": 550000,
       "vendor-supabase": 210000,
       "vendor-misc": 480000,
       "index": 880000,
-      "Viewport3D": 40000
+      "Viewport3D": 55000
     }
   },
   "chunks": {
-    "AkashaCastPanel": {
-      "bytes": 4639,
+    "AuditLogPage": {
+      "bytes": 6727,
       "files": [
-        "AkashaCastPanel-DQlWZd9q.js"
+        "AuditLogPage-C1us3-31.js"
       ]
     },
-    "CastIntentTimeline": {
-      "bytes": 2946,
+    "AuthPage": {
+      "bytes": 16272,
       "files": [
-        "CastIntentTimeline-Dlx58Nzq.js"
+        "AuthPage-Dq4L4zd8.js"
+      ]
+    },
+    "AuthStatusBanner": {
+      "bytes": 1084,
+      "files": [
+        "AuthStatusBanner-DmKJNUQe.js"
       ]
     },
     "CastSessionManager": {
-      "bytes": 14204,
+      "bytes": 14211,
       "files": [
-        "CastSessionManager-B1OlRBXp.js",
-        "CastSessionManager-CxEcJbef.js"
+        "CastSessionManager-CO1ewI8m.js",
+        "CastSessionManager-Gy4OTWMf.js"
       ]
     },
     "CastViewerPage": {
-      "bytes": 4880,
+      "bytes": 6551,
       "files": [
-        "CastViewerPage-DbaE_q_n.js"
+        "CastViewerPage-_iCpu5LX.js"
+      ]
+    },
+    "ChangeRequestsPage": {
+      "bytes": 9738,
+      "files": [
+        "ChangeRequestsPage-NGKGgrBZ.js"
+      ]
+    },
+    "FeaturesPage": {
+      "bytes": 5952,
+      "files": [
+        "FeaturesPage-CXbhpWSe.js"
+      ]
+    },
+    "GovernanceBackendBanner": {
+      "bytes": 1697,
+      "files": [
+        "GovernanceBackendBanner-DBRpOhSm.js"
+      ]
+    },
+    "GovernanceStatPill": {
+      "bytes": 541,
+      "files": [
+        "GovernanceStatPill-ijJg88mQ.js"
       ]
     },
     "index": {
-      "bytes": 851323,
+      "bytes": 797928,
       "files": [
-        "index-CAW6D0iq.css",
-        "index-DG-D16x_.js"
+        "index-BBxUipqN.css",
+        "index-DFiLKLiG.js"
+      ]
+    },
+    "LandingPage": {
+      "bytes": 6831,
+      "files": [
+        "LandingPage-CO0-lr13.js"
+      ]
+    },
+    "MarketingCtaSection": {
+      "bytes": 2136,
+      "files": [
+        "MarketingCtaSection-BPfLs72R.js"
+      ]
+    },
+    "MetricPill": {
+      "bytes": 735,
+      "files": [
+        "MetricPill-Dp44wZsa.js"
       ]
     },
     "monitoring": {
       "bytes": 70,
       "files": [
-        "monitoring-DvAa_JFH.js"
+        "monitoring-2O89670r.js"
+      ]
+    },
+    "NotFound": {
+      "bytes": 1320,
+      "files": [
+        "NotFound-D36tTIUV.js"
+      ]
+    },
+    "OptimizationPage": {
+      "bytes": 64452,
+      "files": [
+        "OptimizationPage-BcQKGkoA.js"
+      ]
+    },
+    "PageToolbar": {
+      "bytes": 1596,
+      "files": [
+        "PageToolbar-Hgu1kdXc.js"
       ]
     },
     "planning.worker": {
@@ -60,46 +126,136 @@
         "planning.worker-C8slriou.js"
       ]
     },
+    "PricingPage": {
+      "bytes": 8207,
+      "files": [
+        "PricingPage-CRPi9QA9.js"
+      ]
+    },
+    "ProfilePage": {
+      "bytes": 5405,
+      "files": [
+        "ProfilePage-1X82rWB2.js"
+      ]
+    },
+    "ProjectsPage": {
+      "bytes": 9623,
+      "files": [
+        "ProjectsPage-DRFOIL-s.js"
+      ]
+    },
+    "projectThumbnail": {
+      "bytes": 221,
+      "files": [
+        "projectThumbnail-CSjCZj9f.js"
+      ]
+    },
+    "RegistryPage": {
+      "bytes": 8613,
+      "files": [
+        "RegistryPage-y4djt5BN.js"
+      ]
+    },
+    "releaseGateManifest": {
+      "bytes": 10294,
+      "files": [
+        "releaseGateManifest-DQQ83E4p.js"
+      ]
+    },
+    "ReleasesPage": {
+      "bytes": 14619,
+      "files": [
+        "ReleasesPage-DETIIvCN.js"
+      ]
+    },
+    "ResetPasswordPage": {
+      "bytes": 506,
+      "files": [
+        "ResetPasswordPage-CNn1uyvJ.js"
+      ]
+    },
     "rolldown": {
       "bytes": 986,
       "files": [
         "rolldown-runtime-BE_SCnlJ.js"
       ]
     },
-    "vendor-3d": {
-      "bytes": 1104349,
+    "SpecCenterPage": {
+      "bytes": 10350,
       "files": [
-        "vendor-3d-B1AZdABU.js"
+        "SpecCenterPage-D6Xh5R2I.js"
+      ]
+    },
+    "StatPill": {
+      "bytes": 413,
+      "files": [
+        "StatPill-D8p4zt9_.js"
+      ]
+    },
+    "stripeCheckout": {
+      "bytes": 605,
+      "files": [
+        "stripeCheckout-v7ixoI6k.js"
+      ]
+    },
+    "tabs": {
+      "bytes": 1216,
+      "files": [
+        "tabs-BUJ45lvK.js"
+      ]
+    },
+    "vendor-3d": {
+      "bytes": 1193268,
+      "files": [
+        "vendor-3d-BiXXKw4j.js"
       ]
     },
     "vendor-misc": {
       "bytes": 456241,
       "files": [
-        "vendor-misc-_FelAZbb.js"
+        "vendor-misc-B5I9ILSQ.js"
       ]
     },
     "vendor-react": {
-      "bytes": 523619,
+      "bytes": 528304,
       "files": [
-        "vendor-react-B4JxM335.js"
+        "vendor-react-cbjssohv.js"
       ]
     },
     "vendor-supabase": {
-      "bytes": 194237,
+      "bytes": 195378,
       "files": [
-        "vendor-supabase-BH1w5gZM.js"
+        "vendor-supabase-B3GZ5u4I.js"
       ]
     },
     "vendor-ui": {
-      "bytes": 145978,
+      "bytes": 147458,
       "files": [
-        "vendor-ui-DhSe4nSq.js"
+        "vendor-ui-BOHIaZX4.js"
       ]
     },
     "Viewport3D": {
-      "bytes": 36201,
+      "bytes": 48970,
       "files": [
-        "Viewport3D-BO4W69pP.js"
+        "Viewport3D-BkywLFJE.js"
+      ]
+    },
+    "WorkspacePanel": {
+      "bytes": 1135,
+      "files": [
+        "WorkspacePanel-B9Qy7y-X.js"
+      ]
+    },
+    "worldRecordRegistry": {
+      "bytes": 2723,
+      "files": [
+        "worldRecordRegistry-2jpq5EmS.js"
+      ]
+    },
+    "WorldRecordsPage": {
+      "bytes": 7049,
+      "files": [
+        "WorldRecordsPage-Dk91lkZ2.js"
       ]
     }
   },

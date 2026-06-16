@@ -114,10 +114,12 @@ describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps loading, auth, and app shell surfaces on the official brand asset', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
+    const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
     const appLayout = read('src/components/layouts/AppLayout.tsx');
 
     expect(routeGuard).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
+    expect(authPage).toContain('AuthSignInHeader');
+    expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
     expect(authPage).toContain('requestAccessLink(email)');
