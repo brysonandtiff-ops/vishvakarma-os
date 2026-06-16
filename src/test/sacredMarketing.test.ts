@@ -36,7 +36,8 @@ describe('Sacred marketing visuals', () => {
     expect(marketingStyles).toContain('@keyframes vish-devanagari-breathe');
     expect(pageHeader).toContain('vish-devanagari-hero');
     expect(pageHeader).not.toContain('vish-marketing-section-label vish-devanagari-accent');
-    expect(landingPage).toContain('vish-devanagari-hero');
+    expect(landingPage).toContain('MarketingPageHeader');
+    expect(landingPage).toContain('MarketingCtaSection');
   });
 
   it('defines mandala SVG layers and marketing ring sizing in sacred layers CSS', () => {
