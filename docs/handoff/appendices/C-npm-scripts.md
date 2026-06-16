@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-15T17:38:56.273Z
+Generated: 2026-06-16T04:06:30.505Z
 
-Total: 111 scripts
+Total: 112 scripts
 
 | Script | Command |
 |--------|--------|
@@ -59,7 +59,7 @@ Total: 111 scripts
 | `prebuild` | `node --import tsx scripts/enforce-build.js` |
 | `preview` | `vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e` | `vite build --mode e2e && vite preview --host 127.0.0.1 --port 4173` |
-| `preview:e2e:local` | `vite build --mode e2e-local && vite preview --host 127.0.0.1 --port 4173` |
+| `preview:e2e:local` | `node scripts/build-e2e-local.mjs && vite preview --host 127.0.0.1 --port 4173` |
 | `production:evidence` | `node scripts/production/generate-evidence.mjs` |
 | `production:functional-proof` | `node scripts/production/generate-functional-proof.mjs` |
 | `production:functional-proof:quick` | `node scripts/production/generate-functional-proof.mjs --skip-e2e` |
@@ -75,6 +75,7 @@ Total: 111 scripts
 | `repair:workspace-root` | `python scripts/repair-workspace-root-package.py` |
 | `repair:workspace-root:bash` | `bash scripts/repair-workspace-root-package.sh` |
 | `repairbot` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast` |
+| `repairbot:ci-github` | `node scripts/repairbot/ci-github-health.mjs` |
 | `repairbot:dry` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --dry-run` |
 | `repairbot:fast` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast` |
 | `repairbot:full` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:full` |

@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-15T17:38:56.273Z
+Generated: 2026-06-16T04:06:30.505Z
 
 ```
 src/
@@ -89,6 +89,8 @@ components/
     ArchitectureBotWidget.tsx
     useArchitectureBot.ts
   auth/
+    AuthGoogleButton.tsx
+    AuthSignInHeader.tsx
     AuthStatusBanner.test.tsx
     AuthStatusBanner.tsx
     AuthTrustPillar.test.tsx
@@ -127,6 +129,7 @@ components/
     WorkspacePageHeader.tsx
     WorkspacePanel.tsx
   editor/
+    AdaptiveFrameGovernor.tsx
     ai-designer/
       AIDesignerDialog.tsx
       AIDesignerResultsPanel.tsx
@@ -216,6 +219,7 @@ components/
     WorkspaceGovernanceLayout.tsx
     WorkspacePageShell.tsx
   marketing/
+    MarketingCtaSection.tsx
     MarketingFooter.tsx
     MarketingNav.tsx
     MarketingPageHeader.tsx
@@ -472,6 +476,7 @@ lib/
   analytics.ts
   editorDialog.ts
   logger.ts
+  marketingCta.ts
   monitoring.ts
   studioToast.ts
   utils.ts
@@ -692,6 +697,7 @@ styles/
 svg.d.ts
 test/
   accessibilityLayer.test.ts
+  adaptiveFrameGovernor.test.ts
   AppErrorBoundary.test.tsx
   atmosphereMode.test.ts
   automatedTestSuite.test.ts
@@ -736,6 +742,7 @@ test/
   loginDataSetup.test.ts
   manifestBridge.test.ts
   manifestGeometry.test.ts
+  marketingCta.test.ts
   marketingRoutes.test.tsx
   motionSystem.test.ts
   multiUserGovernance.test.ts
@@ -792,6 +799,7 @@ types/
   types.ts
   virtual-modules.d.ts
 utils/
+  adaptiveFrameGovernor.ts
   atmosphereMode.ts
   canvasPointerCoords.ts
   canvasTouchGestures.ts
@@ -802,6 +810,7 @@ utils/
   currencyFormat.ts
   floorHelpers.test.ts
   floorHelpers.ts
+  frameStatsStore.ts
   keyboardShortcuts.ts
   manifestGeometry.ts
   measurements.ts
@@ -862,6 +871,7 @@ auto-ship/
   auto-ship.mjs
   auto-ship.test.mjs
   install-user-hooks.mjs
+build-e2e-local.mjs
 deploy-vercel.sh
 docs/
   verify-documentation.mjs
@@ -928,6 +938,7 @@ refactor.cjs
 repair-workspace-root-package.py
 repair-workspace-root-package.sh
 repairbot/
+  ci-github-health.mjs
   lib/
     classify.mjs
     env-scan.mjs
@@ -1137,6 +1148,7 @@ handoff/
     H-file-tree.md
     MANIFEST.json
   CHATGPT_HANDOFF.md
+  END_TO_END_HANDOFF.md
   HANDOFF.md
   templates/
     OPERATOR_ANNEX.template.md
@@ -1372,6 +1384,7 @@ world-record/
 .github/
 PULL_REQUEST_TEMPLATE.md
 workflows/
+  ci-health.yml
   e2e.yml
   lighthouse.yml
   repairbot.yml
