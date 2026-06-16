@@ -134,6 +134,10 @@ export default function EditorSidebarSections({
   onAfterAction,
 }: EditorSidebarSectionsProps) {
   const navigate = useNavigate();
+  const open3DRoom = config.onOpen3DRoom ?? (() => {
+    config.onSave();
+    navigate('/3d-room');
+  });
 
   const projectActions: ActionDef[] = [
     {
@@ -195,7 +199,7 @@ export default function EditorSidebarSections({
       testId: 'editor-sidebar-open-3d-room',
       icon: ExternalLink,
       label: 'Open 3D Room',
-      onClick: () => navigate('/3d-room'),
+      onClick: open3DRoom,
     },
     {
       id: 'toggle-3d',
