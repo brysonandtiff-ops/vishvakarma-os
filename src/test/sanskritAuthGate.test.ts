@@ -185,6 +185,7 @@ describe('Sanskrit auth gate design', () => {
     expect(routeGuard).toContain('vish-fade-rise');
     expect(styles).toContain('.vish-auth-logo-hero');
     expect(styles).toContain('.vish-auth-logo-wrap');
+    expect(styles).toContain('.vish-auth-google-button');
     expect(styles).toContain('@keyframes vish-auth-logo-breathe');
     expect(layers).toContain('.vish-auth-aurora');
     expect(layers).toContain('@keyframes vish-auth-aurora-drift');
