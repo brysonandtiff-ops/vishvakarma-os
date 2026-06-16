@@ -24,7 +24,7 @@ function main() {
         '--limit',
         '5',
         '--json',
-        'conclusion,workflowName,path,displayTitle,createdAt,event',
+        'conclusion,workflowName,displayTitle,createdAt,event,workflowDatabaseId',
       ]),
     );
   } catch (error) {
