@@ -11,7 +11,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Field | Value |
 |-------|-------|
 | Product | Vishvakarma.OS |
-| Version | 1.2.0 |
+| Version | 1.5.0 |
 | Production URL | https://vishvakarma-os.app |
 | Vercel fallback URL | https://vishvakarma-os.vercel.app |
 | Completed by | |
@@ -138,5 +138,3 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 - [ ] Operator annex delivered via secure channel and destroyed from sender's insecure copies
 - [ ] `pnpm run handoff:verify` passes on transferred repository
 - [ ] Production smoke test completed on https://vishvakarma-os.app
-
-**Signed:** _________________________ **Date:** _____________
