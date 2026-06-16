@@ -38,7 +38,7 @@ function main() {
   }
 
   const startupFailures = runs.filter((run) => run.conclusion === 'startup_failure');
-  const buildFailedGhost = runs.filter((run) => run.path === 'BuildFailed');
+  const unnamedRuns = runs.filter((run) => !run.workflowName);
 
   for (const run of runs) {
     const label = run.conclusion === 'success' ? 'PASS' : run.conclusion === 'startup_failure' ? 'FAIL' : 'WARN';
