@@ -122,7 +122,7 @@ export default defineConfig({
     { ...chromiumAppSmoke, name: 'app-smoke' },
     {
       name: 'screenshot-pack',
-      testMatch: ['**/release-screenshot-pack.spec.ts', '**/marketing-asset-pack.spec.ts'],
+      testMatch: ['**/release-screenshot-pack.spec.ts', '**/marketing-asset-pack.spec.ts', '**/demo-flow-screenshot-pack.spec.ts'],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1194, height: 834 },
