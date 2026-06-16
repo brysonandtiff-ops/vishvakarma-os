@@ -1,4 +1,5 @@
 import { backendStatus } from '@/backend/backendConfig';
+import { APP_VERSION } from '@/config/appVersion';
 import {
   createSupabaseAuditLog,
   createSupabaseChangeRequest,
@@ -245,6 +246,17 @@ export async function getReleases(): Promise<Release[]> {
 
 function getLocalReleaseHistory(): Release[] {
   return [
+    {
+      id: 'local-v1-5-0',
+      version: APP_VERSION,
+      title: 'Governance & Editor Polish',
+      description:
+        'Orthogonal wall draw lock, stacked multi-floor 3D preview, DXF LWPOLYLINE import, NBC stub rules, and collaboration preview handoff.',
+      change_requests: [],
+      status: 'released',
+      released_at: '2026-06-14T00:00:00.000Z',
+      created_at: '2026-06-10T00:00:00.000Z',
+    },
     {
       id: 'local-v1-0-0',
       version: 'v1.0.0',

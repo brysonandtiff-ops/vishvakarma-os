@@ -1,6 +1,7 @@
 ﻿import { useLocation } from 'react-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { ShieldCheck, Activity, HardDrive, Target } from 'lucide-react';
+import { APP_VERSION } from '@/config/appVersion';
 
 interface WorkspaceStatusHubProps {
   collapsed: boolean;
@@ -49,7 +50,7 @@ export function WorkspaceStatusHub({ collapsed }: WorkspaceStatusHubProps) {
 
         <div className="flex items-center gap-2.5 text-[10px] text-ws-text-dim">
           <Target className="h-3.5 w-3.5 text-ws-active/80" />
-          <span className="truncate font-mono">v1.0.0-RC1 · Release Ready</span>
+          <span className="truncate font-mono">{APP_VERSION} · Release Ready</span>
         </div>
       </div>
     </div>

@@ -29,6 +29,7 @@ import {
 } from '@/governance/gates/releaseGateManifest';
 import type { Release } from '@/types';
 import { Link } from 'react-router';
+import { APP_VERSION } from '@/config/appVersion';
 
 interface ReleaseGate {
   id: string;
@@ -266,7 +267,7 @@ export default function ReleasesPage() {
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <Package className="h-6 w-6 text-primary" />
-                    <h2 className="text-lg font-bold text-foreground">Vishvakarma.OS v1.0.0</h2>
+                    <h2 className="text-lg font-bold text-foreground">Vishvakarma.OS {APP_VERSION}</h2>
                   </div>
                   <p className="text-sm text-muted-foreground">Blueprint Editor Release Candidate</p>
                 </div>
