@@ -13,11 +13,16 @@ test.describe('marketing pages', () => {
     await page.goto('/');
     await expect(page.getByText(/Sacred 3D View/i).first()).toBeVisible();
     await expect(page.getByRole('link', { name: /Start Free/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /See All Features/i }).first()).toBeVisible();
+    await expect(page.getByText(/Blueprint to chamber/i).first()).toBeVisible();
+    await expect(page.getByText(/Built for professional delivery/i).first()).toBeVisible();
+    await expect(page.locator('.vish-workflow-strip')).toBeVisible();
   });
 
-  test('features page loads and guide opens editor', async ({ page }) => {
+  test('features page loads tabs and guide opens editor', async ({ page }) => {
     await page.goto('/features');
-    await expect(page.getByRole('tab', { name: 'Getting Started' })).toBeVisible();
+    await expect(page.getByTestId('features-tab-guides')).toBeVisible();
+    await expect(page.getByTestId('features-tab-all')).toBeVisible();
     await page.getByRole('button', { name: /your first floor plan/i }).click();
     await expect(page).toHaveURL(/\/editor$/);
   });
