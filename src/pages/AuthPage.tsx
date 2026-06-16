@@ -3,7 +3,6 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
-import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
@@ -18,6 +17,8 @@ import {
   POST_AUTH_DESTINATION,
   storeAuthReturnPath,
 } from '@/backend/supabase/supabaseOAuthGateway';
+import AuthGoogleButton from '@/components/auth/AuthGoogleButton';
+import AuthSignInHeader from '@/components/auth/AuthSignInHeader';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
@@ -46,29 +47,6 @@ function getSignInHelperLine(winner: 'email' | 'google' | 'none') {
   }
 
   return 'Sign-in methods are being verified.';
-}
-
-function GoogleMarkIcon() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      />
-    </svg>
-  );
 }
 
 export default function AuthPage() {
@@ -218,71 +196,18 @@ export default function AuthPage() {
     Boolean(emailLinkError || error) ||
     passwordResetNotice ||
     sessionRestoreTimeoutNotice ||
-    capabilitiesLoading ||
     (showGoogleSignIn && embeddedAuthBrowser);
 
   return (
     <>
         <div className="vish-auth-card-mockup vish-page-enter w-full" data-testid="auth-mockup-card">
-          <header className="vish-auth-card-header mb-6 flex flex-col items-center text-center">
-            <p className="vish-devanagari-hero mb-3 text-base sm:text-lg">ॐ श्री विश्वकर्मणे नमः</p>
-            <div className="vish-auth-logo-hero">
-              <div className="vish-auth-logo-mandala" aria-hidden="true">
-                <div className="vish-auth-logo-ring vish-auth-logo-ring-outer" />
-                <div className="vish-auth-logo-ring vish-auth-logo-ring-mid" />
-                <div className="vish-auth-logo-ring vish-auth-logo-ring-inner" />
-                <div className="vish-auth-logo-aura" />
-                <div className="vish-auth-logo-yantra" />
-              </div>
-              <div className="vish-auth-logo-wrap">
-                <img
-                  src={OFFICIAL_LOGO_SRC}
-                  alt="Vishvakarma.OS official user-supplied swan V logo"
-                  className="vish-auth-logo-img"
-                  width={76}
-                  height={76}
-                  decoding="async"
-                />
-              </div>
-            </div>
-            <h1
-              id="auth-page-title"
-              className="vish-wordmark vish-auth-wordmark vish-auth-wordmark-breathe text-lg font-bold tracking-[0.28em] text-primary sm:text-xl"
-            >
-              VISHVAKARMA.OS
-            </h1>
-            <div className="vish-auth-wordmark-divider" aria-hidden="true" />
-            <p className="vish-auth-card-tagline mt-2 text-xs text-primary/70">
-              iPad-First Architecture Studio
-            </p>
-            <p
-              className="vish-auth-card-headline mt-3 text-sm font-medium text-foreground sm:text-base"
-              aria-live="polite"
-            >
-              {capabilitiesLoading ? 'Preparing sign-in…' : signInHeadline}
-            </p>
-            <div className="vish-auth-workspace-badge mt-2">
-              <span
-                className={`vish-auth-supabase-pill ${isConfigured ? 'vish-auth-supabase-pill--live' : 'vish-auth-supabase-pill--draft'}`}
-                data-testid="auth-supabase-badge"
-                title={
-                  isConfigured
-                    ? 'Authentication and data run on Supabase (Postgres + Auth)'
-                    : 'Supabase env vars not configured — local draft mode'
-                }
-              >
-                Supabase Auth
-              </span>
-              <span
-                className={`vish-gold-pill ${isConfigured ? 'vish-gold-pill--live' : 'vish-gold-pill--draft'}`}
-              >
-                {workspaceStatusLabel}
-              </span>
-            </div>
-            <p className="vish-auth-card-helper mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-[0.8125rem]">
-              {capabilitiesLoading ? 'Checking verified sign-in methods…' : signInHelperLine}
-            </p>
-          </header>
+          <AuthSignInHeader
+            capabilitiesLoading={capabilitiesLoading}
+            signInHeadline={signInHeadline}
+            signInHelperLine={signInHelperLine}
+            isConfigured={isConfigured}
+            workspaceStatusLabel={workspaceStatusLabel}
+          />
 
           {hasStatusBanners && (
             <div className="vish-auth-status-stack" role="group" aria-label="Sign-in status">
@@ -337,12 +262,6 @@ export default function AuthPage() {
             </AuthStatusBanner>
           )}
 
-          {capabilitiesLoading && (
-            <AuthStatusBanner variant="info" loading className="text-center">
-              Loading sign-in options…
-            </AuthStatusBanner>
-          )}
-
           {showGoogleSignIn && embeddedAuthBrowser && (
             <AuthStatusBanner
               variant="warning"
@@ -359,8 +278,8 @@ export default function AuthPage() {
 
           <section className="vish-auth-actions" aria-label="Sign-in actions">
           {showEmailSignIn && (
-            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="vish-auth-form space-y-4">
-              <label className="block space-y-1.5">
+            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="vish-auth-form space-y-3">
+              <label className="block space-y-1">
                 <span className="vish-bilingual-label">
                   Email <span>- ई-पत्र</span>
                 </span>
@@ -431,7 +350,7 @@ export default function AuthPage() {
           )}
 
           {showGoogleSignIn && (
-            <div className="vish-auth-form space-y-4">
+            <div className="vish-auth-form space-y-3">
               {showEmbeddedAuthRecovery && (
                 <div className="vish-auth-embedded-recovery" data-testid="auth-open-in-browser-cta">
                   <p className="vish-auth-embedded-recovery__title">Open in your system browser</p>
@@ -462,19 +381,11 @@ export default function AuthPage() {
                 </AuthStatusBanner>
               )}
 
-              <Button
-                type="button"
-                variant="gold"
-                size="full"
-                className="touch-target gap-3"
-                disabled={submitting || !isConfigured || showConfigRequired || embeddedAuthBrowser}
+              <AuthGoogleButton
+                submitting={submitting}
+                disabled={!isConfigured || showConfigRequired || embeddedAuthBrowser}
                 onClick={() => void handleGoogleSignIn()}
-              >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm bg-white p-0.5">
-                  <GoogleMarkIcon />
-                </span>
-                {submitting ? 'Connecting to Google…' : 'Continue with Google'}
-              </Button>
+              />
 
               {allowLocalWorkspace && (
                 <button

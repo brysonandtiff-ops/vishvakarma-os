@@ -9,8 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-# Artifact upload steps need actions:write; inherit repo default (write) instead of
-# downgrading to read-only, which triggers startup_failure on upload-artifact v4.
 concurrency:
   group: verify-${{ github.ref }}
   cancel-in-progress: true
