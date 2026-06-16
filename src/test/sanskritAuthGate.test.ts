@@ -62,16 +62,18 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps trust pillars and workspace branding on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
+    const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
     const trustPillar = read('src/components/auth/AuthTrustPillar.tsx');
 
-    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('vish-auth-logo-hero');
-    expect(authPage).toContain('vish-auth-logo-wrap');
-    expect(authPage).toContain('vish-auth-logo-img');
-    expect(authPage).toContain('vish-auth-wordmark-divider');
-    expect(authPage).toContain('VISHVAKARMA.OS');
-    expect(authPage).toContain('vish-devanagari-hero');
-    expect(authPage).toContain('iPad-First Architecture Studio');
+    expect(authPage).toContain('AuthSignInHeader');
+    expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
+    expect(authHeader).toContain('vish-auth-logo-hero');
+    expect(authHeader).toContain('vish-auth-logo-wrap');
+    expect(authHeader).toContain('vish-auth-logo-img');
+    expect(authHeader).toContain('vish-auth-wordmark-divider');
+    expect(authHeader).toContain('VISHVAKARMA.OS');
+    expect(authHeader).toContain('vish-devanagari-hero');
+    expect(authHeader).toContain('iPad-First Architecture Studio');
     expect(authPage).toContain('FoundersAcknowledgment');
     expect(authPage).toContain('variant="auth"');
     expect(read('src/brand/founders.ts')).toContain('TYRASIC CREATIONS');
