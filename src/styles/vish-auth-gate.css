@@ -791,6 +791,25 @@
   gap: 0.5rem;
 }
 
+.vish-auth-workspace-badge--compact {
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--vish-gold-muted) / 0.28);
+  background: hsl(0 0% 4% / 0.55);
+}
+
+.vish-auth-workspace-badge__sep {
+  color: hsl(var(--vish-gold-muted) / 0.55);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.vish-auth-signin-copy {
+  width: 100%;
+  max-width: 22rem;
+}
+
 .vish-auth-supabase-pill {
   display: inline-flex;
   align-items: center;
