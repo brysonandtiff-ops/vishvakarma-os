@@ -625,6 +625,59 @@
   width: 100%;
 }
 
+.vish-auth-google-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(0 0% 88% / 0.35);
+  background: hsl(0 0% 98%);
+  color: hsl(220 14% 12%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  box-shadow:
+    0 1px 2px hsl(0 0% 0% / 0.12),
+    inset 0 1px 0 hsl(0 0% 100%);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.vish-auth-google-button:hover:not(:disabled) {
+  background: hsl(0 0% 100%);
+  border-color: hsl(43 65% 52% / 0.45);
+  box-shadow:
+    0 4px 14px hsl(0 0% 0% / 0.18),
+    0 0 0 1px hsl(43 65% 52% / 0.12);
+  transform: translateY(-1px);
+}
+
+.vish-auth-google-button:focus-visible {
+  outline: 2px solid hsl(43 65% 52% / 0.65);
+  outline-offset: 2px;
+}
+
+.vish-auth-google-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vish-auth-google-button__icon {
+  display: inline-flex;
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
 .vish-auth-form-helper {
   margin: 0;
   font-size: 0.6875rem;
