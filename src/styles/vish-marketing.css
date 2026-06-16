@@ -159,9 +159,20 @@
 }
 
 .vish-features-toggle button[data-state='active'] {
-  border-color: hsl(var(--vish-gold) / 0.6);
-  background: hsl(var(--vish-gold) / 0.12);
-  color: hsl(var(--vish-gold));
+  border-color: hsl(var(--vish-gold) / 0.75);
+  background: linear-gradient(165deg, hsl(var(--vish-gold) / 0.18), hsl(var(--vish-gold) / 0.08));
+  color: hsl(var(--vish-gold-glow));
+  box-shadow:
+    0 0 20px hsl(var(--vish-gold) / 0.15),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.12);
+}
+
+.vish-features-category-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: hsl(var(--vish-gold-glow));
 }
 
 .vish-feature-grid-card {
