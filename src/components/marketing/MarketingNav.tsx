@@ -3,6 +3,7 @@ import { Menu } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
+import { getMarketingCta } from '@/lib/marketingCta';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
