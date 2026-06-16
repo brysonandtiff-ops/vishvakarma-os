@@ -57,17 +57,17 @@ export default function LandingPage() {
           }
           description="Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays, NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft."
         />
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Button variant="gold" size="gold" className="touch-target" asChild>
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
             <Link to={cta.to}>{cta.primary}</Link>
           </Button>
           {cta.secondary && (
-            <Button variant="goldOutline" size="gold" className="touch-target" asChild>
+            <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
               <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
             </Button>
           )}
         </div>
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:mt-20">
+        <div className="mt-16 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:mt-20">
           {STATS.map((stat, index) => (
             <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
           ))}

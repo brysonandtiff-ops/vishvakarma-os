@@ -154,15 +154,15 @@ export default function FeaturesPage() {
           }
           description="Step-by-step guides open the editor with contextual hints for each workflow."
         />
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Button variant="gold" size="gold" className="touch-target" asChild>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
             <Link to={cta.to}>{cta.primary}</Link>
           </Button>
-          <Button variant="goldOutline" size="gold" className="touch-target" asChild>
+          <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
             <Link to={heroSecondary.to}>{heroSecondary.label}</Link>
           </Button>
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <MetricPill
             value={String(FEATURE_MODULES.filter((m) => m.ready).length)}
             label="ready now"

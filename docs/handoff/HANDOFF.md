@@ -15,6 +15,8 @@
 
 This pack is the **single entry point** for valuation, acquisition due diligence, investor technical review, and operator handover. It orchestrates existing documentation and adds **auto-generated appendices** so inventories stay aligned with live code.
 
+> **Want the whole system in one read?** [END_TO_END_HANDOFF.md](./END_TO_END_HANDOFF.md) is a single self-contained description of every subsystem, data flow, and operation — start there for a complete narrative, then use the annexes/appendices below for drill-downs.
+
 | Audience | Recommended reading order |
 |----------|---------------------------|
 | **Cursor / coding agents** | [AGENTS.md](../../AGENTS.md) — verify, ship, precedence (start here) |
