@@ -184,6 +184,20 @@
   box-shadow:
     0 12px 32px hsl(0 0% 0% / 0.28),
     inset 0 1px 0 hsl(var(--vish-gold) / 0.08);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.vish-marketing-page .vish-feature-grid-card:not([type='button']):hover,
+.vish-marketing-page article.vish-feature-grid-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--vish-gold) / 0.45);
+  box-shadow:
+    0 16px 36px hsl(0 0% 0% / 0.32),
+    0 0 24px hsl(var(--vish-gold) / 0.1),
+    inset 0 1px 0 hsl(var(--vish-gold) / 0.1);
 }
 
 .vish-marketing-page .vish-feature-grid-card__footer {
