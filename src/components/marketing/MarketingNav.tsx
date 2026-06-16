@@ -16,8 +16,7 @@ function navLinkClass(pathname: string, href: string) {
 export function MarketingNav() {
   const { user } = useAuth();
   const { pathname } = useLocation();
-  const ctaTo = user ? '/editor' : '/auth';
-  const ctaLabel = user ? 'Open Editor' : 'Start Free';
+  const { to: ctaTo, navPrimary: ctaLabel } = getMarketingCta(user);
 
   const navLinks = (
     <>

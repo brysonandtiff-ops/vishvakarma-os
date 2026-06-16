@@ -3,9 +3,6 @@ name: Lighthouse Audit
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   lighthouse:
     name: Lighthouse performance audit

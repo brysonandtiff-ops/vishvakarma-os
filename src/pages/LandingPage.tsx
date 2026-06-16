@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom';
 import PageMeta from '@/components/common/PageMeta';
+import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
 import PageSectionGrid from '@/components/common/PageSectionGrid';
+import { MarketingCtaSection } from '@/components/marketing/MarketingCtaSection';
 import MarketingSection from '@/components/marketing/MarketingSection';
+import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { Button } from '@/components/ui/button';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
+import { getMarketingCta } from '@/lib/marketingCta';
 import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 
 const STATS = [
@@ -30,7 +34,7 @@ const WORKFLOW = [
 
 export default function LandingPage() {
   const { user } = useAuth();
-  const startTo = user ? '/editor' : '/auth';
+  const cta = getMarketingCta(user);
 
   return (
     <>
@@ -38,26 +42,30 @@ export default function LandingPage() {
         title="Vishvakarma.OS — iPad-First Architecture Studio"
         description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
       />
-      <section className="vish-marketing-hero vish-page-enter">
-        <p className="vish-devanagari-hero mb-4">ॐ श्री विश्वकर्मणे नमः</p>
-        <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">
-          iPad-first architecture studio.
-          <br />
-          <span className="vish-hero-gold">Sacred 3D View.</span>
-          <br />
-          Export-ready deliverables.
-        </h1>
-        <p className="mt-8 max-w-prose-content text-base leading-relaxed vish-text-body md:mt-10 md:text-lg">
-          Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays,
-          NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft.
-        </p>
+      <section className="vish-marketing-hero vish-stagger-children vish-page-enter">
+        <MarketingPageHeader
+          devanagari="ॐ श्री विश्वकर्मणे नमः"
+          hero
+          title={
+            <>
+              iPad-first architecture studio.
+              <br />
+              <span className="vish-hero-gold">Sacred 3D View.</span>
+              <br />
+              Export-ready deliverables.
+            </>
+          }
+          description="Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays, NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft."
+        />
         <div className="mt-10 flex flex-wrap gap-4">
           <Button variant="gold" size="gold" className="touch-target" asChild>
-            <Link to={startTo}>Start Free →</Link>
+            <Link to={cta.to}>{cta.primary}</Link>
           </Button>
-          <Button variant="goldOutline" size="gold" className="touch-target" asChild>
-            <Link to="/features">See All Features</Link>
-          </Button>
+          {cta.secondary && (
+            <Button variant="goldOutline" size="gold" className="touch-target" asChild>
+              <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
+            </Button>
+          )}
         </div>
         <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:mt-20">
           {STATS.map((stat, index) => (
@@ -67,10 +75,11 @@ export default function LandingPage() {
       </section>
 
       <MarketingSection
+        className="vish-fade-rise"
         title="Blueprint to chamber"
         description="One floor plan powers 2D drafting, live 3D preview, and every export format."
       >
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
             <img
               src="/marketing/product-2d.png"
@@ -93,6 +102,17 @@ export default function LandingPage() {
               Sacred 3D View
             </figcaption>
           </figure>
+          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm lg:col-span-2 xl:col-span-1">
+            <img
+              src="/marketing/product-export.png"
+              alt="Export Package dialog with JSON, PNG, PDF, DXF, and SVG formats"
+              className="aspect-[16/10] h-auto w-full object-cover"
+              loading="lazy"
+            />
+            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
+              Export Package
+            </figcaption>
+          </figure>
         </div>
         <ol className="vish-workflow-strip mt-8 grid gap-6 md:grid-cols-3 md:gap-4">
           {WORKFLOW.map((item) => (
@@ -111,35 +131,21 @@ export default function LandingPage() {
 
       <MarketingSection
         bordered={false}
+        className="vish-fade-rise"
         title="Built for professional delivery"
         description="A governed architectural workstation — specs, exports, and audit trail built in."
       >
         <PageSectionGrid cols={2} className="mt-2">
           {PROOF.map((item) => (
-            <div key={item.title} className="vish-feature-grid-card vish-pressable flex gap-4 rounded-card-lg p-5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
-                <item.icon className="h-5 w-5" />
-              </span>
-              <div>
-                <h3 className="font-semibold vish-text-heading">{item.title}</h3>
-                <p className="mt-1 text-sm vish-text-body">{item.desc}</p>
-              </div>
-            </div>
+            <FeatureCard key={item.title} title={item.title} icon={item.icon} description={item.desc} />
           ))}
         </PageSectionGrid>
       </MarketingSection>
 
-      <section className="vish-marketing-section vish-marketing-section--bordered py-16">
-        <div className="mx-auto max-w-prose-content text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
-          <p className="mt-4 text-lg vish-text-heading">
-            Load the sample project, draw your first walls, and export a deliverable package in minutes.
-          </p>
-          <Button variant="gold" size="gold" className="mt-8 touch-target" asChild>
-            <Link to={startTo}>Create Your First Floor Plan →</Link>
-          </Button>
-        </div>
-      </section>
+      <MarketingCtaSection
+        user={user}
+        body="Load the sample project, draw your first walls, and export a deliverable package in minutes."
+      />
     </>
   );
 }
