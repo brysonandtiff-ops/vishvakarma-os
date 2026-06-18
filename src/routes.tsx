@@ -1,7 +1,11 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import EditorPage from './pages/EditorPage';
 import { PRICING_PAGE_ENABLED } from './config/marketingFeatures';
 
+// EditorPage was the only statically-imported page in this file, pulling the entire
+// editor surface (canvas, 3D viewport, tool rail, dialogs) into the initial bundle.
+// Now lazy-loaded like every other route — resolves the static/dynamic import conflict
+// that was preventing proper code splitting for this module.
+const EditorPage = lazy(() => import('./pages/EditorPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -101,7 +105,7 @@ const routes: RouteConfig[] = [
   {
     name: 'Blueprint Editor',
     path: '/editor',
-    element: <EditorPage />,
+    element: lazyRoute(<EditorPage />),
     visible: true,
     access: 'private',
   },

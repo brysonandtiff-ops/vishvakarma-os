@@ -80,6 +80,8 @@
   opacity: 0.5;
   mask-image: radial-gradient(circle at center, black 0%, black 35%, transparent 65%);
   animation: sacred-mandala-float 12s ease-in-out infinite;
+  /* Compositor layer hint — prevents layout recalc on float animation */
+  will-change: transform, opacity;
 }
 
 @keyframes sacred-mandala-float {
@@ -242,16 +244,7 @@
   animation: sacred-mantra-breathe 5s ease-in-out infinite;
 }
 
-@keyframes sacred-mantra-breathe {
-  0%, 100% {
-    opacity: 0.8;
-    text-shadow: 0 0 12px hsl(42 78% 50% / 0.25);
-  }
-  50% {
-    opacity: 1;
-    text-shadow: 0 0 20px hsl(42 78% 50% / 0.45);
-  }
-}
+/* sacred-mantra-breathe is defined in vish-indian-sacred.css (canonical source) */
 
 .sacred-auth-title {
   font-size: 1.5rem;
@@ -516,16 +509,7 @@
    ANIMATIONS & TRANSITIONS
    ═══════════════════════════════════════════════════════════════════════════ */
 
-@keyframes sacred-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
+/* sacred-scale-in is defined in vish-indian-sacred.css (canonical source) */
 
 /* Stagger children animation */
 .sacred-auth-card .sacred-animate-stagger > * {
@@ -540,16 +524,7 @@
 .sacred-auth-card .sacred-animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
 .sacred-auth-card .sacred-animate-stagger > *:nth-child(6) { animation-delay: 0.6s; }
 
-@keyframes sacred-fade-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* sacred-fade-rise is defined in vish-indian-sacred.css (canonical source) */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE & ACCESSIBILITY

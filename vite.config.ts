@@ -34,6 +34,45 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
+          // R3.1: Cache mantra audio — 11 MB of MP3s were re-downloaded on every visit.
+          // CacheFirst: serve from cache if available, only hit network for new/changed files.
+          {
+            urlPattern: /\/audio\/mantras\/.*\.mp3$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'mantra-audio',
+              expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          // R3.2a: Cache 3D material textures — 35 MB of JPGs, previously re-downloaded
+          // on every 3D session. After first load, served instantly from cache.
+          {
+            urlPattern: /\/textures\/.*\.(jpg|jpeg|png|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'textures',
+              expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
+          // R3.2b: Cache 3D GLB models — 35 MB of models, previously re-downloaded
+          // on every 3D session. After first load, served instantly from cache.
+          {
+            urlPattern: /\/models\/.*\.glb$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'models',
+              expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
+          // R3.2c: Cache HDRI environment maps used by the 3D viewport.
+          {
+            urlPattern: /\/hdri\/.*\.hdr$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'hdri',
+              expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
         ],
       },
       devOptions: {
@@ -60,6 +99,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('sonner')) return 'vendor-ui';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+          // R1.4: Split vendor-misc into named chunks for better long-term cache efficiency.
+          // Each group changes at a different rate, so they can be cached independently.
+          if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
+          if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
+          if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
+          if (id.includes('@vercel/analytics') || id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
           return 'vendor-misc';
         },
       },

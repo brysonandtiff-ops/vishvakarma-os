@@ -347,6 +347,13 @@
   to { transform: rotate(360deg); }
 }
 
+/* Promote spinning/floating mandala SVG layers to compositor — prevents layout
+   recalculation on every animation frame for long-running rotate/float animations */
+.sacred-mandala-layer,
+.sacred-animate-float {
+  will-change: transform;
+}
+
 @keyframes sacred-pulse-glow {
   0%, 100% {
     box-shadow: 0 0 20px hsl(var(--sacred-gold) / 0.2);

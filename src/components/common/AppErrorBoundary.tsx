@@ -1,5 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+// monitoring is statically imported in App.tsx so it is always in the main bundle.
+// Using a static import here (instead of dynamic) resolves the Vite build warning:
+// "dynamically imported by AppErrorBoundary but also statically imported by App.tsx"
+import { captureException } from '@/lib/monitoring';
 
 interface AppErrorBoundaryProps {
   children: ReactNode;
@@ -26,9 +30,7 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[Vishvakarma.OS] UI error boundary caught:', error, info.componentStack);
-    void import('@/lib/monitoring').then(({ captureException }) => {
-      captureException(error, { componentStack: info.componentStack ?? '' });
-    });
+    captureException(error, { componentStack: info.componentStack ?? '' });
   }
 
   render() {

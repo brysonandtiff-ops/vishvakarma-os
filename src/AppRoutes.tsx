@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import EditorPage from '@/pages/EditorPage';
 import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
 import AuthLayout from '@/components/layouts/AuthLayout';
@@ -13,6 +12,10 @@ import { WorkspaceGovernanceLayout } from '@/components/layouts/WorkspaceGoverna
 import { RouteLoadingFallback } from '@/components/layouts/RouteLoadingFallback';
 import AuthAwareNotFound from '@/pages/AuthAwareNotFound';
 
+// All pages are lazy-loaded — EditorPage was previously a static import (the only one),
+// pulling the entire editor surface (canvas, 3D viewport, tool rail, dialogs) into the
+// initial bundle even for users on /auth or /. Now deferred like every other route.
+const EditorPage = lazy(() => import('@/pages/EditorPage'));
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
@@ -54,7 +57,7 @@ export function AppRoutes() {
       <Route path="/cast/:token" element={withSuspense(<CastViewerPage />, 'editor')} />
 
       <Route element={<AppLayoutOutlet immersive />}>
-        <Route path="/editor" element={<EditorPage />} />
+        <Route path="/editor" element={withSuspense(<EditorPage />, 'editor')} />
       </Route>
 
       <Route element={<AppLayoutOutlet />}>
