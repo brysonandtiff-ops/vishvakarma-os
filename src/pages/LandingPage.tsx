@@ -43,34 +43,53 @@ export default function LandingPage() {
         description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
       />
       <section className="vish-marketing-hero vish-stagger-children vish-page-enter">
-        <MarketingPageHeader
-          devanagari="ॐ श्री विश्वकर्मणे नमः"
-          hero
-          title={
-            <>
-              iPad-first architecture studio.
-              <br />
-              <span className="vish-hero-gold">Sacred 3D View.</span>
-              <br />
-              Export-ready deliverables.
-            </>
-          }
-          description="Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays, NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft."
-        />
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-          <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
-            <Link to={cta.to}>{cta.primary}</Link>
-          </Button>
-          {cta.secondary && (
-            <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
-              <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
-            </Button>
-          )}
-        </div>
-        <div className="mt-16 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:mt-20">
-          {STATS.map((stat, index) => (
-            <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
-          ))}
+        <div className="vish-hero-split">
+          <div className="vish-hero-copy">
+            <MarketingPageHeader
+              devanagari="ॐ श्री विश्वकर्मणे नमः"
+              hero
+              title={
+                <>
+                  iPad-first architecture studio.
+                  <br />
+                  <span className="vish-hero-gold">Sacred 3D View.</span>
+                  <br />
+                  Export-ready deliverables.
+                </>
+              }
+              description="Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays, NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft."
+            />
+            <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+              <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
+                <Link to={cta.to}>{cta.primary}</Link>
+              </Button>
+              {cta.secondary && (
+                <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
+                  <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
+                </Button>
+              )}
+            </div>
+            <div className="vish-hero-stats mt-14 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:mt-16">
+              {STATS.map((stat, index) => (
+                <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
+              ))}
+            </div>
+          </div>
+
+          <div className="vish-hero-showcase" aria-hidden="true">
+            <figure className="vish-hero-showcase__main vish-frame-bezel">
+              <img src="/marketing/product-3d.png" alt="" width={1280} height={800} decoding="async" />
+              <figcaption>
+                <span className="vish-hero-showcase__dot" />
+                Sacred 3D View · live sync
+              </figcaption>
+            </figure>
+            <figure className="vish-hero-showcase__inset vish-frame-bezel">
+              <img src="/marketing/product-2d.png" alt="" width={1280} height={800} decoding="async" />
+              <figcaption>2D Blueprint</figcaption>
+            </figure>
+            <span className="vish-hero-showcase__flow">2D&nbsp;→&nbsp;3D&nbsp;live</span>
+          </div>
         </div>
       </section>
 
