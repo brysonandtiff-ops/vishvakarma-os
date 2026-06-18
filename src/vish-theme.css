@@ -4,7 +4,11 @@
   --card: 38 34% 97%;
   --card-foreground: 36 14% 11%;
   --primary: 43 65% 52%;
-  --primary-foreground: 38 38% 96%;
+  /* Dark warm ink on gold — matches .vish-btn-gold (hsl(0 0% 8%)) and the
+     index.css canonical token. The previous cream value (38 38% 96%) rendered
+     near-white text on gold, a serious WCAG-AA contrast failure on every
+     bg-primary surface (default Button, Badge, toast, tooltip, checkbox). */
+  --primary-foreground: 36 24% 10%;
   --secondary: 38 22% 88%;
   --secondary-foreground: 36 14% 16%;
   --muted: 38 22% 88%;
