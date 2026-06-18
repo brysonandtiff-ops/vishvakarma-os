@@ -1,0 +1,4 @@
+# Exclude legacy texture source copies from Vercel deployments.
+# WebP texture assets are the runtime path.
+public/textures/**/*.jpg
+public/textures/**/*.jpeg
