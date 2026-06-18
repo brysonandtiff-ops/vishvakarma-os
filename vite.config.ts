@@ -24,6 +24,10 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — allows large WebP normal maps
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}'],
+        // iOS apple-touch-startup-image set is large and only used by the OS at
+        // launch — keep it out of the precache manifest (served on-demand like the
+        // other heavy media) so it never bloats the PWA install.
+        globIgnores: ['**/splash/**'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [

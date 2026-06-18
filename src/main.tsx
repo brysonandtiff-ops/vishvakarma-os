@@ -100,3 +100,27 @@ createRoot(document.getElementById("root")!).render(
     </AppWrapper>
   </StrictMode>
 );
+
+// ============================================================================
+// STARTUP SPLASH TEARDOWN
+// ============================================================================
+// Fade out and remove the inline #boot-splash (index.html) once React has
+// painted, handing off seamlessly to the app (or the SessionBootScreen mandala,
+// which shares the same dark stage). A hard timeout guarantees the splash can
+// never get stuck on a slow boot.
+const dismissBootSplash = () => {
+  const splash = document.getElementById('boot-splash');
+  if (!splash) return;
+  splash.classList.add('boot-splash--hidden');
+  const remove = () => splash.remove();
+  splash.addEventListener('transitionend', remove, { once: true });
+  // Fallback in case transitionend never fires (e.g. reduced-motion / detached).
+  window.setTimeout(remove, 600);
+};
+
+if (typeof window !== 'undefined') {
+  // Double rAF waits for the first real paint of the React tree before fading.
+  requestAnimationFrame(() => requestAnimationFrame(dismissBootSplash));
+  // Hard safety net so the splash is always dismissed.
+  window.setTimeout(dismissBootSplash, 4000);
+}
