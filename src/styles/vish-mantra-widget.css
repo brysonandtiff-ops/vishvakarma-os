@@ -237,6 +237,7 @@
 }
 
 .mantra-panel__close {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,6 +249,18 @@
   color: hsl(230 15% 50%);
   cursor: pointer;
   transition: color 200ms ease, background 200ms ease;
+}
+
+/* Expand the tap target to the 44×44 minimum without enlarging the visual
+   button (which sits in a compact panel header). */
+.mantra-panel__close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .mantra-panel__close:hover {

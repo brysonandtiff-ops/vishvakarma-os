@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
+import PageMeta from '@/components/common/PageMeta';
 import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
 import { Box } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
@@ -956,6 +957,10 @@ function EditorWorkspace() {
 
   return (
     <>
+      <PageMeta
+        title={`${projectName || 'Blueprint Editor'} — Vishvakarma.OS`}
+        description="Draw floor plans, inspect the Sacred 3D View, and export client-ready packages in the Vishvakarma.OS blueprint editor."
+      />
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas">
         <EditorTopBar
           projectName={projectName}

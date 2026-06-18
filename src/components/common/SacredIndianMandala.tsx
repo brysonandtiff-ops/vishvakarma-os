@@ -4,7 +4,7 @@
  * and kolam-inspired dot patterns. Used as a background/decorative element.
  */
 
-import { memo } from 'react';
+import { memo, type ReactElement } from 'react';
 
 const CENTER = 200;
 const GOLD = 'hsl(42 78% 50%)';
@@ -16,7 +16,7 @@ const INDIGO_LIGHT = 'hsl(228 32% 42%)';
 const DEVANAGARI_RING = 'ॐ श्री विश्वकर्मणे नमः · धर्म · अर्थ · शिल्प · विज्ञान · वास्तु';
 
 function lotusPetals(count: number, innerR: number, outerR: number, color: string, opacity = 0.6) {
-  const petals = [];
+  const petals: ReactElement[] = [];
   for (let i = 0; i < count; i++) {
     const angle = (i * 360) / count;
     const rad = (angle * Math.PI) / 180;
@@ -51,14 +51,14 @@ function lotusPetals(count: number, innerR: number, outerR: number, color: strin
 }
 
 function sriYantraTriangles() {
-  const triangles = [];
+  const triangles: ReactElement[] = [];
   const sizes = [60, 48, 36, 24];
   const rotations = [0, 60, 120, 180];
 
   for (let i = 0; i < sizes.length; i++) {
     const s = sizes[i];
     const rot = rotations[i];
-    const points = [];
+    const points: string[] = [];
     for (let j = 0; j < 3; j++) {
       const angle = ((j * 120 + rot - 90) * Math.PI) / 180;
       points.push(`${CENTER + s * Math.cos(angle)},${CENTER + s * Math.sin(angle)}`);
@@ -78,7 +78,7 @@ function sriYantraTriangles() {
 }
 
 function kolamDots(radius: number, count: number) {
-  const dots = [];
+  const dots: ReactElement[] = [];
   for (let i = 0; i < count; i++) {
     const angle = (i * 360) / count;
     const rad = (angle * Math.PI) / 180;

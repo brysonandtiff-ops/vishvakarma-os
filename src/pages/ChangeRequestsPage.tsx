@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus } from 'lucide-react';
+import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus, Loader2, AlertCircle } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
@@ -24,18 +24,25 @@ import type { ChangeRequest } from '@/types';
 export default function ChangeRequestsPage() {
   const [requests, setRequests] = useState<ChangeRequest[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadRequests();
   }, []);
 
   const loadRequests = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const data = await getChangeRequests();
       setRequests(data);
-    } catch (error) {
-      console.error('Failed to load change requests:', error);
+    } catch (err) {
+      console.error('Failed to load change requests:', err);
+      setError('Failed to load change requests');
       toast.error('Failed to load change requests');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +146,18 @@ export default function ChangeRequestsPage() {
         <WorkspacePageScroll>
           <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="mt-3 text-sm">Loading change requests…</p>
+              </div>
+            ) : (
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
               <TabsList className="mb-6 flex-wrap">
                 {statuses.map((status) => (
@@ -237,6 +256,7 @@ export default function ChangeRequestsPage() {
                 )}
               </TabsContent>
             </Tabs>
+            )}
           </div>
         </WorkspacePageScroll>
     </>

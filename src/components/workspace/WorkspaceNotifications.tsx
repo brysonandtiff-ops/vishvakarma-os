@@ -30,7 +30,7 @@ export function WorkspaceNotifications() {
       <div className="ml-auto flex items-center gap-2">
         <button
           onClick={() => setDismissed(true)}
-          className="flex h-6 w-6 items-center justify-center rounded-lg text-warning/60 transition-all hover:bg-warning/10 hover:text-warning tap-highlight-none"
+          className="relative flex h-6 w-6 items-center justify-center rounded-lg text-warning/60 transition-all hover:bg-warning/10 hover:text-warning tap-highlight-none before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']"
           title="Dismiss notification"
           aria-label="Dismiss notification"
         >
