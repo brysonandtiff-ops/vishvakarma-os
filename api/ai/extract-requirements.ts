@@ -1,12 +1,18 @@
+import type { IncomingMessage } from 'node:http';
 import { buildingRequestSchema } from '../../src/ai/building-designer/prompts/outputSchema';
 import {
   EXTRACT_REQUIREMENTS_SYSTEM,
   buildExtractUserPrompt,
 } from '../../src/ai/building-designer/prompts/extractRequirements';
 import { parseRequirementsFallback, normalizeBuildingRequest } from '../../src/ai/building-designer/generators/requirementsExtractor';
+import type { PlanTier } from '../../src/config/billingPlans';
+import { verifySupabaseTokenFromRequest } from '../_lib/verifySupabaseToken';
+import { resolveUserPlanTier } from '../_lib/castBackend';
+import { consumeAiQuota } from '../_lib/aiUsage';
 
-type VercelRequest = {
+type VercelRequest = IncomingMessage & {
   method?: string;
+  headers: Record<string, string | string[] | undefined>;
   body?: unknown;
 };
 
@@ -44,6 +50,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Server-side Gemini is for authenticated users only. Unauthenticated callers get a
+  // 401 and fall back to the in-browser local parser — no anonymous Gemini cost.
+  const user = await verifySupabaseTokenFromRequest(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required for AI extraction' });
+  }
+
   const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) as {
     prompt?: string;
     parcelOverride?: Record<string, unknown>;
@@ -54,7 +67,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const fromGemini = await extractWithGemini(body.prompt, body.parcelOverride);
+    let fromGemini: Awaited<ReturnType<typeof extractWithGemini>> = null;
+
+    if (process.env.GEMINI_API_KEY) {
+      let tier: PlanTier = 'starter';
+      try {
+        tier = await resolveUserPlanTier(user.uid, user.email);
+      } catch {
+        // default to the starter ceiling if tier lookup fails
+      }
+      const quota = await consumeAiQuota(user.uid, tier);
+      if (!quota.allowed) {
+        return res
+          .status(429)
+          .json({ error: 'Daily AI limit reached', used: quota.used, limit: quota.limit });
+      }
+      fromGemini = await extractWithGemini(body.prompt, body.parcelOverride);
+    }
+
     const request =
       fromGemini ?? normalizeBuildingRequest(parseRequirementsFallback(body.prompt, body.parcelOverride));
 

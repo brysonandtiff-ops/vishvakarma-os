@@ -38,9 +38,20 @@ export async function extractRequirements(
   parcelOverride?: Partial<BuildingRequest['parcel']>
 ): Promise<BuildingRequest> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    try {
+      // Dynamic import keeps this client-only module out of the serverless bundle that
+      // also imports the local-parser exports from this file.
+      const { getSupabaseAccessToken } = await import('@/backend/supabase/supabaseAccessToken');
+      const token = await getSupabaseAccessToken();
+      if (token) headers.Authorization = `Bearer ${token}`;
+    } catch {
+      // proceed unauthenticated; the server returns 401 and we fall back to local parsing
+    }
+
     const res = await fetch('/api/ai/extract-requirements', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ prompt, parcelOverride }),
     });
 
