@@ -1,0 +1,362 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sacred Governance & Internal Pages — Indian Mandala Theme
+   Applies to: Projects, Profile, Specs, Registry, Releases, Audit,
+   Change Requests, World Records, Optimization pages.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base page styling for all governance/internal pages ── */
+.vish-governance-page,
+.vish-projects-page,
+.vish-profile-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 15% 10%, hsl(235 42% 12% / 0.3), transparent 40%),
+    radial-gradient(ellipse at 85% 90%, hsl(24 40% 8% / 0.15), transparent 35%),
+    linear-gradient(180deg, hsl(240 48% 5%) 0%, hsl(235 44% 7%) 100%);
+  color: hsl(38 35% 90%);
+}
+
+/* ── Page header with sacred accent ── */
+.vish-page-header {
+  position: relative;
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid hsl(232 30% 16%);
+}
+
+.vish-page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(42 78% 50% / 0.3) 20%,
+    hsl(42 78% 50% / 0.5) 50%,
+    hsl(42 78% 50% / 0.3) 80%,
+    transparent
+  );
+}
+
+.vish-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: hsl(38 35% 94%);
+}
+
+.vish-page-subtitle {
+  font-size: 0.85rem;
+  color: hsl(230 15% 58%);
+  margin-top: 0.25rem;
+}
+
+/* ── Sacred section headers with Devanagari accent ── */
+.vish-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.vish-section-header__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: hsl(38 35% 92%);
+}
+
+.vish-section-header__sanskrit {
+  font-family: 'Noto Sans Devanagari', serif;
+  font-size: 0.75rem;
+  color: hsl(42 78% 55% / 0.7);
+  letter-spacing: 0.04em;
+}
+
+/* ── Data table styling ── */
+.vish-sacred-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--sacred-radius-md, 12px);
+  overflow: hidden;
+  border: 1px solid hsl(232 30% 18%);
+  background: hsl(235 38% 8% / 0.5);
+}
+
+.vish-sacred-table thead {
+  background: hsl(235 38% 12% / 0.8);
+  border-bottom: 1px solid hsl(232 30% 20%);
+}
+
+.vish-sacred-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(42 78% 55%);
+  text-align: left;
+  border-bottom: 1px solid hsl(232 30% 20%);
+}
+
+.vish-sacred-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: hsl(38 35% 85%);
+  border-bottom: 1px solid hsl(232 30% 14%);
+}
+
+.vish-sacred-table tbody tr {
+  transition: background 200ms ease;
+}
+
+.vish-sacred-table tbody tr:hover {
+  background: hsl(42 78% 50% / 0.03);
+}
+
+.vish-sacred-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Project cards ── */
+.vish-project-card {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid hsl(232 30% 18%);
+  background: hsl(235 38% 10% / 0.6);
+  backdrop-filter: blur(12px);
+  transition:
+    border-color 250ms ease,
+    transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 250ms ease;
+  cursor: pointer;
+}
+
+.vish-project-card:hover {
+  border-color: hsl(42 78% 50% / 0.3);
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 36px hsl(0 0% 0% / 0.3),
+    0 0 24px hsl(42 78% 50% / 0.04);
+}
+
+.vish-project-card__name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(38 35% 92%);
+  margin-bottom: 0.25rem;
+}
+
+.vish-project-card__meta {
+  font-size: 0.75rem;
+  color: hsl(230 15% 55%);
+}
+
+.vish-project-card__badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Status badges ── */
+.vish-badge-active {
+  background: hsl(142 45% 38% / 0.15);
+  color: hsl(142 55% 55%);
+  border: 1px solid hsl(142 45% 38% / 0.3);
+}
+
+.vish-badge-draft {
+  background: hsl(42 78% 50% / 0.1);
+  color: hsl(42 78% 60%);
+  border: 1px solid hsl(42 78% 50% / 0.25);
+}
+
+.vish-badge-deprecated {
+  background: hsl(4 78% 48% / 0.1);
+  color: hsl(4 68% 60%);
+  border: 1px solid hsl(4 78% 48% / 0.25);
+}
+
+.vish-badge-locked {
+  background: hsl(260 40% 50% / 0.1);
+  color: hsl(260 50% 65%);
+  border: 1px solid hsl(260 40% 50% / 0.25);
+}
+
+/* ── Profile page ── */
+.vish-profile-avatar-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, hsl(42 78% 50%), hsl(24 92% 54%), hsl(340 62% 58%));
+}
+
+.vish-profile-avatar-ring__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid hsl(240 48% 6%);
+}
+
+/* ── Governance cards (specs, registry, releases) ── */
+.vish-governance-card {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid hsl(232 30% 18%);
+  background:
+    linear-gradient(165deg, hsl(235 38% 11% / 0.9), hsl(240 42% 7% / 0.95));
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition:
+    border-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.vish-governance-card:hover {
+  border-color: hsl(42 78% 50% / 0.25);
+  box-shadow:
+    0 8px 28px hsl(0 0% 0% / 0.25),
+    inset 0 1px 0 hsl(42 78% 50% / 0.06);
+}
+
+/* Sacred corner ornament on governance cards */
+.vish-governance-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(225deg, hsl(42 78% 50% / 0.08), transparent 60%);
+  border-bottom-left-radius: 100%;
+  pointer-events: none;
+}
+
+.vish-governance-card__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: hsl(38 35% 92%);
+  margin-bottom: 0.25rem;
+}
+
+.vish-governance-card__description {
+  font-size: 0.8rem;
+  color: hsl(230 15% 58%);
+  line-height: 1.5;
+}
+
+.vish-governance-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Empty state ── */
+.vish-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.vish-empty-state__icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  color: hsl(42 78% 50% / 0.4);
+}
+
+.vish-empty-state__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(38 35% 85%);
+  margin-bottom: 0.25rem;
+}
+
+.vish-empty-state__description {
+  font-size: 0.85rem;
+  color: hsl(230 15% 50%);
+  max-width: 24rem;
+}
+
+/* ── Audit log timeline ── */
+.vish-audit-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.vish-audit-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.5rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    hsl(42 78% 50% / 0.3),
+    hsl(232 30% 18%) 20%,
+    hsl(232 30% 18%) 80%,
+    transparent
+  );
+}
+
+.vish-audit-entry {
+  position: relative;
+  padding: 0.75rem 0;
+}
+
+.vish-audit-entry::before {
+  content: '';
+  position: absolute;
+  left: -1.25rem;
+  top: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(42 78% 50% / 0.5);
+  border: 2px solid hsl(240 48% 6%);
+}
+
+/* ── Scrollbar styling ── */
+.vish-governance-page ::-webkit-scrollbar,
+.vish-projects-page ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.vish-governance-page ::-webkit-scrollbar-track,
+.vish-projects-page ::-webkit-scrollbar-track {
+  background: hsl(240 48% 6%);
+}
+
+.vish-governance-page ::-webkit-scrollbar-thumb,
+.vish-projects-page ::-webkit-scrollbar-thumb {
+  background: hsl(42 78% 50% / 0.2);
+  border-radius: 3px;
+}
+
+.vish-governance-page ::-webkit-scrollbar-thumb:hover,
+.vish-projects-page ::-webkit-scrollbar-thumb:hover {
+  background: hsl(42 78% 50% / 0.4);
+}

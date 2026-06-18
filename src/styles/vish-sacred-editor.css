@@ -1,0 +1,289 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sacred Editor Chrome — Indian Mandala Theme for Workspace
+   Subtle sacred geometry in the editor shell, tool dock, sidebar,
+   and status bar. Keeps the canvas clean while adding cultural depth.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Workspace shell background ── */
+.vish-workspace-shell {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(42 78% 50% / 0.04), transparent 28rem),
+    radial-gradient(circle at 100% 100%, hsl(24 50% 30% / 0.03), transparent 24rem),
+    linear-gradient(180deg, hsl(235 38% 7%), hsl(240 42% 5%));
+}
+
+/* ── Tool dock (left sidebar) ── */
+.architect-tool-dock {
+  background:
+    linear-gradient(180deg, hsl(235 38% 9%), hsl(240 42% 6%));
+  border-right: 1px solid hsl(232 30% 16%);
+  box-shadow: 2px 0 12px hsl(0 0% 0% / 0.2);
+}
+
+/* Subtle kolam dots in tool dock background */
+.architect-tool-dock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, hsl(42 78% 50% / 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ── Tool buttons ── */
+.architect-tool-button {
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: hsl(38 20% 65%);
+  transition:
+    color 200ms ease,
+    background 200ms ease,
+    border-color 200ms ease,
+    transform 150ms ease;
+}
+
+.architect-tool-button:hover {
+  color: hsl(42 78% 60%);
+  background: hsl(42 78% 50% / 0.06);
+  border-color: hsl(42 78% 50% / 0.12);
+}
+
+.architect-tool-button.active {
+  color: hsl(42 78% 60%);
+  background:
+    radial-gradient(circle at 50% 0%, hsl(42 78% 50% / 0.12), transparent 70%),
+    hsl(42 78% 50% / 0.08);
+  border-color: hsl(42 78% 50% / 0.3);
+  box-shadow:
+    0 0 16px hsl(42 78% 50% / 0.1),
+    inset 0 1px 0 hsl(42 78% 50% / 0.1);
+}
+
+/* Active indicator dot */
+.architect-tool-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsl(42 78% 55%);
+  box-shadow: 0 0 8px hsl(42 78% 50% / 0.5);
+}
+
+/* ── Sidebar panels ── */
+.vish-workspace-sidebar {
+  background: hsl(235 38% 8%);
+  border-left: 1px solid hsl(232 30% 16%);
+}
+
+.ws-pane-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(232 30% 16%);
+  background: hsl(235 38% 10% / 0.8);
+}
+
+.ws-pane-header__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(42 78% 55%);
+}
+
+/* ── Properties panel ── */
+.vish-properties-panel {
+  padding: 1rem;
+}
+
+.vish-properties-panel__section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(232 30% 14%);
+}
+
+.vish-properties-panel__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(230 15% 50%);
+  margin-bottom: 0.375rem;
+}
+
+/* ── Status bar ── */
+.vish-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  height: var(--vish-status-bar-height, 32px);
+  border-top: 1px solid hsl(232 30% 14%);
+  background: hsl(240 48% 4%);
+  font-size: 0.65rem;
+  color: hsl(230 15% 50%);
+}
+
+.vish-status-bar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.vish-status-bar__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.vish-status-bar__dot--live {
+  background: hsl(142 55% 50%);
+  box-shadow: 0 0 6px hsl(142 55% 50% / 0.5);
+}
+
+.vish-status-bar__dot--draft {
+  background: hsl(42 78% 55%);
+}
+
+/* ── Mode tabs (Draft, MEP, Interior, Landscape, Walk) ── */
+.vish-mode-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: hsl(235 38% 8%);
+  border: 1px solid hsl(232 30% 16%);
+}
+
+.vish-mode-tab {
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: hsl(230 15% 55%);
+  transition:
+    color 200ms ease,
+    background 200ms ease;
+  cursor: pointer;
+}
+
+.vish-mode-tab:hover {
+  color: hsl(38 35% 85%);
+  background: hsl(42 78% 50% / 0.04);
+}
+
+.vish-mode-tab.active {
+  color: hsl(42 78% 60%);
+  background: hsl(42 78% 50% / 0.1);
+  box-shadow: inset 0 1px 0 hsl(42 78% 50% / 0.08);
+}
+
+/* ── Canvas grid enhancement ── */
+.blueprint-grid,
+.blueprint-grid-major {
+  background-color: hsl(240 42% 5%);
+  background-image:
+    linear-gradient(hsl(232 30% 14% / 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(232 30% 14% / 0.5) 1px, transparent 1px),
+    linear-gradient(hsl(232 30% 10% / 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(232 30% 10% / 0.3) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+}
+
+/* ── Canvas border with sacred accent ── */
+.architect-canvas {
+  border: 1px solid hsl(42 78% 50% / 0.2);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px hsl(42 78% 50% / 0.05),
+    0 8px 32px hsl(0 0% 0% / 0.3);
+}
+
+/* ── Minimap ── */
+.vish-minimap {
+  border-radius: 8px;
+  border: 1px solid hsl(232 30% 18%);
+  background: hsl(240 42% 5% / 0.9);
+  box-shadow: 0 4px 16px hsl(0 0% 0% / 0.3);
+  overflow: hidden;
+}
+
+.vish-minimap__viewport {
+  border: 1px solid hsl(42 78% 50% / 0.4);
+  border-radius: 2px;
+}
+
+/* ── Shell brand area (top-left logo) ── */
+.vish-shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(232 30% 14%);
+}
+
+.vish-shell-brand__logo {
+  width: 24px;
+  height: 24px;
+}
+
+.vish-shell-brand__name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(42 78% 55%);
+}
+
+/* ── Floating panels (layers, properties) ── */
+.vish-floating-panel {
+  border-radius: 12px;
+  border: 1px solid hsl(232 30% 18%);
+  background: hsl(235 38% 8% / 0.95);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    0 12px 40px hsl(0 0% 0% / 0.4),
+    0 0 0 1px hsl(42 78% 50% / 0.04);
+  overflow: hidden;
+}
+
+/* ── Tooltip styling ── */
+.vish-tooltip {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: hsl(235 38% 14%);
+  border: 1px solid hsl(232 30% 20%);
+  color: hsl(38 35% 88%);
+  font-size: 0.75rem;
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.3);
+}
+
+.vish-tooltip__shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: hsl(240 42% 10%);
+  border: 1px solid hsl(232 30% 22%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: hsl(42 78% 60%);
+  margin-left: 0.5rem;
+}
+
+/* ── Responsive ── */
+@media (prefers-reduced-motion: reduce) {
+  .architect-tool-button,
+  .vish-mode-tab {
+    transition: none;
+  }
+}

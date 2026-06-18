@@ -17,6 +17,11 @@ import "./styles/vish-governance-polish.css";
 import "./ipad-workspace.css";
 import "./styles/vish-mockup-system.css";
 import "./styles/vish-auth-gate.css";
+import "./styles/vish-indian-sacred.css";
+import "./styles/vish-sacred-auth.css";
+import "./styles/vish-sacred-marketing.css";
+import "./styles/vish-sacred-governance.css";
+import "./styles/vish-sacred-editor.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {

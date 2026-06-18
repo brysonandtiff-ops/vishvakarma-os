@@ -17,35 +17,22 @@ import {
   POST_AUTH_DESTINATION,
   storeAuthReturnPath,
 } from '@/backend/supabase/supabaseOAuthGateway';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import AuthGoogleButton from '@/components/auth/AuthGoogleButton';
-import AuthSignInHeader from '@/components/auth/AuthSignInHeader';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
-import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SacredTempleGate } from '@/components/common/SacredTempleGate';
+import PageMeta from '@/components/common/PageMeta';
 
 function getSignInHeadline(winner: 'email' | 'google' | 'none') {
-  if (winner === 'google') {
-    return 'Sign in with Google';
-  }
-
-  if (winner === 'email') {
-    return 'Sign in with a secure email link';
-  }
-
+  if (winner === 'google') return 'Sign in with Google';
+  if (winner === 'email') return 'Sign in with a secure email link';
   return 'Sign-in temporarily unavailable';
 }
 
 function getSignInHelperLine(winner: 'email' | 'google' | 'none') {
-  if (winner === 'google') {
-    return 'Open your protected workspace with a verified Google account.';
-  }
-
-  if (winner === 'email') {
-    return 'We email a one-time secure link — no password stored.';
-  }
-
+  if (winner === 'google') return 'Open your protected workspace with a verified Google account.';
+  if (winner === 'email') return 'We email a one-time secure link — no password stored.';
   return 'Sign-in methods are being verified.';
 }
 
@@ -67,26 +54,31 @@ export default function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const emailPreview = useMemo(() => email.trim().toLowerCase() || 'architect@firm.com', [email]);
   const isProduction = import.meta.env.PROD;
   const showConfigRequired = isProduction && !backendStatus.isConfigured;
   const allowLocalWorkspace = !isProduction && !isConfigured;
+
   const passwordResetNotice =
     typeof location.state === 'object' &&
     location.state !== null &&
     'message' in location.state &&
     (location.state as { message: unknown }).message === 'password-reset-unavailable';
+
   const sessionRestoreTimeoutNotice =
     typeof location.state === 'object' &&
     location.state !== null &&
     'message' in location.state &&
     (location.state as { message: unknown }).message === 'session-restore-timeout';
+
   const showEmailSignIn = !capabilitiesLoading && winner === 'email';
   const showGoogleSignIn = !capabilitiesLoading && winner === 'google';
   const showSignInUnavailable = !capabilitiesLoading && winner === 'none';
   const signInHeadline = getSignInHeadline(winner);
   const signInHelperLine = getSignInHelperLine(winner);
   const workspaceStatusLabel = isConfigured ? 'Protected Workspace' : 'Local Draft';
+
   const embeddedAuthBrowser = useMemo(
     () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
     []
@@ -96,8 +88,10 @@ export default function AuthPage() {
     []
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
+
   const showEmbeddedAuthRecovery =
-    embeddedAuthBrowser || Boolean((emailLinkError ?? error) && isEmbeddedAuthErrorMessage(emailLinkError ?? error ?? ''));
+    embeddedAuthBrowser ||
+    Boolean((emailLinkError ?? error) && isEmbeddedAuthErrorMessage(emailLinkError ?? error ?? ''));
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
@@ -110,21 +104,17 @@ export default function AuthPage() {
     event.preventDefault();
     setMessage(null);
     setError(null);
-
     if (!email.trim()) {
       setError('Enter the same email address that received the secure access link.');
       return;
     }
-
     setSubmitting(true);
     const result = await completeEmailLinkSignIn(email);
     setSubmitting(false);
-
     if (result.error) {
       setError(result.error.message);
       return;
     }
-
     navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
@@ -132,21 +122,17 @@ export default function AuthPage() {
     event.preventDefault();
     setMessage(null);
     setError(null);
-
     if (!email.trim()) {
       setError('Enter your email address to request a secure access link.');
       return;
     }
-
     setSubmitting(true);
     const result = await requestAccessLink(email);
     setSubmitting(false);
-
     if (result.error) {
       setError(result.error.message);
       return;
     }
-
     setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
   };
 
@@ -178,285 +164,286 @@ export default function AuthPage() {
       setError(result.error.message);
       return;
     }
-
     if (result.redirecting) {
       setMessage('Redirecting to Google…');
       return;
     }
-
     navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
-  const hasStatusBanners =
-    showConfigRequired ||
-    allowLocalWorkspace ||
-    (showSignInUnavailable && isConfigured && !showConfigRequired) ||
-    (completingEmailLink && showEmailSignIn) ||
-    (needsEmailForLink && showEmailSignIn) ||
-    Boolean(emailLinkError || error) ||
-    passwordResetNotice ||
-    sessionRestoreTimeoutNotice ||
-    (showGoogleSignIn && embeddedAuthBrowser);
-
   return (
     <>
-        <div className="vish-auth-card-mockup vish-page-enter w-full" data-testid="auth-mockup-card">
-          <AuthSignInHeader
-            capabilitiesLoading={capabilitiesLoading}
-            signInHeadline={signInHeadline}
-            signInHelperLine={signInHelperLine}
-            isConfigured={isConfigured}
-            workspaceStatusLabel={workspaceStatusLabel}
-          />
+      <PageMeta
+        title="Sign In — Vishvakarma.OS"
+        description="Enter the sacred architecture workspace. Sign in to access your governed blueprint projects."
+      />
 
-          {hasStatusBanners && (
-            <div className="vish-auth-status-stack" role="group" aria-label="Sign-in status">
-          {showConfigRequired && (
-            <AuthStatusBanner variant="error" title="Service configuration required" role="alert">
-              Production deploy is missing backend environment variables. Set Vercel vars per{' '}
-              <code className="rounded bg-muted px-1 text-xs">docs/release/VERCEL_ENV.md</code>.
-            </AuthStatusBanner>
-          )}
+      <SacredTempleGate>
+        {/* ═══════════ AUTH CARD ═══════════ */}
+        <div className="sacred-auth-card" data-testid="auth-card">
+          <div className="sacred-auth-card__inner sacred-animate-stagger">
 
-          {allowLocalWorkspace && (
-            <AuthStatusBanner variant="warning" title="Local workspace available">
-              Auth is disabled until real Supabase environment variables are configured. Current mode: {mode}.
-            </AuthStatusBanner>
-          )}
-
-          {showSignInUnavailable && isConfigured && !showConfigRequired && (
-            <AuthStatusBanner variant="error" title="Sign-in unavailable" role="alert">
-              No verified sign-in method is available. See{' '}
-              <code className="rounded bg-muted px-1 text-xs">docs/release/evidence/auth-sign-in-proof.md</code>.
-            </AuthStatusBanner>
-          )}
-
-          {completingEmailLink && showEmailSignIn && (
-            <AuthStatusBanner variant="info" loading>
-              Completing secure sign-in…
-            </AuthStatusBanner>
-          )}
-
-          {needsEmailForLink && showEmailSignIn && (
-            <AuthStatusBanner variant="info" title="Confirm your email to finish sign-in">
-              This link was opened in a new browser or device. Enter the email address that received the secure access
-              link.
-            </AuthStatusBanner>
-          )}
-
-          {(emailLinkError || error) && (
-            <AuthStatusBanner variant="error" role="alert" className="vish-auth-status--compact">
-              {emailLinkError ?? error}
-            </AuthStatusBanner>
-          )}
-
-          {passwordResetNotice && (
-            <AuthStatusBanner variant="info" data-testid="auth-password-reset-notice">
-              Password reset is not available — request a new secure access link below instead.
-            </AuthStatusBanner>
-          )}
-
-          {sessionRestoreTimeoutNotice && (
-            <AuthStatusBanner variant="warning" role="alert" data-testid="auth-session-restore-timeout">
-              Your saved session could not be restored. Sign in again with Google to continue.
-            </AuthStatusBanner>
-          )}
-
-          {showGoogleSignIn && embeddedAuthBrowser && (
-            <AuthStatusBanner
-              variant="warning"
-              title="OAuth blocked in embedded browser"
-              role="alert"
-              data-testid="auth-embedded-browser-warning"
-            >
-              Google sign-in cannot run inside {embeddedBrowserLabel}. Open this page in Chrome or Safari, allow
-              cookies for this site, then sign in.
-            </AuthStatusBanner>
-          )}
-            </div>
-          )}
-
-          <section className="vish-auth-actions" aria-label="Sign-in actions">
-          {showEmailSignIn && (
-            <form onSubmit={needsEmailForLink ? onCompleteEmailLink : onSubmit} className="vish-auth-form space-y-3">
-              <label className="block space-y-1">
-                <span className="vish-bilingual-label">
-                  Email <span>- ई-पत्र</span>
-                </span>
-                <Input
-                  type="email"
-                  variant="workstation"
-                  autoComplete="email"
-                  inputMode="email"
-                  spellCheck={false}
-                  placeholder="architect@firm.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  disabled={!isConfigured || submitting || showConfigRequired}
-                  aria-describedby="auth-email-helper"
-                />
-              </label>
-
-              <p id="auth-email-helper" className="vish-auth-form-helper">
-                No password required — we email you a one-time secure link to open the protected workspace.
-              </p>
-
-              {message && (
-                <AuthStatusBanner variant="success" className="vish-auth-status--inline">
-                  {message}
-                </AuthStatusBanner>
-              )}
-
-              <Button
-                type="submit"
-                variant="gold"
-                size="full"
-                className="touch-target"
-                disabled={!isConfigured || submitting || showConfigRequired || completingEmailLink}
-              >
-                {needsEmailForLink
-                  ? submitting
-                    ? 'Completing sign-in…'
-                    : 'Complete sign-in'
-                  : submitting
-                    ? 'Sending access link…'
-                    : 'Send secure access link'}
-              </Button>
-
-              <p className="text-center text-[11px] text-muted-foreground">
-                <button
-                  type="button"
-                  className="vish-auth-inline-link"
-                  onClick={() =>
-                    toast.message('New account', {
-                      description: 'Enter your email above — the same secure link creates your account on first sign-in.',
-                    })
-                  }
-                >
-                  New here? Use your email above
-                </button>
-              </p>
-
-              {allowLocalWorkspace && (
-                <button
-                  type="button"
-                  className="vish-oauth-button"
-                  onClick={() => navigate('/editor')}
-                >
-                  Enter local workspace · स्थानीय कार्यस्थान
-                </button>
-              )}
-            </form>
-          )}
-
-          {showGoogleSignIn && (
-            <div className="vish-auth-form space-y-3">
-              {showEmbeddedAuthRecovery && (
-                <div className="vish-auth-embedded-recovery" data-testid="auth-open-in-browser-cta">
-                  <p className="vish-auth-embedded-recovery__title">Open in your system browser</p>
-                  <p className="vish-auth-embedded-recovery__body">
-                    Google OAuth is blocked here. Use Chrome or Safari for a one-time sign-in, then return to the app.
-                  </p>
-                  <div className="vish-auth-embedded-recovery__actions">
-                    <a
-                      href={externalAuthUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="vish-auth-open-browser-btn"
-                    >
-                      <ExternalLink className="h-4 w-4" aria-hidden />
-                      Open in Chrome or Safari
-                    </a>
-                    <button type="button" className="vish-auth-copy-url-btn" onClick={() => void handleCopyAuthUrl()}>
-                      <Copy className="h-3.5 w-3.5" aria-hidden />
-                      Copy URL
-                    </button>
-                  </div>
+            {/* ── Header: Swan Logo + Mantra + Title ── */}
+            <header className="sacred-auth-header">
+              {/* Swan Logo — PRESERVED EXACTLY */}
+              <div className="sacred-auth-logo">
+                <div className="sacred-auth-logo__mark">
+                  <img
+                    src={OFFICIAL_LOGO_SRC}
+                    alt="Vishvakarma.OS swan logo"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 object-contain"
+                    decoding="async"
+                  />
                 </div>
-              )}
+                <span className="sacred-auth-logo__text">Vishvakarma.OS</span>
+              </div>
 
-              {message && (
-                <AuthStatusBanner variant="info" loading className="vish-auth-status--inline">
-                  {message}
-                </AuthStatusBanner>
-              )}
+              {/* Sacred Mantra */}
+              <p className="sacred-auth-mantra">ॐ श्री विश्वकर्मणे नमः</p>
 
-              <AuthGoogleButton
-                submitting={submitting}
-                disabled={!isConfigured || showConfigRequired || embeddedAuthBrowser}
-                onClick={() => void handleGoogleSignIn()}
-              />
+              {/* Title */}
+              <h1 className="sacred-auth-title" id="auth-page-title">
+                {capabilitiesLoading ? 'Preparing…' : signInHeadline}
+              </h1>
+              <p className="sacred-auth-subtitle">
+                {capabilitiesLoading ? 'Verifying sign-in methods…' : signInHelperLine}
+              </p>
 
-              {allowLocalWorkspace && (
-                <button
-                  type="button"
-                  className="vish-oauth-button"
-                  onClick={() => navigate('/editor')}
+              {/* Workspace status badge */}
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold tracking-wide uppercase ${
+                    isConfigured
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  }`}
                 >
-                  Enter local workspace · स्थानीय कार्यस्थान
-                </button>
-              )}
-            </div>
-          )}
-          </section>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${isConfigured ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                  />
+                  {workspaceStatusLabel}
+                </span>
+              </div>
+            </header>
 
-          <footer className="vish-auth-card-footer">
-            <button
-              type="button"
-              className="vish-auth-card-footer-link"
-              onClick={() => navigate('/features')}
-            >
-              <BookOpen className="h-3.5 w-3.5" />
-              Explore features · विशेषताएँ
-            </button>
-            <button type="button" className="vish-auth-card-footer-link" onClick={handleInstall}>
-              <Download className="h-3.5 w-3.5" />
-              Install app · गृह-स्थापना
-            </button>
-          </footer>
+            {/* ── Sacred Divider ── */}
+            <div className="sacred-auth-divider" />
+
+            {/* ── Status Banners ── */}
+            {showConfigRequired && (
+              <AuthStatusBanner variant="warning" className="mb-3">
+                Backend not configured. Set Supabase environment variables to enable authentication.
+              </AuthStatusBanner>
+            )}
+            {passwordResetNotice && (
+              <AuthStatusBanner variant="info" className="mb-3">
+                Password sign-in is not available. Use the method below to access your workspace.
+              </AuthStatusBanner>
+            )}
+            {sessionRestoreTimeoutNotice && (
+              <AuthStatusBanner variant="info" className="mb-3">
+                Session expired. Please sign in again to continue.
+              </AuthStatusBanner>
+            )}
+            {showSignInUnavailable && isConfigured && !showConfigRequired && (
+              <AuthStatusBanner variant="warning" className="mb-3">
+                Sign-in methods are being verified. Please try again shortly.
+              </AuthStatusBanner>
+            )}
+            {(emailLinkError || error) && (
+              <AuthStatusBanner variant="error" className="mb-3">
+                {emailLinkError || error}
+              </AuthStatusBanner>
+            )}
+
+            {/* ═══ EMAIL SIGN-IN ═══ */}
+            {showEmailSignIn && (
+              <>
+                {completingEmailLink && (
+                  <AuthStatusBanner variant="info" loading className="mb-3">
+                    Completing sign-in from email link…
+                  </AuthStatusBanner>
+                )}
+                {needsEmailForLink && (
+                  <form onSubmit={onCompleteEmailLink} className="sacred-auth-form">
+                    <p className="text-xs text-[hsl(230_15%_60%)] mb-1">
+                      Confirm the email that received the access link:
+                    </p>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="architect@firm.com"
+                      className="sacred-auth-input"
+                      autoComplete="email"
+                      required
+                    />
+                    <button type="submit" disabled={submitting} className="sacred-auth-btn-primary">
+                      {submitting ? 'Verifying…' : 'Complete sign-in · प्रवेश'}
+                    </button>
+                  </form>
+                )}
+                {!completingEmailLink && !needsEmailForLink && (
+                  <form onSubmit={onSubmit} className="sacred-auth-form">
+                    {message && (
+                      <AuthStatusBanner variant="info" loading className="mb-2">
+                        {message}
+                      </AuthStatusBanner>
+                    )}
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com · ईमेल"
+                      className="sacred-auth-input"
+                      autoComplete="email"
+                      required
+                      disabled={submitting}
+                    />
+                    <button
+                      type="submit"
+                      disabled={submitting || !isConfigured || showConfigRequired}
+                      className="sacred-auth-btn-primary"
+                    >
+                      {submitting ? 'Sending link…' : 'Request access link · प्रवेश लिंक'}
+                    </button>
+                    {allowLocalWorkspace && (
+                      <button
+                        type="button"
+                        className="sacred-auth-btn-oauth"
+                        onClick={() => navigate('/editor')}
+                      >
+                        Enter local workspace · स्थानीय कार्यस्थान
+                      </button>
+                    )}
+                  </form>
+                )}
+              </>
+            )}
+
+            {/* ═══ GOOGLE SIGN-IN ═══ */}
+            {showGoogleSignIn && (
+              <div className="sacred-auth-form">
+                {showEmbeddedAuthRecovery && (
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 mb-3">
+                    <p className="text-xs font-semibold text-amber-300 mb-1">
+                      Open in your system browser
+                    </p>
+                    <p className="text-[0.7rem] text-amber-200/70 leading-relaxed mb-2">
+                      Google OAuth is blocked in {embeddedBrowserLabel}. Use Chrome or Safari for a
+                      one-time sign-in, then return to the app.
+                    </p>
+                    <div className="flex gap-2">
+                      <a
+                        href={externalAuthUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sacred-auth-btn-oauth text-xs !min-h-[36px] !py-2 flex-1"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                        Open in browser
+                      </a>
+                      <button
+                        type="button"
+                        className="sacred-auth-btn-oauth text-xs !min-h-[36px] !py-2"
+                        onClick={() => void handleCopyAuthUrl()}
+                      >
+                        <Copy className="h-3.5 w-3.5" aria-hidden />
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {message && (
+                  <AuthStatusBanner variant="info" loading className="mb-3">
+                    {message}
+                  </AuthStatusBanner>
+                )}
+                <AuthGoogleButton
+                  submitting={submitting}
+                  disabled={!isConfigured || showConfigRequired || embeddedAuthBrowser}
+                  onClick={() => void handleGoogleSignIn()}
+                />
+                {allowLocalWorkspace && (
+                  <button
+                    type="button"
+                    className="sacred-auth-btn-oauth mt-2"
+                    onClick={() => navigate('/editor')}
+                  >
+                    Enter local workspace · स्थानीय कार्यस्थान
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* ── Footer Links ── */}
+            <footer className="sacred-auth-footer">
+              <button
+                type="button"
+                className="sacred-auth-footer-link"
+                onClick={() => navigate('/features')}
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                Features · विशेषताएँ
+              </button>
+              <button type="button" className="sacred-auth-footer-link" onClick={handleInstall}>
+                <Download className="h-3.5 w-3.5" />
+                Install · गृह-स्थापना
+              </button>
+            </footer>
+          </div>
         </div>
 
+        {/* Founders acknowledgment — PRESERVED */}
         <FoundersAcknowledgment variant="auth" />
 
-        <section className="vish-auth-trust-section w-full" aria-labelledby="auth-trust-heading">
-          <h2 id="auth-trust-heading" className="vish-auth-trust-heading">
-            Trust &amp; evidence · विश्वास
+        {/* ═══ TRUST PILLARS ═══ */}
+        <section className="sacred-auth-trust" aria-labelledby="auth-trust-heading">
+          <h2 id="auth-trust-heading" className="sr-only">
+            Trust &amp; evidence
           </h2>
-          <div className="grid w-full items-stretch gap-3 sm:grid-cols-2 md:gap-4" data-testid="auth-trust-pillars">
-          <AuthTrustPillar
-            icon={Shield}
-            badge="Release evidence"
-            title="Release evidence pack"
-            metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
-            metricLabel="release checks"
-            description="Automated pre-release verification with audit trail — in-repo evidence, not marketing claims."
-            destination="/releases"
-            variant="gates"
-            staggerClass="vish-stagger-2"
-            testId="auth-trust-pillar-gates"
-            onLearnMore={() =>
+
+          <div
+            className="sacred-auth-trust-card sacred-animate-in sacred-animate-in-delay-3"
+            onClick={() =>
               toast.message('Release evidence', {
                 description: 'Sign in to open Releases and inspect gate snapshots.',
               })
             }
-          />
-          <AuthTrustPillar
-            icon={Trophy}
-            badge="Self-verified"
-            title="World Records Registry"
-            description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}. SHA-256 proof ledger for reproducible claims.`}
-            destination="/world-records"
-            variant="records"
-            staggerClass="vish-stagger-3"
-            testId="auth-trust-pillar-records"
-            onLearnMore={() =>
+            data-testid="auth-trust-pillar-gates"
+            role="button"
+            tabIndex={0}
+          >
+            <Shield className="sacred-auth-trust-card__icon" />
+            <p className="sacred-auth-trust-card__title">
+              {WORLD_RECORD_METRIC_GATE_COUNT} Release Gates
+            </p>
+            <p className="sacred-auth-trust-card__desc">
+              Automated pre-release verification with audit trail.
+            </p>
+          </div>
+
+          <div
+            className="sacred-auth-trust-card sacred-animate-in sacred-animate-in-delay-4"
+            onClick={() =>
               toast.message('World Records', {
-                description: 'Sign in to view the Self-Verified Candidate registry at /world-records.',
+                description: 'Sign in to view the Self-Verified Candidate registry.',
               })
             }
-          />
+            data-testid="auth-trust-pillar-records"
+            role="button"
+            tabIndex={0}
+          >
+            <Trophy className="sacred-auth-trust-card__icon" />
+            <p className="sacred-auth-trust-card__title">World Records Registry</p>
+            <p className="sacred-auth-trust-card__desc">
+              {WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}.
+            </p>
           </div>
         </section>
+      </SacredTempleGate>
     </>
   );
 }

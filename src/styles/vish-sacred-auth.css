@@ -1,0 +1,585 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sacred Temple Gate — Auth Page Background System
+   A deeply immersive Indian temple entrance experience.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sacred-temple-gate {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: hsl(240 48% 4%);
+}
+
+/* Layer 1: Cosmic indigo sky with warm nebula accents */
+.sacred-temple-gate__cosmos {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 15%, hsl(235 42% 18% / 0.8), transparent 45%),
+    radial-gradient(ellipse at 75% 25%, hsl(260 35% 14% / 0.6), transparent 40%),
+    radial-gradient(ellipse at 50% 85%, hsl(24 60% 12% / 0.4), transparent 45%),
+    radial-gradient(ellipse at 15% 75%, hsl(340 40% 12% / 0.2), transparent 35%),
+    radial-gradient(ellipse at 85% 70%, hsl(178 40% 10% / 0.15), transparent 30%),
+    linear-gradient(180deg, hsl(240 52% 5%) 0%, hsl(235 45% 8%) 40%, hsl(240 48% 4%) 100%);
+  animation: sacred-cosmos-drift 30s ease-in-out infinite;
+}
+
+@keyframes sacred-cosmos-drift {
+  0%, 100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  33% {
+    transform: scale(1.02) translate3d(0.5%, -0.3%, 0);
+    opacity: 0.95;
+  }
+  66% {
+    transform: scale(0.99) translate3d(-0.3%, 0.5%, 0);
+    opacity: 1;
+  }
+}
+
+/* Layer 2: Kolam dot grid — subtle sacred geometry */
+.sacred-temple-gate__kolam {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at center, hsl(42 78% 50% / 0.06) 1.2px, transparent 1.2px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 0%, black 30%, transparent 70%);
+  opacity: 0.6;
+  animation: sacred-kolam-breathe 8s ease-in-out infinite;
+}
+
+@keyframes sacred-kolam-breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.7; }
+}
+
+/* Layer 3: Sanskrit rain positioning */
+.sacred-temple-gate__rain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  filter: saturate(1.2) brightness(1.05);
+  z-index: 1;
+}
+
+/* Layer 4: Floating mandala */
+.sacred-temple-gate__mandala {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  opacity: 0.5;
+  mask-image: radial-gradient(circle at center, black 0%, black 35%, transparent 65%);
+  animation: sacred-mandala-float 12s ease-in-out infinite;
+}
+
+@keyframes sacred-mandala-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.01);
+    opacity: 0.6;
+  }
+}
+
+/* Layer 5: Temple arch */
+.sacred-temple-gate__arch {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.sacred-temple-gate__arch svg {
+  max-width: 56rem;
+  max-height: 100vh;
+}
+
+/* Layer 6: Vignette for depth */
+.sacred-temple-gate__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, transparent 0%, transparent 35%, hsl(240 48% 4% / 0.3) 60%, hsl(240 48% 4% / 0.7) 85%, hsl(240 48% 4% / 0.95) 100%);
+}
+
+/* Layer 7: Content container */
+.sacred-temple-gate__content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 2rem 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH CARD — Sacred elevated glass panel
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sacred-auth-card {
+  position: relative;
+  width: min(100%, 28rem);
+  border-radius: 1.5rem;
+  border: 1px solid hsl(42 78% 50% / 0.2);
+  background:
+    linear-gradient(165deg, hsl(235 38% 12% / 0.92), hsl(240 42% 8% / 0.96));
+  backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow:
+    0 32px 80px hsl(0 0% 0% / 0.5),
+    0 0 0 1px hsl(42 78% 50% / 0.05),
+    inset 0 1px 0 hsl(42 78% 50% / 0.1);
+  overflow: hidden;
+  animation: sacred-scale-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Corner lotus ornament */
+.sacred-auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  background:
+    radial-gradient(circle at 0% 0%, hsl(42 78% 50% / 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.sacred-auth-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background:
+    radial-gradient(circle at 100% 100%, hsl(24 92% 54% / 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.sacred-auth-card__inner {
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem 2rem;
+}
+
+@media (min-width: 640px) {
+  .sacred-auth-card__inner {
+    padding: 3rem 2.5rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH HEADER — Logo, mantra, and title
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sacred-auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sacred-auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sacred-auth-logo__mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(42 78% 50%), hsl(24 92% 54%));
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 0 20px hsl(42 78% 50% / 0.3),
+    0 4px 12px hsl(0 0% 0% / 0.3);
+}
+
+.sacred-auth-logo__text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsl(38 35% 92%);
+}
+
+.sacred-auth-mantra {
+  font-family: 'Noto Sans Devanagari', serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: hsl(43 88% 62%);
+  margin-bottom: 0.75rem;
+  text-shadow:
+    0 0 16px hsl(42 78% 50% / 0.3);
+  animation: sacred-mantra-breathe 5s ease-in-out infinite;
+}
+
+@keyframes sacred-mantra-breathe {
+  0%, 100% {
+    opacity: 0.8;
+    text-shadow: 0 0 12px hsl(42 78% 50% / 0.25);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 20px hsl(42 78% 50% / 0.45);
+  }
+}
+
+.sacred-auth-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: hsl(38 35% 94%);
+  margin-bottom: 0.25rem;
+}
+
+.sacred-auth-subtitle {
+  font-size: 0.85rem;
+  color: hsl(230 15% 60%);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH FORM ELEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sacred-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sacred-auth-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  border: 1px solid hsl(232 30% 22%);
+  background: hsl(240 42% 8% / 0.6);
+  color: hsl(38 35% 92%);
+  font-size: 0.9rem;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.sacred-auth-input:focus {
+  outline: none;
+  border-color: hsl(42 78% 50% / 0.5);
+  background: hsl(240 42% 8% / 0.8);
+  box-shadow:
+    0 0 0 3px hsl(42 78% 50% / 0.08),
+    0 0 16px hsl(42 78% 50% / 0.06);
+}
+
+.sacred-auth-input::placeholder {
+  color: hsl(230 15% 45%);
+}
+
+/* Primary auth button — golden gradient */
+.sacred-auth-btn-primary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 50px;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid hsl(42 78% 50% / 0.6);
+  background: linear-gradient(135deg, hsl(42 78% 50%), hsl(24 85% 42%));
+  color: hsl(240 48% 6%);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms ease;
+  box-shadow:
+    0 4px 16px hsl(42 78% 50% / 0.25),
+    inset 0 1px 0 hsl(42 88% 70% / 0.3);
+}
+
+.sacred-auth-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 28px hsl(42 78% 50% / 0.35),
+    0 0 40px hsl(24 92% 54% / 0.1),
+    inset 0 1px 0 hsl(42 88% 70% / 0.4);
+}
+
+.sacred-auth-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.sacred-auth-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Shimmer sweep on hover */
+.sacred-auth-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    hsl(0 0% 100% / 0.2) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sacred-auth-btn-primary:hover::after {
+  transform: translateX(100%);
+}
+
+/* Secondary / OAuth button */
+.sacred-auth-btn-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 50px;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid hsl(232 30% 25%);
+  background: hsl(235 38% 12% / 0.6);
+  color: hsl(38 35% 88%);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 200ms ease,
+    background 200ms ease,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sacred-auth-btn-oauth:hover:not(:disabled) {
+  border-color: hsl(42 78% 50% / 0.35);
+  background: hsl(235 35% 15% / 0.8);
+  transform: translateY(-1px);
+}
+
+.sacred-auth-btn-oauth:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH FOOTER & TRUST SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sacred-auth-divider {
+  position: relative;
+  height: 1px;
+  margin: 1.25rem 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(42 78% 50% / 0.3) 30%,
+    hsl(42 78% 50% / 0.5) 50%,
+    hsl(42 78% 50% / 0.3) 70%,
+    transparent
+  );
+}
+
+.sacred-auth-divider::before {
+  content: '◈';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: hsl(42 78% 50% / 0.6);
+  background: hsl(235 38% 12%);
+  padding: 0 0.5rem;
+}
+
+.sacred-auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid hsl(232 30% 18%);
+}
+
+.sacred-auth-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: hsl(230 15% 55%);
+  transition: color 200ms ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+}
+
+.sacred-auth-footer-link:hover {
+  color: hsl(42 78% 60%);
+}
+
+/* Trust pillars below auth card */
+.sacred-auth-trust {
+  width: min(100%, 28rem);
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .sacred-auth-trust {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sacred-auth-trust-card {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid hsl(232 30% 18%);
+  background: hsl(235 38% 10% / 0.6);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sacred-auth-trust-card:hover {
+  border-color: hsl(42 78% 50% / 0.3);
+  transform: translateY(-2px);
+}
+
+.sacred-auth-trust-card__icon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0.5rem;
+  color: hsl(42 78% 55%);
+}
+
+.sacred-auth-trust-card__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(38 35% 88%);
+  margin-bottom: 0.25rem;
+}
+
+.sacred-auth-trust-card__desc {
+  font-size: 0.7rem;
+  color: hsl(230 15% 55%);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS & TRANSITIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes sacred-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Stagger children animation */
+.sacred-auth-card .sacred-animate-stagger > * {
+  opacity: 0;
+  animation: sacred-fade-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.sacred-auth-card .sacred-animate-stagger > *:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes sacred-fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE & ACCESSIBILITY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sacred-temple-gate__cosmos,
+  .sacred-temple-gate__kolam,
+  .sacred-temple-gate__mandala,
+  .sacred-auth-mantra,
+  .sacred-auth-card,
+  .sacred-auth-btn-primary::after {
+    animation: none;
+  }
+  .sacred-auth-card {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sacred-auth-card__inner {
+    padding: 2rem 1.5rem;
+  }
+  .sacred-temple-gate__arch {
+    display: none;
+  }
+}
+
+/* iPad safe area support */
+@supports (padding: env(safe-area-inset-top)) {
+  .sacred-temple-gate__content {
+    padding-top: max(2rem, env(safe-area-inset-top));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+}
