@@ -9,6 +9,7 @@ import { buildFloorPlanSvg, type FloorPlanSvgOptions } from '@/core/exporters/fl
 import { downloadPdf } from '@/core/exporters/pdfExport';
 import { downloadSheetSetPdf } from '@/modules/sheetSet/sheetSetPdfExport';
 import { downloadBlob, exportManifestToPng } from '@/core/exporters/pngExport';
+import { trackEvent } from '@/lib/analytics';
 import type { ProjectManifest } from '@/types';
 import { toast } from 'sonner';
 
@@ -62,6 +63,7 @@ export default function ExportFloorPlanDialog({
     try {
       const blob = await exportManifestToPng(manifest, svgOptions);
       downloadBlob(blob, `${slug}.png`);
+      trackEvent('project_exported', { format: 'png' });
       toast.success('PNG exported');
       onOpenChange(false);
     } catch {
@@ -74,6 +76,7 @@ export default function ExportFloorPlanDialog({
       const svg = buildFloorPlanSvg(manifest, svgOptions);
       const blob = new Blob([svg], { type: 'image/svg+xml' });
       downloadBlob(blob, `${slug}.svg`);
+      trackEvent('project_exported', { format: 'svg' });
       toast.success('SVG exported');
       onOpenChange(false);
     } catch {
@@ -177,6 +180,7 @@ export default function ExportFloorPlanDialog({
             data-testid="export-sheet-set-pdf"
             onClick={() => {
               downloadSheetSetPdf(manifest);
+              trackEvent('project_exported', { format: 'sheet-set-pdf' });
               onOpenChange(false);
               toast.success('Sheet set PDF exported');
             }}
@@ -189,6 +193,7 @@ export default function ExportFloorPlanDialog({
             title={FORMAT_CHIPS.pdf}
             onClick={() => {
               void downloadPdf(manifest, true).then(() => {
+                trackEvent('project_exported', { format: 'pdf' });
                 onOpenChange(false);
                 toast.success('PDF floor plan exported');
               }).catch(() => toast.error('PDF export failed'));
@@ -205,6 +210,7 @@ export default function ExportFloorPlanDialog({
               const dxf = exportManifestToDxf(manifest);
               const blob = new Blob([dxf], { type: 'application/dxf' });
               downloadBlob(blob, `${slug}.dxf`);
+              trackEvent('project_exported', { format: 'dxf' });
               onOpenChange(false);
               toast.success('DXF exported');
             }}
@@ -217,6 +223,7 @@ export default function ExportFloorPlanDialog({
             data-testid="export-json-button"
             onClick={() => {
               onExportJSON();
+              trackEvent('project_exported', { format: 'json' });
               onOpenChange(false);
             }}
             title={FORMAT_CHIPS.json}

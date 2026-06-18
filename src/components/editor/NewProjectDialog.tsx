@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { backendStatus } from '@/backend/backendConfig';
+import { trackEvent } from '@/lib/analytics';
 import { createProject } from '@/db/api';
 import { createLocalProject } from '@/editor/localProject';
 import { upsertLocalProject } from '@/editor/localProjects';
@@ -69,6 +70,11 @@ export default function NewProjectDialog({
       if (!backendStatus.isConfigured) {
         upsertLocalProject(project);
       }
+
+      trackEvent('project_created', {
+        backend: backendStatus.isConfigured ? 'supabase' : 'local',
+        template: templateId,
+      });
 
       toast.success(backendStatus.isConfigured ? 'Project created' : 'Local project ready — draw and save to your browser');
       onOpenChange(false);

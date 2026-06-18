@@ -48,6 +48,10 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 700,
+    // 'hidden' emits source maps for error monitoring (Sentry) without referencing
+    // them from the shipped bundles, so prod stack traces stay readable but source
+    // is not exposed to end users.
+    sourcemap: 'hidden',
     rollupOptions: {
       output: {
         manualChunks(id) {

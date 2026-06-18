@@ -28,6 +28,7 @@ import {
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 import { ensureSupabaseProfile, getSupabaseProfile } from '@/backend/supabase/supabaseProfileGateway';
 import { markFreshSignIn } from '@/editor/onboardingMemory';
+import { trackEvent } from '@/lib/analytics';
 import type { Profile } from '@/types';
 import {
   AuthContext,
@@ -255,6 +256,9 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         setEmailLinkError(null);
         if (event === 'SIGNED_IN') {
           markFreshSignIn();
+          trackEvent('sign_in_succeeded', {
+            provider: authSession.user.app_metadata?.provider ?? 'unknown',
+          });
         }
         void loadProfile(nextUser);
       } catch (error) {

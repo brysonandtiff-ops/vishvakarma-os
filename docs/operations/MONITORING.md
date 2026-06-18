@@ -22,18 +22,36 @@ What to watch in production and where dashboards live.
 
 ## Application monitoring
 
-### Sentry (optional)
+### Sentry error tracking
 
-When `VITE_SENTRY_DSN` is configured:
+`initMonitoring()` (called from `src/App.tsx`) initializes `@sentry/react` whenever
+`VITE_SENTRY_DSN` is set. Set `VITE_SENTRY_DSN` in the Vercel production environment to
+turn error tracking on — without it the SDK is a no-op and **production errors are not
+captured**.
 
-- Client errors captured via `src/lib/monitoring.ts`
-- PII stripped from breadcrumbs per [SECURITY.md](../../SECURITY.md)
+- Client errors captured via `src/lib/monitoring.ts`; the app error boundary
+  (`src/components/common/AppErrorBoundary.tsx`) reports caught render errors.
+- Production builds emit **hidden source maps** (`vite.config.ts` → `build.sourcemap: 'hidden'`)
+  so Sentry stack traces are readable. To symbolicate, either upload the `dist/**/*.map`
+  files to Sentry on release (Sentry Vite plugin + `SENTRY_AUTH_TOKEN`) or keep the maps
+  available to the Sentry project. Hidden maps are not referenced from shipped bundles.
+- PII stripped from breadcrumbs per [SECURITY.md](../../SECURITY.md).
 
-**Status:** Scaffold — confirm SDK dependency before relying on alerts.
+### Vercel Analytics — activation funnel
 
-### Vercel Analytics
+Page views and Web Vitals are captured by `<Analytics />` (mounted in `src/App.tsx`).
+Custom funnel events are emitted through `trackEvent()` in `src/lib/analytics.ts` (only
+after analytics consent, and only in production):
 
-Enabled when deployment analytics are on. Page views and Web Vitals at project level.
+| Event | Emitted when | Properties |
+|-------|--------------|------------|
+| `sign_in_succeeded` | Supabase `SIGNED_IN` auth event | `provider` |
+| `project_created` | New project saved | `backend` (supabase/local), `template` |
+| `project_exported` | Any export completes | `format` (json/png/svg/pdf/sheet-set-pdf/dxf) |
+
+Track sign-in → project_created → project_exported as the core activation funnel in the
+Vercel Analytics dashboard. (Custom events require a Vercel Analytics paid plan; without
+it they are silently dropped — page views and Web Vitals still work.)
 
 ### Analytics consent
 
