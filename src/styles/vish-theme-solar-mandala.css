@@ -1,0 +1,297 @@
+/*
+  Vishvakarma.OS — Solar Mandala visual identity
+  Visual-only theme: Egyptian monument geometry + Indian mandala light.
+  This file must not encode product state, auth, billing, save/load, or schema logic.
+*/
+
+.vish-theme-controller {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: grid;
+  gap: 0.55rem;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.72rem;
+  border: 1px solid hsl(43 70% 56% / 0.26);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 12% 0%, hsl(43 84% 62% / 0.16), transparent 55%),
+    linear-gradient(145deg, hsl(36 16% 8% / 0.9), hsl(36 18% 5% / 0.94));
+  color: hsl(42 40% 88%);
+  box-shadow:
+    0 18px 48px hsl(0 0% 0% / 0.34),
+    inset 0 1px 0 hsl(43 90% 74% / 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.vish-theme-controller__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+}
+
+.vish-theme-controller__eyebrow {
+  color: hsl(42 30% 68%);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.vish-theme-controller__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.vish-theme-controller__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 36px;
+  border: 1px solid hsl(43 45% 55% / 0.22);
+  border-radius: 0.75rem;
+  background: hsl(36 14% 12% / 0.72);
+  color: hsl(42 34% 82%);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.vish-theme-controller__option:hover {
+  transform: translateY(-1px);
+  border-color: hsl(43 82% 63% / 0.5);
+}
+
+.vish-theme-controller__option[aria-pressed='true'] {
+  border-color: hsl(var(--theme-accent, 43 65% 52%) / 0.72);
+  background:
+    radial-gradient(circle at 18% 0%, hsl(var(--theme-accent, 43 65% 52%) / 0.22), transparent 68%),
+    hsl(36 18% 14% / 0.96);
+  box-shadow: 0 0 18px hsl(var(--theme-accent, 43 65% 52%) / 0.18);
+}
+
+.vish-theme-controller__swatch {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 999px;
+  background: hsl(var(--theme-accent, 43 65% 52%));
+  box-shadow: 0 0 12px hsl(var(--theme-accent, 43 65% 52%) / 0.58);
+}
+
+:root[data-visual-theme='solar-mandala'] {
+  color-scheme: dark;
+
+  --vish-solar-obsidian: 36 22% 4%;
+  --vish-solar-stone: 34 44% 46%;
+  --vish-solar-papyrus: 43 54% 80%;
+  --vish-solar-gold: 42 77% 58%;
+  --vish-solar-lapis: 214 58% 25%;
+  --vish-solar-nile: 182 64% 42%;
+  --vish-solar-saffron: 32 96% 58%;
+  --vish-solar-maroon: 4 55% 20%;
+
+  --background: 36 22% 6%;
+  --foreground: 43 45% 88%;
+  --card: 36 22% 9%;
+  --card-foreground: 43 44% 88%;
+  --popover: 36 22% 8%;
+  --popover-foreground: 43 44% 88%;
+  --primary: var(--vish-solar-gold);
+  --primary-foreground: 36 20% 7%;
+  --secondary: 34 32% 16%;
+  --secondary-foreground: 43 44% 86%;
+  --muted: 34 24% 15%;
+  --muted-foreground: 42 24% 66%;
+  --accent: 182 64% 16%;
+  --accent-foreground: 43 55% 86%;
+  --border: 34 34% 24%;
+  --input: 34 34% 24%;
+  --ring: var(--vish-solar-nile);
+
+  --vish-ink: var(--vish-solar-obsidian);
+  --vish-paper: var(--vish-solar-papyrus);
+  --vish-gold: var(--vish-solar-gold);
+  --vish-gold-glow: 43 95% 67%;
+  --vish-shadow: 0 0% 0% / 0.3;
+  --vish-marketing-heading: 43 54% 90%;
+  --vish-marketing-muted: 42 25% 72%;
+
+  --ws-canvas: 39 36% 91%;
+  --ws-toolbar: 36 24% 8%;
+  --ws-sidebar: 36 28% 6%;
+  --ws-menubar: 36 25% 7%;
+  --ws-statusbar: 36 22% 8%;
+  --ws-border: 34 35% 28%;
+  --ws-border-subtle: 36 28% 33%;
+  --ws-text: 43 42% 88%;
+  --ws-text-dim: 42 23% 68%;
+  --ws-text-faint: 42 38% 48%;
+  --ws-hover: 34 28% 15%;
+  --ws-active: var(--vish-solar-nile);
+  --ws-active-bg: 182 64% 14%;
+  --ws-active-ring: 182 64% 42% / 0.32;
+  --ws-grid-line: 39 26% 78%;
+  --ws-grid-major: 39 28% 64%;
+  --ws-snap: var(--vish-solar-gold);
+}
+
+:root[data-visual-theme='solar-mandala'] body {
+  background:
+    radial-gradient(circle at 18% -8%, hsl(var(--vish-solar-gold) / 0.14), transparent 34rem),
+    radial-gradient(circle at 84% 10%, hsl(var(--vish-solar-nile) / 0.12), transparent 30rem),
+    linear-gradient(180deg, hsl(var(--vish-solar-obsidian)), hsl(36 24% 6%));
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-auth-gate,
+:root[data-visual-theme='solar-mandala'] .vish-boot-stage {
+  background:
+    radial-gradient(circle at 50% 18%, hsl(var(--vish-solar-saffron) / 0.16), transparent 28rem),
+    radial-gradient(circle at 18% 26%, hsl(var(--vish-solar-lapis) / 0.22), transparent 24rem),
+    radial-gradient(circle at 82% 32%, hsl(var(--vish-solar-nile) / 0.12), transparent 22rem),
+    linear-gradient(180deg, hsl(36 28% 4%) 0%, hsl(35 28% 7%) 54%, hsl(36 24% 4%) 100%);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-auth-gate::before,
+:root[data-visual-theme='solar-mandala'] .vish-boot-stage::before {
+  background:
+    linear-gradient(120deg, transparent 0 34%, hsl(var(--vish-solar-gold) / 0.09) 34% 35%, transparent 35% 65%, hsl(var(--vish-solar-nile) / 0.08) 65% 66%, transparent 66%),
+    repeating-linear-gradient(90deg, transparent 0 22px, hsl(var(--vish-solar-papyrus) / 0.04) 22px 23px),
+    repeating-linear-gradient(180deg, transparent 0 34px, hsl(var(--vish-solar-gold) / 0.035) 34px 35px);
+  background-size: 220px 220px, 46px 46px, 68px 68px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 74%);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-auth-hero,
+:root[data-visual-theme='solar-mandala'] .vish-page-section-intro,
+:root[data-visual-theme='solar-mandala'] .vish-workflow-strip {
+  border-color: hsl(var(--vish-solar-gold) / 0.28);
+  background:
+    linear-gradient(135deg, hsl(var(--vish-solar-lapis) / 0.2), transparent 38%),
+    linear-gradient(180deg, hsl(36 24% 9% / 0.92), hsl(36 22% 5% / 0.96));
+  box-shadow:
+    0 18px 54px hsl(0 0% 0% / 0.36),
+    inset 0 1px 0 hsl(var(--vish-solar-gold) / 0.13);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-devanagari-hero,
+:root[data-visual-theme='solar-mandala'] .vish-marketing-section-label,
+:root[data-visual-theme='solar-mandala'] .vish-wordmark {
+  color: hsl(var(--vish-solar-papyrus));
+  text-shadow:
+    0 0 18px hsl(var(--vish-solar-gold) / 0.34),
+    0 0 36px hsl(var(--vish-solar-nile) / 0.14);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-marketing-page::before,
+:root[data-visual-theme='solar-mandala'] .vish-workspace-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from 45deg at 50% 18%, transparent 0deg 40deg, hsl(var(--vish-solar-gold) / 0.045) 40deg 43deg, transparent 43deg 88deg, hsl(var(--vish-solar-nile) / 0.04) 88deg 91deg, transparent 91deg 360deg),
+    linear-gradient(90deg, transparent, hsl(var(--vish-solar-gold) / 0.035), transparent);
+  opacity: 0.72;
+  z-index: 0;
+  mask-image: linear-gradient(180deg, black, transparent 82%);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-workspace-shell {
+  background:
+    radial-gradient(circle at 0% 0%, hsl(var(--vish-solar-gold) / 0.1), transparent 32rem),
+    radial-gradient(circle at 100% 0%, hsl(var(--vish-solar-nile) / 0.1), transparent 28rem),
+    linear-gradient(180deg, hsl(var(--ws-sidebar)), hsl(var(--ws-menubar)));
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-workspace-sidebar,
+:root[data-visual-theme='solar-mandala'] .architect-tool-dock {
+  background:
+    linear-gradient(180deg, hsl(36 30% 8%), hsl(36 26% 5%)),
+    repeating-linear-gradient(180deg, transparent 0 30px, hsl(var(--vish-solar-gold) / 0.04) 30px 31px);
+  border-color: hsl(var(--vish-solar-gold) / 0.24);
+}
+
+:root[data-visual-theme='solar-mandala'] .vish-shell-brand,
+:root[data-visual-theme='solar-mandala'] .vish-shell-account,
+:root[data-visual-theme='solar-mandala'] .ws-pane-header {
+  background:
+    radial-gradient(circle at 12% 0%, hsl(var(--vish-solar-nile) / 0.16), transparent 12rem),
+    linear-gradient(135deg, hsl(36 26% 10% / 0.98), hsl(36 30% 5% / 0.98));
+  border-color: hsl(var(--vish-solar-gold) / 0.22);
+}
+
+:root[data-visual-theme='solar-mandala'] .architect-tool-button.active,
+:root[data-visual-theme='solar-mandala'] .vish-mode-tab.active {
+  color: hsl(var(--vish-solar-papyrus));
+  background:
+    radial-gradient(circle at 50% 0%, hsl(var(--vish-solar-nile) / 0.28), transparent 70%),
+    linear-gradient(135deg, hsl(var(--vish-solar-lapis) / 0.72), hsl(var(--vish-solar-maroon) / 0.36));
+  border-color: hsl(var(--vish-solar-nile) / 0.64);
+  box-shadow:
+    0 0 0 2px hsl(var(--vish-solar-gold) / 0.12),
+    0 0 20px hsl(var(--vish-solar-nile) / 0.28),
+    inset 0 1px 0 hsl(var(--vish-solar-papyrus) / 0.16);
+}
+
+:root[data-visual-theme='solar-mandala'] .architect-canvas {
+  border-color: hsl(var(--vish-solar-gold) / 0.42);
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--vish-solar-papyrus) / 0.26),
+    0 20px 54px hsl(0 0% 0% / 0.28),
+    0 0 34px hsl(var(--vish-solar-nile) / 0.08);
+}
+
+:root[data-visual-theme='solar-mandala'] .blueprint-grid,
+:root[data-visual-theme='solar-mandala'] .blueprint-grid-major {
+  background-color: hsl(var(--ws-canvas));
+  background-image:
+    linear-gradient(hsl(var(--ws-grid-major) / 0.46) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--ws-grid-major) / 0.46) 1px, transparent 1px),
+    linear-gradient(hsl(var(--ws-grid-line) / 0.62) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--ws-grid-line) / 0.62) 1px, transparent 1px),
+    linear-gradient(45deg, transparent 0 48%, hsl(var(--vish-solar-gold) / 0.035) 48% 50%, transparent 50% 100%);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px, 180px 180px;
+}
+
+@media (max-width: 760px) {
+  .vish-theme-controller {
+    width: auto;
+    grid-template-columns: 1fr;
+    padding: 0.55rem;
+  }
+
+  .vish-theme-controller__header {
+    display: none;
+  }
+
+  .vish-theme-controller__options {
+    grid-template-columns: repeat(2, auto);
+  }
+
+  .vish-theme-controller__option {
+    min-height: 34px;
+    padding-inline: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-theme-controller__option,
+  .vish-theme-controller__option:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+@media print {
+  .vish-theme-controller {
+    display: none;
+  }
+}
