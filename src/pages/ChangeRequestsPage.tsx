@@ -1,3 +1,4 @@
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Change Requests Page - Structured change management workflow
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';

@@ -11,6 +11,7 @@ import {
 import { WorkspaceGovernanceLayout } from '@/components/layouts/WorkspaceGovernanceLayout';
 import { RouteLoadingFallback } from '@/components/layouts/RouteLoadingFallback';
 import AuthAwareNotFound from '@/pages/AuthAwareNotFound';
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 
 // All pages are lazy-loaded — EditorPage was previously a static import (the only one),
 // pulling the entire editor surface (canvas, 3D viewport, tool rail, dialogs) into the
@@ -35,6 +36,22 @@ const CastViewerPage = lazy(() => import('@/pages/CastViewerPage'));
 
 function withSuspense(element: React.ReactNode, variant: React.ComponentProps<typeof RouteLoadingFallback>['variant']) {
   return <Suspense fallback={<RouteLoadingFallback variant={variant} />}>{element}</Suspense>;
+}
+
+// T3-8: Wrap high-risk routes in isolated error boundaries so a crash in one
+// page cannot take down the entire application shell. Governance pages run
+// complex scoring algorithms and query data that may be malformed — isolating
+// them means a failure shows a contained error card rather than a blank screen.
+function withBoundary(
+  element: React.ReactNode,
+  title: string,
+  variant: React.ComponentProps<typeof RouteLoadingFallback>['variant'],
+) {
+  return (
+    <AppErrorBoundary title={title}>
+      {withSuspense(element, variant)}
+    </AppErrorBoundary>
+  );
 }
 
 export function AppRoutes() {
@@ -68,13 +85,13 @@ export function AppRoutes() {
           <Route path="/profile" element={withSuspense(<ProfilePage />, 'workspace')} />
         </Route>
         <Route element={<WorkspaceGovernanceLayout />}>
-          <Route path="/optimization" element={withSuspense(<OptimizationPage />, 'governance')} />
-          <Route path="/spec-center" element={withSuspense(<SpecCenterPage />, 'governance')} />
-          <Route path="/registry" element={withSuspense(<RegistryPage />, 'governance')} />
-          <Route path="/change-requests" element={withSuspense(<ChangeRequestsPage />, 'governance')} />
-          <Route path="/releases" element={withSuspense(<ReleasesPage />, 'governance')} />
-          <Route path="/world-records" element={withSuspense(<WorldRecordsPage />, 'governance')} />
-          <Route path="/audit" element={withSuspense(<AuditLogPage />, 'governance')} />
+          <Route path="/optimization" element={withBoundary(<OptimizationPage />, 'Optimization Engine', 'governance')} />
+          <Route path="/spec-center" element={withBoundary(<SpecCenterPage />, 'Spec Center', 'governance')} />
+          <Route path="/registry" element={withBoundary(<RegistryPage />, 'Registry', 'governance')} />
+          <Route path="/change-requests" element={withBoundary(<ChangeRequestsPage />, 'Change Requests', 'governance')} />
+          <Route path="/releases" element={withBoundary(<ReleasesPage />, 'Releases', 'governance')} />
+          <Route path="/world-records" element={withBoundary(<WorldRecordsPage />, 'World Records', 'governance')} />
+          <Route path="/audit" element={withBoundary(<AuditLogPage />, 'Audit Log', 'governance')} />
         </Route>
       </Route>
 

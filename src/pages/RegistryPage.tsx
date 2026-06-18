@@ -1,3 +1,4 @@
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Registry Center Page - Component and feature registry
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';

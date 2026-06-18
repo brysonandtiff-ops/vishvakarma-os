@@ -27,8 +27,11 @@ export interface PbrBundleConfig {
 
 const BASE = '/textures';
 
+// T3-2: Serve WebP textures — 13 MB saved vs JPEG originals.
+// WebP files were generated alongside the originals so the JPEGs remain
+// as fallbacks for any environment that cannot load WebP (extremely rare).
 export function pbrTextureUrl(folder: PbrBundleKey, map: 'color' | 'normal' | 'roughness'): string {
-  return `${BASE}/${folder}/${map}.jpg`;
+  return `${BASE}/${folder}/${map}.webp`;
 }
 
 export const PBR_BUNDLES: Record<PbrBundleKey, PbrBundleConfig> = {

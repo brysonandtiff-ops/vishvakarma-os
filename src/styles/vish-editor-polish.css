@@ -1,0 +1,596 @@
+/* ==========================================================================
+   VISHVAKARMA.OS — EDITOR CHROME POLISH
+   Top bar, tool dock, sidebar panels, status bar, canvas overlays,
+   floating panels, and micro-interactions for the editor workspace.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. EDITOR SHELL — Overall layout
+   -------------------------------------------------------------------------- */
+
+.vish-editor-shell {
+  display: grid;
+  grid-template-rows: 52px 1fr 28px;
+  grid-template-columns: 52px 1fr auto;
+  height: 100dvh;
+  overflow: hidden;
+  background: hsl(240 32% 5%);
+}
+
+/* --------------------------------------------------------------------------
+   2. EDITOR TOP BAR
+   -------------------------------------------------------------------------- */
+
+/* Override existing top bar styles for a cleaner, more premium feel */
+[class*="editor-top-bar"],
+[class*="EditorTopBar"],
+.vish-editor-topbar-chrome {
+  height: 52px !important;
+  background: hsl(240 32% 6% / 0.98) !important;
+  border-bottom: 1px solid hsl(240 20% 12% / 0.9) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0 1rem !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  position: relative;
+  z-index: 50;
+}
+
+/* Project name in top bar */
+[class*="project-name"],
+[class*="ProjectName"] {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: hsl(240 10% 80%) !important;
+  letter-spacing: -0.01em !important;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mode selector tabs in top bar */
+[class*="mode-tab"],
+[class*="ModeTab"] {
+  padding: 0.3rem 0.75rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+  cursor: pointer !important;
+  transition: all 150ms ease !important;
+  color: hsl(240 10% 48%) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+[class*="mode-tab"]:hover,
+[class*="ModeTab"]:hover {
+  background: hsl(240 20% 13% / 0.8) !important;
+  color: hsl(240 10% 70%) !important;
+}
+
+[class*="mode-tab"][data-active="true"],
+[class*="mode-tab"].active,
+[class*="ModeTab"][data-active="true"],
+[class*="ModeTab"].active {
+  background: hsl(42 78% 50% / 0.14) !important;
+  color: hsl(42 78% 66%) !important;
+  border-color: hsl(42 78% 50% / 0.25) !important;
+  box-shadow: 0 0 10px hsl(42 78% 50% / 0.12) !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. TOOL RAIL / TOOL DOCK
+   -------------------------------------------------------------------------- */
+
+[class*="tool-rail"],
+[class*="ToolRail"],
+[class*="tool-dock"],
+[class*="ToolDock"] {
+  background: hsl(240 32% 6% / 0.97) !important;
+  border-right: 1px solid hsl(240 20% 12% / 0.8) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 0.625rem 0.375rem !important;
+  width: 52px !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tool button */
+[class*="tool-btn"],
+[class*="ToolBtn"],
+[class*="tool-button"],
+[class*="ToolButton"] {
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0.625rem !important;
+  cursor: pointer !important;
+  color: hsl(240 10% 48%) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 130ms ease !important;
+  position: relative;
+  flex-shrink: 0;
+}
+
+[class*="tool-btn"]:hover,
+[class*="ToolBtn"]:hover,
+[class*="tool-button"]:hover,
+[class*="ToolButton"]:hover {
+  background: hsl(240 20% 13% / 0.8) !important;
+  color: hsl(240 10% 78%) !important;
+  border-color: hsl(240 20% 20% / 0.5) !important;
+}
+
+[class*="tool-btn"][data-active="true"],
+[class*="tool-btn"].active,
+[class*="ToolBtn"][data-active="true"],
+[class*="ToolBtn"].active,
+[class*="tool-button"][data-active="true"],
+[class*="tool-button"].active {
+  background: hsl(42 78% 50% / 0.16) !important;
+  color: hsl(42 78% 65%) !important;
+  border-color: hsl(42 78% 50% / 0.3) !important;
+  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15) !important;
+}
+
+/* Tool group separator */
+.vish-tool-separator {
+  width: 28px;
+  height: 1px;
+  background: hsl(240 20% 14% / 0.7);
+  margin: 0.25rem 0;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. EDITOR SIDEBAR PANELS
+   -------------------------------------------------------------------------- */
+
+[class*="editor-sidebar"],
+[class*="EditorSidebar"],
+[class*="workspace-panel"],
+[class*="WorkspacePanel"] {
+  background: hsl(240 30% 7% / 0.98) !important;
+  border-left: 1px solid hsl(240 20% 12% / 0.8) !important;
+}
+
+/* Panel section header */
+[class*="panel-section-header"],
+[class*="PanelSectionHeader"],
+[class*="sidebar-section"] > [class*="header"],
+[class*="SidebarSection"] > [class*="Header"] {
+  padding: 0.625rem 0.875rem !important;
+  border-bottom: 1px solid hsl(240 20% 11% / 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer !important;
+  transition: background 130ms ease !important;
+  background: hsl(240 30% 6% / 0.5) !important;
+}
+
+[class*="panel-section-header"]:hover,
+[class*="PanelSectionHeader"]:hover {
+  background: hsl(240 20% 10% / 0.5) !important;
+}
+
+/* Panel section title */
+[class*="panel-section-title"],
+[class*="PanelSectionTitle"] {
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: hsl(240 10% 40%) !important;
+}
+
+/* Panel section body */
+[class*="panel-section-body"],
+[class*="PanelSectionBody"] {
+  padding: 0.75rem 0.875rem !important;
+}
+
+/* Property row in sidebar */
+[class*="property-row"],
+[class*="PropertyRow"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+  padding: 0.3rem 0 !important;
+  font-size: 0.8125rem !important;
+}
+
+[class*="property-label"],
+[class*="PropertyLabel"] {
+  color: hsl(240 10% 45%) !important;
+  font-size: 0.75rem !important;
+  flex-shrink: 0;
+}
+
+[class*="property-value"],
+[class*="PropertyValue"] {
+  color: hsl(240 10% 78%) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   5. STATUS BAR
+   -------------------------------------------------------------------------- */
+
+[class*="status-bar"],
+[class*="StatusBar"] {
+  height: 28px !important;
+  background: hsl(240 32% 5% / 0.98) !important;
+  border-top: 1px solid hsl(240 20% 10% / 0.9) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 0 1rem !important;
+  font-size: 11px !important;
+  color: hsl(240 10% 38%) !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: 0.02em !important;
+  overflow: hidden;
+}
+
+/* Status bar items */
+[class*="status-item"],
+[class*="StatusItem"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+/* Highlighted status items (coordinates, zoom) */
+[class*="status-item"][data-highlight="true"],
+[class*="status-item"].highlight,
+[class*="StatusItem"].highlight {
+  color: hsl(42 78% 50%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. CANVAS OVERLAY — Grid, snap indicators, dimension labels
+   -------------------------------------------------------------------------- */
+
+/* Dimension label tooltip */
+[class*="dimension-label"],
+[class*="DimensionLabel"] {
+  background: hsl(240 32% 8% / 0.92) !important;
+  border: 1px solid hsl(240 20% 18% / 0.7) !important;
+  border-radius: 0.375rem !important;
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.6875rem !important;
+  font-weight: 600 !important;
+  color: hsl(42 78% 65%) !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  letter-spacing: 0.04em !important;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* Room label on canvas */
+[class*="room-label"],
+[class*="RoomLabel"] {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: hsl(240 10% 65%) !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. FLOATING PANELS — Copilot, Export, Settings dialogs
+   -------------------------------------------------------------------------- */
+
+[class*="floating-panel"],
+[class*="FloatingPanel"],
+[class*="copilot-panel"],
+[class*="CopilotPanel"] {
+  background: hsl(240 30% 8% / 0.97) !important;
+  border: 1px solid hsl(240 20% 18% / 0.8) !important;
+  border-radius: 1.125rem !important;
+  box-shadow:
+    0 16px 48px hsl(240 48% 4% / 0.5),
+    0 0 0 1px hsl(240 20% 22% / 0.3) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  overflow: hidden;
+}
+
+/* Floating panel header */
+[class*="floating-panel-header"],
+[class*="FloatingPanelHeader"],
+[class*="copilot-header"],
+[class*="CopilotHeader"] {
+  padding: 0.875rem 1.125rem !important;
+  border-bottom: 1px solid hsl(240 20% 14% / 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: hsl(240 30% 7% / 0.5) !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. LAYER PANEL
+   -------------------------------------------------------------------------- */
+
+[class*="layer-item"],
+[class*="LayerItem"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.375rem 0.625rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+  color: hsl(240 10% 62%) !important;
+  transition: all 130ms ease !important;
+}
+
+[class*="layer-item"]:hover,
+[class*="LayerItem"]:hover {
+  background: hsl(240 20% 12% / 0.7) !important;
+  color: hsl(240 10% 80%) !important;
+}
+
+[class*="layer-item"][data-active="true"],
+[class*="layer-item"].active,
+[class*="LayerItem"].active {
+  background: hsl(42 78% 50% / 0.1) !important;
+  color: hsl(42 78% 65%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. ZOOM CONTROLS
+   -------------------------------------------------------------------------- */
+
+[class*="zoom-control"],
+[class*="ZoomControl"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  background: hsl(240 30% 8% / 0.9) !important;
+  border: 1px solid hsl(240 20% 16% / 0.7) !important;
+  border-radius: 0.625rem !important;
+  padding: 0.25rem 0.5rem !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+[class*="zoom-value"],
+[class*="ZoomValue"] {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  color: hsl(240 10% 65%) !important;
+  min-width: 3.5ch !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. SELECTION HANDLES — When an element is selected on canvas
+   -------------------------------------------------------------------------- */
+
+[class*="selection-handle"],
+[class*="SelectionHandle"] {
+  background: hsl(42 78% 55%) !important;
+  border: 2px solid hsl(240 32% 8%) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 6px hsl(42 78% 55% / 0.5) !important;
+}
+
+[class*="selection-outline"],
+[class*="SelectionOutline"] {
+  stroke: hsl(42 78% 55%) !important;
+  stroke-width: 1.5px !important;
+  fill: hsl(42 78% 55% / 0.06) !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. TOAST / NOTIFICATION POLISH
+   -------------------------------------------------------------------------- */
+
+[data-sonner-toast],
+[class*="toast"] {
+  background: hsl(240 30% 10% / 0.97) !important;
+  border: 1px solid hsl(240 20% 20% / 0.8) !important;
+  border-radius: 0.875rem !important;
+  box-shadow: 0 8px 28px hsl(240 48% 4% / 0.4) !important;
+  backdrop-filter: blur(12px) !important;
+  color: hsl(240 10% 82%) !important;
+  font-size: 0.875rem !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-color: hsl(142 60% 40% / 0.4) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: hsl(0 70% 50% / 0.4) !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  border-color: hsl(42 78% 50% / 0.4) !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. CONTEXT MENU
+   -------------------------------------------------------------------------- */
+
+[data-radix-context-menu-content],
+[class*="context-menu"],
+[class*="ContextMenu"] {
+  background: hsl(240 30% 9% / 0.98) !important;
+  border: 1px solid hsl(240 20% 20% / 0.8) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 28px hsl(240 48% 4% / 0.45) !important;
+  padding: 0.375rem !important;
+  backdrop-filter: blur(16px) !important;
+  min-width: 180px;
+}
+
+[data-radix-context-menu-item],
+[class*="context-menu-item"],
+[class*="ContextMenuItem"] {
+  padding: 0.45rem 0.75rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.8125rem !important;
+  color: hsl(240 10% 70%) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  transition: background 120ms ease, color 120ms ease !important;
+}
+
+[data-radix-context-menu-item]:hover,
+[class*="context-menu-item"]:hover {
+  background: hsl(42 78% 50% / 0.1) !important;
+  color: hsl(42 78% 68%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   13. KEYBOARD SHORTCUT BADGE
+   -------------------------------------------------------------------------- */
+
+.vish-kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.35rem;
+  background: hsl(240 20% 14% / 0.8);
+  border: 1px solid hsl(240 20% 22% / 0.7);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  color: hsl(240 10% 55%);
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   14. VASTU OVERLAY PANEL
+   -------------------------------------------------------------------------- */
+
+[class*="vastu-overlay"],
+[class*="VastuOverlay"],
+[class*="vastu-panel"],
+[class*="VastuPanel"] {
+  background: hsl(240 30% 8% / 0.95) !important;
+  border: 1px solid hsl(42 78% 50% / 0.2) !important;
+  border-radius: 0.875rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   15. 3D VIEWPORT CHROME
+   -------------------------------------------------------------------------- */
+
+[class*="viewport-3d"],
+[class*="Viewport3D"],
+[class*="sacred-3d"],
+[class*="Sacred3D"] {
+  border-radius: 0 !important;
+}
+
+/* 3D mode controls overlay */
+[class*="viewport-controls"],
+[class*="ViewportControls"] {
+  background: hsl(240 30% 8% / 0.85) !important;
+  border: 1px solid hsl(240 20% 16% / 0.7) !important;
+  border-radius: 0.75rem !important;
+  backdrop-filter: blur(8px) !important;
+  padding: 0.375rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   16. RULER / GRID OVERLAY
+   -------------------------------------------------------------------------- */
+
+.vish-ruler {
+  background: hsl(240 32% 6% / 0.9);
+  border-color: hsl(240 20% 12% / 0.8);
+}
+
+.vish-ruler-tick {
+  color: hsl(240 10% 35%);
+  font-size: 9px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* --------------------------------------------------------------------------
+   17. COPILOT CHAT MESSAGES
+   -------------------------------------------------------------------------- */
+
+[class*="copilot-message"],
+[class*="CopilotMessage"] {
+  border-radius: 0.875rem !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+  max-width: 85% !important;
+}
+
+[class*="copilot-message"][data-role="assistant"],
+[class*="CopilotMessage"][data-role="assistant"] {
+  background: hsl(240 28% 10% / 0.8) !important;
+  border: 1px solid hsl(240 20% 18% / 0.6) !important;
+  color: hsl(240 10% 78%) !important;
+  align-self: flex-start !important;
+}
+
+[class*="copilot-message"][data-role="user"],
+[class*="CopilotMessage"][data-role="user"] {
+  background: hsl(42 78% 50% / 0.12) !important;
+  border: 1px solid hsl(42 78% 50% / 0.22) !important;
+  color: hsl(42 78% 80%) !important;
+  align-self: flex-end !important;
+}
+
+/* Copilot input */
+[class*="copilot-input"],
+[class*="CopilotInput"] {
+  background: hsl(240 30% 8% / 0.9) !important;
+  border: 1px solid hsl(240 20% 18% / 0.7) !important;
+  border-radius: 0.75rem !important;
+  color: hsl(240 10% 82%) !important;
+  font-size: 0.875rem !important;
+  padding: 0.625rem 0.875rem !important;
+  outline: none !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease !important;
+  resize: none !important;
+}
+
+[class*="copilot-input"]:focus,
+[class*="CopilotInput"]:focus {
+  border-color: hsl(42 78% 50% / 0.4) !important;
+  box-shadow: 0 0 0 3px hsl(42 78% 50% / 0.08) !important;
+}
+
+/* --------------------------------------------------------------------------
+   18. REDUCED MOTION
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="tool-btn"],
+  [class*="mode-tab"],
+  [class*="layer-item"],
+  [class*="panel-section-header"] {
+    transition: none !important;
+  }
+}

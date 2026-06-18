@@ -1,5 +1,15 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+// T3-4: Self-hosted fonts — eliminates render-blocking Google Fonts request.
+// These packages serve woff2 files from node_modules, included in the PWA
+// precache manifest so they work offline after first load.
+import '@fontsource-variable/inter';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/noto-sans-devanagari/400.css';
+import '@fontsource/noto-sans-devanagari/500.css';
+import '@fontsource/noto-sans-devanagari/600.css';
+import '@fontsource/noto-sans-devanagari/700.css';
 import "./index.css";
 import "./styles/vish-tokens.css";
 import "./styles/vish-layout-tokens.css";
@@ -23,6 +33,10 @@ import "./styles/vish-sacred-marketing.css";
 import "./styles/vish-sacred-governance.css";
 import "./styles/vish-sacred-editor.css";
 import "./styles/vish-mantra-widget.css";
+import "./styles/vish-ui-polish.css";
+import "./styles/vish-marketing-polish.css";
+import "./styles/vish-workspace-polish.css";
+import "./styles/vish-editor-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {

@@ -20,8 +20,8 @@ describe('scenePbrCatalog', () => {
   });
 
   it('builds public texture urls', () => {
-    expect(pbrTextureUrl('concrete', 'color')).toBe('/textures/concrete/color.jpg');
-    expect(pbrTextureUrl('concrete', 'normal')).toBe('/textures/concrete/normal.jpg');
+    expect(pbrTextureUrl('concrete', 'color')).toBe('/textures/concrete/color.webp');
+    expect(pbrTextureUrl('concrete', 'normal')).toBe('/textures/concrete/normal.webp');
   });
 
   it('covers every bundle with fallback patterns', () => {

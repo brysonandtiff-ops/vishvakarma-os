@@ -1,0 +1,332 @@
+/* ==========================================================================
+   VISHVAKARMA.OS — MARKETING PAGES POLISH
+   Enhanced hero, feature cards, workflow, pricing, and CTA sections.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   HERO SECTION
+   -------------------------------------------------------------------------- */
+
+.vish-marketing-hero {
+  padding: clamp(4rem, 10vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+  text-align: center;
+  position: relative;
+}
+
+/* Devanagari eyebrow above the hero title */
+.vish-marketing-hero .vish-devanagari-eyebrow,
+[class*="devanagari"],
+.vish-marketing-hero [lang="sa"] {
+  font-size: 0.9375rem;
+  letter-spacing: 0.12em;
+  color: hsl(42 78% 55%);
+  margin-bottom: 1.25rem;
+  display: block;
+  text-shadow: 0 0 20px hsl(42 78% 50% / 0.35);
+}
+
+/* Hero title gradient */
+.vish-marketing-hero h1,
+.vish-marketing-hero .vish-hero-title {
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  background: linear-gradient(
+    145deg,
+    hsl(240 10% 96%) 0%,
+    hsl(42 78% 82%) 45%,
+    hsl(24 92% 62%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+}
+
+/* Gold span within hero title */
+.vish-hero-gold {
+  background: linear-gradient(90deg, hsl(42 78% 65%), hsl(24 92% 60%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero description */
+.vish-marketing-hero p,
+.vish-marketing-hero .vish-hero-desc {
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  color: hsl(240 10% 58%);
+  line-height: 1.75;
+  max-width: 58ch;
+  margin: 0 auto 2.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   METRIC PILLS — Stat row below hero
+   -------------------------------------------------------------------------- */
+
+.vish-metric-pill,
+[class*="MetricPill"],
+[class*="metric-pill"] {
+  background: hsl(240 28% 9% / 0.8) !important;
+  border: 1px solid hsl(240 20% 18% / 0.7) !important;
+  border-radius: 0.875rem !important;
+  padding: 1.25rem 1rem !important;
+  text-align: center;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease !important;
+}
+
+.vish-metric-pill:hover,
+[class*="MetricPill"]:hover {
+  border-color: hsl(42 78% 50% / 0.3) !important;
+  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.15), 0 4px 16px hsl(42 78% 50% / 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION TITLES
+   -------------------------------------------------------------------------- */
+
+.vish-section-title {
+  font-size: clamp(1.375rem, 2.5vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: hsl(240 10% 90%);
+  margin-bottom: 0.75rem;
+}
+
+.vish-section-desc {
+  font-size: 1rem;
+  color: hsl(240 10% 52%);
+  line-height: 1.7;
+  max-width: 52ch;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   FEATURE CARDS
+   -------------------------------------------------------------------------- */
+
+/* Target the FeatureCard component */
+[class*="feature-card"],
+[class*="FeatureCard"],
+.vish-feature-card-wrap {
+  background: hsl(240 28% 9% / 0.75) !important;
+  border: 1px solid hsl(240 20% 16% / 0.65) !important;
+  border-radius: 1.125rem !important;
+  padding: 1.75rem !important;
+  transition:
+    border-color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+[class*="feature-card"]::before,
+[class*="FeatureCard"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(42 78% 50% / 0.3), transparent);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+[class*="feature-card"]:hover,
+[class*="FeatureCard"]:hover {
+  border-color: hsl(42 78% 50% / 0.28) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 28px hsl(240 48% 4% / 0.4), 0 0 20px hsl(42 78% 50% / 0.07) !important;
+}
+
+[class*="feature-card"]:hover::before,
+[class*="FeatureCard"]:hover::before {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   WORKFLOW STRIP — 3-step process
+   -------------------------------------------------------------------------- */
+
+.vish-workflow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.vish-workflow-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: hsl(42 78% 50% / 0.12);
+  border: 1px solid hsl(42 78% 50% / 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: hsl(42 78% 62%);
+  flex-shrink: 0;
+  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15);
+}
+
+.vish-workflow-connector {
+  position: absolute;
+  top: 2.25rem;
+  right: -1rem;
+  width: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, hsl(42 78% 50% / 0.3), transparent);
+}
+
+/* --------------------------------------------------------------------------
+   CTA SECTION
+   -------------------------------------------------------------------------- */
+
+.vish-cta-section {
+  text-align: center;
+  padding: clamp(3rem, 6vw, 5rem) 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.vish-cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, hsl(42 78% 50% / 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.vish-cta-section h2 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: hsl(240 10% 92%);
+  margin-bottom: 1rem;
+}
+
+.vish-cta-section p {
+  font-size: 1rem;
+  color: hsl(240 10% 52%);
+  margin-bottom: 2rem;
+  max-width: 48ch;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+/* --------------------------------------------------------------------------
+   MARKETING LAYOUT CONTAINER
+   -------------------------------------------------------------------------- */
+
+.vish-marketing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+/* Section spacing */
+.vish-marketing-section {
+  padding: clamp(3rem, 6vw, 5rem) 0;
+}
+
+.vish-marketing-section + .vish-marketing-section {
+  border-top: 1px solid hsl(240 20% 14% / 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   PRICING PAGE IMPROVEMENTS
+   -------------------------------------------------------------------------- */
+
+.vish-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.vish-plan-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.vish-plan-feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: hsl(240 10% 65%);
+  line-height: 1.5;
+}
+
+.vish-plan-feature-list li::before {
+  content: '✦';
+  color: hsl(42 78% 55%);
+  font-size: 0.625rem;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   MARKETING NAV POLISH
+   -------------------------------------------------------------------------- */
+
+.vish-marketing-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.vish-marketing-nav a {
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(240 10% 58%);
+  text-decoration: none;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.vish-marketing-nav a:hover {
+  background: hsl(240 20% 14% / 0.7);
+  color: hsl(240 10% 80%);
+}
+
+.vish-marketing-nav a.active {
+  color: hsl(42 78% 62%);
+  background: hsl(42 78% 50% / 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .vish-marketing-hero {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .vish-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}

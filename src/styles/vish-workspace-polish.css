@@ -1,0 +1,831 @@
+/* ==========================================================================
+   VISHVAKARMA.OS — WORKSPACE PAGES POLISH
+   Projects, Profile, Governance, SpecCenter, Audit, Registry pages.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. WORKSPACE SHELL — Page container and scroll area
+   -------------------------------------------------------------------------- */
+
+.vish-workspace-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: hsl(240 48% 4%);
+}
+
+/* Consistent page content padding */
+.vish-workspace-content {
+  padding: 2rem clamp(1rem, 3vw, 2.5rem);
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   2. WORKSPACE PAGE HEADER — Title area at top of every workspace page
+   -------------------------------------------------------------------------- */
+
+.vish-workspace-header {
+  padding: 1.75rem clamp(1rem, 3vw, 2.5rem) 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.vish-workspace-header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid hsl(240 20% 14% / 0.6);
+  flex-wrap: wrap;
+}
+
+.vish-workspace-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  background: linear-gradient(135deg, hsl(240 10% 92%) 0%, hsl(42 78% 72%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.375rem;
+}
+
+.vish-workspace-header p {
+  font-size: 0.875rem;
+  color: hsl(240 10% 48%);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+/* --------------------------------------------------------------------------
+   3. PROJECTS PAGE — Card grid
+   -------------------------------------------------------------------------- */
+
+.vish-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Project card — elevated treatment */
+.vish-project-card-v2 {
+  background: hsl(240 28% 9% / 0.88);
+  border: 1px solid hsl(240 20% 16% / 0.7);
+  border-radius: 1.125rem;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top accent bar — colour-coded by project type */
+.vish-project-card-v2::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(42 78% 50%), hsl(24 92% 54%));
+  opacity: 0.6;
+  transition: opacity 220ms ease;
+}
+
+.vish-project-card-v2:hover {
+  border-color: hsl(42 78% 50% / 0.32);
+  box-shadow:
+    0 0 0 1px hsl(42 78% 50% / 0.12),
+    0 8px 28px hsl(240 48% 4% / 0.4);
+  transform: translateY(-2px);
+}
+
+.vish-project-card-v2:hover::before {
+  opacity: 1;
+}
+
+.vish-project-card-body {
+  padding: 1.25rem 1.375rem 1.375rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vish-project-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(240 10% 88%);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.vish-project-card-desc {
+  font-size: 0.8125rem;
+  color: hsl(240 10% 50%);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.vish-project-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid hsl(240 20% 14% / 0.5);
+  font-size: 0.75rem;
+  color: hsl(240 10% 40%);
+}
+
+.vish-project-card-meta .vish-project-date {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* New project card — dashed border */
+.vish-new-project-card {
+  background: hsl(240 28% 8% / 0.5);
+  border: 1.5px dashed hsl(240 20% 20% / 0.6);
+  border-radius: 1.125rem;
+  padding: 2rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  text-align: center;
+  min-height: 180px;
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.vish-new-project-card:hover {
+  border-color: hsl(42 78% 50% / 0.4);
+  background: hsl(42 78% 50% / 0.04);
+}
+
+.vish-new-project-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: hsl(42 78% 50% / 0.1);
+  border: 1px solid hsl(42 78% 50% / 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(42 78% 58%);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.vish-new-project-card:hover .vish-new-project-icon {
+  background: hsl(42 78% 50% / 0.18);
+  border-color: hsl(42 78% 50% / 0.45);
+}
+
+.vish-new-project-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(240 10% 55%);
+  transition: color 200ms ease;
+}
+
+.vish-new-project-card:hover .vish-new-project-label {
+  color: hsl(42 78% 62%);
+}
+
+/* --------------------------------------------------------------------------
+   4. PROFILE PAGE
+   -------------------------------------------------------------------------- */
+
+.vish-profile-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .vish-profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vish-profile-sidebar {
+  background: hsl(240 28% 9% / 0.85);
+  border: 1px solid hsl(240 20% 16% / 0.7);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.vish-profile-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(240 10% 90%);
+  letter-spacing: -0.02em;
+}
+
+.vish-profile-email {
+  font-size: 0.8125rem;
+  color: hsl(240 10% 45%);
+}
+
+.vish-profile-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: hsl(42 78% 50% / 0.14);
+  color: hsl(42 78% 65%);
+  border: 1px solid hsl(42 78% 50% / 0.3);
+}
+
+.vish-profile-stats-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.vish-profile-stat {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  background: hsl(240 30% 7% / 0.6);
+  border: 1px solid hsl(240 20% 14% / 0.5);
+  border-radius: 0.75rem;
+}
+
+.vish-profile-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(42 78% 62%);
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+
+.vish-profile-stat-label {
+  font-size: 0.6875rem;
+  color: hsl(240 10% 42%);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  display: block;
+  margin-top: 0.2rem;
+}
+
+/* Profile main content sections */
+.vish-profile-section {
+  background: hsl(240 28% 9% / 0.85);
+  border: 1px solid hsl(240 20% 16% / 0.7);
+  border-radius: 1.125rem;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.vish-profile-section-header {
+  padding: 1.125rem 1.5rem;
+  border-bottom: 1px solid hsl(240 20% 14% / 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vish-profile-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(240 10% 72%);
+  letter-spacing: 0.01em;
+}
+
+.vish-profile-section-body {
+  padding: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   5. GOVERNANCE PAGES — SpecCenter, Registry, ChangeRequests, Audit
+   -------------------------------------------------------------------------- */
+
+/* Governance stat row */
+.vish-gov-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.vish-gov-stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: hsl(240 28% 9% / 0.8);
+  border: 1px solid hsl(240 20% 16% / 0.6);
+  border-radius: 0.875rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: border-color 200ms ease;
+}
+
+.vish-gov-stat-card:hover {
+  border-color: hsl(42 78% 50% / 0.25);
+}
+
+.vish-gov-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: hsl(42 78% 62%);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.vish-gov-stat-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(240 10% 42%);
+}
+
+/* Governance content card */
+.vish-gov-card {
+  background: hsl(240 28% 9% / 0.85);
+  border: 1px solid hsl(240 20% 16% / 0.65);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.vish-gov-card-header {
+  padding: 1rem 1.375rem;
+  border-bottom: 1px solid hsl(240 20% 14% / 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: hsl(240 30% 7% / 0.4);
+}
+
+.vish-gov-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(240 10% 72%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vish-gov-card-body {
+  padding: 0;
+}
+
+/* Spec row in SpecCenter */
+.vish-spec-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.375rem;
+  border-bottom: 1px solid hsl(240 20% 12% / 0.5);
+  transition: background 150ms ease;
+  cursor: pointer;
+}
+
+.vish-spec-row:last-child {
+  border-bottom: none;
+}
+
+.vish-spec-row:hover {
+  background: hsl(42 78% 50% / 0.04);
+}
+
+.vish-spec-id {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: hsl(42 78% 55%);
+  letter-spacing: 0.04em;
+  min-width: 80px;
+}
+
+.vish-spec-title {
+  font-size: 0.875rem;
+  color: hsl(240 10% 78%);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.vish-spec-category {
+  font-size: 0.6875rem;
+  color: hsl(240 10% 40%);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Change request row */
+.vish-cr-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.375rem;
+  border-bottom: 1px solid hsl(240 20% 12% / 0.5);
+  transition: background 150ms ease;
+}
+
+.vish-cr-row:last-child {
+  border-bottom: none;
+}
+
+.vish-cr-row:hover {
+  background: hsl(240 20% 10% / 0.4);
+}
+
+.vish-cr-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.vish-cr-status-dot.open     { background: hsl(42 78% 55%); box-shadow: 0 0 6px hsl(42 78% 55% / 0.5); }
+.vish-cr-status-dot.approved { background: hsl(142 60% 50%); box-shadow: 0 0 6px hsl(142 60% 50% / 0.4); }
+.vish-cr-status-dot.rejected { background: hsl(0 70% 55%); box-shadow: 0 0 6px hsl(0 70% 55% / 0.4); }
+.vish-cr-status-dot.draft    { background: hsl(240 10% 35%); }
+
+/* Audit log entry */
+.vish-audit-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.875rem 1.375rem;
+  border-bottom: 1px solid hsl(240 20% 12% / 0.5);
+  transition: background 150ms ease;
+  font-size: 0.8125rem;
+}
+
+.vish-audit-row:last-child {
+  border-bottom: none;
+}
+
+.vish-audit-row:hover {
+  background: hsl(240 20% 10% / 0.4);
+}
+
+.vish-audit-ts {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6875rem;
+  color: hsl(240 10% 38%);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+.vish-audit-action {
+  color: hsl(240 10% 72%);
+  line-height: 1.5;
+}
+
+.vish-audit-actor {
+  font-size: 0.6875rem;
+  color: hsl(240 10% 42%);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   6. WORLD RECORDS PAGE — Trophy-style layout
+   -------------------------------------------------------------------------- */
+
+.vish-record-card {
+  background: hsl(240 28% 9% / 0.85);
+  border: 1px solid hsl(240 20% 16% / 0.65);
+  border-radius: 1.125rem;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.vish-record-card:hover {
+  border-color: hsl(42 78% 50% / 0.28);
+  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.1), 0 4px 16px hsl(240 48% 4% / 0.3);
+}
+
+.vish-record-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.875rem;
+  background: hsl(42 78% 50% / 0.1);
+  border: 1px solid hsl(42 78% 50% / 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(42 78% 60%);
+  flex-shrink: 0;
+  font-size: 1.375rem;
+}
+
+.vish-record-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: hsl(240 10% 86%);
+  letter-spacing: -0.015em;
+  margin-bottom: 0.375rem;
+}
+
+.vish-record-value {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: hsl(42 78% 62%);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.vish-record-desc {
+  font-size: 0.8125rem;
+  color: hsl(240 10% 48%);
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   7. RELEASES PAGE — Release timeline
+   -------------------------------------------------------------------------- */
+
+.vish-release-entry {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  position: relative;
+}
+
+.vish-release-entry + .vish-release-entry {
+  border-top: 1px solid hsl(240 20% 14% / 0.5);
+}
+
+.vish-release-version-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+  background: hsl(42 78% 50% / 0.12);
+  color: hsl(42 78% 65%);
+  border: 1px solid hsl(42 78% 50% / 0.28);
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: fit-content;
+  margin-top: 2px;
+}
+
+.vish-release-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: hsl(240 10% 86%);
+  letter-spacing: -0.015em;
+  margin-bottom: 0.375rem;
+}
+
+.vish-release-date {
+  font-size: 0.75rem;
+  color: hsl(240 10% 40%);
+  margin-bottom: 0.75rem;
+}
+
+.vish-release-notes {
+  font-size: 0.8125rem;
+  color: hsl(240 10% 56%);
+  line-height: 1.65;
+}
+
+/* --------------------------------------------------------------------------
+   8. SEARCH / FILTER BAR — Used across governance pages
+   -------------------------------------------------------------------------- */
+
+.vish-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1.375rem;
+  border-bottom: 1px solid hsl(240 20% 14% / 0.5);
+  background: hsl(240 30% 7% / 0.3);
+}
+
+.vish-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.875rem 0.5rem 2.25rem;
+  background: hsl(240 30% 8% / 0.8);
+  border: 1px solid hsl(240 20% 18% / 0.6);
+  border-radius: 0.625rem;
+  color: hsl(240 10% 82%);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  position: relative;
+}
+
+.vish-search-input:focus {
+  border-color: hsl(42 78% 50% / 0.45);
+  box-shadow: 0 0 0 3px hsl(42 78% 50% / 0.08);
+}
+
+.vish-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: hsl(240 28% 11% / 0.8);
+  border: 1px solid hsl(240 20% 20% / 0.6);
+  color: hsl(240 10% 55%);
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.vish-filter-chip:hover,
+.vish-filter-chip.active {
+  background: hsl(42 78% 50% / 0.12);
+  border-color: hsl(42 78% 50% / 0.3);
+  color: hsl(42 78% 65%);
+}
+
+/* --------------------------------------------------------------------------
+   9. TABS — Governance page tab navigation
+   -------------------------------------------------------------------------- */
+
+.vish-tab-list {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.375rem;
+  background: hsl(240 30% 7% / 0.6);
+  border-radius: 0.75rem;
+  border: 1px solid hsl(240 20% 14% / 0.5);
+  width: fit-content;
+}
+
+.vish-tab-trigger {
+  padding: 0.4rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: hsl(240 10% 48%);
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.vish-tab-trigger:hover {
+  color: hsl(240 10% 70%);
+  background: hsl(240 20% 12% / 0.6);
+}
+
+.vish-tab-trigger[data-state="active"],
+.vish-tab-trigger.active {
+  background: hsl(42 78% 50% / 0.14);
+  color: hsl(42 78% 66%);
+  box-shadow: 0 0 8px hsl(42 78% 50% / 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   10. EMPTY STATE — Consistent across workspace pages
+   -------------------------------------------------------------------------- */
+
+.vish-workspace-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.vish-workspace-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: hsl(240 30% 10% / 0.8);
+  border: 1px solid hsl(240 20% 18% / 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(42 78% 45% / 0.6);
+}
+
+.vish-workspace-empty h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: hsl(240 10% 65%);
+  letter-spacing: -0.015em;
+}
+
+.vish-workspace-empty p {
+  font-size: 0.875rem;
+  color: hsl(240 10% 40%);
+  max-width: 38ch;
+  line-height: 1.65;
+}
+
+/* --------------------------------------------------------------------------
+   11. PAGINATION
+   -------------------------------------------------------------------------- */
+
+.vish-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 1rem;
+  border-top: 1px solid hsl(240 20% 14% / 0.5);
+}
+
+.vish-page-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  color: hsl(240 10% 50%);
+  transition: all 150ms ease;
+}
+
+.vish-page-btn:hover {
+  background: hsl(240 20% 14% / 0.7);
+  color: hsl(240 10% 75%);
+  border-color: hsl(240 20% 22% / 0.5);
+}
+
+.vish-page-btn.active {
+  background: hsl(42 78% 50% / 0.14);
+  color: hsl(42 78% 66%);
+  border-color: hsl(42 78% 50% / 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   12. RESPONSIVE
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .vish-projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vish-gov-stats {
+    gap: 0.75rem;
+  }
+
+  .vish-gov-stat-card {
+    min-width: 100px;
+  }
+
+  .vish-audit-row {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .vish-audit-actor {
+    text-align: left;
+  }
+
+  .vish-release-entry {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

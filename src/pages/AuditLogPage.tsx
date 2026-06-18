@@ -1,3 +1,4 @@
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Audit Log Page - System audit trail with timeline display
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';

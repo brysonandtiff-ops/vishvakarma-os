@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['icons/**/*', 'brand/**/*', 'manifest.webmanifest'],
       manifest: false,
       workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — allows large WebP normal maps
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
@@ -87,6 +88,10 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 700,
+    // T3-5: Enable module preload injection so Vite adds <link rel="modulepreload">
+    // hints for all lazy chunks in the built index.html, allowing the browser to
+    // fetch the editor surface in parallel during auth page idle time.
+    modulePreload: { polyfill: true },
     // 'hidden' emits source maps for error monitoring (Sentry) without referencing
     // them from the shipped bundles, so prod stack traces stay readable but source
     // is not exposed to end users.
@@ -105,6 +110,9 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
           if (id.includes('@vercel/analytics') || id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
+          // T3-3: recharts (+ d3 internals) only used in OptimizationPage — isolate it
+          // so it doesn't inflate vendor-misc for users who never visit /optimization.
+          if (id.includes('recharts') || id.includes('d3-scale') || id.includes('d3-shape') || id.includes('d3-color') || id.includes('d3-interpolate') || id.includes('d3-format') || id.includes('d3-time') || id.includes('victory-vendor')) return 'vendor-charts';
           return 'vendor-misc';
         },
       },
