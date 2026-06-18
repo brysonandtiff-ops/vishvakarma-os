@@ -86,7 +86,7 @@ pnpm run verify:stripe-billing
 Use this wording for current production status:
 
 ```text
-Current v1.2.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support. The canonical production origin is https://vishvakarma-os.app; the Vercel subdomain is a fallback/debug alias.
+Current v1.5.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support. The canonical production origin is https://vishvakarma-os.app; the Vercel subdomain is a fallback/debug alias.
 ```
 
 Avoid this wording for current production status:

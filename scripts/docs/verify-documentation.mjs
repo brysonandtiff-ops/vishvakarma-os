@@ -92,6 +92,40 @@ for (const [name, content] of versionFiles) {
   }
 }
 
+// Stricter: current-state docs must not claim a *stale* current production version.
+// Historical "Earlier vX.Y.x work/releases" lines are allowed; only "current ...
+// production" claims and the inventory Product-version table row are version-pinned to
+// package.json (compared at major.minor so patch bumps don't churn docs).
+const [verMajor, verMinor] = productVersion.split('.');
+const currentMajorMinor = `${verMajor}.${verMinor}`;
+const currentStateDocs = [
+  'docs/SOFTWARE_INVENTORY.md',
+  'docs/CURRENT_PRODUCTION_ARCHITECTURE.md',
+];
+const staleCurrentClaim = /current\s+v(\d+)\.(\d+)(?:\.(?:\d+|x))?\s+production/gi;
+const productVersionRow = /\|\s*Product version\s*\|\s*v?(\d+)\.(\d+)(?:\.(?:\d+|x))?\s*\|/i;
+for (const file of currentStateDocs) {
+  if (!exists(file)) continue;
+  const content = read(file);
+  for (const match of content.matchAll(staleCurrentClaim)) {
+    const claimed = `${match[1]}.${match[2]}`;
+    if (claimed !== currentMajorMinor) {
+      fail(
+        `${file} claims current production version v${claimed}.x but package.json is ${productVersion}: "${match[0]}"`,
+      );
+    }
+  }
+  const rowMatch = content.match(productVersionRow);
+  if (rowMatch) {
+    const rowVersion = `${rowMatch[1]}.${rowMatch[2]}`;
+    if (rowVersion !== currentMajorMinor) {
+      fail(
+        `${file} "Product version" table row is v${rowVersion}.x but package.json is ${productVersion}`,
+      );
+    }
+  }
+}
+
 if (!read('SECURITY.md').includes('1.5.x')) {
   fail('SECURITY.md supported versions missing 1.5.x');
 }

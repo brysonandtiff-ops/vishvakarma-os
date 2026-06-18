@@ -36,7 +36,7 @@ The current production architecture has been consolidated around Supabase for au
 
 | Metric | Current value / note |
 |--------|----------------------|
-| Product version | v1.2.x |
+| Product version | v1.5.0 |
 | Production hosting | Vercel SPA + serverless API routes |
 | Current backend | Supabase-only production path |
 | Local fallback | `localStorage` drafts/projects when backend is unconfigured |
@@ -426,4 +426,4 @@ Update this inventory whenever:
 - Release gate count changes.
 - Public valuation or investor materials are prepared.
 
-**Last audited:** 2026-06-13 against current v1.2.x production direction.
+**Last audited:** 2026-06-13 against current v1.5.x production direction.
