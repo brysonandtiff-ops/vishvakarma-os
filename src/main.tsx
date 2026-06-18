@@ -37,6 +37,7 @@ import "./styles/vish-ui-polish.css";
 import "./styles/vish-marketing-polish.css";
 import "./styles/vish-workspace-polish.css";
 import "./styles/vish-editor-polish.css";
+import "./styles/vish-theme-solar-mandala.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {
