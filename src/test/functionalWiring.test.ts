@@ -21,6 +21,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/cast/:token',
       '/404',
       '/editor',
+      '/3d-room',
       '/projects',
       '/optimization',
       '/profile',
@@ -118,13 +119,13 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const appLayout = read('src/components/layouts/AppLayout.tsx');
 
     expect(routeGuard).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('AuthSignInHeader');
+    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
     expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Send secure access link');
-    expect(authPage).toContain('auth-trust-pillars');
+    expect(authPage).toContain('Request access link');
+    expect(authPage).toContain('sacred-auth-trust');
     expect(appLayout).toContain('VISHVAKARMA.OS');
     expect(appLayout).toContain('PrototypeDisclaimerBadge');
   });

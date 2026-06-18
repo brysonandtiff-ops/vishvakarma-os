@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const investorPack = readFileSync(
-  new URL('../../docs/demo/VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md', import.meta.url),
+  resolve(process.cwd(), 'docs/demo/VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md'),
   'utf8',
 );
 

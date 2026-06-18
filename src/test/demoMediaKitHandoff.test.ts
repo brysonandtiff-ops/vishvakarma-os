@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const readme = readFileSync(new URL('../../docs/demo/README.md', import.meta.url), 'utf8');
-const verifier = readFileSync(new URL('../../scripts/demo/verify-demo-assets.mjs', import.meta.url), 'utf8');
+const readme = readFileSync(resolve(process.cwd(), 'docs/demo/README.md'), 'utf8');
+const verifier = readFileSync(resolve(process.cwd(), 'scripts/demo/verify-demo-assets.mjs'), 'utf8');
 
 const expectedScreenshots = [
   '01-landing.png',
