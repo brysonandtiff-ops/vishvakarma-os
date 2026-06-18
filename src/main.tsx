@@ -22,6 +22,7 @@ import "./styles/vish-sacred-auth.css";
 import "./styles/vish-sacred-marketing.css";
 import "./styles/vish-sacred-governance.css";
 import "./styles/vish-sacred-editor.css";
+import "./styles/vish-mantra-widget.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {

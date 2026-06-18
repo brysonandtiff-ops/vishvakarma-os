@@ -1,0 +1,464 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Mantra Player Widget — Sacred Audio Toggle
+   Floating action button + expandable panel for authentic mantra playback.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Widget container ── */
+.mantra-widget {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  pointer-events: none; /* children re-enable */
+}
+
+/* ── Floating Action Button ── */
+.mantra-fab {
+  position: relative;
+  pointer-events: all;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid hsl(232 30% 22%);
+  background:
+    radial-gradient(circle at 40% 30%, hsl(235 38% 18%), hsl(240 42% 10%));
+  color: hsl(230 15% 60%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 16px hsl(0 0% 0% / 0.4),
+    0 0 0 1px hsl(232 30% 14%);
+  transition:
+    color 250ms ease,
+    border-color 250ms ease,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 250ms ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.mantra-fab:hover {
+  color: hsl(42 78% 60%);
+  border-color: hsl(42 78% 50% / 0.4);
+  transform: scale(1.06);
+  box-shadow:
+    0 6px 24px hsl(0 0% 0% / 0.4),
+    0 0 20px hsl(42 78% 50% / 0.12);
+}
+
+.mantra-fab:focus-visible {
+  outline: 2px solid hsl(42 78% 50%);
+  outline-offset: 3px;
+}
+
+.mantra-fab.playing {
+  color: hsl(42 78% 62%);
+  border-color: hsl(42 78% 50% / 0.5);
+  background:
+    radial-gradient(circle at 40% 30%, hsl(235 38% 20%), hsl(240 42% 12%));
+  box-shadow:
+    0 4px 20px hsl(0 0% 0% / 0.4),
+    0 0 28px hsl(42 78% 50% / 0.18),
+    0 0 0 1px hsl(42 78% 50% / 0.1);
+}
+
+.mantra-fab.open {
+  color: hsl(42 78% 65%);
+  border-color: hsl(42 78% 50% / 0.6);
+}
+
+.mantra-fab__icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Playing indicator dot */
+.mantra-fab__dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(42 78% 55%);
+  border: 1.5px solid hsl(240 42% 10%);
+  box-shadow: 0 0 8px hsl(42 78% 50% / 0.6);
+  animation: mantra-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes mantra-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* Animated mandala rings when playing */
+.mantra-fab__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid hsl(42 78% 50% / 0.3);
+  animation: mantra-ring-expand 3s ease-out infinite;
+  pointer-events: none;
+}
+
+.mantra-fab__ring--inner {
+  animation-delay: 1.5s;
+  border-color: hsl(24 92% 54% / 0.2);
+}
+
+@keyframes mantra-ring-expand {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* ── Expanded panel ── */
+.mantra-panel {
+  pointer-events: all;
+  width: 280px;
+  border-radius: 16px;
+  border: 1px solid hsl(232 30% 20%);
+  background:
+    radial-gradient(ellipse at 50% 0%, hsl(42 78% 50% / 0.05), transparent 50%),
+    linear-gradient(165deg, hsl(235 38% 12% / 0.98), hsl(240 42% 7% / 0.99));
+  backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow:
+    0 24px 64px hsl(0 0% 0% / 0.5),
+    0 0 0 1px hsl(42 78% 50% / 0.06),
+    inset 0 1px 0 hsl(42 78% 50% / 0.08);
+  overflow: hidden;
+  animation: mantra-panel-enter 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: bottom right;
+}
+
+@keyframes mantra-panel-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Panel header */
+.mantra-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem 0.75rem;
+  border-bottom: 1px solid hsl(232 30% 16%);
+}
+
+.mantra-panel__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mantra-panel__icon {
+  display: flex;
+  align-items: center;
+  color: hsl(42 78% 55%);
+}
+
+.mantra-panel__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(38 35% 88%);
+}
+
+.mantra-panel__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: hsl(230 15% 50%);
+  cursor: pointer;
+  transition: color 200ms ease, background 200ms ease;
+}
+
+.mantra-panel__close:hover {
+  color: hsl(38 35% 88%);
+  background: hsl(42 78% 50% / 0.08);
+}
+
+/* Now playing */
+.mantra-panel__now-playing {
+  padding: 1rem 1rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid hsl(232 30% 14%);
+}
+
+.mantra-panel__sanskrit {
+  font-family: 'Noto Sans Devanagari', 'Tiro Devanagari Sanskrit', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: hsl(42 78% 60%);
+  text-shadow: 0 0 16px hsl(42 78% 50% / 0.3);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.04em;
+}
+
+.mantra-panel__track-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: hsl(38 35% 90%);
+  margin-bottom: 0.125rem;
+}
+
+.mantra-panel__track-sub {
+  font-size: 0.7rem;
+  color: hsl(230 15% 52%);
+  letter-spacing: 0.04em;
+}
+
+/* Play/pause button */
+.mantra-panel__play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid hsl(42 78% 50% / 0.3);
+  background:
+    radial-gradient(circle at 40% 30%, hsl(42 78% 50% / 0.15), hsl(42 78% 50% / 0.05));
+  color: hsl(42 78% 62%);
+  cursor: pointer;
+  margin: 0.75rem auto;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    transform 150ms ease,
+    box-shadow 200ms ease;
+  box-shadow: 0 0 16px hsl(42 78% 50% / 0.1);
+}
+
+.mantra-panel__play-btn:hover {
+  background:
+    radial-gradient(circle at 40% 30%, hsl(42 78% 50% / 0.25), hsl(42 78% 50% / 0.1));
+  border-color: hsl(42 78% 50% / 0.5);
+  transform: scale(1.06);
+  box-shadow: 0 0 24px hsl(42 78% 50% / 0.2);
+}
+
+.mantra-panel__play-btn.playing {
+  background:
+    radial-gradient(circle at 40% 30%, hsl(42 78% 50% / 0.2), hsl(42 78% 50% / 0.08));
+  border-color: hsl(42 78% 50% / 0.5);
+  box-shadow: 0 0 24px hsl(42 78% 50% / 0.18);
+}
+
+.mantra-panel__play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading ring */
+.mantra-panel__loading-ring {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid hsl(42 78% 50% / 0.2);
+  border-top-color: hsl(42 78% 55%);
+  animation: mantra-spin 0.8s linear infinite;
+}
+
+@keyframes mantra-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Track selector */
+.mantra-panel__tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem;
+  border-top: 1px solid hsl(232 30% 14%);
+  border-bottom: 1px solid hsl(232 30% 14%);
+}
+
+.mantra-track-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.625rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+  width: 100%;
+}
+
+.mantra-track-btn:hover {
+  background: hsl(42 78% 50% / 0.05);
+  border-color: hsl(42 78% 50% / 0.1);
+}
+
+.mantra-track-btn.active {
+  background: hsl(42 78% 50% / 0.08);
+  border-color: hsl(42 78% 50% / 0.25);
+}
+
+.mantra-track-btn__sanskrit {
+  font-family: 'Noto Sans Devanagari', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: hsl(42 78% 58%);
+  line-height: 1.3;
+  margin-bottom: 0.125rem;
+}
+
+.mantra-track-btn.active .mantra-track-btn__sanskrit {
+  color: hsl(42 78% 65%);
+  text-shadow: 0 0 12px hsl(42 78% 50% / 0.25);
+}
+
+.mantra-track-btn__name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: hsl(38 35% 85%);
+  line-height: 1.3;
+}
+
+.mantra-track-btn__sub {
+  font-size: 0.65rem;
+  color: hsl(230 15% 50%);
+  letter-spacing: 0.03em;
+  margin-top: 0.1rem;
+}
+
+/* Volume control */
+.mantra-panel__volume {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+}
+
+.mantra-panel__vol-icon {
+  color: hsl(230 15% 50%);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mantra-volume-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    hsl(42 78% 50%) calc(var(--val, 45) * 1%),
+    hsl(232 30% 20%) calc(var(--val, 45) * 1%)
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.mantra-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: hsl(42 78% 55%);
+  border: 2px solid hsl(240 42% 8%);
+  box-shadow: 0 0 8px hsl(42 78% 50% / 0.4);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.mantra-volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.mantra-volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: hsl(42 78% 55%);
+  border: 2px solid hsl(240 42% 8%);
+  box-shadow: 0 0 8px hsl(42 78% 50% / 0.4);
+  cursor: pointer;
+}
+
+.mantra-panel__vol-pct {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: hsl(230 15% 50%);
+  min-width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.mantra-panel__footer {
+  padding: 0.5rem 1rem 0.75rem;
+  font-size: 0.65rem;
+  color: hsl(230 15% 40%);
+  text-align: center;
+  letter-spacing: 0.04em;
+  font-family: 'Noto Sans Devanagari', serif;
+}
+
+/* ── iPad / touch adjustments ── */
+@media (max-width: 768px) {
+  .mantra-widget {
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    right: 1rem;
+  }
+
+  .mantra-panel {
+    width: calc(100vw - 2rem);
+    max-width: 320px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .mantra-fab__ring,
+  .mantra-fab__dot,
+  .mantra-panel__loading-ring {
+    animation: none;
+  }
+
+  .mantra-panel {
+    animation: none;
+  }
+
+  .mantra-fab,
+  .mantra-panel__play-btn,
+  .mantra-track-btn {
+    transition: none;
+  }
+}
