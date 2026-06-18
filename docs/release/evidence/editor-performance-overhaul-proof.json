@@ -1,17 +1,17 @@
 {
   "suite": "editor-performance-overhaul",
-  "generatedAt": "2026-06-16T09:24:23.874Z",
-  "commitSha": "c5484d237c48dfcee1b231c9c0725bfcad118668",
+  "generatedAt": "2026-06-18T21:26:04.980Z",
+  "commitSha": "acb705ea81b138a362bd390297fbbedad5abf3ee",
   "summary": {
-    "pass": 27,
+    "pass": 26,
     "fail": 0,
     "warn": 0,
-    "total": 27
+    "total": 26
   },
   "metrics": {
     "canvasSchedulerCoalesced": true,
-    "spatialIndexMs": 1.956000000000131,
-    "linearScanMs": 2.548399999999674
+    "spatialIndexMs": 2.319999999999709,
+    "linearScanMs": 3.878000000004249
   },
   "checks": [
     {
@@ -47,7 +47,7 @@
       "phase": "1",
       "name": "Spatial index hit-test parity + mock benchmark",
       "status": "PASS",
-      "detail": "indexed=1.96ms linear=2.55ms parity=w200"
+      "detail": "indexed=2.32ms linear=3.88ms parity=w200"
     },
     {
       "id": "p1-overlay-cache",
@@ -62,13 +62,6 @@
       "name": "Bloom pipeline gated by wall count",
       "status": "PASS",
       "detail": "cap=250"
-    },
-    {
-      "id": "p2-wall-batch",
-      "phase": "2",
-      "name": "Wall batch helper thresholds",
-      "status": "PASS",
-      "detail": ">=10 walls, non-cinematic"
     },
     {
       "id": "p4-background",
