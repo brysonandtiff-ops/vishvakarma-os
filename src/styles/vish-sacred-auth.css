@@ -64,9 +64,9 @@
 .sacred-temple-gate__rain {
   position: absolute;
   inset: 0;
-  opacity: 0.75;
+  opacity: 0.45;
   mix-blend-mode: screen;
-  filter: saturate(1.2) brightness(1.05);
+  filter: saturate(0.9) brightness(0.85);
   z-index: 1;
 }
 
@@ -139,7 +139,7 @@
 
 .sacred-auth-card {
   position: relative;
-  width: min(100%, 28rem);
+  width: min(100%, 30rem);
   border-radius: 1.5rem;
   border: 1px solid hsl(42 78% 50% / 0.2);
   background:
@@ -185,8 +185,11 @@
 }
 
 @media (min-width: 640px) {
+  .sacred-auth-card {
+    width: min(100%, 32rem);
+  }
   .sacred-auth-card__inner {
-    padding: 3rem 2.5rem;
+    padding: 3rem 3rem;
   }
 }
 

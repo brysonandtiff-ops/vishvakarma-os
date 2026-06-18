@@ -631,16 +631,18 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  min-height: 2.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid hsl(0 0% 88% / 0.35);
-  background: hsl(0 0% 98%);
-  color: hsl(220 14% 12%);
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.75rem 1rem;
+  min-height: 3rem;
+  border-radius: 0.875rem;
+  border: 1px solid hsl(0 0% 88% / 0.4);
+  background: hsl(0 0% 99%);
+  color: hsl(220 14% 10%);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.875rem 1.25rem;
   box-shadow:
-    0 1px 2px hsl(0 0% 0% / 0.12),
+    0 2px 8px hsl(0 0% 0% / 0.18),
+    0 0 0 1px hsl(0 0% 90% / 0.2),
     inset 0 1px 0 hsl(0 0% 100%);
   transition:
     border-color 160ms ease,
@@ -651,11 +653,12 @@
 
 .vish-auth-google-button:hover:not(:disabled) {
   background: hsl(0 0% 100%);
-  border-color: hsl(43 65% 52% / 0.45);
+  border-color: hsl(43 65% 52% / 0.55);
   box-shadow:
-    0 4px 14px hsl(0 0% 0% / 0.18),
-    0 0 0 1px hsl(43 65% 52% / 0.12);
-  transform: translateY(-1px);
+    0 6px 20px hsl(0 0% 0% / 0.22),
+    0 0 0 2px hsl(43 65% 52% / 0.18),
+    inset 0 1px 0 hsl(0 0% 100%);
+  transform: translateY(-2px);
 }
 
 .vish-auth-google-button:focus-visible {

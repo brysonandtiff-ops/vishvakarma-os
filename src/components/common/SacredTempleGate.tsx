@@ -21,9 +21,10 @@ export function SacredTempleGate({ children }: SacredTempleGateProps) {
       {/* Layer 2: Animated kolam dot grid */}
       <div className="sacred-temple-gate__kolam" aria-hidden="true" />
 
-      {/* Layer 3: Sanskrit rain (existing component) */}
+      {/* Layer 3: Sanskrit rain (existing component) — auth preset is softer/slower */}
       <SanskritRainBackground
-        preset="marketing"
+        preset="auth"
+        opacity={0.35}
         className="sacred-temple-gate__rain"
       />
 
