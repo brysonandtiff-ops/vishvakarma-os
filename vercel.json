@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "find public/textures -type f \\( -name '*.jpg' -o -name '*.jpeg' \\) -delete && pnpm run build",
+  "buildCommand": "find public/textures -type f -name '*.jpg' -delete; find public/textures -type f -name '*.jpeg' -delete; pnpm run build",
   "outputDirectory": "dist",
   "functions": {
     "api/**/*.ts": {
