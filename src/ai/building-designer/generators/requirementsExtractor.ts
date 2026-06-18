@@ -6,6 +6,7 @@ import {
   buildingRequestSchema,
   type BuildingRequestPayload,
 } from '@/ai/building-designer/prompts/outputSchema';
+import { fetchWithRetry } from '@/backend/fetchWithRetry';
 
 export function parseRequirementsFallback(prompt: string, parcelOverride?: Partial<BuildingRequest['parcel']>): BuildingRequest {
   const bedroomsMatch = prompt.match(/(\d+)\s*[- ]?bed/i);
@@ -33,9 +34,13 @@ export function parseRequirementsFallback(prompt: string, parcelOverride?: Parti
   };
 }
 
+// P3: extractRequirements now accepts an optional AbortSignal so callers can
+// cancel the in-flight AI request when the component unmounts or the user
+// navigates away. Uses fetchWithRetry for automatic retry + per-attempt timeout.
 export async function extractRequirements(
   prompt: string,
-  parcelOverride?: Partial<BuildingRequest['parcel']>
+  parcelOverride?: Partial<BuildingRequest['parcel']>,
+  signal?: AbortSignal,
 ): Promise<BuildingRequest> {
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -49,11 +54,16 @@ export async function extractRequirements(
       // proceed unauthenticated; the server returns 401 and we fall back to local parsing
     }
 
-    const res = await fetch('/api/ai/extract-requirements', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ prompt, parcelOverride }),
-    });
+    const res = await fetchWithRetry(
+      (attemptSignal) =>
+        fetch('/api/ai/extract-requirements', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ prompt, parcelOverride }),
+          signal: attemptSignal,
+        }),
+      { signal, timeoutMs: 20_000, maxAttempts: 2 },
+    );
 
     if (res.ok) {
       const body = (await res.json()) as { request?: unknown };
@@ -62,8 +72,10 @@ export async function extractRequirements(
         return normalizeBuildingRequest(parsed.data);
       }
     }
-  } catch {
-    // fall through to local parser
+  } catch (err) {
+    // Re-throw intentional aborts so callers can distinguish cancellation from errors.
+    if (err instanceof DOMException && err.name === 'AbortError') throw err;
+    // All other errors fall through to the local parser fallback.
   }
 
   return parseRequirementsFallback(prompt, parcelOverride);

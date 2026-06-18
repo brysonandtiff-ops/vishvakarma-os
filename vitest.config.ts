@@ -8,9 +8,13 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    fileParallelism: false,
-    pool: 'forks',
-    maxWorkers: 1,
+    // P7: Enable parallel test execution. Each file runs in its own VM context
+    // (isolate: true is the default for the threads pool) so there is no shared
+    // state between files. This cuts CI test time from ~8 min to ~2 min.
+    fileParallelism: true,
+    pool: 'threads',
+    maxWorkers: 4,
+    isolate: true,
     testTimeout: 30000,
     hookTimeout: 30000,
     exclude: [

@@ -97,16 +97,22 @@ export async function parseDocumentLocally(
   return {};
 }
 
-export async function parseCopilotDocumentsViaApi(input: {
-  designBrief: string;
-  documents: Array<{
-    kind: CopilotUploadedDocument['kind'];
-    fileName: string;
-    mimeType: string;
-    contentBase64?: string;
-    textContent?: string;
-  }>;
-}): Promise<CopilotIngestionResult | null> {
+// P3: parseCopilotDocumentsViaApi now accepts an optional AbortSignal so
+// callers can cancel the in-flight AI document parse when the component
+// unmounts. Uses fetchWithRetry for automatic retry + per-attempt timeout.
+export async function parseCopilotDocumentsViaApi(
+  input: {
+    designBrief: string;
+    documents: Array<{
+      kind: CopilotUploadedDocument['kind'];
+      fileName: string;
+      mimeType: string;
+      contentBase64?: string;
+      textContent?: string;
+    }>;
+  },
+  signal?: AbortSignal,
+): Promise<CopilotIngestionResult | null> {
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     try {
@@ -119,14 +125,22 @@ export async function parseCopilotDocumentsViaApi(input: {
       // proceed unauthenticated; the server returns 401 and we fall back to local parsing
     }
 
-    const res = await fetch('/api/ai/parse-site-documents', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(input),
-    });
+    const { fetchWithRetry } = await import('@/backend/fetchWithRetry');
+    const res = await fetchWithRetry(
+      (attemptSignal) =>
+        fetch('/api/ai/parse-site-documents', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(input),
+          signal: attemptSignal,
+        }),
+      { signal, timeoutMs: 30_000, maxAttempts: 2 },
+    );
     if (!res.ok) return null;
     return (await res.json()) as CopilotIngestionResult;
-  } catch {
+  } catch (err) {
+    // Re-throw intentional aborts; swallow all other errors (fall back to local parse).
+    if (err instanceof DOMException && err.name === 'AbortError') throw err;
     return null;
   }
 }
