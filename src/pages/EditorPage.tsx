@@ -1203,6 +1203,9 @@ function EditorWorkspace() {
                 />
                 <WelcomeOverlay
                   open={welcomeOpen && showOnboarding}
+                  returningUser={freshSignIn}
+                  hasCloudProjects={Boolean(user && projects.length > 0)}
+                  onOpenProjects={() => setLoadDialogOpen(true)}
                   onDismiss={() => {
                     dismissOnboarding();
                     setWelcomeOpen(false);
