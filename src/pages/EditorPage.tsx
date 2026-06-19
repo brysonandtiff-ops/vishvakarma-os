@@ -615,6 +615,8 @@ function EditorWorkspace() {
   );
 
   const handleLoadProject = useCallback((project: Project) => {
+    setLoadingProject(true);
+    toast.message('Loading project…', { description: project.name });
     clearLocalDraft();
     setCurrentProject(project);
     setDemoProjectName(null);
@@ -623,6 +625,7 @@ function EditorWorkspace() {
     setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
     setHasUnsavedChanges(false);
+    setLoadingProject(false);
     toast.success(`Loaded: ${project.name}`);
   }, [applyManifest]);
 
