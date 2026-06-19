@@ -663,20 +663,40 @@ function EditorWorkspace() {
     [applyManifest],
   );
 
+  const handleSampleManifestOpen = useCallback(
+    (manifest: ProjectManifest, name: string) => {
+      clearLocalDraft();
+      setCurrentProject(null);
+      setDemoProjectName(name);
+      applyManifest({ ...manifest, name });
+      engine.setGridVisible(true);
+      setHasUnsavedChanges(true);
+      setSaveState('local-draft');
+      toast.success(`${name} loaded with Project Proof active`);
+    },
+    [applyManifest, engine],
+  );
+
   useEffect(() => {
     const state = location.state as {
       loadProject?: Project;
       loadManifest?: ProjectManifest;
       projectName?: string;
+      manifestSource?: 'sample' | 'ai';
     } | null;
     if (state?.loadProject) {
       handleLoadProject(state.loadProject);
       window.history.replaceState({}, document.title);
     } else if (state?.loadManifest) {
-      handleAIDesignerOpenInEditor(state.loadManifest, state.projectName ?? state.loadManifest.name);
+      const name = state.projectName ?? state.loadManifest.name;
+      if (state.manifestSource === 'sample') {
+        handleSampleManifestOpen(state.loadManifest, name);
+      } else {
+        handleAIDesignerOpenInEditor(state.loadManifest, name);
+      }
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor]);
+  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen]);
 
   const handleAIDesignerSaveProject = useCallback(
     async (manifest: ProjectManifest, name: string) => {
