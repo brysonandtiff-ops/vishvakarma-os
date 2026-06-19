@@ -72,25 +72,25 @@
    METRIC PILLS — Stat row below hero
    -------------------------------------------------------------------------- */
 
-.vish-metric-pill,
-[class*="MetricPill"],
-[class*="metric-pill"] {
-  background: hsl(240 28% 9% / 0.8) !important;
-  border: 1px solid hsl(240 20% 18% / 0.7) !important;
-  border-radius: 0.875rem !important;
-  padding: 1.25rem 1rem !important;
+.vish-stat-pill,
+.vish-metric-pill {
+  background: hsl(240 28% 9% / 0.8);
+  border: 1px solid hsl(240 20% 18% / 0.7);
+  border-radius: 0.875rem;
+  padding: 1.25rem 1rem;
   text-align: center;
   transition:
     border-color 200ms ease,
     box-shadow 200ms ease,
-    transform 200ms ease !important;
+    transform 200ms ease;
 }
 
-.vish-metric-pill:hover,
-[class*="MetricPill"]:hover {
-  border-color: hsl(42 78% 50% / 0.3) !important;
-  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.15), 0 4px 16px hsl(42 78% 50% / 0.1) !important;
-  transform: translateY(-2px) !important;
+.vish-stat-pill--interactive:hover,
+.vish-stat-pill:hover,
+.vish-metric-pill:hover {
+  border-color: hsl(42 78% 50% / 0.3);
+  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.15), 0 4px 16px hsl(42 78% 50% / 0.1);
+  transform: translateY(-2px);
 }
 
 /* --------------------------------------------------------------------------
