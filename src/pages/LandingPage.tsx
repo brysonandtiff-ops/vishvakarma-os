@@ -134,9 +134,12 @@ export default function LandingPage() {
           </figure>
         </div>
         <ol className="vish-workflow-strip mt-8 grid gap-6 md:grid-cols-3 md:gap-4">
-          {WORKFLOW.map((item) => (
-            <li key={item.step} className="flex items-start gap-3 md:flex-col md:items-center md:text-center">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
+          {WORKFLOW.map((item, index) => (
+            <li key={item.step} className="vish-workflow-step flex items-start gap-3 md:flex-col md:items-center md:text-center">
+              <span className="vish-workflow-number shrink-0" aria-hidden="true">
+                {index + 1}
+              </span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary md:mt-1">
                 <item.icon className="h-5 w-5" />
               </span>
               <div className="min-w-0">
