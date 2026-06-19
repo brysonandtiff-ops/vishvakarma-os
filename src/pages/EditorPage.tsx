@@ -1287,40 +1287,32 @@ function EditorWorkspace() {
           </div>
 
           {!presentationLock && !zenMode && (
-          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
-            <PropertiesPanel
-              currentTool={currentTool}
-              selectedWall={selectedWall}
-              selectedLabel={selectedLabel}
-              selectedFixture={fixtures.find((f) => f.id === selectedFixtureId)}
-              selectedRoom={
-                rooms.find((r) => selectedLabelId === `label-${r.id}`) ??
-                rooms.find((r) => selectedLabel?.text === r.name)
-              }
-              onRoomUpdate={(roomId, updates) => engine.updateRoom(roomId, updates)}
-              pendingRoomType={pendingRoomType}
-              onPendingRoomTypeChange={setPendingRoomType}
-              openings={openings}
-              onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
-              onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
-              onWallDelete={(wallId) => engine.removeWall(wallId)}
-              onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
-              onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
-              onLabelDelete={(labelId) => {
-                engine.removeLabel(labelId);
-                setSelectedLabelId(undefined);
-              }}
-              onFixtureUpdate={(fixtureId, updates) => engine.updateFixture(fixtureId, updates)}
-              onFixtureDelete={(fixtureId) => {
-                engine.removeFixture(fixtureId);
-                setSelectedFixtureId(undefined);
-              }}
-              unitSystem={unitSystem}
-              morePanel={morePanel}
-            />
+          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark hidden w-72 shrink-0 flex-col overflow-hidden md:flex">
+            {propertiesPanel}
           </aside>
           )}
         </div>
+
+        {!presentationLock && !zenMode && (
+          <>
+            <button
+              type="button"
+              className="vish-properties-fab touch-target fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text shadow-lg md:hidden"
+              aria-label="Open properties panel"
+              onClick={() => setPropertiesSheetOpen(true)}
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+            </button>
+            <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
+              <SheetContent side="bottom" className="vish-dark-panel ws-panel-dark max-h-[85dvh] overflow-y-auto p-0 md:hidden">
+                <SheetHeader className="border-b border-ws-border px-4 py-3 text-left">
+                  <SheetTitle className="text-sm font-semibold text-ws-text">Properties</SheetTitle>
+                </SheetHeader>
+                {propertiesPanel}
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
 
         <StatusBar
           currentTool={currentTool}
