@@ -15,6 +15,7 @@ describe('Blueprint editor visual polish', () => {
     expect(main).toContain('./styles/vish-tokens.css');
     expect(main).toContain('./styles/vish-realism.css');
     expect(main).toContain('./styles/vish-editor-chrome.css');
+    expect(main).toContain('./styles/vish-editor-polish.css');
     expect(main).toContain('./styles/vish-mockup-system.css');
     expect(main).toContain('./styles/vish-editor-mantra.css');
   });

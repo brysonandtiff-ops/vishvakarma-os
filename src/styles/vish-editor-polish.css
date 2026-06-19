@@ -130,7 +130,19 @@
 }
 
 /* Tool group separator */
-.vish-tool-separator {
+.vish-preview-chip {
+  border-color: hsl(36 14% 72% / 0.35);
+  background: hsl(36 20% 94% / 0.9);
+  color: hsl(36 10% 42%);
+}
+
+.vish-properties-fab {
+  box-shadow: 0 8px 24px hsl(36 20% 20% / 0.18);
+}
+
+.vish-editor-loading-overlay {
+  pointer-events: none;
+}
   width: 28px;
   height: 1px;
   background: hsl(240 20% 14% / 0.7);

@@ -68,7 +68,18 @@ test.describe('editor core features (e2e local access)', () => {
     await expect(page.getByText(/export floor plan|export package/i).first()).toBeVisible();
   });
 
-  test('undo enables after wall edit on sample project', async ({ page }) => {
+  test('select wall on sample project shows properties panel', async ({ page }) => {
+    await loadSampleProject(page);
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+    const canvas = page.getByTestId('blueprint-canvas');
+    const box = await canvas.boundingBox();
+    if (!box) throw new Error('Canvas not visible');
+    await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
+    await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/wall/i).first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('door tool selects after wall tool on sample project', async ({ page }) => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole('button', { name: /^undo$/i })).toBeVisible();
