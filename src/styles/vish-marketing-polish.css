@@ -13,6 +13,12 @@
   position: relative;
 }
 
+/* Split heroes keep copy left-aligned at lg+ without fighting centered heroes */
+.vish-marketing-hero:not(:has(.vish-hero-split)) .vish-hero-copy,
+.vish-marketing-hero .vish-hero-split .vish-hero-copy {
+  text-align: inherit;
+}
+
 /* Devanagari eyebrow above the hero title */
 .vish-marketing-hero .vish-devanagari-eyebrow,
 [class*="devanagari"],

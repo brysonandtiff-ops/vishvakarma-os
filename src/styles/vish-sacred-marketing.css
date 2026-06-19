@@ -75,12 +75,7 @@
   background-clip: text;
 }
 
-/* ── Hero gold accent text ── */
-.vish-hero-gold {
-  color: hsl(42 78% 55%);
-  -webkit-text-fill-color: hsl(42 78% 55%);
-  text-shadow: 0 0 32px hsl(42 78% 50% / 0.4);
-}
+/* Hero gold accent — gradient owned by vish-marketing-polish.css */
 
 /* ── Enhanced stat pills with sacred border ── */
 .vish-stat-pill {
