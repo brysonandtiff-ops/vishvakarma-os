@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBilling } from '@/hooks/useBilling';
 import type { CheckoutPlan } from '@/services/billing/stripeCheckout';
 import { openBillingPortal, startCheckout } from '@/services/billing/stripeCheckout';
-import { Button } from '@/components/ui/button';
+import { MarketingCtaSection } from '@/components/marketing/MarketingCtaSection';
 import {
   Accordion,
   AccordionContent,
@@ -216,17 +216,12 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="border-t border-primary/15 px-4 py-16 md:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Ready to start</p>
-          <p className="mt-4 text-lg vish-text-heading">
-            Begin on the free Starter tier, or start a Studio trial when you need the full Export Package.
-          </p>
-          <Button variant="gold" size="gold" className="mt-8 touch-target" asChild>
-            <Link to={workspaceTo}>{user ? 'Open Editor →' : 'Start Free →'}</Link>
-          </Button>
-        </div>
-      </section>
+      <MarketingCtaSection
+        user={user}
+        eyebrow="Ready to start"
+        body="Begin on the free Starter tier, or start a Studio trial when you need the full Export Package."
+        secondaryLink={null}
+      />
     </>
   );
 }
