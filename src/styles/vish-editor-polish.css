@@ -115,25 +115,18 @@
   flex-shrink: 0;
 }
 
-[class*="tool-btn"]:hover,
-[class*="ToolBtn"]:hover,
-[class*="tool-button"]:hover,
-[class*="ToolButton"]:hover {
-  background: hsl(240 20% 13% / 0.8) !important;
-  color: hsl(240 10% 78%) !important;
-  border-color: hsl(240 20% 20% / 0.5) !important;
+.architect-tool-button:hover {
+  background: hsl(240 20% 13% / 0.8);
+  color: hsl(240 10% 78%);
+  border-color: hsl(240 20% 20% / 0.5);
 }
 
-[class*="tool-btn"][data-active="true"],
-[class*="tool-btn"].active,
-[class*="ToolBtn"][data-active="true"],
-[class*="ToolBtn"].active,
-[class*="tool-button"][data-active="true"],
-[class*="tool-button"].active {
-  background: hsl(42 78% 50% / 0.16) !important;
-  color: hsl(42 78% 65%) !important;
-  border-color: hsl(42 78% 50% / 0.3) !important;
-  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15) !important;
+.architect-tool-button.active,
+.architect-tool-button[aria-pressed='true'] {
+  background: hsl(42 78% 50% / 0.16);
+  color: hsl(42 78% 65%);
+  border-color: hsl(42 78% 50% / 0.3);
+  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15);
 }
 
 /* Tool group separator */
