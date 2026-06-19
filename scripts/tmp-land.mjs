@@ -1,0 +1,10 @@
+import { chromium } from '@playwright/test';
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+await ctx.addInitScript(() => { try { localStorage.setItem('vishvakarma-analytics-consent', 'declined'); } catch {} });
+const page = await ctx.newPage();
+await page.goto('http://127.0.0.1:5173/', { waitUntil: 'domcontentloaded' });
+await page.waitForTimeout(3000);
+await page.screenshot({ path: 'tmp-qa/landing-full.png', fullPage: true });
+await browser.close();
+console.log('done');
