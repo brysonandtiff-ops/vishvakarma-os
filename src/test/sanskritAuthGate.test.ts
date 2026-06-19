@@ -18,11 +18,16 @@ describe('Sanskrit auth gate design', () => {
   it('keeps the canvas Sanskrit rain and mandala layers on the auth page', () => {
     const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
+    const templeGate = read('src/components/common/SacredTempleGate.tsx');
     const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
 
     expect(authLayout).toContain('vish-auth-gate');
     expect(authLayout).toContain('SanskritRainBackground');
     expect(authLayout).toContain("preset={isBoot ? 'boot' : 'auth'}");
+    expect(templeGate).toContain('SanskritRainBackground');
+    expect(templeGate).toContain('SacredIndianMandala');
+    expect(templeGate).toContain('sacred-temple-gate');
+    expect(templeGate).toContain("preset=\"auth\"");
     expect(rainBackground).toContain('SANSKRIT_MATRIX_COLUMNS');
     expect(rainBackground).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
@@ -35,7 +40,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authLayout).toContain('vish-auth-aurora');
     expect(authLayout).toContain('vish-mandala-aura');
     expect(authLayout).toContain('vish-mandala-ring-outer');
-    expect(authPage).toContain('vish-auth-card-mockup');
+    expect(authPage).toContain('SacredTempleGate');
+    expect(authPage).toContain('sacred-auth-card');
   });
 
   it('shows only the verified auth winner from capabilities manifest', () => {
@@ -48,9 +54,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('showEmailSignIn');
     expect(authPage).toContain('showGoogleSignIn');
     expect(authPage).toContain('AuthGoogleButton');
-    expect(authPage).toContain('variant="gold"');
     expect(googleButton).toContain('Continue with Google');
-    expect(authPage).toContain('Send secure access link');
+    expect(authPage).toContain('Request access link');
     expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).not.toContain('signInWithApple');
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
