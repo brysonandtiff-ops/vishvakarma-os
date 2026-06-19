@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { EDITOR_ACTION_LABELS } from '@/editor/editorActionRegistry';
 
 export function WelcomeOverlay({
   open,
@@ -41,7 +42,7 @@ export function WelcomeOverlay({
             New project
           </Button>
           <Button type="button" variant="goldOutline" size="full" className="touch-target" onClick={() => { onLoadSample(); onDismiss(); }}>
-            Load sample blueprint
+            {EDITOR_ACTION_LABELS.loadSampleBlueprint}
           </Button>
           <Link to="/features" className="text-xs text-primary" onClick={onDismiss}>
             Video guides

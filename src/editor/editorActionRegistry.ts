@@ -135,3 +135,9 @@ export function getProjectActionLabel(id: EditorProjectActionId, surface: Editor
 export function getProjectActionsForSurface(surface: EditorActionSurface): EditorActionDef[] {
   return EDITOR_PROJECT_ACTIONS.filter((action) => action.surfaces.includes(surface));
 }
+
+export function getEditorProjectAction(id: EditorProjectActionId): EditorActionDef {
+  const action = EDITOR_PROJECT_ACTIONS.find((entry) => entry.id === id);
+  if (!action) throw new Error(`Unknown editor project action: ${id}`);
+  return action;
+}
