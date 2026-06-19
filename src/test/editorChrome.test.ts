@@ -15,6 +15,16 @@ describe('Editor chrome consolidation', () => {
     expect(main).not.toContain('./styles/vish-editor-polish.css');
   });
 
+  it('uses shared editor action registry for project menus', () => {
+    const registry = read('src/editor/editorActionRegistry.ts');
+    const topBar = read('src/components/editor/EditorTopBar.tsx');
+    const welcome = read('src/components/editor/WelcomeOverlay.tsx');
+
+    expect(registry).toContain('loadSampleBlueprint');
+    expect(topBar).toContain('editorActionRegistry');
+    expect(welcome).toContain('editorActionRegistry');
+  });
+
   it('uses shared toolMeta across rail, status bar, and radial menu', () => {
     const toolRail = read('src/components/editor/ToolRail.tsx');
     const statusBar = read('src/components/editor/StatusBar.tsx');
