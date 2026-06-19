@@ -259,7 +259,7 @@
   .bg-ws-canvas section.md\:w-96 {
     width: 100%;
     min-height: 260px;
-    max-height: 36dvh;
+    max-height: 42dvh;
     border-left: 0;
     border-top: 1px solid hsl(var(--ws-border));
   }

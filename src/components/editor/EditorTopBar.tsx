@@ -8,6 +8,7 @@ import {
   Leaf,
   Loader2,
   Lock,
+  Maximize2,
   Menu,
   MoreHorizontal,
   PenLine,
@@ -37,6 +38,8 @@ import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 interface EditorTopBarProps {
   projectName: string;
   show3DView: boolean;
+  expand3DPanel?: boolean;
+  onToggleExpand3D?: () => void;
   workspaceMode: WorkspaceMode;
   zenMode?: boolean;
   presentationLock?: boolean;
@@ -136,6 +139,8 @@ function ModeTabs({
 export default function EditorTopBar({
   projectName,
   show3DView,
+  expand3DPanel = false,
+  onToggleExpand3D,
   workspaceMode,
   zenMode = false,
   presentationLock = false,
@@ -290,6 +295,16 @@ export default function EditorTopBar({
           <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
             <Box className="h-4 w-4" />
           </IconButton>
+          {show3DView && onToggleExpand3D && (
+            <IconButton
+              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
+              active={expand3DPanel}
+              onClick={onToggleExpand3D}
+              dataTutorial="expand-3d"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </IconButton>
+          )}
           <IconButton label="Toggle grid" active={gridVisible} onClick={onToggleGrid}>
             <Grid3x3 className="h-4 w-4" />
           </IconButton>

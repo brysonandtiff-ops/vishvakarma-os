@@ -190,6 +190,7 @@ function EditorWorkspace() {
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | undefined>();
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
+  const [expand3DPanel, setExpand3DPanel] = useState(false);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
@@ -502,30 +503,51 @@ function EditorWorkspace() {
     snapEnabled,
   ]);
 
-  const loadSampleBySampleId = async (sampleId: string) => {
-    setLoadingSample(true);
-    try {
+  const applySampleManifest = useCallback(
+    (
+      sampleManifest: ProjectManifest,
+      options: { mode: 'fresh' | 'overlay'; closeSamplePicker?: boolean },
+    ) => {
       clearLocalDraft();
-      const sampleManifest = await loadSampleById(sampleId);
-      if (!currentProject) {
-        setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
+      const displayName = sampleManifest.name || 'Demo Blueprint';
+
+      if (options.mode === 'fresh') {
+        setCurrentProject(null);
+        setDemoProjectName(displayName);
+      } else if (!currentProject) {
+        setDemoProjectName(displayName);
       }
+
       applyManifest({
         ...sampleManifest,
-        name: currentProject?.name ?? sampleManifest.name,
-        description: currentProject?.description ?? sampleManifest.description,
+        name: options.mode === 'fresh' ? displayName : (currentProject?.name ?? displayName),
+        description:
+          options.mode === 'fresh'
+            ? sampleManifest.description
+            : (currentProject?.description ?? sampleManifest.description),
       });
       engine.setGridVisible(true);
       setHasUnsavedChanges(true);
       setSaveState(
-        currentProject
-          ? isLocalProjectId(currentProject.id)
+        options.mode === 'fresh' || !currentProject
+          ? 'local-draft'
+          : isLocalProjectId(currentProject.id)
             ? 'local-draft'
-            : 'cloud-saved'
-          : 'local-draft',
+            : 'cloud-saved',
       );
-      setSamplePickerOpen(false);
-      toast.success(`${sampleManifest.name} loaded with Project Proof active`);
+      if (options.closeSamplePicker) {
+        setSamplePickerOpen(false);
+      }
+      toast.success(`${displayName} loaded with Project Proof active`);
+    },
+    [applyManifest, currentProject, engine],
+  );
+
+  const loadSampleBySampleId = async (sampleId: string) => {
+    setLoadingSample(true);
+    try {
+      const sampleManifest = await loadSampleById(sampleId);
+      applySampleManifest(sampleManifest, { mode: 'overlay', closeSamplePicker: true });
     } catch (error) {
       console.error('Failed to load sample project:', error);
       toast.error('Failed to load sample project');
@@ -1031,17 +1053,25 @@ function EditorWorkspace() {
         title={`${projectName || 'Blueprint Editor'} — Vishvakarma.OS`}
         description="Draw floor plans, inspect the Sacred 3D View, and export client-ready packages in the Vishvakarma.OS blueprint editor."
       />
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas">
+      <div
+        className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
+        data-3d-expanded={expand3DPanel ? 'true' : undefined}
+      >
         <EditorTopBar
           projectName={projectName}
           show3DView={show3DView}
+          expand3DPanel={expand3DPanel}
+          onToggleExpand3D={() => setExpand3DPanel((value) => !value)}
           workspaceMode={workspaceMode}
           zenMode={zenMode}
           presentationLock={presentationLock}
           onWorkspaceModeChange={setWorkspaceMode}
           onToggleZen={() => engine.setZenMode(!zenMode)}
           onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
-          onToggle3D={() => engine.setShow3D(!show3DView)}
+          onToggle3D={() => {
+            engine.setShow3D(!show3DView);
+            if (show3DView) setExpand3DPanel(false);
+          }}
           gridVisible={gridVisible}
           onToggleGrid={() => engine.setGridVisible(!gridVisible)}
           onNewProject={() => setNewProjectOpen(true)}
@@ -1289,7 +1319,7 @@ function EditorWorkspace() {
             )}
           </div>
 
-          {!presentationLock && !zenMode && (
+          {!presentationLock && !zenMode && !expand3DPanel && (
           <aside className="vish-dark-panel vish-paper-grain ws-panel-dark hidden w-72 shrink-0 flex-col overflow-hidden md:flex">
             {propertiesPanel}
           </aside>
@@ -1319,6 +1349,7 @@ function EditorWorkspace() {
 
         <StatusBar
           currentTool={currentTool}
+          workspaceMode={workspaceMode}
           wallCount={walls.length}
           openingCount={openings.length}
           mousePos={mousePos}

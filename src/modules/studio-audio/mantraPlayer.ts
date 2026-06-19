@@ -41,6 +41,20 @@ export const MANTRA_TRACKS: MantraTrack[] = [
     sanskrit: 'ॐ भूर्भुवः स्वः',
     src: '/audio/mantras/gayatri-ambient.mp3',
   },
+  {
+    id: 'ganesh-invocation',
+    title: 'Ganesh Invocation',
+    subtitle: 'Bansuri · Tabla · Tanpura',
+    sanskrit: 'ॐ गं गणपतये नमः',
+    src: '/audio/mantras/ganesh-invocation.mp3',
+  },
+  {
+    id: 'saraswati-ambient',
+    title: 'Saraswati Ambient',
+    subtitle: 'Veena · Harmonium · Flute',
+    sanskrit: 'ॐ ऐं सरस्वत्यै नमः',
+    src: '/audio/mantras/saraswati-ambient.mp3',
+  },
 ];
 
 // ── Internal state ───────────────────────────────────────────────────────────

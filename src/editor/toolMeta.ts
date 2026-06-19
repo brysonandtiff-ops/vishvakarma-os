@@ -139,11 +139,11 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
 };
 
 export const TOUCH_STATUS_HINTS: Record<ToolType, string> = {
-  select: 'Select — tap to inspect · pinch to zoom · two fingers to pan',
+  select: 'Select — tap to inspect · pinch to zoom and pan',
   pan: 'Pan — drag with one finger to move the canvas',
   wall: 'Wall — tap start, tap end · pinch to zoom',
-  door: 'Door — tap a wall to place · two fingers to pan',
-  window: 'Window — tap a wall to place · two fingers to pan',
+  door: 'Door — tap a wall to place · pinch to navigate',
+  window: 'Window — tap a wall to place · pinch to navigate',
   measure: 'Measure — tap walls to inspect dimensions',
   text: 'Label — tap to place · double-tap label to edit',
   dimension: 'Dimension — tap start, then end point',

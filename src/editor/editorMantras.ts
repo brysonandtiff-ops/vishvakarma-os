@@ -13,3 +13,4 @@ export function resolveEditorMantraChip(workspaceMode: WorkspaceMode): string {
 }
 
 export const ORBIT_MODE_MANTRA = 'दर्शन · Orbit';
+export const WALK_MODE_MANTRA = WORKSPACE_MODE_MANTRAS.walk;

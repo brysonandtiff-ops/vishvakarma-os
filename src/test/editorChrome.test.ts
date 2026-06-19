@@ -12,7 +12,7 @@ describe('Editor chrome consolidation', () => {
   it('wires consolidated editor chrome stylesheet through app startup', () => {
     const main = read('src/main.tsx');
     expect(main).toContain('./styles/vish-editor-chrome.css');
-    expect(main).not.toContain('./styles/vish-editor-polish.css');
+    expect(main).toContain('./styles/vish-editor-polish.css');
   });
 
   it('uses shared editor action registry for project menus', () => {

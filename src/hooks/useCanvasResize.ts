@@ -1,8 +1,11 @@
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { useEffect, useState, type RefObject } from 'react';
 
 const DEFAULT_MAX_WIDTH = 1200;
 const DEFAULT_ASPECT = 3 / 2;
 const MAX_DEVICE_PIXEL_RATIO = 2;
+const COARSE_HEAVY_DPR_CAP = 1.5;
+const COARSE_HEAVY_WALL_THRESHOLD = 10;
 
 export interface CanvasResizeMetrics {
   /** CSS display width in px */
@@ -17,10 +20,28 @@ export interface CanvasResizeMetrics {
   scaleY: number;
 }
 
+export interface CanvasResizeOptions {
+  wallCount?: number;
+  coarsePointer?: boolean;
+}
+
+function resolveDevicePixelRatio(options?: CanvasResizeOptions): number {
+  if (typeof window === 'undefined') return 1;
+  const base = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
+  if (
+    options?.coarsePointer &&
+    (options.wallCount ?? 0) >= COARSE_HEAVY_WALL_THRESHOLD
+  ) {
+    return Math.min(base, COARSE_HEAVY_DPR_CAP);
+  }
+  return base;
+}
+
 function computeMetrics(
   containerWidth: number,
   containerHeight: number,
   maxWidth = DEFAULT_MAX_WIDTH,
+  options?: CanvasResizeOptions,
 ): CanvasResizeMetrics {
   const safeWidth = Math.max(1, containerWidth);
   const safeHeight = Math.max(1, containerHeight);
@@ -36,10 +57,7 @@ function computeMetrics(
   displayWidth = Math.max(1, Math.round(displayWidth));
   displayHeight = Math.max(1, Math.round(displayHeight));
 
-  const dpr =
-    typeof window !== 'undefined'
-      ? Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO)
-      : 1;
+  const dpr = resolveDevicePixelRatio(options);
 
   const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
   const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
@@ -57,9 +75,17 @@ function computeMetrics(
 export function useCanvasResize(
   containerRef: RefObject<HTMLElement | null>,
   maxWidth = DEFAULT_MAX_WIDTH,
+  options?: CanvasResizeOptions,
 ): CanvasResizeMetrics {
+  const isCoarsePointer = useCoarsePointer();
+  const coarsePointer = options?.coarsePointer ?? isCoarsePointer;
+  const wallCount = options?.wallCount ?? 0;
+
   const [metrics, setMetrics] = useState<CanvasResizeMetrics>(() =>
-    computeMetrics(maxWidth, maxWidth / DEFAULT_ASPECT, maxWidth),
+    computeMetrics(maxWidth, maxWidth / DEFAULT_ASPECT, maxWidth, {
+      coarsePointer,
+      wallCount,
+    }),
   );
 
   useEffect(() => {
@@ -68,7 +94,12 @@ export function useCanvasResize(
 
     const update = () => {
       const rect = element.getBoundingClientRect();
-      setMetrics(computeMetrics(rect.width, rect.height, maxWidth));
+      setMetrics(
+        computeMetrics(rect.width, rect.height, maxWidth, {
+          coarsePointer,
+          wallCount,
+        }),
+      );
     };
 
     update();
@@ -81,7 +112,7 @@ export function useCanvasResize(
       observer.disconnect();
       window.removeEventListener('resize', update);
     };
-  }, [containerRef, maxWidth]);
+  }, [containerRef, maxWidth, coarsePointer, wallCount]);
 
   return metrics;
 }

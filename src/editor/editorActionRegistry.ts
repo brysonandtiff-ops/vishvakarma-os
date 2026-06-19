@@ -1,7 +1,6 @@
 import {
   Box,
   Download,
-  ExternalLink,
   FileDown,
   FolderOpen,
   Grid3x3,
@@ -24,7 +23,7 @@ export type EditorProjectActionId =
   | 'loadSample'
   | 'aiDesigner';
 
-export type EditorViewActionId = 'open3DRoom' | 'toggle3D' | 'toggleGrid';
+export type EditorViewActionId = 'toggle3D' | 'toggleGrid';
 
 export interface EditorActionDef {
   id: EditorProjectActionId | EditorViewActionId;
@@ -106,12 +105,6 @@ export const EDITOR_PROJECT_ACTIONS: EditorActionDef[] = [
 
 export const EDITOR_VIEW_ACTIONS: Omit<EditorActionDef, 'surfaces' | 'primaryOnCoarse'>[] = [
   {
-    id: 'open3DRoom',
-    label: 'Open 3D Room',
-    icon: ExternalLink,
-    testId: 'editor-action-open-3d-room',
-  },
-  {
     id: 'toggle3D',
     label: 'Show 3D view',
     icon: Box,
@@ -139,5 +132,11 @@ export function getProjectActionsForSurface(surface: EditorActionSurface): Edito
 export function getEditorProjectAction(id: EditorProjectActionId): EditorActionDef {
   const action = EDITOR_PROJECT_ACTIONS.find((entry) => entry.id === id);
   if (!action) throw new Error(`Unknown editor project action: ${id}`);
+  return action;
+}
+
+export function getEditorViewAction(id: EditorViewActionId): Omit<EditorActionDef, 'surfaces' | 'primaryOnCoarse'> {
+  const action = EDITOR_VIEW_ACTIONS.find((entry) => entry.id === id);
+  if (!action) throw new Error(`Unknown editor view action: ${id}`);
   return action;
 }

@@ -36,7 +36,7 @@ const JSON_SAMPLE_MANIFESTS: Record<string, ProjectManifest> = {
 };
 
 export type SampleCategory = 'starter' | 'residential' | 'indian' | 'shapes' | 'interior' | 'landscape' | 'mep' | 'full';
-export type SampleSurface = 'load-sample' | 'new-project';
+export type SampleSurface = 'load-sample' | 'new-project' | 'projects-demo';
 
 export interface SampleDefinition {
   id: string;
@@ -45,6 +45,8 @@ export interface SampleDefinition {
   category: SampleCategory;
   source: { kind: 'json'; path: string } | { kind: 'builder'; build: () => ProjectManifest };
   surfaces: SampleSurface[];
+  /** Short label for Projects page demo walkthrough cards. */
+  demoEyebrow?: string;
 }
 
 export const SAMPLE_CATEGORY_LABELS: Record<SampleCategory, string> = {
@@ -56,27 +58,6 @@ export const SAMPLE_CATEGORY_LABELS: Record<SampleCategory, string> = {
   landscape: 'Nature & Garden',
   mep: 'MEP & Lighting',
   full: 'Full Showcase',
-};
-
-const BUILDERS: Record<string, () => ProjectManifest> = {
-  studio: buildStudioTemplate,
-  '2bhk': build2BhkTemplate,
-  '3bhk': build3BhkTemplate,
-  'family-home-4br': buildFamilyHome4BrTemplate,
-  'family-home-5br': buildFamilyHome5BrTemplate,
-  'duplex-two-floor': buildDuplexTwoFloorTemplate,
-  'l-shape-home': buildLShapeHomeTemplate,
-  'u-shape-courtyard': buildUShapeCourtyardTemplate,
-  't-shape-wing': buildTShapeWingTemplate,
-  'angled-modern': buildAngledModernTemplate,
-  'furniture-showcase': buildFurnitureShowcaseTemplate,
-  'landscape-garden': buildLandscapeGardenTemplate,
-  'terrain-garden': buildTerrainGardenTemplate,
-  'mep-lighting-showcase': buildMepLightingShowcaseTemplate,
-  'full-feature-showcase': buildFullFeatureShowcaseTemplate,
-  'vastu-2bhk-indian': buildVastu2BhkIndianTemplate,
-  'courtyard-villa-indian': buildCourtyardVillaIndianTemplate,
-  'bengaluru-3bhk': buildBengaluruApartmentTemplate,
 };
 
 export const SAMPLE_CATALOG: SampleDefinition[] = [
@@ -126,7 +107,8 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     description: 'U-shaped villa with courtyard, tulsi, and puja room',
     category: 'indian',
     source: { kind: 'builder', build: buildCourtyardVillaIndianTemplate },
-    surfaces: ['load-sample', 'new-project'],
+    surfaces: ['load-sample', 'new-project', 'projects-demo'],
+    demoEyebrow: 'Vastu showcase',
   },
   {
     id: 'bengaluru-3bhk',
@@ -142,7 +124,8 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     description: 'Four-bedroom family home with living, dining, and kitchen',
     category: 'residential',
     source: { kind: 'builder', build: buildFamilyHome4BrTemplate },
-    surfaces: ['load-sample', 'new-project'],
+    surfaces: ['load-sample', 'new-project', 'projects-demo'],
+    demoEyebrow: 'Family home walkthrough',
   },
   {
     id: 'family-home-5br',
@@ -158,7 +141,8 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     description: 'Two-floor duplex with ground living and upper bedroom level',
     category: 'residential',
     source: { kind: 'builder', build: buildDuplexTwoFloorTemplate },
-    surfaces: ['load-sample'],
+    surfaces: ['load-sample', 'projects-demo'],
+    demoEyebrow: 'Multi-floor pilot',
   },
   {
     id: 'l-shape-home',
@@ -249,7 +233,7 @@ export function getNewProjectTemplates(): SampleDefinition[] {
 }
 
 export function getSampleFeatureBadges(sample: SampleDefinition): string[] {
-  const manifest = resolveSampleManifestSync(sample);
+  const manifest = resolveSampleManifestFromDefinition(sample);
   const badges: string[] = [];
   if ((manifest.furniture?.length ?? 0) > 0) badges.push('Furniture');
   if ((manifest.landscapeElements?.length ?? 0) > 0) badges.push('Nature');
@@ -260,15 +244,28 @@ export function getSampleFeatureBadges(sample: SampleDefinition): string[] {
 }
 
 export function getSampleStats(sample: SampleDefinition): { walls: number; openings: number } {
-  const manifest = resolveSampleManifestSync(sample);
+  const manifest = resolveSampleManifestFromDefinition(sample);
   return { walls: manifest.walls.length, openings: manifest.openings.length };
 }
 
-function resolveSampleManifestSync(sample: SampleDefinition): ProjectManifest {
+function resolveSampleManifestFromDefinition(sample: SampleDefinition): ProjectManifest {
   if (sample.source.kind === 'builder') {
     return sample.source.build();
   }
   return JSON_SAMPLE_MANIFESTS[sample.id] ?? sampleHouse01;
+}
+
+export function resolveSampleManifestSync(id: string): ProjectManifest {
+  const sample = getSampleDefinition(id);
+  if (!sample) {
+    throw new Error(`Unknown sample id: ${id}`);
+  }
+  return resolveSampleManifestFromDefinition(sample);
+}
+
+/** @deprecated Use resolveSampleManifestSync — kept for Projects demo wiring and guard tests. */
+export function buildSampleManifest(id: string): ProjectManifest {
+  return resolveSampleManifestSync(id);
 }
 
 export async function loadSampleById(id: string): Promise<ProjectManifest> {
@@ -291,14 +288,6 @@ export async function loadSampleById(id: string): Promise<ProjectManifest> {
     throw new Error(`Failed to load sample ${id}: ${response.status}`);
   }
   return (await response.json()) as ProjectManifest;
-}
-
-export function buildSampleManifest(id: string): ProjectManifest {
-  const builder = BUILDERS[id];
-  if (!builder) {
-    throw new Error(`No builder registered for sample id: ${id}`);
-  }
-  return builder();
 }
 
 export const TEMPLATE_IDS = getNewProjectTemplates().map((entry) => entry.id) as readonly string[];

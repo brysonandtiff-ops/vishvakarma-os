@@ -1,6 +1,7 @@
 // 2D Blueprint Canvas Component — pointer-first for mouse, touch, and Pencil-style input
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { useCanvasResize } from '@/hooks/useCanvasResize';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
@@ -285,7 +286,11 @@ export default function BlueprintCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
-  const canvasMetrics = useCanvasResize(containerRef);
+  const isCoarsePointer = useCoarsePointer();
+  const canvasMetrics = useCanvasResize(containerRef, undefined, {
+    wallCount: walls.length,
+    coarsePointer: isCoarsePointer,
+  });
   const { bottomInset: keyboardBottomInset } = useVisualViewportInset();
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point2D | null>(null);

@@ -1,15 +1,8 @@
-import {
-  Box,
-  ExternalLink,
-  Grid3x3,
-  Loader2,
-  type LucideIcon,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Loader2, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
-import { getEditorProjectAction } from '@/editor/editorActionRegistry';
+import { getEditorProjectAction, getEditorViewAction } from '@/editor/editorActionRegistry';
 
 interface EditorSidebarSectionsProps {
   config: EditorSidebarConfig;
@@ -127,11 +120,8 @@ export default function EditorSidebarSections({
   collapsed = false,
   onAfterAction,
 }: EditorSidebarSectionsProps) {
-  const navigate = useNavigate();
-  const open3DRoom = config.onOpen3DRoom ?? (() => {
-    config.onSave();
-    navigate('/3d-room');
-  });
+  const toggle3D = getEditorViewAction('toggle3D');
+  const toggleGrid = getEditorViewAction('toggleGrid');
 
   const projectActions: ActionDef[] = [
     {
@@ -189,16 +179,9 @@ export default function EditorSidebarSections({
 
   const viewActions: ActionDef[] = [
     {
-      id: 'open-3d-room',
-      testId: 'editor-sidebar-open-3d-room',
-      icon: ExternalLink,
-      label: 'Open 3D Room',
-      onClick: open3DRoom,
-    },
-    {
       id: 'toggle-3d',
       testId: 'editor-sidebar-toggle-3d',
-      icon: Box,
+      icon: toggle3D.icon,
       label: config.show3DView ? 'Hide 3D view' : 'Show 3D view',
       onClick: config.onToggle3D,
       active: config.show3DView,
@@ -206,7 +189,7 @@ export default function EditorSidebarSections({
     {
       id: 'toggle-grid',
       testId: 'editor-sidebar-toggle-grid',
-      icon: Grid3x3,
+      icon: toggleGrid.icon,
       label: config.gridVisible ? 'Hide grid' : 'Show grid',
       onClick: config.onToggleGrid,
       active: config.gridVisible,
