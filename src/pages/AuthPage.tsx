@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Copy, Download, ExternalLink, Shield, Trophy } from 'lucide-react';
+import { BookOpen, Copy, Download, ExternalLink, Home, Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
 import { backendStatus } from '@/backend/backendConfig';
@@ -380,6 +380,14 @@ export default function AuthPage() {
 
             {/* ── Footer Links ── */}
             <footer className="sacred-auth-footer">
+              <button
+                type="button"
+                className="sacred-auth-footer-link"
+                onClick={() => navigate('/')}
+              >
+                <Home className="h-3.5 w-3.5" />
+                Home · मुख्य
+              </button>
               <button
                 type="button"
                 className="sacred-auth-footer-link"

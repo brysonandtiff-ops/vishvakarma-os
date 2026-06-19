@@ -485,4 +485,19 @@
   .vish-hero-showcase__inset {
     animation: none;
   }
+
+  .vish-devanagari-hero,
+  .vish-sacred-mandala-layer,
+  .vish-sacred-rain-layer {
+    animation: none !important;
+  }
+}
+
+/* Sticky feature tabs on scroll */
+.vish-features-tabs-sticky {
+  position: sticky;
+  top: calc(var(--vish-nav-row-height, 3.25rem) + 0.5rem);
+  z-index: 20;
+  background: linear-gradient(180deg, hsl(240 48% 4% / 0.92) 70%, transparent);
+  backdrop-filter: blur(8px);
 }

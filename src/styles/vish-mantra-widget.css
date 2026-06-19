@@ -122,6 +122,31 @@
   border-color: hsl(42 78% 50% / 0.6);
 }
 
+.mantra-fab__label {
+  position: absolute;
+  right: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid hsl(42 78% 50% / 0.2);
+  background: hsl(240 42% 8% / 0.92);
+  color: hsl(42 78% 62%);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.mantra-fab:hover .mantra-fab__label,
+.mantra-fab:focus-visible .mantra-fab__label {
+  opacity: 1;
+}
+
 .mantra-fab__icon {
   position: relative;
   z-index: 1;

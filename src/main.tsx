@@ -22,6 +22,7 @@ import "./styles/vish-sacred-layers.css";
 import "./styles/vish-marketing.css";
 import "./styles/vish-workspace-shell.css";
 import "./styles/vish-editor-chrome.css";
+import "./styles/vish-editor-polish.css";
 import "./styles/vish-editor-mantra.css";
 import "./styles/vish-governance-polish.css";
 import "./ipad-workspace.css";
