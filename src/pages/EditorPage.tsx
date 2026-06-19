@@ -717,6 +717,16 @@ function EditorWorkspace() {
     [selectedWallId, walls]
   );
 
+  const hasPropertiesSelection = Boolean(
+    selectedWallId || selectedOpeningId || selectedLabelId || selectedFixtureId,
+  );
+
+  useEffect(() => {
+    if (hasPropertiesSelection && window.matchMedia('(max-width: 767px)').matches) {
+      setPropertiesSheetOpen(true);
+    }
+  }, [hasPropertiesSelection, selectedWallId, selectedOpeningId, selectedLabelId, selectedFixtureId]);
+
   useEffect(() => {
     if (selectedWall?.material) {
       setSelectedMaterial(selectedWall.material);
