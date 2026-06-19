@@ -1,15 +1,15 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const summary = readFileSync(
-  new URL('../../docs/handoff/HANDOFF_METRICS_SUMMARY.md', import.meta.url),
-  'utf8',
-);
+const repoRoot = resolve(process.cwd());
 
-const operatorTemplate = readFileSync(
-  new URL('../../docs/handoff/templates/OPERATOR_ANNEX.template.md', import.meta.url),
-  'utf8',
-);
+function read(path: string) {
+  return readFileSync(resolve(repoRoot, path), 'utf8');
+}
+
+const summary = read('docs/handoff/HANDOFF_METRICS_SUMMARY.md');
+const operatorTemplate = read('docs/handoff/templates/OPERATOR_ANNEX.template.md');
 
 describe('handoff metrics summary', () => {
   it('keeps due-diligence metrics, safety wording, and operator version aligned', () => {
