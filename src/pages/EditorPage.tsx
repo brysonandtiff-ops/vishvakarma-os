@@ -1092,6 +1092,9 @@ function EditorWorkspace() {
                     </p>
                   </div>
                 )}
+                <p className="vish-editor-mantra-watermark" aria-hidden="true">
+                  ॐ वास्तु · शिल्प · प्रमाण
+                </p>
                 {walls.length === 0 && !showOnboarding && (
                   <div className="vish-canvas-empty-hint" aria-hidden="true">
                     <div className="vish-canvas-empty-hint__card">
