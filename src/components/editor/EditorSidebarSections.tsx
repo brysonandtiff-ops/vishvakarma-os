@@ -1,22 +1,13 @@
 import {
   Box,
-  Download,
   ExternalLink,
-  FileDown,
-  FolderOpen,
   Grid3x3,
-  Loader2,
-  Package,
-  Plus,
-  Save,
-  Sparkles,
-  type LucideIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
-import { EDITOR_PROJECT_ACTIONS } from '@/editor/editorActionRegistry';
+import { getEditorProjectAction } from '@/editor/editorActionRegistry';
 
 interface EditorSidebarSectionsProps {
   config: EditorSidebarConfig;

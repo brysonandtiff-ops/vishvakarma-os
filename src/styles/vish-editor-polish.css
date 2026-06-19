@@ -143,6 +143,8 @@
 .vish-editor-loading-overlay {
   pointer-events: none;
 }
+
+.vish-tool-separator {
   width: 28px;
   height: 1px;
   background: hsl(240 20% 14% / 0.7);
