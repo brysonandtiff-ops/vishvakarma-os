@@ -463,9 +463,20 @@ export default function ReleasesPage() {
                   {error}
                 </div>
               ) : releases.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
-                  <p className="text-sm text-muted-foreground">No release records yet.</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Connect Supabase or run a gated release to populate history.</p>
+                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <Rocket className="mx-auto h-10 w-10 text-muted-foreground/40" />
+                  <p className="mt-3 text-sm font-semibold text-foreground">No release records yet</p>
+                  <p className="mt-1 text-xs text-muted-foreground text-pretty">
+                    Run release gates locally, then promote a build through Spec Center and Change Requests.
+                  </p>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                    <Button variant="outline" size="sm" className="touch-target" asChild>
+                      <Link to="/spec-center">Open Spec Center</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="touch-target" asChild>
+                      <Link to="/editor">Open Editor</Link>
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid gap-3">
