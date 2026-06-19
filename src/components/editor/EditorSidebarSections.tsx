@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
+import { EDITOR_PROJECT_ACTIONS } from '@/editor/editorActionRegistry';
 
 interface EditorSidebarSectionsProps {
   config: EditorSidebarConfig;

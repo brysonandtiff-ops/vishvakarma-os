@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
+import { getProjectActionLabel } from '@/editor/editorActionRegistry';
 import type { WorkspaceMode } from '@/types';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
