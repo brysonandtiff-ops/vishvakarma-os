@@ -505,6 +505,7 @@ function EditorWorkspace() {
   const loadSampleBySampleId = async (sampleId: string) => {
     setLoadingSample(true);
     try {
+      clearLocalDraft();
       const sampleManifest = await loadSampleById(sampleId);
       if (!currentProject) {
         setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
@@ -969,6 +970,39 @@ function EditorWorkspace() {
         />
       </div>
     </div>
+  );
+
+  const propertiesPanel = (
+    <PropertiesPanel
+      currentTool={currentTool}
+      selectedWall={selectedWall}
+      selectedLabel={selectedLabel}
+      selectedFixture={fixtures.find((f) => f.id === selectedFixtureId)}
+      selectedRoom={
+        rooms.find((r) => selectedLabelId === `label-${r.id}`) ??
+        rooms.find((r) => selectedLabel?.text === r.name)
+      }
+      onRoomUpdate={(roomId, updates) => engine.updateRoom(roomId, updates)}
+      pendingRoomType={pendingRoomType}
+      onPendingRoomTypeChange={setPendingRoomType}
+      openings={openings}
+      onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
+      onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
+      onWallDelete={(wallId) => engine.removeWall(wallId)}
+      onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
+      onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
+      onLabelDelete={(labelId) => {
+        engine.removeLabel(labelId);
+        setSelectedLabelId(undefined);
+      }}
+      onFixtureUpdate={(fixtureId, updates) => engine.updateFixture(fixtureId, updates)}
+      onFixtureDelete={(fixtureId) => {
+        engine.removeFixture(fixtureId);
+        setSelectedFixtureId(undefined);
+      }}
+      unitSystem={unitSystem}
+      morePanel={morePanel}
+    />
   );
 
   return (
