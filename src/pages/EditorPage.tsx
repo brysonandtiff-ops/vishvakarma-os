@@ -183,7 +183,9 @@ function EditorWorkspace() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [freshSignIn] = useState(() => consumeFreshSignIn());
-  const [welcomeOpen, setWelcomeOpen] = useState(() => !freshSignIn && !isOnboardingDismissed());
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !isOnboardingDismissed());
+  const [propertiesSheetOpen, setPropertiesSheetOpen] = useState(false);
+  const [loadingProject, setLoadingProject] = useState(false);
   const [selectedLabelId, setSelectedLabelId] = useState<string | undefined>();
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | undefined>();
   const [savingProject, setSavingProject] = useState(false);
