@@ -1065,9 +1065,13 @@ function EditorWorkspace() {
                     : undefined
                 }
               >
-                <p className="vish-editor-mantra-watermark" aria-hidden="true">
-                  ॐ वास्तु · शिल्प · प्रमाण
-                </p>
+                {loadingProject && (
+                  <div className="vish-editor-loading-overlay absolute inset-0 z-30 flex items-center justify-center bg-ws-canvas/70 backdrop-blur-[2px]">
+                    <p className="rounded-lg border border-ws-border bg-ws-toolbar px-4 py-2 text-sm font-medium text-ws-text">
+                      Loading project…
+                    </p>
+                  </div>
+                )}
                 {walls.length === 0 && !showOnboarding && (
                   <div className="vish-canvas-empty-hint" aria-hidden="true">
                     <div className="vish-canvas-empty-hint__card">

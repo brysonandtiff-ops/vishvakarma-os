@@ -118,6 +118,7 @@ export default function ProjectsPage() {
         state: {
           loadManifest: manifest,
           projectName: manifest.name,
+          manifestSource: 'sample',
         },
       });
     } catch (err) {
