@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import PageMeta from '@/components/common/PageMeta';
 import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
-import { Box } from 'lucide-react';
+import { Box, SlidersHorizontal } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
 import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
