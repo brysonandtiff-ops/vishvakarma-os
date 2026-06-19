@@ -10,7 +10,7 @@ export function MarketingFooter() {
   const accountLabel = user ? 'Open Editor' : 'Sign In';
 
   return (
-    <footer className="border-t border-primary/20 px-4 py-12 md:px-8">
+    <footer className="vish-marketing-footer relative border-t border-primary/20 px-4 py-12 md:px-8">
       <div className="mx-auto grid max-w-page-marketing gap-8 md:grid-cols-[1fr_auto_1fr] md:items-center">
         <div className="flex items-center gap-3 md:justify-self-start">
           <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS" className="h-10 w-10 rounded-lg object-cover" />
