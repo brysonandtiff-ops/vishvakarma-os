@@ -41,7 +41,7 @@ export function WelcomeOverlay({
             New project
           </Button>
           <Button type="button" variant="goldOutline" size="full" className="touch-target" onClick={() => { onLoadSample(); onDismiss(); }}>
-            Load sample
+            Load sample blueprint
           </Button>
           <Link to="/features" className="text-xs text-primary" onClick={onDismiss}>
             Video guides

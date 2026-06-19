@@ -255,7 +255,7 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               )}
               {onLoadSample && (
-                <DropdownMenuItem onClick={onLoadSample}>Load sample</DropdownMenuItem>
+                <DropdownMenuItem onClick={onLoadSample}>Load sample blueprint</DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onImport}>

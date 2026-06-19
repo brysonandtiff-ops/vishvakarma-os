@@ -22,7 +22,7 @@ import {
 } from '@/core/sampleCatalog';
 import type { Project, ProjectManifest } from '@/types';
 
-const NEW_PROJECT_CATEGORY_ORDER: SampleCategory[] = ['residential', 'shapes'];
+const NEW_PROJECT_CATEGORY_ORDER: SampleCategory[] = ['residential', 'indian', 'shapes'];
 
 export default function NewProjectDialog({
   open,
