@@ -1,5 +1,6 @@
 /* Vishvakarma.OS — consolidated editor chrome (tool rail, top bar, status bar, mode tabs)
    Scoped polish under .vish-workspace-shell; base rules apply globally in editor routes. */
+@import './vish-editor-polish.css';
 
 /* ── Tool rail & buttons ── */
 
