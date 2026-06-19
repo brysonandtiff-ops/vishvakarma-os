@@ -202,6 +202,12 @@ export default function EditorTopBar({
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
           <span className="max-w-[min(12rem,28vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          {savingProject && (
+            <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+              Saving
+            </span>
+          )}
         </div>
 
         <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">

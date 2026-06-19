@@ -105,6 +105,9 @@ export default function EditorCollaborationBar({
       data-testid="editor-collaboration-bar"
     >
       <Users className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      <span className="vish-feature-badge--preview rounded-full border px-1.5 py-0.5 text-[9px] font-bold normal-case tracking-wide">
+        Preview
+      </span>
       <CollaboratorAvatars users={users} />
       <FollowViewportToggle
         presences={presences}
