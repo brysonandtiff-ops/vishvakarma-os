@@ -2,12 +2,12 @@
   "base": "http://127.0.0.1:5174",
   "routes": {
     "auth-desktop": {
-      "ms": 30023,
+      "ms": 30388,
       "gotoError": "page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"http://127.0.0.1:5174/auth\", waiting until \"domcontentloaded\"\n",
       "errors": []
     },
     "auth-mobile": {
-      "ms": 23724,
+      "ms": 21559,
       "title": "Sign In — Vishvakarma.OS",
       "errors": [],
       "hasAuthCard": true,
@@ -15,7 +15,7 @@
       "hasGoogleOrEmail": true
     },
     "editor-desktop": {
-      "ms": 25053,
+      "ms": 17730,
       "title": "Vishvakarma.OS — iPad-First Architecture Studio",
       "errors": []
     }

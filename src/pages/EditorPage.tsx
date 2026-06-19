@@ -687,16 +687,9 @@ function EditorWorkspace() {
 
   const handleSampleManifestOpen = useCallback(
     (manifest: ProjectManifest, name: string) => {
-      clearLocalDraft();
-      setCurrentProject(null);
-      setDemoProjectName(name);
-      applyManifest({ ...manifest, name });
-      engine.setGridVisible(true);
-      setHasUnsavedChanges(true);
-      setSaveState('local-draft');
-      toast.success(`${name} loaded with Project Proof active`);
+      applySampleManifest({ ...manifest, name }, { mode: 'fresh' });
     },
-    [applyManifest, engine],
+    [applySampleManifest],
   );
 
   useEffect(() => {

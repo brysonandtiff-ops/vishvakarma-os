@@ -9,15 +9,19 @@ function read(path: string) {
 }
 
 const projectsPageSource = read('src/pages/ProjectsPage.tsx');
+const sampleCatalogSource = read('src/core/sampleCatalog.ts');
 
 describe('Projects demo samples', () => {
   it('keeps reviewer walkthrough fixtures local and wired to the editor', () => {
-    expect(projectsPageSource).toContain('PROJECT_DEMO_SAMPLE_IDS');
-    expect(projectsPageSource).toContain("'family-home-4br'");
-    expect(projectsPageSource).toContain("'duplex-two-floor'");
-    expect(projectsPageSource).toContain("'courtyard-villa-indian'");
-    expect(projectsPageSource).toContain('buildSampleManifest(sampleId)');
-    expect(projectsPageSource).toContain('loadManifest: manifest');
+    expect(projectsPageSource).toContain("getSamplesForSurface('projects-demo')");
+    expect(projectsPageSource).toContain('resolveSampleManifestSync(sampleId)');
+    expect(projectsPageSource).toContain('openManifestInEditor');
+    expect(projectsPageSource).toContain('data-testid={`projects-demo-${sample.id}`}');
     expect(projectsPageSource).toContain('Demo fixtures are generated in-browser');
+
+    for (const id of ['family-home-4br', 'duplex-two-floor', 'courtyard-villa-indian']) {
+      expect(sampleCatalogSource).toContain(`id: '${id}'`);
+      expect(sampleCatalogSource).toContain("'projects-demo'");
+    }
   });
 });

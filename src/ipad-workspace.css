@@ -314,6 +314,19 @@
   }
 }
 
+/* Expanded 3D panel — portrait iPad gives 3D more vertical room */
+@media (orientation: portrait) and (max-width: 1194px) {
+  .bg-ws-canvas[data-3d-expanded='true'] section.w-80,
+  .bg-ws-canvas[data-3d-expanded='true'] section.md\:w-96 {
+    min-height: 280px;
+    max-height: 50dvh;
+  }
+
+  .bg-ws-canvas[data-3d-expanded='true'] > div.flex.flex-1.overflow-hidden > div.flex.flex-1.min-w-0.overflow-hidden {
+    max-height: 38dvh;
+  }
+}
+
 @media (max-width: 1194px) {
   .vish-governance-page button:not([aria-hidden='true']) {
     min-height: 44px;
