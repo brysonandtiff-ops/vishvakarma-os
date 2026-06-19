@@ -57,7 +57,7 @@ export default function LandingPage() {
                   Export-ready deliverables.
                 </>
               }
-              description="Vishvakarma.OS combines 2D blueprint drafting, live Sacred 3D View, Vastu Harmony overlays, NBC India pre-checks, INR cost regions, and professional Export Package delivery — with cloud save and local draft."
+              description="Draw floor plans, inspect live Sacred 3D View, and export client-ready packages — governed architecture in your browser."
             />
             <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
