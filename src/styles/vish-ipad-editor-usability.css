@@ -1,0 +1,100 @@
+/* Vishvakarma.OS — iPad editor usability overrides. */
+
+@media (pointer: coarse), (max-width: 1194px) {
+  .bg-ws-canvas .vish-editor-topbar {
+    height: auto !important;
+    min-height: calc(var(--vish-nav-row-height, 52px) + var(--vish-safe-top, 0px)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    z-index: 60;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: var(--vish-nav-row-height, 52px);
+    padding-inline: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+    padding-top: var(--vish-safe-top, 0px);
+    overflow: visible;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child,
+  .bg-ws-canvas .vish-editor-file-strip,
+  .bg-ws-canvas .ws-status-bar {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: min(52vw, 28rem);
+    padding-block: 0.25rem;
+  }
+
+  .bg-ws-canvas .vish-editor-file-strip {
+    width: 100%;
+    min-height: 44px;
+    flex-wrap: nowrap !important;
+    padding-inline: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+  }
+
+  .bg-ws-canvas .vish-editor-file-strip > *,
+  .bg-ws-canvas .ws-status-bar > *,
+  .bg-ws-canvas .ws-status-bar .ws-status-item,
+  .bg-ws-canvas .ws-status-divider {
+    flex: 0 0 auto;
+  }
+
+  .bg-ws-canvas .ws-status-bar {
+    height: auto !important;
+    min-height: 44px !important;
+    max-width: 100%;
+    flex-wrap: nowrap !important;
+    padding-inline: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+  }
+
+  .bg-ws-canvas .ws-status-bar .ml-auto {
+    margin-left: 0;
+  }
+
+  .vish-canvas-stage {
+    min-width: 0;
+    min-height: 0;
+    padding: max(0.75rem, var(--vish-safe-left, 0px)) max(0.75rem, var(--vish-safe-right, 0px)) max(0.75rem, var(--vish-safe-bottom, 0px));
+  }
+
+  .vish-properties-fab {
+    bottom: calc(4.75rem + var(--vish-safe-bottom, 0px)) !important;
+    right: calc(1rem + var(--vish-safe-right, 0px)) !important;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1194px) {
+  .bg-ws-canvas .vish-3d-viewport-pane {
+    width: 100% !important;
+    min-height: 280px;
+    max-height: 48dvh;
+    border-left: 0 !important;
+    border-top: 1px solid hsl(var(--ws-border));
+  }
+
+  .bg-ws-canvas[data-3d-expanded='true'] .vish-3d-viewport-pane {
+    min-height: 360px;
+    max-height: 58dvh;
+  }
+}
+
+@media (max-width: 720px), (pointer: coarse) and (max-width: 900px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: 46vw;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar .truncate.text-sm.font-semibold {
+    max-width: min(9rem, 26vw) !important;
+  }
+}
