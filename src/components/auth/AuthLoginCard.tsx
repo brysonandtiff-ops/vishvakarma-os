@@ -12,12 +12,7 @@ import {
 } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { APP_VERSION } from '@/config/appVersion';
-import {
-  getAuthPageUrl,
-  getEmbeddedAuthBrowserLabel,
-  isEmbeddedAuthBrowser,
-  isEmbeddedAuthErrorMessage,
-} from '@/backend/authUiHelpers';
+import { isEmbeddedAuthErrorMessage } from '@/backend/authUiHelpers';
 
 export type AuthLoginStatus = {
   message: string;
