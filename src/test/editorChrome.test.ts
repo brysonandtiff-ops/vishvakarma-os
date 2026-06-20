@@ -50,6 +50,21 @@ describe('Editor chrome consolidation', () => {
     expect(topBar).toContain('vish-editor-mode-badge');
   });
 
+  it('guards iPad editor controls with reliable touch/pen activation', () => {
+    const helper = read('src/hooks/useReliablePress.ts');
+    const topBar = read('src/components/editor/EditorTopBar.tsx');
+    const statusBar = read('src/components/editor/StatusBar.tsx');
+
+    expect(helper).toContain("event.pointerType !== 'touch'");
+    expect(helper).toContain("event.pointerType !== 'pen'");
+    expect(helper).toContain('suppressNextClickRef');
+    expect(topBar).toContain('useReliablePress');
+    expect(topBar).toContain("label={gridVisible ? 'Hide grid' : 'Show grid'}");
+    expect(topBar).toContain('touch-manipulation');
+    expect(statusBar).toContain('StatusActionButton');
+    expect(statusBar).toContain('touch-manipulation');
+  });
+
   it('uses distinct phase pill classes separate from workspace mode tabs', () => {
     const phasePills = read('src/components/editor/EditorPhasePills.tsx');
     expect(phasePills).toContain('vish-phase-pill-group');
