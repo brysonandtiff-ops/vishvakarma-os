@@ -11,6 +11,7 @@ import {
   saveTutorialProgress,
   setTrackStep,
 } from './tutorialMemory';
+import EditorVideoTutorial from './EditorVideoTutorial';
 import TutorialEngine from './TutorialEngine';
 import TutorialHub from './TutorialHub';
 
@@ -272,6 +273,14 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
       {children}
       <TutorialEngine />
       <TutorialHub />
+      <EditorVideoTutorial
+        pathname={location.pathname}
+        activeTrackId={activeTrackId}
+        hubOpen={hubOpen}
+        completedEssentials={isTrackCompleted('essentials')}
+        startTrack={startTrack}
+        openHub={openHub}
+      />
     </TutorialContext.Provider>
   );
 }
