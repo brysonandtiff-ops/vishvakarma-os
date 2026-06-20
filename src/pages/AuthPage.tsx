@@ -180,7 +180,7 @@ export default function AuthPage() {
 
       <SacredTempleGate>
         {/* ═══════════ AUTH CARD ═══════════ */}
-        <div className="sacred-auth-card" data-testid="auth-card">
+        <div className="sacred-auth-card vish-auth-card-mockup" data-testid="auth-mockup-card">
           <div className="sacred-auth-card__inner sacred-animate-stagger">
 
             {/* ── Header: Swan Logo + Mantra + Title ── */}

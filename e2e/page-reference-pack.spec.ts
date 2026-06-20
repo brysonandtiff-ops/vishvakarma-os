@@ -141,7 +141,7 @@ test.describe('page reference pack', () => {
     await shot(page, 'marketing', '03-features-all.png', true);
 
     await page.goto('/auth');
-    await expect(page.getByTestId('auth-mockup-card')).toBeVisible();
+    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 30_000 });
     await shot(page, 'marketing', '04-auth.png', true);
 
     await page.goto('/reset-password');

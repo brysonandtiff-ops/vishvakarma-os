@@ -21,10 +21,12 @@ test.describe('page reference pack remainder', () => {
   });
 
   test('captures remaining governance references', async ({ page }) => {
+    test.setTimeout(180_000);
     // Registry / change-request create dialogs require Firebase and stay disabled in local e2e mode.
     // 26-registry-form.png and 28-change-new-dialog.png are documented as manual captures in PAGE_REFERENCE.md.
     await page.goto('/registry');
     await dismissWorkspaceNotifications(page);
+    await expect(page.getByTestId('registry-loading-skeleton')).toBeHidden({ timeout: 60_000 });
     await expect(page.getByRole('heading', { name: /registry center/i }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^register entry$/i }).first()).toBeVisible();
     await shot(page, '26-registry-form.png');
