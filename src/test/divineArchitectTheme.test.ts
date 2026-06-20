@@ -13,19 +13,27 @@ describe('Divine Architect visual theme', () => {
     const main = read('src/main.tsx');
     const solarThemeIndex = main.indexOf('./styles/vish-theme-solar-mandala.css');
     const divineThemeIndex = main.indexOf('./styles/vish-divine-architect-theme.css');
+    const authReferenceIndex = main.indexOf('./styles/vish-auth-reference-screen.css');
 
     expect(divineThemeIndex).toBeGreaterThan(-1);
     expect(divineThemeIndex).toBeGreaterThan(solarThemeIndex);
+    expect(authReferenceIndex).toBeGreaterThan(divineThemeIndex);
   });
 
   it('preserves the owner supplied swan SVG logo source of truth', () => {
     const officialLogo = read('src/brand/officialLogo.ts');
+    const authPage = read('src/pages/AuthPage.tsx');
     const theme = read('src/styles/vish-divine-architect-theme.css');
+    const authReference = read('src/styles/vish-auth-reference-screen.css');
 
-    expect(officialLogo).toContain("/brand/vishvakarma-official-logo.svg");
+    expect(officialLogo).toContain('/brand/vishvakarma-official-logo.svg');
     expect(officialLogo).toContain('gold swan / V mark');
+    expect(authPage).toContain('src={OFFICIAL_LOGO_SRC}');
+    expect(authPage).toContain('Vishvakarma.OS swan logo');
     expect(theme).toContain('Logo safety');
-    expect(theme).not.toContain('OFFICIAL_LOGO_SRC');
+    expect(authReference).toContain("img[src*='vishvakarma-official-logo.svg']");
+    expect(theme).not.toContain('OFFICIAL_LOGO_SRC =');
+    expect(authReference).not.toContain('background-image: url');
   });
 
   it('applies the supplied midnight blue, gold, blueprint, and tool highlight direction', () => {
@@ -39,5 +47,20 @@ describe('Divine Architect visual theme', () => {
     expect(theme).toContain('.architect-tool-button.active');
     expect(theme).toContain('vish-tool-active-pulse');
     expect(theme).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('matches the supplied auth reference details around the current auth page classes', () => {
+    const authReference = read('src/styles/vish-auth-reference-screen.css');
+
+    expect(authReference).toContain('.vish-auth-mockup-page__grid::before');
+    expect(authReference).toContain('INSPIRED BY DIVINITY');
+    expect(authReference).toContain('BUILT FOR HUMANITY');
+    expect(authReference).toContain('.vish-auth-mockup-side::before');
+    expect(authReference).toContain('☼');
+    expect(authReference).toContain('.vish-auth-mockup-side::after');
+    expect(authReference).toContain('clip-path: polygon');
+    expect(authReference).toContain('.vish-auth-mockup-card::after');
+    expect(authReference).toContain('vam-reference-card-glint');
+    expect(authReference).toContain('@media (prefers-reduced-motion: reduce)');
   });
 });
