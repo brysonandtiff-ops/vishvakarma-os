@@ -232,7 +232,13 @@ export default function ProjectsPage() {
           }
         />
 
-        {loading && <PageStateBlock variant="loading" title="Loading projects…" />}
+        {loading && (
+          <div className="mt-8 space-y-3" data-testid="projects-loading-skeleton" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="vish-skeleton h-24 rounded-card-lg" />
+            ))}
+          </div>
+        )}
 
         {!loading && error && (
           <PageStateBlock
@@ -347,14 +353,14 @@ export default function ProjectsPage() {
                 {showArchived ? 'Hide archived' : 'Show archived'}
               </Button>
             </PageToolbar>
-            <div className="mt-section grid gap-section sm:grid-cols-2 tablet:grid-cols-3" data-tutorial="projects-grid">
+            <div className="vish-projects-grid mt-section" data-tutorial="projects-grid">
               {filteredProjects.map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
                   <article
                     key={project.id}
-                    className="vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
+                    className="vish-project-card vish-project-card-v2 vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
                   >
                     <div className="vish-frame-bezel relative aspect-[4/3] border-b border-border/60 bg-muted/30">
                       {thumb ? (

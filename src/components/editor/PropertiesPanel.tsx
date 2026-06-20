@@ -101,7 +101,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedFixture && onFixtureUpdate) {
     return (
-      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
         <div className="ws-pane-header shrink-0">
           <span className="ws-pane-label">Lighting Fixture</span>
         </div>
@@ -144,7 +144,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (
-      <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
         <div className="ws-pane-header shrink-0">
           <span className="ws-pane-label">Label Properties</span>
         </div>
@@ -221,7 +221,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <div className="vish-properties-panel vish-dark-panel flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full min-h-0 flex-col overflow-hidden">
         <div className="min-h-0 flex-1 overflow-y-auto">
           {currentTool === 'room' && onPendingRoomTypeChange && (
             <div className="border-b border-ws-border px-4 py-3">
@@ -267,7 +267,7 @@ export default function PropertiesPanel({
   const wallOpenings = openings.filter((o) => o.wallId === selectedWall.id);
 
   return (
-    <div className="vish-properties-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+    <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
       <div className="ws-pane-header shrink-0">
         <span className="ws-pane-label">Wall Properties</span>
         <span className="ws-pane-stat">{selectedWall.id.slice(0, 10)}</span>

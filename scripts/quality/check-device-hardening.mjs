@@ -31,6 +31,7 @@ requirePhrase(mainTsx, './ipad-workspace.css', 'main.tsx device workspace import
 const layoutTokens = readRequired('src/styles/vish-layout-tokens.css');
 requirePhrase(layoutTokens, '--vish-phone-max:', 'vish-layout-tokens.css');
 requirePhrase(layoutTokens, '--vish-touch-min:', 'vish-layout-tokens.css touch target');
+requirePhrase(layoutTokens, '--vish-tablet-min:', 'vish-layout-tokens.css');
 
 const indexHtml = readRequired('index.html');
 requirePhrase(indexHtml, 'viewport-fit=cover', 'index.html viewport');

@@ -1047,7 +1047,7 @@ function EditorWorkspace() {
         description="Draw floor plans, inspect the Sacred 3D View, and export client-ready packages in the Vishvakarma.OS blueprint editor."
       />
       <div
-        className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
+        className="vish-editor-shell flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
         data-3d-expanded={expand3DPanel ? 'true' : undefined}
       >
         <EditorTopBar
