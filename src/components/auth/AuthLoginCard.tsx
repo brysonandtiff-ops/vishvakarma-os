@@ -89,6 +89,7 @@ export default function AuthLoginCard({
   const passwordId = useId();
   const rememberId = useId();
   const statusId = useId();
+  const passwordHelpId = useId();
 
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser ||
@@ -119,6 +120,9 @@ export default function AuthLoginCard({
             Vishvakarma<span>.OS</span>
           </h1>
           <p>Architect • Engineer • Create</p>
+          <p className="vish-login-page__auth-note">
+            Use a secure email access link or continue with Google OAuth.
+          </p>
         </div>
 
         {showConfigRequired && (
@@ -157,11 +161,16 @@ export default function AuthLoginCard({
                 onChange={(event) => onEmailChange(event.target.value)}
                 placeholder="you@example.com"
                 autoComplete="email"
+                autoCapitalize="none"
+                inputMode="email"
+                enterKeyHint="go"
+                spellCheck={false}
                 required
                 disabled={submitting}
+                aria-describedby={statusId}
               />
             </div>
-            <button type="submit" className="vish-login-page__primary" disabled={submitting || disabled}>
+            <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
               {submitting ? 'Verifying…' : 'Complete sign-in'}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
@@ -179,13 +188,18 @@ export default function AuthLoginCard({
                 onChange={(event) => onEmailChange(event.target.value)}
                 placeholder="you@example.com"
                 autoComplete="email"
+                autoCapitalize="none"
+                inputMode="email"
+                enterKeyHint="next"
+                spellCheck={false}
                 required
                 disabled={submitting || disabled}
+                aria-describedby={statusId}
               />
             </div>
 
             <div className="vish-login-page__field">
-              <label htmlFor={passwordId}>Password</label>
+              <label htmlFor={passwordId}>Password optional</label>
               <Lock className="vish-login-page__field-icon" size={18} aria-hidden="true" />
               <input
                 id={passwordId}
@@ -193,10 +207,11 @@ export default function AuthLoginCard({
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
-                placeholder="Enter your password"
+                placeholder="Optional — email link works without it"
                 autoComplete="current-password"
                 minLength={8}
                 disabled={submitting || disabled}
+                aria-describedby={`${passwordHelpId} ${statusId}`}
               />
               <button
                 type="button"
@@ -206,10 +221,13 @@ export default function AuthLoginCard({
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+              <p id={passwordHelpId} className="vish-login-page__field-help">
+                Vishvakarma.OS uses secure email access links; password entry is optional.
+              </p>
             </div>
 
             <div className="vish-login-page__row">
-              <label className="vish-login-page__remember" htmlFor={rememberId}>
+              <label className="vish-login-page__remember touch-target" htmlFor={rememberId}>
                 <input
                   id={rememberId}
                   type="checkbox"
@@ -220,13 +238,13 @@ export default function AuthLoginCard({
                 Remember this device
               </label>
 
-              <button type="button" className="vish-login-page__link" onClick={onForgotPassword}>
+              <button type="button" className="vish-login-page__link touch-target" onClick={onForgotPassword}>
                 Forgot password?
               </button>
             </div>
 
-            <button type="submit" className="vish-login-page__primary" disabled={submitting || disabled}>
-              {submitting ? 'Signing in…' : 'Sign In'}
+            <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
+              {submitting ? 'Sending link…' : 'Send access link'}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
 
@@ -257,12 +275,12 @@ export default function AuthLoginCard({
                     href={externalAuthUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="vish-auth-open-browser-btn flex-1"
+                    className="vish-auth-open-browser-btn touch-target flex-1"
                   >
                     <ExternalLink size={14} aria-hidden="true" />
                     Open in browser
                   </a>
-                  <button type="button" className="vish-auth-copy-url-btn" onClick={onCopyAuthUrl}>
+                  <button type="button" className="vish-auth-copy-url-btn touch-target" onClick={onCopyAuthUrl}>
                     <Copy size={14} aria-hidden="true" />
                     Copy
                   </button>
@@ -280,8 +298,8 @@ export default function AuthLoginCard({
                 <Building2 size={18} aria-hidden="true" />
               </span>
               <span>
-                <b>Continue with SSO</b>
-                <small>For companies and teams</small>
+                <b>Continue with Google</b>
+                <small>Secure OAuth for companies and teams</small>
               </span>
             </button>
 
@@ -310,7 +328,7 @@ export default function AuthLoginCard({
 
         <div className="vish-login-page__request">
           New to Vishvakarma.OS?{' '}
-          <button type="button" className="vish-login-page__link" onClick={onRequestAccess}>
+          <button type="button" className="vish-login-page__link touch-target" onClick={onRequestAccess}>
             Request access
           </button>
         </div>
