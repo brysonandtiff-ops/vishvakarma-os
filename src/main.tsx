@@ -26,6 +26,7 @@ import "./styles/vish-editor-polish.css";
 import "./styles/vish-editor-mantra.css";
 import "./styles/vish-governance-polish.css";
 import "./ipad-workspace.css";
+import "./styles/vish-ipad-editor-usability.css";
 import "./styles/vish-mockup-system.css";
 import "./styles/vish-auth-gate.css";
 import "./styles/vish-indian-sacred.css";
@@ -118,7 +119,6 @@ const dismissBootSplash = () => {
   // Fallback in case transitionend never fires (e.g. reduced-motion / detached).
   window.setTimeout(remove, 600);
 };
-
 if (typeof window !== 'undefined') {
   // Double rAF waits for the first real paint of the React tree before fading.
   requestAnimationFrame(() => requestAnimationFrame(dismissBootSplash));
