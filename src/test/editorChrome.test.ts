@@ -13,6 +13,7 @@ describe('Editor chrome consolidation', () => {
     const main = read('src/main.tsx');
     expect(main).toContain('./styles/vish-editor-chrome.css');
     expect(main).toContain('./styles/vish-editor-polish.css');
+    expect(main).toContain('./styles/vish-ipad-editor-usability.css');
   });
 
   it('uses shared editor action registry for project menus', () => {
@@ -63,6 +64,31 @@ describe('Editor chrome consolidation', () => {
     expect(topBar).toContain('touch-manipulation');
     expect(statusBar).toContain('StatusActionButton');
     expect(statusBar).toContain('touch-manipulation');
+  });
+
+  it('keeps iPad editor windows and chrome reachable inside safe areas', () => {
+    const ipadCss = read('src/styles/vish-ipad-editor-usability.css');
+
+    expect(ipadCss).toContain('.bg-ws-canvas .vish-editor-topbar');
+    expect(ipadCss).toContain('overflow-x: auto');
+    expect(ipadCss).toContain("[role='dialog']");
+    expect(ipadCss).toContain("[data-radix-popper-content-wrapper]");
+    expect(ipadCss).toContain('.bg-ws-canvas .vish-3d-viewport-pane');
+    expect(ipadCss).toContain('var(--vish-safe-bottom');
+  });
+
+  it('auto-opens a first-run video tutorial for the editor', () => {
+    const provider = read('src/tutorial/TutorialProvider.tsx');
+    const video = read('src/tutorial/EditorVideoTutorial.tsx');
+    const tutorialCss = read('src/styles/vish-tutorial.css');
+
+    expect(provider).toContain('EditorVideoTutorial');
+    expect(provider).toContain('pathname={location.pathname}');
+    expect(video).toContain('VIDEO_TUTORIAL_CHAPTERS');
+    expect(video).toContain("pathname !== '/editor'");
+    expect(video).toContain("startTrack('essentials', 0)");
+    expect(video).toContain('VITE_DISABLE_EDITOR_VIDEO_TUTORIAL');
+    expect(tutorialCss).toContain('vish-video-tutorial-panel');
   });
 
   it('uses distinct phase pill classes separate from workspace mode tabs', () => {
