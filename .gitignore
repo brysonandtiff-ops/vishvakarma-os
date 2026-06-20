@@ -74,5 +74,9 @@ final-test-run.txt
 # RepairBot local state (manifest + hooks stay tracked)
 .repairbot/
 
+# Ad-hoc QA captures (never commit)
+tmp-qa/
+scripts/tmp-*.mjs
+
 # Operator handoff annex (filled credentials — use templates/OPERATOR_ANNEX.template.md)
 docs/handoff/OPERATOR_ANNEX.md
