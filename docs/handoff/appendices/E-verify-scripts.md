@@ -2,7 +2,7 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-20T05:07:39.697Z
+Generated: 2026-06-20T05:33:43.484Z
 
 ## npm verify / gates scripts
 
@@ -24,6 +24,7 @@ Generated: 2026-06-20T05:07:39.697Z
 | `verify:supabase-schema` | `node scripts/verify-supabase-schema.mjs` |
 | `verify:supabase-schema:live` | `node scripts/verify-supabase-schema.mjs --live` |
 | `verify:production-auth-flow` | `node scripts/verify-production-auth-flow.mjs` |
+| `verify:supabase-save-reload` | `node scripts/verify-supabase-save-reload.mjs` |
 | `verify:live-auth-flow` | `node scripts/verify-live-auth-flow.mjs --skip-interactive` |
 | `verify:live-auth-flow:interactive` | `node scripts/verify-live-auth-flow.mjs` |
 | `verify:stripe-billing` | `node scripts/verify-stripe-billing.mjs` |

@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-20T05:07:39.697Z
+Generated: 2026-06-20T05:33:43.484Z
 
 ```
 src/
@@ -1016,6 +1016,7 @@ verify-live-auth-flow.mjs
 verify-production-auth-flow.mjs
 verify-stripe-billing.mjs
 verify-supabase-login-data.mjs
+verify-supabase-save-reload.mjs
 verify-supabase-schema.mjs
 wait-for-stripe-live-key.mjs
 world-record/
@@ -1256,6 +1257,7 @@ release/
     playwright-report-summary.md
     README.md
     route-smoke-output.txt
+    save-load-proof-run.json
     save-load-proof.md
     screenshots/
       01-landing-hero.png

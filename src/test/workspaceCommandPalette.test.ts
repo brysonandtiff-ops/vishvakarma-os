@@ -5,6 +5,7 @@ import { defaultWorkspacePrefs, loadWorkspacePrefs, saveWorkspacePrefs } from '@
 
 const lockedPaths = [
   '/editor',
+  '/3d-room',
   '/projects',
   '/optimization',
   '/profile',

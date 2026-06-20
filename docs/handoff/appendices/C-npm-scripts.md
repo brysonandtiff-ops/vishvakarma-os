@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-20T05:07:39.697Z
+Generated: 2026-06-20T05:33:43.484Z
 
-Total: 113 scripts
+Total: 114 scripts
 
 | Script | Command |
 |--------|--------|
@@ -118,6 +118,7 @@ Total: 113 scripts
 | `verify:production-auth-flow` | `node scripts/verify-production-auth-flow.mjs` |
 | `verify:stripe-billing` | `node scripts/verify-stripe-billing.mjs` |
 | `verify:supabase-login-data` | `node scripts/verify-supabase-login-data.mjs` |
+| `verify:supabase-save-reload` | `node scripts/verify-supabase-save-reload.mjs` |
 | `verify:supabase-schema` | `node scripts/verify-supabase-schema.mjs` |
 | `verify:supabase-schema:live` | `node scripts/verify-supabase-schema.mjs --live` |
 | `verify:world-class-gates` | `node scripts/verify-gates-14-18.mjs` |
