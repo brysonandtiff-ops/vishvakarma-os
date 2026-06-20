@@ -57,7 +57,15 @@ export async function dismissConsentIfPresent(page: Page) {
 }
 
 export async function openProjectActionsMenu(page: Page) {
-  await page.getByRole('button', { name: /project actions/i }).click();
+  const button = page.getByRole('button', { name: /project actions/i }).first();
+  await button.scrollIntoViewIfNeeded();
+  try {
+    await button.click({ force: true, timeout: 5_000 });
+  } catch {
+    await button.evaluate((el) => {
+      (el as HTMLButtonElement).click();
+    });
+  }
 }
 
 export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {

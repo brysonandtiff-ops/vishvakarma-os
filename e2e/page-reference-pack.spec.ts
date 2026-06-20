@@ -270,6 +270,11 @@ test.describe('page reference pack', () => {
     await expect(page.getByRole('heading', { name: /world record registry/i }).first()).toBeVisible();
     await shot(page, 'governance', '30-world-records.png');
 
+    await page.goto('/optimization');
+    await dismissWorkspaceNotifications(page);
+    await expect(page.getByRole('heading', { name: /design battle/i }).first()).toBeVisible({ timeout: 30_000 });
+    await shot(page, 'governance', '32-optimization.png');
+
     await page.goto('/audit');
     await expect(page.getByRole('heading', { name: /audit log/i }).first()).toBeVisible();
     await shot(page, 'governance', '31-audit.png');
