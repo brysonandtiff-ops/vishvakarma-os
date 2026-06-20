@@ -46,7 +46,11 @@ function normalizeSupabaseAuthError(error: unknown) {
     }
 
     if (message.includes('invalid login credentials')) {
-      return new Error('This sign-in link is invalid or expired. Request a new secure access link.');
+      return new Error('Invalid email or password. Try again or use a magic link.');
+    }
+
+    if (message.includes('email not confirmed')) {
+      return new Error('Confirm your email address before signing in with a password.');
     }
 
     if (message.includes('email rate limit')) {
@@ -189,6 +193,48 @@ export function isSupabaseEmailLinkCallback(
 
   const params = new URLSearchParams(search);
   return hash.includes('type=magiclink') || params.has('token_hash');
+}
+
+export async function signInWithPasswordSupabase(email: string, password: string) {
+  const client = getSupabaseClient();
+  if (!client) {
+    throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
+  }
+
+  const normalized = email.trim().toLowerCase();
+  const { data, error } = await client.auth.signInWithPassword({
+    email: normalized,
+    password,
+  });
+
+  if (error) {
+    return { error: normalizeSupabaseAuthError(error), session: null };
+  }
+
+  if (!data.session?.user) {
+    return { error: new Error('Password sign-in did not return a session.'), session: null };
+  }
+
+  const session = await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+  return { error: null, session };
+}
+
+export async function requestSupabasePasswordReset(email: string, redirectTo: string) {
+  const client = getSupabaseClient();
+  if (!client) {
+    throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
+  }
+
+  const normalized = email.trim().toLowerCase();
+  const { error } = await client.auth.resetPasswordForEmail(normalized, {
+    redirectTo: normalizeEmailRedirectUrl(redirectTo),
+  });
+
+  if (error) {
+    return { error: normalizeSupabaseAuthError(error) };
+  }
+
+  return { error: null };
 }
 
 export async function requestSupabaseAccessLink(email: string, redirectTo: string) {

@@ -23,6 +23,8 @@ export interface AuthContextType {
   emailLinkError: string | null;
   requestAccessLink: (email: string) => Promise<{ error: Error | null }>;
   completeEmailLinkSignIn: (email: string) => Promise<{ error: Error | null }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
+  requestPasswordReset: (email: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null; redirecting?: boolean }>;
   signInWithApple: () => Promise<{ error: Error | null; redirecting?: boolean }>;
   signOut: () => Promise<void>;

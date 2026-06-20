@@ -107,6 +107,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-gate.css');
+    expect(main).toContain('./styles/vish-auth-mockup-page.css');
     expect(main).toContain('bootstrapClientGovernanceState');
     expect(main).toContain('blockOnFailure: false');
     expect(main).toContain('import.meta.env.PROD');

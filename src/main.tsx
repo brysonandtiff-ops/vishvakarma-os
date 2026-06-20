@@ -37,6 +37,7 @@ import "./styles/vish-marketing.css";
 import "./styles/vish-marketing-polish.css";
 import "./styles/vish-sacred-marketing.css";
 import "./styles/vish-auth-gate.css";
+import "./styles/vish-login-page.css";
 import "./styles/vish-sacred-auth.css";
 import "./styles/vish-indian-sacred.css";
 /* Global polish + theme overrides (last) */

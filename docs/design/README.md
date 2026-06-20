@@ -2,7 +2,7 @@
 
 Source-of-truth assets copied from Downloads for implementation alignment.
 
-- `page-references/` — **live Playwright screenshots** of every route and key UI state ([PAGE_REFERENCE.md](./page-references/PAGE_REFERENCE.md))
+- `page-references/` — **live Playwright screenshots** of every route and key UI state ([PAGE_REFERENCE.md](./page-references/PAGE_REFERENCE.md), [PAGE_ROOM_GUIDE.md](./PAGE_ROOM_GUIDE.md))
 - `vishvakarma-os-all-pages.pdf` — marketing + auth screenshots
 - `vishvakarma-os-summary.pdf` — full product specification
 - `png-pack/` — repo-sourced UI recreations (editor + governance)

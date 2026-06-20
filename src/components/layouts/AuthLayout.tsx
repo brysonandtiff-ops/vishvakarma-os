@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import SanskritRainBackground from '@/components/common/SanskritRainBackground';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,21 @@ interface AuthLayoutProps {
 
 /** Shared black/gold sacred stage for auth, reset-password, and session boot. */
 export function AuthLayout({ children, variant = 'gate', className }: AuthLayoutProps) {
+  const location = useLocation();
   const { bottomInset: keyboardBottomInset, isKeyboardOpen } = useVisualViewportInset();
   const isBoot = variant === 'boot';
+  const isLoginSplit = !isBoot && location.pathname === '/auth';
+
+  if (isLoginSplit) {
+    return (
+      <div
+        className={cn('relative min-h-[100dvh] w-full overflow-x-hidden', className)}
+        style={isKeyboardOpen ? { paddingBottom: `${keyboardBottomInset}px` } : undefined}
+      >
+        {children ?? <Outlet />}
+      </div>
+    );
+  }
 
   return (
     <div

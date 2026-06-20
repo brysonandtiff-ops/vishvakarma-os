@@ -2,7 +2,7 @@
 
 Visual reference screenshots for every route and key UI state. Use these when designing or refactoring individual pages.
 
-**Captured:** 2026-06-15 — regenerate after UI polish pass: `pnpm run capture:page-references`  
+**Captured:** 2026-06-20 — regenerate after UI polish pass: `pnpm run capture:page-references`  
 **Viewport:** iPad landscape 1194×834  
 **Command:** `pnpm run capture:page-references`  
 **Output:** `docs/design/page-references/`
@@ -72,6 +72,7 @@ Build uses `VITE_E2E_ALLOW_LOCAL_ACCESS=true` and `VITE_PRICING_PAGE_ENABLED=tru
 | [29-releases.png](./governance/29-releases.png) | `/releases` | `src/pages/ReleasesPage.tsx` | |
 | [30-world-records.png](./governance/30-world-records.png) | `/world-records` | `src/pages/WorldRecordsPage.tsx` | |
 | [31-audit.png](./governance/31-audit.png) | `/audit` | `src/pages/AuditLogPage.tsx` | |
+| [32-optimization.png](./governance/32-optimization.png) | `/optimization` | `src/pages/OptimizationPage.tsx` | Design Battle empty state |
 
 ## Manual captures (Supabase / production)
 

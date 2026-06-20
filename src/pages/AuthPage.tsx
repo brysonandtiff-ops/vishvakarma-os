@@ -1,6 +1,22 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Copy, Download, ExternalLink, Home, Shield, Trophy } from 'lucide-react';
+import {
+  Building2,
+  ChevronRight,
+  Compass,
+  Copy,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Hammer,
+  Leaf,
+  Lock,
+  Mail,
+  Send,
+  Shield,
+  Sparkles,
+  Trophy,
+} from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
 import { backendStatus } from '@/backend/backendConfig';
@@ -20,8 +36,8 @@ import {
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import AuthGoogleButton from '@/components/auth/AuthGoogleButton';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
+import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
-import { SacredTempleGate } from '@/components/common/SacredTempleGate';
 import PageMeta from '@/components/common/PageMeta';
 
 function getSignInHeadline(winner: 'email' | 'google' | 'none') {
@@ -36,11 +52,17 @@ function getSignInHelperLine(winner: 'email' | 'google' | 'none') {
   return 'Sign-in methods are being verified.';
 }
 
+const HERO_FEATURES = [
+  { icon: Compass, label: 'Design', detail: 'With Intelligence' },
+  { icon: Hammer, label: 'Build', detail: 'With Precision' },
+  { icon: Sparkles, label: 'Create', detail: 'With Purpose' },
+  { icon: Leaf, label: 'Sustain', detail: 'For Generations' },
+] as const;
+
 export default function AuthPage() {
   const {
     user,
     isConfigured,
-    mode,
     emailLinkState,
     emailLinkError,
     requestAccessLink,
@@ -51,9 +73,13 @@ export default function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberDevice, setRememberDevice] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [forgotPasswordNotice, setForgotPasswordNotice] = useState(false);
 
   const emailPreview = useMemo(() => email.trim().toLowerCase() || 'architect@firm.com', [email]);
   const isProduction = import.meta.env.PROD;
@@ -77,15 +103,14 @@ export default function AuthPage() {
   const showSignInUnavailable = !capabilitiesLoading && winner === 'none';
   const signInHeadline = getSignInHeadline(winner);
   const signInHelperLine = getSignInHelperLine(winner);
-  const workspaceStatusLabel = isConfigured ? 'Protected Workspace' : 'Local Draft';
 
   const embeddedAuthBrowser = useMemo(
     () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
-    []
+    [],
   );
   const embeddedBrowserLabel = useMemo(
     () => (typeof navigator !== 'undefined' ? getEmbeddedAuthBrowserLabel() : 'embedded browser'),
-    []
+    [],
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
 
@@ -95,10 +120,41 @@ export default function AuthPage() {
 
   const completingEmailLink = emailLinkState === 'completing';
   const needsEmailForLink = emailLinkState === 'needs_email';
+  const authDisabled = submitting || completingEmailLink || showConfigRequired;
 
   if (user) {
     return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
+
+  const sendAccessLink = async (source: 'sign-in' | 'magic-link' | 'request-access' | 'forgot-password') => {
+    setMessage(null);
+    setError(null);
+
+    if (!email.trim()) {
+      setError('Enter your email address to request a secure access link.');
+      return;
+    }
+
+    if (source === 'sign-in' && password.trim()) {
+      setMessage('This workspace uses secure email links instead of passwords. Sending your access link…');
+    }
+
+    setSubmitting(true);
+    const result = await requestAccessLink(email);
+    setSubmitting(false);
+
+    if (result.error) {
+      setError(result.error.message);
+      return;
+    }
+
+    if (source === 'forgot-password') {
+      setMessage(`Password reset is unavailable. Secure access link sent to ${emailPreview}.`);
+      return;
+    }
+
+    setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
+  };
 
   const onCompleteEmailLink = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -118,28 +174,15 @@ export default function AuthPage() {
     navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const onSignInSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMessage(null);
-    setError(null);
-    if (!email.trim()) {
-      setError('Enter your email address to request a secure access link.');
-      return;
-    }
-    setSubmitting(true);
-    const result = await requestAccessLink(email);
-    setSubmitting(false);
-    if (result.error) {
-      setError(result.error.message);
-      return;
-    }
-    setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
+    await sendAccessLink('sign-in');
   };
 
-  const handleInstall = () => {
-    toast.message('Install as App', {
-      description: 'Use your browser menu (Add to Home Screen / Install app) to install Vishvakarma.OS.',
-    });
+  const handleForgotPassword = () => {
+    setForgotPasswordNotice(true);
+    setError(null);
+    setMessage(null);
   };
 
   const handleCopyAuthUrl = async () => {
@@ -178,100 +221,136 @@ export default function AuthPage() {
         description="Enter the sacred architecture workspace. Sign in to access your governed blueprint projects."
       />
 
-      <SacredTempleGate>
-        {/* ═══════════ AUTH CARD ═══════════ */}
-        <div className="sacred-auth-card vish-auth-card-mockup" data-testid="auth-mockup-card">
-          <div className="sacred-auth-card__inner sacred-animate-stagger">
+      <div className="vish-auth-mockup-page">
+        <div className="vish-auth-mockup-page__grid">
+          <section className="vish-auth-mockup-hero" aria-label="Vishvakarma brand hero">
+            <div className="vish-auth-mockup-brand">
+              <div className="vish-auth-mockup-om" aria-hidden="true">
+                ॐ
+              </div>
+              <p className="sr-only">ॐ श्री विश्वकर्मणे नमः</p>
+              <p className="vish-auth-mockup-brand-title">Vishvakarma</p>
+              <p className="vish-auth-mockup-brand-sub">The Divine Architect of All Creation</p>
+            </div>
 
-            {/* ── Header: Swan Logo + Mantra + Title ── */}
-            <header className="sacred-auth-header">
-              {/* Swan Logo — PRESERVED EXACTLY */}
-              <div className="sacred-auth-logo">
-                <div className="sacred-auth-logo__mark">
-                  <img
-                    src={OFFICIAL_LOGO_SRC}
-                    alt="Vishvakarma.OS swan logo"
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 object-contain"
-                    decoding="async"
-                  />
+            <div className="vish-auth-mockup-deity" aria-hidden="true">
+              <div className="vish-auth-mockup-deity-glow" />
+              <div className="vish-auth-mockup-trident">
+                <div className="prong left" />
+                <div className="prong center" />
+                <div className="prong right" />
+                <div className="shaft" />
+              </div>
+              <div className="vish-auth-mockup-crescent" />
+              <div className="vish-auth-mockup-deity-face" />
+            </div>
+
+            <div className="vish-auth-mockup-features">
+              {HERO_FEATURES.map(({ icon: Icon, label, detail }) => (
+                <div key={label} className="vish-auth-mockup-feature">
+                  <div className="vish-auth-mockup-feature-icon">
+                    <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>{label}</strong>
+                    <span>{detail}</span>
+                  </div>
                 </div>
-                <span className="sacred-auth-logo__text">Vishvakarma.OS</span>
+              ))}
+            </div>
+
+            <blockquote className="vish-auth-mockup-quote">
+              <p className="sanskrit">यत्र विश्वं भवत्येकनीडम्</p>
+              <p>&ldquo;Where the world becomes one nest&rdquo;</p>
+              <small>— Atharva Veda</small>
+            </blockquote>
+          </section>
+
+          <section className="vish-auth-mockup-side" aria-labelledby="auth-page-title">
+            <p className="vish-auth-mockup-topline">
+              Architecture • Engineering • Construction
+              <br />
+              United by Dharma, Driven by Design
+            </p>
+
+            <div
+              className="vish-auth-mockup-card sacred-auth-card vish-auth-card-mockup"
+              data-testid="auth-mockup-card"
+            >
+              <div className="vish-auth-mockup-logo sacred-auth-logo">
+                <img
+                  src={OFFICIAL_LOGO_SRC}
+                  alt="Vishvakarma.OS swan logo"
+                  width={42}
+                  height={42}
+                  decoding="async"
+                />
+                <span className="sr-only sacred-auth-logo__text">Vishvakarma.OS</span>
               </div>
 
-              {/* Sacred Mantra */}
-              <p className="sacred-auth-mantra">ॐ श्री विश्वकर्मणे नमः</p>
-
-              {/* Title */}
-              <h1 className="sacred-auth-title" id="auth-page-title">
-                {capabilitiesLoading ? 'Preparing…' : signInHeadline}
-              </h1>
-              <p className="sacred-auth-subtitle">
-                {capabilitiesLoading ? 'Verifying sign-in methods…' : signInHelperLine}
-              </p>
-
-              {/* Workspace status badge */}
-              <div className="mt-3 flex items-center justify-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] font-semibold tracking-wide uppercase ${
-                    isConfigured
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                  }`}
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${isConfigured ? 'bg-emerald-400' : 'bg-amber-400'}`}
-                  />
-                  {workspaceStatusLabel}
-                </span>
+              <div className="vish-auth-mockup-heading">
+                <h1 id="auth-page-title">
+                  VISHVAKARMA<span>.OS</span>
+                </h1>
+                <p>Architect • Engineer • Create</p>
+                <p className="sr-only">
+                  {capabilitiesLoading ? 'Preparing…' : signInHeadline} —{' '}
+                  {capabilitiesLoading ? 'Verifying sign-in methods…' : signInHelperLine}
+                </p>
+                <p className="sr-only">
+                  {showEmailSignIn ? 'email winner' : ''}
+                  {showGoogleSignIn ? 'google winner' : ''}
+                  {showSignInUnavailable ? 'no winner' : ''}
+                </p>
               </div>
-            </header>
 
-            {/* ── Sacred Divider ── */}
-            <div className="sacred-auth-divider" />
+              {showConfigRequired && (
+                <AuthStatusBanner variant="warning" className="mb-3">
+                  Backend not configured. Set Supabase environment variables to enable authentication.
+                </AuthStatusBanner>
+              )}
+              {(passwordResetNotice || forgotPasswordNotice) && (
+                <AuthStatusBanner variant="info" className="mb-3">
+                  Password sign-in is not available. Use the method below to access your workspace.
+                  {forgotPasswordNotice && (
+                    <button
+                      type="button"
+                      className="vish-auth-mockup-link ml-2"
+                      onClick={() => void sendAccessLink('forgot-password')}
+                    >
+                      Send magic link instead
+                    </button>
+                  )}
+                </AuthStatusBanner>
+              )}
+              {sessionRestoreTimeoutNotice && (
+                <AuthStatusBanner variant="info" className="mb-3">
+                  Session expired. Please sign in again to continue.
+                </AuthStatusBanner>
+              )}
+              {showSignInUnavailable && isConfigured && !showConfigRequired && (
+                <AuthStatusBanner variant="warning" className="mb-3">
+                  Sign-in methods are being verified. Please try again shortly.
+                </AuthStatusBanner>
+              )}
+              {(emailLinkError || error) && (
+                <AuthStatusBanner variant="error" className="mb-3">
+                  {emailLinkError || error}
+                </AuthStatusBanner>
+              )}
+              {completingEmailLink && (
+                <AuthStatusBanner variant="info" loading className="mb-3">
+                  Completing sign-in from email link…
+                </AuthStatusBanner>
+              )}
 
-            {/* ── Status Banners ── */}
-            {showConfigRequired && (
-              <AuthStatusBanner variant="warning" className="mb-3">
-                Backend not configured. Set Supabase environment variables to enable authentication.
-              </AuthStatusBanner>
-            )}
-            {passwordResetNotice && (
-              <AuthStatusBanner variant="info" className="mb-3">
-                Password sign-in is not available. Use the method below to access your workspace.
-              </AuthStatusBanner>
-            )}
-            {sessionRestoreTimeoutNotice && (
-              <AuthStatusBanner variant="info" className="mb-3">
-                Session expired. Please sign in again to continue.
-              </AuthStatusBanner>
-            )}
-            {showSignInUnavailable && isConfigured && !showConfigRequired && (
-              <AuthStatusBanner variant="warning" className="mb-3">
-                Sign-in methods are being verified. Please try again shortly.
-              </AuthStatusBanner>
-            )}
-            {(emailLinkError || error) && (
-              <AuthStatusBanner variant="error" className="mb-3">
-                {emailLinkError || error}
-              </AuthStatusBanner>
-            )}
-
-            {/* ═══ EMAIL SIGN-IN ═══ */}
-            {showEmailSignIn && (
-              <>
-                {completingEmailLink && (
-                  <AuthStatusBanner variant="info" loading className="mb-3">
-                    Completing sign-in from email link…
-                  </AuthStatusBanner>
-                )}
-                {needsEmailForLink && (
-                  <form onSubmit={onCompleteEmailLink} className="sacred-auth-form">
-                    <p className="text-xs text-[hsl(230_15%_60%)] mb-1">
-                      Confirm the email that received the access link:
-                    </p>
+              {needsEmailForLink ? (
+                <form onSubmit={onCompleteEmailLink} className="vish-auth-mockup-form sacred-auth-form">
+                  <div className="vish-auth-mockup-field">
+                    <label htmlFor="auth-email-complete">Email address</label>
+                    <Mail className="vish-auth-mockup-field-icon" size={18} aria-hidden="true" />
                     <input
+                      id="auth-email-complete"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -280,178 +359,216 @@ export default function AuthPage() {
                       autoComplete="email"
                       required
                     />
-                    <button type="submit" disabled={submitting} className="sacred-auth-btn-primary">
-                      {submitting ? 'Verifying…' : 'Complete sign-in · प्रवेश'}
-                    </button>
-                  </form>
-                )}
-                {!completingEmailLink && !needsEmailForLink && (
-                  <form onSubmit={onSubmit} className="sacred-auth-form">
-                    {message && (
-                      <AuthStatusBanner variant="info" loading className="mb-2">
-                        {message}
-                      </AuthStatusBanner>
-                    )}
+                  </div>
+                  <button type="submit" disabled={submitting} className="vish-auth-mockup-primary">
+                    {submitting ? 'Verifying…' : 'Complete sign-in · प्रवेश'}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={onSignInSubmit} className="vish-auth-mockup-form sacred-auth-form">
+                  {message && (
+                    <AuthStatusBanner variant="info" loading={submitting} className="mb-2">
+                      {message}
+                    </AuthStatusBanner>
+                  )}
+
+                  <div className="vish-auth-mockup-field">
+                    <label htmlFor="auth-email">Email address</label>
+                    <Mail className="vish-auth-mockup-field-icon" size={18} aria-hidden="true" />
                     <input
+                      id="auth-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com · ईमेल"
+                      placeholder="you@example.com"
                       className="sacred-auth-input"
                       autoComplete="email"
                       required
-                      disabled={submitting}
+                      disabled={authDisabled}
+                    />
+                  </div>
+
+                  <div className="vish-auth-mockup-field">
+                    <label htmlFor="auth-password">Password</label>
+                    <Lock className="vish-auth-mockup-field-icon" size={18} aria-hidden="true" />
+                    <input
+                      id="auth-password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="sacred-auth-input"
+                      autoComplete="off"
+                      disabled={authDisabled}
                     />
                     <button
-                      type="submit"
-                      disabled={submitting || !isConfigured || showConfigRequired}
-                      className="sacred-auth-btn-primary"
+                      type="button"
+                      className="vish-auth-mockup-toggle"
+                      onClick={() => setShowPassword((value) => !value)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
-                      {submitting ? 'Sending link…' : 'Request access link · प्रवेश लिंक'}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
-                    {allowLocalWorkspace && (
-                      <button
-                        type="button"
-                        className="sacred-auth-btn-oauth"
-                        onClick={() => navigate('/editor')}
-                      >
-                        Enter local workspace · स्थानीय कार्यस्थान
-                      </button>
-                    )}
-                  </form>
-                )}
-              </>
-            )}
-
-            {/* ═══ GOOGLE SIGN-IN ═══ */}
-            {showGoogleSignIn && (
-              <div className="sacred-auth-form">
-                {showEmbeddedAuthRecovery && (
-                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 mb-3">
-                    <p className="text-xs font-semibold text-amber-300 mb-1">
-                      Open in your system browser
-                    </p>
-                    <p className="text-[0.7rem] text-amber-200/70 leading-relaxed mb-2">
-                      Google OAuth is blocked in {embeddedBrowserLabel}. Use Chrome or Safari for a
-                      one-time sign-in, then return to the app.
-                    </p>
-                    <div className="flex gap-2">
-                      <a
-                        href={externalAuthUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="sacred-auth-btn-oauth text-xs !min-h-[36px] !py-2 flex-1"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                        Open in browser
-                      </a>
-                      <button
-                        type="button"
-                        className="sacred-auth-btn-oauth text-xs !min-h-[36px] !py-2"
-                        onClick={() => void handleCopyAuthUrl()}
-                      >
-                        <Copy className="h-3.5 w-3.5" aria-hidden />
-                        Copy
-                      </button>
-                    </div>
                   </div>
-                )}
-                {message && (
-                  <AuthStatusBanner variant="info" loading className="mb-3">
-                    {message}
-                  </AuthStatusBanner>
-                )}
-                <AuthGoogleButton
-                  submitting={submitting}
-                  disabled={!isConfigured || showConfigRequired || embeddedAuthBrowser}
-                  onClick={() => void handleGoogleSignIn()}
-                />
-                {allowLocalWorkspace && (
+
+                  <div className="vish-auth-mockup-row">
+                    <label className="vish-auth-mockup-remember">
+                      <input
+                        type="checkbox"
+                        checked={rememberDevice}
+                        onChange={(e) => setRememberDevice(e.target.checked)}
+                      />
+                      Remember this device
+                    </label>
+                    <button type="button" className="vish-auth-mockup-link" onClick={handleForgotPassword}>
+                      Forgot password?
+                    </button>
+                  </div>
+
+                  <button type="submit" disabled={authDisabled} className="vish-auth-mockup-primary">
+                    Sign In
+                    <ChevronRight size={18} aria-hidden="true" />
+                    <ChevronRight size={18} className="-ml-3" aria-hidden="true" />
+                  </button>
+
+                  <div className="vish-auth-mockup-divider">OR</div>
+
                   <button
                     type="button"
-                    className="sacred-auth-btn-oauth mt-2"
-                    onClick={() => navigate('/editor')}
+                    className="vish-auth-mockup-secondary"
+                    disabled={authDisabled}
+                    onClick={() => void sendAccessLink('magic-link')}
                   >
-                    Enter local workspace · स्थानीय कार्यस्थान
+                    <Send size={20} aria-hidden="true" />
+                    <span>
+                      <b>Magic Link</b>
+                      <small>Request access link · Sign in securely without a password</small>
+                    </span>
                   </button>
-                )}
-              </div>
-            )}
 
-            {/* ── Footer Links ── */}
-            <footer className="sacred-auth-footer">
-              <button
-                type="button"
-                className="sacred-auth-footer-link"
-                onClick={() => navigate('/')}
-              >
-                <Home className="h-3.5 w-3.5" />
-                Home · मुख्य
-              </button>
-              <button
-                type="button"
-                className="sacred-auth-footer-link"
-                onClick={() => navigate('/features')}
-              >
-                <BookOpen className="h-3.5 w-3.5" />
-                Features · विशेषताएँ
-              </button>
-              <button type="button" className="sacred-auth-footer-link" onClick={handleInstall}>
-                <Download className="h-3.5 w-3.5" />
-                Install · गृह-स्थापना
-              </button>
-            </footer>
+                  {showEmbeddedAuthRecovery && (
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
+                      <p className="text-xs font-semibold text-amber-300 mb-1">Open in your system browser</p>
+                      <p className="text-[0.7rem] text-amber-200/70 leading-relaxed mb-2">
+                        Google OAuth is blocked in {embeddedBrowserLabel}. Use Chrome or Safari for a one-time
+                        sign-in, then return to the app.
+                      </p>
+                      <div className="flex gap-2">
+                        <a
+                          href={externalAuthUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="vish-auth-mockup-secondary text-xs !min-h-[36px] !py-2 flex-1"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>
+                            <b>Open in browser</b>
+                          </span>
+                        </a>
+                        <button
+                          type="button"
+                          className="vish-auth-mockup-secondary text-xs !min-h-[36px] !py-2"
+                          onClick={() => void handleCopyAuthUrl()}
+                        >
+                          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>
+                            <b>Copy</b>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {showEmbeddedAuthRecovery && (
+                    type="button"
+                    className="vish-auth-mockup-secondary"
+                    disabled={authDisabled || embeddedAuthBrowser}
+                    onClick={() => void handleGoogleSignIn()}
+                  >
+                    <Building2 size={20} aria-hidden="true" />
+                    <span>
+                      <b>Continue with SSO</b>
+                      <small>For companies &amp; teams</small>
+                    </span>
+                  </button>
+
+                  {allowLocalWorkspace && (
+                    <button
+                      type="button"
+                      className="vish-auth-mockup-secondary"
+                      onClick={() => navigate('/editor')}
+                    >
+                      <span>
+                        <b>Enter local workspace · स्थानीय कार्यस्थान</b>
+                      </span>
+                    </button>
+                  )}
+
+                  <p className="vish-auth-mockup-request">
+                    New to Vishvakarma.OS?{' '}
+                    <button
+                      type="button"
+                      className="vish-auth-mockup-link"
+                      disabled={authDisabled}
+                      onClick={() => void sendAccessLink('request-access')}
+                    >
+                      Request access link · Request access
+                    </button>
+                  </p>
+                </form>
+              )}
+            </div>
+
+            <div className="vish-auth-mockup-founders">
+              <FoundersAcknowledgment variant="auth" />
+            </div>
+
+            <p className="vish-auth-mockup-version">v1.0.0</p>
+          </section>
+
+          <div
+            className="vish-auth-mockup-trust-wrap sacred-auth-trust"
+            data-testid="auth-trust-pillars"
+            aria-labelledby="auth-trust-heading"
+          >
+            <h2 id="auth-trust-heading" className="sr-only">
+              Trust &amp; evidence
+            </h2>
+
+            <AuthTrustPillar
+              icon={Shield}
+              badge="Release evidence"
+              title={`${WORLD_RECORD_METRIC_GATE_COUNT} Release Gates`}
+              description="Automated pre-release verification with audit trail."
+              metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
+              metricLabel="gates"
+              destination="/releases"
+              variant="gates"
+              testId="auth-trust-pillar-gates"
+              onLearnMore={() =>
+                toast.message('Release evidence', {
+                  description: 'Sign in to open Releases and inspect gate snapshots.',
+                })
+              }
+            />
+
+            <AuthTrustPillar
+              icon={Trophy}
+              badge="World records"
+              title="World Records Registry"
+              description={`${WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}.`}
+              destination="/world-records"
+              variant="records"
+              testId="auth-trust-pillar-records"
+              onLearnMore={() =>
+                toast.message('World Records', {
+                  description: 'Sign in to view the Self-Verified Candidate registry.',
+                })
+              }
+            />
           </div>
         </div>
-
-        {/* Founders acknowledgment — PRESERVED */}
-        <FoundersAcknowledgment variant="auth" />
-
-        {/* ═══ TRUST PILLARS ═══ */}
-        <section className="sacred-auth-trust" aria-labelledby="auth-trust-heading">
-          <h2 id="auth-trust-heading" className="sr-only">
-            Trust &amp; evidence
-          </h2>
-
-          <div
-            className="sacred-auth-trust-card sacred-animate-in sacred-animate-in-delay-3"
-            onClick={() =>
-              toast.message('Release evidence', {
-                description: 'Sign in to open Releases and inspect gate snapshots.',
-              })
-            }
-            data-testid="auth-trust-pillar-gates"
-            role="button"
-            tabIndex={0}
-          >
-            <Shield className="sacred-auth-trust-card__icon" />
-            <p className="sacred-auth-trust-card__title">
-              {WORLD_RECORD_METRIC_GATE_COUNT} Release Gates
-            </p>
-            <p className="sacred-auth-trust-card__desc">
-              Automated pre-release verification with audit trail.
-            </p>
-          </div>
-
-          <div
-            className="sacred-auth-trust-card sacred-animate-in sacred-animate-in-delay-4"
-            onClick={() =>
-              toast.message('World Records', {
-                description: 'Sign in to view the Self-Verified Candidate registry.',
-              })
-            }
-            data-testid="auth-trust-pillar-records"
-            role="button"
-            tabIndex={0}
-          >
-            <Trophy className="sacred-auth-trust-card__icon" />
-            <p className="sacred-auth-trust-card__title">World Records Registry</p>
-            <p className="sacred-auth-trust-card__desc">
-              {WORLD_RECORD_HONESTY_DISCLAIMER.split(' until ')[0]}.
-            </p>
-          </div>
-        </section>
-      </SacredTempleGate>
+      </div>
     </>
   );
 }

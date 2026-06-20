@@ -1,0 +1,688 @@
+/* Vishvakarma.OS — two-column auth mockup page */
+
+.vish-auth-mockup-page {
+  --vam-bg: #050914;
+  --vam-panel: rgba(10, 18, 36, 0.78);
+  --vam-gold: #f7c95f;
+  --vam-gold-soft: #ffd978;
+  --vam-blue: #47b6ff;
+  --vam-text: #f8fbff;
+  --vam-muted: #aab7d6;
+  --vam-line: rgba(247, 201, 95, 0.35);
+  --vam-danger: #ff6b6b;
+  --vam-success: #60f2a6;
+  --vam-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+
+  min-height: 100dvh;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: var(--vam-text);
+  background:
+    radial-gradient(circle at 22% 36%, rgba(72, 182, 255, 0.18), transparent 34%),
+    radial-gradient(circle at 78% 12%, rgba(247, 201, 95, 0.18), transparent 26%),
+    linear-gradient(135deg, #050914 0%, #071329 50%, #040711 100%);
+  overflow-x: hidden;
+  position: relative;
+}
+
+.vish-auth-mockup-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(247, 201, 95, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 201, 95, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 75%);
+}
+
+.vish-auth-mockup-page__grid {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.vish-auth-mockup-page__grid::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% -30% -12%;
+  height: 42%;
+  background:
+    radial-gradient(ellipse at center, rgba(247, 201, 95, 0.23), transparent 60%),
+    linear-gradient(90deg, transparent, rgba(247, 201, 95, 0.6), transparent);
+  filter: blur(22px);
+  transform: rotate(-5deg);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.vish-auth-mockup-hero {
+  position: relative;
+  padding: 44px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-right: 1px solid rgba(247, 201, 95, 0.18);
+}
+
+.vish-auth-mockup-hero::before {
+  content: "";
+  position: absolute;
+  width: 720px;
+  height: 720px;
+  left: 18%;
+  top: 8%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 20deg,
+    rgba(247, 201, 95, 0.8) 0deg,
+    rgba(247, 201, 95, 0.12) 3deg,
+    transparent 6deg,
+    transparent 12deg
+  );
+  opacity: 0.18;
+  animation: vam-rotate-mandala 42s linear infinite;
+}
+
+.vish-auth-mockup-hero::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  left: 25%;
+  top: 18%;
+  border-radius: 50%;
+  border: 1px solid rgba(247, 201, 95, 0.26);
+  box-shadow:
+    0 0 80px rgba(247, 201, 95, 0.16),
+    inset 0 0 70px rgba(72, 182, 255, 0.12);
+  pointer-events: none;
+}
+
+@keyframes vam-rotate-mandala {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vish-auth-mockup-brand { position: relative; z-index: 2; }
+
+.vish-auth-mockup-om {
+  font-size: 42px;
+  color: var(--vam-gold-soft);
+  line-height: 1;
+  margin-bottom: 14px;
+  text-shadow: 0 0 28px rgba(247, 201, 95, 0.5);
+}
+
+.vish-auth-mockup-brand-title {
+  letter-spacing: 0.24em;
+  font-size: 18px;
+  color: var(--vam-gold-soft);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.vish-auth-mockup-brand-sub {
+  color: #fff;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  line-height: 1.8;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.vish-auth-mockup-deity {
+  position: absolute;
+  z-index: 1;
+  left: 26%;
+  top: 18%;
+  width: 430px;
+  height: 600px;
+  opacity: 0.98;
+  pointer-events: none;
+}
+
+.vish-auth-mockup-deity-glow {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 360px;
+  height: 360px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(247, 201, 95, 0.5), transparent 58%),
+    radial-gradient(circle, rgba(72, 182, 255, 0.32), transparent 70%);
+  filter: blur(14px);
+}
+
+.vish-auth-mockup-deity-face {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 250px;
+  height: 360px;
+  transform: translate(-50%, -50%);
+  border-radius: 48% 52% 42% 50%;
+  background:
+    radial-gradient(circle at 60% 32%, rgba(255, 255, 255, 0.22), transparent 12%),
+    linear-gradient(145deg, #0b3f78 0%, #0b61af 32%, #081a38 100%);
+  box-shadow:
+    inset 35px 0 55px rgba(255, 255, 255, 0.08),
+    inset -40px -20px 80px rgba(0, 0, 0, 0.55),
+    0 0 65px rgba(71, 182, 255, 0.34);
+  clip-path: polygon(34% 0%, 72% 8%, 86% 36%, 78% 67%, 58% 100%, 31% 84%, 18% 50%, 19% 17%);
+}
+
+.vish-auth-mockup-deity-face::before {
+  content: "";
+  position: absolute;
+  width: 130px;
+  height: 210px;
+  right: 3px;
+  top: 66px;
+  border-radius: 50%;
+  border-right: 2px solid rgba(255, 255, 255, 0.42);
+  opacity: 0.55;
+}
+
+.vish-auth-mockup-deity-face::after {
+  content: "";
+  position: absolute;
+  width: 54px;
+  height: 6px;
+  right: 88px;
+  top: 106px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 13px 0 rgba(255, 255, 255, 0.75),
+    0 26px 0 rgba(255, 255, 255, 0.6);
+  transform: rotate(5deg);
+}
+
+.vish-auth-mockup-crescent {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 9px solid var(--vam-gold-soft);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  transform: translateX(-50%) rotate(-18deg);
+  filter: drop-shadow(0 0 22px rgba(247, 201, 95, 0.65));
+}
+
+.vish-auth-mockup-trident { position: absolute; left: -44px; top: 40px; width: 120px; height: 510px; opacity: 0.9; }
+.vish-auth-mockup-trident .shaft {
+  position: absolute;
+  left: 57px;
+  top: 30px;
+  width: 6px;
+  height: 470px;
+  background: linear-gradient(var(--vam-gold), rgba(247, 201, 95, 0.06));
+  box-shadow: 0 0 24px rgba(247, 201, 95, 0.6);
+}
+.vish-auth-mockup-trident .prong {
+  position: absolute;
+  top: 0;
+  width: 48px;
+  height: 150px;
+  border: 4px solid var(--vam-gold);
+  border-bottom: none;
+  filter: drop-shadow(0 0 14px rgba(247, 201, 95, 0.6));
+}
+.vish-auth-mockup-trident .left { left: 5px; border-right: none; border-radius: 100% 0 0 0; transform: rotate(-13deg); }
+.vish-auth-mockup-trident .center {
+  left: 36px;
+  border-left: 4px solid var(--vam-gold);
+  border-right: 4px solid var(--vam-gold);
+  border-radius: 50% 50% 0 0;
+}
+.vish-auth-mockup-trident .right { right: 5px; border-left: none; border-radius: 0 100% 0 0; transform: rotate(13deg); }
+
+.vish-auth-mockup-features {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 24px;
+  max-width: 270px;
+  margin-top: 180px;
+}
+
+.vish-auth-mockup-feature {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.vish-auth-mockup-feature-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--vam-line);
+  display: grid;
+  place-items: center;
+  color: var(--vam-gold-soft);
+  background: rgba(247, 201, 95, 0.05);
+  clip-path: polygon(25% 2%, 75% 2%, 100% 50%, 75% 98%, 25% 98%, 0% 50%);
+  box-shadow: 0 0 24px rgba(247, 201, 95, 0.18);
+}
+
+.vish-auth-mockup-feature strong {
+  display: block;
+  color: var(--vam-gold-soft);
+  letter-spacing: 0.12em;
+  font-size: 13px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.vish-auth-mockup-feature span { color: #fff; font-size: 13px; opacity: 0.85; }
+
+.vish-auth-mockup-quote {
+  position: relative;
+  z-index: 2;
+  max-width: 310px;
+  padding: 18px;
+  border: 1px solid var(--vam-line);
+  background: rgba(5, 9, 20, 0.42);
+  box-shadow: 0 0 35px rgba(247, 201, 95, 0.1);
+}
+
+.vish-auth-mockup-quote .sanskrit { color: var(--vam-gold-soft); font-size: 14px; margin-bottom: 10px; }
+.vish-auth-mockup-quote p { color: #fff; line-height: 1.55; font-size: 14px; margin-bottom: 10px; }
+.vish-auth-mockup-quote small { color: var(--vam-muted); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; }
+
+.vish-auth-mockup-side {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 44px;
+  align-content: center;
+  gap: 1.5rem;
+}
+
+.vish-auth-mockup-topline {
+  position: absolute;
+  top: 36px;
+  right: 48px;
+  text-align: right;
+  color: var(--vam-gold-soft);
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: 0.04em;
+}
+
+.vish-auth-mockup-card {
+  width: min(520px, 100%);
+  position: relative;
+  z-index: 4;
+  padding: 42px;
+  background:
+    linear-gradient(180deg, rgba(17, 31, 61, 0.92), rgba(8, 15, 31, 0.92)),
+    radial-gradient(circle at top, rgba(247, 201, 95, 0.12), transparent 34%);
+  border: 1px solid rgba(247, 201, 95, 0.36);
+  border-radius: 28px;
+  box-shadow: var(--vam-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(22px);
+  overflow: hidden;
+}
+
+.vish-auth-mockup-card::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(247, 201, 95, 0.18);
+  border-radius: 22px;
+  pointer-events: none;
+}
+
+.vish-auth-mockup-logo {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 22px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.vish-auth-mockup-logo img {
+  position: relative;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.vish-auth-mockup-logo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--vam-line);
+  transform: rotate(45deg);
+  border-radius: 14px;
+  box-shadow: 0 0 34px rgba(247, 201, 95, 0.25);
+}
+
+.vish-auth-mockup-logo::after {
+  content: "";
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(247, 201, 95, 0.55);
+  border-radius: 50%;
+}
+
+.vish-auth-mockup-heading { text-align: center; margin-bottom: 28px; position: relative; z-index: 2; }
+
+.vish-auth-mockup-heading h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.vish-auth-mockup-heading h1 span { color: var(--vam-gold-soft); }
+
+.vish-auth-mockup-heading p {
+  color: #fff;
+  opacity: 0.82;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.vish-auth-mockup-form {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 16px;
+}
+
+.vish-auth-mockup-field { position: relative; }
+
+.vish-auth-mockup-field label {
+  display: block;
+  color: var(--vam-muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vish-auth-mockup-field input {
+  width: 100%;
+  height: 56px;
+  padding: 0 52px;
+  border-radius: 12px;
+  border: 1px solid rgba(247, 201, 95, 0.32);
+  background: rgba(3, 8, 18, 0.56);
+  color: var(--vam-text);
+  outline: none;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+
+.vish-auth-mockup-field input:focus {
+  border-color: var(--vam-gold-soft);
+  box-shadow: 0 0 0 4px rgba(247, 201, 95, 0.12);
+}
+
+.vish-auth-mockup-field-icon {
+  position: absolute;
+  left: 18px;
+  top: 39px;
+  color: var(--vam-gold-soft);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.vish-auth-mockup-toggle {
+  position: absolute;
+  right: 16px;
+  top: 35px;
+  height: 38px;
+  width: 38px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--vam-muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.vish-auth-mockup-toggle:hover {
+  color: var(--vam-gold-soft);
+  background: rgba(247, 201, 95, 0.08);
+}
+
+.vish-auth-mockup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+.vish-auth-mockup-remember {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--vam-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.vish-auth-mockup-remember input { accent-color: var(--vam-gold); width: auto; height: auto; }
+
+.vish-auth-mockup-link {
+  border: none;
+  background: none;
+  color: var(--vam-gold-soft);
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: inherit;
+  padding: 0;
+}
+
+.vish-auth-mockup-link:hover { text-decoration: underline; }
+
+.vish-auth-mockup-primary {
+  height: 58px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffe28a, #f7c95f 42%, #d79a24);
+  color: #14100a;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 16px 34px rgba(247, 201, 95, 0.25);
+  transition: 0.2s ease;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.vish-auth-mockup-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 44px rgba(247, 201, 95, 0.35);
+}
+
+.vish-auth-mockup-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.vish-auth-mockup-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 14px;
+  align-items: center;
+  color: var(--vam-muted);
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+.vish-auth-mockup-divider::before,
+.vish-auth-mockup-divider::after {
+  content: "";
+  height: 1px;
+  background: rgba(247, 201, 95, 0.2);
+}
+
+.vish-auth-mockup-secondary {
+  min-height: 58px;
+  border-radius: 12px;
+  border: 1px solid rgba(247, 201, 95, 0.28);
+  background: rgba(5, 9, 20, 0.48);
+  color: var(--vam-text);
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  text-align: left;
+  padding: 10px 16px;
+  transition: 0.2s ease;
+}
+
+.vish-auth-mockup-secondary:hover:not(:disabled) {
+  border-color: var(--vam-gold-soft);
+  background: rgba(247, 201, 95, 0.08);
+}
+
+.vish-auth-mockup-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vish-auth-mockup-secondary b { display: block; font-size: 14px; margin-bottom: 3px; letter-spacing: 0.04em; }
+.vish-auth-mockup-secondary small { color: var(--vam-muted); font-size: 12px; }
+
+.vish-auth-mockup-status {
+  min-height: 22px;
+  color: var(--vam-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.vish-auth-mockup-status--error { color: var(--vam-danger); }
+.vish-auth-mockup-status--success { color: var(--vam-success); }
+
+.vish-auth-mockup-request {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-top: 22px;
+  color: var(--vam-muted);
+  font-size: 13px;
+}
+
+.vish-auth-mockup-version {
+  position: absolute;
+  bottom: 26px;
+  right: 42px;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+
+.vish-auth-mockup-trust-wrap {
+  grid-column: 1 / -1;
+  width: min(100%, 56rem);
+  margin: 0 auto;
+  padding: 0 44px 44px;
+}
+
+.vish-auth-mockup-trust-wrap.sacred-auth-trust {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.vish-auth-mockup-field input.vish-auth-mockup-password-mask {
+  -webkit-text-security: disc;
+  text-security: disc;
+}
+
+.vish-auth-mockup-field input.vish-auth-mockup-password-visible {
+  -webkit-text-security: none;
+  text-security: none;
+}
+
+.vish-auth-mockup-founders {
+  position: relative;
+  z-index: 2;
+  width: min(520px, 100%);
+  text-align: center;
+}
+
+.vish-auth-mockup-google-slot .vish-auth-google-button {
+  width: 100%;
+  min-height: 58px;
+  border-radius: 12px;
+  border: 1px solid rgba(247, 201, 95, 0.28);
+  background: rgba(5, 9, 20, 0.48);
+  color: var(--vam-text);
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  text-align: left;
+  padding: 10px 16px;
+  gap: 0;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.vish-auth-mockup-google-slot .vish-auth-google-button__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.vish-auth-mockup-google-slot .vish-auth-google-button:hover:not(:disabled) {
+  border-color: var(--vam-gold-soft);
+  background: rgba(247, 201, 95, 0.08);
+  transform: none;
+}
+
+@media (max-width: 980px) {
+  .vish-auth-mockup-page__grid { grid-template-columns: 1fr; }
+  .vish-auth-mockup-hero {
+    min-height: 680px;
+    border-right: none;
+    border-bottom: 1px solid rgba(247, 201, 95, 0.18);
+  }
+  .vish-auth-mockup-side { min-height: 780px; }
+  .vish-auth-mockup-topline {
+    position: relative;
+    top: auto;
+    right: auto;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+}
+
+@media (max-width: 620px) {
+  .vish-auth-mockup-hero,
+  .vish-auth-mockup-side { padding: 28px 20px; }
+  .vish-auth-mockup-deity {
+    left: 18%;
+    transform: scale(0.82);
+    transform-origin: top left;
+  }
+  .vish-auth-mockup-features { margin-top: 420px; }
+  .vish-auth-mockup-card { padding: 30px 22px; border-radius: 22px; }
+  .vish-auth-mockup-heading h1 { letter-spacing: 0.08em; }
+  .vish-auth-mockup-row { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-auth-mockup-hero::before { animation: none; }
+}

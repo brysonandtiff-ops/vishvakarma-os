@@ -10,6 +10,8 @@ import {
   isSupabaseOAuthCallback,
   readCachedAuthBootstrap,
   requestSupabaseAccessLink,
+  requestSupabasePasswordReset,
+  signInWithPasswordSupabase,
   signOutSupabaseAuth,
 } from '@/backend/supabase/supabaseAuthGateway';
 import {
@@ -292,6 +294,43 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    try {
+      if (!backendStatus.isConfigured) {
+        throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
+      }
+
+      const result = await signInWithPasswordSupabase(email, password);
+      if (result.error) {
+        return { error: result.error };
+      }
+
+      if (result.session) {
+        const nextUser = supabaseUserFromSession(result.session);
+        setSession(result.session);
+        setUser(nextUser);
+        markFreshSignIn();
+        await loadProfile(nextUser);
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: formatAuthError(error) };
+    }
+  }, [loadProfile]);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    try {
+      if (!backendStatus.isConfigured) {
+        throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
+      }
+
+      return await requestSupabasePasswordReset(email, `${window.location.origin}/reset-password`);
+    } catch (error) {
+      return { error: normalizeMagicLinkError(error) };
+    }
+  }, []);
+
   const signInWithGoogle = useCallback(async () => {
     try {
       if (!backendStatus.isConfigured) {
@@ -362,6 +401,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       emailLinkError,
       requestAccessLink,
       completeEmailLinkSignIn,
+      signInWithPassword,
+      requestPasswordReset,
       signInWithGoogle,
       signInWithApple,
       signOut,
@@ -375,6 +416,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       refreshProfile,
       requestAccessLink,
       completeEmailLinkSignIn,
+      signInWithPassword,
+      requestPasswordReset,
       session,
       signInWithApple,
       signInWithGoogle,
