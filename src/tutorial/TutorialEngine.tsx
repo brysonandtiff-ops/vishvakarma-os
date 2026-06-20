@@ -16,8 +16,27 @@ type Rect = {
 
 const PADDING_DEFAULT = 12;
 
+const TARGET_FALLBACK_SELECTORS: Record<string, string> = {
+  'command-palette': 'button[aria-label="Open command palette"]',
+  'mobile-navigation': 'button[aria-label="Open navigation"]',
+  'nav-editor': 'a[href="/editor"]',
+  'nav-projects': 'a[href="/projects"]',
+  'nav-optimization': 'a[href="/optimization"]',
+  'nav-profile': 'a[href="/profile"]',
+  'nav-spec-center': 'a[href="/spec-center"]',
+  'nav-registry': 'a[href="/registry"]',
+  'nav-change-requests': 'a[href="/change-requests"]',
+  'nav-releases': 'a[href="/releases"]',
+  'nav-world-records': 'a[href="/world-records"]',
+  'nav-audit': 'a[href="/audit"]',
+};
+
 function findTutorialTarget(targetId: string): HTMLElement | null {
-  return document.querySelector(`[data-tutorial="${targetId}"]`);
+  const direct = document.querySelector<HTMLElement>(`[data-tutorial="${targetId}"]`);
+  if (direct) return direct;
+
+  const fallbackSelector = TARGET_FALLBACK_SELECTORS[targetId];
+  return fallbackSelector ? document.querySelector<HTMLElement>(fallbackSelector) : null;
 }
 
 function measureTarget(el: HTMLElement, padding: number): Rect {
@@ -46,7 +65,7 @@ function tooltipPosition(
   placement: TutorialPlacement,
   targetRect: Rect | null,
   cardWidth: number,
-  cardHeight: number,
+  cardHeight: number
 ): { top: number; left: number } {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
