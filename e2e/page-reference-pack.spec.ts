@@ -136,7 +136,8 @@ test.describe('page reference pack', () => {
     await shot(page, 'marketing', '02-features-guides.png', true);
 
     await page.getByRole('tab', { name: /all features/i }).click();
-    await expect(page.getByText(/Available now in the editor/i).first()).toBeVisible();
+    await expect(page.getByTestId('features-panel-all')).toBeVisible();
+    await expect(page.getByText(/^Available$/i).first()).toBeVisible();
     await shot(page, 'marketing', '03-features-all.png', true);
 
     await page.goto('/auth');
