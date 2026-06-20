@@ -12,12 +12,12 @@
 
 | Field | Value |
 |---|---|
-| Pilot window | TBD |
-| Number of sessions | TBD |
-| Reviewer types | TBD |
-| URL used | TBD |
-| Demo path used | TBD |
-| Evidence owner | TBD |
+| Pilot window | June 2026 (prepared; 0 sessions recorded) |
+| Number of sessions | 0 |
+| Reviewer types | TBD (target: homeowner/family, builder/designer, operator) |
+| URL used | https://vishvakarma-os.app |
+| Demo path used | Family Home 4BR (default; Duplex / Courtyard Villa alternates) |
+| Evidence owner | Operator |
 | Privacy level | Anonymised unless permission says otherwise |
 
 ---
