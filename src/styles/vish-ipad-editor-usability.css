@@ -1,0 +1,138 @@
+/* Vishvakarma.OS — iPad editor usability overrides
+ * Keeps editor chrome, dialogs, sheets, and tutorial windows reachable on iPad Safari. */
+
+@media (pointer: coarse), (max-width: 1194px) {
+  .bg-ws-canvas .vish-editor-topbar {
+    height: auto !important;
+    min-height: calc(var(--vish-nav-row-height, 52px) + var(--vish-safe-top, 0px)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    z-index: 60;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: var(--vish-nav-row-height, 52px);
+    padding-left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) !important;
+    padding-right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+    padding-top: var(--vish-safe-top, 0px);
+    overflow: visible;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:first-child {
+    min-width: 0;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: min(52vw, 28rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-block: 0.25rem;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child::-webkit-scrollbar,
+  .bg-ws-canvas .vish-editor-file-strip::-webkit-scrollbar,
+  .bg-ws-canvas .ws-status-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bg-ws-canvas .vish-editor-file-strip {
+    width: 100%;
+    min-height: 44px;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) !important;
+    padding-right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+  }
+
+  .bg-ws-canvas .vish-editor-file-strip > * {
+    flex: 0 0 auto;
+  }
+
+  .bg-ws-canvas .ws-status-bar {
+    height: auto !important;
+    min-height: 44px !important;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px))) !important;
+    padding-right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px))) !important;
+  }
+
+  .bg-ws-canvas .ws-status-bar > *,
+  .bg-ws-canvas .ws-status-bar .ws-status-item,
+  .bg-ws-canvas .ws-status-divider {
+    flex: 0 0 auto;
+  }
+
+  .bg-ws-canvas .ws-status-bar .ml-auto {
+    margin-left: 0;
+  }
+
+  .vish-canvas-stage {
+    min-width: 0;
+    min-height: 0;
+    padding: max(0.75rem, var(--vish-safe-left, 0px)) max(0.75rem, var(--vish-safe-right, 0px)) max(0.75rem, var(--vish-safe-bottom, 0px));
+  }
+
+  .vish-properties-fab {
+    bottom: calc(4.75rem + var(--vish-safe-bottom, 0px)) !important;
+    right: calc(1rem + var(--vish-safe-right, 0px)) !important;
+  }
+
+  [data-radix-popper-content-wrapper] {
+    max-width: calc(100vw - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px) - 1rem) !important;
+  }
+
+  [role='dialog'],
+  [role='alertdialog'] {
+    max-width: calc(100vw - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px) - 1rem);
+    max-height: calc(100dvh - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px) - 1rem);
+  }
+
+  [role='dialog'] button,
+  [role='alertdialog'] button,
+  [data-radix-popper-content-wrapper] [role='menuitem'],
+  [data-radix-popper-content-wrapper] [role='option'] {
+    min-height: 44px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1194px) {
+  .bg-ws-canvas .vish-3d-viewport-pane {
+    width: 100% !important;
+    min-height: 280px;
+    max-height: 48dvh;
+    border-left: 0 !important;
+    border-top: 1px solid hsl(var(--ws-border));
+  }
+
+  .bg-ws-canvas[data-3d-expanded='true'] .vish-3d-viewport-pane {
+    min-height: 360px;
+    max-height: 58dvh;
+  }
+}
+
+@media (max-width: 720px), (pointer: coarse) and (max-width: 900px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: 46vw;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar .truncate.text-sm.font-semibold {
+    max-width: min(9rem, 26vw) !important;
+  }
+}
