@@ -468,9 +468,9 @@ export default function ReleasesPage() {
                   {error}
                 </div>
               ) : releases.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
-                  <Rocket className="mx-auto h-10 w-10 text-muted-foreground/40" />
-                  <p className="mt-3 text-sm font-semibold text-foreground">No release records yet</p>
+                <div className="vish-empty-state rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <Rocket className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
+                  <h3 className="mt-3 text-sm font-semibold text-foreground">No release records yet</h3>
                   <p className="mt-1 text-xs text-muted-foreground text-pretty">
                     Run release gates locally, then promote a build through Spec Center and Change Requests.
                   </p>

@@ -158,7 +158,7 @@ export default function AuditLogPage() {
                 </div>
               </WorkspacePanel>
             ) : (
-              <div className="space-y-8">
+              <div className="vish-audit-timeline space-y-8">
                 {Object.entries(groupedLogs).map(([date, dateLogs]) => (
                   <div key={date}>
                     {/* Date separator */}
@@ -179,9 +179,9 @@ export default function AuditLogPage() {
                         const cfg = getEntityConfig(log.entity_type);
                         const EntityIcon = cfg.icon;
                         return (
-                          <div key={log.id} className="relative flex gap-4 pb-4">
+                          <div key={log.id} className="vish-audit-entry vish-audit-row relative flex gap-4 pb-4">
                             {/* Icon dot */}
-                            <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${cfg.borderColor} ${cfg.color}`}>
+                            <div className={`vish-audit-dot relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${cfg.borderColor} ${cfg.color}`}>
                               <EntityIcon className="h-4 w-4" />
                             </div>
 
