@@ -13,6 +13,7 @@ describe('Editor chrome consolidation', () => {
     const main = read('src/main.tsx');
     expect(main).toContain('./styles/vish-editor-chrome.css');
     expect(main).toContain('./styles/vish-editor-polish.css');
+    expect(main).toContain('./styles/vish-ipad-editor-usability.css');
   });
 
   it('uses shared editor action registry for project menus', () => {
@@ -48,6 +49,32 @@ describe('Editor chrome consolidation', () => {
     expect(topBar).toContain('onOpenProject');
     expect(topBar).toContain('onSaveProject');
     expect(topBar).toContain('vish-editor-mode-badge');
+  });
+
+  it('guards iPad editor controls with reliable touch/pen activation', () => {
+    const helper = read('src/hooks/useReliablePress.ts');
+    const topBar = read('src/components/editor/EditorTopBar.tsx');
+    const statusBar = read('src/components/editor/StatusBar.tsx');
+
+    expect(helper).toContain("event.pointerType !== 'touch'");
+    expect(helper).toContain("event.pointerType !== 'pen'");
+    expect(helper).toContain('suppressNextClickRef');
+    expect(topBar).toContain('useReliablePress');
+    expect(topBar).toContain("label={gridVisible ? 'Hide grid' : 'Show grid'}");
+    expect(topBar).toContain('touch-manipulation');
+    expect(statusBar).toContain('StatusActionButton');
+    expect(statusBar).toContain('touch-manipulation');
+  });
+
+  it('keeps iPad editor windows and chrome reachable inside safe areas', () => {
+    const ipadCss = read('src/styles/vish-ipad-editor-usability.css');
+
+    expect(ipadCss).toContain('.bg-ws-canvas .vish-editor-topbar');
+    expect(ipadCss).toContain('overflow-x: auto');
+    expect(ipadCss).toContain("[role='dialog']");
+    expect(ipadCss).toContain('[data-radix-popper-content-wrapper]');
+    expect(ipadCss).toContain('.bg-ws-canvas .vish-3d-viewport-pane');
+    expect(ipadCss).toContain('var(--vish-safe-bottom');
   });
 
   it('uses distinct phase pill classes separate from workspace mode tabs', () => {
