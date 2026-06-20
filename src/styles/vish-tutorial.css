@@ -154,3 +154,294 @@
 .vish-canvas-empty-hint__tour-link:hover {
   color: hsl(var(--primary) / 0.85);
 }
+
+.vish-video-tutorial-root {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, var(--vish-safe-top, 0px)) max(1rem, var(--vish-safe-right, 0px)) max(1rem, var(--vish-safe-bottom, 0px)) max(1rem, var(--vish-safe-left, 0px));
+}
+
+.vish-video-tutorial-scrim {
+  position: fixed;
+  inset: 0;
+  cursor: default;
+  background: rgb(2 6 14 / 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.vish-video-tutorial-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr);
+  gap: 1rem;
+  width: min(58rem, calc(100vw - 2rem - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px)));
+  max-height: calc(100dvh - 2rem - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px));
+  overflow: auto;
+  border-radius: 1.5rem;
+  padding: 1rem;
+  pointer-events: auto;
+}
+
+.vish-video-tutorial-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vish-video-tutorial-mark {
+  display: grid;
+  height: 44px;
+  width: 44px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--primary) / 0.35);
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+.vish-video-tutorial-kicker {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--primary) / 0.78);
+}
+
+.vish-video-tutorial-title {
+  margin-top: 0.15rem;
+  font-size: clamp(1.15rem, 2vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ws-text, hsl(220 15% 94%));
+}
+
+.vish-video-tutorial-close,
+.vish-video-tutorial-control,
+.vish-video-tutorial-secondary,
+.vish-video-tutorial-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  border-radius: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.vish-video-tutorial-close,
+.vish-video-tutorial-control,
+.vish-video-tutorial-secondary {
+  border: 1px solid hsl(var(--ws-border, 220 14% 22%) / 0.8);
+  background: hsl(var(--ws-toolbar, 220 14% 14%) / 0.72);
+  color: var(--ws-text-dim, hsl(220 10% 72%));
+}
+
+.vish-video-tutorial-primary {
+  border: 1px solid hsl(var(--primary) / 0.5);
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(35 70% 42%));
+  color: hsl(var(--primary-foreground));
+  padding-inline: 1rem;
+}
+
+.vish-video-tutorial-player {
+  min-width: 0;
+}
+
+.vish-video-tutorial-frame {
+  min-height: 21rem;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  border: 1px solid hsl(var(--primary) / 0.22);
+  background:
+    radial-gradient(circle at 20% 16%, hsl(var(--primary) / 0.22), transparent 13rem),
+    radial-gradient(circle at 100% 70%, hsl(200 80% 54% / 0.12), transparent 14rem),
+    linear-gradient(135deg, hsl(222 34% 8%), hsl(230 35% 4%));
+  padding: 1rem;
+  color: white;
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.08), 0 24px 54px rgb(0 0 0 / 0.35);
+}
+
+.vish-video-tutorial-frame__chrome {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 3rem;
+}
+
+.vish-video-tutorial-frame__chrome span {
+  height: 0.55rem;
+  width: 0.55rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.78);
+}
+
+.vish-video-tutorial-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--primary) / 0.85);
+}
+
+.vish-video-tutorial-frame h3 {
+  margin-top: 0.6rem;
+  max-width: 22rem;
+  font-size: clamp(1.35rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.vish-video-tutorial-frame p:not(.vish-video-tutorial-eyebrow) {
+  margin-top: 0.85rem;
+  max-width: 30rem;
+  color: hsl(220 20% 88% / 0.82);
+  line-height: 1.55;
+}
+
+.vish-video-tutorial-feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--primary) / 0.25);
+  background: hsl(var(--primary) / 0.1);
+  padding: 0.5rem 0.75rem;
+  color: hsl(var(--primary) / 0.96);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.vish-video-tutorial-timeline {
+  margin-top: 0.75rem;
+  height: 0.4rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: hsl(var(--ws-border, 220 14% 22%) / 0.72);
+}
+
+.vish-video-tutorial-timeline span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(35 84% 58%));
+  transition: width 200ms ease;
+}
+
+.vish-video-tutorial-controls,
+.vish-video-tutorial-footer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.vish-video-tutorial-control,
+.vish-video-tutorial-secondary {
+  padding-inline: 0.75rem;
+}
+
+.vish-video-tutorial-chapters {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.vish-video-tutorial-chapter {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  border-radius: 0.9rem;
+  border: 1px solid hsl(var(--ws-border, 220 14% 22%) / 0.72);
+  background: hsl(var(--ws-toolbar, 220 14% 14%) / 0.54);
+  padding: 0.55rem 0.65rem;
+  color: var(--ws-text-dim, hsl(220 10% 72%));
+  text-align: left;
+}
+
+.vish-video-tutorial-chapter span {
+  color: hsl(var(--primary) / 0.78);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.vish-video-tutorial-chapter strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+
+.vish-video-tutorial-chapter.active {
+  border-color: hsl(var(--primary) / 0.52);
+  background: hsl(var(--primary) / 0.12);
+  color: var(--ws-text, hsl(220 15% 94%));
+}
+
+.vish-video-tutorial-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid hsl(var(--ws-border, 220 14% 22%) / 0.7);
+  padding-top: 0.9rem;
+}
+
+.vish-video-tutorial-progress-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--ws-text-dim, hsl(220 10% 72%));
+  font-size: 0.78rem;
+}
+
+@media (max-width: 860px), (pointer: coarse) and (max-width: 1194px) {
+  .vish-tutorial-card {
+    max-height: calc(100dvh - 2rem - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px));
+    overflow-y: auto;
+  }
+
+  .vish-video-tutorial-panel {
+    grid-template-columns: 1fr;
+    width: min(42rem, calc(100vw - 1rem - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px)));
+  }
+
+  .vish-video-tutorial-frame {
+    min-height: 17rem;
+  }
+
+  .vish-video-tutorial-chapters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vish-video-tutorial-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .vish-video-tutorial-chapters {
+    grid-template-columns: 1fr;
+  }
+
+  .vish-video-tutorial-footer__actions,
+  .vish-video-tutorial-primary,
+  .vish-video-tutorial-secondary {
+    width: 100%;
+  }
+}
