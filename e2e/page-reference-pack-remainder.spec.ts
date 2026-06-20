@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+import { dismissConsentIfPresent } from './helpers';
 
 const GOVERNANCE_DIR = join(process.cwd(), 'docs/design/page-references/governance');
 

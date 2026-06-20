@@ -146,7 +146,7 @@ test.describe('page reference pack', () => {
 
     await page.goto('/reset-password');
     await expect(page).toHaveURL(/\/auth$/);
-    await expect(page.getByText(/password reset is not available/i)).toBeVisible();
+    await expect(page.getByText(/password sign-in is not available/i)).toBeVisible();
     await shot(page, 'marketing', '05-auth-reset-notice.png', true);
 
     await page.goto('/this-route-does-not-exist');

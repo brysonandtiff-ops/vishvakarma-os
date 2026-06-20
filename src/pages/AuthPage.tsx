@@ -34,7 +34,6 @@ import {
   storeAuthReturnPath,
 } from '@/backend/supabase/supabaseOAuthGateway';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import AuthGoogleButton from '@/components/auth/AuthGoogleButton';
 import AuthStatusBanner from '@/components/auth/AuthStatusBanner';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
 import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
@@ -479,7 +478,7 @@ export default function AuthPage() {
                     </div>
                   )}
 
-                  {showEmbeddedAuthRecovery && (
+                  <button
                     type="button"
                     className="vish-auth-mockup-secondary"
                     disabled={authDisabled || embeddedAuthBrowser}

@@ -107,6 +107,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-gate.css');
+    expect(main).toContain('./styles/vish-login-page.css');
     expect(main).toContain('./styles/vish-auth-mockup-page.css');
     expect(main).toContain('bootstrapClientGovernanceState');
     expect(main).toContain('blockOnFailure: false');
@@ -124,9 +125,9 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
-    expect(authPage).toContain('requestAccessLink(email)');
-    expect(authPage).toContain('Request access link');
-    expect(authPage).toContain('sacred-auth-trust');
+    expect(authPage).toContain('requestAccessLink');
+    expect(authPage).toContain('Request access');
+    expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
     expect(appLayout).toContain('PrototypeDisclaimerBadge');
   });

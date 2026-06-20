@@ -13,20 +13,16 @@ describe('Sanskrit auth gate design', () => {
     const main = read('src/main.tsx');
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-gate.css');
-    expect(main).toContain('./styles/vish-auth-mockup-page.css');
+    expect(main).toContain('./styles/vish-login-page.css');
   });
 
   it('keeps the canvas Sanskrit rain and mandala layers on the auth page', () => {
     const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
-    const templeGate = read('src/components/common/SacredTempleGate.tsx');
+    const hero = read('src/components/auth/AuthLoginHero.tsx');
     const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
 
-    expect(authLayout).toContain('variant === \'gate\'');
-    expect(templeGate).toContain('SanskritRainBackground');
-    expect(templeGate).toContain('SacredIndianMandala');
-    expect(templeGate).toContain('sacred-temple-gate');
-    expect(templeGate).toContain("preset=\"auth\"");
+    expect(authLayout).toContain("location.pathname === '/auth'");
     expect(rainBackground).toContain('SANSKRIT_MATRIX_COLUMNS');
     expect(rainBackground).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
@@ -36,26 +32,26 @@ describe('Sanskrit auth gate design', () => {
     expect(rainBackground).toContain('EmberParticle');
     expect(rainBackground).toContain('visibilitychange');
     expect(rainBackground).toContain('fadeTrail');
-    expect(authPage).toContain('vish-auth-mockup-page');
-    expect(authPage).toContain('vish-auth-mockup-deity');
-    expect(authPage).toContain('sacred-auth-card');
+    expect(authPage).toContain('vish-login-page');
+    expect(authPage).toContain('AuthLoginHero');
+    expect(hero).toContain('vish-login-page__deity-visual');
   });
 
-  it('shows only the verified auth winner from capabilities manifest', () => {
+  it('shows the divine login mockup with Supabase auth flows', () => {
     const authPage = read('src/pages/AuthPage.tsx');
-    const googleButton = read('src/components/auth/AuthGoogleButton.tsx');
+    const loginCard = read('src/components/auth/AuthLoginCard.tsx');
     const capabilities = read('src/backend/authCapabilities.ts');
     const manifest = read('public/auth-capabilities.json');
 
-    expect(authPage).toContain('useAuthCapabilities');
-    expect(authPage).toContain('showEmailSignIn');
-    expect(authPage).toContain('showGoogleSignIn');
-    expect(googleButton).toContain('Continue with Google');
-    expect(authPage).toContain('Request access link');
-    expect(authPage).toContain('Continue with SSO');
-    expect(authPage).not.toContain('Continue with Apple');
+    expect(authPage).toContain('signInWithPassword');
+    expect(authPage).toContain('requestPasswordReset');
+    expect(authPage).toContain('requestAccessLink');
+    expect(authPage).toContain('signInWithGoogle');
+    expect(loginCard).toContain("type={showPassword ? 'text' : 'password'}");
+    expect(loginCard).toContain('Send me a magic link');
+    expect(loginCard).toContain('Continue with SSO');
+    expect(loginCard).toContain('Request access');
     expect(authPage).not.toContain('signInWithApple');
-    expect(authPage).toContain("type={showPassword ? 'text' : 'password'}");
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
     expect(manifest).toContain('"winner"');
     expect(manifest).toMatch(/redirect sign-in|Supabase Google OAuth|Supabase Google provider|Google OAuth is the production|Supabase OAuth|supabase\.co\/auth|Config-only pass/);
@@ -64,15 +60,14 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps trust pillars and workspace branding on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
-    const sacredAuthStyles = read('src/styles/vish-sacred-auth.css');
+    const loginCard = read('src/components/auth/AuthLoginCard.tsx');
+    const loginStyles = read('src/styles/vish-login-page.css');
 
-    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('sacred-auth-logo');
-    expect(authPage).toContain('Vishvakarma.OS');
+    expect(loginCard).toContain('OFFICIAL_LOGO_SRC');
+    expect(loginCard).toContain('Vishvakarma<span>.OS</span>');
     expect(authPage).toContain('FoundersAcknowledgment');
     expect(authPage).toContain('variant="auth"');
     expect(read('src/brand/founders.ts')).toContain('TYRASIC CREATIONS');
-    expect(authPage).toContain('sacred-auth-trust');
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('auth-trust-pillar-gates');
     expect(authPage).toContain('auth-trust-pillar-records');
@@ -80,12 +75,9 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('WORLD_RECORD_HONESTY_DISCLAIMER');
     expect(authPage).toContain('Sign in to open Releases and inspect gate snapshots.');
     expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry.');
-    expect(authPage).toContain('AuthStatusBanner');
     expect(authPage).toContain('password-reset-unavailable');
-    expect(authPage).toContain('getSignInHelperLine');
-    expect(sacredAuthStyles).toContain('.sacred-auth-trust-card');
-    expect(sacredAuthStyles).toContain('.sacred-auth-card');
-    expect(sacredAuthStyles).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(loginStyles).toContain('.vish-login-page__auth-card');
+    expect(loginStyles).toContain('@media (prefers-reduced-motion: reduce)');
   });
 
   it('handles OAuth redirect completion in AuthContext', () => {
@@ -97,6 +89,7 @@ describe('Sanskrit auth gate design', () => {
     expect(supabaseProvider).toContain('markFreshSignIn');
     expect(supabaseProvider).toContain('POST_AUTH_DESTINATION');
     expect(supabaseProvider).toContain('signInWithGoogle');
+    expect(supabaseProvider).toContain('signInWithPassword');
   });
 
   it('keeps Supabase OAuth callback handling separate from email magic links', () => {
@@ -143,6 +136,7 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps animation CSS premium, responsive, and reduced-motion safe', () => {
     const styles = read('src/styles/vish-auth-gate.css');
+    const loginStyles = read('src/styles/vish-login-page.css');
     const layers = read('src/styles/vish-sacred-layers.css');
     const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const routeGuard = read('src/components/common/RouteGuard.tsx');
@@ -161,6 +155,8 @@ describe('Sanskrit auth gate design', () => {
     expect(styles).toContain('.vish-auth-founders-line');
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(styles).toContain('animation: none !important');
+    expect(loginStyles).toContain('@keyframes vish-login-mandala-rotate');
+    expect(loginStyles).toContain('@media (max-width: 980px)');
     expect(routeGuard).toContain('AuthLayout');
     expect(routeGuard).toContain('variant="boot"');
     expect(authLayout).toContain('vish-boot-aurora');
