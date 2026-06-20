@@ -1,7 +1,19 @@
 # Multi-Device Hardening Audit
 
-Generated at: 2026-06-15  
+Generated at: 2026-06-19  
 Result: **PASS** — automated Playwright coverage across iPad, iPhone, Android tablet, desktop, governance, marketing, and collaboration preview chrome
+
+## iPad 2D/3D hardening additions (2026-06-19)
+
+| Area | Coverage |
+|------|----------|
+| Sample blueprint loading | Indian category in picker; unified "Load sample blueprint" menu label |
+| 2D canvas | Long-press radial on coarse pointer; DPR cap on heavy projects; pinch zoom E2E |
+| 3D viewport | Expand 3D panel toggle; portrait `42dvh` stack; walk D-pad touch targets; cinematic tier hidden on coarse pointer; WebGL context-loss overlay E2E |
+| Editor unity | `editorActionRegistry` — TopBar, sidebar, welcome share labels |
+| Mantras | Mode chips in StatusBar; editor mantra toggle on coarse pointer; expanded audio catalog |
+
+`ipad-editor-layout.spec.ts` now includes: pinch zoom, wall draw workflow, WebGL recovery overlay, walk D-pad touch targets.
 
 ## Device coverage matrix
 
