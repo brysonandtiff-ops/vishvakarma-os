@@ -105,4 +105,16 @@ describe('Blueprint editor visual polish', () => {
     expect(proofPanel).toContain('Project Proof');
     expect(editor).toContain('<ProjectProofPanel');
   });
+
+  it('wires workspace polish classes through shared layout primitives', () => {
+    const shell = read('src/components/layouts/WorkspacePageShell.tsx');
+    const header = read('src/components/common/WorkspacePageHeader.tsx');
+    const properties = read('src/components/editor/PropertiesPanel.tsx');
+    const layoutTokens = read('src/styles/vish-layout-tokens.css');
+
+    expect(shell).toContain('vish-workspace-page');
+    expect(header).toContain('vish-workspace-header');
+    expect(properties).toContain('vish-sidebar-panel');
+    expect(layoutTokens).toContain('--vish-touch-min:');
+  });
 });
