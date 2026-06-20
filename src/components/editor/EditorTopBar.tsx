@@ -32,6 +32,7 @@ import {
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { getProjectActionLabel } from '@/editor/editorActionRegistry';
+import { useReliablePress } from '@/hooks/useReliablePress';
 import type { WorkspaceMode } from '@/types';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
@@ -90,15 +91,19 @@ function IconButton({
   disabled?: boolean;
   dataTutorial?: string;
 }) {
+  const pressHandlers = useReliablePress(disabled ? undefined : onClick);
+
   return (
     <button
       type="button"
       aria-label={label}
       aria-pressed={active}
       disabled={disabled}
-      onClick={onClick}
+      {...pressHandlers}
+      title={label}
       data-tutorial={dataTutorial}
-      className={`vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors ${
+      data-state={active ? 'active' : 'inactive'}
+      className={`vish-editor-icon-btn touch-target touch-manipulation flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors ${
         active
           ? 'border-primary/60 bg-primary/15 text-primary'
           : 'border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text'
@@ -305,10 +310,10 @@ export default function EditorTopBar({
               <Maximize2 className="h-4 w-4" />
             </IconButton>
           )}
-          <IconButton label="Toggle grid" active={gridVisible} onClick={onToggleGrid}>
+          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid}>
             <Grid3x3 className="h-4 w-4" />
           </IconButton>
-          <IconButton label="Zen mode" active={zenMode} onClick={() => onToggleZen?.()}>
+          <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
           </IconButton>
 
