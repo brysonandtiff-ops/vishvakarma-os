@@ -1,6 +1,6 @@
 # Vishvakarma.OS — Anonymised Pilot Evidence Summary
 
-**Status:** Template only. Pilot sessions have not been recorded in this document yet.
+**Status:** Prepared for first session (2026-06-20). No reviewer sessions recorded yet — preflight checks passed; operator kit at `pilot-evidence/SESSION-1-README.md` (local, gitignored).
 
 **Purpose:** Capture safe, anonymised evidence after the 3–5 residential concept review sessions described in `docs/pilots/VISHVAKARMA_OS_PILOT_PLAN.md`.
 
