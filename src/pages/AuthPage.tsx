@@ -89,6 +89,7 @@ export default function AuthPage() {
   const sendAccessLink = async (source: 'sign-in' | 'magic-link' | 'request-access' | 'forgot-password') => {
     setMessage(null);
     setError(null);
+    setForgotPasswordNotice(false);
 
     if (!email.trim()) {
       setError('Enter your email address to request a secure access link.');
@@ -120,6 +121,7 @@ export default function AuthPage() {
     event.preventDefault();
     setMessage(null);
     setError(null);
+    setForgotPasswordNotice(false);
     if (!email.trim()) {
       setError('Enter the same email address that received the secure access link.');
       return;
@@ -159,6 +161,7 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
+    setForgotPasswordNotice(false);
     storeAuthReturnPath(POST_AUTH_DESTINATION);
     setSubmitting(true);
     const result = await signInWithGoogle();
@@ -181,7 +184,7 @@ export default function AuthPage() {
         description="Enter the sacred architecture workspace. Sign in to access your governed blueprint projects."
       />
 
-      <div className="vish-login-page">
+      <main className="vish-login-page" aria-labelledby="auth-page-title" data-testid="auth-page">
         <AuthLoginHero />
         <AuthLoginCard
           email={email}
@@ -196,7 +199,7 @@ export default function AuthPage() {
           externalAuthUrl={externalAuthUrl}
           completingEmailLink={completingEmailLink}
           needsEmailForLink={needsEmailForLink}
-          passwordResetNotice={passwordResetNotice}
+          passwordResetNotice={passwordResetNotice || forgotPasswordNotice}
           sessionRestoreTimeoutNotice={sessionRestoreTimeoutNotice}
           showConfigRequired={showConfigRequired}
           onEmailChange={setEmail}
@@ -213,13 +216,14 @@ export default function AuthPage() {
           allowLocalWorkspace={allowLocalWorkspace}
           onLocalWorkspace={() => navigate('/editor')}
         />
-      </div>
+      </main>
 
       <div className="vish-login-page__footer-stack">
         <div
           className="vish-login-page__trust sacred-auth-trust"
           data-testid="auth-trust-pillars"
           aria-labelledby="auth-trust-heading"
+          aria-busy={capabilitiesLoading ? 'true' : undefined}
         >
           <h2 id="auth-trust-heading" className="sr-only">
             Trust &amp; evidence
@@ -227,7 +231,7 @@ export default function AuthPage() {
 
           <AuthTrustPillar
             icon={Shield}
-            badge="Release evidence"
+            badge={winner ? 'Winner evidence' : 'Release evidence'}
             title={`${WORLD_RECORD_METRIC_GATE_COUNT} Release Gates`}
             description="Automated pre-release verification with audit trail."
             metric={String(WORLD_RECORD_METRIC_GATE_COUNT)}
