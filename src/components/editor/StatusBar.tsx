@@ -3,8 +3,38 @@ import { APP_VERSION } from '@/config/appVersion';
 import { resolveEditorMantraChip } from '@/editor/editorMantras';
 import { STATUS_TOOL_HINTS, TOUCH_STATUS_HINTS, TOOL_META } from '@/editor/toolMeta';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
+import { useReliablePress } from '@/hooks/useReliablePress';
 import type { ToolType, WorkspaceMode } from '@/types';
 import EditorMantraToggle from '@/components/editor/EditorMantraToggle';
+
+function StatusActionButton({
+  label,
+  title,
+  active,
+  onPress,
+  children,
+}: {
+  label: string;
+  title?: string;
+  active?: boolean;
+  onPress?: () => void;
+  children: React.ReactNode;
+}) {
+  const pressHandlers = useReliablePress(onPress);
+
+  return (
+    <button
+      type="button"
+      className={`ws-status-item touch-target touch-manipulation shrink-0 hover:text-ws-text ${active ? 'active' : ''}`}
+      aria-label={label}
+      aria-pressed={active}
+      title={title ?? label}
+      {...pressHandlers}
+    >
+      {children}
+    </button>
+  );
+}
 
 export default function StatusBar({
   currentTool,
@@ -68,54 +98,38 @@ export default function StatusBar({
             <span className="text-ws-text">{Math.round(canvasZoom * 100)}%</span>
           </div>
           {showTouchZoom && (
-            <button
-              type="button"
-              className="ws-status-item touch-target shrink-0"
-              onClick={onZoomOut}
-              aria-label="Zoom out"
-            >
+            <StatusActionButton label="Zoom out" onPress={onZoomOut}>
               <Minus className="h-3 w-3" aria-hidden />
-            </button>
+            </StatusActionButton>
           )}
           {showTouchZoom && (
-            <button
-              type="button"
-              className="ws-status-item touch-target shrink-0"
-              onClick={onZoomIn}
-              aria-label="Zoom in"
-            >
+            <StatusActionButton label="Zoom in" onPress={onZoomIn}>
               <Plus className="h-3 w-3" aria-hidden />
-            </button>
+            </StatusActionButton>
           )}
           <div className="ws-status-divider" />
         </>
       )}
-      <div className={`ws-status-item shrink-0 ${snapEnabled ? 'active' : ''}`}>
+      <div className={`ws-status-item shrink-0 ${snapEnabled ? 'active' : ''}`} title="Hold Shift while drawing to force orthogonal walls; ⇧S toggles snap from keyboard.">
         <Magnet className="h-3 w-3" aria-hidden />
         <span>{snapEnabled ? 'Snap ON' : 'Snap OFF'}</span>
       </div>
       <div className="ws-status-divider" />
-      <button
-        type="button"
-        className={`ws-status-item touch-target shrink-0 ${dimensionVisibility ? 'active' : ''}`}
-        onClick={onToggleDimensions}
+      <StatusActionButton
+        label="Toggle dimension lines"
         title="Toggle dimension lines (⇧D)"
-        aria-pressed={dimensionVisibility}
+        active={dimensionVisibility}
+        onPress={onToggleDimensions}
       >
         {dimensionVisibility ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
         <span>{dimensionVisibility ? 'Dims ON' : 'Dims OFF'}</span>
-      </button>
+      </StatusActionButton>
       <div className="ml-auto flex items-center gap-2">
         {isCoarsePointer && <EditorMantraToggle />}
         {onResetViewport && canvasZoom !== undefined && canvasZoom !== 1 && (
-          <button
-            type="button"
-            className="ws-status-item touch-target shrink-0 hover:text-ws-text"
-            onClick={onResetViewport}
-            title="Reset canvas view"
-          >
+          <StatusActionButton label="Reset canvas view" onPress={onResetViewport}>
             Reset view
-          </button>
+          </StatusActionButton>
         )}
         <div className="ws-status-item shrink-0">
           <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">{mantraChip} · </span>
