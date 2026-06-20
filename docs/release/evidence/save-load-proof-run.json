@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-06-20T05:15:11.614Z",
+  "commitSha": "0659de80c2f4dd6f9a140583052b3301cdc5cfcb",
+  "deploymentUrl": "https://vishvakarma-os.app",
+  "mode": "api-roundtrip",
+  "operator": "automated api roundtrip",
+  "result": "PASS",
+  "checks": [
+    {
+      "name": "api: insert project",
+      "pass": true,
+      "detail": "a97d1526-ecb0-4f0e-9cb5-830fec6a5ad2"
+    },
+    {
+      "name": "api: manifest counts after insert",
+      "pass": true,
+      "detail": "walls 4/4, openings 3/3"
+    },
+    {
+      "name": "api: update manifest",
+      "pass": true,
+      "detail": "c649e1e49b8a"
+    },
+    {
+      "name": "api: manifest counts after update (reload simulation)",
+      "pass": true,
+      "detail": "walls 4, hash 2cde3a744837"
+    },
+    {
+      "name": "api: cleanup test project",
+      "pass": true,
+      "detail": "a97d1526-ecb0-4f0e-9cb5-830fec6a5ad2"
+    }
+  ]
+}
