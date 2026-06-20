@@ -170,7 +170,7 @@ export default function EditorTopBar({
   const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
 
   return (
-    <header className="vish-editor-topbar shrink-0" data-testid="editor-top-bar">
+    <header className="vish-editor-topbar vish-editor-topbar-chrome shrink-0" data-testid="editor-top-bar">
       <div className="vish-editor-topbar-grid">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (

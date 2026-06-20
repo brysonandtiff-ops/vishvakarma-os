@@ -27,15 +27,15 @@ export default function PageStateBlock({
   if (variant === 'loading') {
     return (
       <div
-        className={cn(
-          'flex flex-col items-center gap-3 py-12 text-muted-foreground',
-          className,
-        )}
+        className={cn('vish-skeleton-stack flex flex-col gap-3 py-8', className)}
         role="status"
         aria-live="polite"
+        data-testid="page-state-loading"
       >
-        <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-        <p className="text-sm">{title ?? 'Loading…'}</p>
+        <div className="vish-skeleton mx-auto h-8 w-8 rounded-full" aria-hidden="true" />
+        <div className="vish-skeleton mx-auto h-3 w-32 rounded-md" aria-hidden="true" />
+        <div className="vish-skeleton mx-auto h-3 w-48 rounded-md" aria-hidden="true" />
+        <p className="sr-only">{title ?? 'Loading…'}</p>
       </div>
     );
   }
@@ -65,7 +65,7 @@ export default function PageStateBlock({
   return (
     <div
       className={cn(
-        'rounded-card-lg border border-dashed border-border/60 bg-muted/20 px-4 py-10 text-center',
+        'vish-empty-state rounded-card-lg border border-dashed border-border/60 bg-muted/20 px-4 py-10 text-center',
         className,
       )}
     >

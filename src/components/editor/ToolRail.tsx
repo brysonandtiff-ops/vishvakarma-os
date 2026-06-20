@@ -72,7 +72,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
 
   return (
     <div
-      className="vish-tool-rail architect-tool-dock vish-stagger-children flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
+      className="vish-tool-rail vish-tool-dock architect-tool-dock vish-stagger-children flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
       data-testid="tool-rail"
       data-tutorial="tool-rail"
     >

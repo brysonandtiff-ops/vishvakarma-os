@@ -20,12 +20,12 @@ export default function WorkspaceEmptyState({
   return (
     <div
       className={cn(
-        'vish-crafted-card flex flex-col items-center rounded-2xl border border-dashed border-primary/25 bg-card/40 px-6 py-10 text-center',
+        'vish-empty-state vish-crafted-card flex flex-col items-center rounded-2xl border border-dashed border-primary/25 bg-card/40 px-6 py-10 text-center',
         className,
       )}
     >
-      {icon && <div className="text-primary/60">{icon}</div>}
-      <p className={cn('font-semibold text-foreground', icon && 'mt-4')}>{title}</p>
+      {icon && <div className="vish-empty-icon text-primary/60">{icon}</div>}
+      <h3 className={cn('font-semibold text-foreground', icon && 'mt-4')}>{title}</h3>
       {description && (
         <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">{description}</p>
       )}
