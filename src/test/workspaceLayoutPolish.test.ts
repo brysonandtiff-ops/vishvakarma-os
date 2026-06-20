@@ -17,13 +17,14 @@ describe('Workspace layout polish', () => {
   it('uses a single workspace nav manifest', () => {
     const appLayout = read('src/components/layouts/AppLayout.tsx');
     const navConfig = read('src/config/RouteNavConfig.ts');
+    const routeManifest = read('src/config/routeManifest.ts');
     const palette = read('src/components/workspace/WorkspaceCommandPalette.tsx');
 
     expect(appLayout).toContain('WORKSPACE_NAV');
     expect(appLayout).not.toContain("group: 'EDITOR'");
     expect(navConfig).toContain('WORKSPACE_NAV');
     expect(navConfig).toContain('ROUTE_ICONS');
-    expect(navConfig).toContain('/optimization');
+    expect(routeManifest).toContain('/optimization');
     expect(palette).toContain('ROUTE_ICONS');
   });
 
@@ -40,12 +41,12 @@ describe('Workspace layout polish', () => {
   });
 
   it('defines page width contracts for route categories', () => {
-    const meta = read('src/config/RouteNavConfig.ts');
+    const routeManifest = read('src/config/routeManifest.ts');
     const shell = read('src/components/layouts/WorkspacePageShell.tsx');
 
-    expect(meta).toContain("pageWidth: 'narrow'");
-    expect(meta).toContain("pageWidth: 'standard'");
-    expect(meta).toContain("pageWidth: 'wide'");
+    expect(routeManifest).toContain("pageWidth: 'narrow'");
+    expect(routeManifest).toContain("pageWidth: 'standard'");
+    expect(routeManifest).toContain("pageWidth: 'wide'");
     const pageContainer = read('src/components/common/PageContainer.tsx');
     expect(shell).toContain('WIDTH_CLASS');
     expect(pageContainer).toContain('max-w-page-narrow');
