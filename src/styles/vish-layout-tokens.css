@@ -20,7 +20,7 @@
   --vish-panel-padding: 1.25rem;
 
   /* Nav chrome */
-  --vish-nav-row-height: 2.75rem; /* 44px touch target */
+  --vish-nav-row-height: var(--vish-touch-min, 44px); /* touch target */
   --vish-sidebar-width: 15rem;
   --vish-sidebar-collapsed: 4rem;
 
