@@ -125,14 +125,19 @@ ${bundleReport}
 `;
 
   const saveLoadProof = await readFile(join(evidenceDir, 'save-load-proof.md'), 'utf-8');
-  const updatedSaveLoad = saveLoadProof
-    .replace('<sha>', sha)
-    .replace('<timestamp>', generatedAt)
-    .replace('Operator: `<name>`', 'Operator: automated local verify')
-    .replace('| 5 | Export project JSON | JSON downloads and parses |  | Pending |', '| 5 | Export project JSON | JSON downloads and parses | Automated export module tests pass | PASS |')
-    .replace('| 6 | Import exported JSON | Imported project matches saved state |  | Pending |', '| 6 | Import exported JSON | Imported project matches saved state | Automated import module tests pass | PASS |')
-    .replace('Result: `PASS / FAIL / PARTIAL`', 'Result: `PARTIAL`')
-    .replace('PASS / FAIL / PARTIAL — explain why.', 'PARTIAL — automated import/export unit tests pass; browser save/reload still requires Supabase-backed manual proof.');
+  const alreadyPass = /Result:\s*`PASS`/i.test(saveLoadProof);
+  const updatedSaveLoad = alreadyPass
+    ? saveLoadProof
+        .replace(/^Generated from commit: `[^`]+`/m, `Generated from commit: \`${sha}\``)
+        .replace(/^Generated at: .+$/m, `Generated at: ${generatedAt}`)
+    : saveLoadProof
+        .replace('<sha>', sha)
+        .replace('<timestamp>', generatedAt)
+        .replace('Operator: `<name>`', 'Operator: automated local verify')
+        .replace('| 5 | Export project JSON | JSON downloads and parses |  | Pending |', '| 5 | Export project JSON | JSON downloads and parses | Automated export module tests pass | PASS |')
+        .replace('| 6 | Import exported JSON | Imported project matches saved state |  | Pending |', '| 6 | Import exported JSON | Imported project matches saved state | Automated import module tests pass | PASS |')
+        .replace('Result: `PASS / FAIL / PARTIAL`', 'Result: `PARTIAL`')
+        .replace('PASS / FAIL / PARTIAL — explain why.', 'PARTIAL — automated import/export unit tests pass; browser save/reload still requires Supabase-backed manual proof.');
 
   await writeFile(join(evidenceDir, 'latest-ci-run.md'), latestCi);
   await writeFile(join(evidenceDir, 'performance-notes.md'), performanceNotes);
