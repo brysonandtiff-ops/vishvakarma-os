@@ -10,6 +10,7 @@ import '@fontsource/noto-sans-devanagari/400.css';
 import '@fontsource/noto-sans-devanagari/500.css';
 import '@fontsource/noto-sans-devanagari/600.css';
 import '@fontsource/noto-sans-devanagari/700.css';
+// CSS load order: base → tokens → theme → zone shells → zone polish → overrides
 import "./index.css";
 import "./styles/vish-tokens.css";
 import "./styles/vish-layout-tokens.css";
@@ -19,25 +20,28 @@ import "./styles/vish-realism.css";
 import "./styles/vish-motion-system.css";
 import "./styles/vish-copilot-swan.css";
 import "./styles/vish-sacred-layers.css";
-import "./styles/vish-marketing.css";
-import "./styles/vish-workspace-shell.css";
+/* Editor zone */
 import "./styles/vish-editor-chrome.css";
 import "./styles/vish-editor-polish.css";
 import "./styles/vish-editor-mantra.css";
-import "./styles/vish-governance-polish.css";
-import "./ipad-workspace.css";
-import "./styles/vish-mockup-system.css";
-import "./styles/vish-auth-gate.css";
-import "./styles/vish-indian-sacred.css";
-import "./styles/vish-sacred-auth.css";
-import "./styles/vish-sacred-marketing.css";
-import "./styles/vish-sacred-governance.css";
 import "./styles/vish-sacred-editor.css";
-import "./styles/vish-mantra-widget.css";
-import "./styles/vish-ui-polish.css";
-import "./styles/vish-marketing-polish.css";
+import "./styles/vish-mockup-system.css";
+/* Workspace + governance zone */
+import "./styles/vish-workspace-shell.css";
 import "./styles/vish-workspace-polish.css";
-import "./styles/vish-editor-polish.css";
+import "./styles/vish-governance-polish.css";
+import "./styles/vish-sacred-governance.css";
+import "./ipad-workspace.css";
+/* Marketing + auth zone */
+import "./styles/vish-marketing.css";
+import "./styles/vish-marketing-polish.css";
+import "./styles/vish-sacred-marketing.css";
+import "./styles/vish-auth-gate.css";
+import "./styles/vish-sacred-auth.css";
+import "./styles/vish-indian-sacred.css";
+/* Global polish + theme overrides (last) */
+import "./styles/vish-ui-polish.css";
+import "./styles/vish-mantra-widget.css";
 import "./styles/vish-theme-solar-mandala.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";

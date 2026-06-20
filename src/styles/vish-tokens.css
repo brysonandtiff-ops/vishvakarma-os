@@ -2,12 +2,18 @@
    Import after index.css; vish-theme.css overrides runtime values. */
 
 :root {
-  /* BRAND_LOCK canonical aliases */
+  /* BRAND_LOCK canonical aliases (map to shadcn HSL tokens in index.css / vish-theme.css) */
   --vish-ink: 0 0% 2%;
   --vish-cream: 35 45% 97%;
   --vish-gold: 43 65% 52%;
   --vish-gold-glow: 43 74% 58%;
   --vish-charcoal: 0 0% 11%;
+
+  /* Shadcn ↔ brand bridge (editor cream canvas uses --ws-canvas-surface) */
+  --primary: var(--vish-gold);
+  --ring: var(--vish-gold);
+  --ws-canvas-surface: var(--vish-cream);
+  --ws-active: var(--vish-gold-glow);
 
   /* Marketing / sacred aliases → canonical shadcn tokens */
   --vish-marketing-text: var(--foreground);
@@ -107,7 +113,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 44px;
+  min-height: var(--vish-touch-min, 44px);
   border-radius: var(--radius-lg);
   border: 1px solid hsl(var(--vish-gold-glow) / 0.55);
   background: linear-gradient(135deg, hsl(31 63% 32%), hsl(var(--vish-gold)), hsl(43 74% 62%));

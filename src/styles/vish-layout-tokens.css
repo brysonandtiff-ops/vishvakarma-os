@@ -34,6 +34,7 @@
    */
   --vish-phone-max: 430px;
   --vish-tablet-min: 1194px;
+  --vish-touch-min: 44px;
 
   /* Content rhythm */
   --vish-content-max-prose: 42rem;
