@@ -456,7 +456,12 @@ export default function ReleasesPage() {
             <div className="space-y-4">
               <h2 className="text-base font-semibold text-foreground">Previous Releases</h2>
               {loading ? (
-                <p className="text-sm text-muted-foreground">Loading release history…</p>
+                <div className="space-y-3" data-testid="releases-loading-skeleton" aria-busy="true">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="vish-skeleton h-16 rounded-xl" />
+                  ))}
+                  <p className="sr-only">Loading release history…</p>
+                </div>
               ) : error ? (
                 <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                   <AlertCircle className="h-4 w-4 shrink-0" />

@@ -133,10 +133,15 @@ export default function AuditLogPage() {
               <PageStateBlock variant="error" title={error} onRetry={loadLogs} />
             )}
             {loading ? (
-              <PageStateBlock variant="loading" title="Loading audit timeline…" />
+              <div className="space-y-3" data-testid="audit-loading-skeleton" aria-busy="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="vish-skeleton h-14 rounded-card-lg" />
+                ))}
+                <p className="sr-only">Loading audit timeline…</p>
+              </div>
             ) : logs.length === 0 ? (
-              <WorkspacePanel tone="governance" padded={false} className="py-12 text-center">
-                <History className="mx-auto h-10 w-10 text-muted-foreground/40" />
+              <WorkspacePanel tone="governance" padded={false} className="vish-empty-state py-12 text-center">
+                <History className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">No audit events yet</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   System activity will appear here as you interact with Vishvakarma.OS

@@ -78,7 +78,7 @@ export default function ProfilePage() {
   return (
     <>
       <PageMeta title="Profile" description="Your Vishvakarma.OS account and workspace mode." />
-      <div className="vish-section-stack">
+      <div className="vish-profile-layout vish-section-stack">
         <WorkspacePageHeader
           zone="document"
           eyebrow="Account"
