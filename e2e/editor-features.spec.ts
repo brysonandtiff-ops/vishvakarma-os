@@ -93,6 +93,12 @@ test.describe('editor core features (e2e local access)', () => {
     expect(Number(openingsCount ?? '0')).toBeGreaterThanOrEqual(0);
   });
 
+  test('undo enables after wall edit on sample project', async ({ page }) => {
+    await loadSampleProject(page);
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: /^undo$/i })).toBeVisible();
+  });
+
   test('door tool selects after wall tool on sample project', async ({ page }) => {
     await loadSampleProject(page);
     const doorTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Door' });
