@@ -273,7 +273,7 @@ ${tail(releaseGates.output, 12)}
 
 \`\`\`txt
 ${overallResult} — ${automatedPass ? 'all issue #7 verification commands succeeded locally' : 'one or more verification commands failed or were skipped; see matrix above'}.
-Cloud save/reload on Supabase remains PARTIAL until live operator proof is attached.
+${saveLoadProofResult === 'PASS' ? 'Cloud save/reload on Supabase: PASS (see save-load-proof.md + save-load-proof-run.json).' : 'Cloud save/reload on Supabase remains PARTIAL until live operator proof is attached.'}
 Attach green GitHub Actions URL to latest-ci-run.md for remote CI parity (#6 follow-up).
 \`\`\`
 `;
