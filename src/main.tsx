@@ -32,6 +32,7 @@ import "./styles/vish-workspace-polish.css";
 import "./styles/vish-governance-polish.css";
 import "./styles/vish-sacred-governance.css";
 import "./ipad-workspace.css";
+import "./styles/vish-ipad-editor-usability.css";
 /* Marketing + auth zone */
 import "./styles/vish-marketing.css";
 import "./styles/vish-marketing-polish.css";
