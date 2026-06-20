@@ -2,7 +2,7 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-20T05:33:43.484Z
+Generated: 2026-06-20T05:40:42.064Z
 
 ## Vitest unit/integration (161 files)
 

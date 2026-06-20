@@ -1,11 +1,11 @@
 # Functional Workflow Proof Matrix
 
-Generated from commit: `042489f5a0e4a680c9838e35ed042d59351a3806`
+Generated from commit: `2154950e7ec84e5fa25ccc84ff0ff1adbd764bb2`
 Deployment URL: https://vishvakarma-os.app
 Vercel fallback URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-20T05:25:35.663Z
+Generated at: 2026-06-20T05:34:31.477Z
 Operator: automated local verify (issue #7)
-Result: `FAIL`
+Result: `PASS`
 
 ## Purpose
 
@@ -17,7 +17,7 @@ Prove Vishvakarma.OS core workflows work end-to-end — not only that docs and b
 |---|---|---|
 | lint | `pnpm run lint` | PASS |
 | functional wiring + logo brand | `vitest functionalWiring + officialLogoBrand` | PASS |
-| unit tests | `pnpm run test` | FAIL |
+| unit tests | `pnpm run test` | PASS |
 | route smoke | `pnpm run test:routes` | PASS |
 | build | `pnpm run build` | PASS |
 | e2e gates | `pnpm run test:e2e (skipped)` | SKIPPED |
@@ -46,7 +46,7 @@ Prove Vishvakarma.OS core workflows work end-to-end — not only that docs and b
 > vishvakarma-os@1.5.0 lint:deps C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live
 > biome lint --only=correctness/noUndeclaredDependencies
 
-Checked 721 files in 16s. No fixes applied.
+Checked 721 files in 10s. No fixes applied.
  WARN  Unsupported engine: wanted: {"node":"20.x"} (current: {"node":"v24.13.1","pnpm":"9.15.0"})
 
 > vishvakarma-os@1.5.0 lint:structure C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live
@@ -61,23 +61,23 @@ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-liv
 
  Test Files  2 passed (2)
       Tests  11 passed (11)
-   Start at  13:26:15
-   Duration  11.54s (transform 728ms, setup 3.60s, import 506ms, tests 124ms, environment 10.85s)
+   Start at  13:35:04
+   Duration  5.62s (transform 264ms, setup 2.00s, import 210ms, tests 66ms, environment 6.78s)
 ```
 
 ### Unit tests
 
 ```txt
-AssertionError: expected [ '/editor', '/projects', …(8) ] to include '/3d-room'
- ❯ src/test/workspaceCommandPalette.test.ts:29:27
-     27|     expect(palettePaths).toEqual(privatePaths);
-     28|     for (const path of palettePaths) {
-     29|       expect(lockedPaths).toContain(path);
-       |                           ^
-     30|     }
-     31|   });
+> vitest run
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+
+ Test Files  163 passed (163)
+      Tests  880 passed (880)
+   Start at  13:35:50
+   Duration  287.27s (transform 18.13s, setup 242.53s, import 54.48s, tests 54.78s, environment 623.40s)
 ```
 
 ### Route smoke
@@ -89,14 +89,14 @@ AssertionError: expected [ '/editor', '/projects', …(8) ] to include '/3d-room
 
  Test Files  1 passed (1)
       Tests  7 passed (7)
-   Start at  13:26:31
-   Duration  8.71s (transform 1.09s, setup 1.37s, import 1.58s, tests 34ms, environment 3.09s)
+   Start at  13:35:13
+   Duration  5.30s (transform 401ms, setup 897ms, import 662ms, tests 19ms, environment 3.00s)
 ```
 
 ### Build
 
 ```txt
-✓ built in 20.91s
+✓ built in 14.67s
 
 PWA v1.3.0
 mode      generateSW
@@ -130,7 +130,7 @@ Skipped (--skip-e2e)
 ## Verdict
 
 ```txt
-FAIL — one or more verification commands failed or were skipped; see matrix above.
+PASS — all issue #7 verification commands succeeded locally.
 Cloud save/reload on Supabase: PASS (see save-load-proof.md + save-load-proof-run.json).
 Attach green GitHub Actions URL to latest-ci-run.md for remote CI parity (#6 follow-up).
 ```
