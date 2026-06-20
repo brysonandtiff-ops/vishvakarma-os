@@ -30,6 +30,7 @@ const ReleasesPage = lazy(() => import('@/pages/ReleasesPage'));
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage'));
 const WorldRecordsPage = lazy(() => import('@/pages/WorldRecordsPage'));
 const OptimizationPage = lazy(() => import('@/pages/OptimizationPage'));
+const ThreeDRoomPage = lazy(() => import('@/pages/ThreeDRoomPage'));
 const AuthPage = lazy(() => import('@/pages/AuthPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFound'));
 const CastViewerPage = lazy(() => import('@/pages/CastViewerPage'));
@@ -75,6 +76,7 @@ export function AppRoutes() {
 
       <Route element={<AppLayoutOutlet immersive />}>
         <Route path="/editor" element={withSuspense(<EditorPage />, 'editor')} />
+        <Route path="/3d-room" element={withSuspense(<ThreeDRoomPage />, 'editor')} />
       </Route>
 
       <Route element={<AppLayoutOutlet />}>

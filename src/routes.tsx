@@ -15,6 +15,7 @@ const ReleasesPage = lazy(() => import('./pages/ReleasesPage'));
 const AuditLogPage = lazy(() => import('./pages/AuditLogPage'));
 const WorldRecordsPage = lazy(() => import('./pages/WorldRecordsPage'));
 const OptimizationPage = lazy(() => import('./pages/OptimizationPage'));
+const ThreeDRoomPage = lazy(() => import('./pages/ThreeDRoomPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 const CastViewerPage = lazy(() => import('./pages/CastViewerPage'));
@@ -42,6 +43,7 @@ const ROUTE_ELEMENTS: Record<string, ReactNode> = {
   '/cast/:token': lazyRoute(<CastViewerPage />),
   '/404': lazyRoute(<NotFoundPage />),
   '/editor': lazyRoute(<EditorPage />),
+  '/3d-room': lazyRoute(<ThreeDRoomPage />),
   '/projects': lazyRoute(<ProjectsPage />),
   '/optimization': lazyRoute(<OptimizationPage />),
   '/profile': lazyRoute(<ProfilePage />),
