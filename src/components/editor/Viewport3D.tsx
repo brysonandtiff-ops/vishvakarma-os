@@ -1189,6 +1189,7 @@ export default function Viewport3D({
             </button>
             <button
               type="button"
+              data-testid="vish-3d-walk-right"
               className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
               onPointerDown={() => setTouchMove(1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
