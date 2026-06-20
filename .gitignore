@@ -76,6 +76,7 @@ final-test-run.txt
 
 # Ad-hoc QA captures (never commit)
 tmp-qa/
+pilot-evidence/
 scripts/tmp-*.mjs
 
 # Operator handoff annex (filled credentials — use templates/OPERATOR_ANNEX.template.md)
