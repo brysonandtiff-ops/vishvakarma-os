@@ -2,7 +2,7 @@
 
 # Appendix D — Database Schema (from migrations)
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
 ## Migration files
 
@@ -12,9 +12,11 @@ Generated: 2026-06-16T04:21:33.872Z
 - `supabase/migrations/20260212000004_profiles_billing_optimization.sql`
 - `supabase/migrations/20260213000005_collab_and_storage.sql`
 - `supabase/migrations/20260615000001_cast_sessions.sql`
+- `supabase/migrations/20260618000001_ai_usage.sql`
 
 ## Tables (`public` schema)
 
+- `ai_usage`
 - `audit_logs`
 - `billing`
 - `cast_events`
@@ -35,6 +37,7 @@ Generated: 2026-06-16T04:21:33.872Z
 - `public.is_admin` (20260212000003_rls_policies.sql)
 - `public.is_project_member` (20260213000005_collab_and_storage.sql)
 - `public.is_project_owner` (20260213000005_collab_and_storage.sql)
+- `public.increment_ai_usage` (20260618000001_ai_usage.sql)
 
 ## Policies
 

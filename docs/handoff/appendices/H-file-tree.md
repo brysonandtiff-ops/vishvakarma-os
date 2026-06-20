@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
 ```
 src/
@@ -41,6 +41,7 @@ backend/
   supabase/
     createSupabaseBackend.ts
     mappers.ts
+    supabaseAccessToken.ts
     supabaseAuthCallback.test.ts
     supabaseAuthGateway.ts
     supabaseBillingGateway.ts
@@ -112,6 +113,7 @@ components/
     AppErrorBoundary.tsx
     FeatureCard.tsx
     IntersectObserver.tsx
+    MantraPlayerWidget.tsx
     MetricPill.tsx
     PageContainer.tsx
     PageMeta.tsx
@@ -123,8 +125,11 @@ components/
     PrototypeDisclaimer.tsx
     ResponsiveDataView.tsx
     RouteGuard.tsx
+    SacredIndianMandala.tsx
+    SacredTempleGate.tsx
     SanskritRainBackground.tsx
     StatPill.tsx
+    VisualThemeController.tsx
     WorkspaceEmptyState.tsx
     WorkspacePageHeader.tsx
     WorkspacePanel.tsx
@@ -161,6 +166,7 @@ components/
     EditorCollaborationBar.tsx
     EditorCompassCost.tsx
     EditorLayerPanel.tsx
+    EditorMantraToggle.tsx
     EditorMenuSheet.tsx
     EditorPerfHud.tsx
     EditorPhasePills.tsx
@@ -313,13 +319,17 @@ components/
     WorkspaceNotifications.tsx
     WorkspaceStatusHub.tsx
 config/
+  aiUsage.test.ts
+  aiUsage.ts
   appVersion.ts
   billingFeatures.ts
   billingPlans.ts
   canonicalOrigin.ts
   coOwners.ts
   marketingFeatures.ts
+  routeManifest.ts
   RouteNavConfig.ts
+  visualThemes.ts
 constants/
   prototypeDisclaimer.ts
 contexts/
@@ -332,6 +342,8 @@ core/
     dxfExport.ts
     floorPlanSvg.test.ts
     floorPlanSvg.ts
+    ifcExport.test.ts
+    ifcExport.ts
     pdfExport.ts
     pngExport.ts
     sitePlanSvg.ts
@@ -432,12 +444,15 @@ domain/
 editor/
   canvasSelection.ts
   draftSave.worker.ts
+  editorActionRegistry.ts
+  editorMantras.ts
   localDraft.test.ts
   localDraft.ts
   localProject.ts
   localProjects.ts
   onboardingMemory.test.ts
   onboardingMemory.ts
+  openManifestInEditor.ts
   spatialIndex.ts
   toolMeta.ts
 global.d.ts
@@ -526,6 +541,8 @@ modules/
     audioEngine.test.ts
     audioEngine.ts
     audioPrefs.ts
+    mantraPlayer.ts
+    mantraPrefs.ts
     soundCatalog.ts
     StudioAudioProvider.tsx
     useStudioAudio.ts
@@ -549,6 +566,7 @@ pages/
   ReleasesPage.tsx
   ResetPasswordPage.tsx
   SpecCenterPage.tsx
+  ThreeDRoomPage.tsx
   WorldRecordsPage.tsx
 planning/
   candidateGenerator.test.ts
@@ -683,16 +701,27 @@ styles/
   vish-copilot-swan.css
   vish-editor-chrome.css
   vish-editor-mantra.css
+  vish-editor-polish.css
   vish-governance-polish.css
+  vish-indian-sacred.css
   vish-layout-tokens.css
+  vish-mantra-widget.css
+  vish-marketing-polish.css
   vish-marketing.css
   vish-mockup-system.css
   vish-motion-system.css
   vish-realism.css
+  vish-sacred-auth.css
+  vish-sacred-editor.css
+  vish-sacred-governance.css
   vish-sacred-layers.css
+  vish-sacred-marketing.css
   vish-sacred-tokens.css
+  vish-theme-solar-mandala.css
   vish-tokens.css
   vish-tutorial.css
+  vish-ui-polish.css
+  vish-workspace-polish.css
   vish-workspace-shell.css
 svg.d.ts
 test/
@@ -714,8 +743,11 @@ test/
   collaborationPresence.test.ts
   commandPaletteShortcut.test.ts
   coOwners.test.ts
+  copilotProofFlow.test.ts
   copilotSwanMotion.test.ts
   copilotUploadIpad.test.ts
+  demoFlowDocs.test.ts
+  demoMediaKitHandoff.test.ts
   editorChrome.test.ts
   editorPerformanceOverhaul.test.ts
   editorPerformanceOverhaulProof.ts
@@ -733,8 +765,10 @@ test/
   generateColumnGlb.test.ts
   governanceLock.test.ts
   governanceVisualPolish.test.ts
+  handoffMetricsSummary.test.ts
   import.test.ts
   inputHandlers.test.ts
+  investorScreenshotPack.test.ts
   keyboardShortcuts.test.ts
   KeyboardShortcuts.test.tsx
   lightingPresets.test.ts
@@ -748,7 +782,9 @@ test/
   multiUserGovernance.test.ts
   officialLogoBrand.test.ts
   parity2d3d.test.ts
+  pilotDocs.test.ts
   projectRoles.test.ts
+  projectsDemoSamples.test.ts
   PropertiesPanel.test.tsx
   RadialToolMenu.test.tsx
   redTeam.test.ts
@@ -774,6 +810,8 @@ test/
   ToolRail.test.tsx
   verificationWiring.test.ts
   versionControlHooks.test.ts
+  viewport3dFpsWiring.test.ts
+  visualThemeController.test.ts
   workspaceCommandPalette.test.ts
   workspaceLayoutPolish.test.ts
   worldRecordMeasure.test.ts
@@ -839,6 +877,7 @@ stripe/
   create-portal-session.ts
   webhook.ts
 _lib/
+  aiUsage.ts
   billingBackend.ts
   billingSupabase.ts
   castBackend.ts
@@ -862,6 +901,7 @@ migrations/
   20260212000004_profiles_billing_optimization.sql
   20260213000005_collab_and_storage.sql
   20260615000001_cast_sessions.sql
+  20260618000001_ai_usage.sql
 README.md
 
 scripts/
@@ -872,6 +912,8 @@ auto-ship/
   auto-ship.test.mjs
   install-user-hooks.mjs
 build-e2e-local.mjs
+demo/
+  verify-demo-assets.mjs
 deploy-vercel.sh
 docs/
   verify-documentation.mjs
@@ -883,6 +925,7 @@ extract-stripe-cli-key.mjs
 fetch-stripe-live-key.mjs
 generate-apple-touch-icon.mjs
 generate-column-glb.mjs
+generate-ios-startup-images.mjs
 generate-pwa-png-icons.mjs
 generate-sample-json.mjs
 handoff/
@@ -988,6 +1031,7 @@ auth-private-routes.spec.ts
 collaboration-sync.spec.ts
 compliance-gate.spec.ts
 cross-browser-smoke.spec.ts
+demo-flow-screenshot-pack.spec.ts
 device-collaboration-chrome.spec.ts
 device-desktop-layout.spec.ts
 device-governance-layout.spec.ts
@@ -1053,6 +1097,17 @@ compliance/
   PRIVACY.md
   SUPPORT_MATRIX.md
 CURRENT_PRODUCTION_ARCHITECTURE.md
+demo/
+  README.md
+  screenshots/
+    01-landing.png
+    02-projects-demo-cards.png
+    03-editor-2d-demo-blueprint.png
+    04-editor-3d-preview.png
+    05-ai-copilot-proof-flow.png
+    06-export-preview.png
+  VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md
+  VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md
 design/
   page-references/
     editor/
@@ -1150,6 +1205,7 @@ handoff/
   CHATGPT_HANDOFF.md
   END_TO_END_HANDOFF.md
   HANDOFF.md
+  HANDOFF_METRICS_SUMMARY.md
   templates/
     OPERATOR_ANNEX.template.md
 IMPLEMENTATION_SUMMARY.md
@@ -1163,6 +1219,12 @@ operations/
   MONITORING.md
   README.md
   ROLLBACK.md
+  SOLAR_MANDALA_PR_BRANCH_NOTE.md
+  VERCEL_DEPLOY_FIX_20260618.md
+pilots/
+  ANONYMISED_PILOT_EVIDENCE_SUMMARY.md
+  PILOT_FEEDBACK_TEMPLATE.md
+  VISHVAKARMA_OS_PILOT_PLAN.md
 prd.md
 PRODUCT_CAPABILITIES.md
 project-manifest-schema.md
@@ -1272,6 +1334,13 @@ world-record/
   WORLD_RECORD_CLAIM.md
 
 public/
+audio/
+  mantras/
+    ganesh-invocation.mp3
+    gayatri-ambient.mp3
+    om-namah-shivaya.mp3
+    saraswati-ambient.mp3
+    vishvakarma-mantra.mp3
 auth-capabilities.json
 brand/
   vishvakarma-apple-touch-icon.png
@@ -1332,52 +1401,100 @@ samples/
   mep-lighting-showcase.json
   sample-house-01.json
   terrain-garden.json
+splash/
+  apple-splash-1125-2436.png
+  apple-splash-1170-2532.png
+  apple-splash-1179-2556.png
+  apple-splash-1290-2796.png
+  apple-splash-1536-2048.png
+  apple-splash-1640-2360.png
+  apple-splash-1668-2388.png
+  apple-splash-2048-1536.png
+  apple-splash-2048-2732.png
+  apple-splash-2360-1640.png
+  apple-splash-2388-1668.png
+  apple-splash-2732-2048.png
+  apple-splash-750-1334.png
+  apple-splash-828-1792.png
 textures/
   bark/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   concrete/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   fabric/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   grass/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   marble/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   metal/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   paint/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   plaster/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   README.md
   stone/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   tile/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
   wood/
     color.jpg
+    color.webp
     normal.jpg
+    normal.webp
     roughness.jpg
+    roughness.webp
 world-record/
   latest-measurement.json
 

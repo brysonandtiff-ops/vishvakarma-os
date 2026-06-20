@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
-## Vitest unit/integration (150 files)
+## Vitest unit/integration (161 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -23,10 +23,12 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/components/optimization/MoatGainPanel.test.tsx`
 - `src/components/system-intelligence/DecisionExplainerPanel.test.tsx`
 - `src/components/system-intelligence/pipelineStageLabels.test.ts`
+- `src/config/aiUsage.test.ts`
 - `src/core-contract/build-gate.schema.test.ts`
 - `src/core-contract/systemFlow.test.ts`
 - `src/core/exporters/dxfExport.test.ts`
 - `src/core/exporters/floorPlanSvg.test.ts`
+- `src/core/exporters/ifcExport.test.ts`
 - `src/core/floorPlanEngine.test.ts`
 - `src/core/importers/dxfImport.test.ts`
 - `src/core/projectExport.test.ts`
@@ -96,8 +98,11 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/test/collaborationEngine.test.ts`
 - `src/test/collaborationPresence.test.ts`
 - `src/test/commandPaletteShortcut.test.ts`
+- `src/test/copilotProofFlow.test.ts`
 - `src/test/copilotSwanMotion.test.ts`
 - `src/test/copilotUploadIpad.test.ts`
+- `src/test/demoFlowDocs.test.ts`
+- `src/test/demoMediaKitHandoff.test.ts`
 - `src/test/editorChrome.test.ts`
 - `src/test/editorPerformanceOverhaul.test.ts`
 - `src/test/editorSidebarIntegration.test.tsx`
@@ -110,8 +115,10 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/test/generateColumnGlb.test.ts`
 - `src/test/governanceLock.test.ts`
 - `src/test/governanceVisualPolish.test.ts`
+- `src/test/handoffMetricsSummary.test.ts`
 - `src/test/import.test.ts`
 - `src/test/inputHandlers.test.ts`
+- `src/test/investorScreenshotPack.test.ts`
 - `src/test/keyboardShortcuts.test.ts`
 - `src/test/lightingPresets.test.ts`
 - `src/test/localDraft.test.ts`
@@ -124,7 +131,9 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/test/multiUserGovernance.test.ts`
 - `src/test/officialLogoBrand.test.ts`
 - `src/test/parity2d3d.test.ts`
+- `src/test/pilotDocs.test.ts`
 - `src/test/projectRoles.test.ts`
+- `src/test/projectsDemoSamples.test.ts`
 - `src/test/redTeam.test.ts`
 - `src/test/regressionAnchors.test.ts`
 - `src/test/roomCalculations.test.ts`
@@ -146,6 +155,8 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/test/themeManager.test.ts`
 - `src/test/verificationWiring.test.ts`
 - `src/test/versionControlHooks.test.ts`
+- `src/test/viewport3dFpsWiring.test.ts`
+- `src/test/visualThemeController.test.ts`
 - `src/test/workspaceCommandPalette.test.ts`
 - `src/test/workspaceLayoutPolish.test.ts`
 - `src/test/worldRecordMeasure.test.ts`
@@ -157,7 +168,7 @@ Generated: 2026-06-16T04:21:33.872Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (28 specs)
+## Playwright E2E (29 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -168,6 +179,7 @@ Generated: 2026-06-16T04:21:33.872Z
 - `e2e/collaboration-sync.spec.ts`
 - `e2e/compliance-gate.spec.ts`
 - `e2e/cross-browser-smoke.spec.ts`
+- `e2e/demo-flow-screenshot-pack.spec.ts`
 - `e2e/device-collaboration-chrome.spec.ts`
 - `e2e/device-desktop-layout.spec.ts`
 - `e2e/device-governance-layout.spec.ts`

@@ -2,13 +2,14 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
-Total: 112 scripts
+Total: 113 scripts
 
 | Script | Command |
 |--------|--------|
 | `assets:apple-touch-icon` | `node scripts/generate-apple-touch-icon.mjs` |
+| `assets:ios-splash` | `node scripts/generate-ios-startup-images.mjs` |
 | `assets:pwa-icons` | `node scripts/sync-pwa-icon-svgs.mjs && node scripts/generate-pwa-png-icons.mjs` |
 | `assets:samples` | `node scripts/generate-sample-json.mjs` |
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |

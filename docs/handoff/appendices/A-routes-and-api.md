@@ -2,33 +2,16 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
 ## Client routes (`src/routes.tsx`)
 
 | Name | Path | Component | Access | Notes |
 |------|------|-----------|--------|-------|
-| Landing | `/` | LandingPage | public |  |
-| Features | `/features` | FeaturesPage | public |  |
-| Pricing | `/pricing` | PricingPage | public | Flag: `VITE_PRICING_PAGE_ENABLED` |
-| Account Access | `/auth` | AuthPage | public |  |
-| Reset Password | `/reset-password` | ResetPasswordPage | public |  |
-| Akasha Cast Viewer | `/cast/:token` | CastViewerPage | public |  |
-| Not Found | `/404` | NotFoundPage | public |  |
-| Blueprint Editor | `/editor` | EditorPage | private |  |
-| Projects | `/projects` | ProjectsPage | private |  |
-| Design Optimization | `/optimization` | OptimizationPage | private |  |
-| Profile | `/profile` | ProfilePage | private |  |
-| Spec Center | `/spec-center` | SpecCenterPage | private |  |
-| Registry Center | `/registry` | RegistryPage | private |  |
-| Change Requests | `/change-requests` | ChangeRequestsPage | private |  |
-| Release Center | `/releases` | ReleasesPage | private |  |
-| World Records | `/world-records` | WorldRecordsPage | private |  |
-| Audit Log | `/audit` | AuditLogPage | private |  |
 
 Catch-all `*` → `NotFound` (see `src/App.tsx`).
 
-Pricing route conditional in source: `PRICING_PAGE_ENABLED` = true.
+Pricing route conditional in source: `PRICING_PAGE_ENABLED` = false.
 
 ## Serverless API (`api/`)
 
@@ -46,6 +29,7 @@ Pricing route conditional in source: `PRICING_PAGE_ENABLED` = true.
 
 ## Shared API libraries
 
+- `api/_lib/aiUsage.ts`
 - `api/_lib/billingBackend.ts`
 - `api/_lib/billingSupabase.ts`
 - `api/_lib/castBackend.ts`

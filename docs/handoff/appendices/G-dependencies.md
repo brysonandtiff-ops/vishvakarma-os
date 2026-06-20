@@ -2,14 +2,17 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-16T04:21:33.872Z
+Generated: 2026-06-20T05:07:39.697Z
 
 Package: `vishvakarma-os` v1.5.0
 
-## Production (69)
+## Production (72)
 
 | Package | Version |
 |---------|--------|
+| @fontsource-variable/inter | ^5.2.8 |
+| @fontsource/ibm-plex-mono | ^5.2.7 |
+| @fontsource/noto-sans-devanagari | ^5.2.8 |
 | @google/generative-ai | ^0.24.1 |
 | @hookform/resolvers | ^5.2.2 |
 | @radix-ui/react-accordion | ^1.2.12 |
