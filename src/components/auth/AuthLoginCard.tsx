@@ -128,7 +128,7 @@ export default function AuthLoginCard({
 
         {passwordResetNotice && (
           <p className="vish-login-page__status" role="status">
-            Password reset is not available in this environment. Use a magic link or SSO instead.
+            Password reset is not available in this environment. Use a magic link or Google sign-in instead.
           </p>
         )}
 
