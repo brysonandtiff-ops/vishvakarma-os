@@ -28,7 +28,7 @@ import {
   RELEASE_GATE_COUNT,
 } from '@/governance/gates/releaseGateManifest';
 import type { Release } from '@/types';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { APP_VERSION } from '@/config/appVersion';
 
 interface ReleaseGate {
@@ -45,6 +45,7 @@ interface ReleaseGate {
 export default function ReleasesPage() {
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedGates, setExpandedGates] = useState<Set<string>>(new Set());
   const [showStopShipViolations, setShowStopShipViolations] = useState(false); // State for Stop-Ship Violations visibility
 
@@ -54,11 +55,13 @@ export default function ReleasesPage() {
 
   async function loadReleases() {
     setLoading(true);
+    setError(null);
     try {
       const data = await getReleases();
       setReleases(data);
     } catch {
       setReleases([]);
+      setError('Could not load release history');
     } finally {
       setLoading(false);
     }
@@ -454,10 +457,26 @@ export default function ReleasesPage() {
               <h2 className="text-base font-semibold text-foreground">Previous Releases</h2>
               {loading ? (
                 <p className="text-sm text-muted-foreground">Loading release history…</p>
+              ) : error ? (
+                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {error}
+                </div>
               ) : releases.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
-                  <p className="text-sm text-muted-foreground">No release records yet.</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Connect Supabase or run a gated release to populate history.</p>
+                <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
+                  <Rocket className="mx-auto h-10 w-10 text-muted-foreground/40" />
+                  <p className="mt-3 text-sm font-semibold text-foreground">No release records yet</p>
+                  <p className="mt-1 text-xs text-muted-foreground text-pretty">
+                    Run release gates locally, then promote a build through Spec Center and Change Requests.
+                  </p>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                    <Button variant="outline" size="sm" className="touch-target" asChild>
+                      <Link to="/spec-center">Open Spec Center</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="touch-target" asChild>
+                      <Link to="/editor">Open Editor</Link>
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid gap-3">

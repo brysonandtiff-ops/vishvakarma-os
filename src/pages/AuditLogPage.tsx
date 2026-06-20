@@ -141,14 +141,15 @@ export default function AuditLogPage() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   System activity will appear here as you interact with Vishvakarma.OS
                 </p>
-                <div className="mt-5 flex flex-col items-center gap-2 px-4 pb-4">
+                <div className="mt-5 flex flex-col items-center gap-2 px-4 pb-4 sm:flex-row sm:justify-center">
                   <Button size="sm" className="touch-target gap-2" onClick={() => navigate('/editor')}>
                     <ArrowRight className="h-3.5 w-3.5" />
                     Open the Editor
                   </Button>
-                  <p className="text-[11px] text-muted-foreground/60">
-                    Create a project, add walls, or submit a change request to seed the log
-                  </p>
+                  <Button size="sm" variant="outline" className="touch-target gap-2" onClick={() => navigate('/spec-center')}>
+                    <FileText className="h-3.5 w-3.5" />
+                    Spec Center
+                  </Button>
                 </div>
               </WorkspacePanel>
             ) : (

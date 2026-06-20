@@ -248,8 +248,8 @@ describe('Editor performance overhaul — mock audit suite', () => {
     it('p2-wall-batch: batching threshold for large standard scenes', () => {
       expect(shouldBatchWalls(12, 'standard')).toBe(true);
       expect(shouldBatchWalls(5, 'standard')).toBe(false);
-      expect(shouldBatchWalls(20, 'cinematic')).toBe(false);
-      recordCheck('p2-wall-batch', '2', 'Wall batch helper thresholds', 'PASS', '>=10 walls, non-cinematic');
+      expect(shouldBatchWalls(20, 'cinematic')).toBe(true);
+      recordCheck('p2-wall-batch', '2', 'Wall batch helper thresholds', 'PASS', '>=10 walls, all atmosphere tiers');
     });
   });
 

@@ -1,15 +1,15 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const pilotPlan = readFileSync(
-  new URL('../../docs/pilots/VISHVAKARMA_OS_PILOT_PLAN.md', import.meta.url),
-  'utf8',
-);
+const repoRoot = resolve(process.cwd());
 
-const feedbackTemplate = readFileSync(
-  new URL('../../docs/pilots/PILOT_FEEDBACK_TEMPLATE.md', import.meta.url),
-  'utf8',
-);
+function read(path: string) {
+  return readFileSync(resolve(repoRoot, path), 'utf8');
+}
+
+const pilotPlan = read('docs/pilots/VISHVAKARMA_OS_PILOT_PLAN.md');
+const feedbackTemplate = read('docs/pilots/PILOT_FEEDBACK_TEMPLATE.md');
 
 describe('pilot proof docs', () => {
   it('keeps the pilot plan focused on external proof and safe product claims', () => {

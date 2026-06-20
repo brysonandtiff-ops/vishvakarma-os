@@ -18,11 +18,16 @@ describe('Sanskrit auth gate design', () => {
   it('keeps the canvas Sanskrit rain and mandala layers on the auth page', () => {
     const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
+    const templeGate = read('src/components/common/SacredTempleGate.tsx');
     const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
 
     expect(authLayout).toContain('vish-auth-gate');
     expect(authLayout).toContain('SanskritRainBackground');
     expect(authLayout).toContain("preset={isBoot ? 'boot' : 'auth'}");
+    expect(templeGate).toContain('SanskritRainBackground');
+    expect(templeGate).toContain('SacredIndianMandala');
+    expect(templeGate).toContain('sacred-temple-gate');
+    expect(templeGate).toContain("preset=\"auth\"");
     expect(rainBackground).toContain('SANSKRIT_MATRIX_COLUMNS');
     expect(rainBackground).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(rainBackground).toContain('मन्त्र यन्त्र वास्तु रचना');
@@ -35,7 +40,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authLayout).toContain('vish-auth-aurora');
     expect(authLayout).toContain('vish-mandala-aura');
     expect(authLayout).toContain('vish-mandala-ring-outer');
-    expect(authPage).toContain('vish-auth-card-mockup');
+    expect(authPage).toContain('SacredTempleGate');
+    expect(authPage).toContain('sacred-auth-card');
   });
 
   it('shows only the verified auth winner from capabilities manifest', () => {
@@ -48,9 +54,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('showEmailSignIn');
     expect(authPage).toContain('showGoogleSignIn');
     expect(authPage).toContain('AuthGoogleButton');
-    expect(authPage).toContain('variant="gold"');
     expect(googleButton).toContain('Continue with Google');
-    expect(authPage).toContain('Send secure access link');
+    expect(authPage).toContain('Request access link');
     expect(authPage).not.toContain('Continue with Apple');
     expect(authPage).not.toContain('signInWithApple');
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
@@ -62,48 +67,28 @@ describe('Sanskrit auth gate design', () => {
 
   it('keeps trust pillars and workspace branding on the auth page', () => {
     const authPage = read('src/pages/AuthPage.tsx');
-    const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
-    const trustPillar = read('src/components/auth/AuthTrustPillar.tsx');
+    const sacredAuthStyles = read('src/styles/vish-sacred-auth.css');
 
-    expect(authPage).toContain('AuthSignInHeader');
-    expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
-    expect(authHeader).toContain('vish-auth-logo-hero');
-    expect(authHeader).toContain('vish-auth-logo-wrap');
-    expect(authHeader).toContain('vish-auth-logo-img');
-    expect(authHeader).toContain('vish-auth-wordmark-divider');
-    expect(authHeader).toContain('VISHVAKARMA.OS');
-    expect(authHeader).toContain('vish-devanagari-hero');
-    expect(authHeader).toContain('iPad-First Architecture Studio');
+    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
+    expect(authPage).toContain('sacred-auth-logo');
+    expect(authPage).toContain('Vishvakarma.OS');
+    expect(authPage).toContain('ॐ श्री विश्वकर्मणे नमः');
     expect(authPage).toContain('FoundersAcknowledgment');
     expect(authPage).toContain('variant="auth"');
     expect(read('src/brand/founders.ts')).toContain('TYRASIC CREATIONS');
-    expect(authPage).toContain('AuthTrustPillar');
-    expect(authPage).toContain('auth-trust-pillars');
+    expect(authPage).toContain('sacred-auth-trust');
     expect(authPage).toContain('auth-trust-pillar-gates');
     expect(authPage).toContain('auth-trust-pillar-records');
-    expect(authPage).toContain('Release evidence pack');
+    expect(authPage).toContain('Release Gates');
     expect(authPage).toContain('WORLD_RECORD_HONESTY_DISCLAIMER');
-    expect(authPage).toContain('destination="/releases"');
-    expect(authPage).toContain('destination="/world-records"');
-    expect(authPage).toContain('items-stretch');
     expect(authPage).toContain('Sign in to open Releases and inspect gate snapshots.');
-    expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry at /world-records.');
-    expect(authHeader).toContain('vish-gold-pill');
-    expect(authHeader).toContain('vish-gold-pill--live');
-    expect(authHeader).toContain('auth-supabase-badge');
-    expect(authHeader).toContain('vish-auth-supabase-pill');
-    expect(authHeader).toContain('Supabase Auth');
+    expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry.');
     expect(authPage).toContain('AuthStatusBanner');
-    expect(authPage).toContain('auth-password-reset-notice');
-    expect(authPage).toContain('variant="gates"');
+    expect(authPage).toContain('password-reset-unavailable');
     expect(authPage).toContain('getSignInHelperLine');
-    expect(trustPillar).toContain('vish-auth-feature-card');
-    expect(trustPillar).toContain('vish-auth-feature-card--');
-    expect(trustPillar).toContain('vish-auth-feature-card__footer');
-    expect(trustPillar).toContain('vish-auth-feature-card__metric');
-    expect(trustPillar).toContain('aria-label');
-    expect(trustPillar).toContain('ChevronRight');
-    expect(trustPillar).toContain('vish-gold-pill');
+    expect(sacredAuthStyles).toContain('.sacred-auth-trust-card');
+    expect(sacredAuthStyles).toContain('.sacred-auth-card');
+    expect(sacredAuthStyles).toContain('@media (prefers-reduced-motion: reduce)');
   });
 
   it('handles OAuth redirect completion in AuthContext', () => {

@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 
 const phases = ['All', '1', '2', '3'] as const;
 
-/** Phase filter UI — local-only until engine phase wiring ships. */
+/** Phase filter UI — local-only until engine phase wiring ships. Hidden on coarse pointer to avoid overlap with walk pad / minimap. */
 export default function EditorPhasePills() {
+  const isCoarsePointer = useCoarsePointer();
   const [active, setActive] = useState<(typeof phases)[number]>('All');
+
+  if (isCoarsePointer) return null;
 
   return (
     <div

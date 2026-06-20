@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { useMemo, useState } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import EditorSidebarSections from '@/components/editor/EditorSidebarSections';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
 import {
@@ -75,9 +75,11 @@ function renderAppLayoutAt(path: string, editorConfig?: EditorSidebarConfig | nu
 describe('EditorSidebarSections', () => {
   it('renders project actions and view controls', () => {
     render(
-      <EditorSidebarProvider>
-        <EditorSidebarSections config={makeConfig()} />
-      </EditorSidebarProvider>,
+      <MemoryRouter>
+        <EditorSidebarProvider>
+          <EditorSidebarSections config={makeConfig()} />
+        </EditorSidebarProvider>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId('editor-sidebar-project-actions')).toBeInTheDocument();
@@ -95,9 +97,11 @@ describe('EditorSidebarSections', () => {
 
   it('uses dynamic view labels based on toggle state', () => {
     render(
-      <EditorSidebarProvider>
-        <EditorSidebarSections config={makeConfig({ show3DView: true, gridVisible: false })} />
-      </EditorSidebarProvider>,
+      <MemoryRouter>
+        <EditorSidebarProvider>
+          <EditorSidebarSections config={makeConfig({ show3DView: true, gridVisible: false })} />
+        </EditorSidebarProvider>
+      </MemoryRouter>,
     );
 
     expect(screen.getByRole('button', { name: 'Hide 3D view' })).toBeInTheDocument();
@@ -109,9 +113,11 @@ describe('EditorSidebarSections', () => {
     const config = makeConfig();
 
     render(
-      <EditorSidebarProvider>
-        <EditorSidebarSections config={config} onAfterAction={vi.fn()} />
-      </EditorSidebarProvider>,
+      <MemoryRouter>
+        <EditorSidebarProvider>
+          <EditorSidebarSections config={config} onAfterAction={vi.fn()} />
+        </EditorSidebarProvider>
+      </MemoryRouter>,
     );
 
     await user.click(screen.getByTestId('editor-sidebar-ai-copilot'));
@@ -129,9 +135,11 @@ describe('EditorSidebarSections', () => {
     const config = makeConfig();
 
     render(
-      <EditorSidebarProvider>
-        <EditorSidebarSections config={config} onAfterAction={onAfterAction} />
-      </EditorSidebarProvider>,
+      <MemoryRouter>
+        <EditorSidebarProvider>
+          <EditorSidebarSections config={config} onAfterAction={onAfterAction} />
+        </EditorSidebarProvider>
+      </MemoryRouter>,
     );
 
     await user.click(screen.getByTestId('editor-sidebar-new-project'));

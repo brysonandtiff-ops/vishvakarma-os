@@ -1,7 +1,7 @@
 {
   "suite": "editor-performance-overhaul",
-  "generatedAt": "2026-06-16T09:24:23.874Z",
-  "commitSha": "c5484d237c48dfcee1b231c9c0725bfcad118668",
+  "generatedAt": "2026-06-20T03:55:27.434Z",
+  "commitSha": "6b69f38188b6e945aca665233d0d146930db93bf",
   "summary": {
     "pass": 27,
     "fail": 0,
@@ -10,8 +10,8 @@
   },
   "metrics": {
     "canvasSchedulerCoalesced": true,
-    "spatialIndexMs": 1.956000000000131,
-    "linearScanMs": 2.548399999999674
+    "spatialIndexMs": 6.048599999994622,
+    "linearScanMs": 12.723900000004505
   },
   "checks": [
     {
@@ -47,7 +47,7 @@
       "phase": "1",
       "name": "Spatial index hit-test parity + mock benchmark",
       "status": "PASS",
-      "detail": "indexed=1.96ms linear=2.55ms parity=w200"
+      "detail": "indexed=6.05ms linear=12.72ms parity=w200"
     },
     {
       "id": "p1-overlay-cache",
@@ -68,7 +68,7 @@
       "phase": "2",
       "name": "Wall batch helper thresholds",
       "status": "PASS",
-      "detail": ">=10 walls, non-cinematic"
+      "detail": ">=10 walls, all atmosphere tiers"
     },
     {
       "id": "p4-background",

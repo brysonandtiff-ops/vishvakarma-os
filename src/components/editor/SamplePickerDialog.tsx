@@ -12,8 +12,18 @@ import {
   type SampleCategory,
   type SampleDefinition,
 } from '@/core/sampleCatalog';
+import { EDITOR_ACTION_LABELS } from '@/editor/editorActionRegistry';
 
-const CATEGORY_ORDER: SampleCategory[] = ['starter', 'residential', 'shapes', 'interior', 'landscape', 'mep', 'full'];
+const CATEGORY_ORDER: SampleCategory[] = [
+  'starter',
+  'residential',
+  'indian',
+  'shapes',
+  'interior',
+  'landscape',
+  'mep',
+  'full',
+];
 
 function groupSamplesByCategory(samples: SampleDefinition[]) {
   const groups = new Map<SampleCategory, SampleDefinition[]>();
@@ -64,10 +74,10 @@ export default function SamplePickerDialog({
           </div>
           <DialogTitle className="flex items-center justify-center gap-2">
             <Package className="h-5 w-5 text-primary" />
-            Load Sample Blueprint
+            {EDITOR_ACTION_LABELS.loadSampleDialogTitle}
           </DialogTitle>
           <DialogDescription>
-            Choose a demo floor plan — houses, shapes, furniture, nature, and MEP showcases.
+            Choose a demo floor plan — houses, Indian templates, shapes, furniture, nature, and MEP showcases.
           </DialogDescription>
         </DialogHeader>
 

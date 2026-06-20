@@ -8,6 +8,7 @@ import {
   Leaf,
   Loader2,
   Lock,
+  Maximize2,
   Menu,
   MoreHorizontal,
   PenLine,
@@ -30,12 +31,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
+import { getProjectActionLabel } from '@/editor/editorActionRegistry';
 import type { WorkspaceMode } from '@/types';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
 interface EditorTopBarProps {
   projectName: string;
   show3DView: boolean;
+  expand3DPanel?: boolean;
+  onToggleExpand3D?: () => void;
   workspaceMode: WorkspaceMode;
   zenMode?: boolean;
   presentationLock?: boolean;
@@ -135,6 +139,8 @@ function ModeTabs({
 export default function EditorTopBar({
   projectName,
   show3DView,
+  expand3DPanel = false,
+  onToggleExpand3D,
   workspaceMode,
   zenMode = false,
   presentationLock = false,
@@ -202,6 +208,12 @@ export default function EditorTopBar({
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
           <span className="max-w-[min(12rem,28vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          {savingProject && (
+            <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+              Saving
+            </span>
+          )}
         </div>
 
         <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
@@ -249,7 +261,9 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               )}
               {onLoadSample && (
-                <DropdownMenuItem onClick={onLoadSample}>Load sample</DropdownMenuItem>
+                <DropdownMenuItem onClick={onLoadSample}>
+                  {getProjectActionLabel('loadSample', 'topbar')}
+                </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onImport}>
@@ -281,6 +295,16 @@ export default function EditorTopBar({
           <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
             <Box className="h-4 w-4" />
           </IconButton>
+          {show3DView && onToggleExpand3D && (
+            <IconButton
+              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
+              active={expand3DPanel}
+              onClick={onToggleExpand3D}
+              dataTutorial="expand-3d"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </IconButton>
+          )}
           <IconButton label="Toggle grid" active={gridVisible} onClick={onToggleGrid}>
             <Grid3x3 className="h-4 w-4" />
           </IconButton>

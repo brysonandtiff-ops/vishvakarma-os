@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { Box, AlertTriangle, RefreshCw, Layers, RotateCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
+import { ORBIT_MODE_MANTRA, WALK_MODE_MANTRA } from '@/editor/editorMantras';
 import {
   persistAtmosphereMode,
   readStoredAtmosphereMode,
@@ -1146,6 +1147,7 @@ export default function Viewport3D({
             className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary"
           >
             {isCoarsePointer ? 'Drag to look · use pad to move' : 'Click canvas to enter walk · Esc to exit'}
+            <span className="font-devanagari ml-1 text-primary/70">· {WALK_MODE_MANTRA}</span>
           </p>
         )}
         {walkMode && isCoarsePointer && (
@@ -1193,12 +1195,13 @@ export default function Viewport3D({
         {/* Atmosphere mode controls */}
         {!presentationLock && onShowAllFloorsIn3DChange && floors.length > 1 && (
           <div className="absolute left-3 top-3 rounded-xl border border-primary/20 bg-black/40 px-2 py-1.5 shadow-2xl backdrop-blur-md">
-            <label className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <label className="flex min-h-[44px] items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               <input
                 type="checkbox"
                 checked={showAllFloorsIn3D}
                 onChange={(e) => onShowAllFloorsIn3DChange(e.target.checked)}
-                className="h-3 w-3 accent-primary"
+                className="h-4 w-4 min-h-[44px] min-w-[44px] accent-primary"
+                data-testid="vish-3d-stack-floors"
               />
               Stack floors
             </label>
@@ -1238,6 +1241,7 @@ export default function Viewport3D({
           <RotateCcw className="h-2.5 w-2.5 text-ws-text-faint" />
           <span className="text-[9px] tracking-wide text-ws-text-faint">
             Drag to orbit · {isCoarsePointer ? 'Pinch to zoom' : 'Scroll to zoom'} · {atmosphereConfig.label} atmosphere
+            <span className="font-devanagari ml-1 text-primary/60">· {ORBIT_MODE_MANTRA}</span>
           </span>
         </div>
         )}

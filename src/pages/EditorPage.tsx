@@ -3,13 +3,15 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
+import PageMeta from '@/components/common/PageMeta';
 import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
-import { Box } from 'lucide-react';
+import { Box, SlidersHorizontal } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
 import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
@@ -181,11 +183,14 @@ function EditorWorkspace() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [freshSignIn] = useState(() => consumeFreshSignIn());
-  const [welcomeOpen, setWelcomeOpen] = useState(() => !freshSignIn && !isOnboardingDismissed());
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !isOnboardingDismissed());
+  const [propertiesSheetOpen, setPropertiesSheetOpen] = useState(false);
+  const [loadingProject, setLoadingProject] = useState(false);
   const [selectedLabelId, setSelectedLabelId] = useState<string | undefined>();
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | undefined>();
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
+  const [expand3DPanel, setExpand3DPanel] = useState(false);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
@@ -498,29 +503,51 @@ function EditorWorkspace() {
     snapEnabled,
   ]);
 
-  const loadSampleBySampleId = async (sampleId: string) => {
-    setLoadingSample(true);
-    try {
-      const sampleManifest = await loadSampleById(sampleId);
-      if (!currentProject) {
-        setDemoProjectName(sampleManifest.name || 'Demo Blueprint');
+  const applySampleManifest = useCallback(
+    (
+      sampleManifest: ProjectManifest,
+      options: { mode: 'fresh' | 'overlay'; closeSamplePicker?: boolean },
+    ) => {
+      clearLocalDraft();
+      const displayName = sampleManifest.name || 'Demo Blueprint';
+
+      if (options.mode === 'fresh') {
+        setCurrentProject(null);
+        setDemoProjectName(displayName);
+      } else if (!currentProject) {
+        setDemoProjectName(displayName);
       }
+
       applyManifest({
         ...sampleManifest,
-        name: currentProject?.name ?? sampleManifest.name,
-        description: currentProject?.description ?? sampleManifest.description,
+        name: options.mode === 'fresh' ? displayName : (currentProject?.name ?? displayName),
+        description:
+          options.mode === 'fresh'
+            ? sampleManifest.description
+            : (currentProject?.description ?? sampleManifest.description),
       });
       engine.setGridVisible(true);
       setHasUnsavedChanges(true);
       setSaveState(
-        currentProject
-          ? isLocalProjectId(currentProject.id)
+        options.mode === 'fresh' || !currentProject
+          ? 'local-draft'
+          : isLocalProjectId(currentProject.id)
             ? 'local-draft'
-            : 'cloud-saved'
-          : 'local-draft',
+            : 'cloud-saved',
       );
-      setSamplePickerOpen(false);
-      toast.success(`${sampleManifest.name} loaded with Project Proof active`);
+      if (options.closeSamplePicker) {
+        setSamplePickerOpen(false);
+      }
+      toast.success(`${displayName} loaded with Project Proof active`);
+    },
+    [applyManifest, currentProject, engine],
+  );
+
+  const loadSampleBySampleId = async (sampleId: string) => {
+    setLoadingSample(true);
+    try {
+      const sampleManifest = await loadSampleById(sampleId);
+      applySampleManifest(sampleManifest, { mode: 'overlay', closeSamplePicker: true });
     } catch (error) {
       console.error('Failed to load sample project:', error);
       toast.error('Failed to load sample project');
@@ -611,6 +638,8 @@ function EditorWorkspace() {
   );
 
   const handleLoadProject = useCallback((project: Project) => {
+    setLoadingProject(true);
+    toast.message('Loading project…', { description: project.name });
     clearLocalDraft();
     setCurrentProject(project);
     setDemoProjectName(null);
@@ -619,6 +648,7 @@ function EditorWorkspace() {
     setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
     setHasUnsavedChanges(false);
+    setLoadingProject(false);
     toast.success(`Loaded: ${project.name}`);
   }, [applyManifest]);
 
@@ -655,20 +685,33 @@ function EditorWorkspace() {
     [applyManifest],
   );
 
+  const handleSampleManifestOpen = useCallback(
+    (manifest: ProjectManifest, name: string) => {
+      applySampleManifest({ ...manifest, name }, { mode: 'fresh' });
+    },
+    [applySampleManifest],
+  );
+
   useEffect(() => {
     const state = location.state as {
       loadProject?: Project;
       loadManifest?: ProjectManifest;
       projectName?: string;
+      manifestSource?: 'sample' | 'ai';
     } | null;
     if (state?.loadProject) {
       handleLoadProject(state.loadProject);
       window.history.replaceState({}, document.title);
     } else if (state?.loadManifest) {
-      handleAIDesignerOpenInEditor(state.loadManifest, state.projectName ?? state.loadManifest.name);
+      const name = state.projectName ?? state.loadManifest.name;
+      if (state.manifestSource === 'sample') {
+        handleSampleManifestOpen(state.loadManifest, name);
+      } else {
+        handleAIDesignerOpenInEditor(state.loadManifest, name);
+      }
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor]);
+  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen]);
 
   const handleAIDesignerSaveProject = useCallback(
     async (manifest: ProjectManifest, name: string) => {
@@ -709,6 +752,16 @@ function EditorWorkspace() {
     () => walls.find((wall) => wall.id === selectedWallId),
     [selectedWallId, walls]
   );
+
+  const hasPropertiesSelection = Boolean(
+    selectedWallId || selectedOpeningId || selectedLabelId || selectedFixtureId,
+  );
+
+  useEffect(() => {
+    if (hasPropertiesSelection && window.matchMedia('(max-width: 767px)').matches) {
+      setPropertiesSheetOpen(true);
+    }
+  }, [hasPropertiesSelection, selectedWallId, selectedOpeningId, selectedLabelId, selectedFixtureId]);
 
   useEffect(() => {
     if (selectedWall?.material) {
@@ -954,19 +1007,64 @@ function EditorWorkspace() {
     </div>
   );
 
+  const propertiesPanel = (
+    <PropertiesPanel
+      currentTool={currentTool}
+      selectedWall={selectedWall}
+      selectedLabel={selectedLabel}
+      selectedFixture={fixtures.find((f) => f.id === selectedFixtureId)}
+      selectedRoom={
+        rooms.find((r) => selectedLabelId === `label-${r.id}`) ??
+        rooms.find((r) => selectedLabel?.text === r.name)
+      }
+      onRoomUpdate={(roomId, updates) => engine.updateRoom(roomId, updates)}
+      pendingRoomType={pendingRoomType}
+      onPendingRoomTypeChange={setPendingRoomType}
+      openings={openings}
+      onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
+      onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
+      onWallDelete={(wallId) => engine.removeWall(wallId)}
+      onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
+      onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
+      onLabelDelete={(labelId) => {
+        engine.removeLabel(labelId);
+        setSelectedLabelId(undefined);
+      }}
+      onFixtureUpdate={(fixtureId, updates) => engine.updateFixture(fixtureId, updates)}
+      onFixtureDelete={(fixtureId) => {
+        engine.removeFixture(fixtureId);
+        setSelectedFixtureId(undefined);
+      }}
+      unitSystem={unitSystem}
+      morePanel={morePanel}
+    />
+  );
+
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas">
+      <PageMeta
+        title={`${projectName || 'Blueprint Editor'} — Vishvakarma.OS`}
+        description="Draw floor plans, inspect the Sacred 3D View, and export client-ready packages in the Vishvakarma.OS blueprint editor."
+      />
+      <div
+        className="flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
+        data-3d-expanded={expand3DPanel ? 'true' : undefined}
+      >
         <EditorTopBar
           projectName={projectName}
           show3DView={show3DView}
+          expand3DPanel={expand3DPanel}
+          onToggleExpand3D={() => setExpand3DPanel((value) => !value)}
           workspaceMode={workspaceMode}
           zenMode={zenMode}
           presentationLock={presentationLock}
           onWorkspaceModeChange={setWorkspaceMode}
           onToggleZen={() => engine.setZenMode(!zenMode)}
           onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
-          onToggle3D={() => engine.setShow3D(!show3DView)}
+          onToggle3D={() => {
+            engine.setShow3D(!show3DView);
+            if (show3DView) setExpand3DPanel(false);
+          }}
           gridVisible={gridVisible}
           onToggleGrid={() => engine.setGridVisible(!gridVisible)}
           onNewProject={() => setNewProjectOpen(true)}
@@ -1010,6 +1108,13 @@ function EditorWorkspace() {
                     : undefined
                 }
               >
+                {loadingProject && (
+                  <div className="vish-editor-loading-overlay absolute inset-0 z-30 flex items-center justify-center bg-ws-canvas/70 backdrop-blur-[2px]">
+                    <p className="rounded-lg border border-ws-border bg-ws-toolbar px-4 py-2 text-sm font-medium text-ws-text">
+                      Loading project…
+                    </p>
+                  </div>
+                )}
                 <p className="vish-editor-mantra-watermark" aria-hidden="true">
                   ॐ वास्तु · शिल्प · प्रमाण
                 </p>
@@ -1124,6 +1229,9 @@ function EditorWorkspace() {
                 />
                 <WelcomeOverlay
                   open={welcomeOpen && showOnboarding}
+                  returningUser={freshSignIn}
+                  hasCloudProjects={Boolean(user && projects.length > 0)}
+                  onOpenProjects={() => setLoadDialogOpen(true)}
                   onDismiss={() => {
                     dismissOnboarding();
                     setWelcomeOpen(false);
@@ -1204,44 +1312,37 @@ function EditorWorkspace() {
             )}
           </div>
 
-          {!presentationLock && !zenMode && (
-          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark flex w-72 shrink-0 flex-col overflow-hidden">
-            <PropertiesPanel
-              currentTool={currentTool}
-              selectedWall={selectedWall}
-              selectedLabel={selectedLabel}
-              selectedFixture={fixtures.find((f) => f.id === selectedFixtureId)}
-              selectedRoom={
-                rooms.find((r) => selectedLabelId === `label-${r.id}`) ??
-                rooms.find((r) => selectedLabel?.text === r.name)
-              }
-              onRoomUpdate={(roomId, updates) => engine.updateRoom(roomId, updates)}
-              pendingRoomType={pendingRoomType}
-              onPendingRoomTypeChange={setPendingRoomType}
-              openings={openings}
-              onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
-              onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
-              onWallDelete={(wallId) => engine.removeWall(wallId)}
-              onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
-              onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
-              onLabelDelete={(labelId) => {
-                engine.removeLabel(labelId);
-                setSelectedLabelId(undefined);
-              }}
-              onFixtureUpdate={(fixtureId, updates) => engine.updateFixture(fixtureId, updates)}
-              onFixtureDelete={(fixtureId) => {
-                engine.removeFixture(fixtureId);
-                setSelectedFixtureId(undefined);
-              }}
-              unitSystem={unitSystem}
-              morePanel={morePanel}
-            />
+          {!presentationLock && !zenMode && !expand3DPanel && (
+          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark hidden w-72 shrink-0 flex-col overflow-hidden md:flex">
+            {propertiesPanel}
           </aside>
           )}
         </div>
 
+        {!presentationLock && !zenMode && (
+          <>
+            <button
+              type="button"
+              className="vish-properties-fab touch-target fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text shadow-lg md:hidden"
+              aria-label="Open properties panel"
+              onClick={() => setPropertiesSheetOpen(true)}
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+            </button>
+            <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
+              <SheetContent side="bottom" className="vish-dark-panel ws-panel-dark max-h-[85dvh] overflow-y-auto p-0 md:hidden">
+                <SheetHeader className="border-b border-ws-border px-4 py-3 text-left">
+                  <SheetTitle className="text-sm font-semibold text-ws-text">Properties</SheetTitle>
+                </SheetHeader>
+                {propertiesPanel}
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
+
         <StatusBar
           currentTool={currentTool}
+          workspaceMode={workspaceMode}
           wallCount={walls.length}
           openingCount={openings.length}
           mousePos={mousePos}

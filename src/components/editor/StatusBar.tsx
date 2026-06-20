@@ -1,11 +1,14 @@
 import { Eye, EyeOff, Magnet, Minus, Plus } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';
+import { resolveEditorMantraChip } from '@/editor/editorMantras';
 import { STATUS_TOOL_HINTS, TOUCH_STATUS_HINTS, TOOL_META } from '@/editor/toolMeta';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
-import type { ToolType } from '@/types';
+import type { ToolType, WorkspaceMode } from '@/types';
+import EditorMantraToggle from '@/components/editor/EditorMantraToggle';
 
 export default function StatusBar({
   currentTool,
+  workspaceMode = 'draft',
   wallCount,
   openingCount,
   mousePos,
@@ -18,6 +21,7 @@ export default function StatusBar({
   onZoomOut,
 }: {
   currentTool: ToolType;
+  workspaceMode?: WorkspaceMode;
   wallCount: number;
   openingCount: number;
   mousePos: { x: number; y: number };
@@ -33,6 +37,7 @@ export default function StatusBar({
   const meta = TOOL_META[currentTool];
   const ToolIcon = meta?.icon;
   const hint = isCoarsePointer ? TOUCH_STATUS_HINTS[currentTool] : STATUS_TOOL_HINTS[currentTool];
+  const mantraChip = resolveEditorMantraChip(workspaceMode);
   const showTouchZoom = isCoarsePointer && onZoomIn && onZoomOut;
 
   return (
@@ -101,6 +106,7 @@ export default function StatusBar({
         <span>{dimensionVisibility ? 'Dims ON' : 'Dims OFF'}</span>
       </button>
       <div className="ml-auto flex items-center gap-2">
+        {isCoarsePointer && <EditorMantraToggle />}
         {onResetViewport && canvasZoom !== undefined && canvasZoom !== 1 && (
           <button
             type="button"
@@ -112,7 +118,7 @@ export default function StatusBar({
           </button>
         )}
         <div className="ws-status-item shrink-0">
-          <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">ॐ शिल्प · </span>
+          <span className="font-devanagari hidden text-[9px] text-primary/60 md:inline">{mantraChip} · </span>
           <span>Vishvakarma.OS {APP_VERSION}</span>
         </div>
       </div>

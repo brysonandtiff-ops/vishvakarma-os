@@ -1,10 +1,14 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const resultsPanelSource = readFileSync(
-  new URL('../components/editor/ai-designer/AIDesignerResultsPanel.tsx', import.meta.url),
-  'utf8',
-);
+const repoRoot = resolve(process.cwd());
+
+function read(path: string) {
+  return readFileSync(resolve(repoRoot, path), 'utf8');
+}
+
+const resultsPanelSource = read('src/components/editor/ai-designer/AIDesignerResultsPanel.tsx');
 
 describe('AI Copilot proof flow', () => {
   it('keeps the reviewer proof story visible in the deliverables view', () => {

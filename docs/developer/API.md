@@ -59,7 +59,12 @@ All authenticated routes verify the Supabase JWT via `api/_lib/verifySupabaseTok
 
 Extract structured building requirements from natural language.
 
-**Auth:** None (public; rate-limit at edge in production recommended)
+**Auth:** Bearer Supabase JWT. Unauthenticated requests get `401` and the client falls back
+to the in-browser local parser (no anonymous Gemini cost).
+
+**Rate limit:** Per-user daily Gemini ceiling by billing tier (see `src/config/aiUsage.ts`);
+over-limit requests get `429` and fall back to the local parser. Counter stored in the
+`ai_usage` table via the `increment_ai_usage` RPC.
 
 **Request body:**
 
@@ -87,7 +92,10 @@ Uses `GEMINI_API_KEY` when set; falls back to local parser when Gemini is unavai
 
 Parse uploaded site documents (plans, surveys) into structured data.
 
-**Auth:** Bearer Supabase JWT
+**Auth:** Bearer Supabase JWT (unauthenticated → `401`, client falls back to local parsing).
+
+**Limits:** Per-document base64 upload cap (`413` if exceeded) and the same per-tier daily
+Gemini ceiling as above (`429` when exceeded). See `src/config/aiUsage.ts`.
 
 **Request body:** Document payload (see handler for current schema)
 

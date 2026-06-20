@@ -1,13 +1,16 @@
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Cloud,
   Compass,
   FileOutput,
+  Flame,
+  HardDrive,
+  IndianRupee,
+  Lightbulb,
+  Palette,
   PenLine,
   Route,
-  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +19,7 @@ import FeatureCard from '@/components/common/FeatureCard';
 import MetricPill from '@/components/common/MetricPill';
 import { Button } from '@/components/ui/button';
 import { MarketingCtaSection } from '@/components/marketing/MarketingCtaSection';
+import MarketingSection from '@/components/marketing/MarketingSection';
 import { MarketingPageHeader } from '@/components/marketing/MarketingPageHeader';
 import { EXPORT_FORMAT_COUNT, PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,14 +48,14 @@ const FEATURE_MODULES = [
   {
     name: 'Lighting Fixtures',
     ready: true,
-    icon: Sparkles,
+    icon: Lightbulb,
     category: 'Drafting' satisfies FeatureCategory,
     description: 'Place and tune lighting fixtures with live preview in Sacred 3D View.',
   },
   {
     name: 'Custom Textures',
     ready: true,
-    icon: Sparkles,
+    icon: Palette,
     category: 'Drafting' satisfies FeatureCategory,
     description: 'Apply surface textures to walls and floors for client-ready 3D presentation.',
   },
@@ -73,7 +77,7 @@ const FEATURE_MODULES = [
   {
     name: 'Panchatattva Balance',
     ready: true,
-    icon: Sparkles,
+    icon: Flame,
     category: 'Compliance' satisfies FeatureCategory,
     description: 'Five-element balance indicators to support holistic spatial planning decisions.',
   },
@@ -87,7 +91,7 @@ const FEATURE_MODULES = [
   {
     name: 'INR Cost Regions',
     ready: true,
-    icon: Sparkles,
+    icon: IndianRupee,
     category: 'Compliance' satisfies FeatureCategory,
     description: 'Regional INR cost bands for materials and labour tied to your project geography.',
   },
@@ -108,7 +112,7 @@ const FEATURE_MODULES = [
   {
     name: 'Local Draft',
     ready: true,
-    icon: Sparkles,
+    icon: HardDrive,
     category: 'Delivery' satisfies FeatureCategory,
     description: 'Work offline with local draft recovery — no account required in development mode.',
   },
@@ -173,16 +177,21 @@ export default function FeaturesPage() {
           <MetricPill value={String(TUTORIAL_GUIDE_CARDS.length)} label="getting started guides" animate staggerIndex={2} />
           <MetricPill value={String(EXPORT_FORMAT_COUNT)} label="export formats" animate staggerIndex={3} />
         </div>
-        <Tabs defaultValue="guides" className="mt-10">
-          <TabsList className="vish-features-toggle h-auto min-h-nav-row w-full justify-start gap-1 bg-transparent p-0">
-            <TabsTrigger value="guides" className="touch-target rounded-xl" data-testid="features-tab-guides">
-              Getting Started
-            </TabsTrigger>
-            <TabsTrigger value="features" className="touch-target rounded-xl" data-testid="features-tab-all">
-              All Features
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="guides" className="mt-8" data-testid="features-panel-guides">
+      </section>
+
+      <MarketingSection className="vish-fade-rise" title="Explore capabilities" description="Browse in-app tours or the full module reference.">
+        <Tabs defaultValue="guides" className="mt-2">
+          <div className="vish-features-tabs-sticky -mx-1 px-1 pb-4">
+            <TabsList className="vish-features-toggle h-auto min-h-nav-row w-full justify-start gap-1 bg-transparent p-0">
+              <TabsTrigger value="guides" className="touch-target rounded-xl" data-testid="features-tab-guides">
+                Getting Started
+              </TabsTrigger>
+              <TabsTrigger value="features" className="touch-target rounded-xl" data-testid="features-tab-all">
+                All Features
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="guides" className="mt-2" data-testid="features-panel-guides">
             <div className="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {TUTORIAL_GUIDE_CARDS.map((guide) => (
                 <FeatureCard
@@ -203,7 +212,7 @@ export default function FeaturesPage() {
               ))}
             </div>
           </TabsContent>
-          <TabsContent value="features" className="mt-8 space-y-10" data-testid="features-panel-all">
+          <TabsContent value="features" className="mt-2 space-y-10" data-testid="features-panel-all">
             {FEATURE_CATEGORIES.map((category) => {
               const modules = FEATURE_MODULES.filter((mod) => mod.category === category);
               return (
@@ -215,6 +224,7 @@ export default function FeaturesPage() {
                         key={mod.name}
                         title={mod.name}
                         icon={mod.icon}
+                        preview={'preview' in mod && mod.preview}
                         badge={mod.ready ? 'Available' : 'Preview'}
                         description={mod.description}
                       />
@@ -225,7 +235,7 @@ export default function FeaturesPage() {
             })}
           </TabsContent>
         </Tabs>
-      </section>
+      </MarketingSection>
 
       <MarketingCtaSection
         user={user}

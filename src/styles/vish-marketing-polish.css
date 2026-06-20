@@ -13,6 +13,12 @@
   position: relative;
 }
 
+/* Split heroes keep copy left-aligned at lg+ without fighting centered heroes */
+.vish-marketing-hero:not(:has(.vish-hero-split)) .vish-hero-copy,
+.vish-marketing-hero .vish-hero-split .vish-hero-copy {
+  text-align: inherit;
+}
+
 /* Devanagari eyebrow above the hero title */
 .vish-marketing-hero .vish-devanagari-eyebrow,
 [class*="devanagari"],
@@ -66,25 +72,25 @@
    METRIC PILLS — Stat row below hero
    -------------------------------------------------------------------------- */
 
-.vish-metric-pill,
-[class*="MetricPill"],
-[class*="metric-pill"] {
-  background: hsl(240 28% 9% / 0.8) !important;
-  border: 1px solid hsl(240 20% 18% / 0.7) !important;
-  border-radius: 0.875rem !important;
-  padding: 1.25rem 1rem !important;
+.vish-stat-pill,
+.vish-metric-pill {
+  background: hsl(240 28% 9% / 0.8);
+  border: 1px solid hsl(240 20% 18% / 0.7);
+  border-radius: 0.875rem;
+  padding: 1.25rem 1rem;
   text-align: center;
   transition:
     border-color 200ms ease,
     box-shadow 200ms ease,
-    transform 200ms ease !important;
+    transform 200ms ease;
 }
 
-.vish-metric-pill:hover,
-[class*="MetricPill"]:hover {
-  border-color: hsl(42 78% 50% / 0.3) !important;
-  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.15), 0 4px 16px hsl(42 78% 50% / 0.1) !important;
-  transform: translateY(-2px) !important;
+.vish-stat-pill--interactive:hover,
+.vish-stat-pill:hover,
+.vish-metric-pill:hover {
+  border-color: hsl(42 78% 50% / 0.3);
+  box-shadow: 0 0 0 1px hsl(42 78% 50% / 0.15), 0 4px 16px hsl(42 78% 50% / 0.1);
+  transform: translateY(-2px);
 }
 
 /* --------------------------------------------------------------------------
@@ -112,24 +118,17 @@
    FEATURE CARDS
    -------------------------------------------------------------------------- */
 
-/* Target the FeatureCard component */
-[class*="feature-card"],
-[class*="FeatureCard"],
-.vish-feature-card-wrap {
-  background: hsl(240 28% 9% / 0.75) !important;
-  border: 1px solid hsl(240 20% 16% / 0.65) !important;
-  border-radius: 1.125rem !important;
-  padding: 1.75rem !important;
+/* FeatureCard component */
+.vish-feature-grid-card {
+  position: relative;
+  overflow: hidden;
   transition:
     border-color 220ms ease,
     transform 220ms ease,
-    box-shadow 220ms ease !important;
-  position: relative;
-  overflow: hidden;
+    box-shadow 220ms ease;
 }
 
-[class*="feature-card"]::before,
-[class*="FeatureCard"]::before {
+.vish-feature-grid-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -141,16 +140,31 @@
   transition: opacity 220ms ease;
 }
 
-[class*="feature-card"]:hover,
-[class*="FeatureCard"]:hover {
-  border-color: hsl(42 78% 50% / 0.28) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 28px hsl(240 48% 4% / 0.4), 0 0 20px hsl(42 78% 50% / 0.07) !important;
+.vish-feature-grid-card:hover {
+  border-color: hsl(42 78% 50% / 0.28);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px hsl(240 48% 4% / 0.4), 0 0 20px hsl(42 78% 50% / 0.07);
 }
 
-[class*="feature-card"]:hover::before,
-[class*="FeatureCard"]:hover::before {
+.vish-feature-grid-card:hover::before {
   opacity: 1;
+}
+
+.vish-feature-grid-card--preview {
+  border-color: hsl(240 20% 22% / 0.65);
+  opacity: 0.92;
+}
+
+.vish-feature-grid-card--preview:hover {
+  border-color: hsl(240 20% 30% / 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px hsl(240 48% 4% / 0.25);
+}
+
+.vish-feature-badge--preview {
+  border-color: hsl(240 15% 35% / 0.5);
+  background: hsl(240 20% 14% / 0.6);
+  color: hsl(240 10% 62%);
 }
 
 /* --------------------------------------------------------------------------
@@ -329,4 +343,161 @@
   .vish-pricing-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* --------------------------------------------------------------------------
+   HERO SPLIT + PRODUCT SHOWCASE
+   Copy on the left, a layered 2D → 3D product teaser on the right (lg+).
+   Stacks vertically on smaller screens, keeping the centered hero rhythm.
+   -------------------------------------------------------------------------- */
+
+.vish-hero-split {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.75rem, 6vw, 3.5rem);
+}
+
+.vish-hero-copy {
+  min-width: 0;
+}
+
+.vish-hero-showcase {
+  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0.5rem auto 0;
+  padding-bottom: 1.5rem; /* room for the overlapping 2D inset */
+  isolation: isolate;
+}
+
+.vish-hero-showcase__main {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-2xl, 1.25rem);
+  aspect-ratio: 16 / 11;
+  animation: vish-hero-float 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+.vish-hero-showcase__main img,
+.vish-hero-showcase__inset img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vish-hero-showcase__main figcaption,
+.vish-hero-showcase__inset figcaption {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  background: hsl(36 16% 6% / 0.74);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid hsl(42 78% 60% / 0.28);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(42 70% 78%);
+}
+
+.vish-hero-showcase__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: hsl(142 60% 52%);
+  box-shadow: 0 0 10px hsl(142 60% 52% / 0.9);
+}
+
+.vish-hero-showcase__inset {
+  position: absolute;
+  left: -0.75rem;
+  bottom: 0;
+  z-index: 2;
+  width: 46%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xl, 1rem);
+  aspect-ratio: 16 / 11;
+  animation: vish-hero-float 9s ease-in-out infinite reverse;
+  will-change: transform;
+}
+
+.vish-hero-showcase__flow {
+  position: absolute;
+  top: -0.85rem;
+  right: 1.25rem;
+  z-index: 3;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, hsl(31 63% 32%), hsl(43 65% 52%), hsl(43 74% 62%));
+  color: hsl(36 24% 10%);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px hsl(0 0% 0% / 0.35), 0 0 22px hsl(43 65% 52% / 0.45);
+}
+
+@keyframes vish-hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vish-hero-split {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(2rem, 4vw, 4rem);
+    text-align: left;
+  }
+
+  .vish-hero-copy {
+    flex: 1 1 0;
+  }
+
+  .vish-hero-copy :is(h1, p) {
+    margin-inline: 0;
+  }
+
+  .vish-hero-showcase {
+    flex: 1.08 1 0;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-hero-showcase__main,
+  .vish-hero-showcase__inset {
+    animation: none;
+  }
+
+  .vish-devanagari-hero,
+  .vish-sacred-mandala-layer,
+  .vish-sacred-rain-layer {
+    animation: none !important;
+  }
+}
+
+/* Sticky feature tabs on scroll */
+.vish-features-tabs-sticky {
+  position: sticky;
+  top: calc(var(--vish-nav-row-height, 3.25rem) + 0.5rem);
+  z-index: 20;
+  background: linear-gradient(180deg, hsl(240 48% 4% / 0.92) 70%, transparent);
+  backdrop-filter: blur(8px);
 }

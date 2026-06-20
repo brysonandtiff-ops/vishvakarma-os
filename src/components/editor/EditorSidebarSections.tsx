@@ -1,21 +1,8 @@
-import {
-  Box,
-  Download,
-  ExternalLink,
-  FileDown,
-  FolderOpen,
-  Grid3x3,
-  Loader2,
-  Package,
-  Plus,
-  Save,
-  Sparkles,
-  type LucideIcon,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Loader2, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
+import { getEditorProjectAction, getEditorViewAction } from '@/editor/editorActionRegistry';
 
 interface EditorSidebarSectionsProps {
   config: EditorSidebarConfig;
@@ -133,32 +120,29 @@ export default function EditorSidebarSections({
   collapsed = false,
   onAfterAction,
 }: EditorSidebarSectionsProps) {
-  const navigate = useNavigate();
-  const open3DRoom = config.onOpen3DRoom ?? (() => {
-    config.onSave();
-    navigate('/3d-room');
-  });
+  const toggle3D = getEditorViewAction('toggle3D');
+  const toggleGrid = getEditorViewAction('toggleGrid');
 
   const projectActions: ActionDef[] = [
     {
       id: 'new-project',
       testId: 'editor-sidebar-new-project',
-      icon: Plus,
-      label: 'New project',
+      icon: getEditorProjectAction('newProject').icon,
+      label: getEditorProjectAction('newProject').label,
       onClick: config.onNewProject,
     },
     {
       id: 'open-project',
       testId: 'editor-sidebar-open-project',
-      icon: FolderOpen,
-      label: 'Open project',
+      icon: getEditorProjectAction('openProject').icon,
+      label: getEditorProjectAction('openProject').label,
       onClick: config.onOpenProject,
     },
     {
       id: 'save',
       testId: 'editor-sidebar-save',
-      icon: Save,
-      label: 'Save',
+      icon: getEditorProjectAction('save').icon,
+      label: getEditorProjectAction('save').label,
       onClick: config.onSave,
       loading: config.savingProject,
       disabled: config.savingProject,
@@ -166,45 +150,38 @@ export default function EditorSidebarSections({
     {
       id: 'import',
       testId: 'editor-sidebar-import',
-      icon: Download,
-      label: 'Import floor plan',
+      icon: getEditorProjectAction('import').icon,
+      label: getEditorProjectAction('import').label,
       onClick: config.onImport,
     },
     {
       id: 'export',
       testId: 'editor-sidebar-export',
-      icon: FileDown,
-      label: 'Export floor plan',
+      icon: getEditorProjectAction('export').icon,
+      label: getEditorProjectAction('export').label,
       onClick: config.onExport,
     },
     {
       id: 'load-sample',
       testId: 'editor-sidebar-load-sample',
-      icon: Package,
-      label: 'Load sample blueprint',
+      icon: getEditorProjectAction('loadSample').icon,
+      label: getEditorProjectAction('loadSample').label,
       onClick: config.onLoadSample,
     },
     {
       id: 'ai-copilot',
       testId: 'editor-sidebar-ai-copilot',
-      icon: Sparkles,
-      label: 'Architecture Copilot',
+      icon: getEditorProjectAction('aiDesigner').icon,
+      label: getEditorProjectAction('aiDesigner').label,
       onClick: config.onAIDesigner,
     },
   ];
 
   const viewActions: ActionDef[] = [
     {
-      id: 'open-3d-room',
-      testId: 'editor-sidebar-open-3d-room',
-      icon: ExternalLink,
-      label: 'Open 3D Room',
-      onClick: open3DRoom,
-    },
-    {
       id: 'toggle-3d',
       testId: 'editor-sidebar-toggle-3d',
-      icon: Box,
+      icon: toggle3D.icon,
       label: config.show3DView ? 'Hide 3D view' : 'Show 3D view',
       onClick: config.onToggle3D,
       active: config.show3DView,
@@ -212,7 +189,7 @@ export default function EditorSidebarSections({
     {
       id: 'toggle-grid',
       testId: 'editor-sidebar-toggle-grid',
-      icon: Grid3x3,
+      icon: toggleGrid.icon,
       label: config.gridVisible ? 'Hide grid' : 'Show grid',
       onClick: config.onToggleGrid,
       active: config.gridVisible,

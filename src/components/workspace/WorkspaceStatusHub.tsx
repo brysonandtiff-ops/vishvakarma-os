@@ -1,4 +1,4 @@
-﻿import { useLocation } from 'react-router';
+﻿import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ShieldCheck, Activity, HardDrive, Target } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';

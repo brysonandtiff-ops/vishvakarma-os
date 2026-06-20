@@ -19,7 +19,7 @@ const lockedPaths = [
 describe('workspace command palette', () => {
   it('only targets locked, private routes from the manifest', () => {
     const privatePaths = routes
-      .filter((route) => route.access === 'private')
+      .filter((route) => route.access === 'private' && route.visible !== false)
       .map((route) => route.path);
 
     const palettePaths = getNavigableRoutes().map((route) => route.path);

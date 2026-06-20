@@ -22,29 +22,27 @@
    -------------------------------------------------------------------------- */
 
 /* Override existing top bar styles for a cleaner, more premium feel */
-[class*="editor-top-bar"],
-[class*="EditorTopBar"],
+.vish-editor-topbar,
 .vish-editor-topbar-chrome {
-  height: 52px !important;
-  background: hsl(240 32% 6% / 0.98) !important;
-  border-bottom: 1px solid hsl(240 20% 12% / 0.9) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0 1rem !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
+  height: 52px;
+  background: hsl(240 32% 6% / 0.98);
+  border-bottom: 1px solid hsl(240 20% 12% / 0.9);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   position: relative;
   z-index: 50;
 }
 
 /* Project name in top bar */
-[class*="project-name"],
-[class*="ProjectName"] {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  color: hsl(240 10% 80%) !important;
-  letter-spacing: -0.01em !important;
+.vish-editor-topbar .truncate.text-sm.font-semibold {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(240 10% 80%);
+  letter-spacing: -0.01em;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -52,98 +50,100 @@
 }
 
 /* Mode selector tabs in top bar */
-[class*="mode-tab"],
-[class*="ModeTab"] {
-  padding: 0.3rem 0.75rem !important;
-  border-radius: 9999px !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.03em !important;
-  cursor: pointer !important;
-  transition: all 150ms ease !important;
-  color: hsl(240 10% 48%) !important;
-  background: transparent !important;
-  border: 1px solid transparent !important;
+.vish-mode-tab,
+.vish-editor-mode-badge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 150ms ease;
+  color: hsl(240 10% 48%);
+  background: transparent;
+  border: 1px solid transparent;
 }
 
-[class*="mode-tab"]:hover,
-[class*="ModeTab"]:hover {
-  background: hsl(240 20% 13% / 0.8) !important;
-  color: hsl(240 10% 70%) !important;
+.vish-mode-tab:hover,
+.vish-editor-mode-badge:hover {
+  background: hsl(240 20% 13% / 0.8);
+  color: hsl(240 10% 70%);
 }
 
-[class*="mode-tab"][data-active="true"],
-[class*="mode-tab"].active,
-[class*="ModeTab"][data-active="true"],
-[class*="ModeTab"].active {
-  background: hsl(42 78% 50% / 0.14) !important;
-  color: hsl(42 78% 66%) !important;
-  border-color: hsl(42 78% 50% / 0.25) !important;
-  box-shadow: 0 0 10px hsl(42 78% 50% / 0.12) !important;
+.vish-mode-tab.active,
+.vish-mode-tab[aria-pressed='true'],
+.vish-editor-mode-badge[aria-expanded='true'] {
+  background: hsl(42 78% 50% / 0.14);
+  color: hsl(42 78% 66%);
+  border-color: hsl(42 78% 50% / 0.25);
+  box-shadow: 0 0 10px hsl(42 78% 50% / 0.12);
 }
 
 /* --------------------------------------------------------------------------
    3. TOOL RAIL / TOOL DOCK
    -------------------------------------------------------------------------- */
 
-[class*="tool-rail"],
-[class*="ToolRail"],
-[class*="tool-dock"],
-[class*="ToolDock"] {
-  background: hsl(240 32% 6% / 0.97) !important;
-  border-right: 1px solid hsl(240 20% 12% / 0.8) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 2px !important;
-  padding: 0.625rem 0.375rem !important;
-  width: 52px !important;
+.vish-tool-rail,
+.architect-tool-dock {
+  background: hsl(240 32% 6% / 0.97);
+  border-right: 1px solid hsl(240 20% 12% / 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.625rem 0.375rem;
+  width: 52px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 /* Tool button */
-[class*="tool-btn"],
-[class*="ToolBtn"],
-[class*="tool-button"],
-[class*="ToolButton"] {
-  width: 40px !important;
-  height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 0.625rem !important;
-  cursor: pointer !important;
-  color: hsl(240 10% 48%) !important;
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  transition: all 130ms ease !important;
+.architect-tool-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  color: hsl(240 10% 48%);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 130ms ease;
   position: relative;
   flex-shrink: 0;
 }
 
-[class*="tool-btn"]:hover,
-[class*="ToolBtn"]:hover,
-[class*="tool-button"]:hover,
-[class*="ToolButton"]:hover {
-  background: hsl(240 20% 13% / 0.8) !important;
-  color: hsl(240 10% 78%) !important;
-  border-color: hsl(240 20% 20% / 0.5) !important;
+.architect-tool-button:hover {
+  background: hsl(240 20% 13% / 0.8);
+  color: hsl(240 10% 78%);
+  border-color: hsl(240 20% 20% / 0.5);
 }
 
-[class*="tool-btn"][data-active="true"],
-[class*="tool-btn"].active,
-[class*="ToolBtn"][data-active="true"],
-[class*="ToolBtn"].active,
-[class*="tool-button"][data-active="true"],
-[class*="tool-button"].active {
-  background: hsl(42 78% 50% / 0.16) !important;
-  color: hsl(42 78% 65%) !important;
-  border-color: hsl(42 78% 50% / 0.3) !important;
-  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15) !important;
+.architect-tool-button.active,
+.architect-tool-button[aria-pressed='true'] {
+  background: hsl(42 78% 50% / 0.16);
+  color: hsl(42 78% 65%);
+  border-color: hsl(42 78% 50% / 0.3);
+  box-shadow: 0 0 12px hsl(42 78% 50% / 0.15);
 }
 
 /* Tool group separator */
+.vish-preview-chip {
+  border-color: hsl(36 14% 72% / 0.35);
+  background: hsl(36 20% 94% / 0.9);
+  color: hsl(36 10% 42%);
+}
+
+.vish-properties-fab {
+  box-shadow: 0 8px 24px hsl(36 20% 20% / 0.18);
+}
+
+.vish-editor-loading-overlay {
+  pointer-events: none;
+}
+
 .vish-tool-separator {
   width: 28px;
   height: 1px;

@@ -32,21 +32,14 @@ import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
 import type { Project } from '@/types';
 import {
-  buildSampleManifest,
-  getSampleDefinition,
+  getSamplesForSurface,
   getSampleFeatureBadges,
   getSampleStats,
+  resolveSampleManifestSync,
 } from '@/core/sampleCatalog';
+import { openManifestInEditor } from '@/editor/openManifestInEditor';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
-
-const PROJECT_DEMO_SAMPLE_IDS = ['family-home-4br', 'duplex-two-floor', 'courtyard-villa-indian'] as const;
-
-const PROJECT_DEMO_EYEBROWS: Record<(typeof PROJECT_DEMO_SAMPLE_IDS)[number], string> = {
-  'family-home-4br': 'Family home walkthrough',
-  'duplex-two-floor': 'Multi-floor pilot',
-  'courtyard-villa-indian': 'Vastu showcase',
-};
 
 function isProjectArchived(project: Project): boolean {
   if (project.manifest.metadata.archived) return true;
@@ -74,16 +67,12 @@ export default function ProjectsPage() {
 
   const demoSamples = useMemo(
     () =>
-      PROJECT_DEMO_SAMPLE_IDS.map((sampleId) => {
-        const sample = getSampleDefinition(sampleId);
-        if (!sample) return null;
-        return {
-          sample,
-          eyebrow: PROJECT_DEMO_EYEBROWS[sampleId],
-          stats: getSampleStats(sample),
-          badges: getSampleFeatureBadges(sample),
-        };
-      }).filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
+      getSamplesForSurface('projects-demo').map((sample) => ({
+        sample,
+        eyebrow: sample.demoEyebrow ?? sample.name,
+        stats: getSampleStats(sample),
+        badges: getSampleFeatureBadges(sample),
+      })),
     [],
   );
 
@@ -113,13 +102,8 @@ export default function ProjectsPage() {
 
   const openDemoSample = (sampleId: string) => {
     try {
-      const manifest = buildSampleManifest(sampleId);
-      navigate('/editor', {
-        state: {
-          loadManifest: manifest,
-          projectName: manifest.name,
-        },
-      });
+      const manifest = resolveSampleManifestSync(sampleId);
+      openManifestInEditor(navigate, manifest, { source: 'sample', name: manifest.name });
     } catch (err) {
       console.error('Failed to open demo sample:', err);
       toast.error('Failed to open demo sample');

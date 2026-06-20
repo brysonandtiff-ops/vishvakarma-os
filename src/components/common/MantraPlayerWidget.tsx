@@ -243,6 +243,13 @@ export function MantraPlayerWidget() {
         </div>
       )}
 
+      {/* Discoverable label when collapsed */}
+      {!open && (
+        <span className="mantra-fab__label" aria-hidden="true">
+          Mantras
+        </span>
+      )}
+
       {/* ── Floating trigger button ── */}
       <button
         ref={buttonRef}

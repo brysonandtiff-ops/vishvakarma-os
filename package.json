@@ -37,6 +37,7 @@
     "capture:page-references": "node scripts/run-page-reference-pack.mjs",
     "assets:apple-touch-icon": "node scripts/generate-apple-touch-icon.mjs",
     "assets:pwa-icons": "node scripts/sync-pwa-icon-svgs.mjs && node scripts/generate-pwa-png-icons.mjs",
+    "assets:ios-splash": "node scripts/generate-ios-startup-images.mjs",
     "test:e2e:install": "pnpm exec playwright install --with-deps chromium firefox webkit",
     "lint": "pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure",
     "lint:types": "tsgo -p tsconfig.check.json && tsgo -p tsconfig.api-check.json",

@@ -1,10 +1,14 @@
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const demoFlow = readFileSync(
-  new URL('../../docs/demo/VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md', import.meta.url),
-  'utf8',
-);
+const repoRoot = resolve(process.cwd());
+
+function read(path: string) {
+  return readFileSync(resolve(repoRoot, path), 'utf8');
+}
+
+const demoFlow = read('docs/demo/VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md');
 
 describe('2-minute demo flow documentation', () => {
   it('keeps the investor walkthrough and safety wording aligned', () => {
