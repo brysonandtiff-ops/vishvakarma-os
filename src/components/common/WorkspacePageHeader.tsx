@@ -32,7 +32,7 @@ export default function WorkspacePageHeader({
   return (
     <header
       className={cn(
-        'workspace-page-header shrink-0',
+        'vish-workspace-header workspace-page-header shrink-0',
         isGovernance ? 'vish-gov-page-header gov-page-header' : 'vish-doc-page-header gov-page-header',
         animate && 'vish-panel-reveal',
         isGovernance
@@ -44,7 +44,7 @@ export default function WorkspacePageHeader({
             : 'border-b border-border/60 bg-card/40 px-6 py-5 md:px-8',
       )}
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="vish-workspace-header-inner flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 space-y-2">
           {eyebrow && (
             <p className="vish-eyebrow text-primary">{eyebrow}</p>

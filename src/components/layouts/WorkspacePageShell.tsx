@@ -23,7 +23,7 @@ export default function WorkspacePageShell({
     return (
       <div
         className={cn(
-          'vish-governance-shell flex h-full flex-col overflow-hidden bg-background',
+          'vish-workspace-page vish-governance-shell flex h-full flex-col overflow-hidden bg-background',
           animate && 'vish-page-enter',
           className,
         )}
@@ -36,7 +36,7 @@ export default function WorkspacePageShell({
   return (
     <div
       className={cn(
-        'mx-auto w-full px-page-x py-page-y',
+        'vish-workspace-page vish-workspace-content mx-auto w-full px-page-x py-page-y',
         WIDTH_CLASS[width],
         animate && 'vish-page-enter',
         className,
