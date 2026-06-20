@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Eye, EyeOff, Magnet, Minus, Plus } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';
 import { resolveEditorMantraChip } from '@/editor/editorMantras';
@@ -18,7 +19,7 @@ function StatusActionButton({
   title?: string;
   active?: boolean;
   onPress?: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const pressHandlers = useReliablePress(onPress);
 
