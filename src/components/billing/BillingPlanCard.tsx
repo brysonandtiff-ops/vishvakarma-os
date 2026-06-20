@@ -39,7 +39,7 @@ export function BillingPlanCard({
     <article
       className={cn(
         isMarketing && 'vish-pricing-card vish-fade-rise relative flex flex-col',
-        isMarketing && plan.popular && 'vish-pricing-popular',
+        isMarketing && plan.popular && 'vish-pricing-popular featured',
         staggerClass,
         !isMarketing && 'flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm',
         !isMarketing && plan.popular && 'border-primary/40 ring-1 ring-primary/20'

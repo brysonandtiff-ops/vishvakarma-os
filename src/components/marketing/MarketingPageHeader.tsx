@@ -26,7 +26,7 @@ export function MarketingPageHeader({
         <p className="vish-marketing-section-label mb-4">{label}</p>
       )}
       {hero ? (
-        <h1 className="vish-marketing-hero-title max-w-4xl vish-text-heading">{title}</h1>
+        <h1 className="vish-hero-title vish-marketing-hero-title max-w-4xl vish-text-heading">{title}</h1>
       ) : (
         <h1 className="text-3xl font-bold vish-text-heading md:text-4xl">{title}</h1>
       )}
