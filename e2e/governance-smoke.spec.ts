@@ -48,6 +48,7 @@ const governancePages: Array<{
     path: '/audit',
     heading: /audit log/i,
     assert: async (page) => {
+      await expect(page.getByTestId('audit-loading-skeleton')).toBeHidden({ timeout: 60_000 });
       await expect(page.getByRole('button', { name: /open the editor/i }).first()).toBeVisible();
     },
   },

@@ -144,7 +144,7 @@ export default function RegistryPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="vish-table vish-registry-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredEntries.map((entry) => {
                       const cfg = getTypeConfig(entry.type);
                       const Icon = cfg.icon;

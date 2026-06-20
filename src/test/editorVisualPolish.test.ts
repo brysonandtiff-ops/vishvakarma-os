@@ -75,6 +75,7 @@ describe('Blueprint editor visual polish', () => {
     expect(viewport).toContain('SceneContactShadows');
     expect(editor).toContain('onOpeningAdd={(opening) => engine.addOpening(opening)}');
     expect(editor).toContain('useFloorPlanEngine');
+    expect(editor).toContain('vish-editor-shell');
     expect(editor).toContain('vish-canvas-empty-hint');
     expect(editor).toContain('vish-editor-mantra-watermark');
     expect(editor).toContain('WelcomeOverlay');
@@ -98,6 +99,7 @@ describe('Blueprint editor visual polish', () => {
     expect(welcome).toContain('variant="gold"');
     expect(welcome).toContain('vish-editor-overlay-backdrop');
     expect(tutorial).toContain('data-testid="tutorial-overlay"');
+    expect(topBar).toContain('vish-editor-topbar-chrome');
     expect(topBar).toContain('TutorialHelpButton');
     expect(proofPanel).toContain('data-tutorial="project-proof"');
     expect(proofPanel).toContain('Project Proof');
