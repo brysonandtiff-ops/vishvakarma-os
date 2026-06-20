@@ -1,10 +1,13 @@
 // 2D Blueprint Canvas Component — pointer-first for mouse, touch, and Pencil-style input
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { toast } from 'sonner';
 import { useCanvasResize } from '@/hooks/useCanvasResize';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { useCanvasViewport } from '@/hooks/useCanvasViewport';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
+import { isElementLocked, getElementLock } from '@/modules/elementLock';
+import { getCollaborationEngine } from '@/modules/collaborationEngine';
 import { mapCanvasBufferToDisplay, mapCanvasBufferToWorld, mapPointerToCanvasBuffer, mapPointerToWorldCoords, mapWorldToCanvasBuffer } from '@/utils/canvasPointerCoords';
 import {
   computeStepZoomFactor,
@@ -49,6 +52,7 @@ import {
   drawLandscape2D,
   drawStair2D,
   FURNITURE_PRESETS,
+  getFurnitureDefaults,
   getLandscapeDefaults,
   LANDSCAPE_TYPES,
 } from '@/core/sceneVisualCatalog';
@@ -214,6 +218,51 @@ function snapOpeningPosition(position: number): number {
   return position;
 }
 
+function drawLockGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, color: string, userName: string) {
+  ctx.save();
+  
+  // Draw glassmorphic background container
+  ctx.fillStyle = 'rgba(5, 5, 7, 0.85)'; // Obsidian backdrop
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  
+  // Calculate text width for name tag
+  ctx.font = '9px system-ui, sans-serif';
+  const textWidth = ctx.measureText(userName).width;
+  const padding = 6;
+  const height = 18;
+  const width = 16 + textWidth + padding * 2;
+  const rx = x - width / 2;
+  const ry = y - height / 2;
+  
+  // Draw background round rect
+  ctx.beginPath();
+  ctx.roundRect(rx, ry, width, height, 4);
+  ctx.fill();
+  ctx.stroke();
+  
+  // Draw small lock icon
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.25;
+  
+  // Lock shackle
+  ctx.beginPath();
+  ctx.arc(rx + padding + 3, ry + 6, 2.5, Math.PI, 0);
+  ctx.stroke();
+  
+  // Lock body
+  ctx.beginPath();
+  ctx.roundRect(rx + padding, ry + 6, 6, 6, 1);
+  ctx.fill();
+  
+  // Draw name
+  ctx.fillStyle = '#f5f1e8'; // Parchment light text
+  ctx.fillText(userName, rx + padding + 10, ry + height / 2 + 3);
+  
+  ctx.restore();
+}
+
 export default function BlueprintCanvas({
   walls,
   openings,
@@ -292,6 +341,37 @@ export default function BlueprintCanvas({
     coarsePointer: isCoarsePointer,
   });
   const { bottomInset: keyboardBottomInset } = useVisualViewportInset();
+
+  useEffect(() => {
+    const engine = getCollaborationEngine();
+    if (!engine.isConnected()) return;
+
+    const lockedElements: { id: string; type: 'wall' | 'opening' | 'annotation' }[] = [];
+
+    if (selectedWallId) {
+      engine.broadcastLock(selectedWallId, 'wall');
+      lockedElements.push({ id: selectedWallId, type: 'wall' });
+    }
+    if (selectedOpeningId) {
+      engine.broadcastLock(selectedOpeningId, 'opening');
+      lockedElements.push({ id: selectedOpeningId, type: 'opening' });
+    }
+    if (selectedFixtureId) {
+      engine.broadcastLock(selectedFixtureId, 'annotation');
+      lockedElements.push({ id: selectedFixtureId, type: 'annotation' });
+    }
+    if (selectedLabelId) {
+      engine.broadcastLock(selectedLabelId, 'annotation');
+      lockedElements.push({ id: selectedLabelId, type: 'annotation' });
+    }
+
+    return () => {
+      for (const item of lockedElements) {
+        engine.broadcastUnlock(item.id, item.type);
+      }
+    };
+  }, [selectedWallId, selectedOpeningId, selectedFixtureId, selectedLabelId]);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point2D | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point2D | null>(null);
@@ -821,6 +901,11 @@ export default function BlueprintCanvas({
     if (currentTool === 'select') {
       const opening = getOpeningAtPoint(point, mode);
       if (opening) {
+        if (isElementLocked(opening.id, 'opening')) {
+          const lock = getElementLock(opening.id, 'opening');
+          toast.warning(`This opening is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
         onOpeningSelect?.(opening.id);
         onWallSelect(undefined);
         onWallsSelect?.([]);
@@ -833,6 +918,11 @@ export default function BlueprintCanvas({
 
       const furnitureItem = getFurnitureAtPoint(point, mode);
       if (furnitureItem && onFurnitureUpdate) {
+        if (isElementLocked(furnitureItem.id, 'annotation')) {
+          const lock = getElementLock(furnitureItem.id, 'annotation');
+          toast.warning(`This item is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
         onWallsSelect?.([]);
@@ -845,6 +935,11 @@ export default function BlueprintCanvas({
 
       const label = getLabelAtPoint(point);
       if (label) {
+        if (isElementLocked(label.id, 'annotation')) {
+          const lock = getElementLock(label.id, 'annotation');
+          toast.warning(`This label is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
         const now = Date.now();
         const lastTap = lastLabelTapRef.current;
         const isDoubleTap =
@@ -880,6 +975,11 @@ export default function BlueprintCanvas({
 
       const fixture = getFixtureAtPoint(point, mode);
       if (fixture) {
+        if (isElementLocked(fixture.id, 'annotation')) {
+          const lock = getElementLock(fixture.id, 'annotation');
+          toast.warning(`This fixture is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
         onFixtureSelect?.(fixture.id);
         onLabelSelect?.(undefined);
         onOpeningSelect?.(undefined);
@@ -895,6 +995,11 @@ export default function BlueprintCanvas({
           const hitRadius = getHitArea(mode, 8) / canvasViewport.zoom;
           const endpoint = getWallEndpointAtPoint(point, selectedWallForDrag, hitRadius);
           if (endpoint) {
+            if (isElementLocked(singleWallId, 'wall')) {
+              const lock = getElementLock(singleWallId, 'wall');
+              toast.warning(`This wall is locked by ${lock?.userName ?? 'another user'}`);
+              return;
+            }
             onOpeningSelect?.(undefined);
             onLabelSelect?.(undefined);
             onFixtureSelect?.(undefined);
@@ -910,6 +1015,11 @@ export default function BlueprintCanvas({
 
       const wall = getWallAtPoint(point, getHitArea(mode, 5));
       if (wall) {
+        if (isElementLocked(wall.id, 'wall')) {
+          const lock = getElementLock(wall.id, 'wall');
+          toast.warning(`This wall is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
         const additive = event.shiftKey;
         const currentIds = selectedWallIds?.length
           ? selectedWallIds
@@ -1417,6 +1527,28 @@ export default function BlueprintCanvas({
         startPoint,
         currentPoint,
       });
+
+      // Draw lock overlays for walls
+      for (const wall of displayWalls) {
+        const lock = getElementLock(wall.id, 'wall');
+        if (lock) {
+          const user = getCollaborationEngine().getUser(lock.userId);
+          const collabColor = user?.color ?? '#ef4444';
+          ctx.save();
+          ctx.strokeStyle = collabColor;
+          ctx.lineWidth = wall.thickness + 4;
+          ctx.globalAlpha = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(wall.start.x, wall.start.y);
+          ctx.lineTo(wall.end.x, wall.end.y);
+          ctx.stroke();
+          ctx.restore();
+
+          const midX = (wall.start.x + wall.end.x) / 2;
+          const midY = (wall.start.y + wall.end.y) / 2;
+          drawLockGlyph(ctx, midX, midY, collabColor, lock.userName);
+        }
+      }
     }
 
     if (layerVisibility.openings) {
@@ -1430,6 +1562,29 @@ export default function BlueprintCanvas({
           dragPositionPercent: opening.id === draggingOpeningId ? dragOpeningPosition ?? undefined : undefined,
           unitSystem,
         });
+
+        // Complete the element lock UI for openings
+        const lock = getElementLock(opening.id, 'opening');
+        if (lock) {
+          const user = getCollaborationEngine().getUser(lock.userId);
+          const collabColor = user?.color ?? '#ef4444';
+          const dx = wall.end.x - wall.start.x;
+          const dy = wall.end.y - wall.start.y;
+          const len = Math.hypot(dx, dy);
+          if (len > 0) {
+            const px = wall.start.x + dx * opening.position;
+            const py = wall.start.y + dy * opening.position;
+            ctx.save();
+            ctx.strokeStyle = collabColor;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.arc(px, py, opening.width / 2 + 4, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            drawLockGlyph(ctx, px, py, collabColor, lock.userName);
+          }
+        }
       }
     }
 
@@ -1452,6 +1607,27 @@ export default function BlueprintCanvas({
         }
         ctx.fillStyle = label.color ?? INK_LABEL;
         ctx.fillText(label.text, label.position.x, label.position.y);
+
+        // Complete the element lock UI for labels
+        const lock = getElementLock(label.id, 'annotation');
+        if (lock) {
+          const user = getCollaborationEngine().getUser(lock.userId);
+          const collabColor = user?.color ?? '#ef4444';
+          ctx.save();
+          ctx.strokeStyle = collabColor;
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.8;
+          ctx.strokeRect(label.position.x - 8, label.position.y - fontSize - 6, textWidth + 16, fontSize + 12);
+          ctx.restore();
+
+          drawLockGlyph(
+            ctx,
+            label.position.x + textWidth / 2,
+            label.position.y - fontSize / 2,
+            collabColor,
+            lock.userName,
+          );
+        }
       }
     }
 
@@ -1461,6 +1637,31 @@ export default function BlueprintCanvas({
           ? dragFurniturePosition
           : item.position;
         drawFurniture2D(ctx, item, pos, item.id === draggingFurnitureId);
+
+        // Complete the element lock UI for furniture items
+        const lock = getElementLock(item.id, 'annotation');
+        if (lock) {
+          const user = getCollaborationEngine().getUser(lock.userId);
+          const collabColor = user?.color ?? '#ef4444';
+          const defaults = getFurnitureDefaults(item.type);
+          const width = item.width ?? defaults.width;
+          const depth = item.depth ?? defaults.depth;
+          const hw = width / 2;
+          const hd = depth / 2;
+
+          ctx.save();
+          ctx.translate(pos.x, pos.y);
+          ctx.rotate(((item.rotation ?? 0) * Math.PI) / 180);
+          ctx.strokeStyle = collabColor;
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.8;
+          ctx.beginPath();
+          ctx.roundRect(-hw - 4, -hd - 4, width + 8, depth + 8, 4);
+          ctx.stroke();
+          ctx.restore();
+
+          drawLockGlyph(ctx, pos.x, pos.y, collabColor, lock.userName);
+        }
       }
 
       for (const staircase of staircases) {
@@ -1475,6 +1676,23 @@ export default function BlueprintCanvas({
 
       for (const fixture of fixtures) {
         drawFixture2D(ctx, fixture, { selected: fixture.id === selectedFixtureId });
+
+        // Complete the element lock UI for fixtures
+        const lock = getElementLock(fixture.id, 'annotation');
+        if (lock) {
+          const user = getCollaborationEngine().getUser(lock.userId);
+          const collabColor = user?.color ?? '#ef4444';
+          ctx.save();
+          ctx.strokeStyle = collabColor;
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.8;
+          ctx.beginPath();
+          ctx.arc(fixture.position.x, fixture.position.y, 12, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          drawLockGlyph(ctx, fixture.position.x, fixture.position.y, collabColor, lock.userName);
+        }
       }
     }
 

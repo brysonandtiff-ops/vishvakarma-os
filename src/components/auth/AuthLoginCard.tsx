@@ -51,6 +51,8 @@ interface AuthLoginCardProps {
   onSso: () => void;
   onRequestAccess: () => void;
   onCopyAuthUrl: () => void;
+  allowLocalWorkspace?: boolean;
+  onLocalWorkspace?: () => void;
 }
 
 export default function AuthLoginCard({
@@ -80,6 +82,8 @@ export default function AuthLoginCard({
   onSso,
   onRequestAccess,
   onCopyAuthUrl,
+  allowLocalWorkspace,
+  onLocalWorkspace,
 }: AuthLoginCardProps) {
   const emailId = useId();
   const passwordId = useId();
@@ -280,6 +284,18 @@ export default function AuthLoginCard({
                 <small>For companies and teams</small>
               </span>
             </button>
+
+            {allowLocalWorkspace && onLocalWorkspace && (
+              <button
+                type="button"
+                className="vish-login-page__secondary touch-target"
+                onClick={onLocalWorkspace}
+              >
+                <span className="flex w-full items-center justify-center">
+                  <b>Enter local workspace · स्थानीय कार्यस्थान</b>
+                </span>
+              </button>
+            )}
 
             <p
               id={statusId}

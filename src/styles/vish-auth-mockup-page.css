@@ -17,8 +17,9 @@
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   color: var(--vam-text);
   background:
-    radial-gradient(circle at 22% 36%, rgba(72, 182, 255, 0.18), transparent 34%),
-    radial-gradient(circle at 78% 12%, rgba(247, 201, 95, 0.18), transparent 26%),
+    radial-gradient(circle at 22% 36%, rgba(72, 182, 255, 0.08), transparent 34%),
+    radial-gradient(circle at 78% 12%, rgba(247, 201, 95, 0.08), transparent 26%),
+    url('/brand/auth-bg.png') center center / cover no-repeat,
     linear-gradient(135deg, #050914 0%, #071329 50%, #040711 100%);
   overflow-x: hidden;
   position: relative;
@@ -66,6 +67,11 @@
   justify-content: space-between;
   overflow: hidden;
   border-right: 1px solid rgba(247, 201, 95, 0.18);
+  background: linear-gradient(
+    to right,
+    rgba(5, 9, 20, 0.55) 0%,
+    rgba(5, 9, 20, 0.15) 100%
+  );
 }
 
 .vish-auth-mockup-hero::before {
@@ -326,12 +332,16 @@
   z-index: 4;
   padding: 42px;
   background:
-    linear-gradient(180deg, rgba(17, 31, 61, 0.92), rgba(8, 15, 31, 0.92)),
-    radial-gradient(circle at top, rgba(247, 201, 95, 0.12), transparent 34%);
-  border: 1px solid rgba(247, 201, 95, 0.36);
-  border-radius: 28px;
-  box-shadow: var(--vam-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(22px);
+    linear-gradient(180deg, rgba(6, 12, 28, 0.88) 0%, rgba(4, 9, 22, 0.94) 100%),
+    radial-gradient(circle at top, rgba(247, 201, 95, 0.14), transparent 34%);
+  border: 1px solid rgba(247, 201, 95, 0.45);
+  border-radius: 22px;
+  box-shadow:
+    var(--vam-shadow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 60px rgba(247, 201, 95, 0.08);
+  backdrop-filter: blur(40px) saturate(1.4);
+  -webkit-backdrop-filter: blur(40px) saturate(1.4);
   overflow: hidden;
 }
 
@@ -423,13 +433,14 @@
   width: 100%;
   height: 56px;
   padding: 0 52px;
-  border-radius: 12px;
-  border: 1px solid rgba(247, 201, 95, 0.32);
-  background: rgba(3, 8, 18, 0.56);
+  border-radius: 14px;
+  border: 1px solid rgba(247, 201, 95, 0.28);
+  background: rgba(3, 8, 22, 0.72);
   color: var(--vam-text);
   outline: none;
   font-size: 15px;
-  transition: 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 .vish-auth-mockup-field input:focus {
@@ -605,6 +616,21 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.875rem;
+}
+
+.vish-auth-mockup-bottom-tagline {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: rgba(247, 201, 95, 0.7);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-top: 8px;
 }
 
 .vish-auth-mockup-field input.vish-auth-mockup-password-mask {

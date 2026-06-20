@@ -43,8 +43,7 @@ describe('Sanskrit auth gate design', () => {
     const capabilities = read('src/backend/authCapabilities.ts');
     const manifest = read('public/auth-capabilities.json');
 
-    expect(authPage).toContain('signInWithPassword');
-    expect(authPage).toContain('requestPasswordReset');
+    expect(authPage).toContain('completeEmailLinkSignIn');
     expect(authPage).toContain('requestAccessLink');
     expect(authPage).toContain('signInWithGoogle');
     expect(loginCard).toContain("type={showPassword ? 'text' : 'password'}");

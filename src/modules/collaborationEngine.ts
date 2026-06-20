@@ -10,6 +10,7 @@ import { CollabSession } from '@/collaboration/sync/CollabSession';
 import { isCollabReadOnlyMode } from '@/collaboration/presenceReadOnly';
 import type { Presence } from '@/collaboration/types';
 import type { ProjectManifest } from '@/types';
+import { acquireElementLock, releaseElementLock } from '@/modules/elementLock';
 
 export interface User {
   id: string;
@@ -19,6 +20,7 @@ export interface User {
   activeTool?: string;
   isOnline: boolean;
   lastSeen: number;
+  focusedEntityId?: string;
 }
 
 export interface CollaborationMessage {
@@ -369,6 +371,15 @@ export class CollaborationEngine {
         user.activeTool = cursorData.tool;
         user.lastSeen = Date.now();
       }
+    } else if (message.type === 'lock') {
+      const lockData = (message as LockMessage).data;
+      const user = this.users.get(message.userId);
+      if (user) {
+        acquireElementLock(lockData.elementId, lockData.elementType, message.userId, user.name);
+      }
+    } else if (message.type === 'unlock') {
+      const lockData = (message as LockMessage).data;
+      releaseElementLock(lockData.elementId, lockData.elementType, message.userId);
     }
 
     this.deliverToCallbacks(message);
@@ -387,7 +398,22 @@ export class CollaborationEngine {
         activeTool: presence.activeTool,
         isOnline: true,
         lastSeen: presence.lastSeen,
+        focusedEntityId: presence.focusedEntityId,
       });
+
+      // Synchronize lock status for the element focused by the remote user
+      if (presence.focusedEntityId) {
+        // Find which type of element this is (wall/opening/furniture etc)
+        // Default to 'wall' if unclear, or check tool/id prefix
+        let type: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation' = 'wall';
+        if (presence.focusedEntityId.startsWith('door') || presence.focusedEntityId.startsWith('window') || presence.focusedEntityId.startsWith('opening')) {
+          type = 'opening';
+        } else if (presence.focusedEntityId.startsWith('furniture') || presence.focusedEntityId.startsWith('column') || presence.focusedEntityId.startsWith('stair')) {
+          type = 'annotation'; // mapped in elementLock
+        }
+        acquireElementLock(presence.focusedEntityId, type, presence.userId, presence.name);
+      }
+
       if (!existing) {
         this.deliverToCallbacks({
           type: 'presence',
@@ -409,6 +435,12 @@ export class CollaborationEngine {
     for (const [id, user] of this.users.entries()) {
       if (id !== this.currentUserId && !remoteIds.has(id)) {
         user.isOnline = false;
+        // Clean up locks held by users who went offline
+        if (user.focusedEntityId) {
+          releaseElementLock(user.focusedEntityId, 'wall', id);
+          releaseElementLock(user.focusedEntityId, 'opening', id);
+          releaseElementLock(user.focusedEntityId, 'annotation', id);
+        }
       }
     }
   }

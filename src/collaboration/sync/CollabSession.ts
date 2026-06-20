@@ -5,7 +5,7 @@ import type { CollaborationMessage } from '@/modules/collaborationEngine';
 import type { ProjectManifest } from '@/types';
 import { LocalCollabTransportAdapter, type CollabTransportAdapter } from './CollabTransportAdapter';
 import { SupabaseSnapshotProvider } from './SupabaseSnapshotProvider';
-import { YjsWebSocketProvider } from './YjsWebSocketProvider';
+import { SupabaseRealtimeProvider } from './SupabaseRealtimeProvider';
 
 function getCollabWsUrl(): string {
   const envUrl = import.meta.env.VITE_COLLAB_WS_URL;
@@ -23,7 +23,7 @@ export class CollabSession {
   private static instance: CollabSession | null = null;
   private bridge: ManifestCollabBridge | null = null;
   private transport: CollabTransportAdapter = new LocalCollabTransportAdapter();
-  private yjsProvider: YjsWebSocketProvider | null = null;
+  private yjsProvider: SupabaseRealtimeProvider | null = null;
   private snapshotProvider = new SupabaseSnapshotProvider();
   private connected = false;
   private roomId: string | null = null;
@@ -32,6 +32,7 @@ export class CollabSession {
   private presenceCallbacks = new Set<(presences: Presence[]) => void>();
   private options: CollabSessionOptions | null = null;
   private readOnly = false;
+
 
   static getInstance(): CollabSession {
     if (!CollabSession.instance) {
@@ -89,13 +90,10 @@ export class CollabSession {
       }
     }
 
-    const useRemote =
-      backendStatus.isConfigured &&
-      typeof import.meta.env.VITE_COLLAB_WS_URL === 'string' &&
-      import.meta.env.VITE_COLLAB_WS_URL.trim().length > 0;
+    const useRemote = backendStatus.isConfigured;
 
     if (useRemote) {
-      this.yjsProvider = new YjsWebSocketProvider({
+      this.yjsProvider = new SupabaseRealtimeProvider({
         doc: this.bridge.getDoc(),
         wsUrl: getCollabWsUrl(),
         projectId: options.projectId,

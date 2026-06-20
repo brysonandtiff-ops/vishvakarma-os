@@ -1,15 +1,14 @@
 import { backendStatus } from '@/backend/backendConfig';
 import {
-  getSupabaseProjectCollabSnapshot,
-  updateSupabaseProjectCollabSnapshot,
+  getSupabaseProject,
+  updateSupabaseProject,
 } from '@/backend/supabase/supabaseProjectGateway';
 import type { ManifestCollabBridge } from '@/collaboration/crdt/manifestBridge';
 
-const SNAPSHOT_DEBOUNCE_MS = 30_000;
+const SNAPSHOT_DEBOUNCE_MS = 2_000; // Fast debounce for saving manifest updates
 
 export class SupabaseSnapshotProvider {
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private revision = 0;
   private projectId: string | null = null;
   private bridge: ManifestCollabBridge | null = null;
 
@@ -28,24 +27,28 @@ export class SupabaseSnapshotProvider {
 
   async flushSnapshot(): Promise<void> {
     if (!backendStatus.isConfigured || !this.projectId || !this.bridge) return;
-    this.revision += 1;
-    const state = this.bridge.encodeState();
-    await updateSupabaseProjectCollabSnapshot(this.projectId, {
-      state,
-      updatedAt: new Date().toISOString(),
-      revision: this.revision,
-    });
+    const manifest = this.bridge.toManifest();
+    try {
+      await updateSupabaseProject(this.projectId, {
+        manifest,
+      });
+    } catch (error) {
+      console.error('[SupabaseSnapshotProvider] Failed to save manifest:', error);
+    }
   }
 
   async restoreSnapshot(projectId: string, bridge: ManifestCollabBridge): Promise<boolean> {
     if (!backendStatus.isConfigured) return false;
-    const snapshot = await getSupabaseProjectCollabSnapshot(projectId);
-    if (!snapshot?.state) return false;
-    bridge.applyEncodedState(snapshot.state);
-    this.revision = snapshot.revision;
-    this.projectId = projectId;
-    this.bridge = bridge;
-    return true;
+    try {
+      const project = await getSupabaseProject(projectId);
+      if (!project?.manifest) return false;
+      bridge.loadManifest(project.manifest);
+      this.projectId = projectId;
+      this.bridge = bridge;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   destroy(): void {
@@ -55,3 +58,4 @@ export class SupabaseSnapshotProvider {
     this.projectId = null;
   }
 }
+
