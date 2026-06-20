@@ -1151,10 +1151,14 @@ export default function Viewport3D({
           </p>
         )}
         {walkMode && isCoarsePointer && (
-          <div className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 touch-none backdrop-blur-md">
+          <div
+            className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 touch-none backdrop-blur-md"
+            data-testid="vish-3d-walk-pad"
+          >
             <span />
             <button
               type="button"
+              data-testid="vish-3d-walk-up"
               className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
               onPointerDown={() => setTouchMove(0, 1)}
               onPointerUp={() => setTouchMove(0, 0)}
@@ -1165,6 +1169,7 @@ export default function Viewport3D({
             <span />
             <button
               type="button"
+              data-testid="vish-3d-walk-left"
               className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
               onPointerDown={() => setTouchMove(-1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
@@ -1174,6 +1179,7 @@ export default function Viewport3D({
             </button>
             <button
               type="button"
+              data-testid="vish-3d-walk-down"
               className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
               onPointerDown={() => setTouchMove(0, -1)}
               onPointerUp={() => setTouchMove(0, 0)}

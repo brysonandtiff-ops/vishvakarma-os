@@ -63,10 +63,8 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     path: '/3d-room',
     name: '3D Room',
     access: 'private',
-    visible: true,
+    visible: false,
     layout: 'workspace-immersive',
-    navGroup: 'EDITOR',
-    showInNav: false,
   },
   {
     path: '/projects',
