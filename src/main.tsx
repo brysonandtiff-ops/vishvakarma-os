@@ -47,6 +47,7 @@ import "./styles/vish-mantra-widget.css";
 import "./styles/vish-theme-solar-mandala.css";
 import "./styles/vish-divine-architect-theme.css";
 import "./styles/vish-auth-reference-screen.css";
+import "./styles/vish-auth-ipad-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {
