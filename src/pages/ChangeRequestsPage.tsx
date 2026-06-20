@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus, AlertCircle } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
