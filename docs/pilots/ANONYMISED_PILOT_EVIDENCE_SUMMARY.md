@@ -38,7 +38,7 @@
 
 Does Vishvakarma.OS help someone understand, explain, and discuss a residential building idea faster before formal drafting begins?
 
-**Evidence answer:** TBD after pilot sessions.
+**Evidence answer:** Pending first pilot session. Preflight complete — screenshot pack, demo assets, and production health verified 2026-06-20.
 
 ---
 
