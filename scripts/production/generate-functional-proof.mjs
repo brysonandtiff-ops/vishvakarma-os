@@ -83,6 +83,18 @@ async function main() {
   const wallCount = sample.walls?.length ?? 0;
   const openingCount = sample.openings?.length ?? 0;
 
+  let saveLoadProofResult = 'PARTIAL';
+  let saveLoadEvidence = `Sample counts ${wallCount}/${openingCount}; cloud reload PARTIAL until Supabase live proof`;
+  try {
+    const saveLoadProof = await readFile(join(evidenceDir, 'save-load-proof.md'), 'utf-8');
+    if (/Result:\s*`PASS`/i.test(saveLoadProof)) {
+      saveLoadProofResult = 'PASS';
+      saveLoadEvidence = `save-load-proof.md PASS — Supabase save/reload verified (${wallCount}/${openingCount})`;
+    }
+  } catch {
+    // keep defaults
+  }
+
   const commandRows = [
     ['lint', 'pnpm run lint', lint],
     ['functional wiring + logo brand', 'vitest functionalWiring + officialLogoBrand', functionalWiring],
