@@ -1225,7 +1225,9 @@ export default function Viewport3D({
             </p>
           </div>
           <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-primary/20 bg-black/40 p-1 shadow-2xl backdrop-blur-md">
-            {(Object.keys(ATMOSPHERE_MODES) as AtmospherePerformanceMode[]).map((mode) => (
+            {(Object.keys(ATMOSPHERE_MODES) as AtmospherePerformanceMode[])
+              .filter((mode) => !isCoarsePointer || mode !== 'cinematic')
+              .map((mode) => (
               <button
                 key={mode}
                 type="button"
