@@ -1,0 +1,551 @@
+/* Vishvakarma.OS — final auth reference-match pass.
+   This layer is intentionally loaded after the iPad polish stylesheet and only
+   affects the desktop/tablet-wide auth composition. It brings the live auth
+   screen closer to the supplied blue/gold Vishvakarma reference: large divine
+   hero art, radiant mandala, right-side glass card, blueprint city lines, and
+   bottom mantra rail. */
+
+@media (min-width: 981px) {
+  .vish-login-page {
+    --vish-login-bg: #020817;
+    --vish-login-gold: #f6c665;
+    --vish-login-gold-soft: #ffe59a;
+    --vish-login-blue: #4bbcff;
+    --vish-login-text: #f9fbff;
+    --vish-login-muted: #b8c4dc;
+    --vish-login-line: rgba(255, 225, 138, 0.46);
+    grid-template-columns: minmax(42rem, 1.12fr) minmax(34rem, 0.88fr);
+    min-height: 100svh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 39% 36%, rgba(255, 227, 146, 0.42) 0 7%, rgba(255, 197, 83, 0.18) 16%, transparent 30%),
+      radial-gradient(circle at 34% 39%, rgba(65, 178, 255, 0.42), transparent 30%),
+      radial-gradient(circle at 83% 70%, rgba(247, 198, 101, 0.18), transparent 28%),
+      linear-gradient(110deg, #020817 0%, #061638 44%, #020817 100%);
+  }
+
+  .vish-login-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 225, 138, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 225, 138, 0.045) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255, 210, 105, 0.38) 0 1px, transparent 2px),
+      linear-gradient(118deg, transparent 0 38%, rgba(246, 198, 101, 0.20) 42%, transparent 48% 100%);
+    background-size: 68px 68px, 68px 68px, 96px 96px, auto;
+    mask-image: radial-gradient(circle at 46% 42%, black 0%, black 58%, transparent 92%);
+    opacity: 0.95;
+  }
+
+  .vish-login-page::after {
+    content: '';
+    position: absolute;
+    right: -12vw;
+    bottom: -11vh;
+    z-index: 0;
+    width: 42vw;
+    height: 30vh;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 30% 50%, rgba(255, 226, 138, 0.38), transparent 58%),
+      repeating-linear-gradient(154deg, transparent 0 12px, rgba(246, 198, 101, 0.44) 13px 15px, transparent 16px 29px),
+      linear-gradient(100deg, transparent 5%, rgba(246, 198, 101, 0.76), transparent 85%);
+    filter: blur(0.3px) drop-shadow(0 0 18px rgba(246, 198, 101, 0.48));
+    transform: rotate(-7deg);
+    opacity: 0.86;
+  }
+
+  .vish-login-page__hero {
+    min-height: 100svh;
+    padding: 2.2rem 2.1rem 2.4rem;
+    border-right: none;
+    overflow: hidden;
+  }
+
+  .vish-login-page__hero::before {
+    width: min(58vw, 960px);
+    height: min(58vw, 960px);
+    left: 16%;
+    top: -7%;
+    opacity: 0.62;
+    background:
+      repeating-conic-gradient(from 15deg, rgba(255, 229, 154, 0.95) 0deg, rgba(246, 198, 101, 0.20) 2.4deg, transparent 4.8deg, transparent 9deg),
+      repeating-radial-gradient(circle, transparent 0 2.1rem, rgba(255, 229, 154, 0.28) 2.15rem 2.22rem),
+      radial-gradient(circle, rgba(255, 214, 117, 0.30), transparent 64%);
+    filter: drop-shadow(0 0 34px rgba(255, 207, 99, 0.52));
+  }
+
+  .vish-login-page__hero::after {
+    width: min(43vw, 700px);
+    height: min(43vw, 700px);
+    left: 25%;
+    top: 8%;
+    border-color: rgba(255, 229, 154, 0.42);
+    box-shadow:
+      0 0 110px rgba(246, 198, 101, 0.30),
+      inset 0 0 96px rgba(75, 188, 255, 0.20);
+  }
+
+  .vish-login-page__brand-mark {
+    z-index: 6;
+    filter: drop-shadow(0 0 18px rgba(246, 198, 101, 0.24));
+  }
+
+  .vish-login-page__om {
+    font-size: clamp(2.45rem, 3vw, 3.35rem);
+    margin-bottom: 0.7rem;
+  }
+
+  .vish-login-page__brand-title {
+    font-size: clamp(1rem, 1.2vw, 1.32rem);
+    letter-spacing: 0.25em;
+  }
+
+  .vish-login-page__brand-subtitle {
+    font-size: 0.76rem;
+    line-height: 1.9;
+    letter-spacing: 0.18em;
+  }
+
+  .vish-login-page__deity-visual {
+    left: 15%;
+    top: 0;
+    width: min(50vw, 780px);
+    height: 96svh;
+    z-index: 3;
+    opacity: 1;
+    filter: drop-shadow(0 0 42px rgba(75, 188, 255, 0.42));
+  }
+
+  .vish-login-page__deity-glow {
+    left: 56%;
+    top: 38%;
+    width: min(43vw, 680px);
+    height: min(43vw, 680px);
+    background:
+      radial-gradient(circle, rgba(255, 229, 154, 0.72), transparent 50%),
+      radial-gradient(circle, rgba(75, 188, 255, 0.44), transparent 70%);
+    filter: blur(18px);
+  }
+
+  .vish-login-page__deity-face {
+    left: 56%;
+    top: 39%;
+    width: min(24vw, 355px);
+    height: min(38vw, 560px);
+    border-radius: 52% 46% 45% 54%;
+    background:
+      radial-gradient(circle at 58% 29%, rgba(255, 255, 255, 0.34), transparent 10%),
+      radial-gradient(circle at 42% 61%, rgba(75, 188, 255, 0.46), transparent 44%),
+      linear-gradient(145deg, #06152e 0%, #0d62c5 36%, #020817 100%);
+    box-shadow:
+      inset 44px 0 68px rgba(255, 255, 255, 0.10),
+      inset -52px -28px 90px rgba(0, 0, 0, 0.70),
+      0 0 92px rgba(75, 188, 255, 0.50);
+    clip-path: polygon(34% 0%, 73% 8%, 88% 34%, 82% 64%, 61% 100%, 31% 86%, 14% 51%, 18% 18%);
+  }
+
+  .vish-login-page__deity-face::before {
+    right: 6px;
+    top: 22%;
+    width: 56%;
+    height: 56%;
+    border-right-color: rgba(255, 255, 255, 0.48);
+  }
+
+  .vish-login-page__deity-face::after {
+    right: 37%;
+    top: 27%;
+    width: 22%;
+    height: 7px;
+    box-shadow:
+      0 15px 0 rgba(255, 255, 255, 0.78),
+      0 30px 0 rgba(255, 255, 255, 0.62);
+  }
+
+  .vish-login-page__crescent {
+    top: 4%;
+    width: min(6vw, 86px);
+    height: min(6vw, 86px);
+    border-width: 9px;
+    filter: drop-shadow(0 0 26px rgba(255, 229, 154, 0.78));
+  }
+
+  .vish-login-page__trident {
+    left: -5%;
+    top: 6%;
+    width: 28%;
+    height: 82%;
+    opacity: 0.96;
+  }
+
+  .vish-login-page__trident-shaft {
+    left: 50%;
+    top: 9%;
+    height: 86%;
+    width: 5px;
+  }
+
+  .vish-login-page__trident-prong {
+    height: 28%;
+    width: 42%;
+  }
+
+  .vish-login-page__features {
+    z-index: 7;
+    gap: clamp(1rem, 2vw, 1.55rem);
+    max-width: 18rem;
+    margin-top: 22vh;
+  }
+
+  .vish-login-page__feature {
+    grid-template-columns: 3.25rem 1fr;
+    gap: 1rem;
+  }
+
+  .vish-login-page__feature-icon {
+    width: 2.9rem;
+    height: 2.9rem;
+    border-color: rgba(255, 229, 154, 0.54);
+    background: rgba(246, 198, 101, 0.055);
+    box-shadow: 0 0 28px rgba(246, 198, 101, 0.24);
+  }
+
+  .vish-login-page__quote {
+    z-index: 7;
+    width: min(19rem, 32vw);
+    margin-bottom: 1.25rem;
+    background: rgba(2, 8, 23, 0.52);
+    border-color: rgba(255, 229, 154, 0.42);
+    box-shadow: 0 0 42px rgba(246, 198, 101, 0.14);
+  }
+
+  .vish-login-page__auth-side {
+    min-height: 100svh;
+    padding: clamp(4.7rem, 7vh, 6.4rem) clamp(3.2rem, 4vw, 5.5rem) 3rem;
+    overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(2, 8, 23, 0.06), rgba(2, 8, 23, 0.50)),
+      radial-gradient(circle at 78% 18%, rgba(75, 188, 255, 0.12), transparent 24rem);
+  }
+
+  .vish-login-page__auth-side::before {
+    content: '';
+    position: absolute;
+    inset: 12% -8% 4% auto;
+    width: min(30vw, 33rem);
+    pointer-events: none;
+    opacity: 0.72;
+    background:
+      linear-gradient(rgba(75, 188, 255, 0.20), rgba(75, 188, 255, 0.20)) 10% 84% / 2px 32% no-repeat,
+      linear-gradient(rgba(246, 198, 101, 0.70), rgba(246, 198, 101, 0.70)) 21% 78% / 2px 42% no-repeat,
+      linear-gradient(rgba(246, 198, 101, 0.62), rgba(246, 198, 101, 0.62)) 36% 70% / 2px 56% no-repeat,
+      linear-gradient(rgba(75, 188, 255, 0.24), rgba(75, 188, 255, 0.24)) 55% 58% / 2px 68% no-repeat,
+      linear-gradient(rgba(246, 198, 101, 0.62), rgba(246, 198, 101, 0.62)) 74% 65% / 2px 60% no-repeat,
+      linear-gradient(90deg, rgba(246, 198, 101, 0.65), rgba(246, 198, 101, 0.08)) 6% 99% / 90% 2px no-repeat,
+      repeating-linear-gradient(90deg, transparent 0 2.2rem, rgba(75, 188, 255, 0.16) 2.2rem 2.3rem),
+      repeating-linear-gradient(0deg, transparent 0 2.2rem, rgba(75, 188, 255, 0.11) 2.2rem 2.3rem);
+    clip-path: polygon(6% 100%, 6% 66%, 18% 66%, 18% 47%, 31% 47%, 31% 34%, 47% 34%, 47% 18%, 63% 18%, 63% 43%, 76% 43%, 76% 30%, 90% 30%, 90% 100%);
+    filter: drop-shadow(0 0 18px rgba(246, 198, 101, 0.26));
+  }
+
+  .vish-login-page__top-line {
+    top: 2rem;
+    right: 5.5rem;
+    z-index: 8;
+    color: var(--vish-login-gold-soft);
+    text-shadow: 0 0 18px rgba(246, 198, 101, 0.28);
+  }
+
+  .vish-login-page__top-line::after {
+    content: '☼';
+    position: absolute;
+    top: 0.02rem;
+    right: -3.5rem;
+    width: 2.45rem;
+    height: 2.45rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 229, 154, 0.58);
+    border-radius: 0.45rem;
+    color: var(--vish-login-gold-soft);
+    background: rgba(2, 8, 23, 0.68);
+    box-shadow: 0 0 22px rgba(246, 198, 101, 0.18);
+    font-size: 1.3rem;
+  }
+
+  .vish-login-page__auth-card {
+    width: min(34.5rem, 100%);
+    padding: clamp(2rem, 2.7vw, 2.85rem) clamp(2.2rem, 3.3vw, 3.45rem) 2.25rem;
+    border-radius: 2.1rem;
+    border: 1px solid rgba(255, 229, 154, 0.52);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.018)),
+      radial-gradient(circle at 50% 0%, rgba(246, 198, 101, 0.15), transparent 12rem),
+      rgba(4, 15, 38, 0.84);
+    box-shadow:
+      0 0 0 1px rgba(246, 198, 101, 0.12),
+      0 0 86px rgba(75, 188, 255, 0.14),
+      0 38px 115px rgba(0, 0, 0, 0.68);
+    backdrop-filter: blur(24px) saturate(1.22);
+  }
+
+  .vish-login-page__auth-card::before {
+    inset: 0.75rem;
+    border-radius: 1.55rem;
+    border-color: rgba(246, 198, 101, 0.25);
+    background:
+      linear-gradient(90deg, transparent 0 12%, rgba(246, 198, 101, 0.24) 12% 13%, transparent 13% 87%, rgba(246, 198, 101, 0.24) 87% 88%, transparent 88% 100%),
+      linear-gradient(0deg, transparent 0 15%, rgba(75, 188, 255, 0.10) 15% 16%, transparent 16% 84%, rgba(75, 188, 255, 0.10) 84% 85%, transparent 85% 100%);
+  }
+
+  .vish-login-page__auth-card::after {
+    inset: 0;
+    width: auto;
+    height: auto;
+    right: 0;
+    top: 0;
+    border-radius: inherit;
+    background:
+      linear-gradient(120deg, transparent 0 44%, rgba(255, 229, 154, 0.18) 49%, transparent 54% 100%);
+    opacity: 0.65;
+  }
+
+  .vish-login-page__logo {
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: 1.35rem;
+  }
+
+  .vish-login-page__logo-img {
+    width: 3rem;
+    height: 3rem;
+    filter: drop-shadow(0 0 18px rgba(246, 198, 101, 0.56));
+  }
+
+  .vish-login-page__logo::before {
+    border-color: rgba(255, 229, 154, 0.60);
+    box-shadow: 0 0 34px rgba(246, 198, 101, 0.28);
+  }
+
+  .vish-login-page__logo::after {
+    width: 4.1rem;
+    height: 4.1rem;
+  }
+
+  .vish-login-page__auth-heading {
+    margin-bottom: 1.65rem;
+  }
+
+  .vish-login-page__auth-heading h1 {
+    font-size: clamp(2.25rem, 3.05vw, 3.12rem);
+    line-height: 1.08;
+    letter-spacing: 0.18em;
+    text-shadow: 0 0 22px rgba(75, 188, 255, 0.18);
+  }
+
+  .vish-login-page__auth-heading > p:not(.vish-login-page__auth-note) {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.74rem;
+    letter-spacing: 0.18em;
+  }
+
+  .vish-login-page__auth-note,
+  .vish-login-page__field-help {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .vish-login-page__form {
+    gap: 0.95rem;
+  }
+
+  .vish-login-page__field label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .vish-login-page__field input {
+    height: 3.55rem;
+    padding: 0 3.2rem;
+    border-radius: 0.38rem;
+    border-color: rgba(255, 229, 154, 0.42);
+    background: rgba(3, 10, 24, 0.58);
+    box-shadow: inset 0 0 0 1px rgba(75, 188, 255, 0.045);
+  }
+
+  .vish-login-page__field input:focus {
+    border-color: rgba(255, 229, 154, 0.82);
+    box-shadow:
+      0 0 0 1px rgba(255, 229, 154, 0.32),
+      0 0 28px rgba(246, 198, 101, 0.18);
+  }
+
+  .vish-login-page__field-icon,
+  .vish-login-page__toggle {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .vish-login-page__field-icon {
+    left: 1.05rem;
+  }
+
+  .vish-login-page__toggle {
+    right: 0.72rem;
+  }
+
+  .vish-login-page__row {
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 1.15rem;
+    margin-top: -0.32rem;
+  }
+
+  .vish-login-page__remember {
+    display: none;
+  }
+
+  .vish-login-page__link {
+    color: var(--vish-login-gold-soft);
+    font-size: 0.82rem;
+    text-shadow: 0 0 14px rgba(246, 198, 101, 0.18);
+  }
+
+  .vish-login-page__primary {
+    position: relative;
+    min-height: 3.65rem;
+    height: 3.65rem;
+    border: 1px solid rgba(255, 229, 154, 0.82);
+    border-radius: 0.42rem;
+    background: linear-gradient(90deg, #ffe99e 0%, #f6c665 50%, #bd7d1d 100%);
+    color: #051024;
+    font-weight: 850;
+    letter-spacing: 0.17em;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 0 34px rgba(246, 198, 101, 0.31);
+    margin-top: 0;
+  }
+
+  .vish-login-page__primary svg {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 4.25rem;
+    height: 100%;
+    padding: 1rem;
+    border-left: 1px solid rgba(122, 76, 16, 0.44);
+  }
+
+  .vish-login-page__divider {
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.72rem;
+    margin: 0.12rem 0;
+  }
+
+  .vish-login-page__divider::before,
+  .vish-login-page__divider::after {
+    background: linear-gradient(90deg, transparent, rgba(246, 198, 101, 0.30), transparent);
+  }
+
+  .vish-login-page__secondary {
+    min-height: 3.65rem;
+    grid-template-columns: 3.2rem 1fr;
+    border-radius: 0.38rem;
+    border-color: rgba(255, 229, 154, 0.34);
+    background: rgba(3, 10, 24, 0.56);
+    padding: 0.58rem 1rem;
+  }
+
+  .vish-login-page__secondary b {
+    font-size: 0.94rem;
+    letter-spacing: 0.04em;
+  }
+
+  .vish-login-page__secondary small {
+    color: rgba(255, 255, 255, 0.76);
+  }
+
+  .vish-login-page__request {
+    margin-top: 1.25rem;
+    font-size: 0.84rem;
+  }
+
+  .vish-login-page__embedded-recovery {
+    z-index: 3;
+  }
+
+  .vish-login-page__version {
+    bottom: 1.6rem;
+    right: 1.6rem;
+    z-index: 8;
+    color: rgba(255, 229, 154, 0.82);
+  }
+
+  .vish-login-page__version::before {
+    content: 'INSPIRED BY DIVINITY   ✧   BUILT FOR HUMANITY';
+    position: fixed;
+    left: 50%;
+    bottom: 1.55rem;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 70vw;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: clamp(0.66rem, 1vw, 0.92rem);
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(246, 198, 101, 0.34);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 981px) and (max-height: 820px) {
+  .vish-login-page__auth-side {
+    padding-top: 4.35rem;
+    padding-bottom: 2.3rem;
+  }
+
+  .vish-login-page__auth-card {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .vish-login-page__logo {
+    width: 4.3rem;
+    height: 4.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .vish-login-page__auth-heading {
+    margin-bottom: 1.2rem;
+  }
+
+  .vish-login-page__auth-heading h1 {
+    font-size: clamp(2rem, 2.6vw, 2.7rem);
+  }
+
+  .vish-login-page__form {
+    gap: 0.72rem;
+  }
+
+  .vish-login-page__field input,
+  .vish-login-page__primary,
+  .vish-login-page__secondary {
+    min-height: 3.25rem;
+    height: 3.25rem;
+  }
+}
