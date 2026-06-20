@@ -18,6 +18,10 @@ describe('Blueprint editor visual polish', () => {
     expect(main).toContain('./styles/vish-editor-polish.css');
     expect(main).toContain('./styles/vish-mockup-system.css');
     expect(main).toContain('./styles/vish-editor-mantra.css');
+    expect(main).toContain('./styles/vish-workspace-polish.css');
+    expect(main).toContain('./styles/vish-ui-polish.css');
+    const polishImports = main.match(/vish-editor-polish\.css/g) ?? [];
+    expect(polishImports.length).toBe(1);
   });
 
   it('keeps premium Vishvakarma workspace styling targeted to existing editor surfaces', () => {

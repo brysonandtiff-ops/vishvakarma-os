@@ -99,9 +99,11 @@ export default function RegistryPage() {
               </div>
             )}
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="mt-3 text-sm">Loading registry entries…</p>
+              <div className="space-y-3" data-testid="registry-loading-skeleton" aria-busy="true">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="vish-skeleton h-24 rounded-xl" />
+                ))}
+                <p className="sr-only">Loading registry entries…</p>
               </div>
             ) : (
             <Tabs value={selectedType} onValueChange={setSelectedType}>
@@ -120,8 +122,8 @@ export default function RegistryPage() {
 
               <TabsContent value={selectedType}>
                 {filteredEntries.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
-                    <Database className="mx-auto h-10 w-10 text-muted-foreground/40" />
+                  <div className="vish-empty-state rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
+                    <Database className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
                     <h3 className="mt-3 text-sm font-semibold text-foreground">No registry entries</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {selectedType === 'all'

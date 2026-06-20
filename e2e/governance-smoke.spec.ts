@@ -33,6 +33,7 @@ const governancePages: Array<{
     assert: async (page) => {
       await expect(page.getByText(/verification snapshot/i).first()).toBeVisible();
       await expect(page.getByRole('button', { name: /download evidence pack/i })).toBeVisible();
+      await expect(page.getByTestId('releases-loading-skeleton')).toBeHidden({ timeout: 60_000 });
     },
   },
   {
