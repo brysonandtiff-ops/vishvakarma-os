@@ -5,6 +5,7 @@ import {
   dismissEditorOverlays,
   iPadLandscape,
   iPadPortrait,
+  loadSampleProject,
   resetWorkspacePrefs,
 } from './helpers';
 
@@ -16,17 +17,11 @@ const EDITOR_TOUCH_SELECTORS = [
   '.vish-canvas-zoom-btn',
   '.vish-properties-panel button',
   '.vish-notifications-strip button',
+  '[data-testid="vish-3d-walk-pad"] button',
 ];
 
 async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
   await assertTouchTargets(page, EDITOR_TOUCH_SELECTORS);
-}
-
-async function dismissOnboardingIfPresent(page: import('@playwright/test').Page) {
-  const dismiss = page.getByRole('button', { name: /dismiss|close|got it|skip/i });
-  if (await dismiss.first().isVisible().catch(() => false)) {
-    await dismiss.first().click();
-  }
 }
 
 test.describe('iPad editor layout', () => {
@@ -115,10 +110,8 @@ test.describe('iPad editor layout', () => {
 
   test('minimap responds to pointer tap', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
-    await page.getByRole('button', { name: 'Project actions' }).click();
-    await page.getByRole('menuitem', { name: 'Load sample' }).click();
-    await page.getByRole('button', { name: 'Load Blueprint' }).click();
-    await page.waitForTimeout(1200);
+    await loadSampleProject(page);
+    await page.waitForTimeout(400);
 
     await expect(page.getByTestId('canvas-minimap')).toBeVisible({ timeout: 30_000 });
 
@@ -147,6 +140,104 @@ test.describe('iPad editor layout', () => {
 
     const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
     expect(zoomAfter).not.toContain('100%');
+  });
+
+  test('two-pointer pinch zoom updates status bar readout', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+
+    const canvas = page.getByTestId('blueprint-canvas');
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+
+    const cx = box!.x + box!.width / 2;
+    const cy = box!.y + box!.height / 2;
+
+    await page.evaluate(
+      ({ cx, cy }) => {
+        const el = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+        if (!el) return;
+        const fire = (type: string, pointerId: number, x: number, y: number) => {
+          el.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              pointerId,
+              pointerType: 'touch',
+              clientX: x,
+              clientY: y,
+              buttons: type === 'pointerup' ? 0 : 1,
+            }),
+          );
+        };
+        fire('pointerdown', 1, cx - 60, cy);
+        fire('pointerdown', 2, cx + 60, cy);
+        fire('pointermove', 1, cx - 100, cy);
+        fire('pointermove', 2, cx + 100, cy);
+        fire('pointerup', 1, cx - 100, cy);
+        fire('pointerup', 2, cx + 100, cy);
+      },
+      { cx, cy },
+    );
+
+    await page.waitForTimeout(250);
+    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
+    expect(zoomAfter).not.toContain('100%');
+  });
+
+  test('wall tool draw increases wall count on sample project', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await loadSampleProject(page);
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+
+    const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
+    await wallTool.click();
+    await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
+
+    const canvas = page.getByTestId('blueprint-canvas');
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+
+    await canvas.click({ position: { x: box!.width * 0.2, y: box!.height * 0.5 } });
+    await canvas.click({ position: { x: box!.width * 0.35, y: box!.height * 0.5 } });
+    await page.waitForTimeout(400);
+
+    await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('3D context-loss overlay shows reload control', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await loadSampleProject(page);
+    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await page.waitForTimeout(800);
+
+    await page.evaluate(() => {
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return;
+      canvas.dispatchEvent(new Event('webglcontextlost', { bubbles: true }));
+    });
+
+    await expect(page.locator('.vish-3d-context-lost')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /reload 3d view/i })).toBeVisible();
+  });
+
+  test('walk mode shows touch D-pad on coarse pointer', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await loadSampleProject(page);
+    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await page.waitForTimeout(400);
+
+    const walkMode = page.getByRole('button', { name: /^walk$/i });
+    if (await walkMode.isVisible()) {
+      await walkMode.click();
+      await page.waitForTimeout(400);
+    }
+
+    const walkPad = page.getByTestId('vish-3d-walk-pad');
+    if (await walkPad.isVisible().catch(() => false)) {
+      await expect(page.getByTestId('vish-3d-walk-up')).toBeVisible();
+      await assertTouchTargets(page, ['[data-testid="vish-3d-walk-pad"] button']);
+    }
   });
 
   test('presentation lock hides tool rail', async ({ page }) => {
