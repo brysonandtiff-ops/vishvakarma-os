@@ -155,9 +155,9 @@ async function main() {
     },
     {
       workflow: 'Save/load/export/import preserves project data',
-      coverage: 'e2e/editor-features.spec.ts, save-load-proof.md, import/export unit tests',
-      evidence: `Sample counts ${wallCount}/${openingCount}; cloud reload PARTIAL until Supabase live proof`,
-      result: unitTests.ok ? 'PARTIAL' : 'FAIL',
+      coverage: 'e2e/editor-features.spec.ts, save-load-proof.md, verify:supabase-save-reload, import/export unit tests',
+      evidence: saveLoadEvidence,
+      result: saveLoadProofResult === 'PASS' ? 'PASS' : unitTests.ok ? 'PARTIAL' : 'FAIL',
     },
     {
       workflow: '2D model and 3D chamber stay in parity for wall/opening counts',
