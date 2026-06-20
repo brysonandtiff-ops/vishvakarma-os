@@ -279,7 +279,7 @@ export default function PropertiesPanel({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-ws-text-faint">Length</span>
-              <span className="font-mono text-[11px] text-ws-text">
+              <span className="font-mono text-[11px] text-ws-text" data-testid="wall-property-length">
                 {formatDimensionBySystem(wallLength, unitSystem, 2)}
               </span>
             </div>
@@ -322,6 +322,7 @@ export default function PropertiesPanel({
           <p className="mb-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
             Openings ({wallOpenings.length})
           </p>
+          <div data-testid="wall-openings-count" className="sr-only">{wallOpenings.length}</div>
           {wallOpenings.length === 0 ? (
             <p className="text-[10px] text-ws-text-faint">No doors or windows on this wall</p>
           ) : (

@@ -103,6 +103,22 @@ export default function ProfilePage() {
         </WorkspacePanel>
 
         <WorkspacePanel title="Account details" tone="light" padded>
+          <div className="vish-profile-sidebar mb-6 flex items-center gap-4 border-b border-border/60 pb-6">
+            <div className="vish-profile-avatar-ring shrink-0">
+              <span className="vish-profile-avatar-ring__inner flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary">
+                {(profile?.full_name ?? user?.email ?? 'V').charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="vish-profile-name truncate text-base font-semibold text-foreground">
+                {profile?.full_name ?? user?.email ?? 'Local workspace'}
+              </p>
+              {user?.email && (
+                <p className="vish-profile-email truncate text-sm text-muted-foreground">{user.email}</p>
+              )}
+              <span className="vish-profile-tier-badge mt-2 inline-flex">{planLabel}</span>
+            </div>
+          </div>
           <div className="space-y-4">
           <div className="flex items-start gap-3">
             <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
