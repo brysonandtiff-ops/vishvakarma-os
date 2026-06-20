@@ -76,8 +76,9 @@ export function AppRoutes() {
 
       <Route element={<AppLayoutOutlet immersive />}>
         <Route path="/editor" element={withSuspense(<EditorPage />, 'editor')} />
-        <Route path="/3d-room" element={withSuspense(<ThreeDRoomPage />, 'editor')} />
       </Route>
+
+      <Route path="/3d-room" element={withSuspense(<ThreeDRoomPage />, 'editor')} />
 
       <Route element={<AppLayoutOutlet />}>
         <Route element={<WorkspaceDocumentLayout />}>
