@@ -1,0 +1,9 @@
+/* Vishvakarma.OS release dialog guardrails. */
+
+.vish-release-dialog-guard {
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100dvh - 1rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
