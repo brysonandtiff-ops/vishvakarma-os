@@ -50,6 +50,7 @@ import "./styles/vish-auth-reference-screen.css";
 import "./styles/vish-auth-ipad-polish.css";
 import "./styles/vish-auth-reference-match.css";
 import "./styles/vish-auth-reference-breakpoint-fix.css";
+import "./styles/vish-ipad-king-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {
