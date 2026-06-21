@@ -1,0 +1,12 @@
+/* Vishvakarma.OS release focus helper. */
+
+.vish-release-focus-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.92);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(75, 188, 255, 0.16);
+}
