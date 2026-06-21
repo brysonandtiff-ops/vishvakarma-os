@@ -56,6 +56,7 @@ import "./styles/vish-release-focus-ring.css";
 import "./styles/vish-release-dialog-guard.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
+import { installPwaAutoUpdate } from "./pwaAutoUpdate";
 import {
   bootstrapClientGovernanceState,
   configureEnforcement,
@@ -84,6 +85,7 @@ if (isE2eBuild || import.meta.env.DEV) {
 }
 
 bootstrapClientGovernanceState();
+installPwaAutoUpdate();
 
 const logStartupEnforcement = (startupEnforcement: ReturnType<typeof enforce>) => {
   if (!startupEnforcement.success) {
