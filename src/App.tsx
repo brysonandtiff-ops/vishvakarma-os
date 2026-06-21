@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { RouteGuard } from '@/components/common/RouteGuard';
@@ -16,6 +16,21 @@ import { AppRoutes } from '@/AppRoutes';
 
 initMonitoring();
 
+function RouteChrome() {
+  const { pathname } = useLocation();
+  const isAuthSurface = pathname === '/auth' || pathname === '/reset-password';
+
+  return (
+    <>
+      {!isAuthSurface && <VisualThemeController />}
+      {!isAuthSurface && <AnalyticsConsentBanner />}
+      {!isAuthSurface && <MantraPlayerWidget />}
+      <Analytics />
+      <Toaster />
+    </>
+  );
+}
+
 const App: React.FC = () => {
   return (
     <Router>
@@ -29,12 +44,7 @@ const App: React.FC = () => {
               <AppRoutes />
             </AppErrorBoundary>
           </div>
-          <VisualThemeController />
-          <AnalyticsConsentBanner />
-          {/* Sacred mantra audio — user-controlled floating toggle */}
-          <MantraPlayerWidget />
-          <Analytics />
-          <Toaster />
+          <RouteChrome />
         </RouteGuard>
         </TutorialProvider>
         </StudioAudioProvider>
