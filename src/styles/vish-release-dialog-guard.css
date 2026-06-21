@@ -7,3 +7,9 @@
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
+
+@media (max-width: 980px) {
+  .vish-login-page--reference-replica + .vish-login-page__footer-stack {
+    display: initial !important;
+  }
+}
