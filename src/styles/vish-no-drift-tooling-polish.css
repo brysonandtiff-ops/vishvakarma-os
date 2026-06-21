@@ -1,0 +1,143 @@
+/* Vishvakarma.OS — no-drift tooling UI polish.
+   Presentation-only guardrail layer: improves discoverability and touch polish
+   without changing routes, auth copy, data flows, or product identity. */
+
+.vish-editor-action-row {
+  scrollbar-gutter: stable both-edges;
+}
+
+.vish-editor-quick-pill,
+.vish-editor-icon-btn,
+.architect-tool-button,
+.vish-mode-tab,
+.vish-editor-mode-badge {
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.vish-editor-quick-pill:not(:disabled):active,
+.vish-editor-icon-btn:not(:disabled):active,
+.architect-tool-button:not(:disabled):active,
+.vish-mode-tab:not(:disabled):active,
+.vish-editor-mode-badge:not(:disabled):active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.vish-editor-quick-pill,
+.architect-tool-button {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.13);
+}
+
+.vish-editor-quick-pill.active,
+.architect-tool-button.active,
+.architect-tool-button[data-state='active'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 0 0 1px rgba(246, 198, 101, 0.24),
+    0 12px 28px rgba(246, 198, 101, 0.10);
+}
+
+.vish-tool-section-label {
+  width: 100%;
+  color: rgba(245, 231, 194, 0.62);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.vish-tool-rail,
+.vish-editor-action-row,
+.vish-mode-tab-group,
+.vish-editor-file-strip,
+.ws-status-bar {
+  scroll-behavior: smooth;
+}
+
+.vish-tool-rail:focus-within,
+.vish-editor-action-row:focus-within,
+.vish-editor-file-strip:focus-within,
+.ws-status-bar:focus-within {
+  box-shadow: inset 0 0 0 1px rgba(246, 198, 101, 0.16);
+}
+
+[data-radix-popper-content-wrapper] [role='menuitem'] {
+  gap: 0.45rem;
+  border-radius: 0.65rem;
+}
+
+[data-radix-popper-content-wrapper] [role='menuitem']:focus,
+[data-radix-popper-content-wrapper] [role='menuitem']:hover {
+  background: rgba(246, 198, 101, 0.12);
+  color: hsl(var(--ws-text));
+}
+
+.vish-canvas-empty-hint__card {
+  border-color: rgba(246, 198, 101, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(75, 188, 255, 0.08),
+    0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.vish-canvas-empty-hint__tour-link {
+  min-height: 44px;
+  border-radius: 999px;
+  padding-inline: 1rem;
+}
+
+.vish-properties-fab,
+.vish-canvas-hud,
+.vish-minimap,
+.vish-editor-save-chip {
+  backdrop-filter: blur(14px) saturate(135%);
+}
+
+@media (pointer: coarse), (max-width: 1194px) {
+  .vish-editor-quick-pill,
+  .vish-editor-icon-btn,
+  .architect-tool-button,
+  .vish-mode-tab,
+  .vish-editor-mode-badge {
+    touch-action: manipulation;
+  }
+
+  .vish-editor-quick-pill span,
+  .architect-tool-button span {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .vish-tool-section-label {
+    min-width: 3rem;
+    padding-top: 0.35rem;
+  }
+
+  .vish-tool-rail {
+    gap: 0.38rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-editor-quick-pill,
+  .vish-editor-icon-btn,
+  .architect-tool-button,
+  .vish-mode-tab,
+  .vish-editor-mode-badge,
+  .vish-tool-rail,
+  .vish-editor-action-row,
+  .vish-mode-tab-group,
+  .vish-editor-file-strip,
+  .ws-status-bar {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
