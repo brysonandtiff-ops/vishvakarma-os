@@ -8,9 +8,9 @@ export const CANVAS_PAPER = '#FDF9F5';
 /** Slightly warmer paper fill for canvas buffer */
 export const CANVAS_PAPER_FILL = '#F5F1E8';
 
-/** Grid lines */
-export const GRID_MINOR = 'rgba(212, 207, 196, 0.55)';
-export const GRID_MAJOR = 'rgba(184, 148, 31, 0.28)';
+/** Grid lines — intentionally stronger so iPad testers can immediately see when grid is enabled. */
+export const GRID_MINOR = 'rgba(212, 207, 196, 0.72)';
+export const GRID_MAJOR = 'rgba(184, 148, 31, 0.42)';
 
 /** Wall depth shadow (subtle ink offset) */
 export const WALL_SHADOW = 'rgba(44, 28, 16, 0.18)';
@@ -114,11 +114,11 @@ export interface WorldBounds {
 }
 
 export function gridMinorStroke(alpha: number): string {
-  return `rgba(212, 207, 196, ${0.55 * alpha})`;
+  return `rgba(212, 207, 196, ${0.72 * alpha})`;
 }
 
 export function gridMajorStroke(alpha: number): string {
-  return `rgba(184, 148, 31, ${0.28 * alpha})`;
+  return `rgba(184, 148, 31, ${0.42 * alpha})`;
 }
 
 export function computeVisibleGridBounds(
