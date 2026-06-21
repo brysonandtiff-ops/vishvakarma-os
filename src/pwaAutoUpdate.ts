@@ -4,8 +4,10 @@ const SERVICE_WORKER_URL = '/sw.js';
 let updateCheckTimer: number | undefined;
 let hasInstalledAutoUpdater = false;
 let hasReloadedForControllerChange = false;
+let shouldReloadForUpdate = false;
 
 function reloadForFreshDeployment() {
+  if (!shouldReloadForUpdate) return;
   if (hasReloadedForControllerChange) return;
   hasReloadedForControllerChange = true;
   window.location.reload();
@@ -21,6 +23,9 @@ function requestFreshServiceWorker(registration: ServiceWorkerRegistration | und
 function activateWaitingWorker(registration: ServiceWorkerRegistration | undefined) {
   const waitingWorker = registration?.waiting;
   if (!waitingWorker) return;
+  if (!navigator.serviceWorker.controller) return;
+
+  shouldReloadForUpdate = true;
   waitingWorker.postMessage({ type: 'SKIP_WAITING' });
 }
 
