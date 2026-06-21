@@ -18,10 +18,13 @@ export default defineConfig(({ mode }) => ({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      injectRegister: false,
       includeAssets: ['icons/**/*', 'brand/**/*', 'manifest.webmanifest'],
       manifest: false,
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — allows large WebP normal maps
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}'],
         // iOS apple-touch-startup-image set is large and only used by the OS at
