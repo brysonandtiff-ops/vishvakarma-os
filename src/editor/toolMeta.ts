@@ -77,7 +77,7 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
   room: {
     icon: Square,
     label: 'Room',
-    hint: 'Detect / label rooms',
+    hint: 'Detect, name, and classify enclosed rooms',
   },
   column: {
     icon: Columns3,
@@ -128,7 +128,7 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   measure: 'Measure — hover or tap walls to inspect dimensions.',
   text: 'Label — tap to place a room label.',
   dimension: 'Dimension — tap start point, then end point.',
-  room: 'Room — tap enclosed area to detect and label rooms.',
+  room: 'Room — tap enclosed area to detect, name, and classify rooms.',
   column: 'Column — tap canvas to place structural column markers.',
   stair: 'Stair — tap to place; each tap cycles run direction.',
   vastu: 'Vastu — harmony compass overlay; adjust north in sidebar.',
@@ -176,8 +176,14 @@ export const RADIAL_TOOL_IDS: ToolType[] = [
   'measure',
   'text',
   'dimension',
+  'room',
   'column',
   'stair',
+  'vastu',
+  'mep',
+  'furniture',
+  'landscape',
+  'terrain',
 ];
 
 /** @deprecated Use TOOL_META — kept for legacy imports */
