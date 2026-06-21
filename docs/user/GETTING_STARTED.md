@@ -1,7 +1,7 @@
 # Getting Started
 
 **Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
+**Last verified:** 2026-06-20  
 **Audience:** user  
 
 Welcome to Vishvakarma.OS — an iPad-first architectural workstation for 2D blueprints, live 3D visualization, and governed project delivery.
@@ -37,6 +37,7 @@ Open **Tutorials** from the editor help button (?), workspace sidebar, or comman
 
 - **Essentials** — hands-on walkthrough: draw walls, place openings, toggle 3D, read Project Proof
 - **Topic tours** — export, interior materials, Vastu, NBC compliance, MEP, projects library, optimization, governance
+- **Video-ready walkthroughs** — matching scripts for short recorded guides in [VIDEO_TUTORIAL_SCRIPTS.md](./VIDEO_TUTORIAL_SCRIPTS.md)
 
 First visit: choose **New project** or **Load sample** on the welcome screen to auto-start Essentials (once per browser).
 
@@ -45,12 +46,28 @@ First visit: choose **New project** or **Load sample** on the welcome screen to 
 | **Tool rail** (left) | Wall, door, window, measure, label, dimension, room, MEP, furniture, landscape, terrain, Vastu tools |
 | **2D canvas** (center) | Floor plan drafting with snap-to-grid |
 | **3D viewport** (right or toggle) | Live extrusion of walls, materials, solar lighting |
-| **Properties panel** | Selected entity dimensions and materials |
+| **Properties panel** | Selected entity dimensions, materials, mode-specific controls, and project proof |
 | **Top bar** | Project name, save status, export, view modes |
+| **Command palette** | Route jump, tutorial launch, and workspace search (`Ctrl+K` / `Cmd+K`) |
 
 Toggle 3D with the viewport control. Adjust solar time with the lighting scrubber.
 
 Marketing guides on [/features](https://vishvakarma-os.app/features) deep-link into the matching in-app tour.
+
+---
+
+## Navigate the workspace
+
+Use [NAVIGATION_MAP.md](./NAVIGATION_MAP.md) as the route map.
+
+| Need | Go to |
+|------|-------|
+| Draft or inspect a plan | `/editor` — Blueprint Editor |
+| Reopen, duplicate, or archive work | `/projects` — Projects Library |
+| Run AI candidate scoring | `/optimization` — Design Optimization |
+| Manage account and plan | `/profile` — Profile |
+| Review governed specifications | `/spec-center` — Spec Center |
+| Trace changes and releases | `/change-requests`, `/releases`, `/audit` |
 
 ---
 
@@ -84,8 +101,10 @@ Install from Safari **Add to Home Screen** for a full-screen workstation experie
 
 ## Next steps
 
+- [VIDEO_TUTORIAL_SCRIPTS.md](./VIDEO_TUTORIAL_SCRIPTS.md) — watch/record the guided tutorial flow
 - [WORKFLOWS.md](./WORKFLOWS.md) — common tasks
 - [TOOL_REFERENCE.md](./TOOL_REFERENCE.md) — every editor tool
+- [NAVIGATION_MAP.md](./NAVIGATION_MAP.md) — workspace routes
 - [KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md) — shortcuts
 - [FAQ.md](./FAQ.md) — frequently asked questions
 
