@@ -1,5 +1,0 @@
-@media (max-width: 980px) {
-  .vish-login-page--reference-replica + .vish-login-page__footer-stack {
-    display: block !important;
-  }
-}
