@@ -1,7 +1,7 @@
 # Auth and iPad 10 Smoke Checklist
 
 **Product:** Vishvakarma.OS  
-**Scope:** Auth page, iPad 10 usability, and first workspace navigation  
+**Scope:** Auth page, iPad 10 usability, first workspace navigation, and iPad King editor feel  
 **Status:** Manual evidence template
 
 Use this checklist after every auth-theme or iPad usability PR before calling the build user-ready.
@@ -59,6 +59,21 @@ Use this checklist after every auth-theme or iPad usability PR before calling th
 
 ---
 
+## iPad King editor checks
+
+| Check | Expected | Result |
+|---|---|---|
+| Tool rail feel | Tool buttons are easy to hit, horizontally scroll with momentum, and do not fight the canvas | TBD |
+| Top-bar reachability | Header actions stay reachable without clipping in landscape and portrait | TBD |
+| Status-bar reachability | Status actions scroll smoothly and keep 48px-class hit targets | TBD |
+| Canvas gesture priority | Canvas keeps drawing/orbit/pan gestures without page rubber-band interference | TBD |
+| Panel scroll | Properties, side panels, dialogs, and sheets scroll internally with safe-area clearance | TBD |
+| iOS form behavior | Form inputs do not trigger unwanted zoom on focus | TBD |
+| Focus visibility | Keyboard or hardware-keyboard focus ring is obvious on touch controls | TBD |
+| Reduced motion | iPad polish remains usable with reduced motion enabled | TBD |
+
+---
+
 ## Evidence capture
 
 Attach these when running a release candidate:
@@ -69,6 +84,7 @@ Attach these when running a release candidate:
 - iPad 10 portrait auth screenshot.
 - Mobile portrait auth screenshot.
 - Short recording of auth to editor to command palette to tutorial hub.
+- Short recording of iPad editor tool rail, canvas gesture, 3D toggle, properties panel, and status-bar actions.
 
 Store evidence under `docs/release/evidence/` when it is part of a release proof package.
 
