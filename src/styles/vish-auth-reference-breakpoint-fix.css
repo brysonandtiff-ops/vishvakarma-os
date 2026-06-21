@@ -1,0 +1,71 @@
+/* Vishvakarma.OS — auth reference breakpoint safety pass.
+   Loaded after the desktop reference-match stylesheet to keep the 981–1215px
+   range usable on iPad landscape and small laptops. */
+
+@media (min-width: 981px) and (max-width: 1215px) {
+  .vish-login-page {
+    grid-template-columns: 1fr;
+    align-content: start;
+    overflow-x: clip;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vish-login-page__auth-side {
+    order: 1;
+    min-height: auto;
+    overflow: visible;
+    padding-top: max(48px, calc(36px + env(safe-area-inset-top)));
+    padding-right: max(48px, calc(36px + env(safe-area-inset-right)));
+    padding-bottom: max(48px, calc(36px + env(safe-area-inset-bottom)));
+    padding-left: max(48px, calc(36px + env(safe-area-inset-left)));
+  }
+
+  .vish-login-page__hero {
+    order: 2;
+    min-height: 520px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+
+  .vish-login-page__top-line {
+    position: static;
+    margin-bottom: 1.35rem;
+    text-align: center;
+  }
+
+  .vish-login-page__top-line::after,
+  .vish-login-page__version::before {
+    content: none;
+    display: none;
+  }
+
+  .vish-login-page__auth-card {
+    width: min(38rem, 100%);
+  }
+
+  .vish-login-page__deity-visual {
+    left: 33%;
+    top: 6%;
+    width: 430px;
+    height: 600px;
+    transform: scale(0.78);
+    transform-origin: top left;
+  }
+
+  .vish-login-page__features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 36rem;
+    margin-top: 300px;
+  }
+
+  .vish-login-page__quote {
+    max-width: 34rem;
+  }
+
+  .vish-login-page__version {
+    position: absolute;
+    right: max(24px, env(safe-area-inset-right));
+    bottom: max(18px, env(safe-area-inset-bottom));
+  }
+}

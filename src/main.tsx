@@ -49,6 +49,7 @@ import "./styles/vish-divine-architect-theme.css";
 import "./styles/vish-auth-reference-screen.css";
 import "./styles/vish-auth-ipad-polish.css";
 import "./styles/vish-auth-reference-match.css";
+import "./styles/vish-auth-reference-breakpoint-fix.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import {
