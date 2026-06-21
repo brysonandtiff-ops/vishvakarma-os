@@ -1,6 +1,41 @@
 /* Vishvakarma.OS — iPad editor usability overrides
  * Keeps editor chrome, dialogs, sheets, and tutorial windows reachable on iPad Safari. */
 
+.vish-editor-action-row {
+  min-width: 0;
+}
+
+.vish-editor-quick-pill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-height: 44px;
+  min-width: max-content;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(246, 198, 101, 0.32);
+  background: linear-gradient(180deg, rgba(246, 198, 101, 0.16), rgba(11, 27, 59, 0.72));
+  padding: 0 0.72rem;
+  color: hsl(var(--ws-text));
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(75, 188, 255, 0.05);
+}
+
+.vish-editor-quick-pill.active {
+  border-color: rgba(246, 198, 101, 0.7);
+  background: linear-gradient(180deg, rgba(246, 198, 101, 0.24), rgba(75, 188, 255, 0.12));
+  color: hsl(var(--primary));
+}
+
+.vish-editor-quick-pill:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.92);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(75, 188, 255, 0.14);
+}
+
 @media (pointer: coarse), (max-width: 1194px) {
   .bg-ws-canvas .vish-editor-topbar {
     height: auto !important;
@@ -28,8 +63,9 @@
     min-width: 0;
   }
 
-  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
-    max-width: min(52vw, 28rem);
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child,
+  .bg-ws-canvas .vish-editor-action-row {
+    max-width: min(62vw, 34rem);
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -38,7 +74,17 @@
     padding-block: 0.25rem;
   }
 
+  .bg-ws-canvas .vish-editor-action-row {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.5rem;
+  }
+
+  .bg-ws-canvas .vish-editor-action-row > * {
+    scroll-snap-align: center;
+  }
+
   .bg-ws-canvas .vish-editor-topbar-grid > div:last-child::-webkit-scrollbar,
+  .bg-ws-canvas .vish-editor-action-row::-webkit-scrollbar,
   .bg-ws-canvas .vish-editor-file-strip::-webkit-scrollbar,
   .bg-ws-canvas .ws-status-bar::-webkit-scrollbar {
     display: none;
@@ -128,11 +174,22 @@
 }
 
 @media (max-width: 720px), (pointer: coarse) and (max-width: 900px) {
-  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
-    max-width: 46vw;
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child,
+  .bg-ws-canvas .vish-editor-action-row {
+    max-width: 56vw;
   }
 
   .bg-ws-canvas .vish-editor-topbar .truncate.text-sm.font-semibold {
     max-width: min(9rem, 26vw) !important;
+  }
+
+  .vish-editor-quick-pill {
+    min-height: 48px;
+    padding-inline: 0.68rem;
+  }
+
+  .vish-editor-quick-pill span {
+    font-size: 0.68rem;
+    white-space: nowrap;
   }
 }
