@@ -17,7 +17,7 @@ export const VOICE_TOUR_CHAPTERS: VoiceTourChapter[] = [
     narration:
       'Welcome to Vishvakarma.OS. This is your browser-native architecture workstation. You can start from the home screen, open projects, design in the editor, inspect in 3D, run optimization, and keep governance evidence for every serious decision.',
     mp3Src: '/audio/tours/whole-software/01-welcome.mp3',
-    tutorialTrackId: 'whole-software-tour',
+    tutorialTrackId: 'essentials',
   },
   {
     id: 'auth',
@@ -27,6 +27,7 @@ export const VOICE_TOUR_CHAPTERS: VoiceTourChapter[] = [
     narration:
       'The sign-in screen is the secure gate into the workspace. Use email access, magic link, or Google SSO when configured. The official swan mark and auth copy stay protected so testing and sign-in contracts remain stable.',
     mp3Src: '/audio/tours/whole-software/02-auth.mp3',
+    tutorialTrackId: 'essentials',
   },
   {
     id: 'projects',
@@ -36,6 +37,7 @@ export const VOICE_TOUR_CHAPTERS: VoiceTourChapter[] = [
     narration:
       'The projects library is where saved blueprints live. Use it to reopen work, manage drafts, and keep designs organized before moving back into the editor for detailed drafting.',
     mp3Src: '/audio/tours/whole-software/03-projects.mp3',
+    tutorialTrackId: 'projects-library',
   },
   {
     id: 'editor',
@@ -85,8 +87,9 @@ export const VOICE_TOUR_CHAPTERS: VoiceTourChapter[] = [
     narration:
       'Profile holds account and workspace settings, including subscription and portal links when configured. Use it when a user needs to understand their access, account state, or billing path.',
     mp3Src: '/audio/tours/whole-software/08-profile.mp3',
+    tutorialTrackId: 'cloud-save',
   },
 ];
 
-export const WHOLE_SOFTWARE_TOUR_ID = 'whole-software-tour';
+export const WHOLE_SOFTWARE_TOUR_ID = 'essentials';
 export const OPEN_VOICE_TOUR_EVENT = 'vish:open-voice-tour';
