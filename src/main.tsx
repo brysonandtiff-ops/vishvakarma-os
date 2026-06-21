@@ -55,6 +55,7 @@ import "./styles/vish-ipad-king-polish.css";
 import "./styles/vish-release-focus-ring.css";
 import "./styles/vish-release-dialog-guard.css";
 import "./styles/vish-no-drift-tooling-polish.css";
+import "./styles/vish-voice-tour.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
