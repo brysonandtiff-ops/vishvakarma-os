@@ -5,6 +5,7 @@ const UPDATE_CHECK_INTERVAL_MS = 60_000;
 let updateCheckTimer: number | undefined;
 let hasInstalledAutoUpdater = false;
 let hasReloadedForControllerChange = false;
+let updateServiceWorker: ((reloadPage?: boolean) => Promise<void>) | undefined;
 
 function requestFreshServiceWorker(registration: ServiceWorkerRegistration | undefined) {
   if (!registration) return;
@@ -29,10 +30,10 @@ export function installPwaAutoUpdate() {
 
   navigator.serviceWorker.addEventListener('controllerchange', reloadForFreshDeployment);
 
-  const updateServiceWorker = registerSW({
+  updateServiceWorker = registerSW({
     immediate: true,
     onNeedRefresh() {
-      void updateServiceWorker(true);
+      void updateServiceWorker?.(true);
     },
     onRegisteredSW(_swUrl, registration) {
       const checkForUpdate = () => requestFreshServiceWorker(registration);
