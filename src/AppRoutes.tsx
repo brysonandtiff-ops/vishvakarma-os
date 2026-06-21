@@ -39,10 +39,8 @@ function withSuspense(element: React.ReactNode, variant: React.ComponentProps<ty
   return <Suspense fallback={<RouteLoadingFallback variant={variant} />}>{element}</Suspense>;
 }
 
-// T3-8: Wrap high-risk routes in isolated error boundaries so a crash in one
-// page cannot take down the entire application shell. Governance pages run
-// complex scoring algorithms and query data that may be malformed — isolating
-// them means a failure shows a contained error card rather than a blank screen.
+// All screen surfaces now get isolated boundaries so a crash in any route shows
+// a contained recovery card instead of taking down the whole shell.
 function withBoundary(
   element: React.ReactNode,
   title: string,
@@ -59,33 +57,33 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route element={<MarketingLayout />}>
-        <Route path="/" element={withSuspense(<LandingPage />, 'marketing')} />
-        <Route path="/features" element={withSuspense(<FeaturesPage />, 'marketing')} />
+        <Route path="/" element={withBoundary(<LandingPage />, 'Home screen', 'marketing')} />
+        <Route path="/features" element={withBoundary(<FeaturesPage />, 'Features screen', 'marketing')} />
         {PRICING_PAGE_ENABLED && (
-          <Route path="/pricing" element={withSuspense(<PricingPage />, 'marketing')} />
+          <Route path="/pricing" element={withBoundary(<PricingPage />, 'Pricing screen', 'marketing')} />
         )}
-        <Route path="/404" element={withSuspense(<NotFoundPage />, 'marketing')} />
+        <Route path="/404" element={withBoundary(<NotFoundPage />, 'Not found screen', 'marketing')} />
       </Route>
 
       <Route element={<AuthLayout />}>
-        <Route path="/auth" element={withSuspense(<AuthPage />, 'auth')} />
-        <Route path="/reset-password" element={withSuspense(<ResetPasswordPage />, 'auth')} />
+        <Route path="/auth" element={withBoundary(<AuthPage />, 'Sign-in screen', 'auth')} />
+        <Route path="/reset-password" element={withBoundary(<ResetPasswordPage />, 'Reset password screen', 'auth')} />
       </Route>
 
-      <Route path="/cast/:token" element={withSuspense(<CastViewerPage />, 'editor')} />
+      <Route path="/cast/:token" element={withBoundary(<CastViewerPage />, 'Cast viewer', 'editor')} />
 
       <Route element={<AppLayoutOutlet immersive />}>
-        <Route path="/editor" element={withSuspense(<EditorPage />, 'editor')} />
+        <Route path="/editor" element={withBoundary(<EditorPage />, 'Blueprint Editor', 'editor')} />
       </Route>
 
-      <Route path="/3d-room" element={withSuspense(<ThreeDRoomPage />, 'editor')} />
+      <Route path="/3d-room" element={withBoundary(<ThreeDRoomPage />, '3D Room', 'editor')} />
 
       <Route element={<AppLayoutOutlet />}>
         <Route element={<WorkspaceDocumentLayout />}>
-          <Route path="/projects" element={withSuspense(<ProjectsPage />, 'workspace')} />
+          <Route path="/projects" element={withBoundary(<ProjectsPage />, 'Projects Library', 'workspace')} />
         </Route>
         <Route element={<WorkspaceDocumentNarrowLayout />}>
-          <Route path="/profile" element={withSuspense(<ProfilePage />, 'workspace')} />
+          <Route path="/profile" element={withBoundary(<ProfilePage />, 'Profile screen', 'workspace')} />
         </Route>
         <Route element={<WorkspaceGovernanceLayout />}>
           <Route path="/optimization" element={withBoundary(<OptimizationPage />, 'Optimization Engine', 'governance')} />

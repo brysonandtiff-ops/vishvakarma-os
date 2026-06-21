@@ -17,6 +17,8 @@ const MODE_TOOL_IDS: Record<WorkspaceMode, ToolType[]> = {
   walk: [],
 };
 
+const POWER_TOOL_IDS: ToolType[] = ['room', 'column', 'stair', 'vastu', 'mep', 'furniture', 'landscape', 'terrain'];
+
 const MODE_LABELS: Record<WorkspaceMode, string> = {
   draft: 'Draft',
   mep: 'MEP',
@@ -61,6 +63,8 @@ function ToolButton({
 
 export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', onToolChange }: ToolRailProps) {
   const modeToolIds = MODE_TOOL_IDS[workspaceMode] ?? [];
+  const visibleBaseAndMode = new Set<ToolType>([...BASE_TOOL_IDS, ...modeToolIds]);
+  const powerToolIds = POWER_TOOL_IDS.filter((toolId) => !visibleBaseAndMode.has(toolId));
 
   const handleToolChange = useCallback(
     (tool: ToolType) => {
@@ -89,6 +93,19 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
         <>
           <p className="vish-tool-section-label mt-2 px-1">{MODE_LABELS[workspaceMode]}</p>
           {modeToolIds.map((toolId) => (
+            <ToolButton
+              key={toolId}
+              toolId={toolId}
+              isActive={currentTool === toolId}
+              onClick={() => handleToolChange(toolId)}
+            />
+          ))}
+        </>
+      )}
+      {powerToolIds.length > 0 && (
+        <>
+          <p className="vish-tool-section-label mt-2 px-1">Power</p>
+          {powerToolIds.map((toolId) => (
             <ToolButton
               key={toolId}
               toolId={toolId}
