@@ -4,6 +4,7 @@ import {
   CircleHelp,
   LogOut,
   PenTool,
+  Volume2,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -19,6 +20,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
+import { OPEN_VOICE_TOUR_EVENT } from '@/voice-tour/voiceTourContent';
 import routes from '@/routes';
 import { ROUTE_ICONS } from '@/config/RouteNavConfig';
 
@@ -71,6 +73,11 @@ export function WorkspaceCommandPalette() {
     void signOut().then(() => navigate('/auth', { replace: true }));
   };
 
+  const runVoiceTour = () => {
+    setOpen(false);
+    window.dispatchEvent(new CustomEvent(OPEN_VOICE_TOUR_EVENT, { detail: { autoPlay: true } }));
+  };
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Search routes, tools, tutorials…" />
@@ -94,6 +101,11 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
+          <CommandItem value="voice tour audio guided walkthrough browser speech mp3 full software" onSelect={runVoiceTour}>
+            <Volume2 />
+            <span>Start voice guided tour</span>
+            <CommandShortcut>Voice</CommandShortcut>
+          </CommandItem>
           <CommandItem value="tutorials help hub guided videos learn onboarding" onSelect={() => { setOpen(false); openTutorialHub(); }}>
             <CircleHelp />
             <span>Tutorial hub</span>
