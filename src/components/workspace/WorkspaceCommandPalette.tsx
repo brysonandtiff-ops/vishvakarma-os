@@ -73,7 +73,7 @@ export function WorkspaceCommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Jump to a workspace center…" />
+      <CommandInput placeholder="Search routes, tools, tutorials…" />
       <CommandList>
         <CommandEmpty>No matching workspace command.</CommandEmpty>
         <CommandGroup heading="Navigate">
@@ -82,7 +82,7 @@ export function WorkspaceCommandPalette() {
             return (
               <CommandItem
                 key={route.path}
-                value={`${route.name} ${route.path}`}
+                value={`${route.name} ${route.path} workspace navigate sidebar`}
                 onSelect={() => runNavigate(route.path)}
               >
                 <Icon />
@@ -94,14 +94,15 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
-          <CommandItem value="tutorials help hub" onSelect={() => { setOpen(false); openTutorialHub(); }}>
+          <CommandItem value="tutorials help hub guided videos learn onboarding" onSelect={() => { setOpen(false); openTutorialHub(); }}>
             <CircleHelp />
             <span>Tutorial hub</span>
+            <CommandShortcut>Help</CommandShortcut>
           </CommandItem>
-          {TUTORIAL_TRACKS.slice(0, 6).map((track) => (
+          {TUTORIAL_TRACKS.map((track) => (
             <CommandItem
               key={track.id}
-              value={`tutorial ${track.title} ${track.id}`}
+              value={`tutorial learn help ${track.title} ${track.id} ${track.description} ${track.defaultRoute}`}
               onSelect={() => {
                 setOpen(false);
                 navigate(`${track.defaultRoute}?tutorial=${track.id}`);
