@@ -25,6 +25,11 @@ import {
   buildUShapeCourtyardTemplate,
   buildVastu2BhkIndianTemplate,
 } from '@/core/templateBuilder';
+import {
+  buildDualKey3242Template,
+  buildFiveThreeSkyCourtTemplate,
+  buildSixThreeAtriumTemplate,
+} from '@/core/premiumTemplates';
 
 const JSON_SAMPLE_MANIFESTS: Record<string, ProjectManifest> = {
   'sample-house-01': sampleHouse01 as ProjectManifest,
@@ -134,6 +139,33 @@ export const SAMPLE_CATALOG: SampleDefinition[] = [
     category: 'residential',
     source: { kind: 'builder', build: buildFamilyHome5BrTemplate },
     surfaces: ['load-sample', 'new-project'],
+  },
+  {
+    id: 'five-three-sky-court',
+    name: '5-3 Sky Court Estate',
+    description: 'Unusual five-bedroom, three-bath estate with detached pods, courtyard, MEP, landscape, and skylight fixtures',
+    category: 'residential',
+    source: { kind: 'builder', build: buildFiveThreeSkyCourtTemplate },
+    surfaces: ['load-sample', 'new-project', 'projects-demo'],
+    demoEyebrow: 'Premium 5-3 estate',
+  },
+  {
+    id: 'six-three-atrium-wing',
+    name: '6-3 Atrium Wing House',
+    description: 'Six-bedroom, three-bath twin-wing plan with glass atrium bridge and premium 3D room staging',
+    category: 'residential',
+    source: { kind: 'builder', build: buildSixThreeAtriumTemplate },
+    surfaces: ['load-sample', 'new-project', 'projects-demo'],
+    demoEyebrow: 'Large luxury sample',
+  },
+  {
+    id: 'dual-key-3242-courtyard',
+    name: '3-2 / 4-2 Dual-Key Courtyard',
+    description: 'Rare dual-key compound: 3 bed / 2 bath front home plus 4 bed / 2 bath rear home around a shared courtyard',
+    category: 'shapes',
+    source: { kind: 'builder', build: buildDualKey3242Template },
+    surfaces: ['load-sample', 'new-project', 'projects-demo'],
+    demoEyebrow: 'Unusual dual-key design',
   },
   {
     id: 'duplex-two-floor',
