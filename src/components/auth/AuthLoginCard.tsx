@@ -293,7 +293,7 @@ export default function AuthLoginCard({
                 <Building2 size={18} aria-hidden="true" />
               </span>
               <span>
-                <b>Continue with SSO</b>
+                <b>Continue with Google SSO</b>
                 <small>Secure OAuth for companies and teams</small>
               </span>
             </button>
