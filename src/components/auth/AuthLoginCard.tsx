@@ -116,7 +116,7 @@ export default function AuthLoginCard({
           </h1>
           <p>Architect • Engineer • Create</p>
           <p className="vish-login-page__auth-note">
-            Use a secure email access link or continue with Google OAuth.
+            Use a secure email access link or continue with SSO.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export default function AuthLoginCard({
 
         {passwordResetNotice && (
           <p className="vish-login-page__status" role="status">
-            Password reset is not available in this environment. Use a magic link or Google sign-in instead.
+            Password reset is not available in this environment. Use a magic link or SSO instead.
           </p>
         )}
 
@@ -181,7 +181,7 @@ export default function AuthLoginCard({
                 type="email"
                 value={email}
                 onChange={(event) => onEmailChange(event.target.value)}
-                placeholder="architect@firm.com"
+                placeholder="you@example.com"
                 autoComplete="email"
                 autoCapitalize="none"
                 inputMode="email"
@@ -202,7 +202,7 @@ export default function AuthLoginCard({
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 autoComplete="current-password"
                 minLength={8}
                 disabled={submitting || disabled}
@@ -239,7 +239,7 @@ export default function AuthLoginCard({
             </div>
 
             <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
-              {submitting ? 'Opening workspace…' : 'Sign In to Sacred Workspace'}
+              {submitting ? 'Opening workspace…' : 'Sign In'}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
 
@@ -264,7 +264,7 @@ export default function AuthLoginCard({
 
             {showEmbeddedAuthRecovery && (
               <div className="vish-login-page__embedded-recovery">
-                <p>Open in your system browser — Google OAuth is blocked in {embeddedBrowserLabel}.</p>
+                <p>Open in your system browser — SSO is blocked in {embeddedBrowserLabel}.</p>
                 <div className="vish-login-page__embedded-recovery-actions">
                   <a
                     href={externalAuthUrl}
@@ -293,8 +293,8 @@ export default function AuthLoginCard({
                 <Building2 size={18} aria-hidden="true" />
               </span>
               <span>
-                <b>Continue with Google SSO</b>
-                <small>Secure OAuth for companies and teams</small>
+                <b>Continue with SSO</b>
+                <small>For companies &amp; teams</small>
               </span>
             </button>
 
