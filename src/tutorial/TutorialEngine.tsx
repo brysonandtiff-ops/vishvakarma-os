@@ -65,7 +65,7 @@ function tooltipPosition(
   placement: TutorialPlacement,
   targetRect: Rect | null,
   cardWidth: number,
-  cardHeight: number
+  cardHeight: number,
 ): { top: number; left: number } {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
@@ -138,78 +138,163 @@ export default function TutorialEngine() {
     }
     el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' });
     setTargetMissing(false);
-    setTargetRect(measureTarget(el, step.padding ?? PADDING_DEFAULT));
-  }, [step, reducedMotion]);
+    setTargetRect(measureTarget(el, step.spotlightPadding ?? PADDING_DEFAULT));
+  }, [reducedMotion, step]);
 
   useLayoutEffect(() => {
-    if (!activeTrack || paused) return;
+    if (!activeTrack || paused || !step) {
+      setTargetRect(null);
+      return;
+    }
+
     remeasure();
-  }, [activeTrack, paused, stepIndex, remeasure]);
+    const delays = [100, 300, 600, 1200, 2000];
+    const timers = delays.map((ms) => window.setTimeout(remeasure, ms));
+
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(remeasure) : null;
+    const el = step.target ? findTutorialTarget(step.target) : null;
+    if (el && ro) ro.observe(el);
+
+    window.addEventListener('resize', remeasure);
+    window.addEventListener('scroll', remeasure, true);
+
+    return () => {
+      timers.forEach((id) => window.clearTimeout(id));
+      ro?.disconnect();
+      window.removeEventListener('resize', remeasure);
+      window.removeEventListener('scroll', remeasure, true);
+    };
+  }, [activeTrack, paused, remeasure, step]);
 
   useEffect(() => {
-    if (!activeTrack || paused) return;
-    const onResize = () => remeasure();
-    window.addEventListener('resize', onResize);
-    window.addEventListener('scroll', onResize, true);
-    const id = window.setInterval(remeasure, 750);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onResize, true);
-      window.clearInterval(id);
-    };
-  }, [activeTrack, paused, remeasure]);
+    if (!activeTrack || !step) return;
+    const blockingDialog = document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]');
+    const isExportStep = step.target === 'export-dialog' || editorSnapshot.exportDialogOpen;
+    const shouldPause = Boolean(blockingDialog && !isExportStep);
+    setPaused(shouldPause);
+  }, [activeTrack, editorSnapshot.exportDialogOpen, setPaused, step]);
 
-  if (!activeTrack || paused || !step) return null;
+  if (!activeTrack || !step || paused) return null;
 
-  const gateOk = !step.gate || isGateSatisfied(step.gate, editorSnapshot);
-  const gateHint = step.gate ? getGateHint(step.gate) : null;
-  const pos = tooltipPosition(step.placement ?? 'right', targetRect, cardSize.width, cardSize.height);
+  const placement = targetMissing ? 'center' : (step.placement ?? (step.target ? 'bottom' : 'center'));
+  const gateReady = step.gate ? isGateSatisfied(step.gate, editorSnapshot) : true;
+  const gateHint = step.gate ? getGateHint(step.gate, step.gateHint) : undefined;
+  const tooltipPos = tooltipPosition(placement, targetRect, cardSize.width, cardSize.height);
+
+  const cardRef = (node: HTMLDivElement | null) => {
+    if (!node) return;
+    const { width, height } = node.getBoundingClientRect();
+    if (width !== cardSize.width || height !== cardSize.height) {
+      setCardSize({ width, height });
+    }
+  };
 
   return createPortal(
-    <div className="vish-tutorial-layer" role="dialog" aria-modal="true" aria-label={`${activeTrack.title} tutorial`}>
-      {targetRect && (
-        <div
-          className="vish-tutorial-spotlight"
-          style={{ top: targetRect.top, left: targetRect.left, width: targetRect.width, height: targetRect.height }}
-        />
+    <div className="vish-tutorial-root" data-testid="tutorial-overlay" role="presentation">
+      {targetRect && !targetMissing ? (
+        <>
+          <div className="vish-tutorial-scrim vish-tutorial-scrim--top" style={{ height: targetRect.top }} />
+          <div
+            className="vish-tutorial-scrim vish-tutorial-scrim--left"
+            style={{ top: targetRect.top, height: targetRect.height, width: targetRect.left }}
+          />
+          <div
+            className="vish-tutorial-scrim vish-tutorial-scrim--right"
+            style={{
+              top: targetRect.top,
+              height: targetRect.height,
+              left: targetRect.left + targetRect.width,
+              right: 0,
+            }}
+          />
+          <div
+            className="vish-tutorial-scrim vish-tutorial-scrim--bottom"
+            style={{ top: targetRect.top + targetRect.height }}
+          />
+          <div
+            className={`vish-tutorial-spotlight ${reducedMotion ? '' : 'vish-tutorial-spotlight--pulse'}`}
+            style={{
+              top: targetRect.top,
+              left: targetRect.left,
+              width: targetRect.width,
+              height: targetRect.height,
+            }}
+            aria-hidden="true"
+          />
+        </>
+      ) : (
+        <div className="vish-tutorial-scrim vish-tutorial-scrim--full" />
       )}
-      <div className="vish-tutorial-scrim" />
+
       <div
-        className="vish-tutorial-card"
-        style={{ top: pos.top, left: pos.left }}
-        ref={(node) => {
-          if (node) {
-            const rect = node.getBoundingClientRect();
-            if (Math.abs(rect.width - cardSize.width) > 1 || Math.abs(rect.height - cardSize.height) > 1) {
-              setCardSize({ width: rect.width, height: rect.height });
-            }
-          }
-        }}
+        ref={cardRef}
+        className="vish-tutorial-card vish-glass-panel vish-glass-panel--interactive"
+        style={{ top: tooltipPos.top, left: tooltipPos.left }}
+        role="dialog"
+        aria-labelledby="tutorial-step-title"
+        aria-describedby="tutorial-step-body"
+        data-testid="tutorial-card"
       >
-        <div className="vish-tutorial-card__topline">
-          <span>{activeTrack.title}</span>
-          <button type="button" onClick={skipTrack} aria-label="Close tutorial">
-            <X size={16} />
+        <div className="vish-tutorial-card__header">
+          <div className="min-w-0">
+            <p className="vish-tutorial-card__track">{activeTrack.title}</p>
+            <p className="vish-tutorial-card__progress" aria-live="polite">
+              Step {stepIndex + 1} of {totalSteps}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="vish-tutorial-card__close touch-target"
+            aria-label="Skip tutorial"
+            onClick={skipTrack}
+          >
+            <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="vish-tutorial-card__progress" aria-label={`Step ${stepIndex + 1} of ${totalSteps}`}>
-          <span style={{ width: `${((stepIndex + 1) / totalSteps) * 100}%` }} />
-        </div>
-        <h3>{step.title}</h3>
-        <p>{step.body}</p>
-        {targetMissing && <p className="vish-tutorial-card__hint">Control not visible yet. Open the related panel or continue.</p>}
-        {!gateOk && gateHint && <p className="vish-tutorial-card__hint">{gateHint}</p>}
+
+        <h3 id="tutorial-step-title" className="vish-tutorial-card__title">
+          {step.title}
+        </h3>
+        <p id="tutorial-step-body" className="vish-tutorial-card__body">
+          {targetMissing && step.target
+            ? `${step.body} If you cannot see the highlighted control, open the editor menu or expand the sidebar.`
+            : step.body}
+        </p>
+        {step.optionalAction && (
+          <p className="vish-tutorial-card__hint">{step.optionalAction}</p>
+        )}
+
         <div className="vish-tutorial-card__actions">
-          <Button variant="ghost" size="sm" onClick={back} disabled={stepIndex === 0}>
-            <ChevronLeft size={16} /> Back
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="min-h-[44px]"
+            disabled={stepIndex === 0}
+            onClick={back}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
           </Button>
-          <Button size="sm" onClick={advance} disabled={!gateOk}>
-            {isLastStep ? 'Finish' : 'Next'} <ChevronRight size={16} />
+          <Button
+            type="button"
+            variant={gateReady ? 'gold' : 'outline'}
+            size="sm"
+            className="min-h-[44px] flex-1"
+            disabled={!gateReady}
+            onClick={advance}
+            data-testid="tutorial-continue"
+          >
+            {gateReady ? (
+              <>
+                {isLastStep ? 'Finish' : 'Continue'}
+                {!isLastStep && <ChevronRight className="h-4 w-4" />}
+              </>
+            ) : (
+              gateHint
+            )}
           </Button>
         </div>
-        <button type="button" className="vish-tutorial-card__pause" onClick={() => setPaused(true)}>
-          Pause tutorial
-        </button>
       </div>
     </div>,
     document.body,
