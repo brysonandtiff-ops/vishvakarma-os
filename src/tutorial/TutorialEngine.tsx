@@ -31,12 +31,22 @@ const TARGET_FALLBACK_SELECTORS: Record<string, string> = {
   'nav-audit': 'a[href="/audit"]',
 };
 
+function isVisibleTutorialTarget(el: HTMLElement): boolean {
+  const rect = el.getBoundingClientRect();
+  const style = window.getComputedStyle(el);
+  return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+}
+
+function findVisibleTutorialTarget(selector: string): HTMLElement | null {
+  return Array.from(document.querySelectorAll<HTMLElement>(selector)).find(isVisibleTutorialTarget) ?? null;
+}
+
 function findTutorialTarget(targetId: string): HTMLElement | null {
-  const direct = document.querySelector<HTMLElement>(`[data-tutorial="${targetId}"]`);
+  const direct = findVisibleTutorialTarget(`[data-tutorial="${targetId}"]`);
   if (direct) return direct;
 
   const fallbackSelector = TARGET_FALLBACK_SELECTORS[targetId];
-  return fallbackSelector ? document.querySelector<HTMLElement>(fallbackSelector) : null;
+  return fallbackSelector ? findVisibleTutorialTarget(fallbackSelector) : null;
 }
 
 function measureTarget(el: HTMLElement, padding: number): Rect {
