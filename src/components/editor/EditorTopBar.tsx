@@ -17,6 +17,7 @@ import {
   Route,
   Save,
   Sofa,
+  Sparkles,
   Undo2,
   Upload,
   Wind,
@@ -51,6 +52,7 @@ interface EditorTopBarProps {
   onToggle3D: () => void;
   gridVisible: boolean;
   onToggleGrid: () => void;
+  onStartDemoSession?: () => void;
   onNewProject: () => void;
   onExport: () => void;
   onImport: () => void;
@@ -193,6 +195,7 @@ export default function EditorTopBar({
   onToggle3D,
   gridVisible,
   onToggleGrid,
+  onStartDemoSession,
   onNewProject,
   onExport,
   onImport,
@@ -263,6 +266,17 @@ export default function EditorTopBar({
         </div>
 
         <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
+          {onStartDemoSession && (
+            <QuickActionButton
+              label="Start guided demo session"
+              shortLabel="Start demo"
+              onClick={onStartDemoSession}
+              dataTestId="editor-start-demo-session"
+              dataTutorial="start-demo-session"
+            >
+              <Sparkles className="h-4 w-4" />
+            </QuickActionButton>
+          )}
           {onLoadSample && (
             <QuickActionButton
               label="Load demo blueprint"
@@ -307,6 +321,12 @@ export default function EditorTopBar({
                 <Plus className="mr-2 h-4 w-4" />
                 New project
               </DropdownMenuItem>
+              {onStartDemoSession && (
+                <DropdownMenuItem onClick={onStartDemoSession}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Start demo session
+                </DropdownMenuItem>
+              )}
               {onOpenProject && (
                 <DropdownMenuItem onClick={onOpenProject}>
                   <FolderOpen className="mr-2 h-4 w-4" />

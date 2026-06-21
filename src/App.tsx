@@ -12,6 +12,7 @@ import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
 import VisualThemeController from '@/components/common/VisualThemeController';
 import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
+import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 
@@ -30,9 +31,9 @@ const App: React.FC = () => {
               <AppRoutes />
             </AppErrorBoundary>
           </div>
+          <GuidedDemoSessionController />
           <VisualThemeController />
           <AnalyticsConsentBanner />
-          {/* Sacred mantra audio — user-controlled floating toggle */}
           <MantraPlayerWidget />
           <VoiceGuidedTour />
           <Analytics />

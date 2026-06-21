@@ -4,6 +4,7 @@ import {
   CircleHelp,
   LogOut,
   PenTool,
+  Sparkles,
   Volume2,
   type LucideIcon,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from '@/components/ui/command';
+import { startGuidedDemoSession } from '@/demo-session/GuidedDemoSessionController';
 import { useAuth } from '@/contexts/AuthContext';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
@@ -68,6 +70,11 @@ export function WorkspaceCommandPalette() {
     navigate(path);
   };
 
+  const runDemoSession = () => {
+    setOpen(false);
+    startGuidedDemoSession({ autoPlayVoice: true });
+  };
+
   const runSignOut = () => {
     setOpen(false);
     void signOut().then(() => navigate('/auth', { replace: true }));
@@ -101,6 +108,11 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
+          <CommandItem value="start demo session sample grid voice tour guided first run" onSelect={runDemoSession}>
+            <Sparkles />
+            <span>Start demo session</span>
+            <CommandShortcut>Demo</CommandShortcut>
+          </CommandItem>
           <CommandItem value="voice tour audio guided walkthrough browser speech mp3 full software" onSelect={runVoiceTour}>
             <Volume2 />
             <span>Start voice guided tour</span>
