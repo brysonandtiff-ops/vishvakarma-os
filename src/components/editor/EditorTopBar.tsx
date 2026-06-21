@@ -114,6 +114,43 @@ function IconButton({
   );
 }
 
+function QuickActionButton({
+  label,
+  shortLabel,
+  onClick,
+  active,
+  children,
+  dataTestId,
+  dataTutorial,
+}: {
+  label: string;
+  shortLabel: string;
+  onClick: () => void;
+  active?: boolean;
+  children: React.ReactNode;
+  dataTestId: string;
+  dataTutorial?: string;
+}) {
+  const pressHandlers = useReliablePress(onClick);
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={active}
+      title={label}
+      data-testid={dataTestId}
+      data-tutorial={dataTutorial}
+      data-state={active ? 'active' : 'inactive'}
+      {...pressHandlers}
+      className={`vish-editor-quick-pill touch-target touch-manipulation ${active ? 'active' : ''}`}
+    >
+      {children}
+      <span>{shortLabel}</span>
+    </button>
+  );
+}
+
 function ModeTabs({
   workspaceMode,
   onWorkspaceModeChange,
@@ -225,7 +262,28 @@ export default function EditorTopBar({
           <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
         </div>
 
-        <div className="flex min-w-0 items-center justify-end gap-1 justify-self-end">
+        <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
+          {onLoadSample && (
+            <QuickActionButton
+              label="Load demo blueprint"
+              shortLabel="Demo"
+              onClick={onLoadSample}
+              dataTestId="editor-demo-quick-action"
+              dataTutorial="load-demo"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </QuickActionButton>
+          )}
+          <QuickActionButton
+            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
+            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
+            active={gridVisible}
+            onClick={onToggleGrid}
+            dataTestId="editor-grid-quick-action"
+            dataTutorial="toggle-grid"
+          >
+            <Grid3x3 className="h-4 w-4" />
+          </QuickActionButton>
           <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
             <Undo2 className="h-4 w-4" />
           </IconButton>
@@ -310,7 +368,7 @@ export default function EditorTopBar({
               <Maximize2 className="h-4 w-4" />
             </IconButton>
           )}
-          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid}>
+          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid} dataTutorial="toggle-grid-icon">
             <Grid3x3 className="h-4 w-4" />
           </IconButton>
           <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
