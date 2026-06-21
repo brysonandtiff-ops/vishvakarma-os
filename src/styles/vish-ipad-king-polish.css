@@ -1,0 +1,210 @@
+/* Vishvakarma.OS — iPad King polish layer
+   Final-loaded coarse-pointer refinements for a premium tablet workstation feel:
+   larger hit areas, calmer scroll zones, better focus visibility, iOS zoom
+   prevention for form controls, and safer canvas/editor chrome spacing. */
+
+@media (pointer: coarse), (hover: none), (max-width: 1194px) {
+  .vish-workspace-shell,
+  .bg-ws-canvas {
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bg-ws-canvas button,
+  .bg-ws-canvas [role='button'],
+  .bg-ws-canvas a,
+  .vish-workspace-shell button,
+  .vish-workspace-shell [role='button'] {
+    touch-action: manipulation;
+  }
+
+  .bg-ws-canvas input,
+  .bg-ws-canvas textarea,
+  .bg-ws-canvas select,
+  .vish-workspace-shell input,
+  .vish-workspace-shell textarea,
+  .vish-workspace-shell select {
+    font-size: max(16px, 1rem);
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child,
+  .bg-ws-canvas .vish-editor-file-strip,
+  .bg-ws-canvas .ws-status-bar,
+  .vish-tool-rail {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: max(0.75rem, var(--vish-safe-left, 0px)) max(0.75rem, var(--vish-safe-right, 0px));
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child > *,
+  .bg-ws-canvas .vish-editor-file-strip > *,
+  .bg-ws-canvas .ws-status-bar > *,
+  .vish-tool-rail > * {
+    scroll-snap-align: center;
+  }
+
+  .vish-tool-rail {
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding-bottom: max(10px, calc(8px + var(--vish-safe-bottom, 0px)));
+  }
+
+  .vish-tool-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vish-tool-rail button,
+  .vish-tool-rail [role='button'],
+  .architect-tool-button,
+  .vish-editor-icon-btn,
+  .vish-canvas-zoom-btn,
+  .vish-canvas-hud-badge,
+  .vish-3d-atmosphere-btn,
+  .ws-status-bar .ws-status-item,
+  .ws-status-bar button,
+  .vish-properties-panel button,
+  .vish-editor-collaboration-bar button {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .vish-tool-rail button,
+  .architect-tool-button,
+  .vish-editor-icon-btn,
+  .vish-canvas-zoom-btn {
+    position: relative;
+  }
+
+  .vish-tool-rail button::after,
+  .architect-tool-button::after,
+  .vish-editor-icon-btn::after,
+  .vish-canvas-zoom-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .vish-tool-rail button:focus-visible,
+  .architect-tool-button:focus-visible,
+  .vish-editor-icon-btn:focus-visible,
+  .vish-canvas-zoom-btn:focus-visible,
+  .ws-status-bar button:focus-visible,
+  .vish-properties-panel button:focus-visible {
+    outline: 2px solid rgba(246, 198, 101, 0.92);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(75, 188, 255, 0.14);
+  }
+
+  .architect-canvas,
+  .vish-canvas-stage canvas,
+  .bg-ws-canvas canvas {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .vish-canvas-stage {
+    overscroll-behavior: contain;
+    contain: layout paint;
+  }
+
+  .vish-canvas-stage .vish-canvas-hud,
+  .vish-canvas-stage .vish-minimap,
+  .vish-properties-fab {
+    transform: translateZ(0);
+  }
+
+  .vish-properties-panel,
+  [role='dialog'],
+  [role='alertdialog'] {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  [role='dialog'],
+  [role='alertdialog'] {
+    margin-top: max(0px, var(--vish-safe-top, 0px));
+    margin-bottom: max(0px, var(--vish-safe-bottom, 0px));
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (min-width: 981px) and (max-width: 1194px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: min(42vw, 24rem);
+  }
+
+  .vish-tool-rail {
+    width: 76px;
+    padding-inline: 10px;
+  }
+
+  .vish-tool-rail button,
+  .architect-tool-button {
+    width: 52px;
+    height: 52px;
+  }
+
+  .bg-ws-canvas section.w-80,
+  .bg-ws-canvas section.md\:w-96,
+  .bg-ws-canvas aside.w-72 {
+    max-height: calc(100dvh - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px) - 7rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (orientation: portrait) and (pointer: coarse) and (max-width: 1194px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: min(52vw, 21rem);
+  }
+
+  .vish-tool-rail {
+    min-height: calc(84px + var(--vish-safe-bottom, 0px));
+    padding-inline: max(10px, var(--vish-safe-left, 0px)) max(10px, var(--vish-safe-right, 0px));
+  }
+
+  .vish-tool-rail button,
+  .architect-tool-button {
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+  }
+
+  .bg-ws-canvas section.w-80,
+  .bg-ws-canvas section.md\:w-96 {
+    min-height: 280px;
+    max-height: 36dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bg-ws-canvas aside.w-72 {
+    max-height: 38dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 720px) and (pointer: coarse) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child {
+    max-width: 58vw;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar .truncate.text-sm.font-semibold {
+    max-width: min(10rem, 34vw) !important;
+  }
+
+  .vish-properties-fab {
+    bottom: calc(5.5rem + var(--vish-safe-bottom, 0px)) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-canvas-stage .vish-canvas-hud,
+  .vish-canvas-stage .vish-minimap,
+  .vish-properties-fab {
+    transition: none !important;
+  }
+}
