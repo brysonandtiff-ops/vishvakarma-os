@@ -181,7 +181,7 @@ export default function AuthLoginCard({
                 type="email"
                 value={email}
                 onChange={(event) => onEmailChange(event.target.value)}
-                placeholder="you@example.com"
+                placeholder="architect@firm.com"
                 autoComplete="email"
                 autoCapitalize="none"
                 inputMode="email"
@@ -194,7 +194,7 @@ export default function AuthLoginCard({
             </div>
 
             <div className="vish-login-page__field">
-              <label htmlFor={passwordId}>Password optional</label>
+              <label htmlFor={passwordId}>Password</label>
               <Lock className="vish-login-page__field-icon" size={18} aria-hidden="true" />
               <input
                 id={passwordId}
@@ -202,7 +202,7 @@ export default function AuthLoginCard({
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
-                placeholder="Optional — email link works without it"
+                placeholder="Enter password"
                 autoComplete="current-password"
                 minLength={8}
                 disabled={submitting || disabled}
@@ -239,7 +239,7 @@ export default function AuthLoginCard({
             </div>
 
             <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
-              {submitting ? 'Sending link…' : 'Send access link'}
+              {submitting ? 'Opening workspace…' : 'Sign In to Sacred Workspace'}
               <ArrowRight size={18} aria-hidden="true" />
             </button>
 
@@ -293,7 +293,7 @@ export default function AuthLoginCard({
                 <Building2 size={18} aria-hidden="true" />
               </span>
               <span>
-                <b>Continue with Google</b>
+                <b>Continue with SSO</b>
                 <small>Secure OAuth for companies and teams</small>
               </span>
             </button>
