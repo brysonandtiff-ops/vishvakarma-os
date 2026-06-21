@@ -1,0 +1,227 @@
+/* Vishvakarma.OS — voice guided tour controls. */
+
+.vish-voice-tour-launch,
+.vish-voice-tour-panel {
+  position: fixed;
+  right: max(1rem, calc(1rem + var(--vish-safe-right, 0px)));
+  z-index: 70;
+}
+
+.vish-voice-tour-launch {
+  bottom: max(5.25rem, calc(5.25rem + var(--vish-safe-bottom, 0px)));
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(246, 198, 101, 0.44);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(13, 26, 56, 0.92), rgba(4, 12, 30, 0.92));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(75, 188, 255, 0.12);
+  color: rgba(255, 236, 179, 0.94);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 0 0.95rem;
+  text-transform: uppercase;
+  backdrop-filter: blur(18px) saturate(135%);
+}
+
+.vish-voice-tour-panel {
+  bottom: max(1rem, calc(1rem + var(--vish-safe-bottom, 0px)));
+  width: min(23.5rem, calc(100vw - 2rem - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px)));
+  max-height: min(78dvh, 44rem);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(246, 198, 101, 0.34);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(75, 188, 255, 0.18), transparent 16rem),
+    linear-gradient(180deg, rgba(7, 18, 42, 0.96), rgba(2, 9, 25, 0.97));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: hsl(var(--ws-text));
+  overflow: hidden;
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.vish-voice-tour-panel__header,
+.vish-voice-tour-panel__controls,
+.vish-voice-tour-panel__row,
+.vish-voice-tour-panel__toggles,
+.vish-voice-tour-panel__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.vish-voice-tour-panel__header {
+  justify-content: space-between;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(246, 198, 101, 0.16);
+}
+
+.vish-voice-tour-panel__eyebrow {
+  color: rgba(255, 236, 179, 0.64);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin: 0 0 0.2rem;
+  text-transform: uppercase;
+}
+
+.vish-voice-tour-panel h2 {
+  color: rgba(255, 244, 212, 0.96);
+  font-size: 1rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.vish-voice-tour-panel__icon,
+.vish-voice-tour-panel__secondary,
+.vish-voice-tour-panel__nav,
+.vish-voice-tour-panel__chip,
+.vish-voice-tour-panel__primary {
+  min-height: 42px;
+  border: 1px solid rgba(246, 198, 101, 0.22);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 251, 255, 0.92);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0 0.76rem;
+}
+
+.vish-voice-tour-panel__icon {
+  width: 42px;
+  padding: 0;
+}
+
+.vish-voice-tour-panel__primary {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(246, 198, 101, 0.95), rgba(207, 155, 58, 0.92));
+  color: #201304;
+}
+
+.vish-voice-tour-panel__active {
+  padding: 0.9rem 1rem;
+}
+
+.vish-voice-tour-panel__active span {
+  color: rgba(75, 188, 255, 0.85);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vish-voice-tour-panel__active strong {
+  display: block;
+  color: rgba(255, 244, 212, 0.96);
+  font-size: 1.06rem;
+  margin-top: 0.2rem;
+}
+
+.vish-voice-tour-panel__active p {
+  color: rgba(226, 236, 255, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0.35rem 0 0;
+}
+
+.vish-voice-tour-panel__controls,
+.vish-voice-tour-panel__row,
+.vish-voice-tour-panel__toggles {
+  padding: 0 1rem 0.65rem;
+}
+
+.vish-voice-tour-panel__row > *,
+.vish-voice-tour-panel__toggles > * {
+  flex: 1;
+  justify-content: center;
+}
+
+.vish-voice-tour-panel__chapters {
+  border-block: 1px solid rgba(246, 198, 101, 0.13);
+  max-height: 14rem;
+  overflow: auto;
+  padding: 0.55rem;
+}
+
+.vish-voice-tour-panel__chapter {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.65rem 1fr auto;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.8rem;
+  background: transparent;
+  color: rgba(226, 236, 255, 0.76);
+  min-height: 40px;
+  padding: 0.35rem 0.45rem;
+  text-align: left;
+}
+
+.vish-voice-tour-panel__chapter span {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: rgba(75, 188, 255, 0.12);
+  color: rgba(168, 224, 255, 0.95);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.vish-voice-tour-panel__chapter.active {
+  border-color: rgba(246, 198, 101, 0.34);
+  background: rgba(246, 198, 101, 0.09);
+  color: rgba(255, 244, 212, 0.96);
+}
+
+.vish-voice-tour-panel__footer {
+  justify-content: space-between;
+  padding: 0.65rem 1rem 0.85rem;
+  color: rgba(226, 236, 255, 0.66);
+  font-size: 0.72rem;
+}
+
+.vish-voice-tour-panel__footer button {
+  color: rgba(255, 236, 179, 0.9);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vish-voice-tour-panel button:focus-visible,
+.vish-voice-tour-launch:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.95);
+  outline-offset: 3px;
+}
+
+.vish-voice-tour-panel button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 720px) {
+  .vish-voice-tour-launch,
+  .vish-voice-tour-panel {
+    left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px)));
+    right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px)));
+  }
+
+  .vish-voice-tour-panel {
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-voice-tour-launch,
+  .vish-voice-tour-panel,
+  .vish-voice-tour-panel * {
+    transition: none !important;
+  }
+}
