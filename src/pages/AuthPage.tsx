@@ -184,7 +184,7 @@ export default function AuthPage() {
         description="Enter the sacred architecture workspace. Sign in to access your governed blueprint projects."
       />
 
-      <main className="vish-login-page" aria-labelledby="auth-page-title" data-testid="auth-page">
+      <main className="vish-login-page vish-login-page--reference-replica" aria-labelledby="auth-page-title" data-testid="auth-page">
         <AuthLoginHero />
         <AuthLoginCard
           email={email}
