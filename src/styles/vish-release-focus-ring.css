@@ -1,0 +1,4 @@
+.vish-release-focus-ring:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.92);
+  outline-offset: 3px;
+}
