@@ -1,0 +1,111 @@
+/* Vishvakarma.OS — empty canvas guided start card. */
+
+.vish-empty-guided-start {
+  position: fixed;
+  left: 50%;
+  top: clamp(8rem, 27vh, 16rem);
+  z-index: 54;
+  width: min(34rem, calc(100vw - 2rem - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px)));
+  transform: translateX(-50%);
+  border: 1px solid rgba(246, 198, 101, 0.34);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(75, 188, 255, 0.20), transparent 14rem),
+    radial-gradient(circle at 100% 12%, rgba(246, 198, 101, 0.16), transparent 12rem),
+    linear-gradient(180deg, rgba(5, 18, 42, 0.92), rgba(2, 8, 24, 0.94));
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: hsl(var(--ws-text));
+  padding: 1.25rem;
+  pointer-events: auto;
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.vish-empty-guided-start__close {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(246, 198, 101, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 251, 255, 0.82);
+}
+
+.vish-empty-guided-start__eyebrow {
+  color: rgba(168, 224, 255, 0.78);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  margin: 0 2.5rem 0.35rem 0;
+  text-transform: uppercase;
+}
+
+.vish-empty-guided-start h2 {
+  color: rgba(255, 244, 212, 0.98);
+  font-size: clamp(1.25rem, 2.2vw, 1.85rem);
+  font-weight: 950;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.vish-empty-guided-start p:not(.vish-empty-guided-start__eyebrow) {
+  color: rgba(226, 236, 255, 0.76);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0.55rem 0 0;
+  max-width: 31rem;
+}
+
+.vish-empty-guided-start__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.vish-empty-guided-start__actions button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(75, 188, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(248, 251, 255, 0.94);
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 0 1rem;
+}
+
+.vish-empty-guided-start__actions button.primary {
+  border-color: rgba(246, 198, 101, 0.46);
+  background: linear-gradient(135deg, rgba(246, 198, 101, 0.95), rgba(207, 155, 58, 0.92));
+  color: #201304;
+}
+
+.vish-empty-guided-start button:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.95);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .vish-empty-guided-start {
+    top: auto;
+    bottom: max(1rem, calc(1rem + var(--vish-safe-bottom, 0px)));
+    width: auto;
+    left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px)));
+    right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px)));
+    transform: none;
+  }
+
+  .vish-empty-guided-start__actions button {
+    flex: 1 1 9rem;
+  }
+}

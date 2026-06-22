@@ -14,6 +14,7 @@ import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import QaEvidencePanel from '@/qa-evidence/QaEvidencePanel';
+import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
 import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 
@@ -33,6 +34,7 @@ const App: React.FC = () => {
             </AppErrorBoundary>
           </div>
           <GuidedDemoSessionController />
+          <EmptyCanvasGuidedStart />
           <VisualThemeController />
           <AnalyticsConsentBanner />
           <MantraPlayerWidget />
