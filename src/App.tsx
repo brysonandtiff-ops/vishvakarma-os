@@ -13,6 +13,7 @@ import VisualThemeController from '@/components/common/VisualThemeController';
 import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
+import QaEvidencePanel from '@/qa-evidence/QaEvidencePanel';
 import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 
@@ -36,6 +37,7 @@ const App: React.FC = () => {
           <AnalyticsConsentBanner />
           <MantraPlayerWidget />
           <VoiceGuidedTour />
+          <QaEvidencePanel />
           <Analytics />
           <Toaster />
         </RouteGuard>
