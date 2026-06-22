@@ -6,6 +6,7 @@ import {
   LogOut,
   PenTool,
   Sparkles,
+  Tablet,
   Volume2,
   type LucideIcon,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import {
 import { startGuidedDemoSession } from '@/demo-session/GuidedDemoSessionController';
 import { useAuth } from '@/contexts/AuthContext';
 import { openQaEvidencePanel } from '@/qa-evidence/QaEvidencePanel';
+import { openIpadTouchAuditHud } from '@/touch-audit/IpadTouchAuditHud';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import { OPEN_VOICE_TOUR_EVENT } from '@/voice-tour/voiceTourContent';
@@ -82,6 +84,11 @@ export function WorkspaceCommandPalette() {
     openQaEvidencePanel();
   };
 
+  const runTouchAudit = () => {
+    setOpen(false);
+    openIpadTouchAuditHud();
+  };
+
   const runSignOut = () => {
     setOpen(false);
     void signOut().then(() => navigate('/auth', { replace: true }));
@@ -115,6 +122,11 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
+          <CommandItem value="ipad touch audit hud tester tap target overflow blocked controls" onSelect={runTouchAudit}>
+            <Tablet />
+            <span>iPad Touch Audit HUD</span>
+            <CommandShortcut>iPad</CommandShortcut>
+          </CommandItem>
           <CommandItem value="qa evidence proof checklist ipad pwa smoke testing" onSelect={runQaEvidence}>
             <ClipboardCheck />
             <span>QA Evidence mode</span>

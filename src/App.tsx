@@ -15,6 +15,7 @@ import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import QaEvidencePanel from '@/qa-evidence/QaEvidencePanel';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
+import IpadTouchAuditHud from '@/touch-audit/IpadTouchAuditHud';
 import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 
@@ -40,6 +41,7 @@ const App: React.FC = () => {
           <MantraPlayerWidget />
           <VoiceGuidedTour />
           <QaEvidencePanel />
+          <IpadTouchAuditHud />
           <Analytics />
           <Toaster />
         </RouteGuard>
