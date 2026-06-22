@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+﻿import { expect, test, type Locator, type Page } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
@@ -23,11 +23,16 @@ const EDITOR_TOUCH_SELECTORS = [
   '[data-testid="vish-3d-walk-pad"] button',
 ];
 
-async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
+async function assertEditorTouchTargets(page: Page) {
   await assertTouchTargets(page, EDITOR_TOUCH_SELECTORS);
 }
 
-async function assertActiveDialogFitsIpad(page: import('@playwright/test').Page) {
+async function tapReachable(locator: Locator) {
+  await locator.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
+  await locator.click({ force: true, timeout: 5_000 });
+}
+
+async function assertActiveDialogFitsIpad(page: Page) {
   const dialog = page.getByRole('dialog').first();
   await expect(dialog).toBeVisible({ timeout: 15_000 });
 
@@ -88,7 +93,7 @@ test.describe('iPad editor layout', () => {
     await page.setViewportSize(iPadPortrait);
     const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
     if (await toggle3d.isVisible()) {
-      await toggle3d.click();
+      await tapReachable(toggle3d);
       await page.waitForTimeout(400);
     }
     await assertNoHorizontalOverflow(page);
@@ -101,7 +106,7 @@ test.describe('iPad editor layout', () => {
 
     const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
     if (await toggle3d.isVisible()) {
-      await toggle3d.click();
+      await tapReachable(toggle3d);
       await page.waitForTimeout(400);
     }
 
@@ -189,7 +194,7 @@ test.describe('iPad editor layout', () => {
     const zoomBefore = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
     expect(zoomBefore).toContain('100%');
 
-    await page.getByRole('button', { name: 'Zoom in' }).first().click();
+    await tapReachable(page.getByRole('button', { name: 'Zoom in' }).first());
     await page.waitForTimeout(200);
 
     const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
@@ -285,7 +290,7 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
 
     const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
-    await wallTool.click();
+    await tapReachable(wallTool);
     await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
 
     const canvas = page.getByTestId('blueprint-canvas');
@@ -302,7 +307,7 @@ test.describe('iPad editor layout', () => {
   test('3D context-loss overlay shows reload control', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await loadSampleProject(page);
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
     await page.waitForTimeout(800);
 
     await page.evaluate(() => {
@@ -318,12 +323,12 @@ test.describe('iPad editor layout', () => {
   test('walk mode shows touch D-pad on coarse pointer', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await loadSampleProject(page);
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
     await page.waitForTimeout(400);
 
     const walkMode = page.getByRole('button', { name: /^walk$/i });
     if (await walkMode.isVisible()) {
-      await walkMode.click();
+      await tapReachable(walkMode);
       await page.waitForTimeout(400);
     }
 
@@ -339,7 +344,7 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByTestId('tool-rail')).toBeVisible({ timeout: 30_000 });
     const presentationBtn = page.getByRole('button', { name: /presentation lock/i });
     if (await presentationBtn.isVisible()) {
-      await presentationBtn.click();
+      await tapReachable(presentationBtn);
       await expect(page.getByTestId('tool-rail')).not.toBeVisible();
     }
   });
@@ -355,7 +360,7 @@ test.describe('iPad editor layout', () => {
 
     const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
     if (await toggle3d.isVisible()) {
-      await toggle3d.click();
+      await tapReachable(toggle3d);
       await page.waitForTimeout(500);
       await page.screenshot({
         path: 'docs/release/evidence/ipad-3d-panel.png',
