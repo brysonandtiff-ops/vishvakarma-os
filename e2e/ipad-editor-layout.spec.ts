@@ -29,13 +29,10 @@ async function assertEditorTouchTargets(page: Page) {
 
 async function tapReachable(locator: Locator) {
   await locator.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
-  try {
-    await locator.click({ force: true, timeout: 5_000 });
-  } catch {
-    await locator.evaluate((element) => {
-      (element as HTMLElement).click();
-    });
-  }
+  await locator.evaluate((element) => {
+    element.scrollIntoView({ block: 'nearest', inline: 'center' });
+    (element as HTMLElement).click();
+  });
 }
 
 async function assertActiveDialogFitsIpad(page: Page) {
