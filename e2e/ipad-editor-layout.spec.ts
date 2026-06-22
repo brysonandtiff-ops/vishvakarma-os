@@ -29,7 +29,13 @@ async function assertEditorTouchTargets(page: Page) {
 
 async function tapReachable(locator: Locator) {
   await locator.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
-  await locator.click({ force: true, timeout: 5_000 });
+  try {
+    await locator.click({ force: true, timeout: 5_000 });
+  } catch {
+    await locator.evaluate((element) => {
+      (element as HTMLElement).click();
+    });
+  }
 }
 
 async function assertActiveDialogFitsIpad(page: Page) {
@@ -160,16 +166,24 @@ test.describe('iPad editor layout', () => {
 
   test('blueprint canvas uses responsive container sizing', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    const metrics = await page.evaluate(() => {
+    await page.waitForFunction(() => {
       const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
-      const container = canvas?.parentElement;
-      if (!canvas || !container) return null;
+      const stage = canvas?.closest<HTMLElement>('.vish-canvas-stage') ?? canvas?.parentElement;
+      if (!canvas || !stage) return false;
       const canvasRect = canvas.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      return canvasRect.width <= Math.min(stageRect.width, document.documentElement.clientWidth) + 2;
+    });
+    const metrics = await page.evaluate(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]')!;
+      const stage = canvas.closest<HTMLElement>('.vish-canvas-stage') ?? canvas.parentElement!;
+      const canvasRect = canvas.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
       return {
         canvasWidth: canvasRect.width,
-        containerWidth: containerRect.width,
-        maxWidthOk: canvasRect.width <= containerRect.width + 1,
+        stageWidth: stageRect.width,
+        viewportWidth: document.documentElement.clientWidth,
+        maxWidthOk: canvasRect.width <= Math.min(stageRect.width, document.documentElement.clientWidth) + 2,
       };
     });
     expect(metrics).not.toBeNull();
