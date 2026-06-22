@@ -36,7 +36,7 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
 
     // AuthPage delegates the rendered sacred sign-in header to AuthLoginCard.
     expect(authLoginCard).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('swan logo');
+    expect(authLoginCard).toContain('swan logo');
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('official user-supplied swan V logo');
