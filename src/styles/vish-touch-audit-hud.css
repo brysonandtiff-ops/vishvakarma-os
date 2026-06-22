@@ -1,0 +1,211 @@
+/* Vishvakarma.OS — tester-only iPad Touch Audit HUD. */
+
+.vish-touch-audit-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+  pointer-events: none;
+}
+
+.vish-touch-audit-hud__overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vish-touch-audit-highlight {
+  position: fixed;
+  border-radius: 0.55rem;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18), 0 0 24px rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.vish-touch-audit-highlight.fail {
+  border: 2px solid rgba(255, 91, 91, 0.96);
+  background: rgba(255, 91, 91, 0.16);
+}
+
+.vish-touch-audit-highlight.warn {
+  border: 2px solid rgba(246, 198, 101, 0.95);
+  background: rgba(246, 198, 101, 0.14);
+}
+
+.vish-touch-audit-highlight.info {
+  border: 2px solid rgba(75, 188, 255, 0.9);
+  background: rgba(75, 188, 255, 0.12);
+}
+
+.vish-touch-audit-hud__panel {
+  position: fixed;
+  right: max(1rem, calc(1rem + var(--vish-safe-right, 0px)));
+  bottom: max(1rem, calc(1rem + var(--vish-safe-bottom, 0px)));
+  width: min(25rem, calc(100vw - 2rem - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px)));
+  max-height: min(82dvh, 48rem);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(75, 188, 255, 0.36);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(75, 188, 255, 0.22), transparent 14rem),
+    radial-gradient(circle at 100% 10%, rgba(246, 198, 101, 0.12), transparent 12rem),
+    linear-gradient(180deg, rgba(5, 18, 42, 0.97), rgba(1, 8, 24, 0.98));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: hsl(var(--ws-text));
+  overflow: hidden;
+  pointer-events: auto;
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.vish-touch-audit-hud__panel header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(75, 188, 255, 0.15);
+}
+
+.vish-touch-audit-hud__panel header p {
+  margin: 0 0 0.2rem;
+  color: rgba(168, 224, 255, 0.74);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vish-touch-audit-hud__panel h2 {
+  margin: 0;
+  color: rgba(255, 244, 212, 0.98);
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.vish-touch-audit-hud__panel header span {
+  display: block;
+  margin-top: 0.2rem;
+  color: rgba(226, 236, 255, 0.66);
+  font-size: 0.75rem;
+}
+
+.vish-touch-audit-hud__panel button {
+  min-height: 38px;
+  border: 1px solid rgba(75, 188, 255, 0.24);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(248, 251, 255, 0.92);
+  font-size: 0.74rem;
+  font-weight: 850;
+  padding: 0 0.72rem;
+}
+
+.vish-touch-audit-hud__panel header button {
+  width: 42px;
+  padding: 0;
+}
+
+.vish-touch-audit-hud__summary,
+.vish-touch-audit-hud__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid rgba(75, 188, 255, 0.12);
+}
+
+.vish-touch-audit-hud__summary span {
+  flex: 1 1 5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(226, 236, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.45rem 0.6rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.vish-touch-audit-hud__actions button {
+  display: inline-flex;
+  flex: 1 1 8rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.vish-touch-audit-hud__actions button:first-child {
+  border-color: rgba(246, 198, 101, 0.36);
+  color: rgba(255, 236, 179, 0.94);
+}
+
+.vish-touch-audit-hud__list {
+  display: grid;
+  gap: 0.55rem;
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+.vish-touch-audit-empty,
+.vish-touch-audit-issue {
+  border: 1px solid rgba(75, 188, 255, 0.14);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 0.75rem;
+}
+
+.vish-touch-audit-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(226, 236, 255, 0.76);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.vish-touch-audit-issue.fail {
+  border-color: rgba(255, 91, 91, 0.42);
+  background: rgba(255, 91, 91, 0.08);
+}
+
+.vish-touch-audit-issue.warn {
+  border-color: rgba(246, 198, 101, 0.34);
+  background: rgba(246, 198, 101, 0.07);
+}
+
+.vish-touch-audit-issue > div {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.vish-touch-audit-issue strong {
+  color: rgba(255, 244, 212, 0.96);
+  font-size: 0.82rem;
+}
+
+.vish-touch-audit-issue p {
+  margin: 0.4rem 0;
+  color: rgba(226, 236, 255, 0.74);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.vish-touch-audit-issue code {
+  color: rgba(168, 224, 255, 0.78);
+  font-size: 0.68rem;
+  word-break: break-word;
+}
+
+.vish-touch-audit-hud__panel button:focus-visible {
+  outline: 2px solid rgba(246, 198, 101, 0.95);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .vish-touch-audit-hud__panel {
+    left: max(0.75rem, calc(0.75rem + var(--vish-safe-left, 0px)));
+    right: max(0.75rem, calc(0.75rem + var(--vish-safe-right, 0px)));
+    width: auto;
+  }
+}
