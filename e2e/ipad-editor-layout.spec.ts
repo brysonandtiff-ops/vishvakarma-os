@@ -86,6 +86,34 @@ async function waitForUsableCanvas(page: Page) {
   }, undefined, { timeout: 5_000 });
 }
 
+async function tapCanvasAt(page: Page, x: number, y: number) {
+  await page.evaluate(
+    ({ x, y }) => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+      if (!canvas) return;
+      const fire = (type: string, buttons: number) => {
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons,
+            pointerId: 91,
+            pointerType: 'touch',
+            clientX: x,
+            clientY: y,
+            isPrimary: true,
+            pressure: buttons ? 0.5 : 0,
+          }),
+        );
+      };
+      fire('pointerdown', 1);
+      fire('pointerup', 0);
+    },
+    { x, y },
+  );
+}
+
 async function dragCanvas(page: Page, startX: number, startY: number, endX: number, endY: number) {
   await page.evaluate(
     ({ startX, startY, endX, endY }) => {
@@ -422,13 +450,9 @@ test.describe('iPad editor layout', () => {
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
-    await dragCanvas(
-      page,
-      box!.x + box!.width * 0.2,
-      box!.y + box!.height * 0.5,
-      box!.x + box!.width * 0.35,
-      box!.y + box!.height * 0.5,
-    );
+    await tapCanvasAt(page, box!.x + box!.width * 0.2, box!.y + box!.height * 0.5);
+    await page.waitForTimeout(100);
+    await tapCanvasAt(page, box!.x + box!.width * 0.35, box!.y + box!.height * 0.5);
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
