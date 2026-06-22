@@ -81,6 +81,7 @@
 }
 
 .vish-qa-evidence-panel__header button,
+.vish-qa-evidence-panel__export button,
 .vish-qa-evidence-card__actions button {
   min-height: 38px;
   border: 1px solid rgba(75, 188, 255, 0.2);
@@ -95,6 +96,28 @@
 .vish-qa-evidence-panel__header button {
   width: 42px;
   padding: 0;
+}
+
+.vish-qa-evidence-panel__export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid rgba(75, 188, 255, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.vish-qa-evidence-panel__export button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 7rem;
+  justify-content: center;
+}
+
+.vish-qa-evidence-panel__export button:first-child {
+  border-color: rgba(246, 198, 101, 0.32);
+  color: rgba(255, 236, 179, 0.94);
 }
 
 .vish-qa-evidence-panel__list {
