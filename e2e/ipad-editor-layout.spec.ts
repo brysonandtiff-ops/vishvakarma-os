@@ -305,8 +305,60 @@ test.describe('iPad editor layout', () => {
         };
         fire('pointerdown', 1, cx - 60, cy);
         fire('pointerdown', 2, cx + 60, cy);
+      },
+      { cx, cy },
+    );
+    await page.waitForTimeout(80);
+    await page.evaluate(
+      ({ cx, cy }) => {
+        const el = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+        if (!el) return;
+        const fire = (type: string, pointerId: number, x: number, y: number) => {
+          el.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              button: 0,
+              pointerId,
+              pointerType: 'touch',
+              clientX: x,
+              clientY: y,
+              buttons: type === 'pointerup' ? 0 : 1,
+              isPrimary: pointerId === 1,
+              pressure: type === 'pointerup' ? 0 : 0.5,
+              width: 12,
+              height: 12,
+            }),
+          );
+        };
         fire('pointermove', 1, cx - 100, cy);
         fire('pointermove', 2, cx + 100, cy);
+      },
+      { cx, cy },
+    );
+    await page.waitForTimeout(80);
+    await page.evaluate(
+      ({ cx, cy }) => {
+        const el = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+        if (!el) return;
+        const fire = (type: string, pointerId: number, x: number, y: number) => {
+          el.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              button: 0,
+              pointerId,
+              pointerType: 'touch',
+              clientX: x,
+              clientY: y,
+              buttons: type === 'pointerup' ? 0 : 1,
+              isPrimary: pointerId === 1,
+              pressure: type === 'pointerup' ? 0 : 0.5,
+              width: 12,
+              height: 12,
+            }),
+          );
+        };
         fire('pointerup', 1, cx - 100, cy);
         fire('pointerup', 2, cx + 100, cy);
       },
