@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Copy,
+  Download,
+  FileText,
   Grid3x3,
   RefreshCw,
   Sparkles,
@@ -28,6 +30,28 @@ type EvidenceItem = {
   steps: string[];
   actionLabel: string;
   runAction: (helpers: { navigate: ReturnType<typeof useNavigate> }) => void;
+};
+
+type EvidenceExportItem = {
+  id: string;
+  title: string;
+  description: string;
+  route?: string;
+  state: EvidenceState;
+  steps: string[];
+};
+
+type EvidenceExportPack = {
+  app: 'Vishvakarma.OS';
+  type: 'qa-evidence-pack';
+  version: 1;
+  exportedAt: string;
+  summary: {
+    total: number;
+    passed: number;
+    pending: number;
+  };
+  checks: EvidenceExportItem[];
 };
 
 const STORAGE_KEY = 'vish-qa-evidence-status-v1';
@@ -147,6 +171,76 @@ function writeEvidenceState(value: Record<string, EvidenceState>) {
   }
 }
 
+function buildEvidenceExportPack(states: Record<string, EvidenceState>): EvidenceExportPack {
+  const checks = EVIDENCE_ITEMS.map((item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    route: item.route,
+    state: states[item.id] ?? 'pending',
+    steps: item.steps,
+  }));
+  const passed = checks.filter((item) => item.state === 'passed').length;
+  return {
+    app: 'Vishvakarma.OS',
+    type: 'qa-evidence-pack',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    summary: {
+      total: checks.length,
+      passed,
+      pending: checks.length - passed,
+    },
+    checks,
+  };
+}
+
+function buildEvidenceMarkdown(pack: EvidenceExportPack): string {
+  const lines = [
+    '# Vishvakarma.OS QA Evidence Pack',
+    '',
+    `Exported: ${pack.exportedAt}`,
+    '',
+    '## Summary',
+    '',
+    `- Passed: ${pack.summary.passed}/${pack.summary.total}`,
+    `- Pending: ${pack.summary.pending}`,
+    '',
+    '## Checks',
+    '',
+  ];
+
+  for (const item of pack.checks) {
+    lines.push(`### ${item.state === 'passed' ? '✅' : '⬜'} ${item.title}`);
+    lines.push('');
+    lines.push(`Status: ${item.state}`);
+    if (item.route) lines.push(`Route: ${item.route}`);
+    lines.push('');
+    lines.push(item.description);
+    lines.push('');
+    item.steps.forEach((step, index) => lines.push(`${index + 1}. ${step}`));
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function safeTimestamp(value: string): string {
+  return value.replace(/[:.]/g, '-');
+}
+
+function downloadText(filename: string, content: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function openQaEvidencePanel() {
   window.dispatchEvent(new Event(OPEN_QA_EVIDENCE_EVENT));
 }
@@ -160,6 +254,8 @@ export default function QaEvidencePanel() {
     () => EVIDENCE_ITEMS.filter((item) => states[item.id] === 'passed').length,
     [states],
   );
+
+  const exportPack = useMemo(() => buildEvidenceExportPack(states), [states]);
 
   const setItemState = useCallback((id: string, state: EvidenceState) => {
     setStates((prev) => {
@@ -178,6 +274,36 @@ export default function QaEvidencePanel() {
       toast.message('Evidence steps', { description: text });
     }
   }, []);
+
+  const exportJson = useCallback(() => {
+    const pack = buildEvidenceExportPack(states);
+    downloadText(
+      `vishvakarma-qa-evidence-${safeTimestamp(pack.exportedAt)}.json`,
+      JSON.stringify(pack, null, 2),
+      'application/json',
+    );
+    toast.success('QA evidence JSON exported');
+  }, [states]);
+
+  const exportMarkdown = useCallback(() => {
+    const pack = buildEvidenceExportPack(states);
+    downloadText(
+      `vishvakarma-qa-evidence-${safeTimestamp(pack.exportedAt)}.md`,
+      buildEvidenceMarkdown(pack),
+      'text/markdown',
+    );
+    toast.success('QA evidence Markdown exported');
+  }, [states]);
+
+  const copyMarkdown = useCallback(async () => {
+    const markdown = buildEvidenceMarkdown(exportPack);
+    try {
+      await navigator.clipboard.writeText(markdown);
+      toast.success('Evidence pack copied as Markdown');
+    } catch {
+      toast.message('Evidence pack ready', { description: 'Clipboard unavailable. Use Export .md instead.' });
+    }
+  }, [exportPack]);
 
   useEffect(() => {
     const onOpen = () => setOpen(true);
@@ -209,6 +335,21 @@ export default function QaEvidencePanel() {
         </div>
         <button type="button" onClick={() => setOpen(false)} aria-label="Close QA evidence panel">
           <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="vish-qa-evidence-panel__export" aria-label="Export QA evidence">
+        <button type="button" onClick={exportMarkdown}>
+          <FileText className="h-3.5 w-3.5" />
+          Export .md
+        </button>
+        <button type="button" onClick={exportJson}>
+          <Download className="h-3.5 w-3.5" />
+          Export .json
+        </button>
+        <button type="button" onClick={copyMarkdown}>
+          <Copy className="h-3.5 w-3.5" />
+          Copy pack
         </button>
       </div>
 
