@@ -102,7 +102,8 @@ export function useCanvasResize(
 
       frameId = window.requestAnimationFrame(() => {
         frameId = undefined;
-        const rect = element.getBoundingClientRect();
+        const measurementTarget = element.parentElement ?? element;
+        const rect = measurementTarget.getBoundingClientRect();
         setMetrics(
           computeMetrics(rect.width, rect.height, maxWidth, {
             coarsePointer,
@@ -121,7 +122,8 @@ export function useCanvasResize(
     };
 
     const updateImmediately = () => {
-      const rect = element.getBoundingClientRect();
+      const measurementTarget = element.parentElement ?? element;
+      const rect = measurementTarget.getBoundingClientRect();
       setMetrics(
         computeMetrics(rect.width, rect.height, maxWidth, {
           coarsePointer,
