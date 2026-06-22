@@ -38,6 +38,7 @@ async function tapReachable(locator: Locator) {
 async function assertActiveDialogFitsIpad(page: Page) {
   const dialog = page.getByRole('dialog').first();
   await expect(dialog).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(250);
 
   const metrics = await dialog.evaluate((element) => {
     const rect = element.getBoundingClientRect();
@@ -74,6 +75,15 @@ async function waitForZoomReadoutToChange(page: Page) {
       timeout: 5_000,
     })
     .not.toContain('100%');
+}
+
+async function waitForUsableCanvas(page: Page) {
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+    if (!canvas) return false;
+    const rect = canvas.getBoundingClientRect();
+    return rect.width > 100 && rect.height > 100;
+  });
 }
 
 test.describe('iPad editor layout', () => {
@@ -245,6 +255,7 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 
     const canvas = page.getByTestId('blueprint-canvas');
+    await waitForUsableCanvas(page);
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
@@ -381,8 +392,8 @@ test.describe('iPad editor layout', () => {
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
-    await canvas.click({ position: { x: box!.width * 0.2, y: box!.height * 0.5 } });
-    await canvas.click({ position: { x: box!.width * 0.35, y: box!.height * 0.5 } });
+    await canvas.click({ position: { x: box!.width * 0.2, y: box!.height * 0.5 }, force: true });
+    await canvas.click({ position: { x: box!.width * 0.35, y: box!.height * 0.5 }, force: true });
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
@@ -395,7 +406,7 @@ test.describe('iPad editor layout', () => {
     await page.waitForTimeout(800);
 
     await page.evaluate(() => {
-      const canvas = document.querySelector('canvas');
+      const canvas = document.querySelector('.vish-3d-viewport-pane canvas');
       if (!canvas) return;
       canvas.dispatchEvent(new Event('webglcontextlost', { bubbles: true }));
     });
