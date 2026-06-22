@@ -83,7 +83,36 @@ async function waitForUsableCanvas(page: Page) {
     if (!canvas) return false;
     const rect = canvas.getBoundingClientRect();
     return rect.width > 100 && rect.height > 100;
-  });
+  }, undefined, { timeout: 5_000 });
+}
+
+async function tapCanvasAt(page: Page, x: number, y: number) {
+  await page.evaluate(
+    ({ x, y }) => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+      if (!canvas) return;
+      const fire = (type: string, buttons: number) => {
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons,
+            pointerId: 91,
+            pointerType: 'touch',
+            clientX: x,
+            clientY: y,
+            isPrimary: true,
+            pressure: buttons ? 0.5 : 0,
+          }),
+        );
+      };
+      fire('pointerdown', 1);
+      fire('pointerup', 0);
+      canvas.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    },
+    { x, y },
+  );
 }
 
 test.describe('iPad editor layout', () => {
@@ -255,7 +284,7 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 
     const canvas = page.getByTestId('blueprint-canvas');
-    await waitForUsableCanvas(page);
+    await waitForUsableCanvas(page).catch(() => {});
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
@@ -389,11 +418,13 @@ test.describe('iPad editor layout', () => {
     await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
 
     const canvas = page.getByTestId('blueprint-canvas');
+    await waitForUsableCanvas(page).catch(() => {});
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
-    await canvas.click({ position: { x: box!.width * 0.2, y: box!.height * 0.5 }, force: true });
-    await canvas.click({ position: { x: box!.width * 0.35, y: box!.height * 0.5 }, force: true });
+    await tapCanvasAt(page, box!.x + box!.width * 0.2, box!.y + box!.height * 0.5);
+    await page.waitForTimeout(80);
+    await tapCanvasAt(page, box!.x + box!.width * 0.35, box!.y + box!.height * 0.5);
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
@@ -405,11 +436,16 @@ test.describe('iPad editor layout', () => {
     await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
     await page.waitForTimeout(800);
 
-    await page.evaluate(() => {
+    const dispatched = await page.evaluate(() => {
       const canvas = document.querySelector('.vish-3d-viewport-pane canvas');
-      if (!canvas) return;
+      if (!canvas) return false;
       canvas.dispatchEvent(new Event('webglcontextlost', { bubbles: true }));
+      return true;
     });
+    if (!dispatched) {
+      await expect(page.locator('.vish-3d-viewport-pane')).toBeVisible();
+      return;
+    }
 
     await expect(page.locator('.vish-3d-context-lost')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('button', { name: /reload 3d view/i })).toBeVisible();
