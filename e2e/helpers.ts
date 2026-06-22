@@ -64,39 +64,27 @@ export async function openProjectActionsMenu(page: Page) {
       scroller.scrollLeft = Math.max(0, (el as HTMLElement).offsetLeft - scroller.clientWidth / 2);
     }
     el.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const pointerInit = {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+    };
+    el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
+    el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
+    el.dispatchEvent(new MouseEvent('click', pointerInit));
   });
-  await button.dispatchEvent('pointerdown', {
-    bubbles: true,
-    cancelable: true,
-    button: 0,
-    buttons: 1,
-    pointerType: 'touch',
-  });
-  await button.dispatchEvent('pointerup', {
-    bubbles: true,
-    cancelable: true,
-    button: 0,
-    buttons: 0,
-    pointerType: 'touch',
-  });
-  await button.dispatchEvent('click', { bubbles: true, cancelable: true, button: 0 });
   const firstMenuItem = page.getByRole('menuitem').first();
   if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_000 }).then(() => true).catch(() => false))) {
-    await button.dispatchEvent('pointerdown', {
-      bubbles: true,
-      cancelable: true,
-      button: 0,
-      buttons: 1,
-      pointerType: 'touch',
+    await button.evaluate((el) => {
+      const pointerInit = {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+      };
+      el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
+      el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
+      el.dispatchEvent(new MouseEvent('click', pointerInit));
     });
-    await button.dispatchEvent('pointerup', {
-      bubbles: true,
-      cancelable: true,
-      button: 0,
-      buttons: 0,
-      pointerType: 'touch',
-    });
-    await button.dispatchEvent('click', { bubbles: true, cancelable: true, button: 0 });
     await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
   }
 }
