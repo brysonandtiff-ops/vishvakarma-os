@@ -66,6 +66,12 @@ export async function openProjectActionsMenu(page: Page) {
       (el as HTMLButtonElement).click();
     });
   }
+  const firstMenuItem = page.getByRole('menuitem').first();
+  if (!(await firstMenuItem.isVisible({ timeout: 1_000 }).catch(() => false))) {
+    await button.evaluate((el) => {
+      (el as HTMLButtonElement).click();
+    });
+  }
 }
 
 export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {
