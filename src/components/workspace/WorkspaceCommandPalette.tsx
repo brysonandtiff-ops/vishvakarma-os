@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CircleHelp,
+  ClipboardCheck,
   LogOut,
   PenTool,
   Sparkles,
@@ -20,6 +21,7 @@ import {
 } from '@/components/ui/command';
 import { startGuidedDemoSession } from '@/demo-session/GuidedDemoSessionController';
 import { useAuth } from '@/contexts/AuthContext';
+import { openQaEvidencePanel } from '@/qa-evidence/QaEvidencePanel';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import { OPEN_VOICE_TOUR_EVENT } from '@/voice-tour/voiceTourContent';
@@ -75,6 +77,11 @@ export function WorkspaceCommandPalette() {
     startGuidedDemoSession({ autoPlayVoice: true });
   };
 
+  const runQaEvidence = () => {
+    setOpen(false);
+    openQaEvidencePanel();
+  };
+
   const runSignOut = () => {
     setOpen(false);
     void signOut().then(() => navigate('/auth', { replace: true }));
@@ -108,6 +115,11 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
+          <CommandItem value="qa evidence proof checklist ipad pwa smoke testing" onSelect={runQaEvidence}>
+            <ClipboardCheck />
+            <span>QA Evidence mode</span>
+            <CommandShortcut>Proof</CommandShortcut>
+          </CommandItem>
           <CommandItem value="start demo session sample grid voice tour guided first run" onSelect={runDemoSession}>
             <Sparkles />
             <span>Start demo session</span>
