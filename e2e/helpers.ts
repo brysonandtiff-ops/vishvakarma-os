@@ -58,16 +58,31 @@ export async function dismissConsentIfPresent(page: Page) {
 
 export async function openProjectActionsMenu(page: Page) {
   const button = page.getByRole('button', { name: /project actions/i }).first();
-  await button.scrollIntoViewIfNeeded();
   await button.evaluate((el) => {
+    const scroller = el.closest<HTMLElement>('.vish-editor-action-row');
+    if (scroller) {
+      scroller.scrollLeft = Math.max(0, (el as HTMLElement).offsetLeft - scroller.clientWidth / 2);
+    }
     el.scrollIntoView({ block: 'nearest', inline: 'center' });
-    (el as HTMLButtonElement).click();
   });
+  await button.click({ timeout: 5_000 }).catch(() => button.click({ force: true, timeout: 5_000 }));
   const firstMenuItem = page.getByRole('menuitem').first();
   if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_000 }).then(() => true).catch(() => false))) {
-    await button.evaluate((el) => {
-      (el as HTMLButtonElement).click();
+    await button.dispatchEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      buttons: 1,
+      pointerType: 'touch',
     });
+    await button.dispatchEvent('pointerup', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      buttons: 0,
+      pointerType: 'touch',
+    });
+    await button.dispatchEvent('click', { bubbles: true, cancelable: true, button: 0 });
     await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
   }
 }
