@@ -22,14 +22,14 @@ describe('Divine Architect visual theme', () => {
 
   it('preserves the owner supplied swan SVG logo source of truth', () => {
     const officialLogo = read('src/brand/officialLogo.ts');
-    const authPage = read('src/pages/AuthPage.tsx');
+    const authLoginCard = read('src/components/auth/AuthLoginCard.tsx');
     const theme = read('src/styles/vish-divine-architect-theme.css');
     const authReference = read('src/styles/vish-auth-reference-screen.css');
 
     expect(officialLogo).toContain('/brand/vishvakarma-official-logo.svg');
     expect(officialLogo).toContain('gold swan / V mark');
-    expect(authPage).toContain('src={OFFICIAL_LOGO_SRC}');
-    expect(authPage).toContain('Vishvakarma.OS swan logo');
+    expect(authLoginCard).toContain('src={OFFICIAL_LOGO_SRC}');
+    expect(authLoginCard).toContain('Vishvakarma.OS swan logo');
     expect(theme).toContain('Logo safety');
     expect(authReference).toContain("img[src*='vishvakarma-official-logo.svg']");
     expect(theme).not.toContain('OFFICIAL_LOGO_SRC =');
