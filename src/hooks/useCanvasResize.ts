@@ -91,6 +91,7 @@ export function useCanvasResize(
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
+    const measurementTarget = element.parentElement ?? element;
 
     let frameId: number | undefined;
     let orientationTimerId: number | undefined;
@@ -102,7 +103,6 @@ export function useCanvasResize(
 
       frameId = window.requestAnimationFrame(() => {
         frameId = undefined;
-        const measurementTarget = element.parentElement ?? element;
         const rect = measurementTarget.getBoundingClientRect();
         setMetrics(
           computeMetrics(rect.width, rect.height, maxWidth, {
@@ -122,7 +122,6 @@ export function useCanvasResize(
     };
 
     const updateImmediately = () => {
-      const measurementTarget = element.parentElement ?? element;
       const rect = measurementTarget.getBoundingClientRect();
       setMetrics(
         computeMetrics(rect.width, rect.height, maxWidth, {
@@ -135,7 +134,7 @@ export function useCanvasResize(
     updateImmediately();
 
     const observer = new ResizeObserver(update);
-    observer.observe(element);
+    observer.observe(measurementTarget);
     window.addEventListener('resize', update);
     window.addEventListener('orientationchange', updateAfterOrientationChange);
     window.visualViewport?.addEventListener('resize', update);
