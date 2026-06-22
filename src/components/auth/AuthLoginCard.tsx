@@ -102,7 +102,7 @@ export default function AuthLoginCard({
         <div className="vish-login-page__logo">
           <img
             src={OFFICIAL_LOGO_SRC}
-            alt="Vishvakarma.OS logo"
+            alt="Vishvakarma.OS swan logo"
             className="vish-login-page__logo-img"
             width={38}
             height={38}
