@@ -91,7 +91,8 @@ export function useCanvasResize(
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
-    const measurementTarget = element.parentElement ?? element;
+    const measurementTarget =
+      element.closest<HTMLElement>('.vish-canvas-stage') ?? element.parentElement ?? element;
 
     let frameId: number | undefined;
     let orientationTimerId: number | undefined;
