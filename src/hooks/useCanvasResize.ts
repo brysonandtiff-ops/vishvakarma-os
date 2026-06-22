@@ -92,7 +92,35 @@ export function useCanvasResize(
     const element = containerRef.current;
     if (!element) return;
 
+    let frameId: number | undefined;
+    let orientationTimerId: number | undefined;
+
     const update = () => {
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = undefined;
+        const rect = element.getBoundingClientRect();
+        setMetrics(
+          computeMetrics(rect.width, rect.height, maxWidth, {
+            coarsePointer,
+            wallCount,
+          }),
+        );
+      });
+    };
+
+    const updateAfterOrientationChange = () => {
+      update();
+      if (orientationTimerId !== undefined) {
+        window.clearTimeout(orientationTimerId);
+      }
+      orientationTimerId = window.setTimeout(update, 250);
+    };
+
+    const updateImmediately = () => {
       const rect = element.getBoundingClientRect();
       setMetrics(
         computeMetrics(rect.width, rect.height, maxWidth, {
@@ -102,15 +130,25 @@ export function useCanvasResize(
       );
     };
 
-    update();
+    updateImmediately();
 
     const observer = new ResizeObserver(update);
     observer.observe(element);
     window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', updateAfterOrientationChange);
+    window.visualViewport?.addEventListener('resize', update);
 
     return () => {
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+      if (orientationTimerId !== undefined) {
+        window.clearTimeout(orientationTimerId);
+      }
       observer.disconnect();
       window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', updateAfterOrientationChange);
+      window.visualViewport?.removeEventListener('resize', update);
     };
   }, [containerRef, maxWidth, coarsePointer, wallCount]);
 

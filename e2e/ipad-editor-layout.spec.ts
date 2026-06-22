@@ -6,6 +6,9 @@ import {
   iPadLandscape,
   iPadPortrait,
   loadSampleProject,
+  openAIDesigner,
+  openExportDialog,
+  openProjectActionsMenu,
   resetWorkspacePrefs,
 } from './helpers';
 
@@ -22,6 +25,39 @@ const EDITOR_TOUCH_SELECTORS = [
 
 async function assertEditorTouchTargets(page: import('@playwright/test').Page) {
   await assertTouchTargets(page, EDITOR_TOUCH_SELECTORS);
+}
+
+async function assertActiveDialogFitsIpad(page: import('@playwright/test').Page) {
+  const dialog = page.getByRole('dialog').first();
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
+
+  const metrics = await dialog.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const style = window.getComputedStyle(element);
+    return {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      viewportWidth,
+      viewportHeight,
+      canScroll: element.scrollHeight > element.clientHeight,
+      overflowY: style.overflowY,
+    };
+  });
+
+  expect(metrics.left).toBeGreaterThanOrEqual(-1);
+  expect(metrics.top).toBeGreaterThanOrEqual(-1);
+  expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
+  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight + 1);
+  if (metrics.canScroll) {
+    expect(['auto', 'scroll']).toContain(metrics.overflowY);
+  }
+
+  await assertNoHorizontalOverflow(page);
+  await assertTouchTargets(page, ['[role="dialog"] button', '[role="dialog"] [role="button"]']);
 }
 
 test.describe('iPad editor layout', () => {
@@ -57,6 +93,64 @@ test.describe('iPad editor layout', () => {
     }
     await assertNoHorizontalOverflow(page);
     await assertEditorTouchTargets(page);
+  });
+
+  test('editor survives iPad rotation with 3D panel and canvas controls visible', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+
+    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    if (await toggle3d.isVisible()) {
+      await toggle3d.click();
+      await page.waitForTimeout(400);
+    }
+
+    await page.setViewportSize(iPadPortrait);
+    await page.evaluate(() => window.dispatchEvent(new Event('orientationchange')));
+    await page.waitForTimeout(350);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible();
+    await expect(page.getByTestId('tool-rail')).toBeVisible();
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await assertEditorTouchTargets(page);
+
+    const portraitDirection = await page.evaluate(() => {
+      const row = document.querySelector('.bg-ws-canvas > div.flex.flex-1.overflow-hidden');
+      return row ? window.getComputedStyle(row).flexDirection : null;
+    });
+    expect(portraitDirection).toBe('column');
+
+    await page.setViewportSize(iPadLandscape);
+    await page.evaluate(() => window.dispatchEvent(new Event('orientationchange')));
+    await page.waitForTimeout(350);
+    const landscapeDirection = await page.evaluate(() => {
+      const row = document.querySelector('.bg-ws-canvas > div.flex.flex-1.overflow-hidden');
+      return row ? window.getComputedStyle(row).flexDirection : null;
+    });
+    expect(landscapeDirection).toBe('row');
+    await assertNoHorizontalOverflow(page);
+  });
+
+  test('editor dialogs stay reachable on iPad portrait and landscape', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
+
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /new project/i }).click();
+    await expect(page.getByRole('dialog', { name: /create new project/i })).toBeVisible();
+    await assertActiveDialogFitsIpad(page);
+    await page.getByRole('button', { name: /cancel/i }).first().click();
+
+    await openExportDialog(page);
+    await expect(page.getByRole('dialog', { name: /export package/i })).toBeVisible();
+    await assertActiveDialogFitsIpad(page);
+    await page.getByRole('button', { name: /cancel/i }).first().click();
+
+    await page.setViewportSize(iPadLandscape);
+    await page.waitForTimeout(250);
+    await openAIDesigner(page);
+    await expect(page.getByRole('dialog', { name: /ai architecture copilot/i })).toBeVisible();
+    await assertActiveDialogFitsIpad(page);
   });
 
   test('blueprint canvas uses responsive container sizing', async ({ page }) => {

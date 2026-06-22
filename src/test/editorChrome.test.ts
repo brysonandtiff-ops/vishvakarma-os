@@ -68,13 +68,33 @@ describe('Editor chrome consolidation', () => {
 
   it('keeps iPad editor windows and chrome reachable inside safe areas', () => {
     const ipadCss = read('src/styles/vish-ipad-editor-usability.css');
+    const ipadKingCss = read('src/styles/vish-ipad-king-polish.css');
+    const dialog = read('src/components/ui/dialog.tsx');
+    const sheet = read('src/components/ui/sheet.tsx');
 
     expect(ipadCss).toContain('.bg-ws-canvas .vish-editor-topbar');
     expect(ipadCss).toContain('overflow-x: auto');
     expect(ipadCss).toContain("[role='dialog']");
+    expect(ipadCss).toContain("[data-slot='dialog-content']");
+    expect(ipadCss).toContain("[data-slot='dialog-footer']");
     expect(ipadCss).toContain('[data-radix-popper-content-wrapper]');
     expect(ipadCss).toContain('.bg-ws-canvas .vish-3d-viewport-pane');
     expect(ipadCss).toContain('var(--vish-safe-bottom');
+    expect(ipadKingCss).toContain("[data-slot='dialog-content']");
+    expect(ipadKingCss).toContain('overflow-y: auto !important');
+    expect(dialog).toContain('data-slot="dialog-content"');
+    expect(dialog).toContain('min-h-[44px]');
+    expect(sheet).toContain('data-slot="sheet-content"');
+    expect(sheet).toContain('min-h-[44px]');
+  });
+
+  it('remeasures canvas on iPad orientation and visual viewport changes', () => {
+    const resizeHook = read('src/hooks/useCanvasResize.ts');
+
+    expect(resizeHook).toContain("window.addEventListener('orientationchange'");
+    expect(resizeHook).toContain("window.visualViewport?.addEventListener('resize'");
+    expect(resizeHook).toContain('requestAnimationFrame');
+    expect(resizeHook).toContain('clearTimeout');
   });
 
   it('uses distinct phase pill classes separate from workspace mode tabs', () => {
