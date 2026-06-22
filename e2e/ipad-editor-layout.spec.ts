@@ -389,13 +389,13 @@ test.describe('iPad editor layout', () => {
     await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
 
     const canvas = page.getByTestId('blueprint-canvas');
-    await waitForUsableCanvas(page).catch(() => {});
+    await waitForUsableCanvas(page);
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
-    await page.touchscreen.tap(box!.x + box!.width * 0.2, box!.y + box!.height * 0.5);
+    await canvas.click({ position: { x: box!.width * 0.2, y: box!.height * 0.5 } });
     await page.waitForTimeout(150);
-    await page.touchscreen.tap(box!.x + box!.width * 0.35, box!.y + box!.height * 0.5);
+    await canvas.click({ position: { x: box!.width * 0.35, y: box!.height * 0.5 } });
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
