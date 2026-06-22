@@ -114,35 +114,6 @@ async function tapCanvasAt(page: Page, x: number, y: number) {
   );
 }
 
-async function dragCanvas(page: Page, startX: number, startY: number, endX: number, endY: number) {
-  await page.evaluate(
-    ({ startX, startY, endX, endY }) => {
-      const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
-      if (!canvas) return;
-      const fire = (type: string, x: number, y: number, buttons: number) => {
-        canvas.dispatchEvent(
-          new PointerEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            buttons,
-            pointerId: 92,
-            pointerType: 'touch',
-            clientX: x,
-            clientY: y,
-            isPrimary: true,
-            pressure: buttons ? 0.5 : 0,
-          }),
-        );
-      };
-      fire('pointerdown', startX, startY, 1);
-      fire('pointermove', endX, endY, 1);
-      fire('pointerup', endX, endY, 0);
-    },
-    { startX, startY, endX, endY },
-  );
-}
-
 test.describe('iPad editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
