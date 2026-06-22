@@ -892,6 +892,10 @@ export default function BlueprintCanvas({
     const point = getCanvasPoint(event);
 
     if (currentTool === 'wall') {
+      if (isDrawing && startPoint) {
+        setCurrentPoint(point);
+        return;
+      }
       setStartPoint(point);
       setCurrentPoint(point);
       setIsDrawing(true);
@@ -1276,16 +1280,19 @@ export default function BlueprintCanvas({
     if (!isDrawing || !startPoint || currentTool !== 'wall') return;
 
     const end = getWallDrawPoint(event, startPoint);
-    if (Math.hypot(end.x - startPoint.x, end.y - startPoint.y) > MIN_WALL_LENGTH_PX) {
-      onWallAdd({
-        id: `wall-${Date.now()}`,
-        start: startPoint,
-        end,
-        thickness: 10,
-        height: 240,
-        material: 'material-paint',
-      });
+    if (Math.hypot(end.x - startPoint.x, end.y - startPoint.y) <= MIN_WALL_LENGTH_PX) {
+      setCurrentPoint(end);
+      return;
     }
+
+    onWallAdd({
+      id: `wall-${Date.now()}`,
+      start: startPoint,
+      end,
+      thickness: 10,
+      height: 240,
+      material: 'material-paint',
+    });
 
     setIsDrawing(false);
     setStartPoint(null);
