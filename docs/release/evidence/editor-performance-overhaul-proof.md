@@ -1,20 +1,20 @@
 # Editor Performance Overhaul — Proof Matrix
 
-Generated at: 2026-06-22T22:09:43.148Z
-Commit: `421e42907b286c8ced62dfbfdca17cf9afa47f01`
+Generated at: 2026-06-22T22:13:30.011Z
+Commit: `82a381f2d395604a61dd4b3bcb7782da4c9d37e6`
 
 ## Summary
 
 | Pass | Fail | Warn | Total |
 |------|------|------|-------|
-| 27 | 0 | 0 | 27 |
+| 26 | 0 | 1 | 27 |
 
 ## Mock metrics
 
 | Metric | Value |
 |--------|-------|
-| Spatial index (300 lookups) | 3.59 ms |
-| Linear scan (300 lookups) | 21.76 ms |
+| Spatial index (300 lookups) | 4.20 ms |
+| Linear scan (300 lookups) | 3.07 ms |
 | Canvas rAF coalesced | yes |
 
 ## Checklist
@@ -25,7 +25,7 @@ Commit: `421e42907b286c8ced62dfbfdca17cf9afa47f01`
 | 0 | p0-compliance-pan | Geometry manifest excludes camera pan/zoom | **PASS** | camera omitted from getGeometryManifest() |
 | 0 | p0-undo-coalesce | Undo coalesces continuous wall drag | **PASS** | single undo restores pre-drag wall |
 | 1 | p1-canvas-raf | Canvas rAF scheduler coalesces draws | **PASS** | 3 requestDraw → 1 flush |
-| 1 | p1-spatial-index | Spatial index hit-test parity + mock benchmark | **PASS** | indexed=3.59ms linear=21.76ms parity=w200 |
+| 1 | p1-spatial-index | Spatial index hit-test parity + mock benchmark | **WARN** | indexed=4.20ms linear=3.07ms parity=w200 |
 | 1 | p1-overlay-cache | Vastu analysis memoized by geometry hash | **PASS** | same object reference |
 | 2 | p2-3d-demand | Bloom pipeline gated by wall count | **PASS** | cap=250 |
 | 2 | p2-wall-batch | Wall batch helper thresholds | **PASS** | >=10 walls, all atmosphere tiers |
