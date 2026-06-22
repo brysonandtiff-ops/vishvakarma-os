@@ -393,9 +393,9 @@ test.describe('iPad editor layout', () => {
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
 
-    await page.mouse.click(box!.x + box!.width * 0.2, box!.y + box!.height * 0.5);
+    await page.touchscreen.tap(box!.x + box!.width * 0.2, box!.y + box!.height * 0.5);
     await page.waitForTimeout(150);
-    await page.mouse.click(box!.x + box!.width * 0.35, box!.y + box!.height * 0.5);
+    await page.touchscreen.tap(box!.x + box!.width * 0.35, box!.y + box!.height * 0.5);
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
