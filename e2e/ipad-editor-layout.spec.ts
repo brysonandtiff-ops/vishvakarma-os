@@ -68,6 +68,14 @@ async function assertActiveDialogFitsIpad(page: Page) {
   await assertTouchTargets(page, ['[role="dialog"] button', '[role="dialog"] [role="button"]']);
 }
 
+async function waitForZoomReadoutToChange(page: Page) {
+  await expect
+    .poll(async () => page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent(), {
+      timeout: 5_000,
+    })
+    .not.toContain('100%');
+}
+
 test.describe('iPad editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
@@ -208,10 +216,7 @@ test.describe('iPad editor layout', () => {
     expect(zoomBefore).toContain('100%');
 
     await tapReachable(page.getByRole('button', { name: 'Zoom in' }).first());
-    await page.waitForTimeout(200);
-
-    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
-    expect(zoomAfter).not.toContain('100%');
+    await waitForZoomReadoutToChange(page);
   });
 
   test('pan tool is available in tool rail', async ({ page }) => {
@@ -246,12 +251,23 @@ test.describe('iPad editor layout', () => {
     const zoomBefore = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
     expect(zoomBefore).toContain('100%');
 
-    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
-    await page.mouse.wheel(0, -120);
-    await page.waitForTimeout(200);
+    await page.evaluate(
+      ({ x, y }) => {
+        const canvas = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+        canvas?.dispatchEvent(
+          new WheelEvent('wheel', {
+            bubbles: true,
+            cancelable: true,
+            clientX: x,
+            clientY: y,
+            deltaY: -240,
+          }),
+        );
+      },
+      { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 },
+    );
 
-    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
-    expect(zoomAfter).not.toContain('100%');
+    await waitForZoomReadoutToChange(page);
   });
 
   test('two-pointer pinch zoom updates status bar readout', async ({ page }) => {
@@ -274,11 +290,16 @@ test.describe('iPad editor layout', () => {
             new PointerEvent(type, {
               bubbles: true,
               cancelable: true,
+              button: 0,
               pointerId,
               pointerType: 'touch',
               clientX: x,
               clientY: y,
               buttons: type === 'pointerup' ? 0 : 1,
+              isPrimary: pointerId === 1,
+              pressure: type === 'pointerup' ? 0 : 0.5,
+              width: 12,
+              height: 12,
             }),
           );
         };
@@ -292,9 +313,7 @@ test.describe('iPad editor layout', () => {
       { cx, cy },
     );
 
-    await page.waitForTimeout(250);
-    const zoomAfter = await page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent();
-    expect(zoomAfter).not.toContain('100%');
+    await waitForZoomReadoutToChange(page);
   });
 
   test('wall tool draw increases wall count on sample project', async ({ page }) => {
