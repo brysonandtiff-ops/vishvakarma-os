@@ -59,18 +59,16 @@ export async function dismissConsentIfPresent(page: Page) {
 export async function openProjectActionsMenu(page: Page) {
   const button = page.getByRole('button', { name: /project actions/i }).first();
   await button.scrollIntoViewIfNeeded();
-  try {
-    await button.click({ force: true, timeout: 5_000 });
-  } catch {
-    await button.evaluate((el) => {
-      (el as HTMLButtonElement).click();
-    });
-  }
+  await button.evaluate((el) => {
+    el.scrollIntoView({ block: 'nearest', inline: 'center' });
+    (el as HTMLButtonElement).click();
+  });
   const firstMenuItem = page.getByRole('menuitem').first();
-  if (!(await firstMenuItem.isVisible({ timeout: 1_000 }).catch(() => false))) {
+  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_000 }).then(() => true).catch(() => false))) {
     await button.evaluate((el) => {
       (el as HTMLButtonElement).click();
     });
+    await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
   }
 }
 
