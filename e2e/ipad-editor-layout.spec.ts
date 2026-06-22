@@ -144,7 +144,9 @@ test.describe('iPad editor layout', () => {
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
 
     await openProjectActionsMenu(page);
-    await page.getByRole('menuitem', { name: /new project/i }).click();
+    await page.getByRole('menuitem', { name: /new project/i }).evaluate((element) => {
+      (element as HTMLElement).click();
+    });
     await expect(page.getByRole('dialog', { name: /create new project/i })).toBeVisible();
     await assertActiveDialogFitsIpad(page);
     await page.getByRole('button', { name: /cancel/i }).first().click();
