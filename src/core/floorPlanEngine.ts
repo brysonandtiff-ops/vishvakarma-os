@@ -161,9 +161,19 @@ export class FloorPlanEngine {
   commitEditTransaction(snapshotLabel = 'Edit'): void {
     if (this.editTransactionDepth <= 0) return;
     this.editTransactionDepth -= 1;
-    if (this.editTransactionDepth === 0 && this.shouldSaveVersionSnapshot()) {
-      this.versionControl.saveVersion(this.manifest, snapshotLabel);
-      this.versionControl.updateCurrentManifest(this.manifest);
+    if (this.editTransactionDepth === 0) {
+      // VedicSync: Catch up on deferred cost calculations
+      this.manifest = {
+        ...this.manifest,
+        costItems: calculateProjectCostItems(this.manifest),
+      };
+      
+      if (this.shouldSaveVersionSnapshot()) {
+        this.versionControl.saveVersion(this.manifest, snapshotLabel);
+        this.versionControl.updateCurrentManifest(this.manifest);
+      }
+      // Notify geometry to ensure dependent panels update with new costs
+      this.notifyGeometry(snapshotLabel);
     }
   }
 
@@ -346,7 +356,11 @@ export class FloorPlanEngine {
     };
 
     if (!partial.costItems && partialTouchesCost(partial)) {
-      nextManifest.costItems = calculateProjectCostItems(nextManifest);
+      // VedicSync optimization: defer expensive cost calculations until the transaction is committed
+      // This ensures 2D to 3D sync runs in under 16ms during live vertex dragging.
+      if (this.editTransactionDepth === 0) {
+        nextManifest.costItems = calculateProjectCostItems(nextManifest);
+      }
     }
 
     this.manifest = nextManifest;

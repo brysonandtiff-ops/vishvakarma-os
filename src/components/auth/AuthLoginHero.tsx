@@ -1,8 +1,10 @@
+import { Compass, Hammer, Sparkles, Leaf } from 'lucide-react';
+
 const FEATURES = [
-  { icon: '◇', title: 'Design', subtitle: 'With Intelligence' },
-  { icon: '⬡', title: 'Build', subtitle: 'With Precision' },
-  { icon: '✦', title: 'Create', subtitle: 'With Purpose' },
-  { icon: '∞', title: 'Sustain', subtitle: 'For Generations' },
+  { icon: Compass, title: 'Design', subtitle: 'With Intelligence' },
+  { icon: Hammer, title: 'Build', subtitle: 'With Precision' },
+  { icon: Sparkles, title: 'Create', subtitle: 'With Purpose' },
+  { icon: Leaf, title: 'Sustain', subtitle: 'For Generations' },
 ] as const;
 
 export default function AuthLoginHero() {
@@ -21,26 +23,28 @@ export default function AuthLoginHero() {
       </div>
 
       <div className="vish-login-page__deity-visual" aria-hidden="true">
+        <img
+          src="/deity-hero.png"
+          alt=""
+          className="vish-login-page__deity-img"
+          width={800}
+          height={600}
+          decoding="async"
+          loading="eager"
+          fetchPriority="high"
+        />
         <div className="vish-login-page__deity-glow" />
-        <div className="vish-login-page__trident">
-          <div className="vish-login-page__trident-prong vish-login-page__trident-prong--left" />
-          <div className="vish-login-page__trident-prong vish-login-page__trident-prong--center" />
-          <div className="vish-login-page__trident-prong vish-login-page__trident-prong--right" />
-          <div className="vish-login-page__trident-shaft" />
-        </div>
-        <div className="vish-login-page__crescent" />
-        <div className="vish-login-page__deity-face" />
       </div>
 
       <div className="vish-login-page__features">
-        {FEATURES.map((feature) => (
-          <div key={feature.title} className="vish-login-page__feature">
+        {FEATURES.map(({ icon: Icon, title, subtitle }) => (
+          <div key={title} className="vish-login-page__feature">
             <div className="vish-login-page__feature-icon" aria-hidden="true">
-              {feature.icon}
+              <Icon size={18} strokeWidth={1.75} />
             </div>
             <div>
-              <strong>{feature.title}</strong>
-              <span>{feature.subtitle}</span>
+              <strong>{title}</strong>
+              <span>{subtitle}</span>
             </div>
           </div>
         ))}
@@ -48,7 +52,7 @@ export default function AuthLoginHero() {
 
       <blockquote className="vish-login-page__quote">
         <div className="vish-login-page__quote-sanskrit">यत्र विश्वं भवत्येकनीडम्</div>
-        <p>Where the world becomes one nest.</p>
+        <p>&ldquo;Where the world becomes one nest&rdquo;</p>
         <small>— Atharva Veda</small>
       </blockquote>
     </section>

@@ -1,0 +1,99 @@
+/*
+  Vishvakarma.OS — Vibhuti Obsidian visual identity
+  Obsidian dark mode theme with glassmorphic panels and gold/neon accents.
+*/
+
+:root[data-visual-theme='vibhuti-obsidian'] {
+  color-scheme: dark;
+
+  /* Vibhuti Obsidian color variables */
+  --vish-vibhuti-obsidian-bg: #050507;
+  --vish-vibhuti-gold: #D4AF37;
+  --vish-vibhuti-gold-glow: #F5D76A;
+  --vish-vibhuti-ink: #010102;
+  --vish-vibhuti-border: rgba(212, 175, 55, 0.15); /* Laser-etched gold borders */
+
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 65% 52%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 43 65% 52%;
+
+  /* Workstation variables mapping */
+  --ws-canvas: 240 10% 2%;
+  --ws-toolbar: 240 10% 3.9%;
+  --ws-sidebar: 240 10% 3.9%;
+  --ws-menubar: 240 10% 3.9%;
+  --ws-statusbar: 240 10% 3.9%;
+  --ws-border: 43 65% 52% / 0.15;
+  --ws-border-subtle: 43 65% 52% / 0.08;
+  --ws-text: 0 0% 98%;
+  --ws-text-dim: 240 5% 64.9%;
+  --ws-text-faint: 240 4% 46%;
+  --ws-hover: 240 3.7% 12%;
+  --ws-active: 43 65% 52%;
+  --ws-active-bg: 43 65% 52% / 0.15;
+  --ws-active-ring: 43 65% 52% / 0.3;
+  --ws-grid-line: 43 65% 52% / 0.03;
+  --ws-grid-major: 43 65% 52% / 0.06;
+}
+
+/* Base Body overrides for Vibhuti Obsidian */
+:root[data-visual-theme='vibhuti-obsidian'] body {
+  background: var(--vish-vibhuti-obsidian-bg) !important;
+  color: #f8f9fa !important;
+}
+
+/* Glassmorphism for panels in Vibhuti theme */
+:root[data-visual-theme='vibhuti-obsidian'] :is(.vish-glass-panel, .ws-panel, .card, .ws-pane-header, .vish-vastu-panel, [data-radix-popper-content-wrapper] > *) {
+  border: 1px solid var(--vish-vibhuti-border) !important;
+  background: rgba(5, 5, 7, 0.85) !important; /* 85% obsidian opacity */
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), 0 0 12px rgba(212, 175, 55, 0.03) !important;
+  backdrop-filter: blur(40px) saturate(1.1) !important; /* 40px backdrop blur */
+  -webkit-backdrop-filter: blur(40px) saturate(1.1) !important;
+}
+
+/* Canvas styling in Vibhuti theme */
+:root[data-visual-theme='vibhuti-obsidian'] .architect-canvas {
+  background: #050507 !important;
+  border-color: var(--vish-vibhuti-border) !important;
+}
+
+:root[data-visual-theme='vibhuti-obsidian'] .blueprint-grid,
+:root[data-visual-theme='vibhuti-obsidian'] .blueprint-grid-major {
+  background-color: #050507 !important;
+}
+
+/* Elemental colors muting by default & Prana neon glow */
+:root[data-visual-theme='vibhuti-obsidian'] .prana-elemental {
+  filter: grayscale(1) opacity(0.5);
+  transition: filter 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: none;
+}
+
+:root[data-visual-theme='vibhuti-obsidian'][data-prana-active='true'] .prana-elemental {
+  filter: none !important;
+  box-shadow: 0 0 15px hsl(var(--primary)) !important;
+}
+
+/* Ambient scrollbars */
+:root[data-visual-theme='vibhuti-obsidian'] * {
+  scrollbar-color: rgba(212, 175, 55, 0.3) rgba(5, 5, 7, 0.8);
+}
+:root[data-visual-theme='vibhuti-obsidian'] *::-webkit-scrollbar-thumb {
+  background: var(--vish-vibhuti-gold);
+}

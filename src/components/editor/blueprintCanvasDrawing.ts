@@ -40,8 +40,29 @@ export function drawPaperBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
+  bhumiMode?: string,
 ) {
-  ctx.fillStyle = CANVAS_PAPER_FILL;
+  let fillStyle = CANVAS_PAPER_FILL;
+  let vignetteColor = PAPER_VIGNETTE;
+
+  if (bhumiMode === 'midnight-obsidian') {
+    fillStyle = '#050507';
+    vignetteColor = 'rgba(0, 0, 0, 0.4)';
+  } else if (bhumiMode === 'industrial-slate') {
+    fillStyle = '#2d3748';
+    vignetteColor = 'rgba(0, 0, 0, 0.3)';
+  } else if (bhumiMode === 'indigo-cyanotype') {
+    fillStyle = '#0b2c5c';
+    vignetteColor = 'rgba(0, 0, 0, 0.35)';
+  } else if (bhumiMode === 'aged-copper') {
+    fillStyle = '#1c2d24';
+    vignetteColor = 'rgba(0, 0, 0, 0.3)';
+  } else if (bhumiMode === 'sacred-parchment') {
+    fillStyle = '#f5eedc';
+    vignetteColor = 'rgba(44, 28, 16, 0.06)';
+  }
+
+  ctx.fillStyle = fillStyle;
   ctx.fillRect(0, 0, width, height);
 
   const gradient = ctx.createRadialGradient(
@@ -53,12 +74,46 @@ export function drawPaperBackground(
     Math.max(width, height) * 0.75,
   );
   gradient.addColorStop(0, 'rgba(253, 249, 245, 0)');
-  gradient.addColorStop(1, PAPER_VIGNETTE);
+  gradient.addColorStop(1, vignetteColor);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 }
 
-export function drawGrid(ctx: CanvasRenderingContext2D, bounds: WorldBounds, gridSize: number) {
+export function drawGrid(
+  ctx: CanvasRenderingContext2D,
+  bounds: WorldBounds,
+  gridSize: number,
+  bhumiMode?: string,
+) {
+  if (bhumiMode) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.05)'; // Gold at 5% opacity
+
+    const pad = gridSize;
+    const startX = Math.floor((bounds.left - pad) / gridSize) * gridSize;
+    const endX = bounds.left + bounds.width + pad;
+    const startY = Math.floor((bounds.top - pad) / gridSize) * gridSize;
+    const endY = bounds.top + bounds.height + pad;
+
+    for (let x = startX; x <= endX; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, bounds.top - pad);
+      ctx.lineTo(x, bounds.top + bounds.height + pad);
+      ctx.stroke();
+    }
+
+    for (let y = startY; y <= endY; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(bounds.left - pad, y);
+      ctx.lineTo(bounds.left + bounds.width + pad, y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    return;
+  }
+
   const pattern = createGridPattern(ctx, gridSize);
   if (pattern) {
     ctx.save();
@@ -152,6 +207,8 @@ export function drawWall(
   wall: Wall,
   state: { selected: boolean; hovered: boolean; snapEnabled: boolean },
 ) {
+  const pranaActive = typeof document !== 'undefined' && document.documentElement.dataset.pranaActive === 'true';
+
   ctx.strokeStyle = WALL_SHADOW;
   ctx.lineWidth = wall.thickness + 2;
   ctx.lineCap = 'square';
@@ -177,15 +234,20 @@ export function drawWall(
     ctx.stroke();
   }
 
-  ctx.strokeStyle = state.selected ? GOLD : INK;
+  ctx.strokeStyle = state.selected ? GOLD : (pranaActive ? INK : 'rgba(120, 120, 120, 0.8)');
   ctx.lineWidth = wall.thickness;
   ctx.lineCap = 'square';
+  if (pranaActive) {
+    ctx.shadowColor = state.selected ? GOLD : INK;
+    ctx.shadowBlur = 15;
+  }
   ctx.beginPath();
   ctx.moveTo(wall.start.x, wall.start.y);
   ctx.lineTo(wall.end.x, wall.end.y);
   ctx.stroke();
+  ctx.shadowBlur = 0;
 
-  ctx.fillStyle = state.selected ? GOLD : INK;
+  ctx.fillStyle = state.selected ? GOLD : (pranaActive ? INK : 'rgba(120, 120, 120, 0.8)');
   for (const point of [wall.start, wall.end]) {
     ctx.beginPath();
     ctx.arc(point.x, point.y, wall.thickness / 2 + (state.selected ? 0.5 : 0), 0, Math.PI * 2);
@@ -203,6 +265,42 @@ export function drawWall(
       ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
       ctx.stroke();
     }
+  }
+
+  if (wall.fachwerk) {
+    const dx = wall.end.x - wall.start.x;
+    const dy = wall.end.y - wall.start.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    ctx.save();
+    ctx.translate(wall.start.x, wall.start.y);
+    ctx.rotate(angle);
+    
+    ctx.strokeStyle = '#5c3d1e';
+    ctx.lineWidth = Math.max(2, wall.thickness / 6);
+    
+    const interval = 40;
+    const steps = Math.floor(len / interval);
+    
+    for (let i = 0; i <= steps; i++) {
+      const x = i * interval;
+      ctx.beginPath();
+      ctx.moveTo(x, -wall.thickness / 2);
+      ctx.lineTo(x, wall.thickness / 2);
+      ctx.stroke();
+      
+      if (i < steps) {
+        ctx.beginPath();
+        ctx.moveTo(x, -wall.thickness / 2);
+        ctx.lineTo(x + interval, wall.thickness / 2);
+        ctx.moveTo(x, wall.thickness / 2);
+        ctx.lineTo(x + interval, -wall.thickness / 2);
+        ctx.stroke();
+      }
+    }
+    
+    ctx.restore();
   }
 }
 
@@ -243,13 +341,21 @@ export function drawOpening(
     unitSystem: UnitSystem;
   },
 ) {
+  const pranaActive = typeof document !== 'undefined' && document.documentElement.dataset.pranaActive === 'true';
   const highlighted = options.hovered || options.selected || options.dragging;
+
+  if (pranaActive) {
+    ctx.shadowColor = opening.type === 'door' ? DOOR : WINDOW;
+    ctx.shadowBlur = 15;
+  }
 
   if (opening.type === 'door') {
     drawDoorSymbol(ctx, wall, opening, { highlighted });
   } else {
     drawWindowSymbol(ctx, wall, opening, { highlighted });
   }
+  
+  ctx.shadowBlur = 0;
 
   if (options.selected || options.dragging) {
     drawOpeningDragHandles(ctx, wall, opening);

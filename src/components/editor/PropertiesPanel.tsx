@@ -11,6 +11,7 @@ import { getToolDefaults } from '@/components/editor/toolDefaults';
 import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
 import { ROOM_TYPES, roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
+import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 
 interface PropertiesPanelProps {
@@ -101,7 +102,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedFixture && onFixtureUpdate) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
         <div className="ws-pane-header shrink-0">
           <span className="ws-pane-label">Lighting Fixture</span>
         </div>
@@ -133,7 +134,11 @@ export default function PropertiesPanel({
             />
           </div>
           {onFixtureDelete && (
-            <Button variant="destructive" size="sm" className="w-full" onClick={() => onFixtureDelete(selectedFixture.id)}>
+            <Button variant="destructive" size="sm" className="w-full min-h-[44px] hover:prana-glow transition-all" onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              playStudioSound('buttonPress');
+              onFixtureDelete(selectedFixture.id);
+            }}>
               <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete fixture
             </Button>
           )}
@@ -144,7 +149,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
         <div className="ws-pane-header shrink-0">
           <span className="ws-pane-label">Label Properties</span>
         </div>
@@ -210,7 +215,11 @@ export default function PropertiesPanel({
             </div>
           )}
           {onLabelDelete && (
-            <Button variant="destructive" size="sm" className="w-full" onClick={() => onLabelDelete(selectedLabel.id)}>
+            <Button variant="destructive" size="sm" className="w-full min-h-[44px] hover:prana-glow transition-all" onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              playStudioSound('buttonPress');
+              onLabelDelete(selectedLabel.id);
+            }}>
               <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete label
             </Button>
           )}
@@ -221,7 +230,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full min-h-0 flex-col overflow-hidden">
         <div className="min-h-0 flex-1 overflow-y-auto">
           {currentTool === 'room' && onPendingRoomTypeChange && (
             <div className="border-b border-ws-border px-4 py-3">
@@ -231,12 +240,16 @@ export default function PropertiesPanel({
                   <button
                     key={type}
                     type="button"
-                    className={`rounded-md border px-2 py-1 text-[10px] transition ${
+                    className={`rounded-md border px-2 py-1 text-[10px] transition hover:prana-glow ${
                       pendingRoomType === type
                         ? 'border-primary bg-primary/15 text-primary'
                         : 'border-ws-border text-ws-text-dim hover:border-primary/40 hover:text-ws-text'
                     }`}
-                    onClick={() => onPendingRoomTypeChange(type)}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(30);
+                      playStudioSound('buttonPress');
+                      onPendingRoomTypeChange(type);
+                    }}
                   >
                     {roomTypeLabel(type)}
                   </button>
@@ -267,7 +280,7 @@ export default function PropertiesPanel({
   const wallOpenings = openings.filter((o) => o.wallId === selectedWall.id);
 
   return (
-    <div className="vish-properties-panel vish-sidebar-panel vish-dark-panel flex h-full flex-col overflow-y-auto">
+    <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
       <div className="ws-pane-header shrink-0">
         <span className="ws-pane-label">Wall Properties</span>
         <span className="ws-pane-stat">{selectedWall.id.slice(0, 10)}</span>
@@ -313,6 +326,17 @@ export default function PropertiesPanel({
                 className="w-full"
               />
             </div>
+            <div className="flex items-center justify-between pt-2">
+              <Label htmlFor="fachwerk" className="text-[10px] font-semibold uppercase tracking-wider text-ws-text-dim">Exposed Fachwerk</Label>
+              <input
+                id="fachwerk"
+                type="checkbox"
+                checked={selectedWall.fachwerk || false}
+                onChange={(e) => onWallUpdate(selectedWall.id, { fachwerk: e.target.checked })}
+                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-primary focus:ring-offset-background"
+                data-testid="fachwerk-toggle"
+              />
+            </div>
           </div>
         </div>
 
@@ -341,7 +365,10 @@ export default function PropertiesPanel({
                       </div>
                       <button
                         type="button"
-                        onClick={() => onOpeningDelete(opening.id)}
+                        onClick={() => {
+                          if (navigator.vibrate) navigator.vibrate(50);
+                          onOpeningDelete(opening.id);
+                        }}
                         className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-ws-text-faint transition-colors hover:bg-destructive/20 hover:text-destructive active:bg-destructive/20 active:text-destructive"
                         aria-label={`Delete ${opening.type}`}
                       >
@@ -398,8 +425,11 @@ export default function PropertiesPanel({
           <Button
             variant="destructive"
             size="sm"
-            className="h-8 w-full gap-2 text-xs"
-            onClick={() => onWallDelete(selectedWall.id)}
+            className="h-11 w-full gap-2 text-xs min-h-[44px]"
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              onWallDelete(selectedWall.id);
+            }}
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete Wall

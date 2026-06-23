@@ -565,6 +565,12 @@ export default function BlueprintCanvas({
   );
   const roomWallSource = manifestWalls ?? walls;
 
+  const [bhumiCanvasMode, setBhumiCanvasMode] = useState<string>('sacred-parchment');
+
+  useEffect(() => {
+    requestCanvasDraw('geometry');
+  }, [bhumiCanvasMode, requestCanvasDraw]);
+
   const snapToGrid = useCallback(
     (point: Point2D): Point2D => {
       if (!snapEnabled) return point;
@@ -1228,21 +1234,25 @@ export default function BlueprintCanvas({
         let next = applyPointSnaps(getRawCanvasPoint(event));
         next = enforceMinWallLength(fixed, next, MIN_WALL_LENGTH_PX);
         setDragWallEndpointPosition(next);
+        onWallUpdate(draggingWallEndpoint.wallId, draggingWallEndpoint.end === 'start' ? { start: next } : { end: next });
       }
       return;
     }
 
-    if (draggingOpeningId) {
+    if (draggingOpeningId && onOpeningUpdate) {
       const opening = openings.find((item) => item.id === draggingOpeningId);
       const wall = opening ? walls.find((candidate) => candidate.id === opening.wallId) : undefined;
       if (opening && wall) {
-        setDragOpeningPosition(snapOpeningPosition(positionOnWall(point, wall)));
+        const nextPos = snapOpeningPosition(positionOnWall(point, wall));
+        setDragOpeningPosition(nextPos);
+        onOpeningUpdate(draggingOpeningId, { position: nextPos });
       }
       return;
     }
 
-    if (draggingFurnitureId) {
+    if (draggingFurnitureId && onFurnitureUpdate) {
       setDragFurniturePosition(point);
+      onFurnitureUpdate(draggingFurnitureId, { position: point });
       return;
     }
 
@@ -1474,7 +1484,7 @@ export default function BlueprintCanvas({
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    drawPaperBackground(ctx, canvas.width, canvas.height);
+    drawPaperBackground(ctx, canvas.width, canvas.height, bhumiCanvasMode);
 
     ctx.save();
     ctx.translate(canvasViewport.panX, canvasViewport.panY);
@@ -1483,7 +1493,7 @@ export default function BlueprintCanvas({
     const gridBounds = computeVisibleGridBounds(canvas.width, canvas.height, canvasViewport);
 
     if (gridVisible) {
-      drawGrid(ctx, gridBounds, gridSize);
+      drawGrid(ctx, gridBounds, gridSize, bhumiCanvasMode);
     }
 
     if (layerVisibility.rooms) {
@@ -1804,7 +1814,7 @@ export default function BlueprintCanvas({
     }
     };
     requestCanvasDraw('overlay');
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls]);
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls, bhumiCanvasMode]);
 
   return (
     <div
@@ -1846,6 +1856,19 @@ export default function BlueprintCanvas({
           Reset view
         </button>
       )}
+      <select
+        value={bhumiCanvasMode}
+        onChange={(e) => setBhumiCanvasMode(e.target.value)}
+        className="vish-canvas-hud-badge pointer-events-auto rounded-md border border-border bg-background/90 px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground shadow-sm backdrop-blur-sm active:text-foreground outline-none cursor-pointer"
+        aria-label="Canvas grid mode"
+        data-testid="bhumi-mode-select"
+      >
+        <option value="sacred-parchment">Parchment</option>
+        <option value="midnight-obsidian">Obsidian</option>
+        <option value="industrial-slate">Slate</option>
+        <option value="indigo-cyanotype">Cyanotype</option>
+        <option value="aged-copper">Copper</option>
+      </select>
     </div>
     {editingLabelId && (() => {
       const editingLabel = labels.find((l) => l.id === editingLabelId);

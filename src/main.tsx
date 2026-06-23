@@ -37,6 +37,8 @@ import "./styles/vish-indian-sacred.css";
 import "./styles/vish-ui-polish.css";
 import "./styles/vish-mantra-widget.css";
 import "./styles/vish-theme-solar-mandala.css";
+import "./styles/vish-vibhuti-obsidian.css";
+import "./styles/vish-theme-bhumi.css";
 import "./styles/vish-divine-architect-theme.css";
 import "./styles/vish-auth-reference-screen.css";
 import "./styles/vish-auth-ipad-polish.css";

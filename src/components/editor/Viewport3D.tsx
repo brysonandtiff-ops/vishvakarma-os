@@ -1,6 +1,6 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../three.d.ts" />
-import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls, ContactShadows, Environment } from '@react-three/drei';
@@ -374,6 +374,61 @@ function WallMesh({
   // Get openings for this wall
   const wallOpenings = openings.filter((o) => o.wallId === wall.id);
 
+  // Procedural exposed timber framing (Fachwerk) in 3D:
+  const timbers: React.ReactNode[] = [];
+  if (wall.fachwerk) {
+    const wallLenM = length / 100;
+    const wallHtM = wall.height / 100;
+    const thicknessOffset = wall.thickness / 200 + 0.003; // slightly offset from wall surface
+    
+    // Timber dimensions
+    const timberWidth = 0.08; // 8cm wide timbers
+    const timberThickness = 0.012; // 1.2cm thick panels
+    const materialColor = '#3d2612';
+    
+    const createTimber = (key: string, args: [number, number, number], pos: [number, number, number], rot?: [number, number, number]) => {
+      return React.createElement(
+        'mesh',
+        { key, position: pos, rotation: rot },
+        React.createElement('boxGeometry', { args }),
+        React.createElement('meshStandardMaterial', { color: materialColor, roughness: 0.85, metalness: 0.1 })
+      );
+    };
+
+    for (const side of [-1, 1]) {
+      const zOffset = side * thicknessOffset;
+      
+      // Top plate beam
+      timbers.push(createTimber(`top-${side}`, [wallLenM, timberWidth, timberThickness], [0, wallHtM / 2 - timberWidth / 2, zOffset]));
+      
+      // Sole plate beam (bottom)
+      timbers.push(createTimber(`bottom-${side}`, [wallLenM, timberWidth, timberThickness], [0, -wallHtM / 2 + timberWidth / 2, zOffset]));
+      
+      // Vertical studs
+      const studSpacing = 0.8; // every 80cm
+      const numStuds = Math.max(2, Math.floor(wallLenM / studSpacing) + 1);
+      for (let i = 0; i < numStuds; i++) {
+        const xOffset = -wallLenM / 2 + (i / (numStuds - 1)) * wallLenM;
+        timbers.push(createTimber(`stud-${i}-${side}`, [timberWidth, wallHtM, timberThickness], [xOffset, 0, zOffset]));
+        
+        // Diagonal braces between studs
+        if (i < numStuds - 1) {
+          const nextXOffset = -wallLenM / 2 + ((i + 1) / (numStuds - 1)) * wallLenM;
+          const midX = (xOffset + nextXOffset) / 2;
+          const braceAngle = Math.atan2(wallHtM, studSpacing);
+          timbers.push(
+            createTimber(
+              `diag1-${i}-${side}`, 
+              [Math.hypot(studSpacing, wallHtM), timberWidth / 1.5, timberThickness], 
+              [midX, 0, zOffset], 
+              [0, 0, braceAngle]
+            )
+          );
+        }
+      }
+    }
+  }
+
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
@@ -392,6 +447,15 @@ function WallMesh({
         />
         {/* @ts-expect-error - React Three Fiber JSX types */}
       </mesh>
+
+      {/* Fachwerk 3D Timber Overlay */}
+      {wall.fachwerk && (
+        // @ts-expect-error - React Three Fiber JSX types
+        <group position={[posX, posY, posZ]} rotation={[0, -angle, 0]}>
+          {timbers}
+          {/* @ts-expect-error - React Three Fiber JSX types */}
+        </group>
+      )}
       {/* Edge highlight for wall extrusion */}
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <mesh position={[posX, posY, posZ]} rotation={[0, -angle, 0]}>
@@ -836,7 +900,7 @@ function BuildingSceneLayers({
         return (
           // @ts-expect-error - React Three Fiber JSX types
           <group key={floor.id} position={[0, yOffset, 0]}>
-            {isActive && (
+            {(isActive || floorIndex < activeFloorIndex) && (
               <RoomVolumeMeshes
                 rooms={floorRooms}
                 walls={floorWalls}
@@ -1119,7 +1183,7 @@ export default function Viewport3D({
             />
 
             {/* @ts-expect-error - React Three Fiber JSX types */}
-            <gridHelper args={[20, 20, ATMOSPHERE.gridPrimary, ATMOSPHERE.gridSecondary]} />
+            <gridHelper args={[20, 20, GOLD_MUTED, GOLD_MUTED]} />
           </Canvas>
         </WebGLErrorBoundary>
 

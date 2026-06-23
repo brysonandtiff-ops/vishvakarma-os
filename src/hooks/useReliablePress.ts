@@ -21,6 +21,7 @@ export function useReliablePress(onPress?: () => void) {
 
       event.preventDefault();
       event.stopPropagation();
+      if (navigator.vibrate) navigator.vibrate(50);
       onPress();
     },
     [onPress],
@@ -34,6 +35,7 @@ export function useReliablePress(onPress?: () => void) {
         return;
       }
 
+      if (navigator.vibrate) navigator.vibrate(50);
       onPress?.();
     },
     [onPress],
