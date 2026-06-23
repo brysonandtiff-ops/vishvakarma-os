@@ -11,15 +11,12 @@
   min-height: 52px;
   border: 1px solid rgba(245, 190, 89, 0.55);
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 235, 170, 0.28), transparent 35%),
-    linear-gradient(135deg, rgba(24, 18, 52, 0.96), rgba(6, 10, 25, 0.96));
+  background: linear-gradient(135deg, rgba(24, 18, 52, 0.96), rgba(6, 10, 25, 0.96));
   color: #fff7dc;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
   cursor: pointer;
   display: grid;
   place-items: center;
-  gap: 0;
   touch-action: manipulation;
 }
 
@@ -30,23 +27,17 @@
   opacity: 0.82;
 }
 
-.vish-device-validation__launcher strong {
-  font-size: 0.95rem;
-}
-
 .vish-device-validation__panel {
   position: absolute;
   right: 0;
   bottom: calc(100% + 12px);
-  width: min(420px, calc(100vw - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)));
-  max-height: min(720px, calc(100dvh - 110px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  width: min(420px, calc(100vw - 28px));
+  max-height: min(720px, calc(100dvh - 110px));
   overflow: auto;
   overscroll-behavior: contain;
   border: 1px solid rgba(245, 190, 89, 0.38);
   border-radius: 24px;
-  background:
-    radial-gradient(circle at top left, rgba(245, 190, 89, 0.18), transparent 34%),
-    linear-gradient(180deg, rgba(18, 20, 43, 0.98), rgba(5, 8, 20, 0.98));
+  background: linear-gradient(180deg, rgba(18, 20, 43, 0.98), rgba(5, 8, 20, 0.98));
   color: #fff7dc;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
   padding: 16px;
@@ -72,9 +63,7 @@
   font-size: 1.35rem;
 }
 
-.vish-device-validation__header button,
-.vish-device-validation__actions button,
-.vish-device-validation__check-actions button {
+.vish-device-validation button {
   min-width: 44px;
   min-height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.13);
@@ -85,35 +74,11 @@
   touch-action: manipulation;
 }
 
-.vish-device-validation__header button {
-  width: 44px;
-  font-size: 1.35rem;
-}
-
 .vish-device-validation__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 16px 0 10px;
-}
-
-.vish-device-validation__actions button:first-child {
-  background: linear-gradient(135deg, rgba(245, 190, 89, 0.24), rgba(120, 77, 255, 0.16));
-}
-
-.vish-device-validation__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.vish-device-validation__meta span {
-  border: 1px solid rgba(245, 190, 89, 0.2);
-  border-radius: 999px;
-  padding: 6px 10px;
-  color: rgba(255, 247, 220, 0.82);
-  font-size: 0.76rem;
 }
 
 .vish-device-validation__checks {
@@ -140,13 +105,8 @@
   border-left-color: rgba(255, 100, 100, 0.9);
 }
 
-.vish-device-validation__checks strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
 .vish-device-validation__checks p {
-  margin: 0;
+  margin: 4px 0 0;
   color: rgba(255, 247, 220, 0.72);
   font-size: 0.84rem;
   line-height: 1.45;
@@ -157,10 +117,6 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 10px;
-}
-
-.vish-device-validation__check-actions button {
-  font-size: 0.8rem;
 }
 
 .vish-device-validation__scan {
@@ -188,25 +144,8 @@
   }
 
   .vish-device-validation__panel {
-    width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right));
-    max-height: calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 92px);
     border-radius: 20px;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .vish-device-validation__panel {
-    animation: vishDeviceValidationIn 160ms ease-out;
-  }
-
-  @keyframes vishDeviceValidationIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
   }
 }

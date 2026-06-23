@@ -1,3 +1,5 @@
+import { DeviceValidationPanel } from "./components/qa/DeviceValidationPanel";
+import "./styles/vish-device-validation.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import '@fontsource-variable/inter';
@@ -103,7 +105,10 @@ if (import.meta.env.PROD && typeof window !== 'undefined' && 'requestIdleCallbac
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppWrapper>
+      <>
       <App />
+      <DeviceValidationPanel />
+    </>
     </AppWrapper>
   </StrictMode>
 );
