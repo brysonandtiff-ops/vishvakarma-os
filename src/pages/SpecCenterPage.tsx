@@ -228,15 +228,18 @@ export default function SpecCenterPage() {
 
                 {/* Required sections */}
                 <div>
-                  <p className="mb-3 text-sm font-semibold text-foreground">Required Sections</p>
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-foreground">Required Sections</p>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Compliance Checklist</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4">
                     {requiredSections.map((section) => (
                       <div
                         key={section}
-                        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs"
+                        className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2.5 text-xs transition-colors hover:bg-background"
                       >
-                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />
-                        <span className="truncate text-muted-foreground">{section}</span>
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-success/80" />
+                        <span className="truncate font-medium text-foreground/80">{section}</span>
                       </div>
                     ))}
                   </div>
@@ -268,28 +271,31 @@ export default function SpecCenterPage() {
             {/* Other Specs */}
             {!loading && specs.length > 0 && (
               <div className="space-y-4">
-                <h2 className="text-base font-semibold text-foreground">Other Specifications</h2>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-foreground">Registry Specifications</h2>
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-wider">{specs.length} Entries</Badge>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {specs.map((spec) => (
-                    <Card key={spec.id} className="h-full flex flex-col border-border shadow-sm">
+                    <Card key={spec.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-md hover:border-primary/20">
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <CardTitle className="text-sm text-balance">{spec.name}</CardTitle>
-                            <CardDescription className="mt-0.5 text-xs">{spec.category}</CardDescription>
+                            <CardTitle className="text-sm font-semibold text-balance transition-colors group-hover:text-primary">{spec.name}</CardTitle>
+                            <CardDescription className="mt-1 text-[10px] uppercase tracking-wide font-medium">{spec.category}</CardDescription>
                           </div>
                           <Badge
                             variant={spec.status === 'locked' ? 'default' : spec.status === 'approved' ? 'outline' : 'secondary'}
-                            className="shrink-0 text-xs"
+                            className="shrink-0 text-[9px] h-5 px-1.5 uppercase tracking-tighter"
                           >
                             {spec.status}
                           </Badge>
                         </div>
                       </CardHeader>
-                      <CardContent className="mt-auto flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => { setSelectedSpec({ title: spec.name, content: spec.content }); setFullSpecOpen(true); }}>View</Button>
+                      <CardContent className="mt-auto flex gap-2 pt-0 pb-4">
+                        <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1" onClick={() => { setSelectedSpec({ title: spec.name, content: spec.content }); setFullSpecOpen(true); }}>View</Button>
                         {spec.status !== 'locked' && (
-                          <Button variant="outline" size="sm" onClick={() => openSpecPdf(spec.name, spec.content)}>Export PDF</Button>
+                          <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1" onClick={() => openSpecPdf(spec.name, spec.content)}>Export PDF</Button>
                         )}
                       </CardContent>
                     </Card>

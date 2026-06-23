@@ -28,9 +28,30 @@ async function rasterizeManifestToJpeg(manifest: ProjectManifest): Promise<Uint8
   canvas.height = 800;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas not available');
-  ctx.fillStyle = '#f5f1e8';
+  ctx.fillStyle = '#f5f1e8'; // CANVAS_PAPER_FILL
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Germania-Veda: Procedurally inject the 'Wiesenburg Crest' watermark
+  const watermarkSvg = `
+    <svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.15"/>
+      <path d="M30 40 L50 70 L70 40" fill="none" stroke="#D4AF37" stroke-width="3" opacity="0.15"/>
+      <path d="M50 20 L50 65" fill="none" stroke="#D4AF37" stroke-width="3" opacity="0.15"/>
+      <text x="50" y="85" font-family="serif" font-size="8" text-anchor="middle" fill="#D4AF37" opacity="0.15" letter-spacing="1">WIESENBURG</text>
+    </svg>
+  `;
+  const watermarkImg = new Image();
+  await new Promise<void>((resolve) => {
+    watermarkImg.onload = () => resolve();
+    watermarkImg.src = 'data:image/svg+xml;base64,' + btoa(watermarkSvg);
+  });
+  
+  // Draw the blueprint
   ctx.drawImage(img, 0, 0);
+  
+  // Overlay the laser-etched watermark in the bottom right corner
+  ctx.drawImage(watermarkImg, canvas.width - 250, canvas.height - 250, 200, 200);
+
   URL.revokeObjectURL(url);
 
   const jpegBlob = await new Promise<Blob>((resolve, reject) => {

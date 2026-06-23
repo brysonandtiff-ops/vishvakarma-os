@@ -1,7 +1,7 @@
 {
   "suite": "editor-performance-overhaul",
-  "generatedAt": "2026-06-20T14:53:07.904Z",
-  "commitSha": "57716cf434db837609f9e971fb6494f60de03dee",
+  "generatedAt": "2026-06-23T14:17:22.693Z",
+  "commitSha": "1a49ca65d5323651f34c39b87804579ab969f806",
   "summary": {
     "pass": 27,
     "fail": 0,
@@ -10,8 +10,8 @@
   },
   "metrics": {
     "canvasSchedulerCoalesced": true,
-    "spatialIndexMs": 3.8378000000084285,
-    "linearScanMs": 4.825599999981932
+    "spatialIndexMs": 2.7480999999970663,
+    "linearScanMs": 50.295200000022305
   },
   "checks": [
     {
@@ -47,7 +47,7 @@
       "phase": "1",
       "name": "Spatial index hit-test parity + mock benchmark",
       "status": "PASS",
-      "detail": "indexed=3.84ms linear=4.83ms parity=w200"
+      "detail": "indexed=2.75ms linear=50.30ms parity=w200"
     },
     {
       "id": "p1-overlay-cache",

@@ -207,7 +207,7 @@
 }
 
 .vish-warm-404 {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: hsl(var(--vish-warm-404-bg));
   color: hsl(var(--vish-warm-404-text));
 }

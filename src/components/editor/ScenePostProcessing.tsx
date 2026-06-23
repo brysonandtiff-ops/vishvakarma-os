@@ -38,13 +38,13 @@ function PostFxPipeline({ mode }: { mode: AtmospherePerformanceMode }) {
     const instance = new EffectComposer(gl);
     instance.addPass(new RenderPass(scene, camera));
 
-    // Keep cinematic polish, but use lower-cost SSAO/Bloom defaults so the
-    // first demo frames do not crater before the adaptive governor can retier.
+    // Lumen-lite Global Illumination (InitializeForge)
     const ssao = new SSAOEffect(camera, undefined, {
-      intensity: 1.05,
-      radius: 0.14,
-      bias: 0.025,
-      samples: 5,
+      intensity: 1.8,
+      radius: 0.22,
+      bias: 0.035,
+      samples: 11,
+      luminanceInfluence: 0.6,
     });
     instance.addPass(new EffectPass(camera, ssao));
 

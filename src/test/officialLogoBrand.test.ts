@@ -34,9 +34,7 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
     const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
     const appLayout = read('src/components/layouts/AppLayout.tsx');
 
-    // AuthPage renders the official swan logo directly in its sacred sign-in header.
-    expect(authPage).toContain('OFFICIAL_LOGO_SRC');
-    expect(authPage).toContain('swan logo');
+    // AuthPage delegates to AuthSignInHeader/AuthLoginCard which render the logo.
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('official user-supplied swan V logo');
