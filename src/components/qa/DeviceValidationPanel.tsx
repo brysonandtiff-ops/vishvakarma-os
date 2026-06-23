@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type ValidationStatus = "pending" | "pass" | "fail";
 
@@ -12,139 +12,50 @@ type ValidationItem = {
 const STORAGE_KEY = "vish-device-validation-v1";
 
 const baseChecks: ValidationItem[] = [
-  {
-    id: "ipad-10-landscape",
-    title: "iPad 10 landscape",
-    detail: "Open app on iPad 10 landscape and confirm top bars, tool rail, panels, canvas, and safe areas remain usable.",
-    status: "pending",
-  },
-  {
-    id: "ipad-10-portrait",
-    title: "iPad 10 portrait",
-    detail: "Rotate to portrait and confirm controls stay visible, scroll is controlled, and no Safari gray bounce appears.",
-    status: "pending",
-  },
-  {
-    id: "mobile-portrait",
-    title: "Mobile portrait",
-    detail: "Open on phone portrait and confirm auth, landing, project, editor, and governance screens are usable.",
-    status: "pending",
-  },
-  {
-    id: "desktop",
-    title: "Desktop",
-    detail: "Open desktop viewport and confirm the responsive hardening did not regress full-size workflow layout.",
-    status: "pending",
-  },
-  {
-    id: "auth",
-    title: "Auth page",
-    detail: "Confirm login/auth gate renders correctly with sacred theme, safe vertical sizing, and visible call-to-action controls.",
-    status: "pending",
-  },
-  {
-    id: "editor-open",
-    title: "Editor open",
-    detail: "Open the editor and confirm the canvas, top bar, tool rail, properties panel, and status areas are reachable.",
-    status: "pending",
-  },
-  {
-    id: "grid-demo-tour",
-    title: "Grid, demo, voice tour",
-    detail: "Run grid toggle, guided demo, and voice tour entry points without hidden or dead controls.",
-    status: "pending",
-  },
-  {
-    id: "safe-area-touch",
-    title: "Safe area + 44px touch",
-    detail: "Confirm critical controls avoid hardware bounds and remain comfortable 44x44px tap targets.",
-    status: "pending",
-  },
+  { id: "ipad-landscape", title: "iPad 10 landscape", detail: "Confirm tool rail, panels, canvas, top bar, and safe areas are usable.", status: "pending" },
+  { id: "ipad-portrait", title: "iPad 10 portrait", detail: "Confirm controls stay visible and the page does not gray-bounce.", status: "pending" },
+  { id: "mobile", title: "Mobile portrait", detail: "Confirm auth, landing, projects, editor, and governance pages are usable.", status: "pending" },
+  { id: "desktop", title: "Desktop", detail: "Confirm the full-size desktop workflow still works.", status: "pending" },
+  { id: "editor", title: "Editor open", detail: "Confirm canvas, grid, tool rail, and properties panel are reachable.", status: "pending" },
+  { id: "tour", title: "Grid, demo, voice tour", detail: "Confirm guided demo, grid toggle, and tour controls are not dead.", status: "pending" },
+  { id: "touch", title: "Safe area and touch targets", detail: "Confirm key controls are reachable and comfortable to tap.", status: "pending" },
 ];
 
 function readStored(): Record<string, ValidationStatus> {
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    const parsed = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
     return typeof parsed === "object" && parsed ? parsed : {};
   } catch {
     return {};
   }
 }
 
-function buildMarkdownReport(items: ValidationItem[], autoScan: string[]) {
-  const passed = items.filter((item) => item.status === "pass").length;
-  const failed = items.filter((item) => item.status === "fail").length;
-  const pending = items.filter((item) => item.status === "pending").length;
-
-  return [
-    "# Vishvakarma.OS Device Validation Proof",
-    "",
-    `Generated: ${new Date().toISOString()}`,
-    `Path: ${window.location.pathname}`,
-    `Viewport: ${window.innerWidth}x${window.innerHeight}`,
-    `Visual viewport: ${window.visualViewport ? `${Math.round(window.visualViewport.width)}x${Math.round(window.visualViewport.height)}` : "not available"}`,
-    `User agent: ${navigator.userAgent}`,
-    "",
-    "## Summary",
-    "",
-    `- Passed: ${passed}`,
-    `- Failed: ${failed}`,
-    `- Pending: ${pending}`,
-    "",
-    "## Manual checks",
-    "",
-    ...items.map((item) => `- [${item.status === "pass" ? "x" : " "}] ${item.title} — ${item.status.toUpperCase()} — ${item.detail}`),
-    "",
-    "## Automatic scan",
-    "",
-    ...(autoScan.length ? autoScan.map((line) => `- ${line}`) : ["- No automatic scan run yet."]),
-    "",
-  ].join("\n");
-}
-
 export function DeviceValidationPanel() {
   const [open, setOpen] = useState(false);
   const [stored, setStored] = useState<Record<string, ValidationStatus>>({});
-  const [autoScan, setAutoScan] = useState<string[]>([]);
+  const [scan, setScan] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setStored(readStored());
   }, []);
 
-  const items = useMemo(
-    () =>
-      baseChecks.map((item) => ({
-        ...item,
-        status: stored[item.id] || item.status,
-      })),
-    [stored],
-  );
+  const items = baseChecks.map((item) => ({
+    ...item,
+    status: stored[item.id] || item.status,
+  }));
+
+  const passed = items.filter((item) => item.status === "pass").length;
 
   function setItemStatus(id: string, status: ValidationStatus) {
     const next = { ...stored, [id]: status };
     setStored(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   }
 
-  function runAutoScan() {
-    const lines: string[] = [];
-
+  function runScan() {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    const visual = window.visualViewport;
-
-    lines.push(`Layout viewport detected at ${width}x${height}.`);
-
-    if (visual) {
-      lines.push(`Dynamic visual viewport detected at ${Math.round(visual.width)}x${Math.round(visual.height)}.`);
-    } else {
-      lines.push("VisualViewport API unavailable; manual dynamic viewport check required.");
-    }
-
-    const bodyStyle = window.getComputedStyle(document.body);
-    lines.push(`Body overscroll-behavior-y: ${bodyStyle.overscrollBehaviorY || "not reported"}.`);
-
     const interactive = Array.from(
       document.querySelectorAll<HTMLElement>("button, a, input, select, textarea, [role='button'], [tabindex]"),
     ).filter((node) => {
@@ -157,38 +68,46 @@ export function DeviceValidationPanel() {
       return rect.width < 44 || rect.height < 44;
     });
 
-    lines.push(`Interactive controls scanned: ${interactive.length}.`);
-    lines.push(`Potential touch targets below 44px: ${smallTargets.length}.`);
-
     const offscreen = interactive.filter((node) => {
       const rect = node.getBoundingClientRect();
       return rect.left < 0 || rect.top < 0 || rect.right > width || rect.bottom > height;
     });
 
-    lines.push(`Potential offscreen interactive controls: ${offscreen.length}.`);
-
-    if (smallTargets.length === 0 && offscreen.length === 0) {
-      lines.push("Automatic scan result: no obvious touch/offscreen issues in current viewport.");
-    } else {
-      lines.push("Automatic scan result: review highlighted counts manually before release proof.");
-    }
-
-    setAutoScan(lines);
+    setScan([
+      `Viewport: ${width}x${height}`,
+      `Interactive controls scanned: ${interactive.length}`,
+      `Potential controls below 44px: ${smallTargets.length}`,
+      `Potential offscreen controls: ${offscreen.length}`,
+      smallTargets.length === 0 && offscreen.length === 0
+        ? "Automatic scan: no obvious touch or offscreen issues in this viewport."
+        : "Automatic scan: review the flagged counts manually.",
+    ]);
   }
 
-  async function copyReport() {
-    const report = buildMarkdownReport(items, autoScan);
+  async function copyProof() {
+    const report = [
+      "# Vishvakarma.OS Device Validation Proof",
+      "",
+      `Generated: ${new Date().toISOString()}`,
+      `Path: ${window.location.pathname}`,
+      `Viewport: ${window.innerWidth}x${window.innerHeight}`,
+      "",
+      "## Checks",
+      ...items.map((item) => `- ${item.status.toUpperCase()}: ${item.title} - ${item.detail}`),
+      "",
+      "## Scan",
+      ...(scan.length ? scan.map((line) => `- ${line}`) : ["- No scan run yet."]),
+      "",
+    ].join("\n");
+
     try {
       await navigator.clipboard.writeText(report);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
+      window.setTimeout(() => setCopied(false), 1400);
     } catch {
-      setCopied(false);
-      window.prompt("Copy validation report", report);
+      window.prompt("Copy device validation proof", report);
     }
   }
-
-  const passed = items.filter((item) => item.status === "pass").length;
 
   return (
     <section className="vish-device-validation" aria-label="Device validation proof mode">
@@ -209,28 +128,19 @@ export function DeviceValidationPanel() {
               <p>Vishvakarma.OS</p>
               <h2>Device Validation</h2>
             </div>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close device validation">
-              ×
-            </button>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close device validation">Close</button>
           </header>
 
           <div className="vish-device-validation__actions">
-            <button type="button" onClick={runAutoScan}>Run scan</button>
-            <button type="button" onClick={copyReport}>{copied ? "Copied" : "Copy proof"}</button>
-          </div>
-
-          <div className="vish-device-validation__meta">
-            <span>{window.innerWidth}×{window.innerHeight}</span>
-            <span>{passed}/{items.length} passed</span>
+            <button type="button" onClick={runScan}>Run scan</button>
+            <button type="button" onClick={copyProof}>{copied ? "Copied" : "Copy proof"}</button>
           </div>
 
           <ol className="vish-device-validation__checks">
             {items.map((item) => (
               <li key={item.id} data-status={item.status}>
-                <div>
-                  <strong>{item.title}</strong>
-                  <p>{item.detail}</p>
-                </div>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
                 <div className="vish-device-validation__check-actions">
                   <button type="button" onClick={() => setItemStatus(item.id, "pass")}>Pass</button>
                   <button type="button" onClick={() => setItemStatus(item.id, "fail")}>Fail</button>
@@ -240,12 +150,10 @@ export function DeviceValidationPanel() {
             ))}
           </ol>
 
-          {autoScan.length ? (
+          {scan.length ? (
             <div className="vish-device-validation__scan">
               <h3>Automatic scan</h3>
-              <ul>
-                {autoScan.map((line) => <li key={line}>{line}</li>)}
-              </ul>
+              <ul>{scan.map((line) => <li key={line}>{line}</li>)}</ul>
             </div>
           ) : null}
         </div>
