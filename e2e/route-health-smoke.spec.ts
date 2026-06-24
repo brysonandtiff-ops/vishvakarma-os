@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 type RouteSmokeCase = {
   label: string;
@@ -26,7 +26,7 @@ const ROUTES: RouteSmokeCase[] = [
 const FATAL_UI_TEXT = /Backend not configured|Service configuration required|Application error|Something went wrong|Unhandled Runtime Error|Cannot GET|404: NOT_FOUND/i;
 const APP_TEXT = /Vishvakarma|VISHVAKARMA|Blueprint|Architect|Project|Profile|Sign|Release|Registry|Audit|Optimization|World|Spec|Change/i;
 
-async function waitForReactPaint(page: Parameters<Parameters<typeof test>[1]>[0]["page"]) {
+async function waitForReactPaint(page: Page) {
   await page.waitForFunction(() => {
     const root = document.querySelector("#root");
     return Boolean(root && root.childElementCount > 0);
