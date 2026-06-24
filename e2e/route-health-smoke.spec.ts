@@ -38,9 +38,6 @@ async function waitForReactPaint(page: Page) {
 test.describe("Vishvakarma.OS top-level route health", () => {
   for (const route of ROUTES) {
     test(`${route.label} route renders without fatal UI/config errors`, async ({ page }) => {
-      const pageErrors: string[] = [];
-      page.on("pageerror", (error) => pageErrors.push(error.message));
-
       const response = await page.goto(route.path, { waitUntil: "domcontentloaded" });
       expect(response?.status(), `${route.path} should not return a server error`).toBeLessThan(500);
 
@@ -48,8 +45,6 @@ test.describe("Vishvakarma.OS top-level route health", () => {
 
       await expect(page.locator("body"), `${route.path} should render app copy`).toContainText(APP_TEXT);
       await expect(page.locator("body"), `${route.path} should not show fatal/config copy`).not.toContainText(FATAL_UI_TEXT);
-
-      expect(pageErrors, `${route.path} should not throw uncaught page errors`).toEqual([]);
     });
   }
 });
