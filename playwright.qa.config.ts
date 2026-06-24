@@ -2,7 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: /device-validation-proof-panel\.spec\.ts/,
+  testMatch: [
+    /device-validation-proof-panel\.spec\.ts/,
+    /route-health-smoke\.spec\.ts/,
+  ],
   timeout: 45_000,
   expect: {
     timeout: 10_000,
