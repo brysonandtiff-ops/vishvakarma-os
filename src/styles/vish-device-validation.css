@@ -148,4 +148,28 @@
     max-height: calc(100dvh - 92px);
     border-radius: 20px;
   }
+}.vish-device-validation {
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  z-index: 9100;
+}
+
+@media (max-width: 540px) {
+  .vish-device-validation {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  }
+}
+/* QA launcher must sit above the mantra/audio floating control. */
+.vish-device-validation {
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  z-index: 9100;
+}
+
+@media (max-width: 540px) {
+  .vish-device-validation {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  }
 }
