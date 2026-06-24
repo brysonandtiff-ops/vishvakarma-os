@@ -73,7 +73,7 @@ export default function ShunyaOverlay({ onClose }: { onClose: () => void }) {
         <div className="relative flex items-center justify-center w-64 h-64 mx-auto">
           {/* Animated breathing circle */}
           <div 
-            className={`rounded-full bg-gradient-to-r from-[#D4AF37]/25 to-[#F5D76A]/10 border border-[#D4AF37]/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all duration-[1400ms] ease-in-out flex items-center justify-center ${
+            className={`rounded-full bg-gradient-to-r from-[#D4AF37]/25 to-[#F5D76A]/10 border border-[#D4AF37]/40 shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-all ease-in-out flex items-center justify-center ${
               phase === 'in' ? 'w-48 h-48' : 'w-24 h-24'
             }`}
           >
@@ -89,3 +89,4 @@ export default function ShunyaOverlay({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+
