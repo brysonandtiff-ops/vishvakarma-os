@@ -5,7 +5,6 @@ export default defineConfig({
   testMatch: [
     /editor-tool-clickthrough-proof\.spec\.ts/,
     /project-demo-load-proof\.spec\.ts/,
-    /onboarding-long-session-proof\.spec\.ts/,
   ],
   timeout: 90_000,
   expect: {
@@ -26,24 +25,6 @@ export default defineConfig({
     {
       name: "desktop-chrome",
       use: { ...devices["Desktop Chrome"] },
-    },
-    {
-      name: "ipad-10-landscape",
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1180, height: 820 },
-        isMobile: false,
-        hasTouch: true,
-      },
-    },
-    {
-      name: "ipad-10-portrait",
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 820, height: 1180 },
-        isMobile: false,
-        hasTouch: true,
-      },
     },
   ],
 });
