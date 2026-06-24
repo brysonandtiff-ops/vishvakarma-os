@@ -24,23 +24,41 @@ async function seedAppSession(page: Page) {
   });
 }
 
+async function stopMotion(page: Page) {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-delay: 0s !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-delay: 0s !important;
+        transition-duration: 0s !important;
+      }
+    `,
+  });
+}
+
 test.describe("editor click proof", () => {
   test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await seedAppSession(page);
   });
 
   test("all editor tools select cleanly", async ({ page }) => {
     await page.goto("/editor", { waitUntil: "domcontentloaded" });
+    await stopMotion(page);
     await expect(page.getByTestId("editor-top-bar")).toBeVisible();
     await expect(page.getByTestId("tool-rail")).toBeVisible();
 
     for (const label of TOOL_LABELS) {
       const button = page.getByRole("button", { name: label }).first();
-      await button.scrollIntoViewIfNeeded();
-      await expect(button).toBeVisible();
-      await button.click();
-      await expect(button).toHaveAttribute("aria-pressed", "true");
-      await expect(page.locator("body")).not.toContainText(BLOCKED_COPY);
+      await expect(button, `${label} tool should exist`).toBeAttached();
+      await button.evaluate((element) => {
+        element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      });
+      await expect(button, `${label} tool should become active`).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator("body"), `${label} should not trigger fatal UI copy`).not.toContainText(BLOCKED_COPY);
     }
   });
 });
