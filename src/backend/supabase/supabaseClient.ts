@@ -1,14 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, resolveSupabaseConfig } from '@/backend/backendConfig';
 
 let supabaseClient: SupabaseClient | null = null;
 
 export function getSupabaseUrl() {
-  return import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  return resolveSupabaseConfig().url;
 }
 
 export function getSupabaseAnonKey() {
-  return import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  return resolveSupabaseConfig().anonKey;
 }
 
 export function getSupabaseClient(): SupabaseClient | null {
@@ -16,8 +16,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     return null;
   }
 
-  const url = getSupabaseUrl();
-  const anonKey = getSupabaseAnonKey();
+  const { url, anonKey } = resolveSupabaseConfig();
   if (!url || !anonKey) return null;
 
   if (!supabaseClient) {
