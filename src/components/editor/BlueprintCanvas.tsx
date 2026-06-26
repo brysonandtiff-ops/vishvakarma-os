@@ -1437,6 +1437,10 @@ export default function BlueprintCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    if (isErasingRef.current) {
+      isErasingRef.current = false;
+      eraserStrokeRef.current.clear();
+    }
     if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
       floorPlanEngine.abortEditTransaction();
     }
