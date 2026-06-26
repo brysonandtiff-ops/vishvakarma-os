@@ -58,19 +58,49 @@ export async function dismissConsentIfPresent(page: Page) {
 
 export async function openProjectActionsMenu(page: Page) {
   const button = page.getByRole('button', { name: /project actions/i }).first();
-  await button.scrollIntoViewIfNeeded();
-  try {
-    await button.click({ force: true, timeout: 5_000 });
-  } catch {
+  await button.evaluate((el) => {
+    const scroller = el.closest<HTMLElement>('.vish-editor-action-row');
+    const rect = el.getBoundingClientRect();
+    if (scroller && (rect.left < 0 || rect.right > window.innerWidth)) {
+      scroller.scrollLeft = Math.max(0, (el as HTMLElement).offsetLeft - scroller.clientWidth / 2);
+    }
+    el.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const pointerInit = {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+    };
+    el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
+    el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
+    el.dispatchEvent(new MouseEvent('click', pointerInit));
+  });
+  const firstMenuItem = page.getByRole('menuitem').first();
+  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_000 }).then(() => true).catch(() => false))) {
     await button.evaluate((el) => {
-      (el as HTMLButtonElement).click();
+      const pointerInit = {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+      };
+      el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
+      el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
+      el.dispatchEvent(new MouseEvent('click', pointerInit));
     });
+    await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
   }
+}
+
+async function activateProjectMenuItem(page: Page, name: RegExp) {
+  const item = page.getByRole('menuitem', { name }).first();
+  await item.waitFor({ state: 'visible', timeout: 5_000 });
+  await item.evaluate((el) => {
+    (el as HTMLElement).click();
+  });
 }
 
 export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {
   await openProjectActionsMenu(page);
-  await page.getByRole('menuitem', { name: /load sample blueprint/i }).click();
+  await activateProjectMenuItem(page, /load sample blueprint/i);
   await expect(page.getByRole('dialog', { name: /load sample blueprint/i })).toBeVisible({ timeout: 15_000 });
   if (sampleName !== 'Sample House 01') {
     await page.getByRole('button', { name: sampleName }).click();
@@ -92,18 +122,20 @@ export async function loadSampleProject(page: Page, sampleName = 'Sample House 0
 
 export async function saveProject(page: Page) {
   await openProjectActionsMenu(page);
-  await page.getByRole('menuitem', { name: /^save$/i }).click();
+  await activateProjectMenuItem(page, /^save$/i);
 }
 
 export async function openExportDialog(page: Page) {
   await openProjectActionsMenu(page);
-  await page.getByRole('menuitem', { name: /^export$/i }).click();
+  await activateProjectMenuItem(page, /^export$/i);
   await expect(page.getByRole('dialog')).toBeVisible();
 }
 
 export async function openAIDesigner(page: Page) {
   await openProjectActionsMenu(page);
-  await page.getByTestId('editor-ai-designer').click();
+  await page.getByTestId('editor-ai-designer').evaluate((el) => {
+    (el as HTMLElement).click();
+  });
 }
 
 

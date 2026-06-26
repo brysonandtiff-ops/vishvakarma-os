@@ -150,11 +150,75 @@
     max-height: calc(100dvh - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px) - 1rem);
   }
 
+  [data-slot='dialog-content'] {
+    width: min(100%, calc(100vw - var(--vish-safe-left, 0px) - var(--vish-safe-right, 0px) - 1rem));
+    max-height: calc(100dvh - var(--vish-safe-top, 0px) - var(--vish-safe-bottom, 0px) - 1rem) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(1rem, calc(1rem + var(--vish-safe-bottom, 0px))) !important;
+  }
+
+  [data-slot='dialog-content'] > button[aria-label='Close'],
+  [data-slot='sheet-content'] > button[aria-label='Close'] {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .vish-dialog-chrome [data-slot='dialog-footer'] {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding: 0.75rem 0 max(0.75rem, var(--vish-safe-bottom, 0px));
+    border-top: 1px solid hsl(var(--border) / 0.72);
+    background: linear-gradient(180deg, hsl(var(--background) / 0.82), hsl(var(--background) / 0.98));
+    backdrop-filter: blur(12px);
+  }
+
+  .vish-dialog-chrome [data-slot='dialog-footer'] button,
+  .vish-copilot-dialog button,
+  .vish-copilot-dialog [role='button'],
+  .vish-copilot-upload-slot {
+    min-height: 44px;
+  }
+
+  [data-slot='dialog-content'] input,
+  [data-slot='dialog-content'] textarea,
+  [data-slot='dialog-content'] select,
+  [data-slot='sheet-content'] input,
+  [data-slot='sheet-content'] textarea,
+  [data-slot='sheet-content'] select {
+    font-size: max(16px, 1rem);
+  }
+
   [role='dialog'] button,
   [role='alertdialog'] button,
   [data-radix-popper-content-wrapper] [role='menuitem'],
   [data-radix-popper-content-wrapper] [role='option'] {
     min-height: 44px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px), (orientation: landscape) and (max-height: 820px) and (pointer: coarse) {
+  .vish-copilot-stepper {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .vish-copilot-stepper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vish-copilot-stepper__item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
   }
 }
 

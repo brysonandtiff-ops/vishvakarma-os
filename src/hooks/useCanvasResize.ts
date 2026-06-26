@@ -91,9 +91,39 @@ export function useCanvasResize(
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
+    const measurementTarget =
+      element.closest<HTMLElement>('.vish-canvas-stage') ?? element.parentElement ?? element;
+
+    let frameId: number | undefined;
+    let orientationTimerId: number | undefined;
 
     const update = () => {
-      const rect = element.getBoundingClientRect();
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = undefined;
+        const rect = measurementTarget.getBoundingClientRect();
+        setMetrics(
+          computeMetrics(rect.width, rect.height, maxWidth, {
+            coarsePointer,
+            wallCount,
+          }),
+        );
+      });
+    };
+
+    const updateAfterOrientationChange = () => {
+      update();
+      if (orientationTimerId !== undefined) {
+        window.clearTimeout(orientationTimerId);
+      }
+      orientationTimerId = window.setTimeout(update, 250);
+    };
+
+    const updateImmediately = () => {
+      const rect = measurementTarget.getBoundingClientRect();
       setMetrics(
         computeMetrics(rect.width, rect.height, maxWidth, {
           coarsePointer,
@@ -102,15 +132,25 @@ export function useCanvasResize(
       );
     };
 
-    update();
+    updateImmediately();
 
     const observer = new ResizeObserver(update);
-    observer.observe(element);
+    observer.observe(measurementTarget);
     window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', updateAfterOrientationChange);
+    window.visualViewport?.addEventListener('resize', update);
 
     return () => {
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+      if (orientationTimerId !== undefined) {
+        window.clearTimeout(orientationTimerId);
+      }
       observer.disconnect();
       window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', updateAfterOrientationChange);
+      window.visualViewport?.removeEventListener('resize', update);
     };
   }, [containerRef, maxWidth, coarsePointer, wallCount]);
 

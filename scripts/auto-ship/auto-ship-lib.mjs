@@ -114,6 +114,12 @@ export function isDirectEntry(moduleUrl, entryScript) {
   if (!entryScript || typeof entryScript !== 'string') return false;
   try {
     const modulePath = fileURLToPath(moduleUrl);
+    const windowsPathPattern = /^\/?[A-Za-z]:[\\/]/;
+    if (windowsPathPattern.test(modulePath) || windowsPathPattern.test(entryScript)) {
+      const normalizeWindowsPath = (value) =>
+        value.replaceAll('\\', '/').replace(/^\/([A-Za-z]:\/)/, '$1').toLowerCase();
+      return normalizeWindowsPath(modulePath) === normalizeWindowsPath(entryScript);
+    }
     const entryPath = resolve(entryScript);
     if (process.platform === 'win32') {
       return modulePath.toLowerCase() === entryPath.toLowerCase();
