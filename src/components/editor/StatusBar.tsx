@@ -76,8 +76,11 @@ export default function StatusBar({
     <div className="ws-status-bar">
       <div className="ws-status-item active min-w-0 max-w-[min(28rem,42vw)]">
         {ToolIcon && <ToolIcon className="h-3 w-3 shrink-0" aria-hidden />}
-        <span className="truncate" title={hint}>
+        <span className="truncate" title={coarseHintTitle}>
           {hint}
+          {isCoarsePointer && (
+            <span className="hidden text-ws-text-dim sm:inline"> · {TOUCH_POINTER_MODALITY_HINT}</span>
+          )}
         </span>
       </div>
       <div className="ws-status-divider" />
