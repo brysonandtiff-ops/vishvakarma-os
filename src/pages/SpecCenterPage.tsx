@@ -143,9 +143,8 @@ export default function SpecCenterPage() {
           description="Centralized specification management with governance enforcement"
           actions={
             <Button
-              size="sm"
               variant="outline"
-              className="shrink-0 touch-target"
+              className="shrink-0 touch-target h-11 min-h-[44px]"
               disabled={!backendStatus.isConfigured}
               title={backendStatus.isConfigured ? undefined : 'Sign in with Supabase to create specs — go to Account Access'}
               onClick={() => setNewSpecOpen(true)}
