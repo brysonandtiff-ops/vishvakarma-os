@@ -117,6 +117,7 @@
     "repairbot:fast": "node scripts/repairbot/repairbot.mjs --tier=repairbot:fast",
     "repairbot:medium": "node scripts/repairbot/repairbot.mjs --tier=repairbot:medium",
     "repairbot:full": "node scripts/repairbot/repairbot.mjs --tier=repairbot:full",
+    "repairbot:world": "node scripts/repairbot/repairbot.mjs --tier=repairbot:world",
     "repairbot:watch": "node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000",
     "repairbot:dry": "node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --dry-run",
     "repairbot:status": "node scripts/repairbot/status.mjs",
