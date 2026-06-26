@@ -889,9 +889,6 @@ export default function BlueprintCanvas({
       setInputMode(mode);
       eraserStrokeRef.current = new Set();
       isErasingRef.current = true;
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:eraser-down',message:'eraser pointerdown',data:{button:event.button,buttons:event.buttons,pointerId:event.pointerId},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
-      // #endregion
       event.currentTarget.setPointerCapture(event.pointerId);
       eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
       return;
