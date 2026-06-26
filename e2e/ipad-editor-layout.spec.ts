@@ -1,5 +1,6 @@
 ﻿import { expect, test, type Locator, type Page } from '@playwright/test';
 import {
+  assertActiveDialogFitsIpad,
   assertNoHorizontalOverflow,
   assertTouchTargets,
   dismissEditorOverlays,
@@ -10,6 +11,7 @@ import {
   openExportDialog,
   openProjectActionsMenu,
   resetWorkspacePrefs,
+  tapReachable,
 } from './helpers';
 
 const EDITOR_TOUCH_SELECTORS = [
