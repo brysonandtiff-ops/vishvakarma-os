@@ -20,6 +20,10 @@ This file is the production release evidence ledger. It must be updated whenever
 | iPad layout | Touch targets + zoom/pan smoke | PASS | [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts), [`e2e/device-governance-layout.spec.ts`](../../../e2e/device-governance-layout.spec.ts) |
 | Multi-device layout | Phone, Android tablet, marketing, desktop | PASS | [`device-hardening-audit.md`](device-hardening-audit.md) |
 | Editor perf overhaul | Mock audit + wiring matrix | PASS | [`editor-performance-overhaul-proof.md`](editor-performance-overhaul-proof.md) — `pnpm run test:perf-overhaul` |
+| Deep editor draw workflow | Wall draw, door place, properties panel | PASS | [`e2e/editor-draw-workflow-proof.spec.ts`](../../../e2e/editor-draw-workflow-proof.spec.ts), `pnpm run test:e2e:deep-proof` |
+| Governance empty states | Audit + Release Center skeleton → empty UI | PASS | [`e2e/governance-smoke.spec.ts`](../../../e2e/governance-smoke.spec.ts) |
+| Long-session editor soak (fast) | 60s idle + post-soak tool activation | PASS | [`long-session-soak-proof.md`](long-session-soak-proof.md), `pnpm run test:e2e:soak` |
+| Supabase cloud CRUD lifecycle | projects row create/read/update/delete | PARTIAL | [`e2e/cloud-supabase-lifecycle.spec.ts`](../../../e2e/cloud-supabase-lifecycle.spec.ts) — secrets-gated CI job |
 
 ## Backend Evidence
 

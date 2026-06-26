@@ -91,4 +91,8 @@ Notes:
 
 ## Truth label
 
-This is a manual evidence gate. It does not pass merely because desktop Playwright passed. It passes only when a real iPad or iPadOS Safari session is recorded or manually signed off.
+This is a **manual** evidence gate for real iPadOS Safari. It does not pass merely because desktop Playwright passed.
+
+**Automated cross-reference (PASS):** Playwright coarse-pointer and iPad viewport proofs in [`device-hardening-audit.md`](device-hardening-audit.md), [`e2e/ipad-production-readiness.spec.ts`](../../../e2e/ipad-production-readiness.spec.ts), and [`e2e/ipad-editor-layout.spec.ts`](../../../e2e/ipad-editor-layout.spec.ts).
+
+**Manual status:** Pending until an operator records the flow above and fills the evidence summary template. Home Screen PWA install and Apple Pencil draw are out of scope for automation — see [DEVICE_HARDENING_RUNBOOK.md](../DEVICE_HARDENING_RUNBOOK.md).
