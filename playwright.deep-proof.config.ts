@@ -17,11 +17,12 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "pnpm exec vite preview --host 127.0.0.1 --port 4173",
+    command: "pnpm run preview:e2e:local",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
+  workers: process.env.CI ? 1 : undefined,
   projects: [
     {
       name: "desktop-chrome",
