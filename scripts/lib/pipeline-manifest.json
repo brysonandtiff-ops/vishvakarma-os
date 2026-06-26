@@ -81,8 +81,35 @@
       ]
     },
     "repairbot:full": {
-      "description": "RepairBot full verify parity",
-      "extends": "verify"
+      "description": "RepairBot verify parity with env preflight",
+      "extends": "repairbot:medium",
+      "steps": [
+        "pnpm run lint",
+        "pnpm run contract:gates",
+        "pnpm run auth:gates",
+        "pnpm run flawless:gates",
+        "pnpm run launch:evidence",
+        "pnpm run stability:gates",
+        "pnpm run test",
+        "pnpm run build",
+        "pnpm run perf:gates"
+      ]
+    },
+    "repairbot:world": {
+      "description": "RepairBot maximum — CI parity, release gates, world-record evidence",
+      "extends": "repairbot:full",
+      "steps": [
+        "node scripts/quality/check-vercel-security.mjs",
+        "pnpm run test:supabase-auth",
+        "pnpm run verify:supabase-login-data",
+        "pnpm run verify:supabase-schema",
+        "pnpm run test:anchors",
+        "pnpm run test:coverage",
+        "pnpm run test:routes",
+        "pnpm run record:measure",
+        "pnpm run release:gates",
+        "node scripts/repairbot/ci-github-health.mjs"
+      ]
     }
   }
 }
