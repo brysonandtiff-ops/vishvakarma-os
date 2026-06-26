@@ -29,7 +29,7 @@
     linear-gradient(180deg, hsl(220 14% 11%), hsl(220 14% 9%));
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1194px) {
   .vish-governance-shell .gov-content-area {
     overflow-x: auto;
   }
