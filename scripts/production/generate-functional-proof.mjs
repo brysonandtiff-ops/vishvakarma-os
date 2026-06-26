@@ -116,7 +116,8 @@ async function main() {
     routeSmoke.ok &&
     build.ok &&
     (skipE2e || e2e.ok) &&
-    (skipE2e || releaseGates.ok);
+    (skipE2e || releaseGates.ok) &&
+    (skipE2e || deepProof.ok);
 
   const overallResult = automatedPass
     ? releaseGates.manual
