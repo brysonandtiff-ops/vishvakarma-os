@@ -18,12 +18,14 @@ test.describe('Supabase cloud project lifecycle proof', () => {
 
   test('create → read → update → delete project row', async () => {
     const supabase = getSupabaseClient();
-    expect(supabase, 'Supabase client should be configured').not.toBeNull();
+    if (!supabase) {
+      throw new Error('Supabase client should be configured');
+    }
 
     const id = `e2e_${Date.now()}`;
 
     // CREATE
-    const created = await supabase!
+    const created = await supabase
       .from('projects')
       .insert({ id, name: 'E2E Cloud Project', status: 'test' })
       .select('*');
