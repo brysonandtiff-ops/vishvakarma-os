@@ -91,6 +91,7 @@ async function selectDrawnWallForProperties(page: Page) {
   });
 }
 
+async function dismissBlockingChrome(page: Page) {
   const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
   if (await recoveryDiscard.isVisible().catch(() => false)) {
     await recoveryDiscard.click({ force: true });
