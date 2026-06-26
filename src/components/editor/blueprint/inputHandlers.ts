@@ -16,3 +16,8 @@ export function getHitAreaForMode(mode: CanvasInputMode, base = 10): number {
 export function isEraserPointerButton(button: number): boolean {
   return button === 5;
 }
+
+/** Eraser on pointerdown (button 5) or while held (buttons bit 32) — Safari/WebKit variance. */
+export function isEraserPointerActive(event: { button: number; buttons: number }): boolean {
+  return event.button === 5 || (event.buttons & 32) !== 0;
+}

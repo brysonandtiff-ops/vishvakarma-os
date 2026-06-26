@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { getHitAreaForMode, isEraserPointerButton } from '@/components/editor/blueprint/inputHandlers';
+import {
+  getHitAreaForMode,
+  isEraserPointerActive,
+  isEraserPointerButton,
+} from '@/components/editor/blueprint/inputHandlers';
 
 describe('inputHandlers', () => {
   it('maps pointer types to hit area scaling', () => {
