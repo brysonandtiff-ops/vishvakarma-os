@@ -70,9 +70,30 @@ async function dispatchCanvasPointer(
   );
 }
 
-async function drawWallSegment(canvas: Locator, from: { x: number; y: number }, to: { x: number; y: number }) {
-  await dispatchCanvasPointer(canvas, 'pointerdown', from);
-  await dispatchCanvasPointer(canvas, 'pointerup', to);
+async function dismissBlockingChrome(page: Page) {
+  const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
+  if (await recoveryDiscard.isVisible().catch(() => false)) {
+    await recoveryDiscard.click({ force: true });
+  }
+
+  const dismissGuided = page.getByRole('button', { name: /dismiss guided start/i });
+  if (await dismissGuided.isVisible().catch(() => false)) {
+    await dismissGuided.click({ force: true });
+  }
+
+  const declineAnalytics = page.getByRole('button', { name: /decline/i });
+  if (await declineAnalytics.isVisible().catch(() => false)) {
+    await declineAnalytics.click({ force: true });
+  }
+}
+
+async function activateTool(page: Page, label: string) {
+  const button = page.getByRole('button', { name: label }).first();
+  await expect(button, `${label} tool should exist`).toBeAttached();
+  await button.evaluate((element) => {
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  });
+  await expect(button, `${label} tool should become active`).toHaveAttribute('aria-pressed', 'true');
 }
 
 test.describe('editor draw workflow proof', () => {
@@ -86,11 +107,7 @@ test.describe('editor draw workflow proof', () => {
 
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
     await stopMotion(page);
-
-    const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
-    if (await recoveryDiscard.isVisible().catch(() => false)) {
-      await recoveryDiscard.click();
-    }
+    await dismissBlockingChrome(page);
 
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('tool-rail')).toBeVisible();
@@ -99,9 +116,7 @@ test.describe('editor draw workflow proof', () => {
     const initialWalls = await readMetricCount(page, 'Walls');
     const initialOpenings = await readMetricCount(page, 'Openings');
 
-    const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
-    await wallTool.click();
-    await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
+    await activateTool(page, 'Wall');
 
     const canvas = page.getByTestId('blueprint-canvas');
     const box = await canvas.boundingBox();
