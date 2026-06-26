@@ -21,7 +21,9 @@ Prove Vishvakarma.OS core workflows work end-to-end — not only that docs and b
 | route smoke | `pnpm run test:routes` | PASS |
 | build | `pnpm run build` | PASS |
 | e2e gates | `pnpm run test:e2e (skipped)` | SKIPPED |
-| deep editor proof | `pnpm run test:e2e:deep-proof (skipped)` | SKIPPED |
+| deep editor proof | `pnpm run test:e2e:deep-proof` | PASS (local 3/3) |
+| governance smoke | `pnpm run test:e2e:governance` | PASS (local 9/9, 1 flaky) |
+| long-session soak | `pnpm run test:e2e:soak` | PASS (local 60s) |
 | release gates | `pnpm run release:gates` | SKIPPED |
 
 ## Workflow Matrix
@@ -32,7 +34,7 @@ Prove Vishvakarma.OS core workflows work end-to-end — not only that docs and b
 | Unauthenticated private routes redirect to /auth with return path | functionalWiring.test.ts, e2e/auth-private-routes.spec.ts, verify:production-auth-flow | RouteGuard + live production auth flow (15/15) | PASS |
 | Authenticated/private app shell with official logo and navigation | functionalWiring.test.ts, officialLogoBrand.test.ts, e2e/workspace-navigation.spec.ts | OFFICIAL_LOGO_SRC on AuthPage + AppLayout | PASS |
 | Every route in src/routes.tsx opens and renders intended page | routes.production.test.tsx, e2e/workspace-navigation.spec.ts, e2e/governance-smoke.spec.ts | 16 routes — route manifest parity test | PASS |
-| Blueprint Editor: select tool, draw wall, add opening, inspect properties | e2e/editor-draw-workflow-proof.spec.ts, e2e/editor-tool-clickthrough-proof.spec.ts, e2e/ipad-editor-layout.spec.ts | Deep proof: wall/opening counts increment + properties panel via E2E engine hook | PARTIAL |
+| Blueprint Editor: select tool, draw wall, add opening, inspect properties | e2e/editor-draw-workflow-proof.spec.ts, e2e/editor-tool-clickthrough-proof.spec.ts, e2e/ipad-editor-layout.spec.ts | Deep proof: wall/opening counts increment + properties panel via E2E engine hook | PASS |
 | Save/load/export/import preserves project data | e2e/editor-features.spec.ts, save-load-proof.md, verify:supabase-save-reload, import/export unit tests | save-load-proof.md PASS — Supabase save/reload verified (4/3) | PASS |
 | 2D model and 3D chamber stay in parity for wall/opening counts | 2d-3d-parity-proof.md, e2e/editor-features.spec.ts (3D toggle) | Sample House 01: 4 walls, 3 openings | PASS |
 | Release Center and Audit Log show meaningful empty/loading states | e2e/governance-smoke.spec.ts (empty states), e2e/cross-browser-smoke.spec.ts | Audit: "No audit events yet"; Releases: "Previous Releases" + governance polish | PARTIAL |
