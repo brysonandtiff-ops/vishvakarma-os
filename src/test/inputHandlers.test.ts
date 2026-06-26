@@ -3,6 +3,7 @@ import {
   getHitAreaForMode,
   isEraserPointerActive,
   isEraserPointerButton,
+  isEraserPointerPressed,
 } from '@/components/editor/blueprint/inputHandlers';
 
 describe('inputHandlers', () => {
