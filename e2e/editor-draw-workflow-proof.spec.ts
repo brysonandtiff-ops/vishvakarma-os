@@ -130,10 +130,7 @@ test.describe('editor draw workflow proof', () => {
     const to = { x: box.width * 0.75, y: centerY };
 
     await activateTool(page, 'Wall');
-    await page.mouse.move(box.x + from.x, box.y + from.y);
-    await page.mouse.down();
-    await page.mouse.move(box.x + to.x, box.y + to.y);
-    await page.mouse.up();
+    await drawWallSegment(canvas, from, to);
 
     await expect
       .poll(async () => readMetricCount(page, 'Walls'), { timeout: 15_000 })
@@ -141,7 +138,8 @@ test.describe('editor draw workflow proof', () => {
 
     await activateTool(page, 'Door');
     const doorPoint = { x: box.width * 0.5, y: centerY };
-    await page.mouse.click(box.x + doorPoint.x, box.y + doorPoint.y);
+    await dispatchCanvasPointer(canvas, 'pointerdown', doorPoint);
+    await dispatchCanvasPointer(canvas, 'pointerup', doorPoint);
 
     await expect
       .poll(async () => readMetricCount(page, 'Openings'), { timeout: 15_000 })
