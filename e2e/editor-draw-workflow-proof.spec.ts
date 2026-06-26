@@ -121,8 +121,6 @@ test.describe('editor draw workflow proof', () => {
     const initialWalls = await readMetricCount(page, 'Walls');
     const initialOpenings = await readMetricCount(page, 'Openings');
 
-    await activateTool(page, 'Wall');
-
     const canvas = page.getByTestId('blueprint-canvas');
     const box = await canvas.boundingBox();
     if (!box) throw new Error('Canvas not visible');
@@ -130,25 +128,26 @@ test.describe('editor draw workflow proof', () => {
     const centerY = box.height * 0.5;
     const from = { x: box.width * 0.25, y: centerY };
     const to = { x: box.width * 0.75, y: centerY };
-    await drawWallSegment(canvas, from, to);
+
+    await activateTool(page, 'Wall');
+    await page.mouse.click(box.x + from.x, box.y + from.y);
+    await page.mouse.click(box.x + to.x, box.y + to.y);
 
     await expect
       .poll(async () => readMetricCount(page, 'Walls'), { timeout: 15_000 })
       .toBeGreaterThan(initialWalls);
 
     await activateTool(page, 'Door');
-
     const doorPoint = { x: box.width * 0.5, y: centerY };
-    await dispatchCanvasPointer(canvas, 'pointerdown', doorPoint);
-    await dispatchCanvasPointer(canvas, 'pointerup', doorPoint);
+    await page.mouse.click(box.x + doorPoint.x, box.y + doorPoint.y);
 
     await expect
       .poll(async () => readMetricCount(page, 'Openings'), { timeout: 15_000 })
       .toBeGreaterThan(initialOpenings);
 
     await activateTool(page, 'Select');
-    await dispatchCanvasPointer(canvas, 'pointerdown', doorPoint);
-    await dispatchCanvasPointer(canvas, 'pointerup', doorPoint);
+    const selectPoint = { x: box.width * 0.3, y: centerY };
+    await page.mouse.click(box.x + selectPoint.x, box.y + selectPoint.y);
 
     await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
