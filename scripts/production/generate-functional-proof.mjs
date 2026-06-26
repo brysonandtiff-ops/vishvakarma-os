@@ -181,7 +181,7 @@ async function main() {
       workflow: 'iPad/coarse-pointer controls remain usable',
       coverage: 'e2e/ipad-production-readiness.spec.ts, e2e/ipad-editor-layout.spec.ts, device-hardening-audit.md',
       evidence: 'Playwright tablet viewports + min 44px touch targets; physical Safari proof manual',
-      result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'PASS',
+      result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'PARTIAL',
     },
     {
       workflow: 'Browser metadata/PWA install icon uses official logo',
