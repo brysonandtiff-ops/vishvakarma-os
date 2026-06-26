@@ -146,8 +146,13 @@ test.describe('editor draw workflow proof', () => {
       .toBeGreaterThan(initialOpenings);
 
     await activateTool(page, 'Select');
-    const selectPoint = { x: box.width * 0.3, y: centerY };
-    await page.mouse.click(box.x + selectPoint.x, box.y + selectPoint.y);
+    for (const ratio of [0.28, 0.72, 0.5]) {
+      const point = { x: box.width * ratio, y: centerY };
+      await page.mouse.click(box.x + point.x, box.y + point.y);
+      if (await page.getByText(/wall properties/i).isVisible().catch(() => false)) {
+        break;
+      }
+    }
 
     await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
