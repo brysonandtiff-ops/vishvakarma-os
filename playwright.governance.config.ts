@@ -17,10 +17,10 @@ export default defineConfig({
     viewport: { width: 1080, height: 810 },
   },
   webServer: {
-    command: "pnpm run preview:e2e:local",
+    command: "vite preview --host 127.0.0.1 --port 4173",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
-    timeout: 300_000,
+    timeout: 600_000,
   },
   workers: 1,
 });

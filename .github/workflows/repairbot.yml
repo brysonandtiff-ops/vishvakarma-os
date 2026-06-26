@@ -4,12 +4,21 @@ on:
   schedule:
     - cron: '0 11 * * 1'
   workflow_dispatch:
+    inputs:
+      tier:
+        description: RepairBot tier to dry-run
+        required: false
+        default: fast
+        type: choice
+        options:
+          - fast
+          - world
 
 jobs:
   repairbot-dry-run:
     name: RepairBot dry-run (report only)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: ${{ github.event.inputs.tier == 'world' && 90 || 15 }}
 
     steps:
       - name: Checkout
@@ -29,8 +38,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: RepairBot fast dry-run
-        run: pnpm run repairbot:dry
+      - name: RepairBot dry-run
+        run: |
+          if [ "${{ github.event.inputs.tier }}" = "world" ]; then
+            pnpm run repairbot:world --dry-run
+          else
+            pnpm run repairbot:dry
+          fi
 
       - name: Upload RepairBot report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

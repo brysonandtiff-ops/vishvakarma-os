@@ -128,7 +128,8 @@ After substantive code edits, run RepairBot per [.cursor/rules/repairbot.mdc](./
 
 - `pnpm run repairbot:fast` — after routine edits
 - `pnpm run repairbot:medium` — before declaring a feature done
-- `pnpm run repairbot:full` — before push-level verification
+- `pnpm run repairbot:full` — before push-level verification (verify + env preflight)
+- `pnpm run repairbot:world` — pre-release CI + release gates + world-record evidence (needs Supabase env)
 - `pnpm run repairbot:status` — check repo health
 
 Fix escalations before finishing. Do not ship broken type or test failures — lint blocks auto-ship.

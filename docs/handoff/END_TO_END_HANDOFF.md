@@ -474,7 +474,7 @@ A standalone Node process (`server/collab/`, its own `package.json`):
 
 - **Unified pipeline runner:** `scripts/run-pipeline.mjs` exposes tiers — `verify`, `verify:ci`, `ci`, plus `pipeline`. These compose the gate scripts above into staged runs.
 - **DX doctor:** `pnpm run doctor` / `dx:doctor` (`scripts/dx/doctor.mjs`) checks local environment health; `dx:stack` spins a local stack.
-- **Repairbot (`scripts/repairbot/`):** an automated self-healing runner with tiers `fast` / `medium` / `full`, plus `watch`, `dry`, `status`, and `ci-github` (GitHub CI health). It scans for issues and proposes/applies repairs.
+- **Repairbot (`scripts/repairbot/`):** an automated self-healing runner with tiers `fast` / `medium` / `full` / `world`, plus `watch`, `dry`, `status`, and `ci-github` (GitHub CI health). The `world` tier mirrors CI + release gates + world-record evidence. It scans for issues and proposes/applies repairs.
 - **Auto-ship (`scripts/auto-ship/`):** `pnpm run auto-ship` syncs/commits after edits (the recent `chore(auto-ship): …` commits come from this); installable git hooks via `auto-ship:install-user`.
 - **Stability (`scripts/stability/`):** monitoring checks, health probes (`stability:health[:prod]`), post-deploy smoke, Supabase drift detection.
 - **Production evidence (`scripts/production/`):** evidence, manual evidence, functional proof generators; env verification; admin/co-owner setup.

@@ -9,7 +9,7 @@ import {
 const AUTH_TOUCH_SELECTORS = [
   '[data-testid="auth-mockup-card"] .vish-login-page__primary',
   '[data-testid="auth-mockup-card"] .vish-login-page__secondary',
-  '.vish-auth-google-btn',
+  '.vish-auth-google-button',
 ];
 
 async function assertAuthPageLayout(page: import('@playwright/test').Page) {
