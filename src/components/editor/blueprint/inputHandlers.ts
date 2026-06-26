@@ -21,3 +21,8 @@ export function isEraserPointerButton(button: number): boolean {
 export function isEraserPointerActive(event: { button: number; buttons: number }): boolean {
   return event.button === 5 || (event.buttons & 32) !== 0;
 }
+
+/** Eraser held during pointermove — requires buttons bitmask, not button alone (hover-safe). */
+export function isEraserPointerPressed(event: { buttons: number }): boolean {
+  return (event.buttons & 32) !== 0;
+}
