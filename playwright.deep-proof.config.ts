@@ -4,6 +4,7 @@ export default defineConfig({
   testDir: "./e2e",
   testMatch: [
     /editor-tool-clickthrough-proof\.spec\.ts/,
+    /editor-draw-workflow-proof\.spec\.ts/,
     /project-demo-load-proof\.spec\.ts/,
   ],
   timeout: 90_000,

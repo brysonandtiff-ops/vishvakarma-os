@@ -78,4 +78,21 @@ test.describe('governance pages smoke (e2e local access)', () => {
     await expect(page.getByTestId('governance-backend-banner')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole('button', { name: /new request/i }).first()).toBeDisabled();
   });
+
+  test('/audit transitions from loading skeleton to empty state in local mode', async ({ page }) => {
+    await page.goto('/audit', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /audit log/i }).first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('audit-loading-skeleton')).toBeHidden({ timeout: 60_000 });
+    await expect(page.getByText(/no audit events yet/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: /open the editor/i }).first()).toBeVisible();
+  });
+
+  test('/releases transitions from loading skeleton to release history in local mode', async ({ page }) => {
+    await page.goto('/releases', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /release center/i }).first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/verification snapshot/i).first()).toBeVisible();
+    await expect(page.getByTestId('releases-loading-skeleton')).toBeHidden({ timeout: 60_000 });
+    await expect(page.getByText(/previous releases/i)).toBeVisible();
+    await expect(page.getByText(/governance & editor polish/i)).toBeVisible({ timeout: 15_000 });
+  });
 });
