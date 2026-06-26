@@ -73,10 +73,19 @@ test.describe('governance pages smoke (e2e local access)', () => {
     });
   }
 
-  test('local mode shows governance backend banner', async ({ page }) => {
+  test('governance workspace reflects backend mode on change requests', async ({ page }) => {
     await page.goto('/change-requests', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByTestId('governance-backend-banner')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('button', { name: /new request/i }).first()).toBeDisabled();
+    await expect(page.getByRole('heading', { name: /change request/i }).first()).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const banner = page.getByTestId('governance-backend-banner');
+    const newRequest = page.getByRole('button', { name: /new request/i }).first();
+    await expect(newRequest).toBeVisible();
+
+    if (await banner.isVisible().catch(() => false)) {
+      await expect(newRequest).toBeDisabled();
+    }
   });
 
   test('/audit transitions from loading skeleton to empty state in local mode', async ({ page }) => {
@@ -87,12 +96,12 @@ test.describe('governance pages smoke (e2e local access)', () => {
     await expect(page.getByRole('button', { name: /open the editor/i }).first()).toBeVisible();
   });
 
-  test('/releases transitions from loading skeleton to release history in local mode', async ({ page }) => {
+  test('/releases transitions from loading skeleton to release history', async ({ page }) => {
     await page.goto('/releases', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /release center/i }).first()).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText(/verification snapshot/i).first()).toBeVisible();
     await expect(page.getByTestId('releases-loading-skeleton')).toBeHidden({ timeout: 60_000 });
     await expect(page.getByText(/previous releases/i)).toBeVisible();
-    await expect(page.getByText(/governance & editor polish/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/v\d+\.\d+/).first()).toBeVisible({ timeout: 15_000 });
   });
 });

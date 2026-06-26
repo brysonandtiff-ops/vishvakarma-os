@@ -48,6 +48,18 @@
       "confidence": "medium",
       "requiresCleanGit": true,
       "maxAttempts": 1
+    },
+    {
+      "id": "world-record-measure",
+      "codes": [
+        "WORLD_RECORD_DOCS_MISSING",
+        "WORLD_RECORD_PUBLIC_MISSING",
+        "WORLD_RECORD_ARTIFACT_STALE"
+      ],
+      "command": "pnpm run record:measure",
+      "confidence": "high",
+      "requiresCleanGit": true,
+      "maxAttempts": 1
     }
   ],
   "patterns": [
@@ -60,6 +72,7 @@
     { "code": "TEST_FAILURE", "match": "Tests failed", "needsAgent": true },
     { "code": "AST_GREP_VIOLATION", "match": "Error:", "scanHint": "lint:structure", "needsAgent": true },
     { "code": "CONTRACT_VIOLATION", "match": "forbidden", "needsAgent": true },
-    { "code": "BUILD_FAILURE", "match": "Build failed", "needsAgent": true }
+    { "code": "BUILD_FAILURE", "match": "Build failed", "needsAgent": true },
+    { "code": "WORLD_RECORD_GATE_FAIL", "match": "Gate 13: World record evidence", "needsAgent": true }
   ]
 }

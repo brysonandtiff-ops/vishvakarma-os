@@ -43,6 +43,7 @@ Run checks that match what you changed:
 | Billing / Stripe | `pnpm run verify:stripe-billing` (when env allows) |
 | Docs or handoff | `pnpm run handoff:verify` and `pnpm run docs:verify` |
 | Before declaring a feature done | `pnpm run repairbot:medium` or `pnpm run verify:ci` |
+| Pre-release / governance ship | `pnpm run repairbot:world` (needs Supabase env) |
 
 Regenerate handoff appendices after inventory-affecting changes: `pnpm run handoff:generate`
 
@@ -59,7 +60,8 @@ Unified runner: `node scripts/run-pipeline.mjs --tier=<name>` (alias: `pnpm run 
 | `post-deploy` | `pnpm run stability:post-deploy` | Production smoke after Vercel deploy |
 | `repairbot:fast` | `pnpm run repairbot:fast` | After routine edits |
 | `repairbot:medium` | `pnpm run repairbot:medium` | Before declaring a feature done |
-| `repairbot:full` | `pnpm run repairbot:full` | Push-level verification |
+| `repairbot:full` | `pnpm run repairbot:full` | Push-level verification (verify + env preflight) |
+| `repairbot:world` | `pnpm run repairbot:world` | Pre-release — CI + release gates + world-record evidence |
 
 Manifest: [`scripts/lib/pipeline-manifest.json`](./scripts/lib/pipeline-manifest.json). Appendix: [docs/handoff/appendices/E-verify-scripts.md](./docs/handoff/appendices/E-verify-scripts.md).
 

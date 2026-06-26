@@ -15,6 +15,7 @@ import {
   saveProject,
   selectDrawnWallForProperties,
   stopMotionForE2E,
+  tapReachable,
   dispatchCanvasTouchPointer,
 } from './helpers';
 
@@ -149,7 +150,7 @@ test.describe('iPad editor workflow', () => {
     const walls2d = await readEditorMetricCount(page, 'Walls');
     const openings2d = await readEditorMetricCount(page, 'Openings');
 
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
     await expect3DPreviewPane(page);
 
     const statusText = await page.locator('.ws-status-bar').textContent();

@@ -117,6 +117,57 @@ export function runEnvScan() {
     });
   }
 
+  const worldRecordDocsPath = join(root, 'docs', 'world-record', 'latest-measurement.json');
+  const worldRecordPublicPath = join(root, 'public', 'world-record', 'latest-measurement.json');
+
+  if (!existsSync(worldRecordDocsPath)) {
+    issues.push({
+      code: 'WORLD_RECORD_DOCS_MISSING',
+      severity: 'warning',
+      blocking: false,
+      message: 'docs/world-record/latest-measurement.json missing — run pnpm run record:measure',
+    });
+  }
+
+  if (!existsSync(worldRecordPublicPath)) {
+    issues.push({
+      code: 'WORLD_RECORD_PUBLIC_MISSING',
+      severity: 'warning',
+      blocking: false,
+      message: 'public/world-record/latest-measurement.json missing — run pnpm run record:measure',
+    });
+  }
+
+  const headResult = runCommandSync('git', ['rev-parse', 'HEAD'], { cwd: root });
+  const currentCommit = headResult.ok ? headResult.stdout.trim() : null;
+
+  if (currentCommit) {
+    for (const artifactPath of [worldRecordDocsPath, worldRecordPublicPath]) {
+      if (!existsSync(artifactPath)) continue;
+      try {
+        const measurement = JSON.parse(readFileSync(artifactPath, 'utf8'));
+        const artifactCommit = typeof measurement.commit === 'string' ? measurement.commit.trim() : '';
+        if (artifactCommit && artifactCommit !== 'unknown' && artifactCommit !== currentCommit) {
+          issues.push({
+            code: 'WORLD_RECORD_ARTIFACT_STALE',
+            severity: 'warning',
+            blocking: false,
+            message: `World record artifact stale (${artifactPath} commit ${artifactCommit.slice(0, 7)} ≠ HEAD ${currentCommit.slice(0, 7)})`,
+          });
+          break;
+        }
+      } catch {
+        issues.push({
+          code: 'WORLD_RECORD_ARTIFACT_STALE',
+          severity: 'warning',
+          blocking: false,
+          message: `World record artifact invalid JSON: ${artifactPath}`,
+        });
+        break;
+      }
+    }
+  }
+
   const blockingIssues = issues.filter((issue) => issue.blocking);
   const hasErrors = issues.some((issue) => issue.severity === 'error');
   return { ok: !hasErrors && blockingIssues.length === 0, issues };

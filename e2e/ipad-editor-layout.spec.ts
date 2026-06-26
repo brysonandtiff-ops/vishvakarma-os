@@ -46,6 +46,49 @@ async function waitForUsableCanvas(page: Page) {
   }, undefined, { timeout: 5_000 });
 }
 
+type CanvasPointerEventSpec = {
+  type: 'pointerdown' | 'pointermove' | 'pointerup';
+  x: number;
+  y: number;
+  pointerType?: string;
+  button?: number;
+  buttons?: number;
+};
+
+async function dispatchCanvasPointerEvents(page: Page, events: CanvasPointerEventSpec[]) {
+  await page.evaluate((payload) => {
+    const el = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    for (const ev of payload) {
+      const buttons =
+        ev.buttons ?? (ev.type === 'pointerup' ? 0 : ev.button === 5 ? 32 : 1);
+      el.dispatchEvent(
+        new PointerEvent(ev.type, {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 42,
+          pointerType: ev.pointerType ?? 'pen',
+          button: ev.button ?? 0,
+          buttons,
+          clientX: rect.left + ev.x,
+          clientY: rect.top + ev.y,
+          pressure: ev.type === 'pointerup' ? 0 : 0.5,
+          isPrimary: true,
+        }),
+      );
+    }
+  }, events);
+}
+
+async function getCanvasBox(page: Page) {
+  const canvas = page.getByTestId('blueprint-canvas');
+  await waitForUsableCanvas(page);
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  return box!;
+}
+
 test.describe('iPad editor layout', () => {
   test.beforeEach(async ({ page }) => {
     await resetWorkspacePrefs(page);
@@ -359,6 +402,61 @@ test.describe('iPad editor layout', () => {
     await page.waitForTimeout(400);
 
     await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('Apple Pencil pointer draws wall on sample project', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await loadSampleProject(page);
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+
+    const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
+    await tapReachable(wallTool);
+    await expect(wallTool).toHaveAttribute('aria-pressed', 'true');
+
+    const box = await getCanvasBox(page);
+    const y = box.height * 0.55;
+    const x1 = box.width * 0.15;
+    const x2 = box.width * 0.32;
+
+    await dispatchCanvasPointerEvents(page, [
+      { type: 'pointerdown', x: x1, y, pointerType: 'pen' },
+      { type: 'pointermove', x: x2, y, pointerType: 'pen' },
+      { type: 'pointerup', x: x2, y, pointerType: 'pen' },
+    ]);
+    await page.waitForTimeout(400);
+
+    await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('stylus eraser end deletes wall on canvas', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await loadSampleProject(page);
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
+
+    const wallTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Wall' });
+    await tapReachable(wallTool);
+
+    const box = await getCanvasBox(page);
+    const y = box.height * 0.45;
+    const x1 = box.width * 0.18;
+    const x2 = box.width * 0.34;
+    const midX = (x1 + x2) / 2;
+
+    await dispatchCanvasPointerEvents(page, [
+      { type: 'pointerdown', x: x1, y, pointerType: 'pen' },
+      { type: 'pointermove', x: x2, y, pointerType: 'pen' },
+      { type: 'pointerup', x: x2, y, pointerType: 'pen' },
+    ]);
+    await page.waitForTimeout(400);
+    await expect(page.getByText(/Walls:\s*5/i)).toBeVisible({ timeout: 15_000 });
+
+    await dispatchCanvasPointerEvents(page, [
+      { type: 'pointerdown', x: midX, y, pointerType: 'pen', button: 5, buttons: 32 },
+      { type: 'pointerup', x: midX, y, pointerType: 'pen', button: 5, buttons: 0 },
+    ]);
+    await page.waitForTimeout(400);
+
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
   });
 
   test('3D context-loss overlay shows reload control', async ({ page }) => {

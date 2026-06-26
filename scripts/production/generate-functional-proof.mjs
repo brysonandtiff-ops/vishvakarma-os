@@ -174,7 +174,7 @@ async function main() {
     {
       workflow: 'Release Center and Audit Log show meaningful empty/loading states',
       coverage: 'e2e/governance-smoke.spec.ts (empty states), e2e/cross-browser-smoke.spec.ts',
-      evidence: 'Audit: "No audit events yet"; Releases: "Previous Releases" + governance polish',
+      evidence: 'Audit: "No audit events yet"; Releases: skeleton clears + versioned release history',
       result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'FAIL',
     },
     {

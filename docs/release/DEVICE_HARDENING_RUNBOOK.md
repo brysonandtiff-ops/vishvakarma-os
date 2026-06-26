@@ -32,6 +32,7 @@ Use this checklist on a **physical iPad** after automated Playwright gates pass 
 4. Pinch zoom on blueprint canvas.
 5. Toggle 3D panel — no horizontal overflow in portrait.
 6. Optional: draw walls with Apple Pencil; verify palm rejection.
+7. Flip Apple Pencil (eraser end) on a wall and opening — confirm geometry is removed.
 
 ## Autosave / sync badge
 
@@ -51,6 +52,7 @@ Use this checklist on a **physical iPad** after automated Playwright gates pass 
 |------|------|----------|---------------|
 | Home Screen install | | | `ipad_homescreen.png` |
 | Pencil draw pass | | | |
+| Pencil eraser delete | | | |
 | Frame timing | | | |
 | Autosave badge | | | |
 

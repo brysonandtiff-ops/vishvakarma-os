@@ -10,7 +10,8 @@ When you change application code in `vishvakarma-os-live`:
 1. After substantive edits, run `pnpm run repairbot:fast` (or `repairbot:medium` before declaring a feature done).
 2. If RepairBot reports escalations, fix them before finishing — do not auto-commit broken type or test failures.
 3. Check status with `pnpm run repairbot:status` when unsure whether the repo is healthy.
-4. Use `pnpm run repairbot:full` before push-level verification; it mirrors the `verify` pipeline tier.
-5. Safe auto-repairs only: workspace root, dist rebuild, PWA icons, sample assets. Never auto-fix ast-grep or contract gate violations.
+4. Use `pnpm run repairbot:full` before push-level verification; it mirrors the `verify` pipeline tier with env preflight.
+5. Use `pnpm run repairbot:world` before release or major governance changes; it mirrors `ci` + `release:gates` + world-record evidence (requires Supabase env like `pnpm run ci`).
+6. Safe auto-repairs only: workspace root, dist rebuild, PWA icons, sample assets, stale world-record measurement JSON (`record:measure`). Never auto-fix ast-grep, contract gate violations, or failed release gates.
 
 RepairBot state lives in `.repairbot/` (gitignored). Manifest: `scripts/repairbot/repairs.json`.
