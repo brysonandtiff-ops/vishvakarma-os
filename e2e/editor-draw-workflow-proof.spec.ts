@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const BLOCKED_COPY = /Backend not configured|Service configuration required|Application error|Something went wrong/i;
 
