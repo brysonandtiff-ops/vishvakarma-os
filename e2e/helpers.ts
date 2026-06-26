@@ -1,4 +1,10 @@
 ﻿import { expect, type Locator, type Page } from '@playwright/test';
+import {
+  assertNoHorizontalOverflow,
+  assertTouchTargets,
+  emulateCoarsePointer,
+  emulateFinePointer,
+} from './deviceTouchTargets';
 
 /** 3D pane may render WebGL or a graceful fallback in headless WebKit/Firefox. */
 export async function expect3DPreviewPane(page: Page) {
