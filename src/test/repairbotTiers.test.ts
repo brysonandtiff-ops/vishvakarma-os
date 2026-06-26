@@ -54,8 +54,8 @@ describe('RepairBot pipeline tiers', () => {
   });
 
   it('resolves repairbot:world with CI delta, record:measure, and release:gates', () => {
-    const fullSteps = resolveTierSteps(pipeline.tiers, 'repairbot:full', { mergeExtends: true });
-    const worldSteps = resolveTierSteps(pipeline.tiers, 'repairbot:world', { mergeExtends: true });
+    const fullSteps = resolveTierSteps(pipeline.tiers, 'repairbot:full');
+    const worldSteps = resolveTierSteps(pipeline.tiers, 'repairbot:world');
 
     expect(worldSteps.length).toBeGreaterThan(fullSteps.length);
     expect(worldSteps).toContain('pnpm run test:routes');
