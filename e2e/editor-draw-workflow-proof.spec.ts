@@ -141,8 +141,7 @@ test.describe('editor draw workflow proof', () => {
       .poll(async () => readMetricCount(page, 'Openings'), { timeout: 15_000 })
       .toBeGreaterThan(initialOpenings);
 
-    const selectTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Select' });
-    await selectTool.click();
+    await activateTool(page, 'Select');
     await dispatchCanvasPointer(canvas, 'pointerdown', doorPoint);
     await dispatchCanvasPointer(canvas, 'pointerup', doorPoint);
 
