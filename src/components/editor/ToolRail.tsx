@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import type { ToolType, WorkspaceMode } from '@/types';
 import { BASE_TOOL_IDS, TOOL_META } from '@/editor/toolMeta';
+import { useReliablePress } from '@/hooks/useReliablePress';
 import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 
 interface ToolRailProps {

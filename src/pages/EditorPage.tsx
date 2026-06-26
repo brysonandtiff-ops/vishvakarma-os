@@ -1212,8 +1212,10 @@ function EditorWorkspace() {
                     playStudioSound('wallPlace');
                   }}
                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
+                  onWallDelete={(wallId) => engine.removeWall(wallId)}
                   onOpeningAdd={(opening) => engine.addOpening(opening)}
                   onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
+                  onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
                   onLabelAdd={(label) => engine.addLabel(label)}
                   onLabelUpdate={(labelId, updates) => engine.updateLabel(labelId, updates)}
                   onDimensionAdd={(dimension) => engine.addDimension({ ...dimension, offset: dimension.offset ?? 24 })}

@@ -23,6 +23,8 @@ describe('Editor workflow wiring', () => {
     const engine = read('src/core/floorPlanEngine.ts');
 
     expect(editor).toContain('onWallsSelect={(ids) => engine.setWallSelection(ids)}');
+    expect(editor).toContain('onWallDelete={(wallId) => engine.removeWall(wallId)}');
+    expect(editor).toContain('onOpeningDelete={(openingId) => engine.removeOpening(openingId)}');
     expect(editor).toContain("setTool('column')");
     expect(editor).toContain("setTool('stair')");
     expect(editor).toContain('engine.addStaircase');
