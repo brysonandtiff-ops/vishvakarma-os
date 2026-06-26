@@ -75,7 +75,22 @@ async function drawWallSegment(canvas: Locator, from: { x: number; y: number }, 
   await dispatchCanvasPointer(canvas, 'pointerup', to);
 }
 
-async function dismissBlockingChrome(page: Page) {
+async function selectDrawnWallForProperties(page: Page) {
+  await page.evaluate(() => {
+    const engine = (window as Window & {
+      __vishFloorPlanEngine?: {
+        getSnapshot: () => { manifest: { walls: Array<{ id: string }> } };
+        setWallSelection: (ids: string[]) => void;
+      };
+    }).__vishFloorPlanEngine;
+    const wallId = engine?.getSnapshot().manifest.walls.at(-1)?.id;
+    if (!engine || !wallId) {
+      throw new Error('E2E wall selection hook unavailable');
+    }
+    engine.setWallSelection([wallId]);
+  });
+}
+
   const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
   if (await recoveryDiscard.isVisible().catch(() => false)) {
     await recoveryDiscard.click({ force: true });

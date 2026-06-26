@@ -388,6 +388,14 @@ function EditorWorkspace() {
   }, [loadProjects]);
 
   useEffect(() => {
+    if (import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS !== 'true') return;
+    (window as Window & { __vishFloorPlanEngine?: typeof engine }).__vishFloorPlanEngine = engine;
+    return () => {
+      delete (window as Window & { __vishFloorPlanEngine?: typeof engine }).__vishFloorPlanEngine;
+    };
+  }, [engine]);
+
+  useEffect(() => {
     const draft = readLocalDraft();
     if (draft && hasMeaningfulDraftContent(draft)) {
       setRecoveryDraft(draft);
