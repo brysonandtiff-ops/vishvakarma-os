@@ -87,7 +87,11 @@ async function dismissBlockingChrome(page: Page) {
   }
 }
 
-async function activateTool(page: Page, label: string) {
+async function drawWallSegment(canvas: Locator, from: { x: number; y: number }, to: { x: number; y: number }) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', from);
+  await dispatchCanvasPointer(canvas, 'pointerup', to);
+}
+
   const button = page.getByRole('button', { name: label }).first();
   await expect(button, `${label} tool should exist`).toBeAttached();
   await button.evaluate((element) => {
