@@ -31,10 +31,4 @@ describe('inputHandlers', () => {
     expect(isEraserPointerPressed({ buttons: 0 })).toBe(false);
     expect(isEraserPointerPressed({ buttons: 1 })).toBe(false);
   });
-
-  it('detects eraser only while pressed during pointermove', () => {
-    expect(isEraserPointerPressed({ buttons: 32 })).toBe(true);
-    expect(isEraserPointerPressed({ buttons: 1 })).toBe(false);
-    expect(isEraserPointerPressed({ buttons: 0 })).toBe(false);
-  });
 });
