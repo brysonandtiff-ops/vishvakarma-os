@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const BLOCKED = /Backend not configured|Service configuration required/i;
+function getSupabaseClient(): SupabaseClient | null {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
 test.describe('Supabase cloud project lifecycle proof', () => {
   test.beforeEach(() => {
@@ -17,10 +17,13 @@ test.describe('Supabase cloud project lifecycle proof', () => {
   });
 
   test('create → read → update → delete project row', async () => {
+    const supabase = getSupabaseClient();
+    expect(supabase, 'Supabase client should be configured').not.toBeNull();
+
     const id = `e2e_${Date.now()}`;
 
     // CREATE
-    const created = await supabase
+    const created = await supabase!
       .from('projects')
       .insert({ id, name: 'E2E Cloud Project', status: 'test' })
       .select('*');
