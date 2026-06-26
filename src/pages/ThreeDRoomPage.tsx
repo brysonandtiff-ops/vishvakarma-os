@@ -108,7 +108,7 @@ export default function ThreeDRoomPage() {
                 type="button"
                 variant={activeSampleId === sampleId ? 'gold' : 'outline'}
                 size="sm"
-                className="min-h-[36px]"
+                className="min-h-[44px] min-w-[44px]"
                 onClick={() => void loadSampleRoom(sampleId)}
               >
                 {definition?.name ?? sampleId}

@@ -77,7 +77,7 @@ test.describe('Device governance layout', () => {
       timeout: 60_000,
     });
     await assertNoHorizontalOverflow(page);
-    await assertTouchTargets(page, ['header button', 'section button']);
+    await assertTouchTargets(page, ['header button', 'section.border-b button']);
   });
 
   test('/3d-room fits iPad portrait without overflow', async ({ page }) => {

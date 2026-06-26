@@ -91,7 +91,7 @@ import { drawWallsLayer } from '@/components/editor/blueprint/drawWalls';
 import {
   getInputModeFromPointerType,
   getHitAreaForMode,
-  isEraserPointerButton,
+  isEraserPointerActive,
   type CanvasInputMode,
 } from '@/components/editor/blueprint/inputHandlers';
 import {
@@ -126,8 +126,10 @@ interface BlueprintCanvasProps {
   gridSize: number;
   onWallAdd: (wall: Wall) => void;
   onWallUpdate?: (wallId: string, updates: Partial<Wall>) => void;
+  onWallDelete?: (wallId: string) => void;
   onOpeningAdd: (opening: Opening) => void;
   onOpeningUpdate?: (openingId: string, updates: Partial<Opening>) => void;
+  onOpeningDelete?: (openingId: string) => void;
   onLabelAdd?: (label: Label) => void;
   onLabelUpdate?: (labelId: string, updates: Partial<Label>) => void;
   onDimensionAdd?: (dimension: DimensionAnnotation) => void;
@@ -282,8 +284,10 @@ export default function BlueprintCanvas({
   gridSize,
   onWallAdd,
   onWallUpdate,
+  onWallDelete,
   onOpeningAdd,
   onOpeningUpdate,
+  onOpeningDelete,
   onLabelAdd,
   onLabelUpdate,
   onDimensionAdd,
@@ -417,6 +421,8 @@ export default function BlueprintCanvas({
     clientX: number;
     clientY: number;
   } | null>(null);
+  const eraserStrokeRef = useRef<Set<string>>(new Set());
+  const isErasingRef = useRef(false);
   const [isPinching, setIsPinching] = useState(false);
 
   const cancelTransientInteractions = useCallback(() => {
@@ -436,6 +442,8 @@ export default function BlueprintCanvas({
     setDragWallEndpointPosition(null);
     setMarqueeRect(null);
     setPreviewOpening(null);
+    isErasingRef.current = false;
+    eraserStrokeRef.current.clear();
   }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, floorPlanEngine]);
 
   const spatialIndexRef = useRef(new SpatialIndex());
@@ -796,39 +804,56 @@ export default function BlueprintCanvas({
     [currentTool, getOpeningAtPoint, getWallAtPoint, onPointerCanvasMove],
   );
 
-  const handleEraserPointerDown = (event: CanvasPointerEvent, mode: InputMode) => {
-    const point = getCanvasPoint(event);
-    const opening = getOpeningAtPoint(point, mode);
-    if (opening) {
-      if (selectedOpeningId === opening.id) {
-        onOpeningSelect?.(undefined);
-      } else {
-        onOpeningSelect?.(opening.id);
-        onWallSelect(undefined);
-        onWallsSelect?.([]);
-        onLabelSelect?.(undefined);
-      }
-      return;
-    }
-
-    const wall = getWallAtPoint(point, getHitArea(mode, 5));
-    if (wall) {
-      const isSelected =
-        selectedWallId === wall.id || (selectedWallIds?.includes(wall.id) ?? false);
-      if (isSelected) {
-        onWallSelect(undefined);
-        onWallsSelect?.([]);
-      } else {
-        if (onWallsSelect) {
-          onWallsSelect([wall.id]);
-        } else {
-          onWallSelect(wall.id);
+  const eraseAtPoint = useCallback(
+    (point: Point2D, mode: InputMode, strokeIds: Set<string>) => {
+      const opening = getOpeningAtPoint(point, mode);
+      if (opening) {
+        const strokeKey = `opening:${opening.id}`;
+        if (strokeIds.has(strokeKey)) return;
+        if (isElementLocked(opening.id, 'opening')) {
+          const lock = getElementLock(opening.id, 'opening');
+          toast.warning(`This opening is locked by ${lock?.userName ?? 'another user'}`);
+          return;
         }
+        if (!onOpeningDelete) return;
+        strokeIds.add(strokeKey);
+        onOpeningDelete(opening.id);
+        onOpeningSelect?.(undefined);
+        onWallSelect(undefined);
+        onWallsSelect?.([]);
+        onLabelSelect?.(undefined);
+        return;
+      }
+
+      const wall = getWallAtPoint(point, getHitArea(mode, 5));
+      if (wall) {
+        const strokeKey = `wall:${wall.id}`;
+        if (strokeIds.has(strokeKey)) return;
+        if (isElementLocked(wall.id, 'wall')) {
+          const lock = getElementLock(wall.id, 'wall');
+          toast.warning(`This wall is locked by ${lock?.userName ?? 'another user'}`);
+          return;
+        }
+        if (!onWallDelete) return;
+        strokeIds.add(strokeKey);
+        onWallDelete(wall.id);
+        onWallSelect(undefined);
+        onWallsSelect?.([]);
         onOpeningSelect?.(undefined);
         onLabelSelect?.(undefined);
       }
-    }
-  };
+    },
+    [
+      getOpeningAtPoint,
+      getWallAtPoint,
+      onLabelSelect,
+      onOpeningDelete,
+      onOpeningSelect,
+      onWallDelete,
+      onWallSelect,
+      onWallsSelect,
+    ],
+  );
 
   const handlePointerDown = (event: CanvasPointerEvent) => {
     if (pointerTrackerRef.current.shouldRejectIncoming(event.pointerType)) {
@@ -857,11 +882,14 @@ export default function BlueprintCanvas({
       return;
     }
 
-    if (isEraserPointerButton(event.button)) {
+    if (isEraserPointerActive(event)) {
       event.preventDefault();
       const mode = getInputMode(event);
       setInputMode(mode);
-      handleEraserPointerDown(event, mode);
+      eraserStrokeRef.current = new Set();
+      isErasingRef.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
       return;
     }
 
@@ -1190,6 +1218,11 @@ export default function BlueprintCanvas({
 
     const mode = getInputMode(event);
     setInputMode(mode);
+
+    if (isErasingRef.current && isEraserPointerActive(event)) {
+      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
+      return;
+    }
 
     if (event.pointerType === 'pen' && event.buttons === 0) {
       const hoverPoint = applyPointSnaps(getRawCanvasPoint(event));

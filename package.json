@@ -29,6 +29,7 @@
     "test:e2e:app": "pnpm exec playwright test --project=app-smoke",
     "test:e2e:deep-proof": "pnpm exec playwright test --config=playwright.deep-proof.config.ts",
     "test:e2e:soak": "pnpm exec playwright test --config=playwright.soak.config.ts",
+    "test:e2e:governance": "pnpm exec playwright test --config=playwright.governance.config.ts",
     "test:e2e:cloud-lifecycle": "pnpm exec playwright test --config=playwright.cloud-lifecycle.config.ts",
     "test:e2e:cross-browser": "node scripts/run-cross-browser-gates.mjs",
     "test:e2e:a11y": "node scripts/run-local-preview-playwright.mjs --project=accessibility-audit",
