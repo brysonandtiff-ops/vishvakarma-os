@@ -1444,6 +1444,13 @@ export default function BlueprintCanvas({
 
   const handlePointerCancel = (event: CanvasPointerEvent) => {
     event.preventDefault();
+    if (isErasingRef.current) {
+      isErasingRef.current = false;
+      eraserStrokeRef.current.clear();
+      // #region agent log
+      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-cancel-reset',message:'eraser reset on pointercancel',data:{beforePinchCheck:true},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
+      // #endregion
+    }
     clearActivePointer(event.pointerId);
     if (isPinching) {
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -1453,13 +1460,6 @@ export default function BlueprintCanvas({
     }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    if (isErasingRef.current) {
-      isErasingRef.current = false;
-      eraserStrokeRef.current.clear();
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-cancel-reset',message:'eraser reset on pointercancel',data:{isPinching},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
     }
     if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
       floorPlanEngine.abortEditTransaction();

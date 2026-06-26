@@ -31,6 +31,7 @@ describe('Editor workflow wiring', () => {
     expect(editor).toContain('engine.clearSelection()');
     expect(canvas).toContain('eraseAtPoint');
     expect(canvas).toContain('isEraserPointerActive');
+    expect(canvas).toContain('isEraserPointerPressed');
     expect(canvas).toContain("currentTool === 'column'");
     expect(canvas).toContain("currentTool === 'stair'");
     expect(engine).toContain('setWallSelection');
