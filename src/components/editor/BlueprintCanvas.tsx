@@ -1221,9 +1221,6 @@ export default function BlueprintCanvas({
     setInputMode(mode);
 
     if (isErasingRef.current && isEraserPointerPressed(event)) {
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:eraser-move',message:'eraseAtPoint on pointermove',data:{button:event.button,buttons:event.buttons,isErasing:isErasingRef.current,eraserPressed:isEraserPointerPressed(event)},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-      // #endregion
       eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
       return;
     }
