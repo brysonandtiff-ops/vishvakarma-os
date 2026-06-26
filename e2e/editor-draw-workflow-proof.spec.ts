@@ -45,6 +45,36 @@ async function readMetricCount(page: Page, label: 'Walls' | 'Openings') {
   return Number(match?.[1] ?? 0);
 }
 
+async function dispatchCanvasPointer(
+  canvas: Locator,
+  type: 'pointerdown' | 'pointerup',
+  position: { x: number; y: number },
+) {
+  await canvas.evaluate(
+    (element, { eventType, pos }) => {
+      const rect = element.getBoundingClientRect();
+      const init: PointerEventInit = {
+        bubbles: true,
+        cancelable: true,
+        clientX: rect.left + pos.x,
+        clientY: rect.top + pos.y,
+        button: 0,
+        buttons: eventType === 'pointerup' ? 0 : 1,
+        pointerId: 1,
+        pointerType: 'mouse',
+        isPrimary: true,
+      };
+      element.dispatchEvent(new PointerEvent(eventType, init));
+    },
+    { eventType: type, pos: position },
+  );
+}
+
+async function drawWallSegment(canvas: Locator, from: { x: number; y: number }, to: { x: number; y: number }) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', from);
+  await dispatchCanvasPointer(canvas, 'pointerup', to);
+}
+
 async function dismissBlockingChrome(page: Page) {
   const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
   if (await recoveryDiscard.isVisible().catch(() => false)) {
