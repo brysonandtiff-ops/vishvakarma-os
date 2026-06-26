@@ -154,9 +154,10 @@ async function main() {
     },
     {
       workflow: 'Blueprint Editor: select tool, draw wall, add opening, inspect properties',
-      coverage: 'e2e/editor-features.spec.ts, e2e/ipad-editor-layout.spec.ts',
-      evidence: 'Sample project walls/openings, tool rail, 3D toggle, export dialog',
-      result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'FAIL',
+      coverage:
+        'e2e/editor-draw-workflow-proof.spec.ts, e2e/editor-tool-clickthrough-proof.spec.ts, e2e/ipad-editor-layout.spec.ts',
+      evidence: 'Deep proof: wall/opening counts increment + properties panel via E2E engine hook',
+      result: skipE2e ? 'PARTIAL' : deepProof.ok ? 'PASS' : 'FAIL',
     },
     {
       workflow: 'Save/load/export/import preserves project data',
