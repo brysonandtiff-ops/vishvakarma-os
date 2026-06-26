@@ -1,4 +1,5 @@
 /// <reference path="../../three.d.ts" />
+import * as THREE from 'three';
 import type { ReactNode } from 'react';
 import type { FurnitureItem, LandscapeElement, Material, Staircase } from '@/types';
 import {
@@ -896,17 +897,62 @@ export function StairMeshes({
         return (
           // @ts-expect-error - React Three Fiber JSX types
           <group key={staircase.id} position={[x, 0, z]} rotation={[0, rotation, 0]}>
-            {Array.from({ length: 6 }).map((_, step) => (
+            {Array.from({ length: 17 }).map((_, step) => (
               // @ts-expect-error - React Three Fiber JSX types
-              <mesh key={step} position={[0, step * 0.05 + 0.025, step * 0.1]} castShadow>
+              <mesh key={step} position={[0, step * 0.176 + 0.088, step * 0.25]} castShadow>
                 {/* @ts-expect-error - React Three Fiber JSX types */}
-                <boxGeometry args={[0.9, 0.05, 0.14]} />
+                <boxGeometry args={[0.9, 0.176, 0.28]} />
                 <WoodMaterial color={WOOD_LIGHT} />
                 {/* @ts-expect-error - React Three Fiber JSX types */}
               </mesh>
             ))}
             {/* @ts-expect-error - React Three Fiber JSX types */}
           </group>
+        );
+      })}
+    </>
+  );
+}
+
+export function RoofMeshes({
+  roofs,
+  origin,
+}: {
+  roofs: import('@/types').Roof[];
+  origin?: SceneOrigin;
+}) {
+  return (
+    <>
+      {roofs.map((roof) => {
+        if (!roof.footprint || roof.footprint.length < 3) return null;
+        
+        // Convert canvas footprint to world coordinates
+        const shape = new THREE.Shape();
+        roof.footprint.forEach((pt, i) => {
+          const worldPt = canvasToWorld(pt, origin);
+          if (i === 0) shape.moveTo(worldPt.x, -worldPt.z); // Three.js Shape is 2D (x, y). We map z to -y in shape.
+          else shape.lineTo(worldPt.x, -worldPt.z);
+        });
+        shape.closePath();
+
+        const extrudeSettings = {
+          depth: 0.2, // Roof thickness
+          bevelEnabled: true,
+          bevelSegments: 2,
+          steps: 1,
+          bevelSize: 0.1,
+          bevelThickness: 0.1,
+        };
+
+        // We place the roof at 3m high (the assumed ceiling height of the floor below it)
+        return (
+          // @ts-expect-error - React Three Fiber JSX types
+          <mesh key={roof.id} position={[0, 3, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
+            {/* @ts-expect-error - React Three Fiber JSX types */}
+            <extrudeGeometry args={[shape, extrudeSettings]} />
+            <WoodMaterial color="#2d3748" roughness={0.9} />
+            {/* @ts-expect-error - React Three Fiber JSX types */}
+          </mesh>
         );
       })}
     </>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import defaultManifest from '../../public/auth-capabilities.json';
+import defaultManifest from '../auth-capabilities.json';
 import {
   fetchAuthCapabilitiesManifest,
   getBuildTimeAuthWinner,

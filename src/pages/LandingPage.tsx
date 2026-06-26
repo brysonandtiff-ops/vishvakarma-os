@@ -42,8 +42,8 @@ export default function LandingPage() {
         title="Vishvakarma.OS — iPad-First Architecture Studio"
         description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
       />
-      <section className="vish-marketing-hero vish-stagger-children vish-page-enter">
-        <div className="vish-hero-split">
+      <section className="vish-marketing-hero vish-stagger-children vish-page-enter py-16 md:py-24">
+        <div className="vish-hero-split lg:gap-16">
           <div className="vish-hero-copy">
             <MarketingPageHeader
               devanagari="ॐ श्री विश्वकर्मणे नमः"
@@ -52,24 +52,24 @@ export default function LandingPage() {
                 <>
                   iPad-first architecture studio.
                   <br />
-                  <span className="vish-hero-gold">Sacred 3D View.</span>
+                  <span className="vish-hero-gold drop-shadow-sm">Sacred 3D View.</span>
                   <br />
                   Export-ready deliverables.
                 </>
               }
               description="Draw floor plans, inspect live Sacred 3D View, and export client-ready packages — governed architecture in your browser."
             />
-            <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
+            <div className="vish-hero-cta mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+              <Button variant="gold" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
                 <Link to={cta.to}>{cta.primary}</Link>
               </Button>
               {cta.secondary && (
-                <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
+                <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
                   <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
                 </Button>
               )}
             </div>
-            <div className="vish-hero-stats mt-14 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:mt-16">
+            <div className="vish-hero-stats mt-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:mt-20">
               {STATS.map((stat, index) => (
                 <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
               ))}

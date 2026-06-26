@@ -45,8 +45,11 @@ function ToolButton({
   return (
     <button
       type="button"
-      className={`architect-tool-button vish-pressable ${isActive ? 'active' : ''}`}
-      onClick={onClick}
+      className={`architect-tool-button vish-pressable min-h-[44px] min-w-[44px] prana-glow ${isActive ? 'active' : ''}`}
+      onClick={() => {
+        if (navigator.vibrate) navigator.vibrate(50);
+        onClick?.();
+      }}
       aria-label={meta.label}
       aria-pressed={isActive}
       title={titleText}
@@ -76,7 +79,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
 
   return (
     <div
-      className="vish-tool-rail vish-tool-dock architect-tool-dock vish-stagger-children flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
+      className="vish-tool-rail vish-tool-dock architect-tool-dock vish-stagger-children glass-panel-obsidian laser-etched-border flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
       data-testid="tool-rail"
       data-tutorial="tool-rail"
     >

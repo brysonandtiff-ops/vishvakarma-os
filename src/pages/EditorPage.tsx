@@ -92,6 +92,9 @@ import { getFailFindings } from '@/services/compliance/complianceGate';
 import { filterWallsByFloor } from '@/utils/floorHelpers';
 import { findAllRoomFaces, polygonCentroid } from '@/utils/roomCalculations';
 import { playStudioSound } from '@/modules/studio-audio/audioEngine';
+import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosphericMask';
+import { frustrationDetector } from '@/modules/telemetry/frustrationDetector';
+import ShunyaOverlay from '@/components/editor/ShunyaOverlay';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -194,6 +197,42 @@ function EditorWorkspace() {
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
+  const [monsoonActive, setMonsoonActive] = useState(false);
+  const [pranaActive, setPranaActive] = useState(false);
+  const [frustrated, setFrustrated] = useState(false);
+
+  useEffect(() => {
+    frustrationDetector.start(() => {
+      setFrustrated(true);
+    });
+    return () => {
+      frustrationDetector.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pranaActive) {
+      document.documentElement.setAttribute('data-prana-active', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-prana-active');
+    }
+  }, [pranaActive]);
+
+  const handleToggleMonsoon = useCallback(() => {
+    setMonsoonActive((active) => {
+      if (active) {
+        stopMonsoonJali();
+      } else {
+        playMonsoonJali();
+      }
+      return !active;
+    });
+  }, []);
+
+  const handleTogglePrana = useCallback(() => {
+    setPranaActive((active) => !active);
+  }, []);
+
   const cloudSave = useCloudSaveStatus();
   const { user } = useAuth();
 
@@ -327,6 +366,8 @@ function EditorWorkspace() {
         fontSize: 14,
         color: '#6b4f2a',
       });
+      playStudioSound('resonance432');
+      try { navigator.vibrate?.(40); } catch {}
       toast.success(`Detected ${room.name}${room.area ? ` (${room.area.toFixed(1)} m²)` : ''}`);
     },
     [engine, pendingRoomType],
@@ -1085,6 +1126,10 @@ function EditorWorkspace() {
           canUndo={canUndo}
           canRedo={canRedo}
           fileStrip={fileStrip}
+          monsoonActive={monsoonActive}
+          onToggleMonsoon={handleToggleMonsoon}
+          pranaActive={pranaActive}
+          onTogglePrana={handleTogglePrana}
         />
         <ComplianceBanner report={complianceReport} />
 
@@ -1267,9 +1312,10 @@ function EditorWorkspace() {
 
             {show3DView && (
               <section
-                className={`vish-3d-viewport-pane vish-realism-viewport-frame flex shrink-0 flex-col border-l border-ws-border ${
-                  presentationLock ? 'w-96 md:w-[28rem] lg:w-[32rem]' : 'w-80 md:w-96'
-                }`}
+                className={`vish-3d-viewport-pane vish-realism-viewport-frame flex shrink-0 flex-col border-l border-ws-border transition-all duration-300 ease-in-out ${
+                  presentationLock ? 'w-full md:w-[32rem] lg:w-[40rem]' : 'w-80 md:w-96'
+                } ${expand3DPanel ? 'flex-1 !w-auto' : ''}`}
+                style={{ contentVisibility: 'auto', containIntrinsicSize: '400px 100%' } as React.CSSProperties}
                 data-tutorial="viewport-3d"
               >
                 <div className="ws-pane-header">
@@ -1405,6 +1451,7 @@ function EditorWorkspace() {
         onCreate={(material) => engine.addMaterial(material)}
         userId={user?.id}
       />
+      {frustrated && <ShunyaOverlay onClose={() => setFrustrated(false)} />}
     </>
   );
 }

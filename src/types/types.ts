@@ -17,6 +17,7 @@ export interface Wall {
   height: number;
   material: string;
   floorIndex?: number;
+  fachwerk?: boolean;
 }
 
 export interface Opening {

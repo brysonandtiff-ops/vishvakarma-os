@@ -139,134 +139,44 @@
 .vish-login-page__deity-visual {
   position: absolute;
   z-index: 1;
-  left: 26%;
-  top: 18%;
-  width: 430px;
-  height: 600px;
-  opacity: 0.98;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vish-login-page__deity-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  object-position: center 30%;
+  mask-image:
+    linear-gradient(to right, black 60%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to right, black 60%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  opacity: 0.92;
 }
 
 .vish-login-page__deity-glow {
   position: absolute;
-  left: 50%;
-  top: 42%;
-  width: 360px;
-  height: 360px;
+  left: 40%;
+  top: 40%;
+  width: 500px;
+  height: 500px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(247, 201, 95, 0.5), transparent 58%),
-    radial-gradient(circle, rgba(72, 182, 255, 0.32), transparent 70%);
-  filter: blur(14px);
-}
-
-.vish-login-page__deity-face {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  width: 250px;
-  height: 360px;
-  transform: translate(-50%, -50%);
-  border-radius: 48% 52% 42% 50%;
-  background:
-    radial-gradient(circle at 60% 32%, rgba(255, 255, 255, 0.22), transparent 12%),
-    linear-gradient(145deg, #0b3f78 0%, #0b61af 32%, #081a38 100%);
-  box-shadow:
-    inset 35px 0 55px rgba(255, 255, 255, 0.08),
-    inset -40px -20px 80px rgba(0, 0, 0, 0.55),
-    0 0 65px rgba(71, 182, 255, 0.34);
-  clip-path: polygon(34% 0%, 72% 8%, 86% 36%, 78% 67%, 58% 100%, 31% 84%, 18% 50%, 19% 17%);
-}
-
-.vish-login-page__deity-face::before {
-  content: '';
-  position: absolute;
-  width: 130px;
-  height: 210px;
-  right: 3px;
-  top: 66px;
-  border-radius: 50%;
-  border-right: 2px solid rgba(255, 255, 255, 0.42);
-  opacity: 0.55;
-}
-
-.vish-login-page__deity-face::after {
-  content: '';
-  position: absolute;
-  width: 54px;
-  height: 6px;
-  right: 88px;
-  top: 106px;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow:
-    0 13px 0 rgba(255, 255, 255, 0.75),
-    0 26px 0 rgba(255, 255, 255, 0.6);
-  transform: rotate(5deg);
-}
-
-.vish-login-page__crescent {
-  position: absolute;
-  left: 50%;
-  top: 10%;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 9px solid var(--vish-login-gold-soft);
-  border-left-color: transparent;
-  border-bottom-color: transparent;
-  transform: translateX(-50%) rotate(-18deg);
-  filter: drop-shadow(0 0 22px rgba(247, 201, 95, 0.65));
-}
-
-.vish-login-page__trident {
-  position: absolute;
-  left: -44px;
-  top: 40px;
-  width: 120px;
-  height: 510px;
-  opacity: 0.9;
-}
-
-.vish-login-page__trident-shaft {
-  position: absolute;
-  left: 57px;
-  top: 30px;
-  width: 6px;
-  height: 470px;
-  background: linear-gradient(var(--vish-login-gold), rgba(247, 201, 95, 0.06));
-  box-shadow: 0 0 24px rgba(247, 201, 95, 0.6);
-}
-
-.vish-login-page__trident-prong {
-  position: absolute;
-  top: 0;
-  width: 48px;
-  height: 150px;
-  border: 4px solid var(--vish-login-gold);
-  border-bottom: none;
-  filter: drop-shadow(0 0 14px rgba(247, 201, 95, 0.6));
-}
-
-.vish-login-page__trident-prong--left {
-  left: 5px;
-  border-right: none;
-  border-radius: 100% 0 0 0;
-  transform: rotate(-13deg);
-}
-
-.vish-login-page__trident-prong--center {
-  left: 36px;
-  border-left: 4px solid var(--vish-login-gold);
-  border-right: 4px solid var(--vish-login-gold);
-  border-radius: 50% 50% 0 0;
-}
-
-.vish-login-page__trident-prong--right {
-  right: 5px;
-  border-left: none;
-  border-radius: 0 100% 0 0;
-  transform: rotate(13deg);
+    radial-gradient(circle, rgba(247, 201, 95, 0.35), transparent 55%),
+    radial-gradient(circle, rgba(72, 182, 255, 0.22), transparent 65%);
+  filter: blur(30px);
+  pointer-events: none;
 }
 
 .vish-login-page__features {
@@ -768,20 +678,50 @@
   }
 }
 
+.vish-login-page__bottom-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 24px;
+  color: var(--vish-login-gold-soft);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(247, 201, 95, 0.12);
+  background:
+    linear-gradient(180deg, rgba(5, 9, 20, 0.0), rgba(5, 9, 20, 0.85) 30%);
+}
+
+.vish-login-page__bottom-bar-ornament {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.vish-login-page__bottom-bar-version {
+  position: absolute;
+  right: 24px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
 @media (max-width: 620px) {
   .vish-login-page__hero,
   .vish-login-page__auth-side {
     padding: 28px 20px;
   }
 
-  .vish-login-page__deity-visual {
-    left: 18%;
-    transform: scale(0.82);
-    transform-origin: top left;
+  .vish-login-page__deity-img {
+    width: 140%;
+    height: 140%;
+    object-position: 45% 30%;
   }
 
   .vish-login-page__features {
-    margin-top: 420px;
+    margin-top: 180px;
   }
 
   .vish-login-page__auth-card {

@@ -29,7 +29,7 @@ const App: React.FC = () => {
         <TutorialProvider>
         <RouteGuard>
           <IntersectObserver />
-          <div className="flex min-h-screen flex-col">
+          <div className="flex min-h-[100dvh] flex-col overflow-hidden">
             <AppErrorBoundary title="Workspace failed to render">
               <AppRoutes />
             </AppErrorBoundary>

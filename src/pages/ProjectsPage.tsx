@@ -353,18 +353,18 @@ export default function ProjectsPage() {
                 {showArchived ? 'Hide archived' : 'Show archived'}
               </Button>
             </PageToolbar>
-            <div className="vish-projects-grid mt-section" data-tutorial="projects-grid">
+            <div className="vish-projects-grid mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-tutorial="projects-grid">
               {filteredProjects.map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
                   <article
                     key={project.id}
-                    className="vish-project-card vish-project-card-v2 vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-shadow hover:shadow-md"
+                    className="vish-project-card vish-project-card-v2 vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
                   >
-                    <div className="vish-frame-bezel relative aspect-[4/3] border-b border-border/60 bg-muted/30">
+                    <div className="vish-frame-bezel relative aspect-[16/10] border-b border-border/60 bg-muted/30">
                       {thumb ? (
-                        <img src={thumb} alt="" className="h-full w-full object-contain p-3" />
+                        <img src={thumb} alt="" className="h-full w-full object-contain p-4" />
                       ) : (
                         <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
                           <PenTool className="h-8 w-8 opacity-40" />
@@ -372,27 +372,17 @@ export default function ProjectsPage() {
                         </div>
                       )}
                       {isDraft && (
-                        <span className="absolute left-3 top-3 rounded-full border border-primary/30 bg-background/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        <span className="absolute left-3 top-3 rounded-full border border-primary/30 bg-background/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary shadow-sm">
                           Draft
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <h2 className="truncate font-semibold text-foreground">{project.name}</h2>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {project.manifest.walls.length} walls · {project.manifest.openings.length} openings
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {formatRelativeTime(project.updated_at)}
-                        {!backendStatus.isConfigured && ' · Local'}
-                      </p>
-                      <div className="mt-4 flex items-center gap-2">
-                        <Button size="sm" className="touch-target flex-1" onClick={() => openProject(project)}>
-                          Open
-                        </Button>
+                    <div className="flex flex-1 flex-col p-5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h2 className="truncate font-semibold text-foreground">{project.name}</h2>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="touch-target px-2" aria-label={`More actions for ${project.name}`}>
+                            <Button size="sm" variant="ghost" className="h-8 w-8 shrink-0 touch-target" aria-label={`More actions for ${project.name}`}>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -410,6 +400,20 @@ export default function ProjectsPage() {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                      </div>
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        {project.manifest.walls.length} walls · {project.manifest.openings.length} openings
+                      </p>
+                      <div className="mt-auto pt-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] text-muted-foreground">
+                            {formatRelativeTime(project.updated_at)}
+                            {!backendStatus.isConfigured && ' · Local'}
+                          </span>
+                          <Button size="sm" className="h-8 px-4" onClick={() => openProject(project)}>
+                            Open
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </article>

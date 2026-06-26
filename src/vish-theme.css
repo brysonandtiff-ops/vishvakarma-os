@@ -1,50 +1,46 @@
 :root {
-  --background: 38 30% 94%;
-  --foreground: 36 14% 11%;
-  --card: 38 34% 97%;
-  --card-foreground: 36 14% 11%;
+  --background: 240 17% 2%;
+  --foreground: 0 0% 90%;
+  --card: 240 17% 3%;
+  --card-foreground: 0 0% 90%;
   --primary: 43 65% 52%;
-  /* Dark warm ink on gold — matches .vish-btn-gold (hsl(0 0% 8%)) and the
-     index.css canonical token. The previous cream value (38 38% 96%) rendered
-     near-white text on gold, a serious WCAG-AA contrast failure on every
-     bg-primary surface (default Button, Badge, toast, tooltip, checkbox). */
   --primary-foreground: 36 24% 10%;
-  --secondary: 38 22% 88%;
-  --secondary-foreground: 36 14% 16%;
-  --muted: 38 22% 88%;
-  --muted-foreground: 36 12% 42%;
-  --accent: 39 54% 88%;
-  --accent-foreground: 36 35% 24%;
-  --border: 38 18% 78%;
-  --input: 38 18% 78%;
+  --secondary: 240 10% 12%;
+  --secondary-foreground: 0 0% 90%;
+  --muted: 240 10% 8%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 43 65% 52%;
+  --accent-foreground: 36 24% 10%;
+  --border: 240 10% 15%;
+  --input: 240 10% 15%;
   --ring: 39 52% 47%;
 
-  --vish-ink: 36 14% 9%;
-  --vish-paper: 42 35% 96%;
+  --vish-ink: 240 17% 2%;
+  --vish-paper: 240 17% 4%;
   --vish-gold: 43 65% 52%;
-  --vish-shadow: 36 38% 12% / 0.18;
+  --vish-shadow: 0 0% 0% / 0.8;
 
-  --ws-canvas: 38 30% 92%;
-  --ws-toolbar: 36 10% 9%;
-  --ws-sidebar: 36 10% 8%;
-  --ws-menubar: 36 10% 8%;
-  --ws-statusbar: 36 10% 10%;
-  --ws-border: 38 16% 72%;
-  --ws-border-subtle: 38 18% 82%;
-  --ws-text: 38 25% 92%;
-  --ws-text-dim: 38 12% 68%;
-  --ws-text-faint: 39 32% 45%;
-  --ws-hover: 36 10% 16%;
+  --ws-canvas: 240 17% 2%;
+  --ws-toolbar: 240 17% 3%;
+  --ws-sidebar: 240 17% 2%;
+  --ws-menubar: 240 17% 2%;
+  --ws-statusbar: 240 17% 3%;
+  --ws-border: 240 10% 15%;
+  --ws-border-subtle: 240 10% 10%;
+  --ws-text: 0 0% 90%;
+  --ws-text-dim: 0 0% 65%;
+  --ws-text-faint: 0 0% 45%;
+  --ws-hover: 240 17% 6%;
   --ws-active: 39 61% 58%;
   --ws-active-bg: 39 49% 19%;
   --ws-active-ring: 39 61% 58% / 0.3;
-  --ws-grid-line: 38 18% 82%;
-  --ws-grid-major: 38 16% 72%;
+  --ws-grid-line: 240 10% 15%;
+  --ws-grid-major: 240 10% 20%;
   --ws-snap: 39 61% 52%;
 }
 
 body {
-  background: radial-gradient(circle at 50% -10%, hsl(42 65% 88% / 0.52), transparent 42rem), hsl(var(--background));
+  background: hsl(var(--background));
 }
 
 .blueprint-grid,
@@ -66,14 +62,16 @@ body {
 }
 
 .vish-dark-stage {
-  background: radial-gradient(circle at 50% 34%, hsl(var(--vish-gold) / 0.18), transparent 24rem), hsl(var(--vish-ink));
-  color: hsl(42 35% 90%);
+  background: hsl(var(--vish-ink));
+  color: hsl(0 0% 90%);
 }
 
 .vish-panel {
-  border: 1px solid hsl(var(--vish-gold) / 0.28);
-  background: linear-gradient(180deg, hsl(38 28% 96% / 0.97), hsl(37 25% 91% / 0.94));
-  box-shadow: 0 24px 70px hsl(0 0% 0% / 0.28), 0 0 44px hsl(var(--vish-gold) / 0.12);
+  border: 1px solid hsl(var(--vish-gold) / 0.15);
+  background: rgba(5, 5, 7, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 .vish-logo-tile {
@@ -88,17 +86,19 @@ body {
   image-rendering: auto;
   background: hsl(var(--ws-canvas));
   border: 1px solid hsl(var(--ws-border-subtle));
-  box-shadow: inset 0 0 0 1px hsl(38 20% 96% / 0.65), 0 18px 42px hsl(var(--vish-shadow));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 18px 42px hsl(var(--vish-shadow));
 }
 
 .ws-pane-header {
-  background: linear-gradient(180deg, hsl(var(--ws-toolbar)), hsl(var(--ws-menubar)));
+  background: hsl(var(--ws-toolbar));
   border-bottom: 1px solid hsl(var(--ws-border));
 }
 
 .ws-panel-light {
-  background: linear-gradient(180deg, hsl(42 35% 96%), hsl(38 26% 91%));
-  border-left: 1px solid hsl(var(--ws-border));
+  background: rgba(5, 5, 7, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-left: 1px solid hsl(var(--vish-gold) / 0.15);
   box-shadow: -16px 0 32px hsl(var(--vish-shadow));
 }
 

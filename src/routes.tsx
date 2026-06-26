@@ -24,8 +24,8 @@ function lazyRoute(element: ReactNode) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
-          Loading…
+        <div className="flex min-h-[100dvh] items-center justify-center bg-background text-sm text-muted-foreground overflow-hidden">
+          <p>Page not found</p>
         </div>
       }
     >

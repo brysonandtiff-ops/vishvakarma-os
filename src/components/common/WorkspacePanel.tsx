@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils';
 type PanelTone = 'light' | 'dark' | 'governance';
 
 const TONE_CLASS: Record<PanelTone, string> = {
-  light: 'ws-panel-light border-border/60 bg-card/90',
-  dark: 'ws-panel-dark vish-dark-panel border-ws-border bg-ws-toolbar/80 text-ws-text',
-  governance: 'vish-gov-card-dark border-border/50 bg-card/80',
+  light: 'ws-panel-light glass-panel-obsidian laser-etched-border border-border/60 bg-card/90',
+  dark: 'ws-panel-dark glass-panel-obsidian laser-etched-border border-ws-border text-ws-text',
+  governance: 'vish-gov-card-dark glass-panel-obsidian laser-etched-border border-border/50 bg-card/80',
 };
 
 interface WorkspacePanelProps {

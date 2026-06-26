@@ -145,7 +145,7 @@ export default function FeaturesPage() {
         title="Features & Guides — Vishvakarma.OS"
         description="Interactive editor guides and a full feature reference for Vishvakarma.OS — 2D drafting, Sacred 3D View, exports, and India compliance."
       />
-      <section className="vish-marketing-hero vish-stagger-children py-12 md:py-16">
+      <section className="vish-marketing-hero vish-stagger-children py-16 md:py-24">
         <MarketingPageHeader
           devanagari="मन्त्र यन्त्र वास्तु रचना"
           hero
@@ -153,20 +153,20 @@ export default function FeaturesPage() {
             <>
               Interactive guides.
               <br />
-              <span className="vish-hero-gold">Full feature reference.</span>
+              <span className="vish-hero-gold drop-shadow-sm">Full feature reference.</span>
             </>
           }
           description="Step-by-step guides open the editor with contextual hints for each workflow."
         />
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-          <Button variant="gold" size="gold" className="touch-target w-full sm:w-auto" asChild>
+        <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+          <Button variant="gold" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
             <Link to={cta.to}>{cta.primary}</Link>
           </Button>
-          <Button variant="goldOutline" size="gold" className="touch-target w-full sm:w-auto" asChild>
+          <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
             <Link to={heroSecondary.to}>{heroSecondary.label}</Link>
           </Button>
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="mt-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:mt-20">
           <MetricPill
             value={String(FEATURE_MODULES.filter((m) => m.ready).length)}
             label="ready now"
@@ -179,14 +179,14 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <MarketingSection className="vish-fade-rise" title="Explore capabilities" description="Browse in-app tours or the full module reference.">
-        <Tabs defaultValue="guides" className="mt-2">
-          <div className="vish-features-tabs-sticky -mx-1 px-1 pb-4">
-            <TabsList className="vish-features-toggle h-auto min-h-nav-row w-full justify-start gap-1 bg-transparent p-0">
-              <TabsTrigger value="guides" className="touch-target rounded-xl" data-testid="features-tab-guides">
+      <MarketingSection className="vish-fade-rise py-12" title="Explore capabilities" description="Browse in-app tours or the full module reference.">
+        <Tabs defaultValue="guides" className="mt-6">
+          <div className="vish-features-tabs-sticky -mx-1 px-1 pb-6">
+            <TabsList className="vish-features-toggle h-auto min-h-[48px] w-full max-w-md justify-start gap-2 bg-muted/20 p-1 rounded-2xl">
+              <TabsTrigger value="guides" className="flex-1 touch-target rounded-xl py-2.5 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="features-tab-guides">
                 Getting Started
               </TabsTrigger>
-              <TabsTrigger value="features" className="touch-target rounded-xl" data-testid="features-tab-all">
+              <TabsTrigger value="features" className="flex-1 touch-target rounded-xl py-2.5 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="features-tab-all">
                 All Features
               </TabsTrigger>
             </TabsList>

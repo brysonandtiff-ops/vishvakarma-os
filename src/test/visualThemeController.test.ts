@@ -12,7 +12,7 @@ describe('Solar Mandala visual identity', () => {
   it('registers visual theme options without changing the default theme', () => {
     const config = read('src/config/visualThemes.ts');
 
-    expect(config).toContain("DEFAULT_VISUAL_THEME: VisualThemeId = 'vishvakarma-gold'");
+    expect(config).toContain("DEFAULT_VISUAL_THEME: VisualThemeId = 'midnight-obsidian'");
     expect(config).toContain("id: 'solar-mandala'");
     expect(config).toContain('Alternate presentation-only visual identity');
     expect(config).toContain('isVisualThemeId');

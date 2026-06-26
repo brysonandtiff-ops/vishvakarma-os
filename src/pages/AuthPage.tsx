@@ -266,6 +266,13 @@ export default function AuthPage() {
           <FoundersAcknowledgment variant="auth" />
         </div>
       </div>
+
+      <div className="vish-login-page__bottom-bar">
+        <span>Inspired by Divinity</span>
+        <span className="vish-login-page__bottom-bar-ornament" aria-hidden="true">✦</span>
+        <span>Built for Humanity</span>
+        <span className="vish-login-page__bottom-bar-version">v1.0.0</span>
+      </div>
     </>
   );
 }

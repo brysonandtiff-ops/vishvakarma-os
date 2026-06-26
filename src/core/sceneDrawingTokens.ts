@@ -74,15 +74,15 @@ export const COMPASS_FILL = 'rgba(180, 140, 60, 0.08)';
 
 /** 3D atmosphere */
 export const ATMOSPHERE = {
-  background: '#120E08',
-  fog: '#1A140C',
+  background: '#050507',
+  fog: '#050507',
   particle: '#F4C34F',
   godRay: '#F8E08A',
   sun: '#FFE3A3',
   fillWarm: '#F5D070',
   accentWarm: '#E8A820',
   accentCool: '#6A4010',
-  gridPrimary: '#D4A832',
+  gridPrimary: '#b48c3c', // GOLD_MUTED
   gridSecondary: '#5C4B2A',
   leaf: '#3d8b42',
   bark: '#5c3d1e',

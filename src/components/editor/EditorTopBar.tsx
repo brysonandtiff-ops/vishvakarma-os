@@ -22,6 +22,8 @@ import {
   Upload,
   Wind,
   Eye,
+  CloudRain,
+  Activity,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,6 +37,7 @@ import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { getProjectActionLabel } from '@/editor/editorActionRegistry';
 import { useReliablePress } from '@/hooks/useReliablePress';
 import type { WorkspaceMode } from '@/types';
+import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
 interface EditorTopBarProps {
@@ -68,6 +71,10 @@ interface EditorTopBarProps {
   canUndo?: boolean;
   canRedo?: boolean;
   fileStrip?: ReactNode;
+  monsoonActive?: boolean;
+  onToggleMonsoon?: () => void;
+  pranaActive?: boolean;
+  onTogglePrana?: () => void;
 }
 
 const MODES: Array<{ id: WorkspaceMode; label: string; icon: typeof PenLine }> = [
@@ -93,7 +100,14 @@ function IconButton({
   disabled?: boolean;
   dataTutorial?: string;
 }) {
-  const pressHandlers = useReliablePress(disabled ? undefined : onClick);
+  const handleClick = () => {
+    if (disabled) return;
+    if (navigator.vibrate) navigator.vibrate(20);
+    playStudioSound('buttonPress');
+    onClick?.();
+  };
+
+  const pressHandlers = useReliablePress(disabled ? undefined : handleClick);
 
   return (
     <button
@@ -105,7 +119,7 @@ function IconButton({
       title={label}
       data-tutorial={dataTutorial}
       data-state={active ? 'active' : 'inactive'}
-      className={`vish-editor-icon-btn touch-target touch-manipulation flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors ${
+      className={`vish-editor-icon-btn touch-target touch-manipulation flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors prana-glow ${
         active
           ? 'border-primary/60 bg-primary/15 text-primary'
           : 'border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text'
@@ -168,8 +182,12 @@ function ModeTabs({
           type="button"
           role="tab"
           aria-selected={workspaceMode === mode.id}
-          className={`vish-mode-tab shrink-0 ${workspaceMode === mode.id ? 'active' : ''}`}
-          onClick={() => onWorkspaceModeChange(mode.id)}
+          className={`vish-mode-tab shrink-0 prana-glow ${workspaceMode === mode.id ? 'active' : ''}`}
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate(30);
+            playStudioSound('buttonPress');
+            onWorkspaceModeChange(mode.id);
+          }}
           data-tutorial={`mode-${mode.id}`}
         >
           <mode.icon className="h-3 w-3" />
@@ -211,11 +229,15 @@ export default function EditorTopBar({
   canUndo = false,
   canRedo = false,
   fileStrip,
+  monsoonActive = false,
+  onToggleMonsoon,
+  pranaActive = false,
+  onTogglePrana,
 }: EditorTopBarProps) {
   const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
 
   return (
-    <header className="vish-editor-topbar vish-editor-topbar-chrome shrink-0" data-testid="editor-top-bar">
+    <header className="vish-editor-topbar vish-editor-topbar-chrome glass-panel-obsidian laser-etched-border shrink-0 z-10" data-testid="editor-top-bar">
       <div className="vish-editor-topbar-grid">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (
@@ -236,7 +258,7 @@ export default function EditorTopBar({
                 <ChevronDown className="h-3 w-3 opacity-70" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="vish-fade-rise w-44">
+            <DropdownMenuContent align="start" className="vish-fade-rise w-44 glass-panel-obsidian laser-etched-border">
               {MODES.map((mode) => (
                 <DropdownMenuItem
                   key={mode.id}
@@ -252,7 +274,7 @@ export default function EditorTopBar({
           <div className="vish-logo-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
-          <span className="max-w-[min(12rem,28vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          <span className="max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
           {savingProject && (
             <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
@@ -316,7 +338,7 @@ export default function EditorTopBar({
                 <FolderOpen className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="vish-fade-rise w-48">
+            <DropdownMenuContent align="end" className="vish-fade-rise w-48 glass-panel-obsidian laser-etched-border">
               <DropdownMenuItem onClick={onNewProject}>
                 <Plus className="mr-2 h-4 w-4" />
                 New project
@@ -394,6 +416,26 @@ export default function EditorTopBar({
           <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
           </IconButton>
+          {onToggleMonsoon && (
+            <IconButton
+              label={monsoonActive ? 'Mute Monsoon Rain' : 'Monsoon Rain on Jali'}
+              active={monsoonActive}
+              onClick={onToggleMonsoon}
+              data-testid="monsoon-rain-toggle"
+            >
+              <CloudRain className="h-4 w-4" />
+            </IconButton>
+          )}
+          {onTogglePrana && (
+            <IconButton
+              label={pranaActive ? 'Deactivate Prana' : 'Activate Prana Glow'}
+              active={pranaActive}
+              onClick={onTogglePrana}
+              data-testid="prana-glow-toggle"
+            >
+              <Activity className="h-4 w-4" />
+            </IconButton>
+          )}
 
           <TutorialHelpButton />
           <DropdownMenu>
@@ -406,7 +448,7 @@ export default function EditorTopBar({
                 <MoreHorizontal className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="vish-fade-rise w-52">
+            <DropdownMenuContent align="end" className="vish-fade-rise w-52 glass-panel-obsidian laser-etched-border">
               <DropdownMenuItem onClick={() => onTogglePresentationLock?.()}>
                 <Lock className="mr-2 h-4 w-4" />
                 {presentationLock ? 'Unlock presentation' : 'Presentation lock'}

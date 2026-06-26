@@ -1,0 +1,219 @@
+/*
+  Vishvakarma.OS — Bhumi Canvas Matrix
+  Contains themes: Midnight Obsidian, Industrial Slate, Indigo Cyanotype, Aged Copper, Sacred Parchment.
+*/
+
+/* 1. Midnight Obsidian */
+:root[data-visual-theme='midnight-obsidian'] {
+  color-scheme: dark;
+  --background: 220 15% 10%;
+  --foreground: 0 0% 98%;
+  --card: 220 15% 12%;
+  --card-foreground: 0 0% 98%;
+  --popover: 220 15% 12%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 65% 52%;
+  --primary-foreground: 220 15% 10%;
+  --secondary: 220 15% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 220 15% 16%;
+  --muted-foreground: 220 10% 65%;
+  --accent: 220 15% 16%;
+  --accent-foreground: 0 0% 98%;
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 43 65% 52%;
+
+  --ws-canvas: 220 15% 8%;
+  --ws-toolbar: 220 15% 10%;
+  --ws-sidebar: 220 15% 10%;
+  --ws-menubar: 220 15% 10%;
+  --ws-statusbar: 220 15% 10%;
+  --ws-border: 43 65% 52% / 0.15;
+  --ws-border-subtle: 43 65% 52% / 0.08;
+  --ws-text: 0 0% 98%;
+  --ws-text-dim: 220 10% 65%;
+  --ws-text-faint: 220 10% 45%;
+  --ws-hover: 220 15% 14%;
+  --ws-active: 43 65% 52%;
+  --ws-active-bg: 43 65% 52% / 0.15;
+  --ws-active-ring: 43 65% 52% / 0.3;
+  --ws-grid-line: 43 65% 52% / 0.03;
+  --ws-grid-major: 43 65% 52% / 0.06;
+}
+
+:root[data-visual-theme='midnight-obsidian'] .architect-canvas {
+  background: #0d1117 !important;
+}
+
+/* 2. Industrial Slate */
+:root[data-visual-theme='industrial-slate'] {
+  color-scheme: dark;
+  --background: 210 10% 20%;
+  --foreground: 0 0% 98%;
+  --card: 210 10% 22%;
+  --card-foreground: 0 0% 98%;
+  --popover: 210 10% 22%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 65% 52%;
+  --primary-foreground: 210 10% 20%;
+  --secondary: 210 10% 26%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 210 10% 26%;
+  --muted-foreground: 210 10% 70%;
+  --accent: 210 10% 26%;
+  --accent-foreground: 0 0% 98%;
+  --border: 210 10% 30%;
+  --input: 210 10% 30%;
+  --ring: 43 65% 52%;
+
+  --ws-canvas: 210 10% 18%;
+  --ws-toolbar: 210 10% 20%;
+  --ws-sidebar: 210 10% 20%;
+  --ws-menubar: 210 10% 20%;
+  --ws-statusbar: 210 10% 20%;
+  --ws-border: 43 65% 52% / 0.15;
+  --ws-border-subtle: 43 65% 52% / 0.08;
+  --ws-text: 0 0% 98%;
+  --ws-text-dim: 210 10% 70%;
+  --ws-text-faint: 210 10% 50%;
+  --ws-hover: 210 10% 24%;
+  --ws-active: 43 65% 52%;
+  --ws-active-bg: 43 65% 52% / 0.15;
+  --ws-active-ring: 43 65% 52% / 0.3;
+  --ws-grid-line: 43 65% 52% / 0.03;
+  --ws-grid-major: 43 65% 52% / 0.06;
+}
+
+:root[data-visual-theme='industrial-slate'] .architect-canvas {
+  background: #2a3036 !important;
+}
+
+/* 3. Indigo Cyanotype (Blueprint) */
+:root[data-visual-theme='indigo-cyanotype'] {
+  color-scheme: dark;
+  --background: 215 80% 25%;
+  --foreground: 0 0% 98%;
+  --card: 215 80% 27%;
+  --card-foreground: 0 0% 98%;
+  --popover: 215 80% 27%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 65% 52%;
+  --primary-foreground: 215 80% 25%;
+  --secondary: 215 60% 35%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 215 60% 35%;
+  --muted-foreground: 215 20% 80%;
+  --accent: 215 60% 35%;
+  --accent-foreground: 0 0% 98%;
+  --border: 215 60% 40%;
+  --input: 215 60% 40%;
+  --ring: 43 65% 52%;
+
+  --ws-canvas: 215 80% 20%;
+  --ws-toolbar: 215 80% 25%;
+  --ws-sidebar: 215 80% 25%;
+  --ws-menubar: 215 80% 25%;
+  --ws-statusbar: 215 80% 25%;
+  --ws-border: 43 65% 52% / 0.15;
+  --ws-border-subtle: 43 65% 52% / 0.08;
+  --ws-text: 0 0% 98%;
+  --ws-text-dim: 215 20% 80%;
+  --ws-text-faint: 215 30% 60%;
+  --ws-hover: 215 70% 30%;
+  --ws-active: 43 65% 52%;
+  --ws-active-bg: 43 65% 52% / 0.15;
+  --ws-active-ring: 43 65% 52% / 0.3;
+  --ws-grid-line: 43 65% 52% / 0.03;
+  --ws-grid-major: 43 65% 52% / 0.06;
+}
+
+:root[data-visual-theme='indigo-cyanotype'] .architect-canvas {
+  background: #0a2d6b !important;
+}
+
+/* 4. Aged Copper */
+:root[data-visual-theme='aged-copper'] {
+  color-scheme: dark;
+  --background: 15 40% 30%;
+  --foreground: 0 0% 98%;
+  --card: 15 40% 32%;
+  --card-foreground: 0 0% 98%;
+  --popover: 15 40% 32%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 65% 52%;
+  --primary-foreground: 15 40% 30%;
+  --secondary: 15 30% 40%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 15 30% 40%;
+  --muted-foreground: 15 20% 80%;
+  --accent: 15 30% 40%;
+  --accent-foreground: 0 0% 98%;
+  --border: 15 30% 45%;
+  --input: 15 30% 45%;
+  --ring: 43 65% 52%;
+
+  --ws-canvas: 15 40% 25%;
+  --ws-toolbar: 15 40% 30%;
+  --ws-sidebar: 15 40% 30%;
+  --ws-menubar: 15 40% 30%;
+  --ws-statusbar: 15 40% 30%;
+  --ws-border: 43 65% 52% / 0.15;
+  --ws-border-subtle: 43 65% 52% / 0.08;
+  --ws-text: 0 0% 98%;
+  --ws-text-dim: 15 20% 80%;
+  --ws-text-faint: 15 20% 60%;
+  --ws-hover: 15 40% 35%;
+  --ws-active: 43 65% 52%;
+  --ws-active-bg: 43 65% 52% / 0.15;
+  --ws-active-ring: 43 65% 52% / 0.3;
+  --ws-grid-line: 43 65% 52% / 0.03;
+  --ws-grid-major: 43 65% 52% / 0.06;
+}
+
+:root[data-visual-theme='aged-copper'] .architect-canvas {
+  background: #59352c !important;
+}
+
+/* 5. Sacred Parchment */
+:root[data-visual-theme='sacred-parchment'] {
+  color-scheme: light;
+  --background: 35 40% 85%;
+  --foreground: 35 60% 15%;
+  --card: 35 40% 90%;
+  --card-foreground: 35 60% 15%;
+  --popover: 35 40% 90%;
+  --popover-foreground: 35 60% 15%;
+  --primary: 43 65% 40%;
+  --primary-foreground: 35 40% 95%;
+  --secondary: 35 20% 80%;
+  --secondary-foreground: 35 60% 15%;
+  --muted: 35 20% 80%;
+  --muted-foreground: 35 30% 40%;
+  --accent: 35 20% 80%;
+  --accent-foreground: 35 60% 15%;
+  --border: 35 20% 70%;
+  --input: 35 20% 70%;
+  --ring: 43 65% 40%;
+
+  --ws-canvas: 35 40% 80%;
+  --ws-toolbar: 35 40% 85%;
+  --ws-sidebar: 35 40% 85%;
+  --ws-menubar: 35 40% 85%;
+  --ws-statusbar: 35 40% 85%;
+  --ws-border: 43 65% 40% / 0.25;
+  --ws-border-subtle: 43 65% 40% / 0.12;
+  --ws-text: 35 60% 15%;
+  --ws-text-dim: 35 30% 40%;
+  --ws-text-faint: 35 20% 50%;
+  --ws-hover: 35 40% 80%;
+  --ws-active: 43 65% 40%;
+  --ws-active-bg: 43 65% 40% / 0.15;
+  --ws-active-ring: 43 65% 40% / 0.3;
+  --ws-grid-line: 43 65% 40% / 0.1;
+  --ws-grid-major: 43 65% 40% / 0.2;
+}
+
+:root[data-visual-theme='sacred-parchment'] .architect-canvas {
+  background: #dbceb6 !important;
+}

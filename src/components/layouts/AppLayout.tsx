@@ -1,4 +1,4 @@
-﻿// Main application layout with sidebar navigation — professional workstation style
+// Main application layout with sidebar navigation — professional workstation style
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -297,7 +297,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
   return (
     <GovernanceNavContext.Provider value={{ openNav }}>
     <EditorSidebarProvider>
-    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
+    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background overflow-hidden" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
       <WorkspaceCommandPalette />
       {showDesktopSidebar && (
       <aside

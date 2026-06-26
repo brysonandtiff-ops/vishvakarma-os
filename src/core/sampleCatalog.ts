@@ -1,10 +1,10 @@
 import type { ProjectManifest } from '@/types';
-import sampleHouse01 from '../../public/samples/sample-house-01.json';
-import furnitureShowcaseJson from '../../public/samples/furniture-showcase.json';
-import landscapeGardenJson from '../../public/samples/landscape-garden.json';
-import terrainGardenJson from '../../public/samples/terrain-garden.json';
-import mepLightingShowcaseJson from '../../public/samples/mep-lighting-showcase.json';
-import fullFeatureShowcaseJson from '../../public/samples/full-feature-showcase.json';
+import sampleHouse01 from '../samples/sample-house-01.json';
+import furnitureShowcaseJson from '../samples/furniture-showcase.json';
+import landscapeGardenJson from '../samples/landscape-garden.json';
+import terrainGardenJson from '../samples/terrain-garden.json';
+import mepLightingShowcaseJson from '../samples/mep-lighting-showcase.json';
+import fullFeatureShowcaseJson from '../samples/full-feature-showcase.json';
 import {
   build2BhkTemplate,
   build3BhkTemplate,
