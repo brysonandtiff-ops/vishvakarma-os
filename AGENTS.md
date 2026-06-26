@@ -142,13 +142,18 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 
 | Item | Reference | Gap |
 |------|-----------|-----|
-| Blueprint editor: draw wall, opening, properties | [functional-workflow-proof.md](./docs/release/evidence/functional-workflow-proof.md) | E2E coverage incomplete for full editor workflow |
-| Save/load/export/import data preservation | [save-load-proof.md](./docs/release/evidence/save-load-proof.md), functional-workflow-proof | Cloud reload on Supabase needs live operator proof |
-| Release Center and Audit Log empty/loading states | functional-workflow-proof | Governance UI states not fully evidenced |
 | Collaboration preview touch chrome | [collaboration-preview-hardening.md](./docs/release/evidence/collaboration-preview-hardening.md) | Preview-only — not production co-editing |
+| Physical iPad Safari screen recordings | [IPAD_10_REAL_DEVICE_PROOF.md](./docs/release/evidence/IPAD_10_REAL_DEVICE_PROOF.md) | Automated viewport PASS; real-device Home Screen + Pencil draw remain operator-only |
+| Extended long-session soak (30+ min) | [long-session-soak-proof.md](./docs/release/evidence/long-session-soak-proof.md) | Fast 60s soak automated; extended soak via workflow_dispatch only |
+
+**Resolved (was a gap):** Blueprint editor draw wall/opening/properties — PASS via `e2e/editor-draw-workflow-proof.spec.ts` + deep proof CI job.
+
+**Resolved (was a gap):** Save/load/export/import — PASS in [save-load-proof.md](./docs/release/evidence/save-load-proof.md).
+
+**Resolved (was a gap):** Release Center and Audit Log empty/loading states — PASS via `e2e/governance-smoke.spec.ts`.
 
 **Resolved (was a gap):** Google OAuth sign-in — PASS in [auth-sign-in-proof.md](./docs/release/evidence/auth-sign-in-proof.md).
 
-**Resolved (was a gap):** iPad/coarse-pointer controls — PASS in [device-hardening-audit.md](./docs/release/evidence/device-hardening-audit.md). Physical iPad Home Screen install and Pencil draw remain manual — see [DEVICE_HARDENING_RUNBOOK.md](./docs/release/DEVICE_HARDENING_RUNBOOK.md).
+**Resolved (was a gap):** iPad/coarse-pointer controls (automated) — PASS in [device-hardening-audit.md](./docs/release/evidence/device-hardening-audit.md). Physical iPad Home Screen install and Pencil draw remain manual — see [DEVICE_HARDENING_RUNBOOK.md](./docs/release/DEVICE_HARDENING_RUNBOOK.md).
 
 **Out of scope for doc-only agents:** Editor E2E React #185 and screenshot pack (P1 code work).
