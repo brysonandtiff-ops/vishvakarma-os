@@ -24,9 +24,9 @@
     "Decision intelligence disclaimer present",
     "Multi-device touch audit"
   ],
-  "testFileCount": 176,
-  "commit": "8680ca09f81ee7a938c272201b08049156d98d50",
-  "timestamp": "2026-06-15T16:15:23.240Z",
+  "testFileCount": 203,
+  "commit": "61a10e0dca685d0f687238b43c73de5522563ec6",
+  "timestamp": "2026-06-26T12:57:47.723Z",
   "reproduceCommand": "pnpm run record:measure",
   "status": "self_verified",
   "honestyNote": "Self-Verified Candidate — not an official Guinness World Records title until GWR adjudication completes and a certificate is attached.",
@@ -37,5 +37,5 @@
     "source": "gate-ui-status.json",
     "generatedAt": "2026-06-14T11:21:54.711Z"
   },
-  "evidenceHash": "09a55b522582bfc954aabc3c90864d86ffae20d4fea2cb2659c706527e75b6f5"
+  "evidenceHash": "7585180cdd86777985bde54492232a6d94c503cfe37efd66cf1cb1b977d6940d"
 }

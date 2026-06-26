@@ -102,6 +102,11 @@ body:has([data-testid='auth-page']) .mantra-widget {
   .vish-login-page--reference-replica .vish-login-page__top-line {
     max-width: min(30.8rem, 92vw);
   }
+
+  .vish-login-page--reference-replica .vish-login-page__top-line::after {
+    content: none;
+    display: none;
+  }
 }
 
 @media (max-width: 980px) {
