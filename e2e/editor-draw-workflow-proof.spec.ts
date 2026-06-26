@@ -146,16 +146,11 @@ test.describe('editor draw workflow proof', () => {
       .toBeGreaterThan(initialOpenings);
 
     await activateTool(page, 'Select');
-    for (const ratio of [0.28, 0.72, 0.5]) {
-      await canvas.click({ position: { x: box.width * ratio, y: centerY } });
-      if (await page.getByText(/wall properties/i).isVisible().catch(() => false)) {
-        break;
-      }
-    }
+    await canvas.click({ position: { x: box.width * 0.28, y: centerY }, force: true });
 
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(/openings/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('wall-openings-count')).toHaveText('1');
 
     await expect(page.getByText(BLOCKED_COPY)).toHaveCount(0);
   });
