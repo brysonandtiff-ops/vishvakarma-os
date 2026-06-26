@@ -130,8 +130,10 @@ test.describe('editor draw workflow proof', () => {
     const to = { x: box.width * 0.75, y: centerY };
 
     await activateTool(page, 'Wall');
-    await page.mouse.click(box.x + from.x, box.y + from.y);
-    await page.mouse.click(box.x + to.x, box.y + to.y);
+    await page.mouse.move(box.x + from.x, box.y + from.y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + to.x, box.y + to.y);
+    await page.mouse.up();
 
     await expect
       .poll(async () => readMetricCount(page, 'Walls'), { timeout: 15_000 })
