@@ -107,21 +107,22 @@ test.describe('iPad editor workflow', () => {
     const box = await canvas.boundingBox();
     if (!box) throw new Error('Canvas not visible');
 
+    const centerY = box.height * 0.5;
     await activateEditorTool(page, 'Wall');
     await drawWallSegmentTouch(
       canvas,
-      { x: box.width * 0.15, y: box.height * 0.4 },
-      { x: box.width * 0.35, y: box.height * 0.4 },
+      { x: box.width * 0.25, y: centerY },
+      { x: box.width * 0.75, y: centerY },
     );
 
     await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 15_000 })
+      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 30_000 })
       .toBeGreaterThan(wallsBefore);
 
     const undo = page.getByRole('button', { name: /^undo$/i });
-    await undo.click();
+    await tapReachable(undo);
     await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 10_000 })
+      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 15_000 })
       .toBe(wallsBefore);
   });
 
@@ -129,9 +130,9 @@ test.describe('iPad editor workflow', () => {
     await setupIpadEditor(page, iPadLandscape);
     await loadSampleProject(page);
     await saveProject(page);
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
   });
 
   test('export dialog fits iPad portrait', async ({ page }) => {

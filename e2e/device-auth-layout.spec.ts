@@ -7,10 +7,9 @@ import {
 } from './helpers';
 
 const AUTH_TOUCH_SELECTORS = [
-  '[data-testid="auth-mockup-card"] button',
-  '[data-testid="auth-mockup-card"] a',
-  '[data-testid="auth-mockup-card"] input[type="email"]',
-  '.vish-login-page__link',
+  '[data-testid="auth-mockup-card"] .vish-login-page__primary',
+  '[data-testid="auth-mockup-card"] .vish-login-page__secondary',
+  '.vish-auth-google-btn',
 ];
 
 async function assertAuthPageLayout(page: import('@playwright/test').Page) {
