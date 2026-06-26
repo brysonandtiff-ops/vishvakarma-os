@@ -49,6 +49,11 @@ test.describe('Device marketing layout', () => {
     await assertMarketingPage(page, '/features', /interactive guides|full feature reference/i);
   });
 
+  test('features page fits iPad landscape', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await assertMarketingPage(page, '/features', /interactive guides|full feature reference/i);
+  });
+
   test('features page fits iPhone portrait', async ({ page }) => {
     await page.setViewportSize(iPhonePortrait);
     await assertMarketingPage(page, '/features', /interactive guides|full feature reference/i);
