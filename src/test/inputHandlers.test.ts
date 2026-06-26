@@ -16,4 +16,11 @@ describe('inputHandlers', () => {
     expect(isEraserPointerButton(5)).toBe(true);
     expect(isEraserPointerButton(0)).toBe(false);
   });
+
+  it('detects eraser via button or buttons bitmask', () => {
+    expect(isEraserPointerActive({ button: 5, buttons: 32 })).toBe(true);
+    expect(isEraserPointerActive({ button: 0, buttons: 32 })).toBe(true);
+    expect(isEraserPointerActive({ button: 0, buttons: 1 })).toBe(false);
+    expect(isEraserPointerActive({ button: 0, buttons: 0 })).toBe(false);
+  });
 });
