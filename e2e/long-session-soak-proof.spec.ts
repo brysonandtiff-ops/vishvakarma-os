@@ -72,12 +72,7 @@ test.describe('long-session editor soak proof', () => {
     await expect(page.getByTestId('tool-rail')).toBeVisible();
 
     for (const label of POST_SOAK_TOOLS) {
-      const button = page.getByRole('button', { name: label }).first();
-      await expect(button, `${label} should still be attached after soak`).toBeAttached();
-      await button.evaluate((element) => {
-        element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-      });
-      await expect(button, `${label} should still activate after soak`).toHaveAttribute('aria-pressed', 'true');
+      await activateTool(page, label);
     }
 
     await expect(page.locator('body')).not.toContainText(BLOCKED_COPY);
