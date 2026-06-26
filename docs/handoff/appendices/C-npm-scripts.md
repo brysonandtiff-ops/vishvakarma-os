@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-20T05:40:42.064Z
+Generated: 2026-06-26T11:12:49.851Z
 
-Total: 114 scripts
+Total: 119 scripts
 
 | Script | Command |
 |--------|--------|
@@ -83,6 +83,7 @@ Total: 114 scripts
 | `repairbot:medium` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:medium` |
 | `repairbot:status` | `node scripts/repairbot/status.mjs` |
 | `repairbot:watch` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000` |
+| `repairbot:world` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:world` |
 | `setup:scene-models` | `node scripts/setup-scene-models.mjs` |
 | `setup:scene-textures` | `node scripts/setup-scene-textures.mjs` |
 | `setup:stripe` | `node scripts/setup-stripe-products.mjs` |
@@ -102,9 +103,13 @@ Total: 114 scripts
 | `test:e2e:a11y` | `node scripts/run-local-preview-playwright.mjs --project=accessibility-audit` |
 | `test:e2e:app` | `pnpm exec playwright test --project=app-smoke` |
 | `test:e2e:auth` | `node scripts/run-auth-gate-playwright.mjs` |
+| `test:e2e:cloud-lifecycle` | `pnpm exec playwright test --config=playwright.cloud-lifecycle.config.ts` |
 | `test:e2e:cross-browser` | `node scripts/run-cross-browser-gates.mjs` |
+| `test:e2e:deep-proof` | `pnpm exec playwright test --config=playwright.deep-proof.config.ts` |
+| `test:e2e:governance` | `node scripts/build-e2e-local.mjs && pnpm exec playwright test --config=playwright.governance.config.ts` |
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
 | `test:e2e:perf` | `node scripts/run-local-preview-playwright.mjs --project=editor-performance` |
+| `test:e2e:soak` | `pnpm exec playwright test --config=playwright.soak.config.ts` |
 | `test:perf-overhaul` | `vitest run src/test/editorPerformanceOverhaul.test.ts` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |
 | `test:screenshots` | `node scripts/run-screenshot-pack.mjs` |

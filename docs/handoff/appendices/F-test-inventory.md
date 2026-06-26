@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-20T05:40:42.064Z
+Generated: 2026-06-26T11:12:49.851Z
 
-## Vitest unit/integration (161 files)
+## Vitest unit/integration (164 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -103,6 +103,7 @@ Generated: 2026-06-20T05:40:42.064Z
 - `src/test/copilotUploadIpad.test.ts`
 - `src/test/demoFlowDocs.test.ts`
 - `src/test/demoMediaKitHandoff.test.ts`
+- `src/test/divineArchitectTheme.test.ts`
 - `src/test/editorChrome.test.ts`
 - `src/test/editorPerformanceOverhaul.test.ts`
 - `src/test/editorSidebarIntegration.test.tsx`
@@ -129,6 +130,7 @@ Generated: 2026-06-20T05:40:42.064Z
 - `src/test/marketingRoutes.test.tsx`
 - `src/test/motionSystem.test.ts`
 - `src/test/multiUserGovernance.test.ts`
+- `src/test/multiUserRolesCiGate.test.ts`
 - `src/test/officialLogoBrand.test.ts`
 - `src/test/parity2d3d.test.ts`
 - `src/test/pilotDocs.test.ts`
@@ -136,6 +138,7 @@ Generated: 2026-06-20T05:40:42.064Z
 - `src/test/projectsDemoSamples.test.ts`
 - `src/test/redTeam.test.ts`
 - `src/test/regressionAnchors.test.ts`
+- `src/test/repairbotTiers.test.ts`
 - `src/test/roomCalculations.test.ts`
 - `src/test/sacredMarketing.test.ts`
 - `src/test/sampleCatalog.test.ts`
@@ -168,7 +171,7 @@ Generated: 2026-06-20T05:40:42.064Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (29 specs)
+## Playwright E2E (38 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -176,27 +179,36 @@ Generated: 2026-06-20T05:40:42.064Z
 - `e2e/auth-gate.spec.ts`
 - `e2e/auth-post-login-restore.spec.ts`
 - `e2e/auth-private-routes.spec.ts`
+- `e2e/cloud-supabase-lifecycle.spec.ts`
 - `e2e/collaboration-sync.spec.ts`
 - `e2e/compliance-gate.spec.ts`
 - `e2e/cross-browser-smoke.spec.ts`
 - `e2e/demo-flow-screenshot-pack.spec.ts`
+- `e2e/device-auth-layout.spec.ts`
 - `e2e/device-collaboration-chrome.spec.ts`
 - `e2e/device-desktop-layout.spec.ts`
 - `e2e/device-governance-layout.spec.ts`
 - `e2e/device-marketing-layout.spec.ts`
 - `e2e/device-phone-editor.spec.ts`
+- `e2e/device-validation-proof-panel.spec.ts`
+- `e2e/editor-draw-workflow-proof.spec.ts`
 - `e2e/editor-features.spec.ts`
 - `e2e/editor-performance.spec.ts`
+- `e2e/editor-tool-clickthrough-proof.spec.ts`
 - `e2e/governance-smoke.spec.ts`
 - `e2e/ipad-editor-layout.spec.ts`
+- `e2e/ipad-editor-workflow.spec.ts`
 - `e2e/ipad-production-readiness.spec.ts`
+- `e2e/long-session-soak-proof.spec.ts`
 - `e2e/marketing-asset-pack.spec.ts`
 - `e2e/marketing-pages.spec.ts`
 - `e2e/optimization.spec.ts`
 - `e2e/page-reference-pack-remainder.spec.ts`
 - `e2e/page-reference-pack.spec.ts`
+- `e2e/project-demo-load-proof.spec.ts`
 - `e2e/projects-profile.spec.ts`
 - `e2e/release-screenshot-pack.spec.ts`
+- `e2e/route-health-smoke.spec.ts`
 - `e2e/tutorial-essentials.spec.ts`
 - `e2e/workspace-navigation.spec.ts`
 

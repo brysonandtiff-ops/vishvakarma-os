@@ -2,7 +2,7 @@
 
 # Appendix B — Environment Variables
 
-Generated: 2026-06-20T05:40:42.064Z
+Generated: 2026-06-26T11:12:49.851Z
 
 ## Documented in `.env.example`
 
@@ -32,8 +32,6 @@ Generated: 2026-06-20T05:40:42.064Z
 | `VITE_SENTRY_DSN` | yes |
 | `VITE_SPEC_HASH` | yes |
 | `VITE_STRIPE_BILLING_ENABLED` | yes |
-| `VITE_SUPABASE_ANON_KEY` | yes |
-| `VITE_SUPABASE_URL` | yes |
 
 ## Server (`process.env`)
 

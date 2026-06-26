@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-20T05:40:42.064Z
+Generated: 2026-06-26T11:12:49.851Z
 
 ```
 src/
@@ -30,6 +30,7 @@ ai/
       generatedBuildingValidator.ts
 App.tsx
 AppRoutes.tsx
+auth-capabilities.json
 backend/
   authCapabilities.test.ts
   authCapabilities.ts
@@ -79,6 +80,7 @@ collaboration/
   sync/
     CollabSession.ts
     CollabTransportAdapter.ts
+    SupabaseRealtimeProvider.ts
     SupabaseSnapshotProvider.ts
     YjsWebSocketProvider.ts
   types.ts
@@ -91,6 +93,8 @@ components/
     useArchitectureBot.ts
   auth/
     AuthGoogleButton.tsx
+    AuthLoginCard.tsx
+    AuthLoginHero.tsx
     AuthSignInHeader.tsx
     AuthStatusBanner.test.tsx
     AuthStatusBanner.tsx
@@ -205,6 +209,7 @@ components/
     sceneRoomMeshes.tsx
     sceneTerrainMeshes.tsx
     sceneWallBatch.tsx
+    ShunyaOverlay.tsx
     SolarTimeline.tsx
     StatusBar.tsx
     toolDefaults.ts
@@ -253,6 +258,8 @@ components/
     WinnerHeroPanel.tsx
   profile/
     StudioAudioSettings.tsx
+  qa/
+    DeviceValidationPanel.tsx
   system-intelligence/
     ComputeOverlay.tsx
     ConstraintEditor.tsx
@@ -354,6 +361,7 @@ core/
     dxfImport.ts
   lightingPresets.ts
   manifestSchema.ts
+  premiumTemplates.ts
   projectExport.test.ts
   projectExport.ts
   projectModel.test.ts
@@ -404,6 +412,8 @@ data/
     supplierCatalog.ts
 db/
   api.ts
+demo-session/
+  GuidedDemoSessionController.tsx
 domain/
   buildingGraph/
     index.ts
@@ -455,6 +465,8 @@ editor/
   openManifestInEditor.ts
   spatialIndex.ts
   toolMeta.ts
+empty-canvas/
+  EmptyCanvasGuidedStart.tsx
 global.d.ts
 governance/
   core/
@@ -484,6 +496,7 @@ hooks/
   useFloorPlanSession.ts
   useGeometryRevision.ts
   usePlanTier.ts
+  useReliablePress.ts
   useVisualViewportInset.ts
 index.css
 ipad-workspace.css
@@ -538,6 +551,7 @@ modules/
     sheetSetPdfExport.ts
   studio-audio/
     ambientLoop.ts
+    atmosphericMask.ts
     audioEngine.test.ts
     audioEngine.ts
     audioPrefs.ts
@@ -546,6 +560,8 @@ modules/
     soundCatalog.ts
     StudioAudioProvider.tsx
     useStudioAudio.ts
+  telemetry/
+    frustrationDetector.ts
   themeManager.ts
   versionControlHooks.ts
 pages/
@@ -581,6 +597,9 @@ planning/
   planSelector.ts
   scoringWeights.ts
   types.ts
+pwaAutoUpdate.ts
+qa-evidence/
+  QaEvidencePanel.tsx
 routes.production.test.tsx
 routes.tsx
 rules/
@@ -618,6 +637,13 @@ rules/
     coverageRule.ts
     setbackRule.test.ts
     setbackRule.ts
+samples/
+  full-feature-showcase.json
+  furniture-showcase.json
+  landscape-garden.json
+  mep-lighting-showcase.json
+  sample-house-01.json
+  terrain-garden.json
 services/
   architecture-bot/
     issueCatalog.ts
@@ -697,30 +723,50 @@ services/
     resolveZoning.ts
     zoningRules.ts
 styles/
+  vish-auth-exact-reference.css
   vish-auth-gate.css
+  vish-auth-ipad-polish.css
+  vish-auth-mockup-page.css
+  vish-auth-reference-breakpoint-fix.css
+  vish-auth-reference-match.css
+  vish-auth-reference-screen.css
   vish-copilot-swan.css
+  vish-device-validation.css
+  vish-divine-architect-theme.css
   vish-editor-chrome.css
   vish-editor-mantra.css
   vish-editor-polish.css
+  vish-empty-guided-start.css
   vish-governance-polish.css
   vish-indian-sacred.css
+  vish-ipad-editor-usability.css
+  vish-ipad-king-polish.css
   vish-layout-tokens.css
+  vish-login-page.css
   vish-mantra-widget.css
   vish-marketing-polish.css
   vish-marketing.css
   vish-mockup-system.css
   vish-motion-system.css
+  vish-no-drift-tooling-polish.css
+  vish-qa-evidence.css
   vish-realism.css
+  vish-release-dialog-guard.css
+  vish-release-focus-ring.css
   vish-sacred-auth.css
   vish-sacred-editor.css
   vish-sacred-governance.css
   vish-sacred-layers.css
   vish-sacred-marketing.css
   vish-sacred-tokens.css
+  vish-theme-bhumi.css
   vish-theme-solar-mandala.css
   vish-tokens.css
+  vish-touch-audit-hud.css
   vish-tutorial.css
   vish-ui-polish.css
+  vish-vibhuti-obsidian.css
+  vish-voice-tour.css
   vish-workspace-polish.css
   vish-workspace-shell.css
 svg.d.ts
@@ -748,6 +794,7 @@ test/
   copilotUploadIpad.test.ts
   demoFlowDocs.test.ts
   demoMediaKitHandoff.test.ts
+  divineArchitectTheme.test.ts
   editorChrome.test.ts
   editorPerformanceOverhaul.test.ts
   editorPerformanceOverhaulProof.ts
@@ -780,6 +827,7 @@ test/
   marketingRoutes.test.tsx
   motionSystem.test.ts
   multiUserGovernance.test.ts
+  multiUserRolesCiGate.test.ts
   officialLogoBrand.test.ts
   parity2d3d.test.ts
   pilotDocs.test.ts
@@ -789,6 +837,7 @@ test/
   RadialToolMenu.test.tsx
   redTeam.test.ts
   regressionAnchors.test.ts
+  repairbotTiers.test.ts
   roomCalculations.test.ts
   sacredMarketing.test.ts
   sampleCatalog.test.ts
@@ -819,6 +868,8 @@ test/
 theme/
   tokens.ts
 three.d.ts
+touch-audit/
+  IpadTouchAuditHud.tsx
 tutorial/
   tutorialCatalog.test.ts
   tutorialCatalog.ts
@@ -862,6 +913,9 @@ utils/
   wallDrawConstraints.ts
 vish-theme.css
 vite-env.d.ts
+voice-tour/
+  VoiceGuidedTour.tsx
+  voiceTourContent.ts
 
 api/
 ai/
@@ -1029,29 +1083,38 @@ akasha-cast.spec.ts
 auth-gate.spec.ts
 auth-post-login-restore.spec.ts
 auth-private-routes.spec.ts
+cloud-supabase-lifecycle.spec.ts
 collaboration-sync.spec.ts
 compliance-gate.spec.ts
 cross-browser-smoke.spec.ts
 demo-flow-screenshot-pack.spec.ts
+device-auth-layout.spec.ts
 device-collaboration-chrome.spec.ts
 device-desktop-layout.spec.ts
 device-governance-layout.spec.ts
 device-marketing-layout.spec.ts
 device-phone-editor.spec.ts
+device-validation-proof-panel.spec.ts
 deviceTouchTargets.ts
+editor-draw-workflow-proof.spec.ts
 editor-features.spec.ts
 editor-performance.spec.ts
+editor-tool-clickthrough-proof.spec.ts
 governance-smoke.spec.ts
 helpers.ts
 ipad-editor-layout.spec.ts
+ipad-editor-workflow.spec.ts
 ipad-production-readiness.spec.ts
+long-session-soak-proof.spec.ts
 marketing-asset-pack.spec.ts
 marketing-pages.spec.ts
 optimization.spec.ts
 page-reference-pack-remainder.spec.ts
 page-reference-pack.spec.ts
+project-demo-load-proof.spec.ts
 projects-profile.spec.ts
 release-screenshot-pack.spec.ts
+route-health-smoke.spec.ts
 tutorial-essentials.spec.ts
 workspace-navigation.spec.ts
 
@@ -1093,6 +1156,8 @@ archive/
     VERIFICATION_REPORT.md
   README.md
 BRAND_LOCK.md
+ci/
+  VISHVAKARMA_CI_STARTUP_REPAIR.md
 compliance/
   DATA_PROCESSING.md
   PRIVACY.md
@@ -1147,6 +1212,7 @@ design/
       20-projects-empty.png
       21-projects-populated.png
       22-profile.png
+  PAGE_ROOM_GUIDE.md
   png-pack/
     00_contact_sheet.png
     01_auth_access.png
@@ -1230,6 +1296,20 @@ prd.md
 PRODUCT_CAPABILITIES.md
 project-manifest-schema.md
 PROPRIETARY_NOTICE.md
+qa/
+  AUTH_IPAD10_SMOKE_CHECKLIST.md
+  DEVICE_VALIDATION_PROOF_MODE_QA.md
+  EMPTY_CANVAS_GUIDED_START_QA.md
+  GUIDED_DEMO_SESSION_QA.md
+  IPAD_EDITOR_GRID_DEMO_QA.md
+  IPAD_TOUCH_AUDIT_HUD_QA.md
+  NO_DRIFT_TOOLING_UI_POLISH.md
+  PWA_AUTO_UPDATE_QA.md
+  QA_EVIDENCE_EXPORT_PACK.md
+  QA_EVIDENCE_MODE_QA.md
+  RELEASE_POLISH_SIGNOFF.md
+  UI_FEATURE_HARDENING_CHECKLIST.md
+  VOICE_GUIDED_TOUR_QA.md
 README.md
 REGISTRY.md
 release/
@@ -1251,10 +1331,16 @@ release/
     ipad-auth-landscape.png
     ipad-auth-portrait.png
     ipad-editor-landscape.png
+    ipad-proof-checklist.md
+    ipad-recordings/
     ipad-touch-audit.md
+    IPAD_10_REAL_DEVICE_PROOF.md
     latest-ci-run.md
+    long-session-soak-proof.md
     performance-notes.md
     playwright-report-summary.md
+    POST_READY_DEEP_PROOF_MATRIX.md
+    POST_READY_NEXT_3_PROOF_PACK.md
     README.md
     route-smoke-output.txt
     save-load-proof-run.json
@@ -1274,7 +1360,9 @@ release/
     UI_AUDIT_REPORT_2026-06-08.md
     UI_FUNCTIONALITY_PASS_2026-05-22.md
   IPAD_PRODUCTION_READINESS.md
+  IPAD_TEST_CHECK_SHEET.md
   MOBILE_GIT_REVIEW.md
+  NO_DRIFT_UI_CHANGELOG.md
   OPERATOR_CHECKLIST.md
   PRODUCTION_READINESS.md
   STRIPE_SETUP.md
@@ -1319,11 +1407,13 @@ user/
   FAQ.md
   GETTING_STARTED.md
   KEYBOARD_SHORTCUTS.md
+  NAVIGATION_MAP.md
   README.md
   STUB_TOOLS.md
   TOOL_REFERENCE.md
   TROUBLESHOOTING.md
   VIDEO_TUTORIAL_SCRIPTS.md
+  VOICE_TOUR_SCRIPTS.md
   WORKFLOWS.md
 v2/
   ARCHITECTURE.md
@@ -1343,10 +1433,16 @@ audio/
     om-namah-shivaya.mp3
     saraswati-ambient.mp3
     vishvakarma-mantra.mp3
+  tours/
+    whole-software/
+      README.md
 auth-capabilities.json
 brand/
+  auth-bg.png
+  auth-bg.webp
   vishvakarma-apple-touch-icon.png
   vishvakarma-official-logo.svg
+deity-hero.png
 favicon.png
 hdri/
   studio-arch.hdr
@@ -1504,6 +1600,7 @@ world-record/
 PULL_REQUEST_TEMPLATE.md
 workflows/
   ci-health.yml
+  ci.yml
   e2e.yml
   lighthouse.yml
   repairbot.yml

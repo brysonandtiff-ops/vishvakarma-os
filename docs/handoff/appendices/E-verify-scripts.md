@@ -2,7 +2,7 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-20T05:40:42.064Z
+Generated: 2026-06-26T11:12:49.851Z
 
 ## npm verify / gates scripts
 
