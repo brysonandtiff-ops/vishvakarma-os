@@ -29,48 +29,6 @@ async function assertEditorTouchTargets(page: Page) {
   await assertTouchTargets(page, EDITOR_TOUCH_SELECTORS);
 }
 
-async function tapReachable(locator: Locator) {
-  await locator.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
-  await locator.evaluate((element) => {
-    element.scrollIntoView({ block: 'nearest', inline: 'center' });
-    (element as HTMLElement).click();
-  });
-}
-
-async function assertActiveDialogFitsIpad(page: Page) {
-  const dialog = page.getByRole('dialog').first();
-  await expect(dialog).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(250);
-
-  const metrics = await dialog.evaluate((element) => {
-    const rect = element.getBoundingClientRect();
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-    const style = window.getComputedStyle(element);
-    return {
-      left: rect.left,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-      viewportWidth,
-      viewportHeight,
-      canScroll: element.scrollHeight > element.clientHeight,
-      overflowY: style.overflowY,
-    };
-  });
-
-  expect(metrics.left).toBeGreaterThanOrEqual(-1);
-  expect(metrics.top).toBeGreaterThanOrEqual(-1);
-  expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
-  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight + 1);
-  if (metrics.canScroll) {
-    expect(['auto', 'scroll']).toContain(metrics.overflowY);
-  }
-
-  await assertNoHorizontalOverflow(page);
-  await assertTouchTargets(page, ['[role="dialog"] button', '[role="dialog"] [role="button"]']);
-}
-
 async function waitForZoomReadoutToChange(page: Page) {
   await expect
     .poll(async () => page.locator('.ws-status-bar').getByText(/Zoom/).locator('..').textContent(), {
