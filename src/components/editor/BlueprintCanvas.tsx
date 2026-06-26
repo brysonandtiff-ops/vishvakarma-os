@@ -92,6 +92,7 @@ import {
   getInputModeFromPointerType,
   getHitAreaForMode,
   isEraserPointerActive,
+  isEraserPointerPressed,
   type CanvasInputMode,
 } from '@/components/editor/blueprint/inputHandlers';
 import {
