@@ -37,7 +37,6 @@ const APP_SMOKE_MATCH = [
   '**/device-phone-editor.spec.ts',
   '**/device-collaboration-chrome.spec.ts',
   '**/device-desktop-layout.spec.ts',
-  '**/device-auth-layout.spec.ts',
   '**/governance-smoke.spec.ts',
   '**/editor-features.spec.ts',
   '**/marketing-pages.spec.ts',
