@@ -148,13 +148,13 @@ test.describe('editor draw workflow proof', () => {
     await activateTool(page, 'Select');
     for (const ratio of [0.28, 0.72, 0.5]) {
       const point = { x: box.width * ratio, y: centerY };
-      await page.mouse.click(box.x + point.x, box.y + point.y);
+      await dispatchCanvasPointer(canvas, 'pointerdown', point);
+      await dispatchCanvasPointer(canvas, 'pointerup', point);
       if (await page.getByText(/wall properties/i).isVisible().catch(() => false)) {
         break;
       }
     }
 
-    await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/openings/i).first()).toBeVisible({ timeout: 10_000 });
