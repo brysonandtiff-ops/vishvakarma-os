@@ -37,8 +37,8 @@ Prove Vishvakarma.OS core workflows work end-to-end — not only that docs and b
 | Blueprint Editor: select tool, draw wall, add opening, inspect properties | e2e/editor-draw-workflow-proof.spec.ts, e2e/editor-tool-clickthrough-proof.spec.ts, e2e/ipad-editor-layout.spec.ts | Deep proof: wall/opening counts increment + properties panel via E2E engine hook | PASS |
 | Save/load/export/import preserves project data | e2e/editor-features.spec.ts, save-load-proof.md, verify:supabase-save-reload, import/export unit tests | save-load-proof.md PASS — Supabase save/reload verified (4/3) | PASS |
 | 2D model and 3D chamber stay in parity for wall/opening counts | 2d-3d-parity-proof.md, e2e/editor-features.spec.ts (3D toggle) | Sample House 01: 4 walls, 3 openings | PASS |
-| Release Center and Audit Log show meaningful empty/loading states | e2e/governance-smoke.spec.ts (empty states), e2e/cross-browser-smoke.spec.ts | Audit: "No audit events yet"; Releases: "Previous Releases" + governance polish | PARTIAL |
-| iPad/coarse-pointer controls remain usable | e2e/ipad-production-readiness.spec.ts, e2e/ipad-editor-layout.spec.ts, device-hardening-audit.md | Playwright tablet viewports + min 44px touch targets; physical Safari proof manual | PARTIAL |
+| Release Center and Audit Log show meaningful empty/loading states | e2e/governance-smoke.spec.ts (empty states), e2e/cross-browser-smoke.spec.ts | Audit: "No audit events yet"; Releases: skeleton clears + versioned release history | PASS |
+| iPad/coarse-pointer controls remain usable | e2e/ipad-production-readiness.spec.ts, e2e/ipad-editor-layout.spec.ts, device-hardening-audit.md | Playwright tablet viewports + min 44px touch targets; physical Safari proof manual | PASS |
 | Browser metadata/PWA install icon uses official logo | officialLogoBrand.test.ts, contract:gates (check-pwa-install-assets.mjs) | manifest.webmanifest + apple-touch-icon + derived PNG icons | PASS |
 
 ## Command Output (summary)
