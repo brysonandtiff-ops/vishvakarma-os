@@ -69,6 +69,34 @@ test.describe('Device governance layout', () => {
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
   });
+
+  test('/3d-room fits iPad landscape without overflow', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await page.goto('/3d-room', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /detached 3d chamber|market-class 3d room/i }).first()).toBeVisible({
+      timeout: 60_000,
+    });
+    await assertNoHorizontalOverflow(page);
+    await assertTouchTargets(page, ['header button', 'section button']);
+  });
+
+  test('/3d-room fits iPad portrait without overflow', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    await page.goto('/3d-room', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /detached 3d chamber|market-class 3d room/i }).first()).toBeVisible({
+      timeout: 60_000,
+    });
+    await assertNoHorizontalOverflow(page);
+  });
+
+  test('unknown workspace route fits iPad portrait without overflow', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    await page.goto('/this-route-does-not-exist', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /route not found|404/i }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    await assertNoHorizontalOverflow(page);
+  });
 });
 
 test.describe('Cast viewer device layout', () => {
@@ -76,6 +104,14 @@ test.describe('Cast viewer device layout', () => {
     await page.setViewportSize(iPadPortrait);
     await page.goto('/cast/e2e-preview-token');
     await expect(page.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
+    await assertTouchTargets(page, ['.vish-cast-viewer-controls label', '.vish-cast-viewer-controls button']);
+  });
+
+  test('cast viewer fits iPad landscape without horizontal overflow', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
+    await page.goto('/cast/e2e-preview-token');
+    await expect(page.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
+    await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, ['.vish-cast-viewer-controls label', '.vish-cast-viewer-controls button']);
   });
 

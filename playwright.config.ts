@@ -26,15 +26,18 @@ const AUTH_GATE_MATCH = [
   '**/auth-private-routes.spec.ts',
   '**/auth-post-login-restore.spec.ts',
   '**/ipad-production-readiness.spec.ts',
+  '**/device-auth-layout.spec.ts',
 ];
 
 const APP_SMOKE_MATCH = [
   '**/ipad-editor-layout.spec.ts',
+  '**/ipad-editor-workflow.spec.ts',
   '**/device-governance-layout.spec.ts',
   '**/device-marketing-layout.spec.ts',
   '**/device-phone-editor.spec.ts',
   '**/device-collaboration-chrome.spec.ts',
   '**/device-desktop-layout.spec.ts',
+  '**/device-auth-layout.spec.ts',
   '**/governance-smoke.spec.ts',
   '**/editor-features.spec.ts',
   '**/marketing-pages.spec.ts',

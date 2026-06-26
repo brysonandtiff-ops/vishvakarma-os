@@ -51,9 +51,11 @@ requirePhrase(viewport3d, 'webglcontextrestored', 'Viewport3D WebGL context-rest
 const requiredE2E = [
   'e2e/device-governance-layout.spec.ts',
   'e2e/device-marketing-layout.spec.ts',
+  'e2e/device-auth-layout.spec.ts',
   'e2e/device-phone-editor.spec.ts',
   'e2e/device-collaboration-chrome.spec.ts',
   'e2e/device-desktop-layout.spec.ts',
+  'e2e/ipad-editor-workflow.spec.ts',
   'e2e/deviceTouchTargets.ts',
 ];
 
