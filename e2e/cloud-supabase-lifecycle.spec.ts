@@ -9,6 +9,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const BLOCKED = /Backend not configured|Service configuration required/i;
 
 test.describe('Supabase cloud project lifecycle proof', () => {
+  test.beforeEach(() => {
+    test.skip(
+      !process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY,
+      'Requires VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY',
+    );
+  });
+
   test('create → read → update → delete project row', async () => {
     const id = `e2e_${Date.now()}`;
 

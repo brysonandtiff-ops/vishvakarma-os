@@ -25,6 +25,32 @@ async function seedAppSession(page: Page) {
   });
 }
 
+async function dismissBlockingChrome(page: Page) {
+  const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
+  if (await recoveryDiscard.isVisible().catch(() => false)) {
+    await recoveryDiscard.click({ force: true });
+  }
+
+  const dismissGuided = page.getByRole('button', { name: /dismiss guided start/i });
+  if (await dismissGuided.isVisible().catch(() => false)) {
+    await dismissGuided.click({ force: true });
+  }
+
+  const declineAnalytics = page.getByRole('button', { name: /decline/i });
+  if (await declineAnalytics.isVisible().catch(() => false)) {
+    await declineAnalytics.click({ force: true });
+  }
+}
+
+async function activateTool(page: Page, label: string) {
+  const button = page.getByRole('button', { name: label }).first();
+  await expect(button, `${label} tool should exist`).toBeAttached();
+  await button.evaluate((element) => {
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  });
+  await expect(button, `${label} tool should become active`).toHaveAttribute('aria-pressed', 'true');
+}
+
 test.describe('long-session editor soak proof', () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
