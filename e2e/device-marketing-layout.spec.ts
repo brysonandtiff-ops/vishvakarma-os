@@ -2,6 +2,7 @@
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
+  iPadLandscape,
   iPadPortrait,
   iPhonePortrait,
 } from './helpers';
@@ -30,6 +31,11 @@ async function assertMarketingPage(
 test.describe('Device marketing layout', () => {
   test('landing page fits iPad portrait', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
+    await assertMarketingPage(page, '/', /architecture studio/i);
+  });
+
+  test('landing page fits iPad landscape', async ({ page }) => {
+    await page.setViewportSize(iPadLandscape);
     await assertMarketingPage(page, '/', /architecture studio/i);
   });
 
