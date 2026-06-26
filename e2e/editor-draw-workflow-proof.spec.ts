@@ -96,6 +96,11 @@ async function activateTool(page: Page, label: string) {
   await expect(button, `${label} tool should become active`).toHaveAttribute('aria-pressed', 'true');
 }
 
+async function drawWallSegment(canvas: Locator, from: { x: number; y: number }, to: { x: number; y: number }) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', from);
+  await dispatchCanvasPointer(canvas, 'pointerup', to);
+}
+
 test.describe('editor draw workflow proof', () => {
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
