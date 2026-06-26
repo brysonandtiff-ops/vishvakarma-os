@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { resolveTierSteps } from '../../scripts/lib/resolve-tier-steps.mjs';
 
 const repoRoot = resolve(process.cwd());
 
@@ -12,6 +11,29 @@ function read(path: string) {
 type PipelineManifest = {
   tiers: Record<string, { extends?: string; steps?: string[] }>;
 };
+
+/** Mirrors scripts/lib/resolve-tier-steps.mjs mergeExtends behavior for tier tests. */
+function resolveTierSteps(
+  tiers: PipelineManifest['tiers'],
+  tierName: string,
+  visited = new Set<string>(),
+): string[] {
+  if (visited.has(tierName)) {
+    throw new Error(`Circular pipeline tier extends: ${tierName}`);
+  }
+  visited.add(tierName);
+
+  const tier = tiers[tierName];
+  if (!tier) {
+    throw new Error(`Unknown pipeline tier: ${tierName}`);
+  }
+
+  let steps: string[] = tier.extends ? resolveTierSteps(tiers, tier.extends, visited) : [];
+  if (tier.steps?.length) {
+    steps = [...steps, ...tier.steps];
+  }
+  return steps;
+}
 
 describe('RepairBot pipeline tiers', () => {
   const pipeline = JSON.parse(read('scripts/lib/pipeline-manifest.json')) as PipelineManifest;
@@ -24,7 +46,7 @@ describe('RepairBot pipeline tiers', () => {
   });
 
   it('resolves repairbot:full with env-scan as first step', () => {
-    const steps = resolveTierSteps(pipeline.tiers, 'repairbot:full', { mergeExtends: true });
+    const steps = resolveTierSteps(pipeline.tiers, 'repairbot:full');
     expect(steps[0]).toBe('node scripts/repairbot/lib/env-scan.mjs');
     expect(steps).toContain('pnpm run lint');
     expect(steps).toContain('pnpm run build');
