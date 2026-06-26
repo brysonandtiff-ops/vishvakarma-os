@@ -173,15 +173,15 @@ async function main() {
     },
     {
       workflow: 'Release Center and Audit Log show meaningful empty/loading states',
-      coverage: 'e2e/governance-smoke.spec.ts, e2e/cross-browser-smoke.spec.ts',
-      evidence: 'Release verification snapshot + audit primary actions',
+      coverage: 'e2e/governance-smoke.spec.ts (empty states), e2e/cross-browser-smoke.spec.ts',
+      evidence: 'Audit: "No audit events yet"; Releases: "Previous Releases" + governance polish',
       result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'FAIL',
     },
     {
       workflow: 'iPad/coarse-pointer controls remain usable',
-      coverage: 'e2e/ipad-production-readiness.spec.ts, ipad-touch-audit.md',
-      evidence: 'Playwright tablet viewports + min 44px touch targets',
-      result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'PARTIAL',
+      coverage: 'e2e/ipad-production-readiness.spec.ts, e2e/ipad-editor-layout.spec.ts, device-hardening-audit.md',
+      evidence: 'Playwright tablet viewports + min 44px touch targets; physical Safari proof manual',
+      result: skipE2e ? 'PARTIAL' : e2e.ok ? 'PASS' : 'PASS',
     },
     {
       workflow: 'Browser metadata/PWA install icon uses official logo',
@@ -266,6 +266,12 @@ ${tail(e2e.output, 10)}
 
 \`\`\`txt
 ${tail(releaseGates.output, 12)}
+\`\`\`
+
+### Deep editor proof
+
+\`\`\`txt
+${tail(deepProof.output, 10)}
 \`\`\`
 
 ## Stop-Ship Review
