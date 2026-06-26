@@ -131,9 +131,7 @@ test.describe('editor draw workflow proof', () => {
       .poll(async () => readMetricCount(page, 'Walls'), { timeout: 15_000 })
       .toBeGreaterThan(initialWalls);
 
-    const doorTool = page.getByTestId('tool-rail').getByRole('button', { name: 'Door' });
-    await doorTool.click();
-    await expect(doorTool).toHaveAttribute('aria-pressed', 'true');
+    await activateTool(page, 'Door');
 
     const doorPoint = { x: box.width * 0.5, y: centerY };
     await dispatchCanvasPointer(canvas, 'pointerdown', doorPoint);
