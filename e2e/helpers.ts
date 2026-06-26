@@ -350,4 +350,4 @@ export {
   assertTouchTargets,
   emulateCoarsePointer,
   emulateFinePointer,
-} from './deviceTouchTargets';
+};
