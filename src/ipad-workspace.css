@@ -373,6 +373,14 @@
   }
 }
 
+@media (max-width: 1194px) {
+  .ws-status-bar {
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @media (max-width: 720px) {
   .bg-ws-canvas > header .vish-wordmark,
   .bg-ws-canvas > header .font-technical,
@@ -383,11 +391,6 @@
   .bg-ws-canvas > header button,
   .vish-editor-topbar button {
     min-height: 44px;
-  }
-
-  .ws-status-bar {
-    gap: 8px;
-    overflow-x: auto;
   }
 }
 

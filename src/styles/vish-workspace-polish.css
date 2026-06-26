@@ -802,7 +802,7 @@
    12. RESPONSIVE
    -------------------------------------------------------------------------- */
 
-@media (max-width: 768px) {
+@media (max-width: 1194px) {
   .vish-projects-grid {
     grid-template-columns: 1fr;
   }
