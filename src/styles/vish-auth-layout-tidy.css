@@ -107,8 +107,8 @@ body:has(.vish-login-page--reference-replica) .vish-theme-controller__option {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body:has(.vish-login-page--reference-replica) .vish-qa-evidence-launch,
-  body:has(.vish-login-page--reference-replica) .vish-device-validation {
+  body:has(.vish-login-page--reference-replica) .vish-theme-controller__option,
+  body:has(.vish-login-page--reference-replica) .vish-theme-controller__option:hover {
     transition: none;
   }
 }
