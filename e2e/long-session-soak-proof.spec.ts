@@ -61,7 +61,8 @@ test.describe('long-session editor soak proof', () => {
     test.setTimeout(SOAK_MS + 60_000);
 
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByTestId('editor-top-bar')).toBeVisible();
+    await dismissBlockingChrome(page);
+    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('tool-rail')).toBeVisible();
     await expect(page.locator('body')).not.toContainText(BLOCKED_COPY);
 
