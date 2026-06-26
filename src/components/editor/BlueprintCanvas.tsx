@@ -1358,6 +1358,10 @@ export default function BlueprintCanvas({
       setIsPanning(false);
       panOriginRef.current = null;
     }
+    if (isErasingRef.current) {
+      isErasingRef.current = false;
+      eraserStrokeRef.current.clear();
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
