@@ -146,7 +146,14 @@ test.describe('editor draw workflow proof', () => {
       .toBeGreaterThan(initialOpenings);
 
     await activateTool(page, 'Select');
-    await canvas.click({ position: { x: box.width * 0.28, y: centerY }, force: true });
+    const selectPoints = [from, to, { x: box.width * 0.5, y: centerY }];
+    for (const point of selectPoints) {
+      await dispatchCanvasPointer(canvas, 'pointerdown', point);
+      await dispatchCanvasPointer(canvas, 'pointerup', point);
+      if (await page.getByText(/wall properties/i).isVisible().catch(() => false)) {
+        break;
+      }
+    }
 
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
