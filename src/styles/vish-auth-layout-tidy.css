@@ -28,6 +28,11 @@
     border-bottom: 1px solid rgba(255, 232, 162, 0.14);
   }
 
+  .vish-login-page--reference-replica .vish-login-page__top-line::after {
+    content: none;
+    display: none;
+  }
+
   /* Pull blueprint lines up so they do not compete with bottom chrome. */
   .vish-login-page--reference-replica .vish-login-page__auth-side::before {
     opacity: 0.48;
@@ -45,13 +50,10 @@
   }
 }
 
-/* Auth page: tuck dev/QA chrome out of the login focal area. */
+/* Auth page: hide floating QA chrome; panels remain reachable via command palette. */
 body:has(.vish-login-page--reference-replica) .vish-qa-evidence-launch,
 body:has(.vish-login-page--reference-replica) .vish-device-validation {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.92);
-  transition: opacity 160ms ease, transform 160ms ease;
+  display: none;
 }
 
 body:has(.vish-login-page--reference-replica) .vish-qa-evidence-panel {
