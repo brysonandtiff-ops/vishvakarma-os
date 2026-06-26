@@ -48,7 +48,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('signInWithGoogle');
     expect(loginCard).toContain("type={showPassword ? 'text' : 'password'}");
     expect(loginCard).toContain('Send me a magic link');
-    expect(loginCard).toContain('Continue with Google');
+    expect(loginCard).toContain('continue with Google OAuth');
+    expect(loginCard).toContain('Continue with SSO');
     expect(loginCard).toContain('Request access');
     expect(authPage).not.toContain('signInWithApple');
     expect(capabilities).toContain('fetchAuthCapabilitiesManifest');
