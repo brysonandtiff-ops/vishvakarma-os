@@ -47,6 +47,10 @@ body:has([data-testid='auth-page']) .vish-qa-evidence-launch {
   padding: 0 0.75rem;
 }
 
+body:has([data-testid='auth-page']) .vish-device-validation {
+  display: none;
+}
+
 body:has([data-testid='auth-page']) .vish-voice-tour-launch {
   top: calc(var(--vish-auth-chrome-top) + 3.15rem);
   right: var(--vish-auth-chrome-side);
