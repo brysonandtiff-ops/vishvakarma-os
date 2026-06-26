@@ -1345,24 +1345,14 @@ export default function BlueprintCanvas({
 
   const handlePointerUp = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    const isErasingBeforeUp = isErasingRef.current;
     if (isErasingRef.current) {
       isErasingRef.current = false;
       eraserStrokeRef.current.clear();
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-up-reset',message:'eraser reset on pointerup',data:{beforeMultiTouchCheck:true},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
     }
     const wasMultiTouch = isPinching || pointerTrackerRef.current.shouldEnterTouchGesture();
     clearActivePointer(event.pointerId);
-    // #region agent log
-    fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-up',message:'handlePointerUp entry',data:{wasMultiTouch,isErasingBeforeUp,button:event.button,buttons:event.buttons,pointerId:event.pointerId},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
 
     if (wasMultiTouch) {
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-up-multitouch',message:'pointerup early return multitouch',data:{isErasingBeforeUp,skippedEraserReset:false},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
@@ -1441,9 +1431,6 @@ export default function BlueprintCanvas({
     if (isErasingRef.current) {
       isErasingRef.current = false;
       eraserStrokeRef.current.clear();
-      // #region agent log
-      fetch('http://127.0.0.1:7794/ingest/0451e9e7-1a3e-4172-9adc-c1db59fe5192',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'32bff4'},body:JSON.stringify({sessionId:'32bff4',location:'BlueprintCanvas.tsx:pointer-cancel-reset',message:'eraser reset on pointercancel',data:{beforePinchCheck:true},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
     }
     clearActivePointer(event.pointerId);
     if (isPinching) {
