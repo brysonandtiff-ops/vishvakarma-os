@@ -2,6 +2,12 @@ name: E2E Proofs
 
 on:
   workflow_dispatch:
+    inputs:
+      soak_minutes:
+        description: Soak window in minutes (workflow_dispatch extended soak only)
+        required: false
+        default: '1'
+        type: string
   push:
     branches:
       - main
