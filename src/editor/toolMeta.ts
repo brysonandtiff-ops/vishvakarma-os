@@ -157,6 +157,10 @@ export const TOUCH_STATUS_HINTS: Record<ToolType, string> = {
   terrain: 'Terrain — tap vertices, tap first point to close',
 };
 
+/** Shown on coarse-pointer devices below the active tool hint in the status bar. */
+export const TOUCH_POINTER_MODALITY_HINT =
+  'Pencil draws · finger pans/pinches · flip Pencil to erase';
+
 export const BASE_TOOL_IDS: ToolType[] = [
   'select',
   'pan',

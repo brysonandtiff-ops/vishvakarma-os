@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Eye, EyeOff, Magnet, Minus, Plus } from 'lucide-react';
 import { APP_VERSION } from '@/config/appVersion';
 import { resolveEditorMantraChip } from '@/editor/editorMantras';
-import { STATUS_TOOL_HINTS, TOUCH_STATUS_HINTS, TOOL_META } from '@/editor/toolMeta';
+import { STATUS_TOOL_HINTS, TOUCH_POINTER_MODALITY_HINT, TOUCH_STATUS_HINTS, TOOL_META } from '@/editor/toolMeta';
 import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { useReliablePress } from '@/hooks/useReliablePress';
 import type { ToolType, WorkspaceMode } from '@/types';
@@ -68,6 +68,7 @@ export default function StatusBar({
   const meta = TOOL_META[currentTool];
   const ToolIcon = meta?.icon;
   const hint = isCoarsePointer ? TOUCH_STATUS_HINTS[currentTool] : STATUS_TOOL_HINTS[currentTool];
+  const coarseHintTitle = isCoarsePointer ? `${hint} — ${TOUCH_POINTER_MODALITY_HINT}` : hint;
   const mantraChip = resolveEditorMantraChip(workspaceMode);
   const showTouchZoom = isCoarsePointer && onZoomIn && onZoomOut;
 

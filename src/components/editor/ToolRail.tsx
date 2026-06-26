@@ -31,30 +31,31 @@ const MODE_LABELS: Record<WorkspaceMode, string> = {
 function ToolButton({
   toolId,
   isActive,
-  onClick,
+  onPress,
 }: {
   toolId: ToolType;
   isActive?: boolean;
-  onClick?: () => void;
+  onPress?: () => void;
 }) {
   const meta = TOOL_META[toolId];
   const Icon = meta.icon;
   const titleText = meta.shortcut
     ? `${meta.label} (${meta.shortcut}) — ${meta.hint}`
     : `${meta.label} — ${meta.hint}`;
+  const pressHandlers = useReliablePress(() => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    onPress?.();
+  });
 
   return (
     <button
       type="button"
-      className={`architect-tool-button vish-pressable min-h-[44px] min-w-[44px] prana-glow ${isActive ? 'active' : ''}`}
-      onClick={() => {
-        if (navigator.vibrate) navigator.vibrate(50);
-        onClick?.();
-      }}
+      className={`architect-tool-button vish-pressable touch-manipulation min-h-[44px] min-w-[44px] prana-glow ${isActive ? 'active' : ''}`}
       aria-label={meta.label}
       aria-pressed={isActive}
       title={titleText}
       data-tutorial={`tool-${toolId}`}
+      {...pressHandlers}
     >
       <Icon className="h-[18px] w-[18px] shrink-0" />
       <span className="font-technical w-full truncate px-0.5 text-center text-[8px] leading-[1.15] tracking-[0.02em]">{meta.label}</span>
@@ -90,7 +91,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
           key={toolId}
           toolId={toolId}
           isActive={currentTool === toolId}
-          onClick={() => handleToolChange(toolId)}
+          onPress={() => handleToolChange(toolId)}
         />
       ))}
       {modeToolIds.length > 0 && (
@@ -101,7 +102,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
               key={toolId}
               toolId={toolId}
               isActive={currentTool === toolId}
-              onClick={() => handleToolChange(toolId)}
+              onPress={() => handleToolChange(toolId)}
             />
           ))}
         </>
@@ -114,7 +115,7 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
               key={toolId}
               toolId={toolId}
               isActive={currentTool === toolId}
-              onClick={() => handleToolChange(toolId)}
+              onPress={() => handleToolChange(toolId)}
             />
           ))}
         </>
