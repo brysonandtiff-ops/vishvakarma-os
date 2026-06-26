@@ -57,11 +57,13 @@ async function main() {
   let unitTests;
   let e2e;
   let releaseGates;
+  let deepProof;
 
   if (skipE2e) {
     unitTests = run('pnpm run test');
     e2e = { ok: null, manual: false, output: 'Skipped (--skip-e2e)' };
     releaseGates = { ok: null, manual: false, output: 'Skipped (--skip-e2e)' };
+    deepProof = { ok: null, manual: false, output: 'Skipped (--skip-e2e)' };
   } else {
     // release:gates runs unit tests (gate 7) and e2e route smoke (gate 8) in one pass.
     releaseGates = run('pnpm run release:gates', { allowExit2: true });
@@ -75,6 +77,7 @@ async function main() {
       manual: releaseGates.manual,
       output: `Covered by release:gates gate 8 (pnpm run test:e2e parity)\n${releaseGates.output}`,
     };
+    deepProof = run('pnpm run test:e2e:deep-proof');
   }
 
   const sample = JSON.parse(
@@ -102,6 +105,7 @@ async function main() {
     ['route smoke', 'pnpm run test:routes', routeSmoke],
     ['build', 'pnpm run build', build],
     ['e2e gates', skipE2e ? 'pnpm run test:e2e (skipped)' : 'release:gates gate 8', e2e],
+    ['deep editor proof', skipE2e ? 'pnpm run test:e2e:deep-proof (skipped)' : 'pnpm run test:e2e:deep-proof', deepProof],
     ['release gates', 'pnpm run release:gates', releaseGates],
   ];
 

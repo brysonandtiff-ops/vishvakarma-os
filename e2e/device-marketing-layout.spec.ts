@@ -89,4 +89,13 @@ test.describe('Device marketing layout', () => {
 
     await expect(pricingHeading.first()).toBeVisible({ timeout: 10_000 });
   });
+
+  test('marketing 404 fits iPad portrait', async ({ page }) => {
+    await page.setViewportSize(iPadPortrait);
+    await page.goto('/404');
+    await expect(page.getByRole('heading', { name: /404|not found|route not found/i }).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await assertNoHorizontalOverflow(page);
+  });
 });
