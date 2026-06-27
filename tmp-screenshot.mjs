@@ -53,6 +53,13 @@ if (await canvas.isVisible().catch(() => false)) {
 const statusText = await page.locator('.ws-status-bar').textContent().catch(() => 'n/a');
 console.log('STATUS BAR:', statusText);
 
+const geom = await canvas.evaluate((el) => {
+  const r = el.getBoundingClientRect();
+  return { rect: { x: r.x, y: r.y, w: r.width, h: r.height }, bufW: el.width, bufH: el.height, cssW: el.style.width, cssH: el.style.height };
+}).catch((e) => ({ err: String(e) }));
+console.log('CANVAS GEOM:', JSON.stringify(geom));
+
 await page.screenshot({ path: OUT, fullPage: false });
+await canvas.screenshot({ path: OUT.replace('.png', '-canvas.png') }).catch((e) => console.log('canvas shot err', String(e)));
 console.log('Saved screenshot to', OUT);
 await browser.close();
