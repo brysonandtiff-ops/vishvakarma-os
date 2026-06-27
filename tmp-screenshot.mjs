@@ -57,10 +57,17 @@ const statusText = await page.locator('.ws-status-bar').textContent().catch(() =
 console.log('STATUS BAR:', statusText);
 
 const geom = await canvas.evaluate((el) => {
-  const r = el.getBoundingClientRect();
-  return { rect: { x: r.x, y: r.y, w: r.width, h: r.height }, bufW: el.width, bufH: el.height, cssW: el.style.width, cssH: el.style.height };
+  const chain = [];
+  let node = el;
+  for (let i = 0; i < 10 && node; i++) {
+    const r = node.getBoundingClientRect();
+    const cs = getComputedStyle(node);
+    chain.push({ tag: node.tagName, cls: (node.className || '').toString().slice(0, 50), w: Math.round(r.width), h: Math.round(r.height), flex: cs.flex, display: cs.display, overflow: cs.overflow });
+    node = node.parentElement;
+  }
+  return chain;
 }).catch((e) => ({ err: String(e) }));
-console.log('CANVAS GEOM:', JSON.stringify(geom));
+console.log('ANCESTOR CHAIN:', JSON.stringify(geom, null, 1));
 
 await page.screenshot({ path: OUT, fullPage: false });
 await canvas.screenshot({ path: OUT.replace('.png', '-canvas.png') }).catch((e) => console.log('canvas shot err', String(e)));
