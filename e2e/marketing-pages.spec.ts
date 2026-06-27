@@ -41,9 +41,18 @@ test.describe('marketing pages', () => {
     await expectNotFound(page);
   });
 
-  test('/pricing is not registered while flag is off', async ({ page }) => {
+  test('/pricing page loads tier cards when flag is on', async ({ page }) => {
     await page.goto('/pricing');
-    await expectNotFound(page);
+    await expect(page.getByRole('heading', { name: /professional-grade tools/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Starter$/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Studio$/i })).toBeVisible();
+  });
+
+  test('operator QA chrome is hidden in production build', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('visual-theme-controller')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /open qa evidence panel/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /open voice guided software tour/i })).toHaveCount(0);
   });
 
   test('/reset-password redirects to auth with notice', async ({ page }) => {

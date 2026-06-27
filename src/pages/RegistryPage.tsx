@@ -12,10 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, Database, Wrench, Box, Layers, AlertCircle } from 'lucide-react';
+import { Plus, Database, Wrench, Box, Layers } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
+import PageStateBlock from '@/components/common/PageStateBlock';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { backendStatus } from '@/backend/backendConfig';
 import { getRegistryEntries, createRegistryEntry } from '@/db/api';
@@ -93,10 +94,12 @@ export default function RegistryPage() {
           <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             {error && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                {error}
-              </div>
+              <PageStateBlock
+                variant="error"
+                title="Could not load registry entries"
+                description={error}
+                onRetry={() => void loadEntries()}
+              />
             )}
             {loading ? (
               <div className="space-y-3" data-testid="registry-loading-skeleton" aria-busy="true">

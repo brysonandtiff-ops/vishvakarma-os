@@ -114,6 +114,18 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(main).toContain('import.meta.env.PROD');
   });
 
+  it('keeps operator QA overlays gated behind AppShellOverlays', () => {
+    const app = read('src/App.tsx');
+    const overlays = read('src/components/common/AppShellOverlays.tsx');
+    const operatorChrome = read('src/config/operatorChrome.ts');
+
+    expect(app).toContain('<AppShellOverlays />');
+    expect(overlays).toContain('OPERATOR_CHROME_ENABLED');
+    expect(overlays).toContain('VisualThemeController');
+    expect(overlays).toContain('QaEvidencePanel');
+    expect(operatorChrome).toContain('VITE_OPERATOR_CHROME_ENABLED');
+  });
+
   it('keeps loading, auth, and app shell surfaces on the official brand asset', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
@@ -128,6 +140,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain('Checking secure session');
     expect(authPage).toContain('requestAccessLink');
     expect(authLoginCard).toContain('Request access');
+    expect(authLoginCard).toContain('Send secure access link');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
     expect(appLayout).toContain('PrototypeDisclaimerBadge');

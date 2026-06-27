@@ -22,6 +22,7 @@ export type RouteNavIconKey =
   | 'FolderOpen'
   | 'Sparkles'
   | 'User'
+  | 'Box'
   | 'FileText'
   | 'Database'
   | 'GitPullRequest'
@@ -63,8 +64,11 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     path: '/3d-room',
     name: '3D Room',
     access: 'private',
-    visible: false,
+    visible: true,
     layout: 'workspace-immersive',
+    navGroup: 'EDITOR',
+    showInNav: true,
+    navIcon: 'Box',
   },
   {
     path: '/projects',

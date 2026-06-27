@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import PageStateBlock from '@/components/common/PageStateBlock';
+import WorkspaceEmptyState from '@/components/common/WorkspaceEmptyState';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
 import { getReleases } from '@/db/api';
 import {
@@ -463,26 +465,28 @@ export default function ReleasesPage() {
                   <p className="sr-only">Loading release history…</p>
                 </div>
               ) : error ? (
-                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {error}
-                </div>
+                <PageStateBlock
+                  variant="error"
+                  title="Could not load release history"
+                  description={error}
+                  onRetry={() => void loadReleases()}
+                />
               ) : releases.length === 0 ? (
-                <div className="vish-empty-state rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center">
-                  <Rocket className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
-                  <h3 className="mt-3 text-sm font-semibold text-foreground">No release records yet</h3>
-                  <p className="mt-1 text-xs text-muted-foreground text-pretty">
-                    Run release gates locally, then promote a build through Spec Center and Change Requests.
-                  </p>
-                  <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                    <Button variant="outline" size="sm" className="touch-target" asChild>
-                      <Link to="/spec-center">Open Spec Center</Link>
-                    </Button>
-                    <Button variant="outline" size="sm" className="touch-target" asChild>
-                      <Link to="/editor">Open Editor</Link>
-                    </Button>
-                  </div>
-                </div>
+                <WorkspaceEmptyState
+                  icon={<Rocket className="h-10 w-10 text-muted-foreground/40" />}
+                  title="No release records yet"
+                  description="Run release gates locally, then promote a build through Spec Center and Change Requests."
+                  action={
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                      <Button variant="outline" size="sm" className="touch-target" asChild>
+                        <Link to="/spec-center">Open Spec Center</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" className="touch-target" asChild>
+                        <Link to="/editor">Open Editor</Link>
+                      </Button>
+                    </div>
+                  }
+                />
               ) : (
                 <div className="grid gap-3">
                   {releases.map((release) => (

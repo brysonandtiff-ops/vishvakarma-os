@@ -10,6 +10,7 @@ import {
 const sidebarLinks = [
   { name: 'Blueprint Editor', path: '/editor', testId: 'editor-top-bar' },
   { name: 'Projects', path: '/projects', heading: /your projects/i },
+  { name: '3D Room', path: '/3d-room', heading: /market-class 3d room/i },
   { name: 'Profile', path: '/profile', heading: /profile/i },
   { name: 'Spec Center', path: '/spec-center', heading: /spec center/i },
   { name: 'Registry', path: '/registry', heading: /registry center/i },

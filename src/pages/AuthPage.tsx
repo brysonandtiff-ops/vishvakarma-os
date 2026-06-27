@@ -10,7 +10,6 @@ import {
   getAuthPageUrl,
   getEmbeddedAuthBrowserLabel,
   isEmbeddedAuthBrowser,
-  isEmbeddedAuthErrorMessage,
 } from '@/backend/authUiHelpers';
 import {
   POST_AUTH_DESTINATION,
@@ -36,13 +35,10 @@ export default function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [rememberDevice, setRememberDevice] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [forgotPasswordNotice, setForgotPasswordNotice] = useState(false);
 
   const emailPreview = useMemo(() => email.trim().toLowerCase() || 'architect@firm.com', [email]);
   const isProduction = import.meta.env.PROD;
@@ -86,18 +82,13 @@ export default function AuthPage() {
     return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
 
-  const sendAccessLink = async (source: 'sign-in' | 'magic-link' | 'request-access' | 'forgot-password') => {
+  const sendAccessLink = async (source: 'sign-in' | 'request-access') => {
     setMessage(null);
     setError(null);
-    setForgotPasswordNotice(false);
 
     if (!email.trim()) {
       setError('Enter your email address to request a secure access link.');
       return;
-    }
-
-    if (source === 'sign-in' && password.trim()) {
-      setMessage('This workspace uses secure email links instead of passwords. Sending your access link…');
     }
 
     setSubmitting(true);
@@ -109,11 +100,6 @@ export default function AuthPage() {
       return;
     }
 
-    if (source === 'forgot-password') {
-      setMessage(`Password reset is unavailable. Secure access link sent to ${emailPreview}.`);
-      return;
-    }
-
     setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
   };
 
@@ -121,7 +107,6 @@ export default function AuthPage() {
     event.preventDefault();
     setMessage(null);
     setError(null);
-    setForgotPasswordNotice(false);
     if (!email.trim()) {
       setError('Enter the same email address that received the secure access link.');
       return;
@@ -141,12 +126,6 @@ export default function AuthPage() {
     await sendAccessLink('sign-in');
   };
 
-  const handleForgotPassword = () => {
-    setForgotPasswordNotice(true);
-    setError(null);
-    setMessage(null);
-  };
-
   const handleCopyAuthUrl = async () => {
     try {
       await navigator.clipboard.writeText(externalAuthUrl);
@@ -161,7 +140,6 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
-    setForgotPasswordNotice(false);
     storeAuthReturnPath(POST_AUTH_DESTINATION);
     setSubmitting(true);
     const result = await signInWithGoogle();
@@ -188,9 +166,7 @@ export default function AuthPage() {
         <AuthLoginHero />
         <AuthLoginCard
           email={email}
-          password={password}
           rememberDevice={rememberDevice}
-          showPassword={showPassword}
           submitting={submitting}
           disabled={authDisabled}
           status={status}
@@ -199,17 +175,13 @@ export default function AuthPage() {
           externalAuthUrl={externalAuthUrl}
           completingEmailLink={completingEmailLink}
           needsEmailForLink={needsEmailForLink}
-          passwordResetNotice={passwordResetNotice || forgotPasswordNotice}
+          passwordResetNotice={passwordResetNotice}
           sessionRestoreTimeoutNotice={sessionRestoreTimeoutNotice}
           showConfigRequired={showConfigRequired}
           onEmailChange={setEmail}
-          onPasswordChange={setPassword}
           onRememberDeviceChange={setRememberDevice}
-          onTogglePassword={() => setShowPassword((v) => !v)}
           onSignIn={onSignInSubmit}
           onCompleteEmailLink={onCompleteEmailLink}
-          onMagicLink={() => void sendAccessLink('magic-link')}
-          onForgotPassword={handleForgotPassword}
           onSso={handleGoogleSignIn}
           onRequestAccess={() => void sendAccessLink('request-access')}
           onCopyAuthUrl={handleCopyAuthUrl}

@@ -8,14 +8,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { TutorialProvider } from '@/tutorial/TutorialProvider';
 import { StudioAudioProvider } from '@/modules/studio-audio/StudioAudioProvider';
 import { initMonitoring } from '@/lib/monitoring';
-import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
-import VisualThemeController from '@/components/common/VisualThemeController';
-import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
-import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
-import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
-import QaEvidencePanel from '@/qa-evidence/QaEvidencePanel';
-import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
-import IpadTouchAuditHud from '@/touch-audit/IpadTouchAuditHud';
+import AppShellOverlays from '@/components/common/AppShellOverlays';
 import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 
@@ -34,14 +27,7 @@ const App: React.FC = () => {
               <AppRoutes />
             </AppErrorBoundary>
           </div>
-          <GuidedDemoSessionController />
-          <EmptyCanvasGuidedStart />
-          <VisualThemeController />
-          <AnalyticsConsentBanner />
-          <MantraPlayerWidget />
-          <VoiceGuidedTour />
-          <QaEvidencePanel />
-          <IpadTouchAuditHud />
+          <AppShellOverlays />
           <Analytics />
           <Toaster />
         </RouteGuard>

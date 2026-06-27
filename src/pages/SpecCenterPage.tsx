@@ -10,12 +10,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck, Loader2 } from 'lucide-react';
+import { FileText, Lock, AlertCircle, CheckCircle2, Plus, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
 import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
+import PageStateBlock from '@/components/common/PageStateBlock';
 import { backendStatus } from '@/backend/backendConfig';
 import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
@@ -173,17 +174,17 @@ export default function SpecCenterPage() {
           <div className="vish-section-stack gov-content-area">
             <GovernanceBackendBanner />
             {loadError && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                {loadError}
-              </div>
+              <PageStateBlock
+                variant="error"
+                title="Could not load specifications"
+                description={loadError}
+                onRetry={() => void loadSpecs()}
+              />
             )}
-            {loading && (
-              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="mt-3 text-sm">Loading specifications…</p>
-              </div>
-            )}
+            {loading ? (
+              <PageStateBlock variant="loading" title="Loading specifications…" />
+            ) : (
+            <>
             {/* Blueprint Editor Spec — Featured */}
             <Card className="vish-gov-card-dark overflow-hidden border-2 border-primary/60 shadow-md">
               <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-6 py-3">
@@ -303,8 +304,7 @@ export default function SpecCenterPage() {
               </div>
             )}
 
-            {/* Empty state for other specs */}
-            {!loading && specs.length === 0 && (
+            {specs.length === 0 && (
               <div className="rounded-xl border border-dashed border-border bg-muted/20 py-12 text-center">
                 <FileText className="mx-auto h-10 w-10 text-muted-foreground/40" />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">No additional specs</h3>
@@ -325,6 +325,8 @@ export default function SpecCenterPage() {
                 </p>
               </div>
             </div>
+            </>
+            )}
           </div>
         </WorkspacePageScroll>
 

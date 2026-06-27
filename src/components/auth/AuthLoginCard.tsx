@@ -4,9 +4,6 @@ import {
   Building2,
   Copy,
   ExternalLink,
-  Eye,
-  EyeOff,
-  Lock,
   Mail,
   Send,
 } from 'lucide-react';
@@ -21,9 +18,7 @@ export type AuthLoginStatus = {
 
 interface AuthLoginCardProps {
   email: string;
-  password: string;
   rememberDevice: boolean;
-  showPassword: boolean;
   submitting: boolean;
   disabled: boolean;
   status: AuthLoginStatus | null;
@@ -36,13 +31,9 @@ interface AuthLoginCardProps {
   sessionRestoreTimeoutNotice: boolean;
   showConfigRequired: boolean;
   onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
   onRememberDeviceChange: (value: boolean) => void;
-  onTogglePassword: () => void;
   onSignIn: (event: FormEvent<HTMLFormElement>) => void;
   onCompleteEmailLink: (event: FormEvent<HTMLFormElement>) => void;
-  onMagicLink: () => void;
-  onForgotPassword: () => void;
   onSso: () => void;
   onRequestAccess: () => void;
   onCopyAuthUrl: () => void;
@@ -52,9 +43,7 @@ interface AuthLoginCardProps {
 
 export default function AuthLoginCard({
   email,
-  password,
   rememberDevice,
-  showPassword,
   submitting,
   disabled,
   status,
@@ -67,13 +56,9 @@ export default function AuthLoginCard({
   sessionRestoreTimeoutNotice,
   showConfigRequired,
   onEmailChange,
-  onPasswordChange,
   onRememberDeviceChange,
-  onTogglePassword,
   onSignIn,
   onCompleteEmailLink,
-  onMagicLink,
-  onForgotPassword,
   onSso,
   onRequestAccess,
   onCopyAuthUrl,
@@ -81,10 +66,8 @@ export default function AuthLoginCard({
   onLocalWorkspace,
 }: AuthLoginCardProps) {
   const emailId = useId();
-  const passwordId = useId();
   const rememberId = useId();
   const statusId = useId();
-  const passwordHelpId = useId();
 
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser ||
@@ -116,7 +99,7 @@ export default function AuthLoginCard({
           </h1>
           <p>Architect • Engineer • Create</p>
           <p className="vish-login-page__auth-note">
-            Use a secure email access link or continue with Google OAuth.
+            Enter your email for a secure access link, or continue with Google OAuth.
           </p>
         </div>
 
@@ -128,7 +111,7 @@ export default function AuthLoginCard({
 
         {passwordResetNotice && (
           <p className="vish-login-page__status" role="status">
-            Password reset is not available in this environment. Use a magic link or Google sign-in instead.
+            Password reset is not available in this environment. Request a secure email access link or use Google sign-in.
           </p>
         )}
 
@@ -185,7 +168,7 @@ export default function AuthLoginCard({
                 autoComplete="email"
                 autoCapitalize="none"
                 inputMode="email"
-                enterKeyHint="next"
+                enterKeyHint="go"
                 spellCheck={false}
                 required
                 disabled={submitting || disabled}
@@ -193,74 +176,25 @@ export default function AuthLoginCard({
               />
             </div>
 
-            <div className="vish-login-page__field">
-              <label htmlFor={passwordId}>Password</label>
-              <Lock className="vish-login-page__field-icon" size={18} aria-hidden="true" />
+            <label className="vish-login-page__remember touch-target" htmlFor={rememberId}>
               <input
-                id={passwordId}
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => onPasswordChange(event.target.value)}
-                placeholder="Enter password"
-                autoComplete="current-password"
-                minLength={8}
+                id={rememberId}
+                type="checkbox"
+                checked={rememberDevice}
+                onChange={(event) => onRememberDeviceChange(event.target.checked)}
                 disabled={submitting || disabled}
-                aria-describedby={`${passwordHelpId} ${statusId}`}
               />
-              <button
-                type="button"
-                className="vish-login-page__toggle touch-target"
-                onClick={onTogglePassword}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-              <p id={passwordHelpId} className="vish-login-page__field-help">
-                Vishvakarma.OS uses secure email access links; password entry is optional.
-              </p>
-            </div>
-
-            <div className="vish-login-page__row">
-              <label className="vish-login-page__remember touch-target" htmlFor={rememberId}>
-                <input
-                  id={rememberId}
-                  type="checkbox"
-                  checked={rememberDevice}
-                  onChange={(event) => onRememberDeviceChange(event.target.checked)}
-                  disabled={submitting || disabled}
-                />
-                Remember this device
-              </label>
-
-              <button type="button" className="vish-login-page__link touch-target" onClick={onForgotPassword}>
-                Forgot password?
-              </button>
-            </div>
+              Remember this device
+            </label>
 
             <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
-              {submitting ? 'Opening workspace…' : 'Sign In to Sacred Workspace'}
-              <ArrowRight size={18} aria-hidden="true" />
+              {submitting ? 'Sending access link…' : 'Send secure access link'}
+              <Send size={18} aria-hidden="true" />
             </button>
 
             <div className="vish-login-page__divider" aria-hidden="true">
               OR
             </div>
-
-            <button
-              type="button"
-              className="vish-login-page__secondary touch-target"
-              onClick={onMagicLink}
-              disabled={submitting || disabled}
-            >
-              <span className="vish-login-page__secondary-icon">
-                <Send size={18} aria-hidden="true" />
-              </span>
-              <span>
-                <b>Send me a magic link</b>
-                <small>Sign in securely without a password</small>
-              </span>
-            </button>
 
             {showEmbeddedAuthRecovery && (
               <div className="vish-login-page__embedded-recovery">
@@ -285,7 +219,7 @@ export default function AuthLoginCard({
 
             <button
               type="button"
-              className="vish-login-page__secondary touch-target"
+              className="vish-login-page__secondary touch-target vish-auth-google-button"
               onClick={onSso}
               disabled={submitting || disabled || embeddedAuthBrowser}
             >
