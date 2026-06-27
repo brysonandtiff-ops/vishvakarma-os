@@ -13,7 +13,9 @@ await page.addInitScript(() => {
 });
 
 await page.goto(`${BASE}/editor`, { waitUntil: 'domcontentloaded' });
-await page.waitForTimeout(2500);
+await page.waitForTimeout(2000);
+await page.setViewportSize({ width: 1195, height: 835 });
+await page.waitForTimeout(1500);
 
 // dismiss any blocking chrome
 for (const name of [/discard draft/i, /dismiss guided start/i, /decline/i]) {
