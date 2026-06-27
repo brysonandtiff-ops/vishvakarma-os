@@ -4,7 +4,8 @@ const BASE = process.env.SHOT_BASE ?? 'http://127.0.0.1:5173';
 const OUT = process.env.SHOT_OUT ?? '/tmp/editor-dev.png';
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const context = await browser.newContext({ viewport: { width: 1194, height: 834 }, hasTouch: true, deviceScaleFactor: 2 });
+const page = await context.newPage();
 
 await page.addInitScript(() => {
   window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
