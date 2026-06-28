@@ -1394,14 +1394,12 @@ export default function BlueprintCanvas({
       const end = getCanvasPoint(event);
       const rect: SelectionRect = { ...marqueeRect, x2: end.x, y2: end.y };
       const ids = wallsInSelectionRect(walls, rect);
-      console.log('[DEBUG-SELECT] pointerup marquee branch', { marqueeRect, ids, end });
       if (ids.length > 0) {
         onWallsSelect?.(ids);
         onOpeningSelect?.(undefined);
       } else {
         const { width, height } = normalizeSelectionRect(rect);
         if (width < 10 && height < 10) {
-          console.log('[DEBUG-SELECT] pointerup CLEARING selection (tiny marquee)');
           onWallSelect(undefined);
           onWallsSelect?.([]);
           onOpeningSelect?.(undefined);
