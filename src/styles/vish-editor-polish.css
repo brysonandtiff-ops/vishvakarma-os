@@ -9,16 +9,9 @@
    -------------------------------------------------------------------------- */
 
 .vish-editor-shell {
-  /*
-   * The editor shell stacks the top bar, the middle work area (tool rail +
-   * canvas + properties), and the status bar vertically. The React component
-   * (`EditorPage`) already nests a flex row for the middle area, so the shell
-   * must be a flex column. A previous `display: grid` with a 3x3 template did
-   * not match this DOM: its `1fr` canvas column collapsed to 0px (the `auto`
-   * properties column consumed the full width), hiding the blueprint canvas.
-   */
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 52px 1fr 28px;
+  grid-template-columns: 52px 1fr auto;
   height: 100dvh;
   overflow: hidden;
   background: hsl(240 32% 5%);
