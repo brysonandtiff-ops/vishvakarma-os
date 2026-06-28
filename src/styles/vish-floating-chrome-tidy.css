@@ -1,11 +1,11 @@
 /* Vishvakarma.OS — floating chrome overlap fixes (QA, voice tour, theme picker). */
 
-/* Stack voice tour above the bottom-right theme controller. */
-body:has(.vish-theme-controller) .vish-voice-tour-launch {
+/* Stack voice tour above the bottom-right theme controller (workspace routes). */
+body:has(.vish-theme-controller):not(:has([data-testid='auth-page'])) .vish-voice-tour-launch {
   bottom: max(14rem, calc(14rem + var(--vish-safe-bottom, 0px)));
 }
 
-body:has(.vish-theme-controller) .vish-voice-tour-panel {
+body:has(.vish-theme-controller):not(:has([data-testid='auth-page'])) .vish-voice-tour-panel {
   bottom: max(9.5rem, calc(9.5rem + var(--vish-safe-bottom, 0px)));
 }
 
