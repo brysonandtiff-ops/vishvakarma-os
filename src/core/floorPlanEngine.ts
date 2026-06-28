@@ -554,6 +554,25 @@ export class FloorPlanEngine {
     });
   }
 
+  /**
+   * Update only the wall selection, leaving the opening selection untouched.
+   * Callers (e.g. the canvas) clear the other selection types explicitly, so
+   * these scoped setters must not clobber each other — otherwise selecting a
+   * wall and then clearing the opening would wipe the wall selection.
+   */
+  selectWallsOnly(wallIds: string[]): void {
+    const ids = wallIds.length ? wallIds : undefined;
+    this.touchSession({
+      selectedWallId: ids?.[0],
+      selectedWallIds: ids,
+    });
+  }
+
+  /** Update only the opening selection, leaving the wall selection untouched. */
+  selectOpeningOnly(openingId?: string): void {
+    this.touchSession({ selectedOpeningId: openingId });
+  }
+
   clearSelection(): void {
     this.touchSession({
       selectedWallId: undefined,
