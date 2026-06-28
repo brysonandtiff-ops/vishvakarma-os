@@ -33,10 +33,6 @@ body:has([data-testid='auth-page']) .vish-login-page__top-line {
   text-wrap: balance;
 }
 
-body:has([data-testid='auth-page']) .vish-voice-tour-launch {
-  top: calc(var(--vish-auth-chrome-top, 0.85rem) + 8.75rem);
-}
-
 @media (min-width: 981px) {
   body:has([data-testid='auth-page']) .vish-login-page__top-line {
     position: relative;
