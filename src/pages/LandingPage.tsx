@@ -69,7 +69,7 @@ export default function LandingPage() {
                 </Button>
               )}
             </div>
-            <div className="vish-hero-stats mt-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:mt-20">
+            <div className="vish-hero-stats mt-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-2 lg:max-w-xl xl:max-w-none xl:grid-cols-4 lg:mt-20">
               {STATS.map((stat, index) => (
                 <MetricPill key={stat.label} value={stat.value} label={stat.label} animate staggerIndex={index} />
               ))}
