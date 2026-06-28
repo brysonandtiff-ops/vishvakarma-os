@@ -1053,6 +1053,7 @@ export default function BlueprintCanvas({
       }
 
       const wall = getWallAtPoint(point, getHitArea(mode, 5));
+      console.log('[DEBUG-SELECT] select pointerdown', { point, mode, hitArea: getHitArea(mode, 5), wallFound: wall?.id, wallsLen: walls.length, hasOnWallsSelect: !!onWallsSelect });
       if (wall) {
         if (isElementLocked(wall.id, 'wall')) {
           const lock = getElementLock(wall.id, 'wall');
@@ -1066,6 +1067,7 @@ export default function BlueprintCanvas({
             ? [selectedWallId]
             : [];
         const nextIds = toggleWallInSelection(currentIds, wall.id, additive);
+        console.log('[DEBUG-SELECT] selecting wall', { wallId: wall.id, nextIds });
         if (onWallsSelect) {
           onWallsSelect(nextIds);
         } else {
