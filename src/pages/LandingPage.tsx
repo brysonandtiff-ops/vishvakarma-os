@@ -13,7 +13,7 @@ import { getMarketingCta } from '@/lib/marketingCta';
 import { Box, FileOutput, Layers, PenLine, Shield } from 'lucide-react';
 
 const STATS = [
-  { value: 'Live 2D↔3D', label: 'One manifest' },
+  { value: '2D↔3D', label: 'One manifest' },
   { value: String(EXPORT_FORMAT_COUNT), label: 'Export formats' },
   { value: 'Vastu + NBC', label: 'India compliance' },
   { value: '44px', label: 'Touch targets' },
