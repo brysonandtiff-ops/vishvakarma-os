@@ -372,6 +372,9 @@ export class FloorPlanEngine {
   }
 
   private touchSession(partial: Partial<EditorSessionState>): void {
+    if ('selectedWallIds' in partial || 'selectedWallId' in partial) {
+      console.log('[DEBUG-SELECT] touchSession selection', JSON.stringify({ selectedWallIds: partial.selectedWallIds, selectedWallId: partial.selectedWallId }), new Error().stack?.split('\n').slice(1, 5).join(' | '));
+    }
     this.session = { ...this.session, ...partial };
     this.notifySession();
   }
