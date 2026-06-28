@@ -1230,9 +1230,9 @@ function EditorWorkspace() {
                   onLandscapeAdd={(element) => engine.addLandscapeElement(element)}
                   onTerrainAdd={(patch) => engine.addTerrainPatch(patch)}
                   onPointerCanvasMove={handlePointerCanvasMove}
-                  onWallSelect={(id) => engine.setSelection(id, undefined)}
-                  onWallsSelect={(ids) => engine.setWallSelection(ids)}
-                  onOpeningSelect={(id) => engine.setSelection(undefined, id)}
+                  onWallSelect={(id) => engine.selectWallsOnly(id ? [id] : [])}
+                  onWallsSelect={(ids) => engine.selectWallsOnly(ids)}
+                  onOpeningSelect={(id) => engine.selectOpeningOnly(id)}
                   selectedWallId={selectedWallId}
                   selectedWallIds={selectedWallIds}
                   selectedOpeningId={selectedOpeningId}
