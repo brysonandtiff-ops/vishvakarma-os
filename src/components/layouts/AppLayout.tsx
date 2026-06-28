@@ -177,8 +177,8 @@ function SidebarContent({
               aria-label="Open command palette"
             >
               <Search className="h-4 w-4 shrink-0 opacity-70" />
-              <span className="min-w-0 truncate text-xs">Search workspace…</span>
-              <kbd className="ml-auto rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-ws-text-faint">
+              <span className="min-w-0 flex-1 truncate text-xs">Search…</span>
+              <kbd className="vish-shell-command__kbd ml-auto shrink-0 rounded border border-ws-border bg-ws-sidebar px-1.5 py-0.5 text-[10px] font-medium tracking-widest text-ws-text-faint">
                 {paletteShortcut}
               </kbd>
             </button>
@@ -297,7 +297,12 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
   return (
     <GovernanceNavContext.Provider value={{ openNav }}>
     <EditorSidebarProvider>
-    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background overflow-hidden" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
+    <div
+      className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background overflow-hidden"
+      data-density={prefs.density}
+      data-immersive={immersive ? 'true' : undefined}
+      data-sidebar-collapsed={collapsed ? 'true' : undefined}
+    >
       <WorkspaceCommandPalette />
       {showDesktopSidebar && (
       <aside

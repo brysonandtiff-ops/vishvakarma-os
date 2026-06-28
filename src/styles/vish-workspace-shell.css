@@ -44,6 +44,16 @@
     0 14px 34px hsl(0 0% 0% / 0.35);
 }
 
+.vish-shell-command__kbd {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .vish-workspace-shell:not([data-sidebar-collapsed='true']) .vish-shell-command__kbd {
+    display: inline-flex;
+  }
+}
+
 .vish-shell-nav-active {
   background:
     linear-gradient(135deg, hsl(var(--ws-active-bg) / 0.96), hsl(var(--ws-active) / 0.2));

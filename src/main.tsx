@@ -54,6 +54,7 @@ import "./styles/vish-release-dialog-guard.css";
 import "./styles/vish-no-drift-tooling-polish.css";
 import "./styles/vish-voice-tour.css";
 import "./styles/vish-qa-evidence.css";
+import "./styles/vish-floating-chrome-tidy.css";
 import "./styles/vish-empty-guided-start.css";
 import "./styles/vish-touch-audit-hud.css";
 import App from "./App.tsx";

@@ -93,6 +93,22 @@
   transform: translateY(-2px);
 }
 
+.vish-hero-stats .vish-stat-pill {
+  min-width: 0;
+  padding-inline: 0.85rem;
+}
+
+.vish-hero-stats .vish-stat-pill p:first-child {
+  font-size: clamp(0.95rem, 2.4vw, 1.5rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.vish-hero-stats .vish-stat-pill p:last-child {
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+
 /* --------------------------------------------------------------------------
    SECTION TITLES
    -------------------------------------------------------------------------- */

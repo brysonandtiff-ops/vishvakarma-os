@@ -1,0 +1,71 @@
+/* Vishvakarma.OS — floating chrome overlap fixes (QA, voice tour, theme picker). */
+
+/* Stack voice tour above the bottom-right theme controller. */
+body:has(.vish-theme-controller) .vish-voice-tour-launch {
+  bottom: max(14rem, calc(14rem + var(--vish-safe-bottom, 0px)));
+}
+
+body:has(.vish-theme-controller) .vish-voice-tour-panel {
+  bottom: max(9.5rem, calc(9.5rem + var(--vish-safe-bottom, 0px)));
+}
+
+/* Workspace shell: keep QA evidence out of the sidebar footer. */
+@media (min-width: 768px) {
+  body:has(.vish-workspace-shell) .vish-qa-evidence-launch {
+    top: max(0.85rem, env(safe-area-inset-top));
+    bottom: auto;
+    left: calc(var(--vish-sidebar-collapsed, 4rem) + 0.85rem);
+  }
+
+  body:has(.vish-workspace-shell:not([data-sidebar-collapsed='true'])) .vish-qa-evidence-launch {
+    left: calc(var(--vish-sidebar-width, 15rem) + 0.85rem);
+  }
+}
+
+/* Auth: reserve space for top-right theme + voice tour chrome. */
+body:has([data-testid='auth-page']) .vish-login-page__auth-side {
+  padding-top: max(5.25rem, calc(4.75rem + env(safe-area-inset-top)));
+}
+
+body:has([data-testid='auth-page']) .vish-login-page__top-line {
+  max-width: min(36rem, calc(100% - 15.5rem));
+  padding-right: 0.5rem;
+  text-wrap: balance;
+}
+
+body:has([data-testid='auth-page']) .vish-voice-tour-launch {
+  top: calc(var(--vish-auth-chrome-top, 0.85rem) + 8.75rem);
+}
+
+@media (min-width: 981px) {
+  body:has([data-testid='auth-page']) .vish-login-page__top-line {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-inline: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 980px) {
+  /* Decorative auth-side lines should not cross form copy on mobile. */
+  .vish-login-page__auth-side::before {
+    opacity: 0.28;
+    inset: auto 0 0 0;
+    width: 100%;
+    height: 38%;
+    clip-path: none;
+    background:
+      linear-gradient(90deg, rgba(246, 198, 101, 0.45), rgba(246, 198, 101, 0.08)) 0 100% / 100% 2px no-repeat,
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 2.2rem,
+        rgba(75, 188, 255, 0.08) 2.2rem 2.3rem
+      );
+  }
+
+  .vish-login-page__auth-card {
+    position: relative;
+    z-index: 2;
+  }
+}

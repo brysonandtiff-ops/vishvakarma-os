@@ -31,7 +31,6 @@ export default function AuthLoginHero() {
           height={600}
           decoding="async"
           loading="eager"
-          fetchPriority="high"
         />
         <div className="vish-login-page__deity-glow" />
       </div>
