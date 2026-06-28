@@ -547,6 +547,7 @@ export class FloorPlanEngine {
 
   setWallSelection(wallIds: string[], openingId?: string): void {
     const ids = wallIds.length ? wallIds : undefined;
+    console.log('[DEBUG-SELECT] engine.setWallSelection', JSON.stringify(wallIds));
     this.touchSession({
       selectedWallId: ids?.[0],
       selectedWallIds: ids,
