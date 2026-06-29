@@ -26,6 +26,8 @@ function applyTheme(theme: VisualThemeId) {
 
 export default function VisualThemeController() {
   const [theme, setTheme] = useState<VisualThemeId>(() => readStoredTheme());
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     applyTheme(theme);
@@ -34,6 +36,28 @@ export default function VisualThemeController() {
       window.localStorage.setItem(VISUAL_THEME_STORAGE_KEY, theme);
     }
   }, [theme]);
+
+  // Collapse the swatch popover on outside click or Escape so the compact
+  // pill never overlaps the other corner controls (voice tour, mantra, QA).
+  useEffect(() => {
+    if (!open || typeof document === 'undefined') return undefined;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
