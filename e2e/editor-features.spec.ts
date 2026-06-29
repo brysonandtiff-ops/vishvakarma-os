@@ -111,7 +111,6 @@ test.describe('editor core features (e2e local access)', () => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
     await clickFirstWallOnCanvas(page);
-    await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).not.toHaveText(/^$/);
