@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-06-29T20:01:57.424Z
 
 ```
 src/
@@ -726,6 +726,7 @@ styles/
   vish-auth-exact-reference.css
   vish-auth-gate.css
   vish-auth-ipad-polish.css
+  vish-auth-layout-tidy.css
   vish-auth-mockup-page.css
   vish-auth-reference-breakpoint-fix.css
   vish-auth-reference-match.css
@@ -860,6 +861,7 @@ test/
   verificationWiring.test.ts
   versionControlHooks.test.ts
   viewport3dFpsWiring.test.ts
+  VisualThemeController.runtime.test.tsx
   visualThemeController.test.ts
   workspaceCommandPalette.test.ts
   workspaceLayoutPolish.test.ts

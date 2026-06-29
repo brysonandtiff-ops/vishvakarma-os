@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-06-29T20:01:57.424Z
 
-## Vitest unit/integration (164 files)
+## Vitest unit/integration (165 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -81,6 +81,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/PropertiesPanel.test.tsx`
 - `src/test/RadialToolMenu.test.tsx`
 - `src/test/ToolRail.test.tsx`
+- `src/test/VisualThemeController.runtime.test.tsx`
 - `src/test/accessibilityLayer.test.ts`
 - `src/test/adaptiveFrameGovernor.test.ts`
 - `src/test/atmosphereMode.test.ts`
