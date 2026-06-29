@@ -93,6 +93,30 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.72rem;
+  border: 1px solid hsl(43 70% 56% / 0.26);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 12% 0%, hsl(43 84% 62% / 0.16), transparent 55%),
+    linear-gradient(145deg, hsl(36 16% 8% / 0.95), hsl(36 18% 5% / 0.96));
+  box-shadow:
+    0 18px 48px hsl(0 0% 0% / 0.42),
+    inset 0 1px 0 hsl(43 90% 74% / 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.08);
+  animation: vish-theme-pop 160ms ease;
+}
+
+@keyframes vish-theme-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vish-theme-controller__option {
