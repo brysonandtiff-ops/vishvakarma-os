@@ -4,9 +4,6 @@ import {
   Building2,
   Copy,
   ExternalLink,
-  Eye,
-  EyeOff,
-  Lock,
   Mail,
   Send,
 } from 'lucide-react';
