@@ -345,9 +345,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vish-theme-controller__option,
-  .vish-theme-controller__option:hover {
+  .vish-theme-controller__option:hover,
+  .vish-theme-controller__toggle,
+  .vish-theme-controller__toggle:hover,
+  .vish-theme-controller__chevron {
     transform: none;
     transition: none;
+  }
+
+  .vish-theme-controller__options {
+    animation: none;
   }
 }
 
