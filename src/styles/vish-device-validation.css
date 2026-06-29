@@ -161,20 +161,20 @@
   }
 }
 /*
-  Group the QA launcher with the QA Evidence pill on the LEFT (stacked above it)
-  so it never overlaps the voice-tour / theme / mantra controls on the right.
+  Park the QA launcher in the bottom-right corner beside the mantra FAB so it
+  never overlaps the voice-tour pill or the theme switcher above it.
 */
 .vish-device-validation {
-  left: max(16px, env(safe-area-inset-left));
-  right: auto;
-  bottom: max(150px, calc(150px + env(safe-area-inset-bottom)));
+  right: max(88px, calc(88px + env(safe-area-inset-right)));
+  left: auto;
+  bottom: max(16px, env(safe-area-inset-bottom));
   z-index: 9100;
 }
 
 @media (max-width: 540px) {
   .vish-device-validation {
-    left: max(10px, env(safe-area-inset-left));
-    right: auto;
-    bottom: max(150px, calc(150px + env(safe-area-inset-bottom)));
+    right: max(76px, calc(76px + env(safe-area-inset-right)));
+    left: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
   }
 }
