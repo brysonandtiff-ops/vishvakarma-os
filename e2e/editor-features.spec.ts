@@ -114,10 +114,7 @@ test.describe('editor core features (e2e local access)', () => {
   test('sample project wall selection shows openings in properties panel', async ({ page }) => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
-    await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
+    await clickFirstWallOnCanvas(page);
     await expect(page.getByText(/openings/i).first()).toBeVisible({ timeout: 10_000 });
     const openingsCount = await page.getByTestId('wall-openings-count').textContent();
     expect(Number(openingsCount ?? '0')).toBeGreaterThanOrEqual(0);
