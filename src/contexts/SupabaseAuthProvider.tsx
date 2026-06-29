@@ -58,6 +58,18 @@ function normalizeMagicLinkError(error: unknown) {
       );
     }
 
+    // Supabase rejects reserved/undeliverable domains (e.g. example.com) with
+    // "Email address ... is invalid". Surface a clear, actionable message.
+    if (message.includes('email_address_invalid') || message.includes('is invalid')) {
+      return new Error(
+        'Enter a real, deliverable email address. Test domains like example.com are not accepted.'
+      );
+    }
+
+    if (message.includes('rate limit') || message.includes('too many')) {
+      return new Error('Too many sign-in attempts. Please wait a minute and try again.');
+    }
+
     return error;
   }
 
