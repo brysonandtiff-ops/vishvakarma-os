@@ -18,8 +18,12 @@ body:has([data-testid='auth-page']) .vish-theme-controller {
   right: var(--vish-auth-chrome-side);
   bottom: auto;
   left: auto;
-  width: min(15.5rem, calc(100vw - 2rem));
-  z-index: 36;
+  width: auto;
+  /* Sit above the voice-tour / QA pills so the expanded swatch popover is not
+     occluded by them on the crowded top-right auth chrome. */
+  z-index: 74;
+  /* Top-anchored on auth: keep the toggle pinned and drop the swatches below it. */
+  flex-direction: column-reverse;
 }
 
 body:has([data-testid='auth-page']) .vish-theme-controller__header {

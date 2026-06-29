@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
   dismissEditorOverlays,
   expect3DPreviewPane,
@@ -7,6 +7,45 @@ import {
   resetWorkspacePrefs,
   saveProject,
 } from './helpers';
+
+/**
+ * Click on an actual wall segment (the first wall's midpoint), computed from the
+ * floor-plan engine. The sample house is a rectangle, so the canvas centre is
+ * empty space — clicking it never selects a wall. This maps a real wall's world
+ * position to a canvas-relative click point so selection tests exercise the
+ * click → select → properties flow.
+ */
+async function clickFirstWallOnCanvas(page: Page) {
+  const canvas = page.getByTestId('blueprint-canvas');
+  const target = await page.evaluate(() => {
+    const engine = (window as unknown as {
+      __vishFloorPlanEngine?: {
+        getSnapshot: () => {
+          manifest: { walls: Array<{ start: { x: number; y: number }; end: { x: number; y: number } }> };
+          session: { canvasViewport: { panX: number; panY: number; zoom: number } };
+        };
+      };
+    }).__vishFloorPlanEngine;
+    const canvasEl = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+    if (!engine || !canvasEl) return null;
+    const snapshot = engine.getSnapshot();
+    const wall = snapshot.manifest.walls[0];
+    if (!wall) return null;
+    const vp = snapshot.session.canvasViewport;
+    const rect = canvasEl.getBoundingClientRect();
+    const dpr = canvasEl.width / rect.width || 1;
+    // Click 20% along the wall rather than the midpoint: sample openings sit at
+    // position 0.5, and clicking on an opening selects the opening, not the wall.
+    const at = 0.2;
+    const pt = {
+      x: wall.start.x + (wall.end.x - wall.start.x) * at,
+      y: wall.start.y + (wall.end.y - wall.start.y) * at,
+    };
+    return { x: (pt.x * vp.zoom + vp.panX) / dpr, y: (pt.y * vp.zoom + vp.panY) / dpr };
+  });
+  if (!target) throw new Error('No wall available to click');
+  await canvas.click({ position: target });
+}
 
 test.describe('editor core features (e2e local access)', () => {
   test.setTimeout(90_000);
@@ -71,11 +110,7 @@ test.describe('editor core features (e2e local access)', () => {
   test('select wall on sample project shows properties panel with length', async ({ page }) => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
-    await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
-    await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
+    await clickFirstWallOnCanvas(page);
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).not.toHaveText(/^$/);
@@ -84,10 +119,7 @@ test.describe('editor core features (e2e local access)', () => {
   test('sample project wall selection shows openings in properties panel', async ({ page }) => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
-    await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
+    await clickFirstWallOnCanvas(page);
     await expect(page.getByText(/openings/i).first()).toBeVisible({ timeout: 10_000 });
     const openingsCount = await page.getByTestId('wall-openings-count').textContent();
     expect(Number(openingsCount ?? '0')).toBeGreaterThanOrEqual(0);

@@ -30,7 +30,7 @@ import { minTier } from '@/utils/adaptiveFrameGovernor';
 import { AdaptiveFrameGovernor } from '@/components/editor/AdaptiveFrameGovernor';
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
-import { ATMOSPHERE, DOOR, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
+import { ATMOSPHERE, DOOR, GOLD_MUTED, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
 import { HDRI_STUDIO_ARCH } from '@/core/scenePbrCatalog';
 import { resolveAmbientIntensity, resolveSunColor } from '@/core/lightingPresets';
 import { BatchedWallMeshes, OpeningMarkers, shouldBatchWalls } from '@/components/editor/sceneWallBatch';

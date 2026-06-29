@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronUp } from 'lucide-react';
 import {
   DEFAULT_VISUAL_THEME,
   VISUAL_THEME_STORAGE_KEY,
@@ -25,6 +26,8 @@ function applyTheme(theme: VisualThemeId) {
 
 export default function VisualThemeController() {
   const [theme, setTheme] = useState<VisualThemeId>(() => readStoredTheme());
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     applyTheme(theme);
@@ -33,6 +36,28 @@ export default function VisualThemeController() {
       window.localStorage.setItem(VISUAL_THEME_STORAGE_KEY, theme);
     }
   }, [theme]);
+
+  // Collapse the swatch popover on outside click or Escape so the compact
+  // pill never overlaps the other corner controls (voice tour, mantra, QA).
+  useEffect(() => {
+    if (!open || typeof document === 'undefined') return undefined;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -52,27 +77,46 @@ export default function VisualThemeController() {
   );
 
   return (
-    <aside className="vish-theme-controller" aria-label="Visual identity mode" data-testid="visual-theme-controller">
-      <div className="vish-theme-controller__header">
-        <span className="vish-theme-controller__eyebrow">Visual identity</span>
-        <strong>{activeTheme.shortLabel}</strong>
-      </div>
-      <div className="vish-theme-controller__options" role="group" aria-label="Choose visual identity theme">
-        {VISUAL_THEMES.map((visualTheme) => (
-          <button
-            key={visualTheme.id}
-            type="button"
-            className="vish-theme-controller__option"
-            aria-pressed={theme === visualTheme.id}
-            onClick={() => setTheme(visualTheme.id)}
-            title={visualTheme.description}
-            style={{ '--theme-accent': visualTheme.accentHsl } as React.CSSProperties}
-          >
-            <span className="vish-theme-controller__swatch" aria-hidden="true" />
-            <span>{visualTheme.shortLabel}</span>
-          </button>
-        ))}
-      </div>
+    <aside
+      ref={containerRef}
+      className="vish-theme-controller"
+      data-open={open ? 'true' : undefined}
+      aria-label="Visual identity mode"
+      data-testid="visual-theme-controller"
+    >
+      {open && (
+        <div className="vish-theme-controller__options" role="group" aria-label="Choose visual identity theme">
+          {VISUAL_THEMES.map((visualTheme) => (
+            <button
+              key={visualTheme.id}
+              type="button"
+              className="vish-theme-controller__option"
+              aria-pressed={theme === visualTheme.id}
+              onClick={() => setTheme(visualTheme.id)}
+              title={visualTheme.description}
+              style={{ '--theme-accent': visualTheme.accentHsl } as React.CSSProperties}
+            >
+              <span className="vish-theme-controller__swatch" aria-hidden="true" />
+              <span>{visualTheme.shortLabel}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <button
+        type="button"
+        className="vish-theme-controller__toggle"
+        aria-expanded={open}
+        aria-label={`Visual identity: ${activeTheme.shortLabel}. ${open ? 'Hide' : 'Show'} theme options`}
+        onClick={() => setOpen((value) => !value)}
+        style={{ '--theme-accent': activeTheme.accentHsl } as React.CSSProperties}
+      >
+        <span className="vish-theme-controller__swatch" aria-hidden="true" />
+        <span className="vish-theme-controller__toggle-text">
+          <span className="vish-theme-controller__eyebrow">Visual identity</span>
+          <strong>{activeTheme.shortLabel}</strong>
+        </span>
+        <ChevronUp className="vish-theme-controller__chevron" size={14} aria-hidden="true" />
+      </button>
     </aside>
   );
 }

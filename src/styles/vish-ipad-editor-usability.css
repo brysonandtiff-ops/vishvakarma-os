@@ -257,3 +257,36 @@
     white-space: nowrap;
   }
 }
+
+/*
+ * Phone portrait: the editor top bar collapses to a 2-column grid
+ * (minmax(0,1fr) auto). On very narrow widths the left group's
+ * non-shrinkable items (menu + mode badge + logo + project name) exceed the
+ * 1fr column and bleed into the action row, overlapping it. Hide the
+ * project name and logo tile here — the hamburger menu and mode badge keep
+ * enough context — so the left group fits without overlap.
+ */
+@media (max-width: 560px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:first-child .truncate.text-sm.font-semibold,
+  .bg-ws-canvas .vish-editor-topbar-grid > div:first-child .vish-logo-tile {
+    display: none;
+  }
+
+  /*
+   * `justify-self: start` (Tailwind) sizes the left group to its content, so it
+   * can spill past its 1fr column into the action row. Force it to fill and
+   * clip its column so it can never overlap the actions, and narrow the
+   * (horizontally scrollable) action row so the menu + mode badge stay fully
+   * visible.
+   */
+  .bg-ws-canvas .vish-editor-topbar-grid > div:first-child {
+    justify-self: stretch;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:last-child,
+  .bg-ws-canvas .vish-editor-action-row {
+    max-width: 44vw;
+  }
+}

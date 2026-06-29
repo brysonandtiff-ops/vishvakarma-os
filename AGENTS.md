@@ -160,3 +160,17 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 **Resolved (was a gap):** iPad/coarse-pointer controls (automated) — PASS in [device-hardening-audit.md](./docs/release/evidence/device-hardening-audit.md). Physical iPad Home Screen install and Pencil draw remain manual — see [DEVICE_HARDENING_RUNBOOK.md](./docs/release/DEVICE_HARDENING_RUNBOOK.md).
 
 **Out of scope for doc-only agents:** Editor E2E React #185 and screenshot pack (P1 code work).
+
+## Cursor Cloud specific instructions
+
+Durable, non-obvious notes for cloud agents (the update script already installs dependencies).
+
+- **Repo root:** In the cloud VM, the app lives directly at the workspace root (`/workspace`) — there is no nested `vishvakarma-os-live/` directory here, despite the "Workspace boundary" note above. Run all commands from the repo root.
+- **Node:** `engines` pins Node `20.x`, but the VM default is Node 22 and there is no `engine-strict`, so install/lint/test/build/dev all work on Node 22 (pnpm only prints an "Unsupported engine" warning). No `nvm` juggling is required.
+- **Run the app (dev):** `pnpm run dev` serves the SPA at `http://127.0.0.1:5173`. The app boots **without any backend** — `RouteGuard` allows local access when Supabase is unconfigured. To force-bypass the auth gate, set `VITE_ALLOW_LOCAL_DEMO=true` in a gitignored `.env.local`. The editor is at `/editor` (the "START FREE" button routes to `/auth`).
+- **Editor canvas layout:** The editor shell (`.vish-editor-shell`) must be a flex column. It was previously `display: grid` (in `src/styles/vish-editor-polish.css`), whose `1fr` canvas column collapsed to `0px` and hid the blueprint — fixed. If the blueprint canvas ever renders blank again, first check that the shell's canvas column/stage has non-zero width (the failure mode is a grid/flex layout regression, not a 2D-drawing bug).
+- **Verifying editor functionality:** Verify drawing via the `.ws-status-bar` `Walls:`/`Openings:` counters and the E2E draw proof: `pnpm exec playwright test --config=playwright.deep-proof.config.ts` (draws a wall, places a door, asserts wall properties). Tools activate via the tool rail buttons or keyboard (`W` = Wall).
+- **3D viewport needs WebGL:** In headless/GPU-less environments the 3D pane falls back to a "3D Preview Unavailable" panel, and screenshot specs that click "toggle 3d view" can fail at that step. This is expected; it does not indicate a broken 2D editor.
+- **E2E browsers:** Playwright browsers are not part of the dependency install. Install on demand with `pnpm exec playwright install --with-deps chromium` (add `firefox webkit` for cross-browser). The deep-proof, screenshot, and app-smoke configs build and serve their own preview on `http://127.0.0.1:4173` (`preview:e2e:local`); pass `PLAYWRIGHT_REUSE_SERVER=1` to reuse an already-running preview.
+- **Full unit suite is slow:** `pnpm run test` runs ~900 tests across ~166 files and takes ~3 minutes — run it in the background and poll rather than blocking. `AppErrorBoundary.test.tsx` intentionally throws "Test render failure" to stderr; that is expected, not a failure.
+- **Auto-ship hooks push to the current branch:** The `.cursor/hooks.json` auto-ship hooks commit and `git push origin HEAD` after edits/shell/stop. Work on a `cursor/*` feature branch (not `main`) so routine edits and even test-regenerated artifacts (e.g. `docs/release/evidence/*perf*`, `docs/demo/screenshots/*`) land on the branch instead of `main`.

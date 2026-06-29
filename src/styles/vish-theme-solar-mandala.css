@@ -4,26 +4,73 @@
   This file must not encode product state, auth, billing, save/load, or schema logic.
 */
 
+/*
+  The controller is a compact, collapsible pill anchored above the bottom-right
+  voice-tour / mantra / QA controls so it never overlaps them. The swatch grid
+  is a popover that expands upward only when opened.
+*/
 .vish-theme-controller {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
+  bottom: max(9rem, calc(9rem + env(safe-area-inset-bottom)));
   z-index: 40;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  width: auto;
+  color: hsl(42 40% 88%);
+}
+
+.vish-theme-controller__toggle {
+  display: inline-flex;
+  align-items: center;
   gap: 0.55rem;
-  width: min(18rem, calc(100vw - 2rem));
-  padding: 0.72rem;
-  border: 1px solid hsl(43 70% 56% / 0.26);
-  border-radius: 1rem;
+  min-height: 44px;
+  padding: 0 0.85rem 0 0.7rem;
+  border: 1px solid hsl(43 70% 56% / 0.3);
+  border-radius: 999px;
   background:
-    radial-gradient(circle at 12% 0%, hsl(43 84% 62% / 0.16), transparent 55%),
-    linear-gradient(145deg, hsl(36 16% 8% / 0.9), hsl(36 18% 5% / 0.94));
+    radial-gradient(circle at 14% 0%, hsl(43 84% 62% / 0.14), transparent 60%),
+    linear-gradient(145deg, hsl(36 16% 8% / 0.92), hsl(36 18% 5% / 0.95));
   color: hsl(42 40% 88%);
   box-shadow:
-    0 18px 48px hsl(0 0% 0% / 0.34),
+    0 16px 40px hsl(0 0% 0% / 0.34),
     inset 0 1px 0 hsl(43 90% 74% / 0.12);
   -webkit-backdrop-filter: blur(18px) saturate(1.08);
   backdrop-filter: blur(18px) saturate(1.08);
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease;
+}
+
+.vish-theme-controller__toggle:hover {
+  transform: translateY(-1px);
+  border-color: hsl(43 82% 63% / 0.5);
+}
+
+.vish-theme-controller__toggle:focus-visible {
+  outline: 2px solid hsl(43 82% 63% / 0.9);
+  outline-offset: 3px;
+}
+
+.vish-theme-controller__toggle-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.05;
+}
+
+.vish-theme-controller__toggle-text strong {
+  font-size: 0.72rem;
+}
+
+.vish-theme-controller__chevron {
+  opacity: 0.7;
+  transition: transform 160ms ease;
+}
+
+.vish-theme-controller[data-open='true'] .vish-theme-controller__chevron {
+  transform: rotate(180deg);
 }
 
 .vish-theme-controller__header {
@@ -46,6 +93,30 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
+  width: min(18rem, calc(100vw - 2rem));
+  padding: 0.72rem;
+  border: 1px solid hsl(43 70% 56% / 0.26);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 12% 0%, hsl(43 84% 62% / 0.16), transparent 55%),
+    linear-gradient(145deg, hsl(36 16% 8% / 0.95), hsl(36 18% 5% / 0.96));
+  box-shadow:
+    0 18px 48px hsl(0 0% 0% / 0.42),
+    inset 0 1px 0 hsl(43 90% 74% / 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.08);
+  animation: vish-theme-pop 160ms ease;
+}
+
+@keyframes vish-theme-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .vish-theme-controller__option {
@@ -262,18 +333,8 @@
 }
 
 @media (max-width: 760px) {
-  .vish-theme-controller {
-    width: auto;
-    grid-template-columns: 1fr;
-    padding: 0.55rem;
-  }
-
-  .vish-theme-controller__header {
-    display: none;
-  }
-
   .vish-theme-controller__options {
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .vish-theme-controller__option {
@@ -284,9 +345,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vish-theme-controller__option,
-  .vish-theme-controller__option:hover {
+  .vish-theme-controller__option:hover,
+  .vish-theme-controller__toggle,
+  .vish-theme-controller__toggle:hover,
+  .vish-theme-controller__chevron {
     transform: none;
     transition: none;
+  }
+
+  .vish-theme-controller__options {
+    animation: none;
   }
 }
 
