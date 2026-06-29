@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
   dismissEditorOverlays,
   expect3DPreviewPane,
@@ -7,6 +7,39 @@ import {
   resetWorkspacePrefs,
   saveProject,
 } from './helpers';
+
+/**
+ * Click on an actual wall segment (the first wall's midpoint), computed from the
+ * floor-plan engine. The sample house is a rectangle, so the canvas centre is
+ * empty space — clicking it never selects a wall. This maps a real wall's world
+ * position to a canvas-relative click point so selection tests exercise the
+ * click → select → properties flow.
+ */
+async function clickFirstWallOnCanvas(page: Page) {
+  const canvas = page.getByTestId('blueprint-canvas');
+  const target = await page.evaluate(() => {
+    const engine = (window as unknown as {
+      __vishFloorPlanEngine?: {
+        getSnapshot: () => {
+          manifest: { walls: Array<{ start: { x: number; y: number }; end: { x: number; y: number } }> };
+          session: { canvasViewport: { panX: number; panY: number; zoom: number } };
+        };
+      };
+    }).__vishFloorPlanEngine;
+    const canvasEl = document.querySelector<HTMLCanvasElement>('[data-testid="blueprint-canvas"]');
+    if (!engine || !canvasEl) return null;
+    const snapshot = engine.getSnapshot();
+    const wall = snapshot.manifest.walls[0];
+    if (!wall) return null;
+    const vp = snapshot.session.canvasViewport;
+    const rect = canvasEl.getBoundingClientRect();
+    const dpr = canvasEl.width / rect.width || 1;
+    const mid = { x: (wall.start.x + wall.end.x) / 2, y: (wall.start.y + wall.end.y) / 2 };
+    return { x: (mid.x * vp.zoom + vp.panX) / dpr, y: (mid.y * vp.zoom + vp.panY) / dpr };
+  });
+  if (!target) throw new Error('No wall available to click');
+  await canvas.click({ position: target });
+}
 
 test.describe('editor core features (e2e local access)', () => {
   test.setTimeout(90_000);
