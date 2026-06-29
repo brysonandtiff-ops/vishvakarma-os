@@ -78,10 +78,8 @@ export default function AuthLoginCard({
   onLocalWorkspace,
 }: AuthLoginCardProps) {
   const emailId = useId();
-  const passwordId = useId();
   const rememberId = useId();
   const statusId = useId();
-  const passwordHelpId = useId();
 
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser ||
