@@ -8,20 +8,57 @@ import {
   type VisualThemeId,
 } from '@/config/visualThemes';
 
-function readStoredTheme(): VisualThemeId {
-  if (typeof window === 'undefined') return DEFAULT_VISUAL_THEME;
+const VISUAL_THEME_CONTROLLER_BOUNDARY = 'visual-only';
 
-  const stored = window.localStorage.getItem(VISUAL_THEME_STORAGE_KEY);
-  return isVisualThemeId(stored) ? stored : DEFAULT_VISUAL_THEME;
+function getVisualThemeStorage(): Storage | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function readStoredTheme(): VisualThemeId {
+  const storage = getVisualThemeStorage();
+  if (!storage) return DEFAULT_VISUAL_THEME;
+
+  try {
+    const stored = storage.getItem(VISUAL_THEME_STORAGE_KEY);
+    return isVisualThemeId(stored) ? stored : DEFAULT_VISUAL_THEME;
+  } catch {
+    return DEFAULT_VISUAL_THEME;
+  }
+}
+
+function persistStoredTheme(theme: VisualThemeId) {
+  const storage = getVisualThemeStorage();
+  if (!storage) return;
+
+  try {
+    if (theme === DEFAULT_VISUAL_THEME) {
+      storage.removeItem(VISUAL_THEME_STORAGE_KEY);
+      return;
+    }
+
+    storage.setItem(VISUAL_THEME_STORAGE_KEY, theme);
+  } catch {
+    // Visual identity is presentation-only; blocked browser storage must not
+    // prevent the app shell from rendering.
+  }
 }
 
 function applyTheme(theme: VisualThemeId) {
   if (typeof document === 'undefined') return;
 
-  document.documentElement.dataset.visualTheme = theme;
   if (theme === DEFAULT_VISUAL_THEME) {
+    delete document.documentElement.dataset.visualTheme;
     document.documentElement.removeAttribute('data-visual-theme');
+    return;
   }
+
+  document.documentElement.dataset.visualTheme = theme;
 }
 
 export default function VisualThemeController() {
@@ -31,10 +68,7 @@ export default function VisualThemeController() {
 
   useEffect(() => {
     applyTheme(theme);
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(VISUAL_THEME_STORAGE_KEY, theme);
-    }
+    persistStoredTheme(theme);
   }, [theme]);
 
   // Collapse the swatch popover on outside click or Escape so the compact
@@ -81,6 +115,8 @@ export default function VisualThemeController() {
       ref={containerRef}
       className="vish-theme-controller"
       data-open={open ? 'true' : undefined}
+      data-controller-boundary={VISUAL_THEME_CONTROLLER_BOUNDARY}
+      data-visual-scope="presentation-only"
       aria-label="Visual identity mode"
       data-testid="visual-theme-controller"
     >
