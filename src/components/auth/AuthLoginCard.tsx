@@ -193,34 +193,6 @@ export default function AuthLoginCard({
               />
             </div>
 
-            <div className="vish-login-page__field">
-              <label htmlFor={passwordId}>Password</label>
-              <Lock className="vish-login-page__field-icon" size={18} aria-hidden="true" />
-              <input
-                id={passwordId}
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => onPasswordChange(event.target.value)}
-                placeholder="Enter password"
-                autoComplete="current-password"
-                minLength={8}
-                disabled={submitting || disabled}
-                aria-describedby={`${passwordHelpId} ${statusId}`}
-              />
-              <button
-                type="button"
-                className="vish-login-page__toggle touch-target"
-                onClick={onTogglePassword}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-              <p id={passwordHelpId} className="vish-login-page__field-help">
-                Vishvakarma.OS uses secure email access links; password entry is optional.
-              </p>
-            </div>
-
             <div className="vish-login-page__row">
               <label className="vish-login-page__remember touch-target" htmlFor={rememberId}>
                 <input
@@ -232,35 +204,20 @@ export default function AuthLoginCard({
                 />
                 Remember this device
               </label>
-
-              <button type="button" className="vish-login-page__link touch-target" onClick={onForgotPassword}>
-                Forgot password?
-              </button>
             </div>
 
             <button type="submit" className="vish-login-page__primary touch-target" disabled={submitting || disabled}>
-              {submitting ? 'Opening workspace…' : 'Sign In to Sacred Workspace'}
-              <ArrowRight size={18} aria-hidden="true" />
+              {submitting ? 'Sending link…' : 'Send magic link'}
+              <Send size={18} aria-hidden="true" />
             </button>
+
+            <p className="vish-login-page__field-help vish-login-page__magic-help">
+              We email you a secure one-time sign-in link — no password required.
+            </p>
 
             <div className="vish-login-page__divider" aria-hidden="true">
               OR
             </div>
-
-            <button
-              type="button"
-              className="vish-login-page__secondary touch-target"
-              onClick={onMagicLink}
-              disabled={submitting || disabled}
-            >
-              <span className="vish-login-page__secondary-icon">
-                <Send size={18} aria-hidden="true" />
-              </span>
-              <span>
-                <b>Send me a magic link</b>
-                <small>Sign in securely without a password</small>
-              </span>
-            </button>
 
             {showEmbeddedAuthRecovery && (
               <div className="vish-login-page__embedded-recovery">
