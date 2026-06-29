@@ -333,18 +333,8 @@
 }
 
 @media (max-width: 760px) {
-  .vish-theme-controller {
-    width: auto;
-    grid-template-columns: 1fr;
-    padding: 0.55rem;
-  }
-
-  .vish-theme-controller__header {
-    display: none;
-  }
-
   .vish-theme-controller__options {
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .vish-theme-controller__option {
