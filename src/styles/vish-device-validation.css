@@ -161,16 +161,21 @@
     bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
   }
 }
-/* QA launcher must sit above the mantra/audio floating control. */
+/*
+  Group the QA launcher with the QA Evidence pill on the LEFT (stacked above it)
+  so it never overlaps the voice-tour / theme / mantra controls on the right.
+*/
 .vish-device-validation {
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  left: max(16px, env(safe-area-inset-left));
+  right: auto;
+  bottom: max(150px, calc(150px + env(safe-area-inset-bottom)));
   z-index: 9100;
 }
 
 @media (max-width: 540px) {
   .vish-device-validation {
-    right: max(10px, env(safe-area-inset-right));
-    bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+    left: max(10px, env(safe-area-inset-left));
+    right: auto;
+    bottom: max(150px, calc(150px + env(safe-area-inset-bottom)));
   }
 }
