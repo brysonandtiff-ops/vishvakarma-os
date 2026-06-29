@@ -18,8 +18,10 @@ body:has([data-testid='auth-page']) .vish-theme-controller {
   right: var(--vish-auth-chrome-side);
   bottom: auto;
   left: auto;
-  width: min(15.5rem, calc(100vw - 2rem));
+  width: auto;
   z-index: 36;
+  /* Top-anchored on auth: keep the toggle pinned and drop the swatches below it. */
+  flex-direction: column-reverse;
 }
 
 body:has([data-testid='auth-page']) .vish-theme-controller__header {
