@@ -19,7 +19,9 @@ body:has([data-testid='auth-page']) .vish-theme-controller {
   bottom: auto;
   left: auto;
   width: auto;
-  z-index: 36;
+  /* Sit above the voice-tour / QA pills so the expanded swatch popover is not
+     occluded by them on the crowded top-right auth chrome. */
+  z-index: 74;
   /* Top-anchored on auth: keep the toggle pinned and drop the swatches below it. */
   flex-direction: column-reverse;
 }
