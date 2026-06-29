@@ -104,10 +104,7 @@ test.describe('editor core features (e2e local access)', () => {
   test('select wall on sample project shows properties panel with length', async ({ page }) => {
     await loadSampleProject(page);
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
-    await canvas.click({ position: { x: box.width * 0.5, y: box.height * 0.5 } });
+    await clickFirstWallOnCanvas(page);
     await expect(page.getByText(/^Properties$/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
