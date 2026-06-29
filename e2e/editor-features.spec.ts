@@ -34,8 +34,14 @@ async function clickFirstWallOnCanvas(page: Page) {
     const vp = snapshot.session.canvasViewport;
     const rect = canvasEl.getBoundingClientRect();
     const dpr = canvasEl.width / rect.width || 1;
-    const mid = { x: (wall.start.x + wall.end.x) / 2, y: (wall.start.y + wall.end.y) / 2 };
-    return { x: (mid.x * vp.zoom + vp.panX) / dpr, y: (mid.y * vp.zoom + vp.panY) / dpr };
+    // Click 20% along the wall rather than the midpoint: sample openings sit at
+    // position 0.5, and clicking on an opening selects the opening, not the wall.
+    const at = 0.2;
+    const pt = {
+      x: wall.start.x + (wall.end.x - wall.start.x) * at,
+      y: wall.start.y + (wall.end.y - wall.start.y) * at,
+    };
+    return { x: (pt.x * vp.zoom + vp.panX) / dpr, y: (pt.y * vp.zoom + vp.panY) / dpr };
   });
   if (!target) throw new Error('No wall available to click');
   await canvas.click({ position: target });
