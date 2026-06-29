@@ -29,7 +29,8 @@
 
 .vish-device-validation__panel {
   position: absolute;
-  right: 0;
+  left: 0;
+  right: auto;
   bottom: calc(100% + 12px);
   width: min(420px, calc(100vw - 28px));
   max-height: min(720px, calc(100dvh - 110px));
