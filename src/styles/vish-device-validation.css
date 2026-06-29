@@ -160,16 +160,21 @@
     bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
   }
 }
-/* QA launcher must sit above the mantra/audio floating control. */
+/*
+  Park the QA launcher in the bottom-right corner beside the mantra FAB so it
+  never overlaps the voice-tour pill or the theme switcher above it.
+*/
 .vish-device-validation {
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+  right: max(88px, calc(88px + env(safe-area-inset-right)));
+  left: auto;
+  bottom: max(16px, env(safe-area-inset-bottom));
   z-index: 9100;
 }
 
 @media (max-width: 540px) {
   .vish-device-validation {
-    right: max(10px, env(safe-area-inset-right));
-    bottom: max(88px, calc(88px + env(safe-area-inset-bottom)));
+    right: max(76px, calc(76px + env(safe-area-inset-right)));
+    left: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
   }
 }
