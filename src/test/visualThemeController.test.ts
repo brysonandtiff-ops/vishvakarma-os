@@ -28,16 +28,21 @@ describe('Solar Mandala visual identity', () => {
     );
   });
 
-  it('mounts a non-schema visual identity controller in the app shell', () => {
+  it('mounts a visual-only identity controller in the app shell', () => {
     const app = read('src/App.tsx');
     const controller = read('src/components/common/VisualThemeController.tsx');
 
     expect(app).toContain('VisualThemeController');
+    expect(app).toContain('<VisualThemeController />');
     expect(controller).toContain('VISUAL_THEME_STORAGE_KEY');
     expect(controller).toContain('data-testid="visual-theme-controller"');
-    expect(controller).toContain('document.documentElement.dataset.visualTheme');
-    expect(controller).not.toContain('supabase');
-    expect(controller).not.toContain('stripe');
+    expect(controller).toContain('data-controller-boundary={VISUAL_THEME_CONTROLLER_BOUNDARY}');
+    expect(controller).toContain('data-visual-scope="presentation-only"');
+    expect(controller).toContain('data-visual-theme');
+    expect(controller).not.toContain('@/backend');
+    expect(controller).not.toContain('@/db');
+    expect(controller).not.toContain('createProject');
+    expect(controller).not.toContain('projectId');
   });
 
   it('keeps the controller below modal overlay z-index and scoped to visual CSS only', () => {
