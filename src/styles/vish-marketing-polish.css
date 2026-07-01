@@ -1,4 +1,4 @@
-/* ==========================================================================
+/* ============================================================================
    VISHVAKARMA.OS — MARKETING PAGES POLISH
    Enhanced hero, feature cards, workflow, pricing, and CTA sections.
    ========================================================================== */
@@ -300,204 +300,223 @@
 }
 
 /* --------------------------------------------------------------------------
-   MARKETING NAV POLISH
+   LANDING PAGE CLARITY PASS — all-device readable sales flow
    -------------------------------------------------------------------------- */
 
-.vish-marketing-nav {
-  display: flex;
+.vish-landing-hero {
+  overflow: clip;
+}
+
+.vish-landing-hero__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 4rem);
   align-items: center;
-  gap: 0.25rem;
 }
 
-.vish-marketing-nav a {
-  padding: 0.375rem 0.875rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: hsl(240 10% 58%);
-  text-decoration: none;
-  transition:
-    background 150ms ease,
-    color 150ms ease;
+.vish-landing-hero__copy {
+  max-width: 720px;
+  margin-inline: auto;
 }
 
-.vish-marketing-nav a:hover {
-  background: hsl(240 20% 14% / 0.7);
-  color: hsl(240 10% 80%);
+.vish-landing-hero .vish-hero-title,
+.vish-landing-hero h1 {
+  max-width: 12ch;
+  margin-inline: auto;
 }
 
-.vish-marketing-nav a.active {
-  color: hsl(42 78% 62%);
-  background: hsl(42 78% 50% / 0.1);
+.vish-landing-hero .vish-hero-desc,
+.vish-landing-hero p {
+  max-width: 62ch;
 }
 
-/* --------------------------------------------------------------------------
-   RESPONSIVE
-   -------------------------------------------------------------------------- */
-
-@media (max-width: 640px) {
-  .vish-marketing-hero {
-    padding: 3rem 0 2.5rem;
-  }
-
-  .vish-pricing-grid {
-    grid-template-columns: 1fr;
-  }
+.vish-landing-cta-note {
+  max-width: 58ch;
+  margin-inline: auto;
 }
 
-/* --------------------------------------------------------------------------
-   HERO SPLIT + PRODUCT SHOWCASE
-   Copy on the left, a layered 2D → 3D product teaser on the right (lg+).
-   Stacks vertically on smaller screens, keeping the centered hero rhythm.
-   -------------------------------------------------------------------------- */
+.vish-landing-checklist {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 1rem;
+  list-style: none;
+  border: 1px solid hsl(42 78% 50% / 0.18);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, hsl(240 28% 9% / 0.72), hsl(24 42% 10% / 0.56));
+  box-shadow: inset 0 1px 0 hsl(42 78% 82% / 0.08), 0 18px 60px hsl(240 48% 4% / 0.22);
+}
 
-.vish-hero-split {
+.vish-landing-checklist li {
   display: flex;
-  flex-direction: column;
-  gap: clamp(2.75rem, 6vw, 3.5rem);
+  gap: 0.65rem;
+  align-items: flex-start;
+  color: hsl(240 10% 72%);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
-.vish-hero-copy {
-  min-width: 0;
+.vish-landing-checklist svg {
+  flex: 0 0 auto;
+  margin-top: 0.18rem;
+  color: hsl(42 78% 58%);
 }
 
-.vish-hero-showcase {
-  position: relative;
-  width: 100%;
-  max-width: 30rem;
-  margin: 0.5rem auto 0;
-  padding-bottom: 1.5rem; /* room for the overlapping 2D inset */
-  isolation: isolate;
+.vish-landing-showcase {
+  width: min(100%, 620px);
+  margin-inline: auto;
 }
 
-.vish-hero-showcase__main {
-  position: relative;
+.vish-landing-clarity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 0;
   margin: 0;
-  overflow: hidden;
-  border-radius: var(--radius-2xl, 1.25rem);
-  aspect-ratio: 16 / 11;
-  animation: vish-hero-float 9s ease-in-out infinite;
-  will-change: transform;
+  list-style: none;
 }
 
-.vish-hero-showcase__main img,
-.vish-hero-showcase__inset img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vish-landing-clarity-card {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: flex-start;
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid hsl(42 78% 50% / 0.16);
+  border-radius: 1.25rem;
+  background: hsl(240 28% 9% / 0.62);
+  box-shadow: inset 0 1px 0 hsl(42 78% 82% / 0.06);
 }
 
-.vish-hero-showcase__main figcaption,
-.vish-hero-showcase__inset figcaption {
-  position: absolute;
-  bottom: 0.6rem;
-  left: 0.6rem;
+.vish-landing-clarity-icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.95rem;
+  border: 1px solid hsl(42 78% 50% / 0.24);
+  background: hsl(42 78% 50% / 0.08);
+  color: hsl(42 78% 60%);
+}
+
+.vish-landing-clarity-card h3 {
+  margin: 0;
+  color: hsl(240 10% 92%);
+  font-size: clamp(1rem, 1.7vw, 1.12rem);
+  line-height: 1.25;
+}
+
+.vish-landing-clarity-card p {
+  margin: 0.35rem 0 0;
+  color: hsl(240 10% 65%);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.vish-landing-device-proof {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+  border: 1px solid hsl(42 78% 50% / 0.16);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, hsl(240 28% 9% / 0.68), hsl(24 42% 10% / 0.5));
+}
+
+.vish-landing-device-proof__lead {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.5rem;
-  background: hsl(36 16% 6% / 0.74);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  border: 1px solid hsl(42 78% 60% / 0.28);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: hsl(42 70% 78%);
-}
-
-.vish-hero-showcase__dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 9999px;
-  background: hsl(142 60% 52%);
-  box-shadow: 0 0 10px hsl(142 60% 52% / 0.9);
-}
-
-.vish-hero-showcase__inset {
-  position: absolute;
-  left: -0.75rem;
-  bottom: 0;
-  z-index: 2;
-  width: 46%;
-  margin: 0;
-  overflow: hidden;
-  border-radius: var(--radius-xl, 1rem);
-  aspect-ratio: 16 / 11;
-  animation: vish-hero-float 9s ease-in-out infinite reverse;
-  will-change: transform;
-}
-
-.vish-hero-showcase__flow {
-  position: absolute;
-  top: -0.85rem;
-  right: 1.25rem;
-  z-index: 3;
-  padding: 0.35rem 0.8rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, hsl(31 63% 32%), hsl(43 65% 52%), hsl(43 74% 62%));
-  color: hsl(36 24% 10%);
-  font-size: 0.625rem;
+  gap: 0.6rem;
+  color: hsl(42 78% 62%);
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  box-shadow: 0 8px 22px hsl(0 0% 0% / 0.35), 0 0 22px hsl(43 65% 52% / 0.45);
 }
 
-@keyframes vish-hero-float {
-  0%,
-  100% {
-    transform: translateY(0);
+.vish-landing-device-proof__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.vish-landing-device-proof__grid p {
+  margin: 0;
+  padding: 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid hsl(240 20% 18% / 0.7);
+  background: hsl(240 28% 9% / 0.62);
+}
+
+.vish-landing-device-proof__grid strong,
+.vish-landing-device-proof__grid span {
+  display: block;
+}
+
+.vish-landing-device-proof__grid strong {
+  color: hsl(240 10% 88%);
+  font-size: 0.9rem;
+}
+
+.vish-landing-device-proof__grid span {
+  margin-top: 0.25rem;
+  color: hsl(240 10% 60%);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 768px) {
+  .vish-landing-clarity-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  50% {
-    transform: translateY(-10px);
+
+  .vish-landing-clarity-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
   }
 }
 
 @media (min-width: 1024px) {
-  .vish-hero-split {
-    flex-direction: row;
-    align-items: center;
-    gap: clamp(2rem, 4vw, 4rem);
+  .vish-landing-hero__split {
+    grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.85fr);
+  }
+
+  .vish-landing-hero__copy {
+    margin-inline: 0;
     text-align: left;
   }
 
-  .vish-hero-copy {
-    flex: 1 1 0;
-  }
-
-  .vish-hero-copy :is(h1, p) {
+  .vish-landing-hero .vish-hero-title,
+  .vish-landing-hero h1,
+  .vish-landing-hero .vish-hero-desc,
+  .vish-landing-hero p,
+  .vish-landing-cta-note,
+  .vish-landing-checklist {
     margin-inline: 0;
   }
-
-  .vish-hero-showcase {
-    flex: 1.08 1 0;
-    max-width: none;
-    margin: 0;
-  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .vish-hero-showcase__main,
-  .vish-hero-showcase__inset {
-    animation: none;
+@media (max-width: 640px) {
+  .vish-landing-hero {
+    padding-top: 3.25rem;
   }
 
-  .vish-devanagari-hero,
-  .vish-sacred-mandala-layer,
-  .vish-sacred-rain-layer {
-    animation: none !important;
+  .vish-landing-checklist {
+    padding: 0.9rem;
   }
-}
 
-/* Sticky feature tabs on scroll */
-.vish-features-tabs-sticky {
-  position: sticky;
-  top: calc(var(--vish-nav-row-height, 3.25rem) + 0.5rem);
-  z-index: 20;
-  background: linear-gradient(180deg, hsl(240 48% 4% / 0.92) 70%, transparent);
-  backdrop-filter: blur(8px);
+  .vish-landing-clarity-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .vish-landing-clarity-card .vish-workflow-number {
+    grid-row: span 2;
+  }
+
+  .vish-landing-clarity-icon {
+    display: none;
+  }
 }
