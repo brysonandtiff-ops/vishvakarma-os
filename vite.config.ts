@@ -94,7 +94,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    chunkSizeWarningLimit: 700,
+    // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
+    chunkSizeWarningLimit: 900,
     // T3-5: Enable module preload injection so Vite adds <link rel="modulepreload">
     // hints for all lazy chunks in the built index.html, allowing the browser to
     // fetch the editor surface in parallel during auth page idle time.
