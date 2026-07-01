@@ -1,0 +1,216 @@
+/* Vishvakarma.OS — audited display-screen fixes
+ * Keeps the marketing stats, pricing badge, editor toolbar, document headers,
+ * and animated visual surfaces stable across desktop, iPad, and phone layouts.
+ */
+
+/* Marketing stats: prevent hero/metric pill text from colliding or clipping. */
+.vish-marketing-page :is(.vish-stat-pill, .vish-metric-pill),
+.vish-workspace-header :is(.vish-stat-pill, .vish-stat-pill-depth) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.2;
+}
+
+.vish-marketing-page .vish-stat-pill {
+  display: flex;
+  flex: 1 1 clamp(8rem, 22vw, 13rem);
+  min-height: 4.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.vish-marketing-page .vish-stat-pill > *,
+.vish-marketing-page .vish-metric-pill > *,
+.vish-workspace-header :is(.vish-stat-pill, .vish-stat-pill-depth) > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.vish-marketing-page :is(.vish-stat-pill, .vish-metric-pill) :is(p, span, strong) {
+  overflow-wrap: anywhere;
+}
+
+.vish-marketing-page :is(.vish-stat-row, .vish-metric-row, .vish-hero-stats, .vish-stat-grid) {
+  align-items: stretch;
+}
+
+@media (max-width: 768px) {
+  .vish-marketing-page .vish-stat-pill {
+    flex-basis: 100%;
+  }
+}
+
+/* Pricing: keep the floating Most Popular badge fully visible. */
+.vish-pricing-card {
+  overflow: visible;
+}
+
+.vish-pricing-card.vish-pricing-popular,
+.vish-pricing-card.featured {
+  margin-top: 0.9rem;
+  padding-top: 2.15rem;
+}
+
+.vish-pricing-badge {
+  top: 0 !important;
+  z-index: 3;
+  white-space: nowrap;
+  line-height: 1;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Editor top bar: stop center mode tabs and right quick actions from overlapping. */
+.vish-editor-topbar-grid > div:nth-child(1),
+.vish-editor-topbar-grid > div:nth-child(2),
+.vish-editor-topbar-grid > div:nth-child(3),
+.vish-editor-topbar-center,
+.vish-editor-action-row,
+.vish-mode-tab-group {
+  min-width: 0;
+}
+
+.vish-editor-topbar-center {
+  overflow: hidden;
+}
+
+.vish-mode-tab-group,
+.vish-editor-action-row {
+  scrollbar-width: none;
+}
+
+.vish-mode-tab-group::-webkit-scrollbar,
+.vish-editor-action-row::-webkit-scrollbar {
+  display: none;
+}
+
+.vish-editor-action-row {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.vish-editor-quick-pill span {
+  white-space: nowrap;
+}
+
+@media (max-width: 1320px) {
+  .bg-ws-canvas .vish-editor-topbar-grid,
+  .vish-editor-shell .vish-editor-topbar-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) !important;
+    grid-template-areas:
+      'brand actions'
+      'modes modes';
+    row-gap: 0.35rem;
+    padding-block: 0.35rem;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:nth-child(1),
+  .vish-editor-shell .vish-editor-topbar-grid > div:nth-child(1) {
+    grid-area: brand;
+    justify-self: stretch;
+    overflow: hidden;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:nth-child(2),
+  .vish-editor-shell .vish-editor-topbar-grid > div:nth-child(2) {
+    grid-area: modes;
+    justify-self: center;
+    width: min(100%, 44rem);
+    max-width: 100%;
+    padding-inline: 0;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-grid > div:nth-child(3),
+  .vish-editor-shell .vish-editor-topbar-grid > div:nth-child(3) {
+    grid-area: actions;
+    justify-self: end;
+    max-width: min(58vw, 36rem);
+  }
+
+  .bg-ws-canvas .vish-mode-tab-group,
+  .vish-editor-shell .vish-mode-tab-group {
+    width: max-content;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .bg-ws-canvas .vish-editor-topbar-grid > div:nth-child(3),
+  .vish-editor-shell .vish-editor-topbar-grid > div:nth-child(3) {
+    max-width: 52vw;
+  }
+
+  .vish-mode-tab {
+    padding-inline: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (max-width: 640px) {
+  .vish-mode-tab {
+    padding-inline: 0.58rem;
+  }
+
+  .vish-mode-tab svg {
+    display: none;
+  }
+}
+
+/* Document pages: keep Projects/Profile style headers light and readable. */
+.vish-doc-page-header {
+  background: var(--vish-doc-header-bg) !important;
+  border-color: var(--vish-doc-header-border) !important;
+  color: hsl(var(--foreground));
+}
+
+.vish-doc-page-header h1 {
+  background: none !important;
+  color: hsl(var(--foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  text-shadow: none;
+}
+
+.vish-doc-page-header p {
+  color: hsl(var(--muted-foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--muted-foreground)) !important;
+}
+
+.vish-doc-page-header .vish-eyebrow {
+  color: hsl(var(--primary)) !important;
+  -webkit-text-fill-color: hsl(var(--primary)) !important;
+}
+
+/* Lower GPU/compositor pressure on the audited heavy marketing/governance screens. */
+@media (pointer: coarse), (max-width: 1194px), (prefers-reduced-motion: reduce) {
+  .vish-marketing-page :is(
+    .vish-devanagari-hero,
+    .vish-hero-showcase__main,
+    .vish-hero-showcase__inset,
+    .vish-sacred-mandala-layer,
+    .vish-sacred-rain-layer,
+    .vish-stat-pill--interactive,
+    .vish-feature-grid-card
+  ),
+  .vish-governance-shell .vish-gov-card-dark {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  .vish-sacred-cosmic-canvas--marketing,
+  .vish-sanskrit-rain-canvas--marketing {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 900px) {
+  .vish-sacred-cosmic-canvas--marketing,
+  .vish-sanskrit-rain-canvas--marketing {
+    opacity: 0.18;
+    pointer-events: none;
+  }
+}
