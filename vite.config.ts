@@ -107,7 +107,16 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
-          if (id.includes('three') || id.includes('@react-three')) return 'vendor-3d';
+
+          const normalizedId = id.replace(/\\/g, '/');
+
+          // Keep the 3D stack cacheable without shipping one >1 MB vendor blob.
+          if (normalizedId.includes('/node_modules/@react-three/fiber/')) return 'vendor-react-three-fiber';
+          if (normalizedId.includes('/node_modules/@react-three/drei/')) return 'vendor-react-three-drei';
+          if (normalizedId.includes('/node_modules/three-stdlib/')) return 'vendor-three-stdlib';
+          if (normalizedId.includes('/node_modules/postprocessing/')) return 'vendor-postprocessing';
+          if (normalizedId.includes('/node_modules/three/')) return 'vendor-three-core';
+
           if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('sonner')) return 'vendor-ui';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
