@@ -116,17 +116,17 @@ export default defineConfig(({ mode }) => ({
           if (normalizedId.includes('/node_modules/three-stdlib/')) return 'vendor-three-stdlib';
           if (normalizedId.includes('/node_modules/postprocessing/')) return 'vendor-postprocessing';
           if (normalizedId.includes('/node_modules/three/')) return 'vendor-three-core';
+          if (normalizedId.includes('/node_modules/@react-spring/')) return 'vendor-react-spring';
+          if (normalizedId.includes('/node_modules/troika-')) return 'vendor-3d-text';
+          if (normalizedId.includes('/node_modules/@use-gesture/')) return 'vendor-gesture';
+          if (normalizedId.includes('/node_modules/camera-controls/')) return 'vendor-camera-controls';
+          if (normalizedId.includes('/node_modules/maath/')) return 'vendor-maath';
+          if (normalizedId.includes('/node_modules/zustand/')) return 'vendor-state';
           if (
-            normalizedId.includes('/node_modules/@react-spring/') ||
-            normalizedId.includes('/node_modules/@use-gesture/') ||
-            normalizedId.includes('/node_modules/camera-controls/') ||
-            normalizedId.includes('/node_modules/maath/') ||
             normalizedId.includes('/node_modules/meshline/') ||
             normalizedId.includes('/node_modules/stats-gl/') ||
-            normalizedId.includes('/node_modules/troika-') ||
             normalizedId.includes('/node_modules/suspend-react/') ||
-            normalizedId.includes('/node_modules/its-fine/') ||
-            normalizedId.includes('/node_modules/zustand/')
+            normalizedId.includes('/node_modules/its-fine/')
           ) return 'vendor-3d-helpers';
 
           // Split broad app helpers out of vendor-misc and keep React itself stable.
