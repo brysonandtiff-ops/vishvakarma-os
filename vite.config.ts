@@ -94,7 +94,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    chunkSizeWarningLimit: 700,
+    // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
+    chunkSizeWarningLimit: 900,
     // T3-5: Enable module preload injection so Vite adds <link rel="modulepreload">
     // hints for all lazy chunks in the built index.html, allowing the browser to
     // fetch the editor surface in parallel during auth page idle time.
@@ -107,10 +108,60 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
-          if (id.includes('three') || id.includes('@react-three')) return 'vendor-3d';
+
+          const normalizedId = id.replace(/\\/g, '/');
+
+          // Keep the 3D stack cacheable without shipping one >1 MB vendor blob.
+          if (normalizedId.includes('/node_modules/@react-three/fiber/')) return 'vendor-react-three-fiber';
+          if (normalizedId.includes('/node_modules/@react-three/drei/')) return 'vendor-react-three-drei';
+          if (normalizedId.includes('/node_modules/three-stdlib/')) return 'vendor-three-stdlib';
+          if (normalizedId.includes('/node_modules/postprocessing/')) return 'vendor-postprocessing';
+          if (normalizedId.includes('/node_modules/three/')) return 'vendor-three-core';
+          if (normalizedId.includes('/node_modules/@react-spring/')) return 'vendor-react-spring';
+          if (normalizedId.includes('/node_modules/troika-three-text/')) return 'vendor-3d-text';
+          if (normalizedId.includes('/node_modules/troika-three-utils/')) return 'vendor-3d-utils';
+          if (normalizedId.includes('/node_modules/troika-worker-utils/')) return 'vendor-3d-worker';
+          if (
+            normalizedId.includes('/node_modules/bidi-js/') ||
+            normalizedId.includes('/node_modules/webgl-sdf-generator/') ||
+            normalizedId.includes('/node_modules/typr/')
+          ) return 'vendor-3d-text-deps';
+          if (normalizedId.includes('/node_modules/troika-')) return 'vendor-3d-text';
+          if (normalizedId.includes('/node_modules/@use-gesture/')) return 'vendor-gesture';
+          if (normalizedId.includes('/node_modules/camera-controls/')) return 'vendor-camera-controls';
+          if (normalizedId.includes('/node_modules/maath/')) return 'vendor-maath';
+          if (normalizedId.includes('/node_modules/zustand/')) return 'vendor-state';
+          if (
+            normalizedId.includes('/node_modules/meshline/') ||
+            normalizedId.includes('/node_modules/stats-gl/') ||
+            normalizedId.includes('/node_modules/suspend-react/') ||
+            normalizedId.includes('/node_modules/its-fine/')
+          ) return 'vendor-3d-helpers';
+
+          // Split broad app helpers out of vendor-misc and keep React itself stable.
+          if (normalizedId.includes('/node_modules/motion/')) return 'vendor-motion';
+          if (normalizedId.includes('/node_modules/jszip/')) return 'vendor-export';
+          if (normalizedId.includes('/node_modules/qrcode/')) return 'vendor-qrcode';
+          if (normalizedId.includes('/node_modules/video-react/')) return 'vendor-video';
+          if (normalizedId.includes('/node_modules/react-router/') || normalizedId.includes('/node_modules/react-router-dom/')) return 'vendor-router';
+          if (normalizedId.includes('/node_modules/react-hook-form/') || normalizedId.includes('/node_modules/@hookform/')) return 'vendor-forms';
+          if (normalizedId.includes('/node_modules/react-day-picker/')) return 'vendor-calendar';
+          if (normalizedId.includes('/node_modules/react-dropzone/')) return 'vendor-upload';
+          if (
+            normalizedId.includes('/node_modules/embla-carousel-react/') ||
+            normalizedId.includes('/node_modules/cmdk/') ||
+            normalizedId.includes('/node_modules/vaul/') ||
+            normalizedId.includes('/node_modules/input-otp/') ||
+            normalizedId.includes('/node_modules/next-themes/')
+          ) return 'vendor-ui-helpers';
+
           if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('sonner')) return 'vendor-ui';
           if (id.includes('@supabase')) return 'vendor-supabase';
-          if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+          if (
+            normalizedId.includes('/node_modules/react/') ||
+            normalizedId.includes('/node_modules/react-dom/') ||
+            normalizedId.includes('/node_modules/scheduler/')
+          ) return 'vendor-react';
           // R1.4: Split vendor-misc into named chunks for better long-term cache efficiency.
           // Each group changes at a different rate, so they can be cached independently.
           if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
