@@ -117,6 +117,14 @@ export default defineConfig(({ mode }) => ({
           if (normalizedId.includes('/node_modules/postprocessing/')) return 'vendor-postprocessing';
           if (normalizedId.includes('/node_modules/three/')) return 'vendor-three-core';
           if (normalizedId.includes('/node_modules/@react-spring/')) return 'vendor-react-spring';
+          if (normalizedId.includes('/node_modules/troika-three-text/')) return 'vendor-3d-text';
+          if (normalizedId.includes('/node_modules/troika-three-utils/')) return 'vendor-3d-utils';
+          if (normalizedId.includes('/node_modules/troika-worker-utils/')) return 'vendor-3d-worker';
+          if (
+            normalizedId.includes('/node_modules/bidi-js/') ||
+            normalizedId.includes('/node_modules/webgl-sdf-generator/') ||
+            normalizedId.includes('/node_modules/typr/')
+          ) return 'vendor-3d-text-deps';
           if (normalizedId.includes('/node_modules/troika-')) return 'vendor-3d-text';
           if (normalizedId.includes('/node_modules/@use-gesture/')) return 'vendor-gesture';
           if (normalizedId.includes('/node_modules/camera-controls/')) return 'vendor-camera-controls';
