@@ -33,7 +33,7 @@ export default function WorkspacePageHeader({
     <header
       className={cn(
         'vish-workspace-header workspace-page-header shrink-0',
-        isGovernance ? 'vish-gov-page-header gov-page-header' : 'vish-doc-page-header gov-page-header',
+        isGovernance ? 'vish-gov-page-header gov-page-header' : 'vish-doc-page-header',
         animate && 'vish-panel-reveal',
         isGovernance
           ? inset
