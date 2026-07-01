@@ -56,6 +56,7 @@ import "./styles/vish-voice-tour.css";
 import "./styles/vish-qa-evidence.css";
 import "./styles/vish-empty-guided-start.css";
 import "./styles/vish-touch-audit-hud.css";
+import "./styles/vish-ui-display-fixes.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
