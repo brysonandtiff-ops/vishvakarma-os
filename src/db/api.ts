@@ -56,18 +56,39 @@ function assertConfigured() {
   }
 }
 
+async function withBackendTimeout<T>(
+  operation: Promise<T>,
+  label: string,
+  timeoutMs = 6000,
+): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(() => {
+          reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 // ============================================================================
 // PROJECTS
 // ============================================================================
 
 export async function getProjects(): Promise<Project[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseProjects();
+  return withBackendTimeout(getSupabaseProjects(), 'Projects load');
 }
 
 export async function getProject(id: string): Promise<Project | null> {
   if (!backendStatus.isConfigured) return null;
-  return getSupabaseProject(id);
+  return withBackendTimeout(getSupabaseProject(id), 'Project load');
 }
 
 export async function createProject(
@@ -112,7 +133,15 @@ export async function saveOptimizationBatch(
 
 export async function getOptimizationBatches(limit = 20): Promise<OptimizationBatchRecord[]> {
   if (backendStatus.isConfigured) {
-    return getSupabaseOptimizationBatches(limit);
+    try {
+      return await withBackendTimeout(
+        getSupabaseOptimizationBatches(limit),
+        'Optimization history load',
+      );
+    } catch (error) {
+      console.warn('[Vishvakarma.OS] Optimization history fell back to local cache:', error);
+      return getOptimizationBatchHistoryLocally(limit);
+    }
   }
   return getOptimizationBatchHistoryLocally(limit);
 }
@@ -140,12 +169,12 @@ export async function linkOptimizationBatchToProject(
 
 export async function getSpecs(): Promise<Spec[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseSpecs();
+  return withBackendTimeout(getSupabaseSpecs(), 'Spec Center load');
 }
 
 export async function getSpecsByCategory(category: string): Promise<Spec[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseSpecsByCategory(category);
+  return withBackendTimeout(getSupabaseSpecsByCategory(category), 'Spec category load');
 }
 
 export async function createSpec(spec: Omit<Spec, 'id' | 'created_at' | 'updated_at'>): Promise<Spec> {
@@ -171,12 +200,12 @@ export async function updateSpec(
 
 export async function getRegistryEntries(): Promise<RegistryEntry[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseRegistryEntries();
+  return withBackendTimeout(getSupabaseRegistryEntries(), 'Registry load');
 }
 
 export async function getRegistryByType(type: string): Promise<RegistryEntry[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseRegistryByType(type);
+  return withBackendTimeout(getSupabaseRegistryByType(type), 'Registry type load');
 }
 
 export async function createRegistryEntry(
@@ -194,12 +223,12 @@ export async function createRegistryEntry(
 
 export async function getChangeRequests(): Promise<ChangeRequest[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseChangeRequests();
+  return withBackendTimeout(getSupabaseChangeRequests(), 'Change requests load');
 }
 
 export async function getChangeRequestsByStatus(status: string): Promise<ChangeRequest[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseChangeRequestsByStatus(status);
+  return withBackendTimeout(getSupabaseChangeRequestsByStatus(status), 'Change requests by status load');
 }
 
 export async function createChangeRequest(
@@ -237,7 +266,7 @@ export async function getReleases(): Promise<Release[]> {
   }
 
   try {
-    const rows = await getSupabaseReleases();
+    const rows = await withBackendTimeout(getSupabaseReleases(), 'Releases load');
     return rows.length > 0 ? rows : getLocalReleaseHistory();
   } catch {
     return getLocalReleaseHistory();
@@ -282,7 +311,7 @@ function getLocalReleaseHistory(): Release[] {
 
 export async function getRelease(id: string): Promise<Release | null> {
   if (!backendStatus.isConfigured) return null;
-  return getSupabaseRelease(id);
+  return withBackendTimeout(getSupabaseRelease(id), 'Release load');
 }
 
 export async function createRelease(
@@ -311,7 +340,7 @@ export async function updateRelease(
 
 export async function getAuditLogs(limit = 100): Promise<AuditLog[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseAuditLogs(limit);
+  return withBackendTimeout(getSupabaseAuditLogs(limit), 'Audit logs load');
 }
 
 export async function getAuditLogsByEntity(
@@ -319,7 +348,7 @@ export async function getAuditLogsByEntity(
   entityId: string
 ): Promise<AuditLog[]> {
   if (!backendStatus.isConfigured) return [];
-  return getSupabaseAuditLogsByEntity(entityType, entityId);
+  return withBackendTimeout(getSupabaseAuditLogsByEntity(entityType, entityId), 'Audit logs by entity load');
 }
 
 export async function createAuditLog(
@@ -344,10 +373,5 @@ export async function createAuditLog(
 
 export async function getRouteManifest(): Promise<RouteManifestEntry[]> {
   if (!backendStatus.isConfigured) return [];
-
-  try {
-    return getSupabaseRouteManifest();
-  } catch {
-    return [];
-  }
+  return withBackendTimeout(getSupabaseRouteManifest(), 'Route manifest load');
 }
