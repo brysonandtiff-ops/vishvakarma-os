@@ -75,4 +75,26 @@ test.describe('full real-customer device audit', () => {
       await assertNoHorizontalOverflow(page);
     });
   }
+
+  for (const [deviceName, viewport] of [
+    ['desktop', desktopLandscape],
+    ['ipad-landscape', iPadLandscape],
+    ['ipad-portrait', iPadPortrait],
+  ] as const) {
+    test(`lite recovery editor gives working 2D and 3D on ${deviceName}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/editor-lite', { waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('lite-editor-page')).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByTestId('lite-blueprint-canvas')).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId('lite-3d-pane')).toBeVisible({ timeout: 30_000 });
+      for (const tool of ['Select', 'Wall', 'Door', 'Window', 'Pan', 'Delete']) {
+        const button = page.getByRole('button', { name: tool });
+        await expect(button).toBeVisible({ timeout: 10_000 });
+        await button.click({ force: true });
+      }
+      await expect(page.getByRole('button', { name: /export json/i })).toBeVisible();
+      await assertNoHorizontalOverflow(page);
+      await assertTouchTargets(page, ['button', 'a.touch-target'], 44);
+    });
+  }
 });
