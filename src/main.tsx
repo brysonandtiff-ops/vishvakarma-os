@@ -59,6 +59,7 @@ import "./styles/vish-touch-audit-hud.css";
 import "./styles/vish-ui-display-fixes.css";
 import "./styles/vish-device-unity.css";
 import "./styles/vish-ipad-desktop-polish.css";
+import "./styles/vish-editor-3d-polish.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
