@@ -60,6 +60,16 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     navIcon: 'PenTool',
   },
   {
+    path: '/editor-lite',
+    name: 'Lite Editor',
+    access: 'private',
+    visible: true,
+    layout: 'workspace-immersive',
+    navGroup: 'EDITOR',
+    showInNav: true,
+    navIcon: 'PenTool',
+  },
+  {
     path: '/3d-room',
     name: '3D Room',
     access: 'private',
