@@ -17,6 +17,7 @@ import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // pulling the entire editor surface (canvas, 3D viewport, tool rail, dialogs) into the
 // initial bundle even for users on /auth or /. Now deferred like every other route.
 const EditorPage = lazy(() => import('@/pages/EditorPage'));
+const LiteEditorPage = lazy(() => import('@/pages/LiteEditorPage'));
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
@@ -74,6 +75,7 @@ export function AppRoutes() {
 
       <Route element={<AppLayoutOutlet immersive />}>
         <Route path="/editor" element={withBoundary(<EditorPage />, 'Blueprint Editor', 'editor')} />
+        <Route path="/editor-lite" element={withBoundary(<LiteEditorPage />, 'Lite 2D/3D Editor', 'editor')} />
       </Route>
 
       <Route path="/3d-room" element={withBoundary(<ThreeDRoomPage />, '3D Room', 'editor')} />
