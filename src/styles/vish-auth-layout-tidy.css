@@ -127,3 +127,241 @@ body:has([data-testid='auth-page']) .mantra-widget {
     bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
+
+/* Phone auth must be task-first: login card first, cinematic art second. */
+@media (max-width: 760px) {
+  .vish-login-page--reference-replica {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-content: start;
+    min-height: 100dvh;
+    overflow-x: clip;
+    overflow-y: auto;
+    scroll-padding-top: calc(5.5rem + env(safe-area-inset-top));
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    order: 1;
+    min-height: auto !important;
+    padding-top: max(5.25rem, calc(4.6rem + env(safe-area-inset-top))) !important;
+    padding-right: max(0.85rem, env(safe-area-inset-right)) !important;
+    padding-bottom: 1.15rem !important;
+    padding-left: max(0.85rem, env(safe-area-inset-left)) !important;
+    overflow: visible;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__hero {
+    order: 2;
+    min-height: clamp(24rem, 68dvh, 34rem) !important;
+    padding: 1.5rem max(1rem, env(safe-area-inset-right)) max(4.75rem, calc(3.4rem + env(safe-area-inset-bottom))) max(1rem, env(safe-area-inset-left)) !important;
+    border-top: 1px solid rgba(247, 201, 95, 0.22);
+    border-bottom: 0;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    width: min(100%, calc(100vw - 1.7rem)) !important;
+    min-height: auto !important;
+    margin-top: 0 !important;
+    padding: clamp(1.15rem, 5vw, 1.55rem) clamp(0.95rem, 4.5vw, 1.25rem) !important;
+    border-radius: 1.15rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    margin: 0 auto 1rem !important;
+    max-width: min(21rem, 92vw);
+    color: rgba(255, 236, 179, 0.82);
+    font-size: clamp(0.74rem, 3.2vw, 0.9rem);
+    line-height: 1.55;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__logo {
+    width: 3.8rem !important;
+    height: 3.8rem !important;
+    margin-bottom: 0.7rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__logo-img {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-heading {
+    margin-bottom: 1rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-heading h1 {
+    font-size: clamp(1.6rem, 8vw, 2.25rem) !important;
+    letter-spacing: 0.065em !important;
+    line-height: 1.08;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-heading p {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__form {
+    gap: 0.78rem !important;
+    margin-top: 0.95rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__field input {
+    min-height: 3.35rem;
+    height: 3.35rem;
+    padding-inline: 3rem 1rem;
+    font-size: 16px;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__field-icon {
+    top: 2.28rem;
+    left: 1.05rem;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__primary {
+    min-height: 3.45rem;
+    height: auto;
+    padding: 0.78rem 1rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__secondary {
+    min-height: 3.55rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__request {
+    margin-top: 0.85rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__version {
+    display: none;
+  }
+
+  body:has([data-testid='auth-page']) .vish-qa-evidence-launch,
+  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
+    min-height: 36px;
+    border-radius: 999px;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    padding-inline: 0.7rem;
+    z-index: 72;
+  }
+
+  body:has([data-testid='auth-page']) .vish-qa-evidence-launch {
+    top: max(0.75rem, env(safe-area-inset-top));
+    left: max(0.75rem, env(safe-area-inset-left));
+  }
+
+  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+  body:has([data-testid='auth-page']) .mantra-widget {
+    width: 3.15rem;
+    height: 3.15rem;
+    right: max(0.85rem, env(safe-area-inset-right));
+    bottom: max(4.35rem, calc(1rem + env(safe-area-inset-bottom)));
+  }
+}
+
+/* Phone landscape should not use the tablet/desktop split composition. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .vish-login-page--reference-replica {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 100dvh;
+    overflow-x: clip;
+    overflow-y: auto;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    order: 1;
+    min-height: auto !important;
+    padding-top: max(3.5rem, calc(2.75rem + env(safe-area-inset-top))) !important;
+    padding-right: max(1rem, env(safe-area-inset-right)) !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    padding-left: max(1rem, env(safe-area-inset-left)) !important;
+    overflow: visible;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__hero {
+    order: 2;
+    min-height: 20rem !important;
+    padding: 1rem max(1rem, env(safe-area-inset-right)) 4.25rem max(1rem, env(safe-area-inset-left)) !important;
+    border-top: 1px solid rgba(247, 201, 95, 0.18);
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    width: min(34rem, calc(100vw - 2rem)) !important;
+    min-height: auto !important;
+    margin-top: 0 !important;
+    padding: 1rem 1.05rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    margin-bottom: 0.65rem !important;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    letter-spacing: 0.08em;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__logo {
+    display: none;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-heading {
+    margin-bottom: 0.65rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__auth-heading h1 {
+    font-size: clamp(1.45rem, 5vw, 2rem) !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__form {
+    gap: 0.55rem !important;
+    margin-top: 0.55rem !important;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__field input {
+    min-height: 3rem;
+    height: 3rem;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__primary,
+  .vish-login-page--reference-replica .vish-login-page__secondary {
+    min-height: 3rem;
+  }
+
+  .vish-login-page--reference-replica .vish-login-page__field-help,
+  .vish-login-page--reference-replica .vish-login-page__request,
+  .vish-login-page--reference-replica .vish-login-page__version {
+    display: none !important;
+  }
+
+  body:has([data-testid='auth-page']) .vish-qa-evidence-launch,
+  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
+    top: max(0.55rem, env(safe-area-inset-top));
+    min-height: 34px;
+    font-size: 0.62rem;
+    padding-inline: 0.7rem;
+  }
+
+  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
+    right: max(0.65rem, env(safe-area-inset-right));
+  }
+
+  body:has([data-testid='auth-page']) .vish-qa-evidence-launch {
+    left: max(0.65rem, env(safe-area-inset-left));
+  }
+
+  body:has([data-testid='auth-page']) .mantra-widget {
+    width: 2.9rem;
+    height: 2.9rem;
+    bottom: max(3.95rem, env(safe-area-inset-bottom));
+  }
+}
