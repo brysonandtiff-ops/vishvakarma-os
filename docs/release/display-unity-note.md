@@ -1,3 +1,0 @@
-# Display unity note
-
-Placeholder
