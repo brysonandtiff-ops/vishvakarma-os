@@ -1,4 +1,4 @@
-import type { Session, User } from '@supabase/supabase-js';
+import type { Session, User, UserIdentity } from '@supabase/supabase-js';
 import { CANONICAL_AUTH_URL, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
@@ -6,9 +6,11 @@ import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
 const SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
 const PRODUCTION_AUTH_URL = CANONICAL_AUTH_URL;
+const REQUIRED_AUTH_PROVIDER = 'google';
 
 export interface SupabaseSessionSnapshot {
   provider: 'supabase';
+  authProvider: 'google';
   uid: string;
   email: string;
   idToken: string;
@@ -63,6 +65,38 @@ function normalizeSupabaseAuthError(error: unknown) {
   return new Error('Magic-link request failed for an unknown reason.');
 }
 
+function getSupabaseAuthProviders(user: User): string[] {
+  const providers = new Set<string>();
+  const appProvider = user.app_metadata?.provider;
+  const appProviders = user.app_metadata?.providers;
+
+  if (typeof appProvider === 'string') providers.add(appProvider);
+  if (Array.isArray(appProviders)) {
+    for (const provider of appProviders) {
+      if (typeof provider === 'string') providers.add(provider);
+    }
+  }
+
+  for (const identity of user.identities ?? []) {
+    const provider = (identity as UserIdentity).provider;
+    if (typeof provider === 'string') providers.add(provider);
+  }
+
+  return Array.from(providers).map((provider) => provider.toLowerCase());
+}
+
+export function isGoogleSupabaseUser(user: User): boolean {
+  return getSupabaseAuthProviders(user).includes(REQUIRED_AUTH_PROVIDER);
+}
+
+function assertGoogleSupabaseUser(user: User) {
+  if (isGoogleSupabaseUser(user)) return;
+
+  throw new Error(
+    'Vishvakarma.OS only accepts Google SSO sessions through Supabase. Sign out, then continue with Google SSO.'
+  );
+}
+
 export function writeSupabaseSessionSnapshot(session: SupabaseSessionSnapshot) {
   if (!hasBrowserStorage()) return;
   window.localStorage.setItem(SUPABASE_SESSION_KEY, JSON.stringify(session));
@@ -77,11 +111,13 @@ export function readSupabaseSessionSnapshot(): SupabaseSessionSnapshot | null {
   try {
     const parsed = JSON.parse(raw) as Partial<SupabaseSessionSnapshot>;
     if (parsed.provider !== 'supabase') return null;
+    if (parsed.authProvider !== REQUIRED_AUTH_PROVIDER) return null;
     if (!parsed.uid || !parsed.email || !parsed.idToken || !parsed.expiresAt) return null;
     if (Date.now() >= parsed.expiresAt) return null;
 
     return {
       provider: 'supabase',
+      authProvider: REQUIRED_AUTH_PROVIDER,
       uid: parsed.uid,
       email: parsed.email,
       idToken: parsed.idToken,
@@ -103,12 +139,15 @@ export async function buildSupabaseSessionFromAuthSession(
   session: Session,
   user: User
 ): Promise<SupabaseSessionSnapshot> {
+  assertGoogleSupabaseUser(user);
+
   const expiresAt = session.expires_at
     ? session.expires_at * 1000
     : Date.now() + 3600 * 1000;
 
   const snapshot: SupabaseSessionSnapshot = {
     provider: 'supabase',
+    authProvider: REQUIRED_AUTH_PROVIDER,
     uid: user.id,
     email: user.email ?? '',
     idToken: session.access_token,
@@ -215,8 +254,14 @@ export async function signInWithPasswordSupabase(email: string, password: string
     return { error: new Error('Password sign-in did not return a session.'), session: null };
   }
 
-  const session = await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
-  return { error: null, session };
+  try {
+    const session = await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+    return { error: null, session };
+  } catch (guardError) {
+    await client.auth.signOut();
+    clearSupabaseSessionSnapshot();
+    return { error: guardError instanceof Error ? guardError : new Error('Google SSO is required.'), session: null };
+  }
 }
 
 export async function requestSupabasePasswordReset(email: string, redirectTo: string) {
@@ -279,9 +324,15 @@ export async function completeSupabaseEmailLinkSignIn(email?: string): Promise<E
   }
 
   if (data.session?.user) {
-    await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
-    clearPendingSupabaseEmail();
-    return { status: 'completed' };
+    try {
+      await buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+      clearPendingSupabaseEmail();
+      return { status: 'completed' };
+    } catch (guardError) {
+      await client.auth.signOut();
+      clearSupabaseSessionSnapshot();
+      return { status: 'error', error: guardError instanceof Error ? guardError : new Error('Google SSO is required.') };
+    }
   }
 
   const pendingEmail = email?.trim().toLowerCase() || readPendingSupabaseEmail();
