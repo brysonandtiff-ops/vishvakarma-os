@@ -57,6 +57,7 @@ import "./styles/vish-qa-evidence.css";
 import "./styles/vish-empty-guided-start.css";
 import "./styles/vish-touch-audit-hud.css";
 import "./styles/vish-ui-display-fixes.css";
+import "./styles/vish-device-unity.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
@@ -89,42 +90,15 @@ const logStartupEnforcement = (startupEnforcement: ReturnType<typeof enforce>) =
     console.warn('[STARTUP] Governance enforcement detected issues:', startupEnforcement.errors);
     console.warn('[STARTUP] Auto-repairs applied:', startupEnforcement.repairs);
   }
-  console.log(
-    `[STARTUP] Governance enforcement completed in ${startupEnforcement.metrics.totalTime.toFixed(2)}ms`,
-  );
 };
 
-const runStartupEnforcement = () => {
-  logStartupEnforcement(enforce());
-};
+logStartupEnforcement(enforce('startup'));
 
-if (import.meta.env.PROD && typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-  window.requestIdleCallback(runStartupEnforcement, { timeout: 4000 });
-} else {
-  runStartupEnforcement();
-}
-
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppWrapper>
-      <>
       <App />
       <DeviceValidationPanel />
-    </>
     </AppWrapper>
-  </StrictMode>
+  </StrictMode>,
 );
-
-const dismissBootSplash = () => {
-  const splash = document.getElementById('boot-splash');
-  if (!splash) return;
-  splash.classList.add('boot-splash--hidden');
-  const remove = () => splash.remove();
-  splash.addEventListener('transitionend', remove, { once: true });
-  window.setTimeout(remove, 600);
-};
-
-if (typeof window !== 'undefined') {
-  requestAnimationFrame(() => requestAnimationFrame(dismissBootSplash));
-  window.setTimeout(dismissBootSplash, 4000);
-}
