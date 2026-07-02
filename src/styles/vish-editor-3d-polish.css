@@ -1,0 +1,247 @@
+/* Vishvakarma.OS — editor + 3D focused polish.
+   Presentation-only layer for editor usability, 3D viewport sizing,
+   loading/fallback polish, iPad/desktop behaviour, and dense chrome readability. */
+
+.vish-editor-shell {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(109, 220, 255, 0.06), transparent 28rem),
+    radial-gradient(circle at 92% 12%, rgba(246, 198, 101, 0.065), transparent 26rem),
+    hsl(var(--ws-canvas));
+}
+
+.vish-editor-shell .vish-editor-topbar::after {
+  opacity: 0.72;
+  max-width: min(18rem, calc(100vw - 2rem));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vish-editor-shell .vish-editor-file-strip {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vish-editor-shell .vish-editor-file-strip > * {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.vish-editor-shell .ws-status-bar {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vish-editor-shell .ws-status-bar .ws-status-item {
+  flex: 0 0 auto;
+}
+
+.vish-canvas-stage {
+  border: 1px solid rgba(246, 198, 101, 0.16);
+  border-radius: 1rem;
+  margin: 0.75rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background-color: rgba(237, 242, 255, 0.98);
+}
+
+.vish-editor-loading-overlay p,
+.vish-canvas-empty-hint__card {
+  border-color: rgba(246, 198, 101, 0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 241, 191, 0.08), transparent),
+    rgba(5, 14, 30, 0.86) !important;
+  color: #f8fbff !important;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px) saturate(130%);
+}
+
+.vish-canvas-empty-hint__tour-link {
+  pointer-events: auto;
+  margin-top: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(246, 198, 101, 0.36);
+  padding: 0.45rem 0.85rem;
+  color: #ffe7a6;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vish-3d-viewport-pane {
+  position: relative;
+  isolation: isolate;
+  min-width: 22rem;
+  max-width: min(42vw, 34rem);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(109, 220, 255, 0.12), transparent 16rem),
+    linear-gradient(180deg, rgba(7, 18, 39, 0.96), rgba(3, 10, 24, 0.98));
+  border-color: rgba(246, 198, 101, 0.26) !important;
+  box-shadow: -18px 0 70px rgba(0, 0, 0, 0.35), inset 1px 0 0 rgba(255, 231, 166, 0.08);
+}
+
+.vish-3d-viewport-pane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(109, 220, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109, 220, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, black, transparent 80%);
+}
+
+.vish-3d-viewport-pane > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vish-3d-viewport-pane .ws-pane-header {
+  min-height: 2.55rem;
+  border-bottom: 1px solid rgba(246, 198, 101, 0.22);
+  background:
+    linear-gradient(90deg, rgba(246, 198, 101, 0.08), transparent 42%),
+    rgba(4, 12, 28, 0.86);
+}
+
+.vish-3d-viewport-pane .ws-pane-label {
+  color: #ffe7a6 !important;
+  letter-spacing: 0.18em;
+}
+
+.vish-3d-viewport-pane .ws-pane-stat {
+  color: rgba(183, 196, 221, 0.82) !important;
+}
+
+.vish-3d-loading,
+.vish-3d-fallback {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(246, 198, 101, 0.1), transparent 14rem),
+    linear-gradient(180deg, rgba(7, 18, 39, 0.96), rgba(3, 10, 24, 0.98));
+  color: #f8fbff;
+}
+
+.vish-3d-loading-icon,
+.vish-3d-fallback-icon {
+  border: 1px solid rgba(246, 198, 101, 0.32);
+  background: rgba(246, 198, 101, 0.1);
+  box-shadow: 0 0 36px rgba(246, 198, 101, 0.12);
+}
+
+.vish-3d-fallback-hint {
+  border: 1px solid rgba(109, 220, 255, 0.22);
+  background: rgba(109, 220, 255, 0.075);
+}
+
+.vish-editor-shell[data-3d-expanded='true'] .vish-3d-viewport-pane {
+  max-width: none;
+  border-left-color: rgba(246, 198, 101, 0.38) !important;
+}
+
+.vish-editor-shell[data-3d-expanded='true'] .vish-canvas-stage {
+  opacity: 0.98;
+}
+
+.vish-properties-fab {
+  background:
+    linear-gradient(180deg, rgba(255, 231, 166, 0.12), transparent),
+    rgba(5, 14, 30, 0.92) !important;
+  border-color: rgba(246, 198, 101, 0.34) !important;
+  color: #ffe7a6 !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.36), 0 0 20px rgba(246, 198, 101, 0.12) !important;
+}
+
+@media (min-width: 1200px) {
+  .vish-editor-shell .vish-3d-viewport-pane {
+    width: clamp(24rem, 28vw, 34rem) !important;
+  }
+
+  .vish-editor-shell[data-3d-expanded='true'] .vish-3d-viewport-pane {
+    width: auto !important;
+    flex-basis: min(62vw, 980px);
+  }
+
+  .vish-editor-shell .vish-canvas-stage {
+    margin: 0.9rem;
+  }
+}
+
+@media (pointer: coarse) and (min-width: 768px) and (max-width: 1194px) {
+  .vish-editor-shell .vish-3d-viewport-pane {
+    min-width: 21rem;
+    width: clamp(21rem, 34vw, 30rem) !important;
+    max-width: 42vw;
+  }
+
+  .vish-editor-shell .vish-canvas-stage {
+    margin: 0.65rem;
+    border-radius: 0.9rem;
+  }
+
+  .vish-editor-shell .vish-editor-topbar::after {
+    display: none;
+  }
+
+  .vish-editor-shell .vish-3d-viewport-pane .ws-pane-header {
+    min-height: 2.75rem;
+  }
+}
+
+@media (pointer: coarse) and (orientation: portrait) and (min-width: 768px) and (max-width: 980px) {
+  .vish-editor-shell > .flex.flex-1.overflow-hidden > .flex.flex-1.min-w-0.overflow-hidden:has(.vish-3d-viewport-pane) {
+    flex-direction: column;
+  }
+
+  .vish-editor-shell .vish-3d-viewport-pane {
+    width: auto !important;
+    max-width: none;
+    min-width: 0;
+    min-height: 34dvh;
+    max-height: 42dvh;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(246, 198, 101, 0.28) !important;
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.28);
+  }
+}
+
+@media (max-width: 767px) {
+  .vish-editor-shell > .flex.flex-1.overflow-hidden > .flex.flex-1.min-w-0.overflow-hidden:has(.vish-3d-viewport-pane) {
+    flex-direction: column;
+  }
+
+  .vish-editor-shell .vish-3d-viewport-pane {
+    width: auto !important;
+    max-width: none;
+    min-width: 0;
+    min-height: 18rem;
+    max-height: 44dvh;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(246, 198, 101, 0.28) !important;
+  }
+
+  .vish-editor-shell .vish-canvas-stage {
+    margin: 0.5rem;
+    padding: 0.75rem !important;
+  }
+
+  .vish-properties-fab {
+    right: max(0.85rem, env(safe-area-inset-right)) !important;
+    bottom: max(4.25rem, calc(0.85rem + env(safe-area-inset-bottom))) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-3d-viewport-pane,
+  .vish-editor-shell .vish-editor-file-strip,
+  .vish-editor-shell .ws-status-bar {
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
