@@ -1,0 +1,392 @@
+/* Vishvakarma.OS — device-wide display unity pass.
+   Final-loaded responsive polish that keeps marketing, auth, governance,
+   document, and editor surfaces neat across phone, tablet, iPad landscape,
+   desktop, and short landscape screens. Presentation-only CSS. */
+
+:root {
+  --vish-device-gutter: clamp(1rem, 3vw, 2.75rem);
+  --vish-device-gutter-tight: clamp(0.85rem, 2.4vw, 1.5rem);
+  --vish-device-content-max: min(100%, 1180px);
+  --vish-device-section-gap: clamp(2rem, 6vw, 5rem);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  html,
+  body,
+  #root {
+    overflow-x: hidden;
+  }
+}
+
+#root,
+.vish-marketing-page,
+.vish-login-page,
+.vish-workspace-shell,
+.bg-ws-canvas {
+  min-width: 0;
+  isolation: isolate;
+}
+
+img,
+svg,
+canvas,
+video,
+iframe {
+  max-width: 100%;
+}
+
+.vish-marketing-page *,
+.vish-login-page *,
+.vish-workspace-shell *,
+.bg-ws-canvas * {
+  min-width: 0;
+}
+
+.vish-text-heading,
+.vish-page-section-title,
+.vish-marketing-page h1,
+.vish-marketing-page h2,
+.vish-marketing-page h3,
+.vish-login-page h1,
+.vish-login-page h2 {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.vish-text-body,
+.vish-page-section-description,
+.vish-marketing-page p,
+.vish-marketing-page li,
+.vish-login-page p,
+.vish-login-page li {
+  overflow-wrap: anywhere;
+}
+
+/* Marketing and landing pages: one consistent rhythm on every device. */
+.vish-marketing-page > .mx-auto,
+.vish-marketing-page .max-w-page-marketing {
+  width: min(100%, 1280px);
+  max-width: calc(100vw - (var(--vish-device-gutter) * 2));
+}
+
+.vish-marketing-hero,
+.vish-page-section,
+.vish-marketing-section {
+  padding-inline: var(--vish-device-gutter);
+}
+
+.vish-marketing-hero > *,
+.vish-page-section > :is(.vish-page-section-intro, .grid, .vish-landing-clarity-grid, .vish-landing-device-proof, .vish-section-grid, .vish-landing-device-proof__grid),
+.vish-marketing-section > * {
+  max-width: var(--vish-device-content-max);
+  margin-inline: auto;
+}
+
+.vish-landing-hero__split,
+.vish-hero-split {
+  width: min(100%, 1180px);
+  max-width: 100%;
+  margin-inline: auto;
+  align-items: center;
+}
+
+.vish-landing-hero__copy,
+.vish-hero-copy,
+.vish-landing-showcase,
+.vish-hero-showcase,
+.vish-hero-stats,
+.vish-landing-clarity-grid,
+.vish-landing-device-proof,
+.vish-landing-device-proof__grid {
+  min-width: 0;
+}
+
+.vish-landing-showcase,
+.vish-hero-showcase {
+  width: min(100%, 39rem);
+  justify-self: center;
+}
+
+.vish-hero-showcase__main,
+.vish-hero-showcase__inset,
+.vish-frame-bezel {
+  max-width: 100%;
+}
+
+.vish-hero-showcase__main img,
+.vish-hero-showcase__inset img,
+.vish-frame-bezel img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vish-hero-cta,
+.vish-hero-stats,
+.vish-landing-checklist,
+.vish-landing-clarity-grid,
+.vish-landing-device-proof__grid {
+  max-width: 100%;
+}
+
+.vish-landing-checklist li,
+.vish-landing-clarity-card,
+.vish-landing-device-proof__grid > *,
+.vish-stat-pill,
+.vish-metric-pill,
+.vish-feature-card {
+  min-width: 0;
+}
+
+/* Governance/document pages: stop cards, tables, and header chrome from forcing page-wide overflow. */
+.vish-workspace-shell,
+.vish-doc-page,
+.vish-gov-page,
+.vish-governance-page,
+.vish-document-page,
+.vish-page-shell {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+.vish-workspace-shell :is(section, article, aside, header, footer, main),
+.vish-doc-page :is(section, article, aside, header, footer, main),
+.vish-gov-page :is(section, article, aside, header, footer, main),
+.vish-governance-page :is(section, article, aside, header, footer, main) {
+  min-width: 0;
+}
+
+.vish-workspace-shell table,
+.vish-doc-page table,
+.vish-gov-page table,
+.vish-governance-page table {
+  max-width: 100%;
+}
+
+.vish-workspace-shell :is(.overflow-x-auto, [class*='overflow-x-auto']),
+.vish-doc-page :is(.overflow-x-auto, [class*='overflow-x-auto']),
+.vish-gov-page :is(.overflow-x-auto, [class*='overflow-x-auto']) {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+
+/* Editor/workstation: keep dense toolbars readable rather than page-breaking. */
+.bg-ws-canvas,
+.vish-workspace-shell {
+  max-width: 100vw;
+}
+
+.bg-ws-canvas .vish-editor-topbar,
+.bg-ws-canvas .vish-editor-file-strip,
+.bg-ws-canvas .ws-status-bar,
+.vish-workspace-shell .vish-editor-topbar,
+.vish-workspace-shell .vish-editor-file-strip,
+.vish-workspace-shell .ws-status-bar {
+  max-width: 100vw;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.bg-ws-canvas .vish-editor-topbar::-webkit-scrollbar,
+.bg-ws-canvas .vish-editor-file-strip::-webkit-scrollbar,
+.bg-ws-canvas .ws-status-bar::-webkit-scrollbar,
+.vish-workspace-shell .vish-editor-topbar::-webkit-scrollbar,
+.vish-workspace-shell .vish-editor-file-strip::-webkit-scrollbar,
+.vish-workspace-shell .ws-status-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.bg-ws-canvas .vish-editor-topbar-grid,
+.vish-workspace-shell .vish-editor-topbar-grid {
+  max-width: 100%;
+}
+
+/* Shared floating controls: keep them useful, not dominant, on small screens. */
+@media (max-width: 760px) {
+  body:not(:has([data-testid='auth-page'])) .vish-qa-evidence-launch,
+  body:not(:has([data-testid='auth-page'])) .vish-voice-tour-launch {
+    max-width: calc(50vw - 1rem);
+    min-height: 36px;
+    padding-inline: 0.7rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  body:not(:has([data-testid='auth-page'])) .vish-theme-controller {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(4.15rem, calc(3.35rem + env(safe-area-inset-bottom)));
+    max-width: min(16rem, calc(100vw - 1.5rem));
+  }
+
+  body:not(:has([data-testid='auth-page'])) .mantra-widget {
+    width: 3.1rem;
+    height: 3.1rem;
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 980px) {
+  :root {
+    --vish-device-gutter: clamp(1rem, 4vw, 2rem);
+  }
+
+  .vish-marketing-hero,
+  .vish-page-section,
+  .vish-marketing-section {
+    padding-block: var(--vish-device-section-gap);
+  }
+
+  .vish-landing-hero__split,
+  .vish-hero-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: clamp(1.5rem, 5vw, 3rem) !important;
+  }
+
+  .vish-landing-showcase,
+  .vish-hero-showcase {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+  }
+
+  .vish-hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .vish-landing-clarity-grid,
+  .vish-landing-device-proof__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vish-page-section-intro {
+    margin-inline: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --vish-device-gutter: var(--vish-device-gutter-tight);
+  }
+
+  .vish-marketing-page > .mx-auto,
+  .vish-marketing-page .max-w-page-marketing {
+    max-width: calc(100vw - (var(--vish-device-gutter) * 2));
+  }
+
+  .vish-marketing-hero,
+  .vish-page-section,
+  .vish-marketing-section {
+    padding-inline: var(--vish-device-gutter);
+    padding-block: clamp(2rem, 8vw, 3.25rem);
+  }
+
+  .vish-marketing-page h1 {
+    font-size: clamp(2rem, 11vw, 3.25rem);
+    line-height: 1.02;
+  }
+
+  .vish-marketing-page h2 {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+    line-height: 1.12;
+  }
+
+  .vish-hero-cta {
+    width: 100%;
+  }
+
+  .vish-hero-cta a,
+  .vish-hero-cta button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .vish-hero-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .vish-landing-checklist {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .vish-landing-showcase,
+  .vish-hero-showcase {
+    width: 100%;
+  }
+
+  .vish-hero-showcase__inset,
+  .vish-hero-showcase__flow {
+    transform: none !important;
+  }
+
+  .vish-page-section-intro {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .vish-workspace-shell :is(button, [role='button'], a),
+  .bg-ws-canvas :is(button, [role='button'], a) {
+    touch-action: manipulation;
+  }
+}
+
+/* Short phone landscape: compact marketing/document rhythm and avoid split composition. */
+@media (orientation: landscape) and (max-height: 560px) {
+  :root {
+    --vish-device-gutter: clamp(1rem, 3vw, 1.75rem);
+    --vish-device-section-gap: clamp(1.25rem, 5vh, 2rem);
+  }
+
+  .vish-marketing-hero,
+  .vish-page-section,
+  .vish-marketing-section {
+    padding-block: var(--vish-device-section-gap);
+  }
+
+  .vish-landing-hero__split,
+  .vish-hero-split {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+
+  .vish-landing-showcase,
+  .vish-hero-showcase {
+    max-height: 72dvh;
+    overflow: hidden;
+  }
+
+  .vish-landing-checklist,
+  .vish-landing-cta-note,
+  .vish-page-section-description {
+    font-size: 0.9rem;
+  }
+
+  .vish-hero-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.6rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-marketing-page *,
+  .vish-login-page *,
+  .vish-workspace-shell *,
+  .bg-ws-canvas * {
+    scroll-behavior: auto !important;
+  }
+}
