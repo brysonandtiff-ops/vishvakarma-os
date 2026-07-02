@@ -1,5 +1,5 @@
-import { FormEvent, useMemo, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
@@ -10,7 +10,6 @@ import {
   getAuthPageUrl,
   getEmbeddedAuthBrowserLabel,
   isEmbeddedAuthBrowser,
-  isEmbeddedAuthErrorMessage,
 } from '@/backend/authUiHelpers';
 import {
   POST_AUTH_DESTINATION,
@@ -26,40 +25,17 @@ export default function AuthPage() {
   const {
     user,
     isConfigured,
-    emailLinkState,
-    emailLinkError,
-    requestAccessLink,
-    completeEmailLinkSignIn,
     signInWithGoogle,
   } = useAuth();
   const { loading: capabilitiesLoading, winner } = useAuthCapabilities();
-  const location = useLocation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberDevice, setRememberDevice] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [forgotPasswordNotice, setForgotPasswordNotice] = useState(false);
 
-  const emailPreview = useMemo(() => email.trim().toLowerCase() || 'architect@firm.com', [email]);
   const isProduction = import.meta.env.PROD;
   const showConfigRequired = isProduction && !isConfigured;
-  const allowLocalWorkspace = !isProduction && !isConfigured;
-
-  const passwordResetNotice =
-    typeof location.state === 'object' &&
-    location.state !== null &&
-    'message' in location.state &&
-    (location.state as { message: unknown }).message === 'password-reset-unavailable';
-
-  const sessionRestoreTimeoutNotice =
-    typeof location.state === 'object' &&
-    location.state !== null &&
-    'message' in location.state &&
-    (location.state as { message: unknown }).message === 'session-restore-timeout';
+  const authDisabled = submitting || showConfigRequired;
 
   const embeddedAuthBrowser = useMemo(
     () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
@@ -71,81 +47,15 @@ export default function AuthPage() {
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
 
-  const completingEmailLink = emailLinkState === 'completing';
-  const needsEmailForLink = emailLinkState === 'needs_email';
-  const authDisabled = submitting || completingEmailLink || showConfigRequired;
-
   const status = useMemo<AuthLoginStatus | null>(() => {
-    const err = emailLinkError || error;
-    if (err) return { message: err, variant: 'error' };
+    if (error) return { message: error, variant: 'error' };
     if (message) return { message, variant: 'success' };
     return null;
-  }, [emailLinkError, error, message]);
+  }, [error, message]);
 
   if (user) {
     return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
-
-  const sendAccessLink = async (source: 'sign-in' | 'magic-link' | 'request-access' | 'forgot-password') => {
-    setMessage(null);
-    setError(null);
-    setForgotPasswordNotice(false);
-
-    if (!email.trim()) {
-      setError('Enter your email address to request a secure access link.');
-      return;
-    }
-
-    if (source === 'sign-in' && password.trim()) {
-      setMessage('This workspace uses secure email links instead of passwords. Sending your access link…');
-    }
-
-    setSubmitting(true);
-    const result = await requestAccessLink(email);
-    setSubmitting(false);
-
-    if (result.error) {
-      setError(result.error.message);
-      return;
-    }
-
-    if (source === 'forgot-password') {
-      setMessage(`Password reset is unavailable. Secure access link sent to ${emailPreview}.`);
-      return;
-    }
-
-    setMessage(`Secure access link sent to ${emailPreview}. Check your inbox, then return to Vishvakarma.OS.`);
-  };
-
-  const onCompleteEmailLink = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setMessage(null);
-    setError(null);
-    setForgotPasswordNotice(false);
-    if (!email.trim()) {
-      setError('Enter the same email address that received the secure access link.');
-      return;
-    }
-    setSubmitting(true);
-    const result = await completeEmailLinkSignIn(email);
-    setSubmitting(false);
-    if (result.error) {
-      setError(result.error.message);
-      return;
-    }
-    navigate(POST_AUTH_DESTINATION, { replace: true });
-  };
-
-  const onSignInSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await sendAccessLink('sign-in');
-  };
-
-  const handleForgotPassword = () => {
-    setForgotPasswordNotice(true);
-    setError(null);
-    setMessage(null);
-  };
 
   const handleCopyAuthUrl = async () => {
     try {
@@ -161,7 +71,6 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
-    setForgotPasswordNotice(false);
     storeAuthReturnPath(POST_AUTH_DESTINATION);
     setSubmitting(true);
     const result = await signInWithGoogle();
@@ -177,44 +86,32 @@ export default function AuthPage() {
     navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
+  const handleRequestAccess = () => {
+    toast.message('Google access required', {
+      description: 'Ask your Vishvakarma.OS admin to approve the Google account you will use for Supabase SSO.',
+    });
+  };
+
   return (
     <>
       <PageMeta
         title="Sign In — Vishvakarma.OS"
-        description="Enter the sacred architecture workspace. Sign in to access your governed blueprint projects."
+        description="Enter the sacred architecture workspace with Google SSO via Supabase."
       />
 
       <main className="vish-login-page vish-login-page--reference-replica" aria-labelledby="auth-page-title" data-testid="auth-page">
         <AuthLoginHero />
         <AuthLoginCard
-          email={email}
-          password={password}
-          rememberDevice={rememberDevice}
-          showPassword={showPassword}
           submitting={submitting}
           disabled={authDisabled}
           status={status}
           embeddedAuthBrowser={embeddedAuthBrowser}
           embeddedBrowserLabel={embeddedBrowserLabel}
           externalAuthUrl={externalAuthUrl}
-          completingEmailLink={completingEmailLink}
-          needsEmailForLink={needsEmailForLink}
-          passwordResetNotice={passwordResetNotice || forgotPasswordNotice}
-          sessionRestoreTimeoutNotice={sessionRestoreTimeoutNotice}
           showConfigRequired={showConfigRequired}
-          onEmailChange={setEmail}
-          onPasswordChange={setPassword}
-          onRememberDeviceChange={setRememberDevice}
-          onTogglePassword={() => setShowPassword((v) => !v)}
-          onSignIn={onSignInSubmit}
-          onCompleteEmailLink={onCompleteEmailLink}
-          onMagicLink={() => void sendAccessLink('magic-link')}
-          onForgotPassword={handleForgotPassword}
           onSso={handleGoogleSignIn}
-          onRequestAccess={() => void sendAccessLink('request-access')}
+          onRequestAccess={handleRequestAccess}
           onCopyAuthUrl={handleCopyAuthUrl}
-          allowLocalWorkspace={allowLocalWorkspace}
-          onLocalWorkspace={() => navigate('/editor')}
         />
       </main>
 
@@ -241,7 +138,7 @@ export default function AuthPage() {
             testId="auth-trust-pillar-gates"
             onLearnMore={() =>
               toast.message('Release evidence', {
-                description: 'Sign in to open Releases and inspect gate snapshots.',
+                description: 'Sign in with Google SSO to inspect release gate snapshots.',
               })
             }
           />
@@ -256,22 +153,12 @@ export default function AuthPage() {
             testId="auth-trust-pillar-records"
             onLearnMore={() =>
               toast.message('World Records', {
-                description: 'Sign in to view the Self-Verified Candidate registry.',
+                description: 'Sign in with Google SSO to view the Self-Verified Candidate registry.',
               })
             }
           />
         </div>
-
-        <div className="vish-login-page__founders">
-          <FoundersAcknowledgment variant="auth" />
-        </div>
-      </div>
-
-      <div className="vish-login-page__bottom-bar">
-        <span>Inspired by Divinity</span>
-        <span className="vish-login-page__bottom-bar-ornament" aria-hidden="true">✦</span>
-        <span>Built for Humanity</span>
-        <span className="vish-login-page__bottom-bar-version">v1.0.0</span>
+        <FoundersAcknowledgment variant="auth" className="vish-auth-founders-line" />
       </div>
     </>
   );
