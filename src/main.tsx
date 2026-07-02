@@ -70,6 +70,23 @@ import {
 
 const isE2eBuild = import.meta.env.MODE === 'e2e';
 
+function dismissBootSplash() {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  const splash = document.getElementById('boot-splash');
+  if (!splash) return;
+
+  const hide = () => {
+    splash.classList.add('boot-splash--hidden');
+    splash.setAttribute('aria-hidden', 'true');
+    window.setTimeout(() => splash.remove(), 520);
+  };
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(hide);
+  });
+}
+
 if (isE2eBuild || import.meta.env.DEV) {
   enableDevelopmentMode();
 } else if (import.meta.env.PROD) {
@@ -102,3 +119,5 @@ createRoot(document.getElementById('root')!).render(
     </AppWrapper>
   </StrictMode>,
 );
+
+dismissBootSplash();
