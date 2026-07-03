@@ -67,11 +67,20 @@ test.describe('release screenshot pack', () => {
     await shot(page, '05-export-package-dialog.png');
     await page.keyboard.press('Escape');
 
+    await page.goto('/editor-lite');
+    await dismissConsentIfPresent(page);
+    await expect(page.getByTestId('lite-editor-page')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('lite-blueprint-canvas')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('lite-3d-pane')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: /export json/i })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await shot(page, '06-editor-lite-recovery.png');
+
     await page.goto('/projects');
     await dismissConsentIfPresent(page);
     await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
-    await shot(page, '06-projects-empty.png');
+    await shot(page, '07-projects-empty.png');
 
     await page.goto('/features');
     await dismissConsentIfPresent(page);
@@ -82,36 +91,36 @@ test.describe('release screenshot pack', () => {
     await expect(page.getByText(/^Available$/i).first()).toBeVisible();
     await expect(page.getByText(/^Preview$/i).first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
-    await shot(page, '07-features-truth-badges.png');
+    await shot(page, '08-features-truth-badges.png');
 
     await page.goto('/pricing');
     await dismissConsentIfPresent(page);
     await expect(page.getByRole('heading', { name: /professional-grade tools/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
-    await shot(page, '08-pricing-tiers.png');
+    await shot(page, '09-pricing-tiers.png');
 
     await page.goto('/optimization');
     await dismissConsentIfPresent(page);
     await expect(page.getByText(/optimization|design battle/i).first()).toBeVisible({ timeout: 30_000 });
     await expectNoHorizontalOverflow(page);
-    await shot(page, '09-optimization-empty.png');
+    await shot(page, '10-optimization-empty.png');
 
     await page.goto('/releases');
     await dismissConsentIfPresent(page);
     await expect(page.getByText(/release/i).first()).toBeVisible({ timeout: 30_000 });
     await expectNoHorizontalOverflow(page);
-    await shot(page, '10-releases.png');
+    await shot(page, '11-releases.png');
 
     await page.goto('/world-records');
     await dismissConsentIfPresent(page);
     await expect(page.getByText(/world records/i).first()).toBeVisible({ timeout: 30_000 });
     await expectNoHorizontalOverflow(page);
-    await shot(page, '11-world-records.png');
+    await shot(page, '12-world-records.png');
 
     await page.goto('/audit');
     await dismissConsentIfPresent(page);
     await expect(page.getByText(/audit/i).first()).toBeVisible({ timeout: 30_000 });
     await expectNoHorizontalOverflow(page);
-    await shot(page, '12-audit.png');
+    await shot(page, '13-audit.png');
   });
 });
