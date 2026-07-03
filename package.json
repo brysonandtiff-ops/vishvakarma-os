@@ -26,6 +26,8 @@
     "test:routes": "vitest run src/routes.production.test.tsx",
     "test:e2e": "node scripts/run-e2e-gates.mjs",
     "test:e2e:auth": "node scripts/run-auth-gate-playwright.mjs",
+    "qe:routes": "pnpm exec playwright test --config=playwright.qe-smoke.config.ts",
+    "test:e2e:qe-routes": "pnpm run qe:routes",
     "test:e2e:app": "pnpm exec playwright test --project=app-smoke",
     "test:e2e:deep-proof": "pnpm exec playwright test --config=playwright.deep-proof.config.ts",
     "test:e2e:soak": "pnpm exec playwright test --config=playwright.soak.config.ts",
