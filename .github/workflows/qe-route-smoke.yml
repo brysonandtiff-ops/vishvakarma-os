@@ -1,0 +1,62 @@
+name: QE Route Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: qe-route-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qe-route-smoke:
+    name: Auth and production route smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447248b399f1 # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install app dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run QE auth and route smoke
+        env:
+          VITE_E2E_ALLOW_LOCAL_ACCESS: 'true'
+          VITE_ALLOW_LOCAL_DEMO: ''
+          VITE_FIREBASE_API_KEY: ''
+          VITE_FIREBASE_AUTH_DOMAIN: ''
+          VITE_FIREBASE_PROJECT_ID: ''
+          VITE_FIREBASE_STORAGE_BUCKET: ''
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ''
+          VITE_FIREBASE_APP_ID: ''
+        run: pnpm run qe:routes
+
+      - name: Upload QE Playwright report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-qe-route-smoke-report
+          path: playwright-report-qe-route-smoke
+          if-no-files-found: ignore
+          retention-days: 14
