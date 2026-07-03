@@ -28,6 +28,22 @@ export async function hasWebGL3DPreview(page: Page) {
 
 export async function resetWorkspacePrefs(page: Page) {
   await page.addInitScript(() => {
+    const removeAuthLikeStorage = (storage: Storage) => {
+      for (const key of Object.keys(storage)) {
+        const normalized = key.toLowerCase();
+        if (
+          normalized.startsWith('sb-') ||
+          normalized.includes('supabase') ||
+          normalized.includes('auth-token') ||
+          normalized.includes('pendingemail')
+        ) {
+          storage.removeItem(key);
+        }
+      }
+    };
+
+    removeAuthLikeStorage(window.localStorage);
+    removeAuthLikeStorage(window.sessionStorage);
     window.localStorage.removeItem('vishvakarma:workspace:prefs');
     window.localStorage.removeItem('vishvakarma.os.supabase.session.v1');
     window.localStorage.removeItem('vishvakarma.os.supabase.pendingEmail.v1');
