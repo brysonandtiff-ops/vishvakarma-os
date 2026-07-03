@@ -61,7 +61,7 @@ export const VISUAL_THEMES = [
 
 export type VisualThemeId = (typeof VISUAL_THEMES)[number]['id'];
 
-export const DEFAULT_VISUAL_THEME: VisualThemeId = 'midnight-obsidian';
+export const DEFAULT_VISUAL_THEME: VisualThemeId = 'vibhuti-obsidian';
 
 export function isVisualThemeId(value: unknown): value is VisualThemeId {
   return typeof value === 'string' && VISUAL_THEMES.some((theme) => theme.id === value);
