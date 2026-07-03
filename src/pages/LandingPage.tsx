@@ -18,7 +18,6 @@ import {
   Layers,
   PenLine,
   Shield,
-  Sparkles,
   TabletSmartphone,
 } from 'lucide-react';
 
@@ -107,11 +106,11 @@ export default function LandingPage() {
         description="Precision 2D blueprint canvas, live Sacred 3D View, and a governance operating system that gates every change. iPad-first, browser-native."
       />
 
-      <section className="vish-marketing-hero vish-landing-hero vish-landing-hero--vip vish-stagger-children vish-page-enter py-14 md:py-24">
+      <section className="vish-marketing-hero vish-landing-hero vish-stagger-children vish-page-enter py-14 md:py-24">
         <div className="vish-hero-split vish-landing-hero__split lg:gap-16">
           <div className="vish-hero-copy vish-landing-hero__copy">
-            <div className="vish-vip-status-pill" aria-label="Release status">
-              <span className="vish-vip-status-dot" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ws-text-dim shadow-lg backdrop-blur" aria-label="Release status">
+              <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_14px_hsl(142_60%_45%/0.75)]" />
               <span>v1.5 · Production UI pass</span>
             </div>
 
@@ -145,10 +144,10 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            <ul className="vish-vip-hero-pills mt-8" aria-label="Product proof points">
+            <ul className="mt-8 flex flex-wrap gap-2" aria-label="Product proof points">
               {HERO_PILLS.map((pill) => (
-                <li key={pill.label}>
-                  <pill.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                <li key={pill.label} className="inline-flex min-h-[34px] items-center gap-2 rounded-full border border-primary/20 bg-card/60 px-3 py-1 text-xs font-medium text-ws-text-dim shadow-sm backdrop-blur-sm">
+                  <pill.icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   {pill.label}
                 </li>
               ))}
@@ -170,13 +169,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="vish-hero-showcase vish-landing-showcase vish-landing-showcase--vip" aria-label="Vishvakarma.OS product preview">
-            <figure className="vish-hero-showcase__main vish-frame-bezel vish-vip-window-frame">
-              <div className="vish-vip-window-chrome" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <strong>sacred-3d-view · Premium</strong>
+          <div className="vish-hero-showcase vish-landing-showcase" aria-label="Vishvakarma.OS product preview">
+            <figure className="vish-hero-showcase__main vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25">
+              <div className="flex min-h-[38px] items-center gap-1.5 border-b border-border/60 bg-muted/35 px-4 py-2.5" aria-hidden="true">
+                <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
+                <span className="h-2.5 w-2.5 rounded-full bg-primary/70" />
+                <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
+                <strong className="ml-3 truncate font-mono text-[10px] uppercase tracking-[0.22em] text-ws-text-dim">sacred-3d-view · Premium</strong>
               </div>
               <img src="/marketing/product-3d.png" alt="Live Sacred 3D View generated from a floor plan" width={1280} height={800} decoding="async" />
               <figcaption>
@@ -184,12 +183,12 @@ export default function LandingPage() {
                 Sacred 3D View · live sync
               </figcaption>
             </figure>
-            <figure className="vish-hero-showcase__inset vish-frame-bezel vish-vip-window-frame vish-vip-window-frame--inset">
-              <div className="vish-vip-window-chrome" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <strong>2D blueprint</strong>
+            <figure className="vish-hero-showcase__inset vish-frame-bezel overflow-hidden rounded-2xl border border-primary/25">
+              <div className="flex min-h-[32px] items-center gap-1.5 border-b border-border/60 bg-muted/35 px-3 py-2" aria-hidden="true">
+                <span className="h-2 w-2 rounded-full bg-destructive/70" />
+                <span className="h-2 w-2 rounded-full bg-primary/70" />
+                <span className="h-2 w-2 rounded-full bg-success/70" />
+                <strong className="ml-2 truncate font-mono text-[9px] uppercase tracking-[0.18em] text-ws-text-dim">2D blueprint</strong>
               </div>
               <img src="/marketing/product-2d.png" alt="2D blueprint editor with a sample floor plan" width={1280} height={800} decoding="async" />
               <figcaption>2D Blueprint</figcaption>
@@ -223,18 +222,18 @@ export default function LandingPage() {
       </MarketingSection>
 
       <MarketingSection
-        className="vish-fade-rise vish-vip-governance-strip"
+        className="vish-fade-rise"
         title="Nothing ships unless it is specified, gated, and provable"
         description="This section borrows the VIP governance strip layout and maps it to Vish’s real proof model: specs, registry, audit, editor rendering, export evidence, and release gates."
       >
-        <div className="vish-vip-governance-grid">
-          <div className="vish-vip-governance-copy">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+          <div className="rounded-2xl border border-primary/20 bg-card/45 p-6 shadow-lg backdrop-blur-sm md:p-8">
             <p className="vish-marketing-section-label">Governance model</p>
-            <h3>
+            <h3 className="mt-3 text-3xl font-semibold leading-tight vish-text-heading md:text-4xl">
               Proof before polish.
-              <span> Claims stay honest.</span>
+              <span className="block text-primary">Claims stay honest.</span>
             </h3>
-            <p>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed vish-text-body md:text-base">
               Every serious workflow needs visible state: what is available, what is preview, what requires Supabase, and what has been verified by evidence.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -247,20 +246,20 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="vish-vip-gate-card vish-frame-bezel">
-            <div className="vish-vip-gate-card__head">
+          <div className="vish-frame-bezel rounded-2xl border border-primary/25 p-5 md:p-6">
+            <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-4">
               <div>
-                <p>Release · current</p>
-                <strong>Ship candidate</strong>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-ws-text-dim">Release · current</p>
+                <strong className="mt-1 block text-lg vish-text-heading">Ship candidate</strong>
               </div>
-              <span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-success">
                 <CheckCircle2 className="h-3.5 w-3.5" /> gated
               </span>
             </div>
-            <ul>
+            <ul className="mt-5 space-y-3 font-mono text-xs text-ws-text-dim">
               {GOVERNANCE_GATES.map((gate) => (
-                <li key={gate}>
-                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <li key={gate} className="flex items-center gap-2">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" aria-hidden="true" />
                   <span>{gate}</span>
                 </li>
               ))}
@@ -274,14 +273,14 @@ export default function LandingPage() {
         title="Better rooms for the product journey"
         description="The VIP build separated the product into cleaner rooms. Vish now mirrors that idea: draft, review, govern, deliver."
       >
-        <div className="vish-vip-room-grid">
-          {ROOMS.map((room, index) => (
-            <Link key={room.title} to={room.to} className="vish-vip-room-card vish-frame-bezel" style={{ ['--room-index' as string]: index }}>
-              <span>{room.eyebrow}</span>
-              <h3>{room.title}</h3>
-              <p>{room.body}</p>
-              <strong>
-                Open room <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {ROOMS.map((room) => (
+            <Link key={room.title} to={room.to} className="vish-frame-bezel group flex min-h-[230px] flex-col rounded-2xl border border-primary/20 p-5 transition-transform hover:-translate-y-0.5 hover:border-primary/40 md:p-6">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{room.eyebrow}</span>
+              <h3 className="mt-4 text-xl font-semibold vish-text-heading">{room.title}</h3>
+              <p className="mt-3 flex-1 text-sm leading-relaxed vish-text-body">{room.body}</p>
+              <strong className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary">
+                Open room <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </strong>
             </Link>
           ))}
