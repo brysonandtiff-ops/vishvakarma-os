@@ -14,6 +14,8 @@ import {
 } from './helpers';
 import { assertNoHorizontalOverflow, assertTouchTargets } from './deviceTouchTargets';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 const authDeviceMatrix = [
   ['desktop', desktopLandscape],
   ['ipad-landscape', iPadLandscape],
@@ -86,7 +88,14 @@ async function expectGoogleOnlyAuth(page: Page) {
 }
 
 test.describe('QE engineering pass — auth and route smoke', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    page.on('pageerror', (error) => {
+      console.error(`[qe-browser:${testInfo.title}] pageerror: ${error.message}`);
+    });
+    page.on('console', (message) => {
+      if (!['error', 'warning'].includes(message.type())) return;
+      console.error(`[qe-browser:${testInfo.title}] ${message.type()}: ${message.text()}`);
+    });
     await resetWorkspacePrefs(page);
   });
 
