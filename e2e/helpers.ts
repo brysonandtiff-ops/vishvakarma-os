@@ -1,4 +1,4 @@
-﻿import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
@@ -62,8 +62,39 @@ export async function dismissConsentIfPresent(page: Page) {
   }
 }
 
-export async function openProjectActionsMenu(page: Page) {
-  const button = page.getByRole('button', { name: /project actions/i }).first();
+async function findProjectActionsButton(page: Page): Promise<Locator> {
+  await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 });
+
+  const candidates = [
+    page.getByTestId('editor-project-actions'),
+    page.getByRole('button', { name: /project actions/i }),
+    page.locator('button[data-tutorial="project-actions"]'),
+    page.locator('.vish-editor-action-row button[aria-label="Project actions"]'),
+  ];
+
+  for (const candidate of candidates) {
+    if ((await candidate.count().catch(() => 0)) > 0) {
+      return candidate.first();
+    }
+  }
+
+  const buttonClues = await page
+    .locator('button')
+    .evaluateAll((buttons) =>
+      buttons.slice(0, 30).map((button) => {
+        const label = button.getAttribute('aria-label');
+        const testId = button.getAttribute('data-testid');
+        const tutorial = button.getAttribute('data-tutorial');
+        const text = button.textContent?.trim();
+        return [label, testId, tutorial, text].filter(Boolean).join(' / ') || 'unnamed button';
+      }),
+    )
+    .catch(() => [] as string[]);
+
+  throw new Error(`Project actions button not found after editor top bar loaded. Button clues: ${buttonClues.join(' | ')}`);
+}
+
+async function pressMenuButton(button: Locator) {
   await button.evaluate((el) => {
     const scroller = el.closest<HTMLElement>('.vish-editor-action-row');
     const rect = el.getBoundingClientRect();
@@ -80,18 +111,16 @@ export async function openProjectActionsMenu(page: Page) {
     el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
     el.dispatchEvent(new MouseEvent('click', pointerInit));
   });
+}
+
+export async function openProjectActionsMenu(page: Page) {
+  await dismissTutorialIfPresent(page).catch(() => {});
+  const button = await findProjectActionsButton(page);
+  await pressMenuButton(button);
+
   const firstMenuItem = page.getByRole('menuitem').first();
-  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_000 }).then(() => true).catch(() => false))) {
-    await button.evaluate((el) => {
-      const pointerInit = {
-        bubbles: true,
-        cancelable: true,
-        button: 0,
-      };
-      el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
-      el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
-      el.dispatchEvent(new MouseEvent('click', pointerInit));
-    });
+  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_500 }).then(() => true).catch(() => false))) {
+    await button.click({ force: true, timeout: 5_000 }).catch(async () => pressMenuButton(button));
     await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
   }
 }
@@ -144,10 +173,9 @@ export async function openAIDesigner(page: Page) {
   });
 }
 
-
 export async function selectWorkspaceMode(page: Page, mode: RegExp) {
   const tab = page.getByRole('tab', { name: mode });
-  const slug = String(mode.source).replace(/^\^|\$$/g, '').replace(/\\b/g, '').toLowerCase();
+  const slug = String(mode.source).replace(/^\^|\$$/g, '').replace(/\b/g, '').toLowerCase();
 
   if (await tab.isVisible().catch(() => false)) {
     const tutorialTarget = page.locator(`[data-tutorial="mode-${slug}"]`);
@@ -169,6 +197,7 @@ export async function selectWorkspaceMode(page: Page, mode: RegExp) {
   await badge.click({ force: true });
   await page.getByRole('menuitem', { name: mode }).click({ force: true });
 }
+
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
