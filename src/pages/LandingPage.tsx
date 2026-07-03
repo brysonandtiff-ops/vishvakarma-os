@@ -10,13 +10,30 @@ import { Button } from '@/components/ui/button';
 import { EXPORT_FORMAT_COUNT } from '@/config/marketingFeatures';
 import { useAuth } from '@/contexts/AuthContext';
 import { getMarketingCta } from '@/lib/marketingCta';
-import { Box, CheckCircle2, FileOutput, Layers, PenLine, Shield, TabletSmartphone } from 'lucide-react';
+import {
+  ArrowRight,
+  Box,
+  CheckCircle2,
+  FileOutput,
+  Layers,
+  PenLine,
+  Shield,
+  Sparkles,
+  TabletSmartphone,
+} from 'lucide-react';
 
 const STATS = [
   { value: '2D + 3D', label: 'Live design sync' },
   { value: String(EXPORT_FORMAT_COUNT), label: 'Export formats' },
   { value: 'iPad-first', label: 'Touch-ready PWA' },
   { value: 'Governed', label: 'Specs + audit trail' },
+] as const;
+
+const HERO_PILLS = [
+  { icon: Layers, label: '2D ↔ 3D sync' },
+  { icon: FileOutput, label: 'JSON · SVG · DXF · PDF export' },
+  { icon: Shield, label: '13 release gates' },
+  { icon: TabletSmartphone, label: '44px touch targets' },
 ] as const;
 
 const PROOF = [
@@ -44,6 +61,41 @@ const DEVICE_PROOF = [
   { label: 'Phone', value: 'Readable marketing path' },
 ] as const;
 
+const GOVERNANCE_GATES = [
+  'spec.verify · sha256 match',
+  'registry.integrity · 0 drift',
+  'audit.chain · continuous',
+  'editor.render · 2D/3D checked',
+  'export.package · proof ready',
+] as const;
+
+const ROOMS = [
+  {
+    eyebrow: 'Drafting room',
+    title: 'Fast 2D plan work',
+    body: 'Draw, select, place openings, measure, load samples, and keep local drafts safe while the project grows.',
+    to: '/editor-lite',
+  },
+  {
+    eyebrow: 'Sacred 3D room',
+    title: 'Client-ready spatial review',
+    body: 'Live 3D keeps the same project understandable with standard, premium, and cinematic atmosphere modes.',
+    to: '/editor',
+  },
+  {
+    eyebrow: 'Governance room',
+    title: 'Proof before promise',
+    body: 'Spec center, registry, change requests, releases, audit, and world-record candidate wording stay visibly truthful.',
+    to: '/releases',
+  },
+  {
+    eyebrow: 'Delivery room',
+    title: 'Export and handoff',
+    body: 'One manifest drives JSON, image, drawing, and proof-package outputs instead of rebuilding the same job twice.',
+    to: '/projects',
+  },
+] as const;
+
 export default function LandingPage() {
   const { user } = useAuth();
   const cta = getMarketingCta(user);
@@ -51,41 +103,56 @@ export default function LandingPage() {
   return (
     <>
       <PageMeta
-        title="Vishvakarma.OS — iPad-First Architecture Studio"
-        description="Draw floor plans, inspect Sacred 3D View, and export client-ready packages. A governed architecture workstation in your browser."
+        title="Vishvakarma.OS — Governed architectural studio in the browser"
+        description="Precision 2D blueprint canvas, live Sacred 3D View, and a governance operating system that gates every change. iPad-first, browser-native."
       />
-      <section className="vish-marketing-hero vish-landing-hero vish-stagger-children vish-page-enter py-16 md:py-24">
+
+      <section className="vish-marketing-hero vish-landing-hero vish-landing-hero--vip vish-stagger-children vish-page-enter py-14 md:py-24">
         <div className="vish-hero-split vish-landing-hero__split lg:gap-16">
           <div className="vish-hero-copy vish-landing-hero__copy">
+            <div className="vish-vip-status-pill" aria-label="Release status">
+              <span className="vish-vip-status-dot" />
+              <span>v1.5 · Production UI pass</span>
+            </div>
+
             <MarketingPageHeader
               devanagari="ॐ श्री विश्वकर्मणे नमः"
               hero
               title={
                 <>
-                  Draw floor plans.
+                  The governed
                   <br />
-                  <span className="vish-hero-gold drop-shadow-sm">Inspect live 3D.</span>
+                  <span className="vish-hero-gold drop-shadow-sm">Sacred 3D View</span>
                   <br />
-                  Export the proof.
+                  for architects.
                 </>
               }
-              description="Vishvakarma.OS is an iPad-first architecture workstation for drafting, Sacred 3D View, governed project proof, and client-ready exports — all in the browser."
+              description="An iPad-first, browser-native blueprint editor and live 3D studio — now shaped around a cleaner VIP landing flow while keeping Vish governance, evidence, export proof, and Google SSO intact."
             />
 
             <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <Button variant="gold" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                <Link to={cta.to}>{cta.primary}</Link>
+              <Button variant="gold" size="gold" className="touch-target w-full gap-2 px-8 sm:w-auto" asChild>
+                <Link to={cta.to}>
+                  {cta.primary}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
               </Button>
-              {cta.secondary && (
-                <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                  <Link to={cta.secondary.to}>{cta.secondary.label}</Link>
-                </Button>
-              )}
+              <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
+                <Link to="/features">See what is inside</Link>
+              </Button>
+              <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
+                <Link to="/editor-lite">Try Lite Editor</Link>
+              </Button>
             </div>
 
-            <p className="vish-landing-cta-note mt-4 text-sm leading-relaxed vish-text-body">
-              Best first test: open on iPad 10 in landscape, load the demo project, draw a wall, toggle 3D, then export.
-            </p>
+            <ul className="vish-vip-hero-pills mt-8" aria-label="Product proof points">
+              {HERO_PILLS.map((pill) => (
+                <li key={pill.label}>
+                  <pill.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {pill.label}
+                </li>
+              ))}
+            </ul>
 
             <ul className="vish-landing-checklist mt-8" aria-label="What Vishvakarma.OS does clearly">
               {CLARITY_POINTS.map((point) => (
@@ -103,15 +170,27 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="vish-hero-showcase vish-landing-showcase" aria-label="Vishvakarma.OS product preview">
-            <figure className="vish-hero-showcase__main vish-frame-bezel">
+          <div className="vish-hero-showcase vish-landing-showcase vish-landing-showcase--vip" aria-label="Vishvakarma.OS product preview">
+            <figure className="vish-hero-showcase__main vish-frame-bezel vish-vip-window-frame">
+              <div className="vish-vip-window-chrome" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <strong>sacred-3d-view · Premium</strong>
+              </div>
               <img src="/marketing/product-3d.png" alt="Live Sacred 3D View generated from a floor plan" width={1280} height={800} decoding="async" />
               <figcaption>
                 <span className="vish-hero-showcase__dot" />
                 Sacred 3D View · live sync
               </figcaption>
             </figure>
-            <figure className="vish-hero-showcase__inset vish-frame-bezel">
+            <figure className="vish-hero-showcase__inset vish-frame-bezel vish-vip-window-frame vish-vip-window-frame--inset">
+              <div className="vish-vip-window-chrome" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <strong>2D blueprint</strong>
+              </div>
               <img src="/marketing/product-2d.png" alt="2D blueprint editor with a sample floor plan" width={1280} height={800} decoding="async" />
               <figcaption>2D Blueprint</figcaption>
             </figure>
@@ -122,8 +201,8 @@ export default function LandingPage() {
 
       <MarketingSection
         className="vish-fade-rise vish-landing-clarity-section"
-        title="What it does in plain English"
-        description="A clear architecture flow: draw the plan, inspect it in live 3D, keep the project governed, then export proof for the next conversation."
+        title="A studio, not a toolbar"
+        description="The VIP layout’s best idea was clarity: one visual path from drawing to 3D to governance to delivery. Vish keeps the deeper feature set, but presents it cleaner."
       >
         <ol className="vish-landing-clarity-grid" aria-label="Vishvakarma.OS workflow">
           {WORKFLOW.map((item, index) => (
@@ -144,9 +223,75 @@ export default function LandingPage() {
       </MarketingSection>
 
       <MarketingSection
+        className="vish-fade-rise vish-vip-governance-strip"
+        title="Nothing ships unless it is specified, gated, and provable"
+        description="This section borrows the VIP governance strip layout and maps it to Vish’s real proof model: specs, registry, audit, editor rendering, export evidence, and release gates."
+      >
+        <div className="vish-vip-governance-grid">
+          <div className="vish-vip-governance-copy">
+            <p className="vish-marketing-section-label">Governance model</p>
+            <h3>
+              Proof before polish.
+              <span> Claims stay honest.</span>
+            </h3>
+            <p>
+              Every serious workflow needs visible state: what is available, what is preview, what requires Supabase, and what has been verified by evidence.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild variant="goldOutline" className="touch-target">
+                <Link to="/spec-center">Spec Center</Link>
+              </Button>
+              <Button asChild variant="goldOutline" className="touch-target">
+                <Link to="/releases">Release gates</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="vish-vip-gate-card vish-frame-bezel">
+            <div className="vish-vip-gate-card__head">
+              <div>
+                <p>Release · current</p>
+                <strong>Ship candidate</strong>
+              </div>
+              <span>
+                <CheckCircle2 className="h-3.5 w-3.5" /> gated
+              </span>
+            </div>
+            <ul>
+              {GOVERNANCE_GATES.map((gate) => (
+                <li key={gate}>
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{gate}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        className="vish-fade-rise"
+        title="Better rooms for the product journey"
+        description="The VIP build separated the product into cleaner rooms. Vish now mirrors that idea: draft, review, govern, deliver."
+      >
+        <div className="vish-vip-room-grid">
+          {ROOMS.map((room, index) => (
+            <Link key={room.title} to={room.to} className="vish-vip-room-card vish-frame-bezel" style={{ ['--room-index' as string]: index }}>
+              <span>{room.eyebrow}</span>
+              <h3>{room.title}</h3>
+              <p>{room.body}</p>
+              <strong>
+                Open room <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </strong>
+            </Link>
+          ))}
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
         className="vish-fade-rise"
         title="See the same project from every angle"
-        description="One floor plan powers 2D drafting, live 3D review, and every export package. The page now stacks cleanly from desktop to iPad to phone."
+        description="One floor plan powers 2D drafting, live 3D review, and every export package. The page stacks cleanly from desktop to iPad to phone."
       >
         <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
@@ -214,7 +359,7 @@ export default function LandingPage() {
 
       <MarketingCtaSection
         user={user}
-        body="Open the sample project, draw your first walls, inspect the Sacred 3D View, and export a deliverable package in minutes."
+        body="Open the Lite Editor for a guaranteed working 2D/3D path, then move into the full studio for governance, export, and professional delivery."
       />
     </>
   );
