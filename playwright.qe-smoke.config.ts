@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/qe-production-route-smoke.spec.ts'],
+  globalSetup: './e2e/qeGlobalSetup.ts',
   timeout: 90_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
