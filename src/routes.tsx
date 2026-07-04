@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactNode } from 'react';
 import { getAppRouteManifest, type RouteAccess } from '@/config/routeManifest';
 
 const EditorPage = lazy(() => import('./pages/EditorPage'));
+const LiteEditorPage = lazy(() => import('./pages/LiteEditorPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -43,6 +44,7 @@ const ROUTE_ELEMENTS: Record<string, ReactNode> = {
   '/cast/:token': lazyRoute(<CastViewerPage />),
   '/404': lazyRoute(<NotFoundPage />),
   '/editor': lazyRoute(<EditorPage />),
+  '/editor-lite': lazyRoute(<LiteEditorPage />),
   '/3d-room': lazyRoute(<ThreeDRoomPage />),
   '/projects': lazyRoute(<ProjectsPage />),
   '/optimization': lazyRoute(<OptimizationPage />),
