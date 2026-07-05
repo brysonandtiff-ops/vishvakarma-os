@@ -25,10 +25,10 @@ const authDeviceMatrix = [
 ] as const;
 
 const protectedRouteSmoke = [
-  { path: '/projects', label: 'Projects', text: /your projects/i },
-  { path: '/releases', label: 'Releases', text: /release/i },
-  { path: '/audit', label: 'Audit', text: /audit/i },
-  { path: '/optimization', label: 'Optimization', text: /optimization|design battle/i },
+  { path: '/projects', label: 'Projects', heading: /your projects/i },
+  { path: '/releases', label: 'Releases', heading: /^Release Center$/i },
+  { path: '/audit', label: 'Audit', heading: /^Audit Log$/i },
+  { path: '/optimization', label: 'Optimization', heading: /^Design Battle$/i },
 ] as const;
 
 async function pageBootSnapshot(page: Page) {
@@ -75,9 +75,11 @@ async function expectNoCrashBoundary(page: Page) {
 }
 
 async function expectGoogleOnlyAuth(page: Page) {
+  const googleButton = page.getByTestId('google-sso-button');
+
   await expectVisibleWithBootDiagnostics(page, page.getByTestId('auth-page'), 'auth-page', 30_000);
-  await expectVisibleWithBootDiagnostics(page, page.getByTestId('google-sso-button'), 'google-sso-button', 15_000);
-  await expect(page.getByText(/continue with google sso/i)).toBeVisible();
+  await expectVisibleWithBootDiagnostics(page, googleButton, 'google-sso-button', 15_000);
+  await expect(googleButton).toContainText(/continue with google sso/i);
 
   await expect(page.locator('input[type="email"]')).toHaveCount(0);
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
@@ -123,10 +125,13 @@ test.describe('QE engineering pass — auth and route smoke', () => {
 
     await page.goto('/features', { waitUntil: 'domcontentloaded' });
     await dismissConsentIfPresent(page);
-    await expectVisibleWithBootDiagnostics(page, page.getByRole('tab', { name: /all features/i }), 'features all tab');
-    await page.getByRole('tab', { name: /all features/i }).click({ force: true });
-    await expect(page.getByText(/^Available$/i).first()).toBeVisible();
-    await expect(page.getByText(/^Preview$/i).first()).toBeVisible();
+    const allFeaturesTab = page.getByTestId('features-tab-all');
+    await expectVisibleWithBootDiagnostics(page, allFeaturesTab, 'features all tab');
+    await allFeaturesTab.click({ force: true });
+    const allFeaturesPanel = page.getByTestId('features-panel-all');
+    await expect(allFeaturesPanel).toBeVisible();
+    await expect(allFeaturesPanel.getByText(/2D Drafting/i)).toBeVisible();
+    await expect(allFeaturesPanel.getByText(/Collaboration/i)).toBeVisible();
     await expectNoCrashBoundary(page);
     await assertNoHorizontalOverflow(page);
 
@@ -143,7 +148,7 @@ test.describe('QE engineering pass — auth and route smoke', () => {
     for (const route of protectedRouteSmoke) {
       await page.goto(route.path, { waitUntil: 'domcontentloaded' });
       await dismissConsentIfPresent(page);
-      await expectVisibleWithBootDiagnostics(page, page.getByText(route.text).first(), `${route.label} route marker`);
+      await expectVisibleWithBootDiagnostics(page, page.getByRole('heading', { name: route.heading }).first(), `${route.label} route heading`);
       await expectNoCrashBoundary(page);
       await assertNoHorizontalOverflow(page);
     }
@@ -173,17 +178,18 @@ test.describe('QE engineering pass — auth and route smoke', () => {
     await page.goto('/editor-lite', { waitUntil: 'domcontentloaded' });
     await dismissConsentIfPresent(page);
 
-    await expectVisibleWithBootDiagnostics(page, page.getByTestId('lite-editor-page'), 'lite editor page', 60_000);
+    const liteEditor = page.getByTestId('lite-editor-page');
+    await expectVisibleWithBootDiagnostics(page, liteEditor, 'lite editor page', 60_000);
     await expect(page.getByTestId('lite-blueprint-canvas')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('lite-3d-pane')).toBeVisible({ timeout: 30_000 });
 
     for (const tool of ['Select', 'Wall', 'Door', 'Window', 'Pan', 'Delete']) {
-      const button = page.getByRole('button', { name: tool });
+      const button = liteEditor.getByRole('button', { name: tool, exact: true });
       await expect(button).toBeVisible({ timeout: 10_000 });
       await button.click({ force: true });
     }
 
-    await expect(page.getByRole('button', { name: /export json/i })).toBeVisible();
+    await expect(liteEditor.getByRole('button', { name: /export json/i })).toBeVisible();
     await expectNoCrashBoundary(page);
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, ['button', 'a.touch-target'], 44);
