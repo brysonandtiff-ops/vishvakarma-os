@@ -46,7 +46,7 @@ body:has([data-testid='auth-page']) .vish-qa-evidence-launch {
   left: var(--vish-auth-chrome-left);
   right: auto;
   bottom: auto;
-  min-height: 38px;
+  min-height: 44px;
   font-size: 0.68rem;
   padding: 0 0.75rem;
 }
@@ -60,7 +60,7 @@ body:has([data-testid='auth-page']) .vish-voice-tour-launch {
   right: var(--vish-auth-chrome-side);
   left: auto;
   bottom: auto;
-  min-height: 38px;
+  min-height: 44px;
   font-size: 0.7rem;
   padding: 0 0.8rem;
 }
@@ -242,7 +242,7 @@ body:has([data-testid='auth-page']) .mantra-widget {
 
   body:has([data-testid='auth-page']) .vish-qa-evidence-launch,
   body:has([data-testid='auth-page']) .vish-voice-tour-launch {
-    min-height: 36px;
+    min-height: 44px;
     border-radius: 999px;
     font-size: 0.64rem;
     letter-spacing: 0.08em;
@@ -291,7 +291,7 @@ body:has([data-testid='auth-page']) .mantra-widget {
   .vish-login-page--reference-replica .vish-login-page__hero {
     order: 2;
     min-height: 20rem !important;
-    padding: 1rem max(1rem, env(safe-area-inset-right)) 4.25rem max(1rem, env(safe-area-inset-left)) !important;
+    padding: 1rem max(1rem, env(safe-area-inset-right)) 4.25rem max(1rem, env(safe-area-inset-left));
     border-top: 1px solid rgba(247, 201, 95, 0.18);
   }
 
@@ -304,64 +304,9 @@ body:has([data-testid='auth-page']) .mantra-widget {
   }
 
   .vish-login-page--reference-replica .vish-login-page__top-line {
-    margin-bottom: 0.65rem !important;
+    margin-bottom: 0.65rem;
     font-size: 0.68rem;
     line-height: 1.35;
     letter-spacing: 0.08em;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__logo {
-    display: none;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__auth-heading {
-    margin-bottom: 0.65rem !important;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__auth-heading h1 {
-    font-size: clamp(1.45rem, 5vw, 2rem) !important;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__form {
-    gap: 0.55rem !important;
-    margin-top: 0.55rem !important;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__field input {
-    min-height: 3rem;
-    height: 3rem;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__primary,
-  .vish-login-page--reference-replica .vish-login-page__secondary {
-    min-height: 3rem;
-  }
-
-  .vish-login-page--reference-replica .vish-login-page__field-help,
-  .vish-login-page--reference-replica .vish-login-page__request,
-  .vish-login-page--reference-replica .vish-login-page__version {
-    display: none !important;
-  }
-
-  body:has([data-testid='auth-page']) .vish-qa-evidence-launch,
-  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
-    top: max(0.55rem, env(safe-area-inset-top));
-    min-height: 34px;
-    font-size: 0.62rem;
-    padding-inline: 0.7rem;
-  }
-
-  body:has([data-testid='auth-page']) .vish-voice-tour-launch {
-    right: max(0.65rem, env(safe-area-inset-right));
-  }
-
-  body:has([data-testid='auth-page']) .vish-qa-evidence-launch {
-    left: max(0.65rem, env(safe-area-inset-left));
-  }
-
-  body:has([data-testid='auth-page']) .mantra-widget {
-    width: 2.9rem;
-    height: 2.9rem;
-    bottom: max(3.95rem, env(safe-area-inset-bottom));
   }
 }
