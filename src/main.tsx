@@ -112,7 +112,9 @@ const logStartupEnforcement = (startupEnforcement: ReturnType<typeof enforce>) =
   }
 };
 
-logStartupEnforcement(enforce('startup'));
+// Startup enforcement validates client governance state only. Project/building
+// compliance requires a ProjectManifest and runs from editor/export flows.
+logStartupEnforcement(enforce());
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
