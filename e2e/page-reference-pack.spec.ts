@@ -146,7 +146,9 @@ test.describe('page reference pack', () => {
 
     await page.goto('/reset-password');
     await expect(page).toHaveURL(/\/auth$/);
-    await expect(page.getByText(/password sign-in is not available/i)).toBeVisible();
+    await expect(page.getByTestId('auth-page')).toBeVisible();
+    await expect(page.getByTestId('google-sso-button')).toContainText(/continue with google sso/i);
+    await expect(page.locator('input[type="password"]')).toHaveCount(0);
     await shot(page, 'marketing', '05-auth-reset-notice.png', true);
 
     await page.goto('/this-route-does-not-exist');
