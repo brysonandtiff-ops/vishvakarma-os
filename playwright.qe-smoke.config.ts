@@ -35,6 +35,7 @@ export default defineConfig({
       VITE_FIREBASE_APP_ID: '',
       VITE_ALLOW_LOCAL_DEMO: '',
       VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+      VITE_PRICING_PAGE_ENABLED: 'true',
     },
   },
 });
