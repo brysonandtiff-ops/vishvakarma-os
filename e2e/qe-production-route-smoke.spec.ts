@@ -89,6 +89,17 @@ async function expectGoogleOnlyAuth(page: Page) {
   await expect(page.getByText(/forgot password/i)).toHaveCount(0);
 }
 
+async function activateAllFeaturesTab(page: Page) {
+  const tab = page.getByTestId('features-tab-all');
+  await expectVisibleWithBootDiagnostics(page, tab, 'features all tab');
+  await tab.evaluate((element) => (element as HTMLButtonElement).click());
+  await page.waitForFunction(() => {
+    const trigger = document.querySelector('[data-testid="features-tab-all"]');
+    const panel = document.querySelector('[data-testid="features-panel-all"]');
+    return trigger?.getAttribute('data-state') === 'active' && panel?.getAttribute('data-state') === 'active' && !panel.hasAttribute('hidden');
+  }, { timeout: 15_000 });
+}
+
 test.describe('QE engineering pass — auth and route smoke', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     page.on('pageerror', (error) => {
@@ -125,11 +136,8 @@ test.describe('QE engineering pass — auth and route smoke', () => {
 
     await page.goto('/features', { waitUntil: 'domcontentloaded' });
     await dismissConsentIfPresent(page);
-    const allFeaturesTab = page.getByTestId('features-tab-all');
-    await expectVisibleWithBootDiagnostics(page, allFeaturesTab, 'features all tab');
-    await allFeaturesTab.click({ force: true });
+    await activateAllFeaturesTab(page);
     const allFeaturesPanel = page.getByTestId('features-panel-all');
-    await expect(allFeaturesPanel).toBeVisible();
     await expect(allFeaturesPanel.getByText(/2D Drafting/i)).toBeVisible();
     await expect(allFeaturesPanel.getByText(/Collaboration/i)).toBeVisible();
     await expectNoCrashBoundary(page);
