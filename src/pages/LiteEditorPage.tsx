@@ -286,7 +286,7 @@ export default function LiteEditorPage() {
                   </g>
                 </svg>
                 <div className="absolute bottom-3 left-3 rounded-xl border border-primary/25 bg-black/60 px-3 py-2 text-xs text-primary backdrop-blur-md">Tool: {tool} · {activeWall ? `Selected ${Math.round(length(activeWall))}px wall` : 'Tap/draw on canvas'}</div>
-                <div className="absolute bottom-3 right-3 flex gap-1"><Button size="sm" variant="outline" onClick={() => zoomBy(1.16)}>+</Button><Button size="sm" variant="outline" onClick={() => zoomBy(0.86)}>-</Button></div>
+                <div className="absolute bottom-3 right-3 flex gap-1"><Button size="sm" variant="outline" className="min-w-[44px]" onClick={() => zoomBy(1.16)}>+</Button><Button size="sm" variant="outline" className="min-w-[44px]" onClick={() => zoomBy(0.86)}>-</Button></div>
               </div>
 
               {show3D && (
