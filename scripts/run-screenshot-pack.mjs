@@ -15,6 +15,7 @@ const env = {
   VITE_FIREBASE_APP_ID: '',
   VITE_ALLOW_LOCAL_DEMO: '',
   VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+  VITE_PRICING_PAGE_ENABLED: 'true',
   PLAYWRIGHT_REUSE_SERVER: '1',
   PLAYWRIGHT_BASE_URL: previewUrl,
 };
@@ -69,4 +70,3 @@ try {
   preview.kill('SIGTERM');
   freePreviewPort();
 }
-
