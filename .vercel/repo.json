@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF",
+      "name": "vishvakarma-os",
+      "directory": ".",
+      "orgId": "team_cNWlNxzn9b9GNQhKf6cmUdfJ"
+    }
+  ]
+}

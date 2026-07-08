@@ -1,0 +1,9 @@
+ WARN  Unsupported engine: wanted: {"node":"20.x"} (current: {"node":"v24.13.1","pnpm":"9.15.0"})
+
+> vishvakarma-os@1.5.0 test C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live
+> vitest run
+
+
+ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+ ELIFECYCLE  Test failed. See above for more details.

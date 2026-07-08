@@ -1,0 +1,1 @@
+import"./vendor-misc-GCBstE0X.js";import"./vendor-supabase-BCq_g81B.js";import{yn as e}from"./index-DnAQc8gW.js";async function t(){try{let t=e();if(!t)return null;let{data:n}=await t.auth.getSession();return n.session?.access_token??null}catch{return null}}export{t as getSupabaseAccessToken};

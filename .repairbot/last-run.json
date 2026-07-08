@@ -1,0 +1,27 @@
+{
+  "at": "2026-06-29T19:32:32.711Z",
+  "tier": "repairbot:fast",
+  "dryRun": false,
+  "durationMs": 48095,
+  "ok": true,
+  "stoppedAt": null,
+  "scans": [
+    {
+      "step": "node scripts/repairbot/lib/env-scan.mjs",
+      "stepId": "env-scan",
+      "ok": true
+    },
+    {
+      "step": "pnpm run lint:types",
+      "stepId": "lint:types",
+      "ok": true
+    },
+    {
+      "step": "pnpm run lint:deps",
+      "stepId": "lint:deps",
+      "ok": true
+    }
+  ],
+  "repairs": [],
+  "escalations": []
+}

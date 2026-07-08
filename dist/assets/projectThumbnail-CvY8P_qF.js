@@ -1,0 +1,1 @@
+import{o as e}from"./localProjects-B66k_PQm.js";function t(t){if(t.walls.length===0&&t.openings.length===0)return null;try{let n=e(t);return`data:image/svg+xml;charset=utf-8,${encodeURIComponent(n)}`}catch{return null}}export{t};

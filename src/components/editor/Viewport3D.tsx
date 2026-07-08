@@ -987,6 +987,14 @@ export default function Viewport3D({
     () => computeSceneOrigin(allWallsForOrigin.length > 0 ? allWallsForOrigin : walls),
     [allWallsForOrigin, walls],
   );
+  // Header wall count must never lag behind the actual scene. `walls` arrives
+  // via useDeferredValue in the parent, so it can briefly read stale/zero
+  // right after a project loads or the panel mounts. `manifestWalls` is passed
+  // undeferred, so filtering it by the active floor gives an always-current
+  // count without waiting for the deferred render to catch up.
+  const headerWallCount = manifestWalls
+    ? filterWallsByFloor(manifestWalls, activeFloorIndex).length
+    : walls.length;
   const [atmosphereMode, setAtmosphereModeState] = useState<AtmospherePerformanceMode>(resolveInitialAtmosphereMode);
   const [penPointerActive, setPenPointerActive] = useState(false);
   // Adaptive FPS governor: caps the effective tier below the user's choice when
@@ -1078,7 +1086,7 @@ export default function Viewport3D({
 
   return (
     <div className="flex h-full w-full flex-col">
-      <Viewport3DHeader wallCount={walls.length} atmosphereMode={atmosphereMode} />
+      <Viewport3DHeader wallCount={headerWallCount} atmosphereMode={atmosphereMode} />
       <div
         className="relative flex-1 overflow-hidden bg-[var(--vish-3d-bg)]"
         onPointerDown={handlePenPointerDown}

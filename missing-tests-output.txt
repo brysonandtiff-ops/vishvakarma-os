@@ -1,0 +1,132 @@
+﻿
+ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > renders project actions and view controls 200ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > uses dynamic view labels based on toggle state 1169ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > calls Architecture Copilot and view toggle handlers 745ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > calls onAfterAction after each sidebar action 263ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > renders workspace navigation on non-editor routes without project actions 1695ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > does not show project actions on editor route before config registration 1053ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > shows project actions on editor route when config is registered 1703ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > opens Architecture Copilot dialog via registered sidebar callback 1109ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > Editor sidebar wiring > removes EditorMenuSheet from EditorPage and registers sidebar config 5ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > Editor sidebar wiring > updates editor hamburger label to open workspace navigation 3ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > rendering > should render trigger button 5035ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > rendering > should render keyboard icon in trigger button 329ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should open dialog when trigger button is clicked 2186ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all tool shortcuts 1495ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all view shortcuts 2086ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all edit shortcuts 1183ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display tips section 1400ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should have proper ARIA attributes 1543ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should have accessible button with title 317ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should use semantic kbd elements for shortcuts 848ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > structure > should organize shortcuts into three sections 696ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > structure > should display shortcuts in key-value pairs 616ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 5 tool shortcuts 606ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 3 view shortcuts 573ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 2 edit shortcuts 754ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 4 tips 458ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > empty state > should render tool defaults when no wall is selected 611ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > empty state > should not render wall properties in empty state 13ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should render wall properties when wall is selected 820ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall length 94ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall ID (truncated) 93ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall thickness value 61ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall height value 68ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should calculate wall length correctly for diagonal wall 110ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should render thickness slider label 471ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should render height slider label 94ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should have thickness slider with correct id 83ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should have height slider with correct id 60ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display "No doors or windows" when no openings 58ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display door opening 93ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display window opening 146ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display multiple openings 148ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should only display openings for selected wall 75ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door width 158ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door height 60ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door position as percentage 73ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display window sill height 79ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should not display sill height for doors 109ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening delete > should render delete button for each opening 2177ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening delete > should call onOpeningDelete when delete button is clicked 653ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall delete > should render delete wall button 71ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall delete > should call onWallDelete when delete wall button is clicked 1572ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should update display when selectedWall changes 234ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should update display when openings change 299ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should switch from wall properties to empty state 47ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should have proper labels for sliders 32ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should have accessible delete button 30ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should render all interactive elements as buttons 281ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle wall with zero length 24ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle opening with position 0 223ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle opening with position 1 113ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle window without sillHeight 251ms
+ Ô£ô src/test/FollowViewportToggle.test.tsx > FollowViewportToggle > renders touch-safe follow trigger with accessible label 434ms
+ Ô£ô src/test/FollowViewportToggle.test.tsx > FollowViewportToggle > calls onFollow when a collaborator is selected 2466ms
+ Ô£ô src/components/architecture-bot/ArchitectureBotWidget.test.tsx > ArchitectureBotWidget > renders character and opens panel on toggle 304ms
+ Ô£ô src/components/architecture-bot/ArchitectureBotWidget.test.tsx > ArchitectureBotWidget > calls fix handler from panel 52ms
+node.exe : Error: Test render failure
+At C:\Users\bryso\AppData\Roaming\npm\pnpm.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/pnpm/bin/pnpm.cjs" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Test render failure:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at ThrowingChild (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/AppErrorBoundary.test.tsx:6:9)
+    at renderWithHooks (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-
+dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\
+.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-dom@18
+.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modu
+les\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os
+-live\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.p
+npm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\j
+sdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_mod
+ules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node
+_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+ Ô£ô src/test/AppErrorBoundary.test.tsx > AppErrorBoundary > renders children when there is no error 87ms
+Error: Test render failure
+    at ThrowingChild (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/AppErrorBoundary.test.tsx:6:9)
+    at renderWithHooks (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-
+dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\
+.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-dom@18
+.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modu
+les\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os
+-live\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.p
+npm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\j
+sdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_mod
+ules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node
+_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+ Ô£ô src/test/AppErrorBoundary.test.tsx > AppErrorBoundary > shows recovery UI when a child throws 2565ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > renders radial toolbar with center select and ring tools 3001ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > calls onSelectTool when a ring tool is clicked 663ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > marks the active tool with aria-pressed 50ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > renders larger radial toolbar on coarse pointers 51ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > renders titled error banners as alerts with assertive live region 1511ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > uses success and info icons for non-error variants 379ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > exposes test id and accent structure for styling hooks 12ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > rendering > should render drafting tools and draft-mode tools 1459ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > rendering > uses production tool rail class for iPad layout 413ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > tool selection > should call onToolChange when Wall tool is clicked 6842ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > tool selection > should call onToolChange when Vastu tool is clicked in draft mode 1264ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > active state > should apply active class to current tool 1071ms
+ Ô£ô src/components/auth/AuthTrustPillar.test.tsx > AuthTrustPillar > renders metric, badge, and destination with accessible naming 2639ms

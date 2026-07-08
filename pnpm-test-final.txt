@@ -1,0 +1,129 @@
+﻿
+ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Connected to room room-1 as Alice
+
+node.exe : stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not 
+connect if already connected
+At C:\Users\bryso\AppData\Roaming\npm\pnpm.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/pnpm/bin/pnpm.cjs" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/te...ready connected:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Already connected to collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Disconnected from collaboration room
+
+stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should not broadcast when 
+not connected
+Not connected to collaboration room
+
+┬À┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Disconnected from collaboration room
+
+┬Àstdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Disconnected from collaboration room
+
+stderr | src/test/editorPerformanceOverhaul.test.ts
+WARNING: Multiple instances of Three.js being imported.
+
+┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À

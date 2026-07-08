@@ -1,0 +1,1565 @@
+﻿
+ RUN  v4.1.9 C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should connect to room 1704ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should disconnect from room 763ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Connected to room room-1 as Alice
+
+node.exe : stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not 
+connect if already connected
+At C:\Users\bryso\AppData\Roaming\npm\pnpm.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/pnpm/bin/pnpm.cjs" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/te...ready connected:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Already connected to collaboration room
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Connection Management > should not connect if already connected 1051ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should add current user on connect 1052ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should get user by ID 759ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > User Management > should return undefined for non-existent user 1884ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast operation 548ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast cursor position 576ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock acquisition 890ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast lock release 581ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message
+Disconnected from collaboration room
+
+stderr | src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should not broadcast when 
+not connected
+Not connected to collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should broadcast chat message 558ms
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Message Broadcasting > should not broadcast when not connected 1ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should subscribe to messages 582ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should unsubscribe from messages 639ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Subscription Management > should handle multiple subscribers 558ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated presence message 745ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Simulated Messages > should handle simulated cursor message 576ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should connect using convenience function 519ms
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Connected to room room-1 as Alice
+
+stdout | src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function
+Disconnected from collaboration room
+
+ Ô£ô src/test/collaborationEngine.test.ts > CollaborationEngine > Convenience Functions > should disconnect using convenience function 534ms
+Error: Test render failure
+    at ThrowingChild (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/AppErrorBoundary.test.tsx:6:9)
+    at renderWithHooks (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-
+dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\
+.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-dom@18
+.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modu
+les\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os
+-live\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.p
+npm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\j
+sdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_mod
+ules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node
+_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+ Ô£ô src/test/AppErrorBoundary.test.tsx > AppErrorBoundary > renders children when there is no error 766ms
+Error: Test render failure
+    at ThrowingChild (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/AppErrorBoundary.test.tsx:6:9)
+    at renderWithHooks (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-
+dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\
+.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\react-dom@18
+.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modu
+les\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os
+-live\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.p
+npm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_modules\.pnpm\j
+sdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node_mod
+ules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\Users\bryso\dev\FUTURE PROJECTS\Vishvakarma-os\vishvakarma-os-live\node
+_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+ Ô£ô src/test/AppErrorBoundary.test.tsx > AppErrorBoundary > shows recovery UI when a child throws 6033ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > rendering > should render trigger button 1390ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > rendering > should render keyboard icon in trigger button 114ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should open dialog when trigger button is clicked 858ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all tool shortcuts 848ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all view shortcuts 1072ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display all edit shortcuts 525ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > dialog interaction > should display tips section 868ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should have proper ARIA attributes 584ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should have accessible button with title 99ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > accessibility > should use semantic kbd elements for shortcuts 616ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > structure > should organize shortcuts into three sections 388ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > structure > should display shortcuts in key-value pairs 381ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 5 tool shortcuts 717ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 3 view shortcuts 556ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 2 edit shortcuts 304ms
+ Ô£ô src/test/KeyboardShortcuts.test.tsx > KeyboardShortcuts > count verification > should display exactly 4 tips 389ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > renders project actions and view controls 174ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > uses dynamic view labels based on toggle state 1529ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > calls Architecture Copilot and view toggle handlers 555ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > EditorSidebarSections > calls onAfterAction after each sidebar action 348ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > renders workspace navigation on non-editor routes without project actions 765ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > does not show project actions on editor route before config registration 543ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > shows project actions on editor route when config is registered 1232ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > AppLayout editor sidebar integration > opens Architecture Copilot dialog via registered sidebar callback 424ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > Editor sidebar wiring > removes EditorMenuSheet from EditorPage and registers sidebar config 9ms
+ Ô£ô src/test/editorSidebarIntegration.test.tsx > Editor sidebar wiring > updates editor hamburger label to open workspace navigation 4ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > keeps route manifest complete and access-scoped 169ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > keeps App routing driven by the canonical route manifest 32ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > keeps protected routing enforced through RouteGuard 43ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > wires import and new-project flows in the editor 27ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > loads Sanskrit boot/auth styles at app startup 2ms
+ Ô£ô src/test/functionalWiring.test.ts > Vishvakarma.OS functional wiring guard > keeps loading, auth, and app shell surfaces on the official brand asset 26ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > empty state > should render tool defaults when no wall is selected 204ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > empty state > should not render wall properties in empty state 16ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should render wall properties when wall is selected 283ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall length 83ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall ID (truncated) 109ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall thickness value 81ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should display wall height value 76ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall properties > should calculate wall length correctly for diagonal wall 103ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should render thickness slider label 53ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should render height slider label 56ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should have thickness slider with correct id 80ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall sliders > should have height slider with correct id 71ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display "No doors or windows" when no openings 61ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display door opening 109ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display window opening 99ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should display multiple openings 128ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > openings display > should only display openings for selected wall 98ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door width 85ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door height 78ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display door position as percentage 101ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should display window sill height 94ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening properties > should not display sill height for doors 117ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening delete > should render delete button for each opening 1432ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > opening delete > should call onOpeningDelete when delete button is clicked 743ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall delete > should render delete wall button 79ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > wall delete > should call onWallDelete when delete wall button is clicked 325ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should update display when selectedWall changes 55ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should update display when openings change 107ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > props updates > should switch from wall properties to empty state 43ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should have proper labels for sliders 40ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should have accessible delete button 58ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > accessibility > should render all interactive elements as buttons 263ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle wall with zero length 62ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle opening with position 0 70ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle opening with position 1 88ms
+ Ô£ô src/test/PropertiesPanel.test.tsx > PropertiesPanel > edge cases > should handle window without sillHeight 81ms
+ Ô£ô src/test/FollowViewportToggle.test.tsx > FollowViewportToggle > renders touch-safe follow trigger with accessible label 203ms
+ Ô£ô src/test/FollowViewportToggle.test.tsx > FollowViewportToggle > calls onFollow when a collaborator is selected 1819ms
+ Ô£ô src/components/architecture-bot/ArchitectureBotWidget.test.tsx > ArchitectureBotWidget > renders character and opens panel on toggle 1316ms
+ Ô£ô src/components/architecture-bot/ArchitectureBotWidget.test.tsx > ArchitectureBotWidget > calls fix handler from panel 228ms
+ Ô£ô src/test/collaborationPresence.test.ts > CollabSession presence > connects locally without websocket URL 1310ms
+ Ô£ô src/test/collaborationPresence.test.ts > CollabSession presence > tracks awareness updates through transport adapter 581ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Canvas Engine Integration > should add and remove walls 55ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should export and import project
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (36.13ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548446948-b2184d8a (hash: 3de7ce9cb7276e90e1bbc180242c0cbca58c358634dee181158280ad2bb55d4d)
+
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Canvas Engine Integration > should add and remove openings 32ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Canvas Engine Integration > should detect wall overlaps 19ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Governance Integration > should track all operations 25ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Governance Integration > should validate manifest changes 2ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Version Control Integration > should create version snapshots 20ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Version Control Integration > should undo and redo operations 7ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should preserve governance history
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (11.31ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548447038-7301ba11 (hash: cf32caa23f6c394def31dc4952be6c71ecf06bccc1f03f43ff37cb35fd9a81e8)
+
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should export and import project 124ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Export/Import Integration > should preserve governance history 65ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Theme Integration > should switch themes 89ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Theme Integration > should validate custom themes 27ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Accessibility Integration > should enable accessibility features 153ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Accessibility Integration > should provide Swan-V alt text 23ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should connect and disconnect
+Connected to room room-1 as Test User
+
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should connect and disconnect
+Disconnected from collaboration room
+
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should connect and disconnect 2792ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should broadcast operations
+Connected to room room-1 as Test User
+
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Collaboration Integration > should broadcast operations 288ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Element Locking Integration > should acquire and release locks 807ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Element Locking Integration > should prevent concurrent edits 1ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Multi-User Governance Integration > should log multi-user operations 110ms
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > Multi-User Governance Integration > should detect conflicts 51ms
+stdout | src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > End-to-End Workflow > should complete full blueprint workflow
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (35.04ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548451625-2da8caa4 (hash: d29918da7026b133f76ce75cdb65e274f6d12e68d3bee81d90bf4f6ff06c46a1)
+
+ Ô£ô src/test/automatedTestSuite.test.ts > Automated Test Suite - Integration Tests > End-to-End Workflow > should complete full blueprint workflow 268ms
+stdout | src/test/automatedTestSuite.test.ts
+Disconnected from collaboration room
+
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > renders radial toolbar with center select and ring tools 6146ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > calls onSelectTool when a ring tool is clicked 2006ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > marks the active tool with aria-pressed 684ms
+ Ô£ô src/test/RadialToolMenu.test.tsx > RadialToolMenu > renders larger radial toolbar on coarse pointers 807ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > renders titled error banners as alerts with assertive live region 898ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > uses success and info icons for non-error variants 397ms
+ Ô£ô src/components/auth/AuthStatusBanner.test.tsx > AuthStatusBanner > exposes test id and accent structure for styling hooks 18ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > rendering > should render drafting tools and draft-mode tools 311ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > rendering > uses production tool rail class for iPad layout 99ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > tool selection > should call onToolChange when Wall tool is clicked 966ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > tool selection > should call onToolChange when Vastu tool is clicked in draft mode 282ms
+ Ô£ô src/test/ToolRail.test.tsx > ToolRail > active state > should apply active class to current tool 190ms
+ Ô£ô src/components/auth/AuthTrustPillar.test.tsx > AuthTrustPillar > renders metric, badge, and destination with accessible naming 3219ms
+ Ô£ô src/components/auth/AuthTrustPillar.test.tsx > AuthTrustPillar > invokes learn-more handler on click 11927ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > supabase auth callback detection > treats PKCE OAuth ?code= as OAuth, not email link 193ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > supabase auth callback detection > treats token_hash magic-link query as email link, not OAuth 58ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > supabase auth callback detection > treats hash magic-link type as email link 42ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > resolveSupabaseOAuthRedirectSession > calls exchangeCodeForSession when OAuth code is present 169ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > post-auth redirect helpers > always resolves post-auth destination to /editor 24ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > post-auth redirect helpers > hard-redirects from /auth to /editor when invoked directly 23ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > post-auth redirect helpers > does not redirect when not on /auth 24ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > getAuthPageUrl > keeps OAuth callback on the canonical .app origin the user opened 14ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > getAuthPageUrl > keeps OAuth callback on the vercel fallback origin the user opened 1ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > hydrateSupabaseAuthSession > rehydrates the Supabase client from cached snapshot when getSession is empty 17ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > hydrateSupabaseAuthSession > returns cached snapshot from readCachedAuthBootstrap 1ms
+ Ô£ô src/backend/supabase/supabaseAuthCallback.test.ts > hydrateSupabaseAuthSession > detects cached auth session for RouteGuard restore gate 18ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > skips recursive git and auto-ship commands 15ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > excludes secret and generated paths 2ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > filters stageable paths from porcelain 7ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > parses porcelain paths when the first status column is a leading space 6ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > normalizes Windows paths and quoted porcelain entries 5ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > detects direct entry on Windows paths 5ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > builds commit messages with trigger and file summary 1ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > detects mutating tools only 5ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > respects debounce lock ttl when lock file is absent 1ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > parses shell exit codes from hook payloads 5ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > acquireDebounceLock writes lock and blocks concurrent acquires 29ms
+ Ô£ô scripts/auto-ship/auto-ship.test.mjs > auto-ship-lib > prefers hook repo over cwd when both have .git 51ms
+ Ô£ô src/planning/planningPipeline.test.ts > planningPipeline > selects a winner with explanation and ranked scores 310ms
+ Ô£ô src/planning/planningPipeline.test.ts > planningPipeline > winner scores higher than median candidate on adjacency or compliance 93ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > locks system-map.json against SYSTEM_VERSIONS 49ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > copilot gold standard ÔÇö structural output class 554ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > compliance gold standard ÔÇö rule set and category rollup 371ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > cost gold standard ÔÇö scenario bands and region 43ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > optimization gold standard ÔÇö batch structure and moat 3560ms
+ Ô£ô src/test/regressionAnchors.test.ts > regression anchors > council gold standard ÔÇö approval assessment on batch candidates 884ms
+stderr | src/test/editorPerformanceOverhaul.test.ts
+WARNING: Multiple instances of Three.js being imported.
+
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 0 ÔÇö hot path (runtime mocks) > p0-engine-notify: viewport pan does not bump geometryRevision 1552ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 0 ÔÇö hot path (runtime mocks) > p0-compliance-pan: getGeometryManifest excludes session camera fields 10ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 0 ÔÇö hot path (runtime mocks) > p0-undo-coalesce: edit transaction produces one undo step for drag edits 11ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 1 ÔÇö 2D canvas (mock benchmarks) > p1-canvas-raf: scheduler coalesces dirty flags into one frame 607ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 1 ÔÇö 2D canvas (mock benchmarks) > p1-spatial-index: indexed hit-test matches linear scan (mock wall field) 433ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 1 ÔÇö 2D canvas (mock benchmarks) > p1-overlay-cache: vastu analysis cache returns stable reference 11ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 2 ÔÇö 3D pipeline (mock helpers) > p2-3d-demand: bloom pipeline gate respects wall cap 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 2 ÔÇö 3D pipeline (mock helpers) > p2-wall-batch: batching threshold for large standard scenes 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 4 ÔÇö background work (runtime mocks) > p4-background: partialTouchesCost skips session-only edits 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 4 ÔÇö background work (runtime mocks) > p4-background: room face cache returns same array for unchanged walls 185ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Phase 6 ÔÇö product surface (runtime mocks) > p6-product-ci: performance profiles map to atmosphere tiers 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Collab cursor broadcast throttled (~80ms) 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Radial menu uses dedicated tracker (not stage setMousePos) 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > EditorPage keys compliance on geometryRevision 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > BlueprintCanvas uses canvas render scheduler 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Draft autosave scheduled via worker helper 5ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > CRDT remote updates batched at animation frame 10ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Viewport3D uses demand render loop (always during walk) 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Room meshes use cached faces, tier LOD, and batching 4ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Performance profile syncs 3D atmosphere in Viewport3D 4ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Walk mode disables cinematic post-FX pipeline 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > EditorPage defers 3D geometry props 2ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Non-editor routes lazy-loaded 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Production governance deferred via requestIdleCallback 1ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Dev performance HUD wired in editor 140ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Performance profile panel in editor more panel 3ms
+ Ô£ô src/test/editorPerformanceOverhaul.test.ts > Editor performance overhaul ÔÇö mock audit suite > Wiring audit ÔÇö source presence > Performance notes and troubleshooting docs present 13ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Large Blueprint Stress Tests > should handle 100 walls 9ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Large Blueprint Stress Tests > should handle 500 walls 2ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Large Blueprint Stress Tests > should handle 100 walls with 200 openings 2ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Large Blueprint Stress Tests > should handle 500 walls with 500 openings 3ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Governance History Stress Tests > should handle 100 governance events 10ms
+stdout | src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should export large blueprint (500 walls)
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (27.88ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548978581-b6506504 (hash: cdb68e9502c94bb0b9f686ac2ed79b5a28b9888534b4c18db7a797734d6b177c)
+
+stdout | src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should import large blueprint (500 walls)
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (14.91ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548978613-65cdf55b (hash: cdb68e9502c94bb0b9f686ac2ed79b5a28b9888534b4c18db7a797734d6b177c)
+
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Governance History Stress Tests > should handle 1000 governance events 111ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Version Control Stress Tests > should handle 50 version snapshots 15ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Version Control Stress Tests > should handle 100 version snapshots 22ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should export large blueprint (500 walls) 49ms
+stdout | src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should round-trip large blueprint (500 walls + 500 openings)
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (33.18ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781548978696-3b52765b (hash: c34336fbdc197a358f378d48d90e928debde6d64f26ef033b43ee9c10779f6ab)
+
+stdout | src/test/stressTest.test.ts > Stress Test Framework > Performance Benchmarks > should log performance metrics for 500 walls
+Performance Metrics (500 walls):
+  Operation Time: 0.06ms
+  Memory Used: 0.00MB
+  Element Count: 500
+  Success: true
+
+stdout | src/test/stressTest.test.ts > Stress Test Framework > Performance Benchmarks > should log performance metrics for 1000 elements
+Performance Metrics (1000 elements):
+  Operation Time: 0.09ms
+  Memory Used: 0.00MB
+  Element Count: 1000
+  Success: true
+
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should import large blueprint (500 walls) 64ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Export/Import Stress Tests > should round-trip large blueprint (500 walls + 500 openings) 74ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Memory Leak Detection > should not leak memory with repeated operations 2ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Performance Benchmarks > should log performance metrics for 500 walls 2ms
+ Ô£ô src/test/stressTest.test.ts > Stress Test Framework > Performance Benchmarks > should log performance metrics for 1000 elements 10ms
+ Ô£ô src/services/floorplan-generation/copilotPipeline.test.ts > Architecture Copilot pipeline > merges council requirements into building request 12ms
+ Ô£ô src/services/floorplan-generation/copilotPipeline.test.ts > Architecture Copilot pipeline > produces full copilot deliverables including compliance and materials 59ms
+ Ô£ô src/services/floorplan-generation/copilotPipeline.test.ts > Architecture Copilot pipeline > planning intelligence produces ranked scores and explanation via copilot module 938ms
+ Ô£ô src/services/optimization/optimizationOrchestrator.test.ts > optimizationOrchestrator > generates 6 scored and ranked candidates 4170ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Configuration > should get default configuration 35ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Configuration > should update configuration 7ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > High Contrast Mode > should enable high contrast 4ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > High Contrast Mode > should disable high contrast 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Font Scaling > should set font size 2ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Font Scaling > should clamp font size to minimum 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Font Scaling > should clamp font size to maximum 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Reduced Motion > should enable reduced motion 2ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Reduced Motion > should disable reduced motion 8ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Screen Reader Mode > should enable screen reader mode 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Screen Reader Mode > should disable screen reader mode 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > ARIA Labels > should register ARIA label 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > ARIA Labels > should get Swan-V alt text 2ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Focusable Elements > should register focusable element 7ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Focusable Elements > should unregister focusable element 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Focusable Elements > should focus next element 9ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Focusable Elements > should focus previous element 6ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Focusable Elements > should focus element by ID 4ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Screen Reader Announcements > should announce message 21ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Screen Reader Announcements > should announce with priority 7ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Accessibility Validation > should check if element is accessible 5ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Accessibility Validation > should detect missing ARIA label 4ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Accessibility Validation > should validate accessibility 17ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Configuration Persistence > should save configuration 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Configuration Persistence > should load configuration 4ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > ARIA Live Announcer > should create ARIA live announcer 5ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > ARIA Live Announcer > should not create duplicate announcer 6ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Convenience Functions > should enable high contrast 4ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Convenience Functions > should set font size 3ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Convenience Functions > should announce to screen reader 2ms
+ Ô£ô src/test/accessibilityLayer.test.ts > AccessibilityLayer > Convenience Functions > should get Swan-V alt text 3ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > has unique sample ids 5ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > includes the default onboarding sample 1ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > validates every catalog manifest 66ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > loads every catalog manifest into the floor plan engine 39ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > covers showcase feature counts 14ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > exposes new-project templates for residential and shapes 2ms
+ Ô£ô src/test/sampleCatalog.test.ts > sample catalog > builder registry supports showcase regeneration 10ms
+ Ô£ô src/test/sampleCatalog.test.ts > public sample json files > parses every json file under public/samples 9ms
+ Ô£ô src/test/worldRecordMeasure.test.ts > world record measurement artifact > gate manifest defines release gates with metric count 12 90ms
+ Ô£ô src/test/worldRecordMeasure.test.ts > world record measurement artifact > latest-measurement.json exists and matches schema when generated 9ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > formats elevation labels 183ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > computes centroid and area 3ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > validates terrain polygons 1ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > detects nearby points for polygon close 1ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > cycles elevation presets 1ms
+ Ô£ô src/test/sceneTerrainCatalog.test.ts > sceneTerrainCatalog > maps canvas points to world shape coordinates 1ms
+ Ô£ô src/components/brand/FoundersAcknowledgment.test.tsx > FoundersAcknowledgment > renders auth variant with studio and founder credits 256ms
+ Ô£ô src/components/brand/FoundersAcknowledgment.test.tsx > FoundersAcknowledgment > renders footer variant with copyright and founders 67ms
+ Ô£ô src/components/brand/FoundersAcknowledgment.test.tsx > FoundersAcknowledgment > renders sidebar variant with compact studio and role lines 52ms
+ Ô£ô src/modules/permit/permitPackageExport.test.ts > permitPackageExport > bundles permit package ZIP with required documents 739ms
+ Ô£ô src/modules/permit/permitPackageExport.test.ts > permitPackageExport > blocks permit export when compliance fails 166ms
+ Ô£ô src/test/import.test.ts > ImportModule > JSON Import > should import valid export package 263ms
+ Ô£ô src/test/import.test.ts > ImportModule > JSON Import > should import valid plain manifest 5ms
+ Ô£ô src/test/import.test.ts > ImportModule > JSON Import > should include metadata in result 2ms
+ Ô£ô src/test/import.test.ts > ImportModule > JSON Import > should reject invalid JSON 1ms
+ Ô£ô src/test/import.test.ts > ImportModule > JSON Import > should reject JSON without required fields 1ms
+ Ô£ô src/test/import.test.ts > ImportModule > Sanitization > should sanitize manifest by default 2ms
+ Ô£ô src/test/import.test.ts > ImportModule > Sanitization > should clamp invalid opening positions 1ms
+ Ô£ô src/test/import.test.ts > ImportModule > History Restoration > should restore governance history when requested 3ms
+ Ô£ô src/test/import.test.ts > ImportModule > History Restoration > should restore version history when requested 2ms
+ Ô£ô src/test/import.test.ts > ImportModule > History Restoration > should not restore history by default 1ms
+ Ô£ô src/test/import.test.ts > ImportModule > File Import > should import from JSON file 9ms
+ Ô£ô src/test/import.test.ts > ImportModule > File Import > should reject file that is too large 1789ms
+ Ô£ô src/test/import.test.ts > ImportModule > File Import > should reject unsupported file type 10ms
+ Ô£ô src/test/import.test.ts > ImportModule > Round-Trip Test > should successfully round-trip export and import 3ms
+ Ô£ô src/test/import.test.ts > ImportModule > Convenience Functions > should import JSON with convenience function 293ms
+ Ô£ô src/test/import.test.ts > ImportModule > Error Handling > should import SVG wall geometry exported by Vishvakarma.OS 4ms
+ Ô£ô src/test/import.test.ts > ImportModule > Error Handling > should reject SVG without wall geometry 3ms
+ Ô£ô src/test/import.test.ts > ImportModule > Error Handling > should handle corrupted JSON gracefully 2ms
+ Ô£ô src/test/import.test.ts > ImportModule > Error Handling > should provide clear error messages 1ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > loads auth gate stylesheet through app startup 4ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > keeps the canvas Sanskrit rain and mandala layers on the auth page 5ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > shows only the verified auth winner from capabilities manifest 9ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > keeps trust pillars and workspace branding on the auth page 5ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > handles OAuth redirect completion in AuthContext 3ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > keeps Supabase OAuth callback handling separate from email magic links 3ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > surfaces founders acknowledgment on marketing footer 2ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > keeps the premium workspace shell treatment after login 3ms
+ Ô£ô src/test/sanskritAuthGate.test.ts > Sanskrit auth gate design > keeps animation CSS premium, responsive, and reduced-motion safe 4ms
+ Ô£ô src/services/optimization/budgetOptimizer.test.ts > budgetOptimizer > returns building within or closest to target budget 1354ms
+ Ô£ô src/components/common/PrototypeDisclaimer.test.tsx > PrototypeDisclaimer > renders global badge text 475ms
+ Ô£ô src/components/common/PrototypeDisclaimer.test.tsx > PrototypeDisclaimer > renders cost module notice 573ms
+ Ô£ô src/components/common/PrototypeDisclaimer.test.tsx > PrototypeDisclaimer > renders compliance module notice 134ms
+ Ô£ô src/components/common/PrototypeDisclaimer.test.tsx > PrototypeDisclaimer > renders copilot module notice 6ms
+ Ô£ô src/components/common/PrototypeDisclaimer.test.tsx > PrototypeDisclaimer > renders optimization module notice 6ms
+ Ô£ô src/components/brand/CopilotSwanMark.test.tsx > CopilotSwanMark > renders motion and size data attributes 139ms
+ Ô£ô src/components/brand/CopilotSwanMark.test.tsx > CopilotSwanMark > renders issue badge on fab size 17ms
+ Ô£ô src/components/brand/CopilotSwanMark.test.tsx > CopilotSwanMark > maps architecture bot states to swan motion modes 2ms
+ Ô£ô src/planning/candidateGenerator.test.ts > candidateGenerator > builds the requested number of layout option variants 15ms
+ Ô£ô src/planning/candidateGenerator.test.ts > candidateGenerator > generates N unique layout candidates 345ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > sample project wall and opening counts match manifest 25ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > wall coordinates are finite for 3D extrusion 4ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > computeSceneOrigin centers on active wall bounding box 4ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > showcase walls yield enclosed room geometry for 3D room volumes 8ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > showcase includes multi-floor walls for stacked 3D demo 2ms
+ Ô£ô src/test/parity2d3d.test.ts > 2D/3D parity > furniture and landscape showcase elements have finite placement data 10ms
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should detect corrupted manifest
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should detect corrupted manifest
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (24.09ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should attempt auto-repair on corrupted manifest
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should attempt auto-repair on corrupted manifest
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.47ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing governance log
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing governance log
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.70ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should auto-repair missing governance log
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should auto-repair missing governance log
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.73ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing version control state
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing version control state
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.43ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing theme configuration
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing theme configuration
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.55ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid version
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid version
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: false, errorCount: 1 },
+  timestamp: 1781549760901
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (64.44ms)
+
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should detect corrupted manifest 40ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 1: Corrupted Manifest > should attempt auto-repair on corrupted manifest 4ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing governance log 9ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should auto-repair missing governance log 4ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing version control state 3ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 2: Missing Dependencies > should detect missing theme configuration 6ms
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with missing required fields
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with missing required fields
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (2.10ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid data types
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid data types
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.24ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should detect snapshot chain corruption
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should detect snapshot 
+chain corruption
+[SNAPSHOT] Hash mismatch for snapshot snapshot-1781549761014-a8bf9769
+[SNAPSHOT] ÔØî Corruption detected in snapshot chain
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should detect snapshot chain corruption
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549761014-a8bf9769 (hash: 759c81dad37d2e02df8e35a47cde63f9cfaf6d30f8a0ef95f4b4d5a01e3d6dd2)
+
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should rollback to last valid snapshot on corruption
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should rollback to last 
+valid snapshot on corruption
+[SNAPSHOT] Hash mismatch for snapshot snapshot-1781549761025-5793972a
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should rollback to last valid snapshot on corruption
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549761022-82b7f2f2 (hash: 759c81dad37d2e02df8e35a47cde63f9cfaf6d30f8a0ef95f4b4d5a01e3d6dd2)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549761025-5793972a (hash: 759c81dad37d2e02df8e35a47cde63f9cfaf6d30f8a0ef95f4b4d5a01e3d6dd2)
+[SNAPSHOT] ­ƒöä Rolling back to snapshot snapshot-1781549761022-82b7f2f2
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect non-English content in storage
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect non-English content in storage
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (2.58ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect mixed language content
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect mixed language content
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (2.14ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 6: Spec Hash Tampering > should detect spec hash mismatch
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid version 68ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with missing required fields 39ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 3: Invalid Schema > should reject manifest with invalid data types 5ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should detect snapshot chain corruption 10ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 4: Snapshot Corruption > should rollback to last valid snapshot on corruption 10ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect non-English content in storage 30ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 5: Language Injection > should detect mixed language content 5ms
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 6: Spec Hash Tampering > should block build on spec mismatch
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 6: Spec Hash Tampering > should block build on spec mismatch
+[SPEC HASH] Validating all specs...
+[SPEC HASH] Ô£à All specs validated successfully
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should detect excessive validation time
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should detect excessive validation time
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 0.001,
+    maxValidationTime: 0.001,
+    maxMemoryIncrease: 0.001
+  }
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.81ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should warn on memory increase
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 0.001,
+    maxValidationTime: 0.001,
+    maxMemoryIncrease: 0.001
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should warn on memory increase
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.30ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should detect inconsistent state
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should detect inconsistent state
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.47ms)
+
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should repair 
+inconsistent state
+Failed to load governance event log: SyntaxError: Unexpected token 'i', "invalid-json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at GovernanceLock.loadEventLog (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/modules/governanceLock.ts:82:30)
+    at initializeGovernanceLock (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/modules/governanceLock.ts:351:24)
+    at C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/redTeam.test.ts:61:5
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at wrapper (file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vit
+est+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should repair inconsistent state
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should repair inconsistent state
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.48ms)
+
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pn
+pm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should block execution in production mode on failure
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should block execution 
+in production mode on failure
+[GOVERNANCE ENFORCER] Enforcement failed. Blocking execution.
+[GOVERNANCE ENFORCER] Errors: [
+  'Audit suite found 4 issue(s)',
+  'Manifest validation error: manifest.walls.map is not a function',
+  'Building compliance error: walls.reduce is not a function'
+]
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should block execution in production mode on failure
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'production',
+  enableAutoRepair: false,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: true,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should not auto-repair 
+in production mode
+[GOVERNANCE ENFORCER] ÔÜá´©Å Enforcement failed (0.31ms)
+[GOVERNANCE ENFORCER] Errors: [ 'Audit suite found 4 issue(s)' ]
+[GOVERNANCE ENFORCER] Repairs: []
+
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should not auto-repair in production mode
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should not auto-repair in production mode
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'production',
+  enableAutoRepair: false,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should handle multiple corruption attempts
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should handle multiple corruption attempts
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.44ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should prioritize critical repairs
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should prioritize 
+critical repairs
+Failed to load governance event log: SyntaxError: Unexpected token 'i', "invalid" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at GovernanceLock.loadEventLog (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/modules/governanceLock.ts:82:30)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should prioritize critical repairs
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.62ms)
+
+    at initializeGovernanceLock (C:/Users/bryso/dev/FUTURE 
+PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/modules/governanceLock.ts:351:24)
+    at C:/Users/bryso/dev/FUTURE PROJECTS/Vishvakarma-os/vishvakarma-os-live/src/test/redTeam.test.ts:61:5
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at wrapper (file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vit
+est+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pn
+pm/@vitest+runner@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///C:/Users/bryso/dev/FUTURE%20PROJECTS/Vishvakarma-os/vishvakarma-os-live/node_modules/.pnpm/@vitest+runne
+r@4.1.9/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52
+
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should remain operational after 
+multiple attacks
+[GOVERNANCE ENFORCER] ÔÜá´©Å Enforcement failed (0.73ms)
+[GOVERNANCE ENFORCER] Errors: [ 'Non-English content detected in storage: attack' ]
+[GOVERNANCE ENFORCER] Repairs: []
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should remain operational after multiple attacks
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should remain operational after multiple attacks
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.18ms)
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.07ms)
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: false, errorCount: 1 },
+  timestamp: 1781549761160
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.18ms)
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should maintain audit trail through attacks
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 0.1
+  }
+}
+
+stdout | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should maintain audit trail through attacks
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: false, errorCount: 1 },
+  timestamp: 1781549761162
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.26ms)
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (0.20ms)
+
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 6: Spec Hash Tampering > should detect spec hash mismatch 4ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 6: Spec Hash Tampering > should block build on spec mismatch 5ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should detect excessive validation time 4ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 7: Performance Degradation > should warn on memory increase 3ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should detect inconsistent state 4ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 8: State Inconsistency > should repair inconsistent state 46ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should block execution in production mode on failure 8ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 9: Production Mode Bypass > should not auto-repair in production mode 3ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should handle multiple corruption attempts 2ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > Attack 10: Concurrent Corruption > should prioritize critical repairs 7ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should remain operational after multiple attacks 7ms
+ Ô£ô src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should maintain audit trail through attacks 50ms
+stderr | src/test/redTeam.test.ts > Red Team Testing Suite > System Resilience > should maintain audit trail through 
+attacks
+[GOVERNANCE ENFORCER] ÔÜá´©Å Enforcement failed (46.53ms)
+[GOVERNANCE ENFORCER] Errors: [
+  'Manifest validation error: manifest.walls.map is not a function',
+  'Building compliance error: walls.reduce is not a function'
+]
+[GOVERNANCE ENFORCER] Repairs: []
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should export project as JSON
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should export project as JSON
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549808805
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (14.07ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549808813-1e91646c (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include manifest in export
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include manifest in export
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809065
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.39ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549809072-29710748 (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+ Ô£ô src/test/export.test.ts > ExportModule > JSON Export > should export project as JSON 464ms
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include metadata in export
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include metadata in export
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809313
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.21ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549809314-9bd48738 (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include export version and timestamp
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should include export version and timestamp
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809319
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (2.03ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549809320-ef8309c6 (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should calculate file size
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > JSON Export > should calculate file size
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809324
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.31ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549809326-01c8bbb4 (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should export project as SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/export.test.ts > ExportModule > JSON Export > should include manifest in export 248ms
+ Ô£ô src/test/export.test.ts > ExportModule > JSON Export > should include metadata in export 5ms
+ Ô£ô src/test/export.test.ts > ExportModule > JSON Export > should include export version and timestamp 6ms
+ Ô£ô src/test/export.test.ts > ExportModule > JSON Export > should calculate file size 6ms
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should generate valid SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should include walls in SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should export project as SVG 103ms
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should generate valid SVG 2ms
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should include openings in SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should include grid in SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should include walls in SVG 131ms
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should include openings in SVG 2ms
+stdout | src/test/export.test.ts > ExportModule > SVG Export > should include project name in SVG
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > Convenience Functions > should export JSON with convenience function
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > Convenience Functions > should export JSON with convenience function
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809690
+}
+[GOVERNANCE ENFORCER] Ô£à Enforcement passed (1.11ms)
+[SNAPSHOT] Ô£à Created snapshot snapshot-1781549809693-b747e86f (hash: 5704c8d3712301dba97bdea831cdc5e2cd6b40ac90106f9c9e55f8c3ca2c33d3)
+
+stdout | src/test/export.test.ts > ExportModule > Convenience Functions > should export SVG with convenience function
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stdout | src/test/export.test.ts > ExportModule > Compliance gate > blocks JSON export when building compliance fails
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+stderr | src/test/export.test.ts > ExportModule > Compliance gate > blocks JSON export when building compliance fails
+[GOVERNANCE ENFORCER] ÔÜá´©Å Enforcement failed (7.19ms)
+[GOVERNANCE ENFORCER] Errors: [
+  'Building compliance failed: Setback violation: building footprint extends beyond parcel boundary (F3m S1.5m).; 
+Coverage 63% exceeds maximum 40%.'
+]
+[GOVERNANCE ENFORCER] Repairs: []
+[EXPORT] Governance enforcement failed: [
+  'Building compliance failed: Setback violation: building footprint extends beyond parcel boundary (F3m S1.5m).; 
+Coverage 63% exceeds maximum 40%.'
+]
+
+stdout | src/test/export.test.ts > ExportModule > Compliance gate > blocks JSON export when building compliance fails
+[Governance] {
+  type: 'manifest-validation',
+  metadata: { valid: true, errorCount: 0 },
+  timestamp: 1781549809699
+}
+
+stdout | src/test/export.test.ts > ExportModule > Error Handling > should export PDF successfully
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should include grid in SVG 118ms
+ Ô£ô src/test/export.test.ts > ExportModule > SVG Export > should include project name in SVG 2ms
+ Ô£ô src/test/export.test.ts > ExportModule > Convenience Functions > should export JSON with convenience function 8ms
+ Ô£ô src/test/export.test.ts > ExportModule > Convenience Functions > should export SVG with convenience function 1ms
+ Ô£ô src/test/export.test.ts > ExportModule > Compliance gate > blocks JSON export when building compliance fails 68ms
+stdout | src/test/export.test.ts > ExportModule > Error Handling > should handle unsupported format
+[GOVERNANCE ENFORCER] Configuration updated: {
+  mode: 'development',
+  enableAutoRepair: true,
+  enableLanguageValidation: true,
+  enableAuditSuite: true,
+  enableVerifyAll: true,
+  blockOnFailure: false,
+  performanceThresholds: {
+    maxStartupTime: 5000,
+    maxValidationTime: 2000,
+    maxMemoryIncrease: 50
+  }
+}
+
+ Ô£ô src/test/export.test.ts > ExportModule > Error Handling > should export PDF successfully 241ms
+ Ô£ô src/test/export.test.ts > ExportModule > Error Handling > should handle unsupported format 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Acquisition > should acquire lock on element 190ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Acquisition > should fail to acquire lock if already locked by another user 2ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Acquisition > should extend lock if user already owns it 9ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Acquisition > should acquire lock if previous lock expired 3ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Release > should release lock 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Release > should not release lock if user does not own it 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Release > should return false if no lock to release 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Status > should check if element is locked 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Status > should check if element is locked by specific user 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Status > should get lock for element 2ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Status > should return null if element is not locked 2ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > User Locks > should get all locks for a user 4ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > User Locks > should release all locks for a user 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > All Locks > should get all active locks 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > All Locks > should clear all locks 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Extension > should extend lock timeout 2ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Extension > should not extend lock if user does not own it 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Timeout > should set lock timeout 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Timeout > should use custom timeout for new locks 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Lock Expiration > should expire locks after timeout 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Convenience Functions > should acquire lock using convenience function 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Convenience Functions > should release lock using convenience function 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Convenience Functions > should check lock status using convenience function 1ms
+ Ô£ô src/test/elementLock.test.ts > ElementLockingSystem > Convenience Functions > should get lock using convenience function 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > File Validation > should validate JSON file 8ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > File Validation > should validate SVG file 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > File Validation > should reject file that is too large 129ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > File Validation > should reject file that is too small 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > File Validation > should reject unsupported file type 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should validate valid export package 17ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should validate valid plain manifest 6ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should reject invalid JSON 3ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should reject JSON without required fields 34ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should detect orphaned openings 3ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should detect duplicate wall IDs 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should warn about metadata mismatch 64ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should validate zero-length walls 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should reject invalid wall dimensions 5ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > JSON Validation > should reject invalid opening position 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Version Compatibility > should accept supported version 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Version Compatibility > should warn about newer version 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Version Compatibility > should accept older version with warning 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Manifest Sanitization > should remove orphaned openings 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Manifest Sanitization > should clamp opening positions 1ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Manifest Sanitization > should ensure positive dimensions 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Convenience Functions > should validate file with convenience function 2ms
+ Ô£ô src/test/formatValidator.test.ts > FormatValidator > Convenience Functions > should validate JSON with convenience function 1ms
+ Ô£ô src/modules/compliance/complianceModule.test.ts > complianceModule > runs golden audit on AI-generated manifest 110ms
+ Ô£ô src/modules/compliance/complianceModule.test.ts > complianceModule > blocks export when setback rule fails 2ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version Saving > should save a version 10ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version Saving > should save multiple versions 2ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version Saving > should enforce max versions limit 2ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version Restoration > should restore a specific version 4ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version Restoration > should return null for non-existent version 2ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should undo to previous version 2ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should redo to next version 220ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should check if undo is available 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should check if redo is available 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should return null when undo is not available 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Undo/Redo > should return null when redo is not available 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version History > should get version history 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version History > should get current version 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Version History > should clear version history 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Configuration > should update configuration 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Configuration > should get current configuration 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Export/Import > should export version history 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Export/Import > should import version history 1ms
+ Ô£ô src/test/versionControlHooks.test.ts > VersionControlHooks > Auto-save > should enable auto-save when configured 8ms
+ Ô£ô src/modules/compliance/complianceReportExport.test.ts > complianceReportExport > builds PDF bytes with category summary and disclaimer 700ms
+ Ô£ô src/components/system-intelligence/DecisionExplainerPanel.test.tsx > DecisionExplainerPanel > renders why this design won with bullets 141ms
+ Ô£ô src/test/billingBanner.test.ts > resolveBillingBanner > shows a loading message while billing is fetching 4ms
+ Ô£ô src/test/billingBanner.test.ts > resolveBillingBanner > surfaces billing load errors 1ms
+ Ô£ô src/test/billingBanner.test.ts > resolveBillingBanner > prompts starter users to upgrade 2ms
+ Ô£ô src/test/billingBanner.test.ts > resolveBillingBanner > warns when a subscription is past due 1ms
+ Ô£ô src/test/billingBanner.test.ts > resolveBillingBanner > celebrates an active enterprise plan 1ms
+ Ô£ô src/services/floorplan-generation/orchestrator.stage.test.ts > runBuildingDesignerPipeline stage progress > emits stages in execution order with work aligned to labels 1614ms
+ Ô£ô src/test/supabaseAuthRestore.test.ts > Supabase-only backend wiring > exports Supabase AuthProvider without Firebase branching 11ms
+ Ô£ô src/test/supabaseAuthRestore.test.ts > Supabase-only backend wiring > routes db/api directly through Supabase gateways 3ms
+ Ô£ô src/ai/building-designer/buildingDesigner.test.ts > AI Building Designer > parses golden prompt requirements via fallback 10ms
+ Ô£ô src/ai/building-designer/buildingDesigner.test.ts > AI Building Designer > scores kitchen-dining adjacency higher than master-living avoidance 2ms
+ Ô£ô src/ai/building-designer/buildingDesigner.test.ts > AI Building Designer > builds 4BR layout with garage and valid manifest 71ms
+ Ô£ô src/ai/building-designer/buildingDesigner.test.ts > AI Building Designer > generates deterministic floor plan components 5ms
+ Ô£ô src/test/blueprintDrawing.test.ts > blueprint drawing polish > computes opening span with clamped parametric bounds 9ms
+ Ô£ô src/test/blueprintDrawing.test.ts > blueprint drawing polish > covers the viewport in world space at multiple zoom levels 2ms
+ Ô£ô src/test/blueprintDrawing.test.ts > blueprint drawing polish > draws door and window symbols without throwing on a mock context 8ms
+ Ô£ô src/test/blueprintDrawing.test.ts > blueprint drawing polish > centers room label chips 2ms
+ Ô£ô src/services/council-intelligence/councilEngine.test.ts > councilEngine > scores high when setbacks, coverage, and compliance pass 16ms
+ Ô£ô src/services/council-intelligence/councilEngine.test.ts > councilEngine > deducts for setback failures and heritage overlay 3ms
+ Ô£ô src/services/council-intelligence/councilEngine.test.ts > councilEngine > deducts when wall height exceeds council limit 1ms

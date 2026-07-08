@@ -1,83 +1,12 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Application lives in its own git repo
+vishvakarma-os-live/
 
-node_modules
-dist
-dist-ssr
-output
-*.local
-package-lock.json
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.sync
-history/*.json
-.vite_cache
-
-# Playwright
-test-results/
-playwright-report/
-
-# Local actionlint download (debug tooling)
-.actionlint/
-actionlint.zip
-
-# Cursor debug session logs
-debug-*.log
-
-# Claude Code local settings
-.claude/
-
-# Local generated / accidental nested workspace
-coverage/
-vishvakarma-os/
-
-.vercel
-.env*
-
-# Supabase CLI local state
-supabase/.temp/
-
-# Local migration export artifacts (never commit)
-migration/export-*.json
-
-# Cursor debug output (keep rules/mcp tracked)
+# Cursor local debug output
 .cursor/debug-*.log
-.cursor/auto-ship/
 
-# Local test output captures
-test-output*.txt
-vitest-console.txt
-vitest-bail.txt
-test-run-final.txt
-test-final.txt
-device-e2e-last-run.txt
-pnpm-test-final.txt
-missing-tests.txt
-missing-tests-output.txt
-final-test-run.txt
+# PRISM Auto evidence
+evidence/prism_auto/
+evidence/bad_take_git_guard/
+evidence/bad_take_doctor/
+evidence/bad_take_gitwork/
 
-# RepairBot local state (manifest + hooks stay tracked)
-.repairbot/
-
-# Ad-hoc QA captures (never commit)
-tmp-qa/
-pilot-evidence/
-scripts/tmp-*.mjs
-
-# Operator handoff annex (filled credentials — use templates/OPERATOR_ANNEX.template.md)
-docs/handoff/OPERATOR_ANNEX.md
