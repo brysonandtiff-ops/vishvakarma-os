@@ -21,6 +21,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/cast/:token',
       '/404',
       '/editor',
+      '/editor-lite',
       '/3d-room',
       '/projects',
       '/optimization',
