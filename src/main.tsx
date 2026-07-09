@@ -128,7 +128,7 @@ function scheduleStartupEnforcement() {
     return;
   }
 
-  window.setTimeout(run, 0);
+  globalThis.setTimeout(run, 0);
 }
 
 scheduleStartupEnforcement();
