@@ -136,7 +136,7 @@ export default function LandingPage() {
                 <Link to="/features">View features</Link>
               </Button>
               <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                <Link to="/editor-lite">Open Lite Editor</Link>
+                <Link to="/editor-lite">Try Lite Editor</Link>
               </Button>
             </div>
 
@@ -252,10 +252,10 @@ export default function LandingPage() {
                 <CheckCircle2 className="h-3.5 w-3.5" /> gated
               </span>
             </div>
-            <ul className="mt-5 space-y-3 font-mono text-xs text-ws-text-dim">
+            <ul className="mt-5 space-y-3" aria-label="Release gate examples">
               {GOVERNANCE_GATES.map((gate) => (
-                <li key={gate} className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" aria-hidden="true" />
+                <li key={gate} className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/45 px-4 py-3 text-sm text-ws-text-dim">
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                   <span>{gate}</span>
                 </li>
               ))}
@@ -266,95 +266,59 @@ export default function LandingPage() {
 
       <MarketingSection
         className="vish-fade-rise"
-        title="Four rooms that explain the product fast"
-        description="Draft, review, govern, and deliver. Each room now has a sharper job so first-time visitors understand the software quickly."
+        title="Rooms for every step of the architecture workflow"
+        description="Each room has a clear purpose so users know where to draw, inspect, govern, and deliver."
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <PageSectionGrid columns={4}>
           {ROOMS.map((room) => (
-            <Link key={room.title} to={room.to} className="vish-frame-bezel group flex min-h-[230px] flex-col rounded-2xl border border-primary/20 p-5 transition-transform hover:-translate-y-0.5 hover:border-primary/40 md:p-6">
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">{room.eyebrow}</span>
-              <h3 className="mt-4 text-xl font-semibold vish-text-heading">{room.title}</h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed vish-text-body">{room.body}</p>
-              <strong className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary">
+            <FeatureCard key={room.title} className="vish-landing-room-card" hover>
+              <p className="vish-marketing-section-label">{room.eyebrow}</p>
+              <h3 className="mt-3 text-xl font-semibold vish-text-heading">{room.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed vish-text-body">{room.body}</p>
+              <Link to={room.to} className="mt-5 inline-flex text-sm font-semibold text-primary hover:text-primary/80">
                 Open room →
-              </strong>
-            </Link>
-          ))}
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        className="vish-fade-rise"
-        title="See the same project from every angle"
-        description="One floor plan powers 2D drafting, live 3D review, and every export package. The page stacks cleanly from desktop to iPad to phone."
-      >
-        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
-            <img
-              src="/marketing/product-2d.png"
-              alt="2D blueprint editor with sample floor plan"
-              className="aspect-[16/10] h-auto w-full object-cover"
-              loading="lazy"
-            />
-            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
-              2D Blueprint Canvas
-            </figcaption>
-          </figure>
-          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm">
-            <img
-              src="/marketing/product-3d.png"
-              alt="Live 3D model chamber with extruded walls"
-              className="aspect-[16/10] h-auto w-full object-cover"
-              loading="lazy"
-            />
-            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
-              Sacred 3D View
-            </figcaption>
-          </figure>
-          <figure className="vish-frame-bezel flex flex-col overflow-hidden rounded-card-lg border border-primary/25 bg-card/60 shadow-lg backdrop-blur-sm lg:col-span-2 xl:col-span-1">
-            <img
-              src="/marketing/product-export.png"
-              alt="Export Package dialog with JSON, PNG, PDF, DXF, and SVG formats"
-              className="aspect-[16/10] h-auto w-full object-cover"
-              loading="lazy"
-            />
-            <figcaption className="border-t border-border/50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] vish-text-heading">
-              Export Package
-            </figcaption>
-          </figure>
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        bordered={false}
-        className="vish-fade-rise"
-        title="Built for professional delivery"
-        description="Clear value for real users: client explanation, traceable changes, export packages, and device-aware layout."
-      >
-        <PageSectionGrid cols={2} className="mt-2">
-          {PROOF.map((item) => (
-            <FeatureCard key={item.title} title={item.title} icon={item.icon} description={item.desc} />
+              </Link>
+            </FeatureCard>
           ))}
         </PageSectionGrid>
-        <div className="vish-landing-device-proof mt-8" aria-label="Device layout proof summary">
-          <div className="vish-landing-device-proof__lead">
-            <TabletSmartphone className="h-5 w-5" aria-hidden="true" />
-            <span>Device clarity pass</span>
-          </div>
-          <div className="vish-landing-device-proof__grid">
-            {DEVICE_PROOF.map((item) => (
-              <p key={item.label}>
-                <strong>{item.label}</strong>
-                <span>{item.value}</span>
-              </p>
-            ))}
-          </div>
+      </MarketingSection>
+
+      <MarketingSection
+        className="vish-fade-rise"
+        title="Device checks are part of the product, not an afterthought"
+        description="The interface is tuned for touch targets, safe-area spacing, and readable cards across iPad and phone layouts."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {DEVICE_PROOF.map((item) => (
+            <div key={item.label} className="rounded-2xl border border-primary/20 bg-card/45 p-6 shadow-sm backdrop-blur-sm">
+              <p className="vish-marketing-section-label">{item.label}</p>
+              <p className="mt-3 text-xl font-semibold vish-text-heading">{item.value}</p>
+            </div>
+          ))}
         </div>
+      </MarketingSection>
+
+      <MarketingSection
+        className="vish-fade-rise"
+        title="Proof pillars"
+        description="The public page now mirrors the software honestly: editor, 3D view, exports, and release evidence."
+      >
+        <PageSectionGrid columns={4}>
+          {PROOF.map((item) => (
+            <FeatureCard key={item.title} hover>
+              <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+              <h3 className="mt-4 text-xl font-semibold vish-text-heading">{item.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed vish-text-body">{item.desc}</p>
+            </FeatureCard>
+          ))}
+        </PageSectionGrid>
       </MarketingSection>
 
       <MarketingCtaSection
-        user={user}
-        body="Open the Lite Editor for a guaranteed working 2D/3D path, then move into the full studio for governance, export, and professional delivery."
+        title="Start with a plan. Prove every release."
+        description="Open the workspace, load a sample, inspect it in 3D, and export a proof package from the same governed project."
+        primary={{ label: cta.primary, to: cta.to }}
+        secondary={{ label: 'View release gates', to: '/releases' }}
       />
     </>
   );
