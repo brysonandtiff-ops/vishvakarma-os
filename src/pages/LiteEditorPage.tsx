@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Box, DoorOpen, Download, Grid3X3, Hand, MousePointer2, Redo2, Slash, Trash2, Undo2, Warehouse } from 'lucide-react';
+import { Box, DoorOpen, Download, Grid3X3, Hand, MousePointer2, Redo2, Slash, Trash2, Undo2, Warehouse, type LucideIcon } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import { Button } from '@/components/ui/button';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
@@ -13,6 +13,15 @@ type Tool = 'select' | 'wall' | 'door' | 'window' | 'pan' | 'delete';
 type Pt = { x: number; y: number };
 type View = { zoom: number; tx: number; ty: number };
 type Snapshot = { walls: Wall[]; openings: Opening[]; rooms: Room[] };
+
+const LITE_TOOLS: Array<{ value: Tool; Icon: LucideIcon; label: string }> = [
+  { value: 'select', Icon: MousePointer2, label: 'Select' },
+  { value: 'wall', Icon: Slash, label: 'Wall' },
+  { value: 'door', Icon: DoorOpen, label: 'Door' },
+  { value: 'window', Icon: Warehouse, label: 'Window' },
+  { value: 'pan', Icon: Hand, label: 'Pan' },
+  { value: 'delete', Icon: Trash2, label: 'Delete' },
+];
 
 const GRID = 50;
 const MATERIALS: Material[] = [
@@ -81,7 +90,7 @@ function buildManifest(snapshot: Snapshot): ProjectManifest {
   return {
     version: '1.0.0',
     name: 'Vishvakarma Lite Editor Plan',
-    description: 'Stable 2D/3D recovery editor manifest generated from the VIP working editor pattern.',
+    description: 'Stable 2D/3D recovery editor manifest generated from the Vishvakarma.OS working editor pattern.',
     walls: snapshot.walls,
     openings: snapshot.openings,
     rooms: snapshot.rooms,
@@ -100,7 +109,7 @@ function buildManifest(snapshot: Snapshot): ProjectManifest {
     gridSize: GRID,
     snapToGrid: true,
     northOrientation: 0,
-    metadata: { created: now, modified: now, author: 'Vishvakarma.OS Lite Editor', systemVersions: { source: 'vip-working-editor-adapter' } },
+    metadata: { created: now, modified: now, author: 'Vishvakarma.OS Lite Editor', systemVersions: { source: 'vish-working-editor-adapter' } },
   };
 }
 
@@ -212,7 +221,7 @@ export default function LiteEditorPage() {
   };
 
   const gridLines = useMemo(() => {
-    const lines: JSX.Element[] = [];
+    const lines: ReactNode[] = [];
     for (let x = -1000; x <= 1800; x += GRID) lines.push(<line key={`x-${x}`} x1={x} y1={-1000} x2={x} y2={1400} />);
     for (let y = -1000; y <= 1400; y += GRID) lines.push(<line key={`y-${y}`} x1={-1000} y1={y} x2={1800} y2={y} />);
     return lines;
@@ -223,13 +232,13 @@ export default function LiteEditorPage() {
 
   return (
     <>
-      <PageMeta title="Lite 2D/3D Editor — Vishvakarma.OS" description="Stable 2D wall editor and live 3D preview adapted from the working VIP editor pattern." />
+      <PageMeta title="Lite 2D/3D Editor — Vishvakarma.OS" description="Stable 2D wall editor and live 3D preview adapted from the Vishvakarma.OS working editor pattern." />
       <main className="vish-editor-shell bg-ws-canvas text-ws-text" data-testid="lite-editor-page">
         <div className="vish-editor-topbar flex min-h-[72px] flex-wrap items-center gap-3 border-b px-3 py-2">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Stable Recovery Editor</p>
             <h1 className="truncate text-lg font-semibold vish-text-heading">Working 2D + 3D Editor</h1>
-            <p className="text-xs text-ws-text-dim">VIP working editor pattern + Vish features: snap/grid, doors/windows, undo/redo, export, current 3D renderer, iPad-safe UI.</p>
+            <p className="text-xs text-ws-text-dim">Vishvakarma.OS working editor pattern: snap/grid, doors/windows, undo/redo, export, current 3D renderer, iPad-safe UI.</p>
           </div>
           <Button asChild variant="outline" className="vish-gold-action"><Link to="/editor">Open Full Studio</Link></Button>
           <Button variant="gold" className="vish-gold-action" onClick={downloadManifest}><Download className="h-4 w-4" /> Export JSON</Button>
@@ -237,15 +246,8 @@ export default function LiteEditorPage() {
 
         <div className="flex h-[calc(100dvh-72px)] min-h-0 flex-col lg:flex-row">
           <aside className="vish-tool-rail flex shrink-0 flex-row gap-2 overflow-x-auto border-b p-2 lg:w-[86px] lg:flex-col lg:border-b-0 lg:border-r" aria-label="Lite editor tools">
-            {[
-              ['select', MousePointer2, 'Select'],
-              ['wall', Slash, 'Wall'],
-              ['door', DoorOpen, 'Door'],
-              ['window', Warehouse, 'Window'],
-              ['pan', Hand, 'Pan'],
-              ['delete', Trash2, 'Delete'],
-            ].map(([value, Icon, label]) => (
-              <button key={String(value)} type="button" onClick={() => setTool(value as Tool)} aria-pressed={tool === value} className={`touch-target flex min-w-[64px] flex-col items-center justify-center rounded-xl border px-2 py-2 text-[10px] font-semibold ${tool === value ? 'border-primary bg-primary/15 text-primary' : 'border-ws-border bg-ws-toolbar/70 text-ws-text-dim'}`}>
+            {LITE_TOOLS.map(({ value, Icon, label }) => (
+              <button key={value} type="button" onClick={() => setTool(value)} aria-pressed={tool === value} className={`touch-target flex min-w-[64px] flex-col items-center justify-center rounded-xl border px-2 py-2 text-[10px] font-semibold ${tool === value ? 'border-primary bg-primary/15 text-primary' : 'border-ws-border bg-ws-toolbar/70 text-ws-text-dim'}`}>
                 <Icon className="mb-1 h-4 w-4" />{label}
               </button>
             ))}
