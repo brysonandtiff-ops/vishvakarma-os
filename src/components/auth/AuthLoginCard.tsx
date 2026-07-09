@@ -126,7 +126,7 @@ export default function AuthLoginCard({
         <div className="vish-login-page__request">
           Need access?{' '}
           <button type="button" className="vish-login-page__link touch-target" onClick={onRequestAccess}>
-            Ask admin to approve your Google account
+            Request access
           </button>
         </div>
       </div>
