@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+
+type CommandDialogProps = React.ComponentProps<typeof Dialog>
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -23,7 +24,7 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-const CommandDialog = ({ children, ...props }: DialogProps) => {
+const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0">
@@ -106,7 +107,7 @@ const CommandSeparator = React.forwardRef<
     {...props}
   />
 ))
-CommandSeparator.displayName = CommandPrimitive.Separator.displayName
+CommandSeparator.displayName = CommandPrimitive.Separator
 
 const CommandItem = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
