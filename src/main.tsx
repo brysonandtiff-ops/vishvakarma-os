@@ -31,6 +31,7 @@ import "./ipad-workspace.css";
 import "./styles/vish-ipad-editor-usability.css";
 import "./styles/vish-marketing.css";
 import "./styles/vish-marketing-polish.css";
+import "./styles/vish-landing-showcase-fix.css";
 import "./styles/vish-sacred-marketing.css";
 import "./styles/vish-auth-gate.css";
 import "./styles/vish-login-page.css";
