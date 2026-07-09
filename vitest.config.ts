@@ -59,6 +59,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@/components/ui/dialog': path.resolve(__dirname, './src/test/mocks/dialog.tsx'),
+      '@/components/ui/popover': path.resolve(__dirname, './src/test/mocks/popover.tsx'),
       '@': path.resolve(__dirname, './src'),
     },
   },
