@@ -46,6 +46,18 @@ vi.mock('@/backend/supabase/supabaseAuthGateway', async (importOriginal) => {
   };
 });
 
+function googleAuthSnapshot() {
+  return {
+    provider: 'supabase',
+    authProvider: 'google',
+    uid: 'user-1',
+    email: 'architect@firm.com',
+    idToken: 'access',
+    refreshToken: 'refresh',
+    expiresAt: Date.now() + 60_000,
+  };
+}
+
 describe('supabase auth callback detection', () => {
   it('treats PKCE OAuth ?code= as OAuth, not email link', () => {
     expect(isSupabaseOAuthCallback('?code=abc')).toBe(true);
@@ -210,14 +222,7 @@ describe('hydrateSupabaseAuthSession', () => {
   it('rehydrates the Supabase client from cached snapshot when getSession is empty', async () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
     getSession.mockResolvedValue({ data: { session: null }, error: null });
     setSession.mockResolvedValue({
@@ -244,14 +249,7 @@ describe('hydrateSupabaseAuthSession', () => {
   it('returns cached snapshot from readCachedAuthBootstrap', () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
 
     expect(readCachedAuthBootstrap()?.uid).toBe('user-1');
@@ -262,14 +260,7 @@ describe('hydrateSupabaseAuthSession', () => {
 
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
 
     expect(hasCachedAuthSession()).toBe(true);
