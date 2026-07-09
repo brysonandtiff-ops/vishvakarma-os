@@ -46,7 +46,7 @@ export default function AuthPage() {
     [],
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
-  const requestAccessLink = 'Ask your Vishvakarma.OS admin to approve the Google account you will use for Supabase SSO.';
+  const adminApprovalMessage = 'Ask your Vishvakarma.OS admin to approve the Google account you will use for Supabase SSO.';
 
   const status = useMemo<AuthLoginStatus | null>(() => {
     if (error) return { message: error, variant: 'error' };
@@ -89,7 +89,7 @@ export default function AuthPage() {
 
   const handleRequestAccess = () => {
     toast.message('Google access required', {
-      description: requestAccessLink,
+      description: adminApprovalMessage,
     });
   };
 
