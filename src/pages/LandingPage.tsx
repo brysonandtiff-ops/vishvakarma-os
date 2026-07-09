@@ -269,16 +269,20 @@ export default function LandingPage() {
         title="Rooms for every step of the architecture workflow"
         description="Each room has a clear purpose so users know where to draw, inspect, govern, and deliver."
       >
-        <PageSectionGrid columns={4}>
+        <PageSectionGrid cols={4}>
           {ROOMS.map((room) => (
-            <FeatureCard key={room.title} className="vish-landing-room-card" hover>
-              <p className="vish-marketing-section-label">{room.eyebrow}</p>
-              <h3 className="mt-3 text-xl font-semibold vish-text-heading">{room.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed vish-text-body">{room.body}</p>
-              <Link to={room.to} className="mt-5 inline-flex text-sm font-semibold text-primary hover:text-primary/80">
-                Open room →
-              </Link>
-            </FeatureCard>
+            <FeatureCard
+              key={room.title}
+              title={room.title}
+              description={room.body}
+              badge={room.eyebrow}
+              className="vish-landing-room-card"
+              footer={
+                <Link to={room.to} className="inline-flex text-sm font-semibold text-primary hover:text-primary/80">
+                  Open room →
+                </Link>
+              }
+            />
           ))}
         </PageSectionGrid>
       </MarketingSection>
@@ -303,22 +307,18 @@ export default function LandingPage() {
         title="Proof pillars"
         description="The public page now mirrors the software honestly: editor, 3D view, exports, and release evidence."
       >
-        <PageSectionGrid columns={4}>
+        <PageSectionGrid cols={4}>
           {PROOF.map((item) => (
-            <FeatureCard key={item.title} hover>
-              <item.icon className="h-6 w-6 text-primary" aria-hidden="true" />
-              <h3 className="mt-4 text-xl font-semibold vish-text-heading">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed vish-text-body">{item.desc}</p>
-            </FeatureCard>
+            <FeatureCard key={item.title} title={item.title} description={item.desc} icon={item.icon} />
           ))}
         </PageSectionGrid>
       </MarketingSection>
 
       <MarketingCtaSection
-        title="Start with a plan. Prove every release."
-        description="Open the workspace, load a sample, inspect it in 3D, and export a proof package from the same governed project."
-        primary={{ label: cta.primary, to: cta.to }}
-        secondary={{ label: 'View release gates', to: '/releases' }}
+        eyebrow="Start with a plan"
+        body="Open the workspace, load a sample, inspect it in 3D, and export a proof package from the same governed project."
+        user={user}
+        secondaryLink={{ label: 'View release gates', to: '/releases' }}
       />
     </>
   );
