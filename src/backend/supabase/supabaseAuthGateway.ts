@@ -18,8 +18,16 @@ export interface SupabaseSessionSnapshot {
   expiresAt: number;
 }
 
+function getBrowserStorage(): Storage | null {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function hasBrowserStorage() {
-  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  return getBrowserStorage() !== null;
 }
 
 function isProtectedVercelPreviewUrl(value: string) {
@@ -98,14 +106,16 @@ function assertGoogleSupabaseUser(user: User) {
 }
 
 export function writeSupabaseSessionSnapshot(session: SupabaseSessionSnapshot) {
-  if (!hasBrowserStorage()) return;
-  window.localStorage.setItem(SUPABASE_SESSION_KEY, JSON.stringify(session));
+  const storage = getBrowserStorage();
+  if (!storage) return;
+  storage.setItem(SUPABASE_SESSION_KEY, JSON.stringify(session));
 }
 
 export function readSupabaseSessionSnapshot(): SupabaseSessionSnapshot | null {
-  if (!hasBrowserStorage()) return null;
+  const storage = getBrowserStorage();
+  if (!storage) return null;
 
-  const raw = window.localStorage.getItem(SUPABASE_SESSION_KEY);
+  const raw = storage.getItem(SUPABASE_SESSION_KEY);
   if (!raw) return null;
 
   try {
@@ -130,9 +140,10 @@ export function readSupabaseSessionSnapshot(): SupabaseSessionSnapshot | null {
 }
 
 export function clearSupabaseSessionSnapshot() {
-  if (!hasBrowserStorage()) return;
-  window.localStorage.removeItem(SUPABASE_SESSION_KEY);
-  window.localStorage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
+  const storage = getBrowserStorage();
+  if (!storage) return;
+  storage.removeItem(SUPABASE_SESSION_KEY);
+  storage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
 export async function buildSupabaseSessionFromAuthSession(
@@ -201,18 +212,21 @@ export function hasCachedAuthSession(): boolean {
 }
 
 export function storePendingSupabaseEmail(email: string) {
-  if (!hasBrowserStorage()) return;
-  window.localStorage.setItem(SUPABASE_PENDING_EMAIL_KEY, email.trim().toLowerCase());
+  const storage = getBrowserStorage();
+  if (!storage) return;
+  storage.setItem(SUPABASE_PENDING_EMAIL_KEY, email.trim().toLowerCase());
 }
 
 export function readPendingSupabaseEmail() {
-  if (!hasBrowserStorage()) return null;
-  return window.localStorage.getItem(SUPABASE_PENDING_EMAIL_KEY);
+  const storage = getBrowserStorage();
+  if (!storage) return null;
+  return storage.getItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
 export function clearPendingSupabaseEmail() {
-  if (!hasBrowserStorage()) return;
-  window.localStorage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
+  const storage = getBrowserStorage();
+  if (!storage) return;
+  storage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
 /** PKCE OAuth return — query `code` without email OTP `token_hash`. */
