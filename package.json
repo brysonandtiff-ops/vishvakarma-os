@@ -129,7 +129,7 @@
     "dx:stack": "node scripts/dx/local-stack.mjs",
     "ops:migration:export": "node scripts/migration/export-supabase.mjs",
     "ops:migration:validate": "node scripts/migration/validate-migration.mjs",
-    "ops:stripe:push-env": "node scripts/push-stripe-env.mjs",
+    "ops:stripe:push-env": "node scripts/push-stripe-env-vercel.mjs",
     "ops:stripe:rollout": "node scripts/run-live-billing-rollout.mjs",
     "ops:admin:setup": "node scripts/production/setup-admin.mjs",
     "ops:coowner:setup": "node scripts/production/setup-co-owner.mjs",
