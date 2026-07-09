@@ -14,6 +14,8 @@ type PopoverContextValue = {
   setOpen: (open: boolean) => void;
 };
 
+type ClickableElement = ReactElement<HTMLAttributes<HTMLElement>>;
+
 const PopoverContext = createContext<PopoverContextValue | null>(null);
 
 function usePopoverContext() {
@@ -51,13 +53,13 @@ export function PopoverTrigger({ asChild, children, onClick, ...props }: Trigger
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     onClick?.(event);
     if (isValidElement(children)) {
-      (children.props as { onClick?: (event: React.MouseEvent<HTMLElement>) => void }).onClick?.(event);
+      (children.props as HTMLAttributes<HTMLElement>).onClick?.(event);
     }
     setOpen(true);
   };
 
   if (asChild && isValidElement(children)) {
-    return cloneElement(children as ReactElement, {
+    return cloneElement(children as ClickableElement, {
       ...props,
       onClick: handleClick,
     });
