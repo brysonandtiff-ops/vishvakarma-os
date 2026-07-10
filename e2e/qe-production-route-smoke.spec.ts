@@ -89,6 +89,18 @@ async function expectGoogleOnlyAuth(page: Page) {
   await expect(page.getByText(/forgot password/i)).toHaveCount(0);
 }
 
+async function close3DPreviewAfterProof(page: Page) {
+  const toggle3D = page.getByRole('button', { name: /toggle 3d view/i });
+  if (!(await toggle3D.isVisible().catch(() => false))) return;
+
+  const isPressed = await toggle3D.getAttribute('aria-pressed').catch(() => null);
+  if (isPressed !== 'true') return;
+
+  await toggle3D.click({ force: true, timeout: 5_000 }).catch(() => {});
+  await page.locator('.vish-3d-viewport-pane canvas').first().waitFor({ state: 'detached', timeout: 5_000 }).catch(() => {});
+  await page.waitForTimeout(250);
+}
+
 test.describe('QE engineering pass — auth and route smoke', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     page.on('pageerror', (error) => {
@@ -161,6 +173,7 @@ test.describe('QE engineering pass — auth and route smoke', () => {
 
     await page.getByRole('button', { name: /toggle 3d view/i }).click({ force: true });
     await expect3DPreviewPane(page);
+    await close3DPreviewAfterProof(page);
 
     await openExportDialog(page);
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 15_000 });
