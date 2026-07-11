@@ -4,7 +4,8 @@ import svgr from 'vite-plugin-svgr';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
-const buildSourceMaps = process.env.VISH_BUILD_SOURCEMAPS === 'true';
+const buildSourceMaps =
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.VERCEL !== '1';
 
 const optionalEntryPreloadFragments = [
   'EditorPage-',
@@ -130,8 +131,8 @@ export default defineConfig(({ mode }) => ({
       resolveDependencies: (_url, dependencies, context) =>
         filterEntryModulePreloads(dependencies, context.hostType),
     },
-    // Source maps are not deployed by default. Opt in only for a controlled build
-    // that uploads maps to monitoring and removes them before public deployment.
+    // Source maps may be generated only for controlled non-Vercel builds that
+    // upload them privately before deployment. Public Vercel builds always disable them.
     sourcemap: buildSourceMaps ? 'hidden' : false,
     rollupOptions: {
       output: {
