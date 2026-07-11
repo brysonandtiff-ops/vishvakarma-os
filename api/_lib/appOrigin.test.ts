@@ -82,6 +82,29 @@ describe('trusted app origin policy', () => {
     ).toThrow(UntrustedAppOriginError);
   });
 
+  it.each(['not a URL', 'javascript:alert(1)', 'https://user:pass@vishvakarma-os.app'])(
+    'rejects a malformed explicit Origin header: %s',
+    (origin) => {
+      expect(() =>
+        resolveTrustedAppOrigin(
+          request({ origin }),
+          {},
+          { APP_URL: undefined, VERCEL: '1' },
+        ),
+      ).toThrow(UntrustedAppOriginError);
+    },
+  );
+
+  it('ignores a malformed APP_URL and falls back to the canonical origin', () => {
+    expect(
+      resolveTrustedAppOrigin(
+        request(),
+        {},
+        { APP_URL: 'not a URL', VERCEL: '1' },
+      ),
+    ).toBe(CANONICAL_ORIGIN);
+  });
+
   it('falls back to the canonical origin when no request origin is available', () => {
     expect(
       resolveTrustedAppOrigin(
