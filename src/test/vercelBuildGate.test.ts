@@ -9,16 +9,28 @@ type VercelConfig = {
 };
 
 describe('Vercel build gate', () => {
-  it('uses a frozen install and enforces performance budgets after build', () => {
+  it('runs frozen install, focused quality checks, build, then performance budgets', () => {
     const config = JSON.parse(
       readFileSync(path.join(process.cwd(), 'vercel.json'), 'utf8'),
     ) as VercelConfig;
+    const buildCommand = config.buildCommand ?? '';
 
     expect(config.installCommand).toContain('pnpm install --frozen-lockfile');
-    expect(config.buildCommand).toContain('pnpm run build');
-    expect(config.buildCommand).toContain('pnpm run perf:gates');
-    expect(config.buildCommand?.indexOf('pnpm run build')).toBeLessThan(
-      config.buildCommand?.indexOf('pnpm run perf:gates') ?? -1,
+    expect(buildCommand).toContain('pnpm run lint');
+    expect(buildCommand).toContain('src/test/releaseGateHardening.test.ts');
+    expect(buildCommand).toContain('src/test/vercelBuildGate.test.ts');
+    expect(buildCommand).toContain('src/backend/supabase/mappers.test.ts');
+    expect(buildCommand).toContain('pnpm run build');
+    expect(buildCommand).toContain('pnpm run perf:gates');
+
+    expect(buildCommand.indexOf('pnpm run lint')).toBeLessThan(
+      buildCommand.indexOf('pnpm exec vitest run'),
+    );
+    expect(buildCommand.indexOf('pnpm exec vitest run')).toBeLessThan(
+      buildCommand.indexOf('pnpm run build'),
+    );
+    expect(buildCommand.indexOf('pnpm run build')).toBeLessThan(
+      buildCommand.indexOf('pnpm run perf:gates'),
     );
     expect(config.outputDirectory).toBe('dist');
   });
