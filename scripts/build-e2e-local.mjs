@@ -5,6 +5,7 @@ const env = {
   VITE_SUPABASE_URL: "",
   VITE_SUPABASE_ANON_KEY: "",
   VITE_E2E_ALLOW_LOCAL_ACCESS: "true",
+  VITE_ENABLE_QA_TOOLS: "true",
 };
 
 const build = spawnSync("pnpm", ["exec", "vite", "build", "--mode", "e2e-local"], {
