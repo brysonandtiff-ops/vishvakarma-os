@@ -7,6 +7,7 @@ import { runCommand } from './lib/run-command.mjs';
 const root = process.cwd();
 const textureRoot = join(root, 'public', 'textures');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
+const isVercelBuild = process.env.VERCEL === '1';
 
 async function removeLegacyJpegTextures(directory) {
   let removed = 0;
@@ -54,8 +55,12 @@ const steps = [
 ];
 
 async function main() {
-  const removedTextures = await removeLegacyJpegTextures(textureRoot);
-  console.log(`[vercel-build] Removed ${removedTextures} legacy JPEG texture file(s).`);
+  if (isVercelBuild) {
+    const removedTextures = await removeLegacyJpegTextures(textureRoot);
+    console.log(`[vercel-build] Removed ${removedTextures} legacy JPEG texture file(s).`);
+  } else {
+    console.log('[vercel-build] Local run detected; skipping destructive texture cleanup.');
+  }
 
   for (const step of steps) {
     console.log(`\n[vercel-build] ${step.label}`);
