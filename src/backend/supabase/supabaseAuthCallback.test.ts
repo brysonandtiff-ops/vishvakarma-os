@@ -41,9 +41,7 @@ vi.mock('@/backend/supabase/supabaseAuthGateway', async (importOriginal) => {
       authProvider: 'google',
       uid: user.id,
       email: user.email ?? '',
-      idToken: session.access_token,
-      refreshToken: session.refresh_token ?? '',
-      expiresAt: session.expires_at ?? 0,
+      expiresAt: (session.expires_at ?? 0) * 1000,
     })),
   };
 });
@@ -64,15 +62,24 @@ function googleSupabaseUser() {
   };
 }
 
-function googleAuthSnapshot() {
+function legacyTokenSnapshot() {
   return {
     provider: 'supabase',
     authProvider: 'google',
     uid: 'user-1',
     email: 'architect@firm.com',
-    idToken: 'access',
-    refreshToken: 'refresh',
+    idToken: 'legacy-access-token',
+    refreshToken: 'legacy-refresh-token',
     expiresAt: Date.now() + 60_000,
+  };
+}
+
+function activeSupabaseSession() {
+  return {
+    access_token: 'sdk-access-token',
+    refresh_token: 'sdk-refresh-token',
+    expires_at: Math.floor(Date.now() / 1000) + 60,
+    user: googleSupabaseUser(),
   };
 }
 
@@ -117,38 +124,27 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
   });
 
   it('calls exchangeCodeForSession when OAuth code is present', async () => {
+    const session = activeSupabaseSession();
     exchangeCodeForSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: 'access',
-          refresh_token: 'refresh',
-          expires_at: 999,
-          user: googleSupabaseUser(),
-        },
-      },
+      data: { session },
       error: null,
     });
     getSession.mockResolvedValue({ data: { session: null }, error: null });
-    setSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: 'access',
-          refresh_token: 'refresh',
-          expires_at: 999,
-          user: googleSupabaseUser(),
-        },
-      },
-      error: null,
-    });
+    setSession.mockResolvedValue({ data: { session }, error: null });
 
-    const session = await resolveSupabaseOAuthRedirectSession();
+    const result = await resolveSupabaseOAuthRedirectSession();
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('pkce-code');
-    expect(setSession).toHaveBeenCalled();
-    expect(session).toMatchObject({
+    expect(setSession).toHaveBeenCalledWith({
+      access_token: 'sdk-access-token',
+      refresh_token: 'sdk-refresh-token',
+    });
+    expect(result).toMatchObject({
       uid: 'user-1',
       email: 'architect@firm.com',
     });
+    expect(result).not.toHaveProperty('idToken');
+    expect(result).not.toHaveProperty('refreshToken');
     expect(window.history.replaceState).toHaveBeenCalledWith({}, 'Auth', '/auth');
   });
 });
@@ -212,7 +208,7 @@ describe('getAuthPageUrl', () => {
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
 
-  it('keeps OAuth callback on the vercel fallback origin the user opened', () => {
+  it('keeps OAuth callback on the Vercel fallback origin the user opened', () => {
     vi.stubGlobal('window', {
       location: { origin: 'https://vishvakarma-os.vercel.app' },
     });
@@ -236,50 +232,42 @@ describe('hydrateSupabaseAuthSession', () => {
     localStorage.clear();
   });
 
-  it('rehydrates the Supabase client from cached snapshot when getSession is empty', async () => {
+  it('uses the session owned by supabase-js and removes the legacy duplicate token cache', async () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify(googleAuthSnapshot()),
+      JSON.stringify(legacyTokenSnapshot()),
     );
-    getSession.mockResolvedValue({ data: { session: null }, error: null });
-    setSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: 'access',
-          refresh_token: 'refresh',
-          expires_at: 999,
-          user: googleSupabaseUser(),
-        },
-      },
-      error: null,
-    });
+    getSession.mockResolvedValue({ data: { session: activeSupabaseSession() }, error: null });
 
     const hydrated = await hydrateSupabaseAuthSession();
 
-    expect(setSession).toHaveBeenCalledWith({
-      access_token: 'access',
-      refresh_token: 'refresh',
-    });
     expect(hydrated).toMatchObject({ uid: 'user-1', email: 'architect@firm.com' });
+    expect(hydrated).not.toHaveProperty('idToken');
+    expect(hydrated).not.toHaveProperty('refreshToken');
+    expect(setSession).not.toHaveBeenCalled();
+    expect(localStorage.getItem('vishvakarma.os.supabase.session.v1')).toBeNull();
   });
 
-  it('returns cached snapshot from readCachedAuthBootstrap', () => {
+  it('does not trust or restore a legacy application token snapshot', async () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify(googleAuthSnapshot()),
+      JSON.stringify(legacyTokenSnapshot()),
     );
+    getSession.mockResolvedValue({ data: { session: null }, error: null });
 
-    expect(readCachedAuthBootstrap()?.uid).toBe('user-1');
+    await expect(hydrateSupabaseAuthSession()).resolves.toBeNull();
+    expect(setSession).not.toHaveBeenCalled();
+    expect(localStorage.getItem('vishvakarma.os.supabase.session.v1')).toBeNull();
   });
 
-  it('detects cached auth session for RouteGuard restore gate', () => {
+  it('never exposes a cached bootstrap session as proof of authentication', () => {
+    localStorage.setItem(
+      'vishvakarma.os.supabase.session.v1',
+      JSON.stringify(legacyTokenSnapshot()),
+    );
+
+    expect(readCachedAuthBootstrap()).toBeNull();
     expect(hasCachedAuthSession()).toBe(false);
-
-    localStorage.setItem(
-      'vishvakarma.os.supabase.session.v1',
-      JSON.stringify(googleAuthSnapshot()),
-    );
-
-    expect(hasCachedAuthSession()).toBe(true);
+    expect(localStorage.getItem('vishvakarma.os.supabase.session.v1')).toBeNull();
   });
 });
