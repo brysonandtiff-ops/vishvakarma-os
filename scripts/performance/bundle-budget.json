@@ -1,5 +1,7 @@
 {
   "totalDistMb": 5,
+  "pwaPrecacheMb": 24,
+  "pwaPrecacheEntries": 160,
   "chunks": {
     "vendor-3d": 1250000,
     "vendor-ui": 400000,
