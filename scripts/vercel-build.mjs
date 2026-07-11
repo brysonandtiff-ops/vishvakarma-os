@@ -45,6 +45,10 @@ const focusedTests = [
   'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/mappers.test.ts',
   'src/services/billing/stripeCheckout.test.ts',
+  'api/_lib/appOrigin.test.ts',
+  'api/_lib/verifySupabaseToken.test.ts',
+  'api/stripe/create-checkout-session.test.ts',
+  'api/stripe/webhook.test.ts',
 ];
 
 const steps = [
