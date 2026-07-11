@@ -41,7 +41,10 @@ async function removeLegacyJpegTextures(directory) {
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/vercelBuildGate.test.ts',
+  'src/test/qaToolsGate.test.ts',
+  'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/mappers.test.ts',
+  'src/services/billing/stripeCheckout.test.ts',
 ];
 
 const steps = [
@@ -51,6 +54,10 @@ const steps = [
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
   },
   { label: 'Production build', command: 'pnpm run build' },
+  {
+    label: 'Artifact security',
+    command: 'node scripts/security/check-dist-security.mjs',
+  },
   { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
