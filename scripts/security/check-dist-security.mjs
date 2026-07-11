@@ -7,9 +7,20 @@ import { exitWithFailures, fail, pass } from '../lib/cli.mjs';
 
 const root = process.cwd();
 const distDir = join(root, 'dist');
-const allowSourceMaps = process.env.VISH_BUILD_SOURCEMAPS === 'true';
+const isVercelBuild = process.env.VERCEL === '1';
+const allowSourceMaps =
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && !isVercelBuild;
 const qaToolsEnabled = process.env.VITE_ENABLE_QA_TOOLS === 'true';
-const textExtensions = new Set(['.js', '.mjs', '.cjs', '.css', '.html', '.json', '.webmanifest', '.txt']);
+const textExtensions = new Set([
+  '.js',
+  '.mjs',
+  '.cjs',
+  '.css',
+  '.html',
+  '.json',
+  '.webmanifest',
+  '.txt',
+]);
 
 const forbiddenSecretPatterns = [
   {
@@ -30,7 +41,8 @@ const forbiddenSecretPatterns = [
   },
   {
     label: 'server-only environment variable name',
-    pattern: /\b(?:SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|DATABASE_URL)\b/g,
+    pattern:
+      /\b(?:SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|DATABASE_URL)\b/g,
   },
 ];
 
@@ -56,7 +68,10 @@ async function listFiles(directory) {
 
 function decodeBase64Url(value) {
   const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-  const padding = normalized.length % 4 === 0 ? '' : '='.repeat(4 - (normalized.length % 4));
+  const padding =
+    normalized.length % 4 === 0
+      ? ''
+      : '='.repeat(4 - (normalized.length % 4));
   return Buffer.from(`${normalized}${padding}`, 'base64').toString('utf8');
 }
 
@@ -84,7 +99,9 @@ async function main() {
   const sourceMaps = files.filter((file) => extname(file) === '.map');
   if (!allowSourceMaps && sourceMaps.length > 0) {
     failures.push(
-      `source maps are present in deploy output: ${sourceMaps.map((file) => relative(distDir, file)).join(', ')}`,
+      `source maps are present in deploy output: ${sourceMaps
+        .map((file) => relative(distDir, file))
+        .join(', ')}`,
     );
   }
 
@@ -102,7 +119,9 @@ async function main() {
 
     const serviceRolePrefix = findServiceRoleJwt(content);
     if (serviceRolePrefix) {
-      failures.push(`${displayPath} contains a Supabase service_role JWT (${serviceRolePrefix}…)`);
+      failures.push(
+        `${displayPath} contains a Supabase service_role JWT (${serviceRolePrefix}…)`,
+      );
     }
 
     if (!qaToolsEnabled) {
