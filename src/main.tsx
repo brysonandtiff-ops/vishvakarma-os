@@ -1,5 +1,3 @@
-import { DeviceValidationPanel } from "./components/qa/DeviceValidationPanel";
-import "./styles/vish-device-validation.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import '@fontsource-variable/inter';
@@ -54,9 +52,7 @@ import "./styles/vish-release-focus-ring.css";
 import "./styles/vish-release-dialog-guard.css";
 import "./styles/vish-no-drift-tooling-polish.css";
 import "./styles/vish-voice-tour.css";
-import "./styles/vish-qa-evidence.css";
 import "./styles/vish-empty-guided-start.css";
-import "./styles/vish-touch-audit-hud.css";
 import "./styles/vish-ui-display-fixes.css";
 import "./styles/vish-device-unity.css";
 import "./styles/vish-ipad-desktop-polish.css";
@@ -137,7 +133,6 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppWrapper>
       <App />
-      <DeviceValidationPanel />
     </AppWrapper>
   </StrictMode>,
 );
