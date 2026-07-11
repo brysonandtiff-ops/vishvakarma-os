@@ -6,11 +6,73 @@ export type VerifiedSupabaseUser = {
   email?: string;
 };
 
-function readBearerToken(req: IncomingMessage & { headers: Record<string, string | string[] | undefined> }) {
+type SupabaseApiUser = {
+  id: string;
+  email?: string | null;
+  app_metadata?: {
+    provider?: unknown;
+    providers?: unknown;
+  };
+  identities?: Array<{ provider?: unknown }> | null;
+};
+
+type SupabaseAuthVerifier = {
+  getUser: (jwt?: string) => Promise<{
+    data: { user: SupabaseApiUser | null };
+    error: { message: string } | null;
+  }>;
+};
+
+const MAX_BEARER_TOKEN_LENGTH = 8_192;
+const REQUIRED_AUTH_PROVIDER = 'google';
+
+export function readBearerToken(
+  req: IncomingMessage & { headers: Record<string, string | string[] | undefined> },
+) {
   const header = req.headers.authorization ?? req.headers.Authorization;
   const value = Array.isArray(header) ? header[0] : header;
-  if (!value?.startsWith('Bearer ')) return null;
-  return value.slice('Bearer '.length).trim();
+  const match = value?.match(/^Bearer\s+([^\s]+)$/i);
+  const token = match?.[1]?.trim();
+  if (!token || token.length > MAX_BEARER_TOKEN_LENGTH) return null;
+  return token;
+}
+
+function authProviders(user: SupabaseApiUser) {
+  const providers = new Set<string>();
+  const appProvider = user.app_metadata?.provider;
+  const appProviders = user.app_metadata?.providers;
+
+  if (typeof appProvider === 'string') providers.add(appProvider.toLowerCase());
+  if (Array.isArray(appProviders)) {
+    for (const provider of appProviders) {
+      if (typeof provider === 'string') providers.add(provider.toLowerCase());
+    }
+  }
+
+  for (const identity of user.identities ?? []) {
+    if (typeof identity.provider === 'string') {
+      providers.add(identity.provider.toLowerCase());
+    }
+  }
+
+  return providers;
+}
+
+export function isGoogleSupabaseApiUser(user: SupabaseApiUser): boolean {
+  return authProviders(user).has(REQUIRED_AUTH_PROVIDER);
+}
+
+export async function verifySupabaseBearerToken(
+  token: string,
+  auth: SupabaseAuthVerifier,
+): Promise<VerifiedSupabaseUser | null> {
+  const { data, error } = await auth.getUser(token);
+  if (error || !data.user || !isGoogleSupabaseApiUser(data.user)) return null;
+
+  return {
+    uid: data.user.id,
+    email: data.user.email ?? undefined,
+  };
 }
 
 function getSupabaseAdmin() {
@@ -23,7 +85,7 @@ function getSupabaseAdmin() {
 }
 
 export async function verifySupabaseTokenFromRequest(
-  req: IncomingMessage & { headers: Record<string, string | string[] | undefined> }
+  req: IncomingMessage & { headers: Record<string, string | string[] | undefined> },
 ): Promise<VerifiedSupabaseUser | null> {
   const token = readBearerToken(req);
   if (!token) return null;
@@ -32,17 +94,5 @@ export async function verifySupabaseTokenFromRequest(
   if (!admin) return null;
 
   // SupabaseAuthClient's declared type can omit inherited GoTrueClient methods in Vercel's TS build.
-  const auth = admin.auth as {
-    getUser: (jwt?: string) => Promise<{
-      data: { user: { id: string; email?: string | null } | null };
-      error: { message: string } | null;
-    }>;
-  };
-  const { data, error } = await auth.getUser(token);
-  if (error || !data.user) return null;
-
-  return {
-    uid: data.user.id,
-    email: data.user.email ?? undefined,
-  };
+  return verifySupabaseBearerToken(token, admin.auth as unknown as SupabaseAuthVerifier);
 }
