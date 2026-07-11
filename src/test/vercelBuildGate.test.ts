@@ -26,6 +26,7 @@ describe('Vercel build gate', () => {
     expect(orchestrator).toContain("process.env.VERCEL === '1'");
     expect(orchestrator).toContain('skipping destructive texture cleanup');
     expect(orchestrator).toContain('pnpm run lint');
+    expect(orchestrator).toContain('pnpm run hardening:gates');
     expect(orchestrator).toContain('src/test/releaseGateHardening.test.ts');
     expect(orchestrator).toContain('src/test/vercelBuildGate.test.ts');
     expect(orchestrator).toContain('src/test/qaToolsGate.test.ts');
@@ -37,6 +38,9 @@ describe('Vercel build gate', () => {
     expect(orchestrator).toContain('pnpm run perf:gates');
 
     expect(orchestrator.indexOf("label: 'Lint'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Production hardening'"),
+    );
+    expect(orchestrator.indexOf("label: 'Production hardening'")).toBeLessThan(
       orchestrator.indexOf("label: 'Focused regression tests'"),
     );
     expect(orchestrator.indexOf("label: 'Focused regression tests'")).toBeLessThan(
