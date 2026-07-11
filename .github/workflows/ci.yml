@@ -49,5 +49,8 @@ jobs:
           VITE_PRICING_PAGE_ENABLED: 'true'
         run: pnpm run build
 
+      - name: Performance budgets
+        run: pnpm run perf:gates
+
       - name: Unit tests
         run: pnpm run test
