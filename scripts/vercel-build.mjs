@@ -49,6 +49,7 @@ const focusedTests = [
 
 const steps = [
   { label: 'Lint', command: 'pnpm run lint' },
+  { label: 'Production hardening', command: 'pnpm run hardening:gates' },
   {
     label: 'Focused regression tests',
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
