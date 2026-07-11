@@ -23,6 +23,8 @@ describe('Vercel build gate', () => {
     expect(config.buildCommand).toBe('node scripts/vercel-build.mjs');
     expect(config.outputDirectory).toBe('dist');
 
+    expect(orchestrator).toContain("process.env.VERCEL === '1'");
+    expect(orchestrator).toContain('skipping destructive texture cleanup');
     expect(orchestrator).toContain('pnpm run lint');
     expect(orchestrator).toContain('src/test/releaseGateHardening.test.ts');
     expect(orchestrator).toContain('src/test/vercelBuildGate.test.ts');
@@ -30,7 +32,7 @@ describe('Vercel build gate', () => {
     expect(orchestrator).toContain('pnpm run build');
     expect(orchestrator).toContain('pnpm run perf:gates');
 
-    expect(orchestrator.indexOf("label: 'Lint'")).toBeLessThan(
+    expect(orchestrator.indexOf("label: 'Lint'" )).toBeLessThan(
       orchestrator.indexOf("label: 'Focused regression tests'"),
     );
     expect(orchestrator.indexOf("label: 'Focused regression tests'")).toBeLessThan(
