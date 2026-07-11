@@ -1,7 +1,10 @@
+import type { Session } from '@supabase/supabase-js';
 import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
+  clearSupabaseSessionSnapshot,
+  GOOGLE_ONLY_AUTH_MESSAGE,
   isSupabaseOAuthCallback,
   type SupabaseSessionSnapshot,
 } from '@/backend/supabase/supabaseAuthGateway';
@@ -61,9 +64,13 @@ function isAuthCallbackPath(pathname: string) {
   return pathname === '/auth' || pathname === '/auth/';
 }
 
+function isSafeReturnPath(path: string) {
+  return path.startsWith('/') && !path.startsWith('//') && !path.includes('\\');
+}
+
 export function storeAuthReturnPath(path: string) {
   try {
-    const normalized = path.startsWith('/') ? path : DEFAULT_AUTH_RETURN_PATH;
+    const normalized = isSafeReturnPath(path) ? path : DEFAULT_AUTH_RETURN_PATH;
     sessionStorage.setItem(AUTH_RETURN_PATH_KEY, normalized);
   } catch {
     // ignore storage failures
@@ -73,7 +80,7 @@ export function storeAuthReturnPath(path: string) {
 export function peekAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PATH) {
   try {
     const stored = sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
-    if (stored?.startsWith('/')) return stored;
+    if (stored && isSafeReturnPath(stored)) return stored;
   } catch {
     // ignore storage failures
   }
@@ -88,6 +95,7 @@ export function ensureAuthReturnPathStored(path = DEFAULT_AUTH_RETURN_PATH) {
     // ignore storage failures
   }
 }
+
 export function resolvePostAuthDestination(fromState?: string | null): string {
   // Always land in the editor after sign-in (all devices / all entry paths).
   void fromState;
@@ -95,7 +103,7 @@ export function resolvePostAuthDestination(fromState?: string | null): string {
   return POST_AUTH_DESTINATION;
 }
 
-/** @deprecated Prefer SPA navigation via React Router after session is set. Kept for tests and emergency fallback. */
+/** @deprecated Prefer SPA navigation via React Router after session is set. */
 export function completePostAuthRedirect(): boolean {
   if (typeof window === 'undefined' || !isAuthCallbackPath(window.location.pathname)) {
     return false;
@@ -111,7 +119,7 @@ export function readAndClearAuthReturnPath(defaultPath = DEFAULT_AUTH_RETURN_PAT
   try {
     const stored = sessionStorage.getItem(AUTH_RETURN_PATH_KEY);
     sessionStorage.removeItem(AUTH_RETURN_PATH_KEY);
-    if (stored?.startsWith('/')) return stored;
+    if (stored && isSafeReturnPath(stored)) return stored;
   } catch {
     // ignore storage failures
   }
@@ -155,7 +163,9 @@ export function expireStaleOAuthRedirectPending(maxAgeMs = 120_000) {
 const EMBEDDED_AUTH_UA_PATTERN =
   /Cursor|Electron|VSCode|vscode|Codeium|Windsurf|Obsidian|WebView|; wv\)|\bwv\b|instagram|fbav|line\//i;
 
-export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
+export function isEmbeddedAuthBrowser(
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '',
+) {
   if (/HeadlessChrome/i.test(userAgent)) {
     return false;
   }
@@ -163,7 +173,9 @@ export function isEmbeddedAuthBrowser(userAgent = typeof navigator !== 'undefine
   return EMBEDDED_AUTH_UA_PATTERN.test(userAgent);
 }
 
-export function getEmbeddedAuthBrowserLabel(userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '') {
+export function getEmbeddedAuthBrowserLabel(
+  userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '',
+) {
   if (/Cursor/i.test(userAgent)) return 'Cursor embedded preview';
   if (/VSCode|vscode/i.test(userAgent)) return 'VS Code embedded preview';
   if (/Electron/i.test(userAgent)) return 'embedded app browser';
@@ -178,7 +190,7 @@ export function isEmbeddedAuthErrorMessage(message: string) {
 
 function formatEmbeddedBrowserError() {
   return new Error(
-    'Google sign-in is blocked in this embedded browser. Open this page in Chrome or Safari to continue.'
+    'Google sign-in is blocked in this embedded browser. Open this page in Chrome or Safari to continue.',
   );
 }
 
@@ -188,13 +200,13 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
 
   if (lower.includes('provider is not enabled')) {
     return new Error(
-      'Google sign-in is not enabled for this Supabase project. Enable Google under Authentication → Providers.'
+      'Google sign-in is not enabled for this Supabase project. Enable Google under Authentication → Providers.',
     );
   }
 
   if (lower.includes('redirect') && lower.includes('uri')) {
     return new Error(
-      'Google OAuth redirect URI mismatch. Add your /auth URL under Supabase Authentication → URL Configuration → Redirect URLs.'
+      'Google OAuth redirect URI mismatch. Add your /auth URL under Supabase Authentication → URL Configuration → Redirect URLs.',
     );
   }
 
@@ -204,7 +216,7 @@ export function formatAuthError(error: unknown, context: AuthErrorContext = {}):
 
   if (context.usedRedirect) {
     return new Error(
-      'Google sign-in did not finish. If you cancelled, try again. Otherwise open this page in Chrome or Safari.'
+      'Google sign-in did not finish. If you cancelled, try again. Otherwise open this page in Chrome or Safari.',
     );
   }
 
@@ -232,7 +244,7 @@ export function getAuthPageUrl() {
     return `${origin}/auth`;
   }
 
-  // Keep PKCE verifier + callback on the same origin the user actually opened.
+  // Keep PKCE verifier + callback on the same approved origin the user opened.
   if (ALLOWED_AUTH_ORIGINS.has(origin)) {
     return `${origin}/auth`;
   }
@@ -242,7 +254,9 @@ export function getAuthPageUrl() {
 
 export async function signInWithGoogleSupabase(): Promise<OAuthSignInResult> {
   if (!backendStatus.isConfigured) {
-    throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
+    throw new Error(
+      backendStatus.configurationError ?? 'Supabase backend is not configured.',
+    );
   }
 
   if (isEmbeddedAuthBrowser()) {
@@ -273,32 +287,25 @@ export async function signInWithGoogleSupabase(): Promise<OAuthSignInResult> {
   return { session: null, redirecting: true };
 }
 
+/** @deprecated Apple sign-in is disabled; Google SSO is the only supported provider. */
 export async function signInWithAppleSupabase(): Promise<OAuthSignInResult> {
-  if (!backendStatus.isConfigured) {
-    throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
-  }
+  clearOAuthRedirectPending();
+  throw new Error(GOOGLE_ONLY_AUTH_MESSAGE);
+}
 
-  const client = getSupabaseClient();
-  if (!client) {
-    throw new Error('Supabase client is not available.');
-  }
-
-  ensureAuthReturnPathStored(DEFAULT_AUTH_RETURN_PATH);
-  markOAuthRedirectPending();
-
-  const { error } = await client.auth.signInWithOAuth({
-    provider: 'apple',
-    options: {
-      redirectTo: getAuthPageUrl(),
-    },
-  });
-
-  if (error) {
+async function buildAuthorizedOAuthSession(
+  client: NonNullable<ReturnType<typeof getSupabaseClient>>,
+  session: Session,
+): Promise<SupabaseSessionSnapshot> {
+  try {
+    return await buildSupabaseSessionFromAuthSession(session, session.user);
+  } catch (error) {
     clearOAuthRedirectPending();
-    throw formatAuthError(error);
+    clearSupabaseSessionSnapshot();
+    await client.auth.signOut().catch(() => undefined);
+    if (isSupabaseOAuthCallback()) stripAuthCallbackFromUrl();
+    throw error;
   }
-
-  return { session: null, redirecting: true };
 }
 
 export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSessionSnapshot | null> {
@@ -322,7 +329,7 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
             refresh_token: data.session.refresh_token ?? '',
           });
         }
-        return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+        return buildAuthorizedOAuthSession(client, data.session);
       }
     }
   }
@@ -335,5 +342,5 @@ export async function resolveSupabaseOAuthRedirectSession(): Promise<SupabaseSes
   if (isSupabaseOAuthCallback()) {
     stripAuthCallbackFromUrl();
   }
-  return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
+  return buildAuthorizedOAuthSession(client, data.session);
 }
