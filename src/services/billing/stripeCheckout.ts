@@ -24,6 +24,16 @@ export function validateStripeRedirectUrl(value: string): string {
   return url.toString();
 }
 
+export function createBillingRequestId(cryptoApi: Crypto = globalThis.crypto): string {
+  if (typeof cryptoApi?.randomUUID === 'function') {
+    return cryptoApi.randomUUID();
+  }
+
+  const bytes = new Uint8Array(16);
+  cryptoApi.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 async function postStripeApi(
   path: string,
   body: Record<string, unknown> = {}
@@ -39,7 +49,11 @@ async function postStripeApi(
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ origin: window.location.origin, ...body }),
+    body: JSON.stringify({
+      ...body,
+      origin: window.location.origin,
+      requestId: createBillingRequestId(),
+    }),
   });
 
   const payload = (await response.json()) as StripeApiResponse;
