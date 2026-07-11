@@ -105,7 +105,7 @@
     "handoff:generate": "node scripts/handoff/generate-handoff-appendices.mjs",
     "handoff:verify": "node scripts/handoff/verify-handoff-completeness.mjs",
     "docs:verify": "node scripts/docs/verify-documentation.mjs",
-    "perf:gates": "node scripts/performance/check-bundle-budget.mjs",
+    "perf:gates": "node scripts/performance/check-bundle-budget.mjs && node scripts/performance/check-pwa-precache.mjs",
     "perf:report": "node scripts/performance/report-bundle.mjs",
     "perf:report:baseline": "node scripts/performance/report-bundle.mjs --update-baseline",
     "perf:lighthouse": "node scripts/performance/run-lighthouse.mjs",
