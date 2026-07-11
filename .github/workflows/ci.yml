@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: core-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -42,12 +45,11 @@ jobs:
 
       - name: Build
         env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
           VITE_PRICING_PAGE_ENABLED: 'true'
         run: pnpm run build
+
+      - name: Artifact security
+        run: node scripts/security/check-dist-security.mjs
 
       - name: Performance budgets
         run: pnpm run perf:gates
