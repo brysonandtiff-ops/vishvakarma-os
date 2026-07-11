@@ -37,14 +37,44 @@ vi.mock('@/backend/supabase/supabaseAuthGateway', async (importOriginal) => {
   return {
     ...actual,
     buildSupabaseSessionFromAuthSession: vi.fn(async (session, user) => ({
+      provider: 'supabase',
+      authProvider: 'google',
       uid: user.id,
       email: user.email ?? '',
-      accessToken: session.access_token,
+      idToken: session.access_token,
       refreshToken: session.refresh_token ?? '',
       expiresAt: session.expires_at ?? 0,
     })),
   };
 });
+
+function googleSupabaseUser() {
+  return {
+    id: 'user-1',
+    email: 'architect@firm.com',
+    app_metadata: {
+      provider: 'google',
+      providers: ['google'],
+    },
+    identities: [
+      {
+        provider: 'google',
+      },
+    ],
+  };
+}
+
+function googleAuthSnapshot() {
+  return {
+    provider: 'supabase',
+    authProvider: 'google',
+    uid: 'user-1',
+    email: 'architect@firm.com',
+    idToken: 'access',
+    refreshToken: 'refresh',
+    expiresAt: Date.now() + 60_000,
+  };
+}
 
 describe('supabase auth callback detection', () => {
   it('treats PKCE OAuth ?code= as OAuth, not email link', () => {
@@ -93,7 +123,7 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
           access_token: 'access',
           refresh_token: 'refresh',
           expires_at: 999,
-          user: { id: 'user-1', email: 'architect@firm.com' },
+          user: googleSupabaseUser(),
         },
       },
       error: null,
@@ -105,7 +135,7 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
           access_token: 'access',
           refresh_token: 'refresh',
           expires_at: 999,
-          user: { id: 'user-1', email: 'architect@firm.com' },
+          user: googleSupabaseUser(),
         },
       },
       error: null,
@@ -118,7 +148,6 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
     expect(session).toMatchObject({
       uid: 'user-1',
       email: 'architect@firm.com',
-      accessToken: 'access',
     });
     expect(window.history.replaceState).toHaveBeenCalledWith({}, 'Auth', '/auth');
   });
@@ -210,14 +239,7 @@ describe('hydrateSupabaseAuthSession', () => {
   it('rehydrates the Supabase client from cached snapshot when getSession is empty', async () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
     getSession.mockResolvedValue({ data: { session: null }, error: null });
     setSession.mockResolvedValue({
@@ -226,7 +248,7 @@ describe('hydrateSupabaseAuthSession', () => {
           access_token: 'access',
           refresh_token: 'refresh',
           expires_at: 999,
-          user: { id: 'user-1', email: 'architect@firm.com' },
+          user: googleSupabaseUser(),
         },
       },
       error: null,
@@ -244,14 +266,7 @@ describe('hydrateSupabaseAuthSession', () => {
   it('returns cached snapshot from readCachedAuthBootstrap', () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
 
     expect(readCachedAuthBootstrap()?.uid).toBe('user-1');
@@ -262,14 +277,7 @@ describe('hydrateSupabaseAuthSession', () => {
 
     localStorage.setItem(
       'vishvakarma.os.supabase.session.v1',
-      JSON.stringify({
-        provider: 'supabase',
-        uid: 'user-1',
-        email: 'architect@firm.com',
-        idToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: Date.now() + 60_000,
-      })
+      JSON.stringify(googleAuthSnapshot()),
     );
 
     expect(hasCachedAuthSession()).toBe(true);

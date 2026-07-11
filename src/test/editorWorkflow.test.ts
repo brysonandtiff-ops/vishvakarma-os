@@ -22,7 +22,7 @@ describe('Editor workflow wiring', () => {
     const canvas = read('src/components/editor/BlueprintCanvas.tsx');
     const engine = read('src/core/floorPlanEngine.ts');
 
-    expect(editor).toContain('onWallsSelect={(ids) => engine.setWallSelection(ids)}');
+    expect(editor).toContain('onWallsSelect={(ids) => engine.selectWallsOnly(ids)}');
     expect(editor).toContain('onWallDelete={(wallId) => engine.removeWall(wallId)}');
     expect(editor).toContain('onOpeningDelete={(openingId) => engine.removeOpening(openingId)}');
     expect(editor).toContain("setTool('column')");
@@ -35,6 +35,7 @@ describe('Editor workflow wiring', () => {
     expect(canvas).toContain("currentTool === 'column'");
     expect(canvas).toContain("currentTool === 'stair'");
     expect(engine).toContain('setWallSelection');
+    expect(engine).toContain('selectWallsOnly');
     expect(engine).toContain('addStaircase');
   });
 

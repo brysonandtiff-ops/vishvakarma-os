@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
+const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
+
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/qe-production-route-smoke.spec.ts'],
@@ -15,15 +18,15 @@ export default defineConfig({
     : [['list']],
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
   webServer: {
     command: 'pnpm run preview:e2e:local',
-    url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173',
-    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',
+    url: baseURL,
+    reuseExistingServer,
     timeout: 300_000,
     env: {
       ...process.env,

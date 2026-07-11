@@ -21,6 +21,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/cast/:token',
       '/404',
       '/editor',
+      '/editor-lite',
       '/3d-room',
       '/projects',
       '/optimization',
@@ -126,7 +127,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).toContain('Checking secure session');
-    expect(authPage).toContain('requestAccessLink');
+    expect(authPage).toContain('handleRequestAccess');
+    expect(authPage).toContain('Google access required');
     expect(authLoginCard).toContain('Request access');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');

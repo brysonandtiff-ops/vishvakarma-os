@@ -4,13 +4,18 @@ type FoundersVariant = 'auth' | 'footer' | 'sidebar';
 
 interface FoundersAcknowledgmentProps {
   variant: FoundersVariant;
+  className?: string;
 }
 
-export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps) {
+function mergeClassNames(...names: Array<string | undefined>) {
+  return names.filter(Boolean).join(' ');
+}
+
+export function FoundersAcknowledgment({ variant, className }: FoundersAcknowledgmentProps) {
   if (variant === 'auth') {
     return (
       <div
-        className="vish-auth-founders-line"
+        className={mergeClassNames('vish-auth-founders-line', className)}
         aria-label={FOUNDERS_ARIA_LABEL}
         data-testid="founders-acknowledgment-auth"
       >
@@ -29,7 +34,7 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
     const year = new Date().getFullYear();
     return (
       <div
-        className="vish-marketing-founders"
+        className={mergeClassNames('vish-marketing-founders', className)}
         aria-label={FOUNDERS_ARIA_LABEL}
         data-testid="founders-acknowledgment-footer"
       >
@@ -48,7 +53,7 @@ export function FoundersAcknowledgment({ variant }: FoundersAcknowledgmentProps)
 
   return (
     <div
-      className="vish-sidebar-founders border-t border-ws-border/60 px-1 pt-2"
+      className={mergeClassNames('vish-sidebar-founders border-t border-ws-border/60 px-1 pt-2', className)}
       aria-label={FOUNDERS_ARIA_LABEL}
       data-testid="founders-acknowledgment-sidebar"
     >

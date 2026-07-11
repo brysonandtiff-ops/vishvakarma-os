@@ -31,6 +31,7 @@ import "./ipad-workspace.css";
 import "./styles/vish-ipad-editor-usability.css";
 import "./styles/vish-marketing.css";
 import "./styles/vish-marketing-polish.css";
+import "./styles/vish-landing-showcase-fix.css";
 import "./styles/vish-sacred-marketing.css";
 import "./styles/vish-auth-gate.css";
 import "./styles/vish-login-page.css";
@@ -112,9 +113,25 @@ const logStartupEnforcement = (startupEnforcement: ReturnType<typeof enforce>) =
   }
 };
 
-// Startup enforcement validates client governance state only. Project/building
-// compliance requires a ProjectManifest and runs from editor/export flows.
-logStartupEnforcement(enforce());
+function scheduleStartupEnforcement() {
+  const run = () => logStartupEnforcement(enforce());
+
+  if (typeof window === 'undefined') {
+    run();
+    return;
+  }
+
+  // Startup enforcement validates client governance state only. Project/building
+  // compliance requires a ProjectManifest and runs from editor/export flows.
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(run, { timeout: 2_000 });
+    return;
+  }
+
+  globalThis.setTimeout(run, 0);
+}
+
+scheduleStartupEnforcement();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

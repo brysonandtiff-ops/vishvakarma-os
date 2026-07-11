@@ -1,12 +1,55 @@
-# Application lives in its own git repo
-vishvakarma-os-live/
+# Dependencies
+node_modules/
+.pnpm-store/
 
-# Cursor local debug output
+# Build output
+dist/
+build/
+.out/
+.vercel/
+.netlify/
+
+# Test and coverage output
+coverage/
+playwright-report/
+playwright-report-*/
+test-results/
+blob-report/
+*.lcov
+
+# Runtime logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
 .cursor/debug-*.log
+.cursor/auto-ship/
+.repairbot/history.jsonl
+.repairbot/last-run.json
+.repairbot/*.log
 
-# PRISM Auto evidence
-evidence/prism_auto/
-evidence/bad_take_git_guard/
-evidence/bad_take_doctor/
-evidence/bad_take_gitwork/
+# Local generated evidence
+/evidence/prism_auto/
+/evidence/bad_take_git_guard/
+/evidence/bad_take_doctor/
+/evidence/bad_take_gitwork/
+/pilot-evidence/
+/device-e2e-last-run.txt
+/final-test-run.txt
 
+# Generated app assets that should be rebuilt, not committed
+public/splash/generated/

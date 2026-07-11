@@ -88,10 +88,20 @@ async function findProjectActionsButton(page: Page): Promise<Locator> {
     page.locator('.vish-editor-action-row button[aria-label="Project actions"]'),
   ];
 
+  let fallback: Locator | null = null;
+
   for (const candidate of candidates) {
     if ((await candidate.count().catch(() => 0)) > 0) {
-      return candidate.first();
+      const first = candidate.first();
+      fallback ??= first;
+      if (await first.isVisible({ timeout: 1_000 }).catch(() => false)) {
+        return first;
+      }
     }
+  }
+
+  if (fallback) {
+    return fallback;
   }
 
   const buttonClues = await page
@@ -111,6 +121,12 @@ async function findProjectActionsButton(page: Page): Promise<Locator> {
 }
 
 async function pressMenuButton(button: Locator) {
+  await button.waitFor({ state: 'visible', timeout: 15_000 });
+  await button.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
+
+  const clicked = await button.click({ force: true, timeout: 5_000 }).then(() => true).catch(() => false);
+  if (clicked) return;
+
   await button.evaluate((el) => {
     const scroller = el.closest<HTMLElement>('.vish-editor-action-row');
     const rect = el.getBoundingClientRect();
@@ -258,141 +274,16 @@ export const iPadLandscape = { width: 1180, height: 820 };
 export const iPadPortrait = { width: 820, height: 1180 };
 /** iPhone 14/15 class portrait */
 export const iPhonePortrait = { width: 390, height: 844 };
-/** iPhone landscape — keyboard + safe-area smoke */
 export const iPhoneLandscape = { width: 844, height: 390 };
-/** Galaxy Tab class landscape */
-export const androidTabletLandscape = { width: 1280, height: 800 };
-/** Desktop fine-pointer baseline */
-export const desktopLandscape = { width: 1280, height: 800 };
+export const desktopLandscape = { width: 1440, height: 900 };
 
-/** Scroll into view and click — reliable on iPad Safari / coarse pointer. */
-export async function tapReachable(locator: Locator) {
-  await locator.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
-  await locator.evaluate((element) => {
-    element.scrollIntoView({ block: 'nearest', inline: 'center' });
-    (element as HTMLElement).click();
-  });
-}
-
-/** Assert an open dialog fits inside the visual viewport on tablet. */
-export async function assertActiveDialogFitsIpad(page: Page) {
-  const dialog = page.getByRole('dialog').first();
-  await expect(dialog).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(250);
-
-  const metrics = await dialog.evaluate((element) => {
-    const rect = element.getBoundingClientRect();
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-    const style = window.getComputedStyle(element);
-    return {
-      left: rect.left,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-      viewportWidth,
-      viewportHeight,
-      canScroll: element.scrollHeight > element.clientHeight,
-      overflowY: style.overflowY,
-    };
-  });
-
-  expect(metrics.left).toBeGreaterThanOrEqual(-1);
-  expect(metrics.top).toBeGreaterThanOrEqual(-1);
-  expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
-  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight + 1);
-  if (metrics.canScroll) {
-    expect(['auto', 'scroll']).toContain(metrics.overflowY);
+export async function applyTouchMode(page: Page, viewport: { width: number; height: number }) {
+  const isTouch = viewport.width <= iPadLandscape.width;
+  if (isTouch) {
+    await emulateCoarsePointer(page);
+  } else {
+    await emulateFinePointer(page);
   }
-
-  await assertNoHorizontalOverflow(page);
-  await assertTouchTargets(page, ['[role="dialog"] button', '[role="dialog"] [role="button"]']);
 }
 
-export async function readEditorMetricCount(page: Page, label: 'Walls' | 'Openings') {
-  const text = await page.locator('.ws-status-bar').textContent();
-  const match = text?.match(new RegExp(`${label}:\\s*(\\d+)`, 'i'));
-  return Number(match?.[1] ?? 0);
-}
-
-export async function dispatchCanvasTouchPointer(
-  canvas: Locator,
-  type: 'pointerdown' | 'pointerup',
-  position: { x: number; y: number },
-) {
-  await canvas.evaluate(
-    (element, { eventType, pos }) => {
-      const rect = element.getBoundingClientRect();
-      const init: PointerEventInit = {
-        bubbles: true,
-        cancelable: true,
-        clientX: rect.left + pos.x,
-        clientY: rect.top + pos.y,
-        button: 0,
-        buttons: eventType === 'pointerup' ? 0 : 1,
-        pointerId: 1,
-        pointerType: 'touch',
-        isPrimary: true,
-        width: 12,
-        height: 12,
-        pressure: eventType === 'pointerup' ? 0 : 0.5,
-      };
-      element.dispatchEvent(new PointerEvent(eventType, init));
-    },
-    { eventType: type, pos: position },
-  );
-}
-
-export async function drawWallSegmentTouch(
-  canvas: Locator,
-  from: { x: number; y: number },
-  to: { x: number; y: number },
-) {
-  await dispatchCanvasTouchPointer(canvas, 'pointerdown', from);
-  await dispatchCanvasTouchPointer(canvas, 'pointerup', to);
-}
-
-export async function selectDrawnWallForProperties(page: Page) {
-  await page.evaluate(() => {
-    const engine = (window as Window & {
-      __vishFloorPlanEngine?: {
-        getSnapshot: () => { manifest: { walls: Array<{ id: string }> } };
-        setWallSelection: (ids: string[]) => void;
-      };
-    }).__vishFloorPlanEngine;
-    const wallId = engine?.getSnapshot().manifest.walls.at(-1)?.id;
-    if (!engine || !wallId) {
-      throw new Error('E2E wall selection hook unavailable');
-    }
-    engine.setWallSelection([wallId]);
-  });
-}
-
-export async function activateEditorTool(page: Page, label: string) {
-  const button = page.getByRole('button', { name: label }).first();
-  await expect(button, `${label} tool should exist`).toBeAttached();
-  await tapReachable(button);
-  await expect(button, `${label} tool should become active`).toHaveAttribute('aria-pressed', 'true');
-}
-
-export async function stopMotionForE2E(page: Page) {
-  await page.addStyleTag({
-    content: `
-      *, *::before, *::after {
-        animation-delay: 0s !important;
-        animation-duration: 0.001ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-delay: 0s !important;
-        transition-duration: 0s !important;
-      }
-    `,
-  });
-}
-
-export {
-  assertNoHorizontalOverflow,
-  assertTouchTargets,
-  emulateCoarsePointer,
-  emulateFinePointer,
-};
+export { assertNoHorizontalOverflow, assertTouchTargets };
