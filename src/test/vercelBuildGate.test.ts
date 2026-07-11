@@ -28,17 +28,24 @@ describe('Vercel build gate', () => {
     expect(orchestrator).toContain('pnpm run lint');
     expect(orchestrator).toContain('src/test/releaseGateHardening.test.ts');
     expect(orchestrator).toContain('src/test/vercelBuildGate.test.ts');
+    expect(orchestrator).toContain('src/test/qaToolsGate.test.ts');
+    expect(orchestrator).toContain('src/backend/supabase/supabaseAuthCallback.test.ts');
     expect(orchestrator).toContain('src/backend/supabase/mappers.test.ts');
+    expect(orchestrator).toContain('src/services/billing/stripeCheckout.test.ts');
     expect(orchestrator).toContain('pnpm run build');
+    expect(orchestrator).toContain('scripts/security/check-dist-security.mjs');
     expect(orchestrator).toContain('pnpm run perf:gates');
 
-    expect(orchestrator.indexOf("label: 'Lint'" )).toBeLessThan(
+    expect(orchestrator.indexOf("label: 'Lint'")).toBeLessThan(
       orchestrator.indexOf("label: 'Focused regression tests'"),
     );
     expect(orchestrator.indexOf("label: 'Focused regression tests'")).toBeLessThan(
       orchestrator.indexOf("label: 'Production build'"),
     );
     expect(orchestrator.indexOf("label: 'Production build'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Artifact security'"),
+    );
+    expect(orchestrator.indexOf("label: 'Artifact security'")).toBeLessThan(
       orchestrator.indexOf("label: 'Performance budgets'"),
     );
   });
