@@ -419,3 +419,10 @@ export interface ChangeRequestFormData {
   priority: 'low' | 'medium' | 'high' | 'critical';
   requester?: string;
 }
+
+export interface ReleaseFormData {
+  version: string;
+  title: string;
+  description?: string;
+  change_requests: string[];
+}
