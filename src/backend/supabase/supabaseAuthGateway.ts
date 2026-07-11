@@ -4,17 +4,19 @@ import { backendStatus } from '@/backend/backendConfig';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
-const SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
+const LEGACY_SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
 const PRODUCTION_AUTH_URL = CANONICAL_AUTH_URL;
 const REQUIRED_AUTH_PROVIDER = 'google';
 
+/**
+ * Non-sensitive auth metadata used by React state. Supabase remains the single
+ * source of truth for access and refresh tokens.
+ */
 export interface SupabaseSessionSnapshot {
   provider: 'supabase';
   authProvider: 'google';
   uid: string;
   email: string;
-  idToken: string;
-  refreshToken: string;
   expiresAt: number;
 }
 
@@ -26,8 +28,8 @@ function getBrowserStorage(): Storage | null {
   }
 }
 
-function hasBrowserStorage() {
-  return getBrowserStorage() !== null;
+function clearLegacyTokenSnapshot() {
+  getBrowserStorage()?.removeItem(LEGACY_SUPABASE_SESSION_KEY);
 }
 
 function isProtectedVercelPreviewUrl(value: string) {
@@ -105,44 +107,21 @@ function assertGoogleSupabaseUser(user: User) {
   );
 }
 
-export function writeSupabaseSessionSnapshot(session: SupabaseSessionSnapshot) {
-  const storage = getBrowserStorage();
-  if (!storage) return;
-  storage.setItem(SUPABASE_SESSION_KEY, JSON.stringify(session));
+/** @deprecated Tokens are owned by supabase-js and are never copied by application code. */
+export function writeSupabaseSessionSnapshot(_session: SupabaseSessionSnapshot) {
+  clearLegacyTokenSnapshot();
 }
 
+/** @deprecated Legacy token snapshots are deleted rather than trusted. */
 export function readSupabaseSessionSnapshot(): SupabaseSessionSnapshot | null {
-  const storage = getBrowserStorage();
-  if (!storage) return null;
-
-  const raw = storage.getItem(SUPABASE_SESSION_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<SupabaseSessionSnapshot>;
-    if (parsed.provider !== 'supabase') return null;
-    if (parsed.authProvider !== REQUIRED_AUTH_PROVIDER) return null;
-    if (!parsed.uid || !parsed.email || !parsed.idToken || !parsed.expiresAt) return null;
-    if (Date.now() >= parsed.expiresAt) return null;
-
-    return {
-      provider: 'supabase',
-      authProvider: REQUIRED_AUTH_PROVIDER,
-      uid: parsed.uid,
-      email: parsed.email,
-      idToken: parsed.idToken,
-      refreshToken: parsed.refreshToken ?? '',
-      expiresAt: parsed.expiresAt,
-    };
-  } catch {
-    return null;
-  }
+  clearLegacyTokenSnapshot();
+  return null;
 }
 
 export function clearSupabaseSessionSnapshot() {
   const storage = getBrowserStorage();
   if (!storage) return;
-  storage.removeItem(SUPABASE_SESSION_KEY);
+  storage.removeItem(LEGACY_SUPABASE_SESSION_KEY);
   storage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
@@ -151,64 +130,44 @@ export async function buildSupabaseSessionFromAuthSession(
   user: User
 ): Promise<SupabaseSessionSnapshot> {
   assertGoogleSupabaseUser(user);
+  clearLegacyTokenSnapshot();
 
   const expiresAt = session.expires_at
     ? session.expires_at * 1000
     : Date.now() + 3600 * 1000;
 
-  const snapshot: SupabaseSessionSnapshot = {
+  return {
     provider: 'supabase',
     authProvider: REQUIRED_AUTH_PROVIDER,
     uid: user.id,
     email: user.email ?? '',
-    idToken: session.access_token,
-    refreshToken: session.refresh_token ?? '',
     expiresAt,
   };
-
-  writeSupabaseSessionSnapshot(snapshot);
-  return snapshot;
 }
 
-/** Restore Supabase client session from storage, rehydrating the SDK when needed. */
+/** Restore auth metadata from the session persisted and refreshed by supabase-js. */
 export async function hydrateSupabaseAuthSession(): Promise<SupabaseSessionSnapshot | null> {
+  clearLegacyTokenSnapshot();
   const client = getSupabaseClient();
-  const cached = readSupabaseSessionSnapshot();
-
-  if (!client) {
-    return cached;
-  }
+  if (!client) return null;
 
   const { data, error } = await client.auth.getSession();
-  if (!error && data.session?.user) {
-    return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
-  }
+  if (error) throw normalizeSupabaseAuthError(error);
+  if (!data.session?.user) return null;
 
-  if (!cached) {
-    return null;
-  }
-
-  if (cached.idToken) {
-    const { data: restored, error: restoreError } = await client.auth.setSession({
-      access_token: cached.idToken,
-      refresh_token: cached.refreshToken,
-    });
-
-    if (!restoreError && restored.session?.user) {
-      return buildSupabaseSessionFromAuthSession(restored.session, restored.session.user);
-    }
-  }
-
-  return cached;
+  return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
 }
 
+/** @deprecated Local storage metadata is not accepted as proof of authentication. */
 export function readCachedAuthBootstrap(): SupabaseSessionSnapshot | null {
-  return readSupabaseSessionSnapshot();
+  clearLegacyTokenSnapshot();
+  return null;
 }
 
-/** True when a non-expired session snapshot exists in storage (post-OAuth cold start). */
+/** @deprecated Route access waits for the Supabase SDK session instead. */
 export function hasCachedAuthSession(): boolean {
-  return readSupabaseSessionSnapshot() !== null;
+  clearLegacyTokenSnapshot();
+  return false;
 }
 
 export function storePendingSupabaseEmail(email: string) {
@@ -361,7 +320,7 @@ export async function completeSupabaseEmailLinkSignIn(email?: string): Promise<E
 }
 
 export async function resolveSupabaseSessionForApi() {
-  const cached = readSupabaseSessionSnapshot();
+  clearLegacyTokenSnapshot();
   const client = getSupabaseClient();
   if (!client) {
     throw new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.');
@@ -376,7 +335,6 @@ export async function resolveSupabaseSessionForApi() {
     return buildSupabaseSessionFromAuthSession(data.session, data.session.user);
   }
 
-  if (cached) return cached;
   throw new Error('Supabase session is not available.');
 }
 
