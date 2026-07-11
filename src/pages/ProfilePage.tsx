@@ -24,7 +24,6 @@ export default function ProfilePage() {
     isPaid,
     isEnterprise,
     isStudio,
-    idToken,
     enabled: billingEnabled,
     refreshBilling,
     loading: billingLoading,
@@ -54,10 +53,9 @@ export default function ProfilePage() {
   };
 
   const handleCheckout = async (plan: CheckoutPlan) => {
-    if (!idToken) return;
     setBillingActionLoading(plan);
     try {
-      await startCheckout(idToken, plan);
+      await startCheckout(plan);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Checkout failed');
       setBillingActionLoading(null);
@@ -65,10 +63,9 @@ export default function ProfilePage() {
   };
 
   const handleManageBilling = async () => {
-    if (!idToken) return;
     setBillingActionLoading('portal');
     try {
-      await openBillingPortal(idToken);
+      await openBillingPortal();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Billing portal failed');
       setBillingActionLoading(null);
@@ -120,52 +117,52 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</p>
-              <p className="mt-1 text-sm text-foreground">{user?.email ?? 'Local workspace (no sign-in)'}</p>
-            </div>
-          </div>
-
-          {profile?.full_name && (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</p>
-              <p className="mt-1 text-sm text-foreground">{profile.full_name}</p>
-            </div>
-          )}
-
-          {stripeEnabled && user && (
             <div className="flex items-start gap-3">
-              <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</p>
+                <p className="mt-1 text-sm text-foreground">{user?.email ?? 'Local workspace (no sign-in)'}</p>
+              </div>
+            </div>
+
+            {profile?.full_name && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</p>
+                <p className="mt-1 text-sm text-foreground">{profile.full_name}</p>
+              </div>
+            )}
+
+            {stripeEnabled && user && (
+              <div className="flex items-start gap-3">
+                <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Plan</p>
+                  <p className="mt-1 text-sm text-foreground">
+                    {billingLoading ? 'Loading billing…' : planLabel}
+                  </p>
+                  {billing?.trialEnd && billing.status === 'trialing' && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Trial ends {new Date(billing.trialEnd).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-start gap-3">
+              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Backend</p>
                 <p className="mt-1 text-sm text-foreground">
-                  {billingLoading ? 'Loading billing…' : planLabel}
+                  {providerLabel} · {saveLabel} · session {mode}
                 </p>
-                {billing?.trialEnd && billing.status === 'trialing' && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Trial ends {new Date(billing.trialEnd).toLocaleDateString()}
+                {!isConfigured && backendStatus.missingKeys.length > 0 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Missing: {backendStatus.missingKeys.join(', ')}
                   </p>
                 )}
               </div>
             </div>
-          )}
-
-          <div className="flex items-start gap-3">
-            <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Backend</p>
-              <p className="mt-1 text-sm text-foreground">
-                {providerLabel} · {saveLabel} · session {mode}
-              </p>
-              {!isConfigured && backendStatus.missingKeys.length > 0 && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Missing: {backendStatus.missingKeys.join(', ')}
-                </p>
-              )}
-            </div>
-          </div>
           </div>
         </WorkspacePanel>
 
