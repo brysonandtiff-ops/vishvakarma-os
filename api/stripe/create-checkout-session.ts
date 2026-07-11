@@ -3,6 +3,10 @@ import {
   getBillingRecord,
   upsertBillingRecord,
 } from '../_lib/billingBackend';
+import {
+  resolveTrustedAppOrigin,
+  UntrustedAppOriginError,
+} from '../_lib/appOrigin';
 import { getPriceIdForPlan, getStripeClient, type CheckoutPlan } from '../_lib/stripeClient';
 import { authMetadataUidKey, verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { STUDIO_TRIAL_DAYS } from '../../src/config/billingPlans';
@@ -16,48 +20,58 @@ type VercelRequest = IncomingMessage & {
 type VercelResponse = {
   status: (code: number) => VercelResponse;
   json: (body: unknown) => void;
+  setHeader?: (name: string, value: string) => void;
 };
+
+class InvalidCheckoutRequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidCheckoutRequestError';
+  }
+}
+
+const EXISTING_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
 
 function parseJsonBody(req: VercelRequest): Record<string, unknown> {
   if (!req.body) return {};
   if (typeof req.body === 'string') {
     try {
-      return JSON.parse(req.body) as Record<string, unknown>;
-    } catch {
-      return {};
+      const parsed = JSON.parse(req.body) as unknown;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new InvalidCheckoutRequestError('Request body must be a JSON object.');
+      }
+      return parsed as Record<string, unknown>;
+    } catch (error) {
+      if (error instanceof InvalidCheckoutRequestError) throw error;
+      throw new InvalidCheckoutRequestError('Request body is not valid JSON.');
     }
   }
-  if (typeof req.body === 'object') {
+  if (typeof req.body === 'object' && !Array.isArray(req.body)) {
     return req.body as Record<string, unknown>;
   }
-  return {};
+  throw new InvalidCheckoutRequestError('Request body must be a JSON object.');
 }
 
-function resolveAppOrigin(req: VercelRequest, body: Record<string, unknown>): string {
-  const fromBody = typeof body.origin === 'string' ? body.origin.trim() : '';
-  if (fromBody) return fromBody;
+export function parseCheckoutPlan(body: Record<string, unknown>): CheckoutPlan {
+  if (body.plan === undefined) return 'studio';
+  if (body.plan === 'studio' || body.plan === 'enterprise') return body.plan;
+  throw new InvalidCheckoutRequestError('Unsupported checkout plan.');
+}
 
-  const originHeader = req.headers.origin;
-  if (typeof originHeader === 'string' && originHeader) return originHeader;
-
-  const referer = req.headers.referer;
-  if (typeof referer === 'string') {
-    try {
-      return new URL(referer).origin;
-    } catch {
-      // ignore invalid referer
-    }
+function parseRequestId(body: Record<string, unknown>): string | null {
+  if (body.requestId === undefined) return null;
+  if (typeof body.requestId !== 'string' || !REQUEST_ID_PATTERN.test(body.requestId)) {
+    throw new InvalidCheckoutRequestError('Invalid checkout request identifier.');
   }
-
-  return process.env.APP_URL?.trim() || 'http://127.0.0.1:5173';
-}
-
-function parseCheckoutPlan(body: Record<string, unknown>): CheckoutPlan {
-  return body.plan === 'enterprise' ? 'enterprise' : 'studio';
+  return body.requestId;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader?.('Cache-Control', 'no-store');
+
   if (req.method !== 'POST') {
+    res.setHeader?.('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -67,23 +81,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const stripe = getStripeClient();
     const body = parseJsonBody(req);
     const plan = parseCheckoutPlan(body);
+    const requestId = parseRequestId(body);
+    const origin = resolveTrustedAppOrigin(req, body);
     const priceId = getPriceIdForPlan(plan);
-    const origin = resolveAppOrigin(req, body);
+    const stripe = getStripeClient();
 
     const existingBilling = await getBillingRecord(user.uid);
-    let customerId = existingBilling?.stripeCustomerId;
+    if (
+      existingBilling?.stripeSubscriptionId &&
+      EXISTING_SUBSCRIPTION_STATUSES.has(existingBilling.status)
+    ) {
+      return res.status(409).json({
+        error: 'An active subscription already exists. Use the billing portal to manage it.',
+      });
+    }
 
+    let customerId = existingBilling?.stripeCustomerId;
     const uidKey = authMetadataUidKey();
     const uidValue = user.uid;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue },
-      });
+      const customer = await stripe.customers.create(
+        {
+          email: user.email,
+          metadata: { [uidKey]: uidValue },
+        },
+        { idempotencyKey: `vish-customer-${uidValue}` },
+      );
       customerId = customer.id;
       await upsertBillingRecord(user.uid, {
         stripeCustomerId: customerId,
@@ -96,32 +122,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: Record<string, string>;
       trial_period_days?: number;
     } = {
-      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
+      metadata: { [uidKey]: uidValue, plan },
     };
 
     if (plan === 'studio') {
       subscriptionData.trial_period_days = STUDIO_TRIAL_DAYS;
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: customerId,
-      client_reference_id: user.uid,
-      line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: subscriptionData,
-      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
-      success_url: `${origin}/profile?checkout=success`,
-      cancel_url: `${origin}/pricing?checkout=canceled`,
-    });
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'subscription',
+        customer: customerId,
+        client_reference_id: user.uid,
+        line_items: [{ price: priceId, quantity: 1 }],
+        subscription_data: subscriptionData,
+        metadata: { [uidKey]: uidValue, plan },
+        success_url: `${origin}/profile?checkout=success`,
+        cancel_url: `${origin}/pricing?checkout=canceled`,
+      },
+      requestId
+        ? { idempotencyKey: `vish-checkout-${uidValue}-${plan}-${requestId}` }
+        : undefined,
+    );
 
     if (!session.url) {
-      return res.status(500).json({ error: 'Stripe checkout session missing redirect URL' });
+      console.error('[stripe/create-checkout-session] Stripe returned no redirect URL');
+      return res.status(502).json({ error: 'Checkout provider did not return a redirect URL.' });
     }
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create checkout session';
-    console.error('[stripe/create-checkout-session]', message);
-    return res.status(500).json({ error: message });
+    if (error instanceof UntrustedAppOriginError) {
+      return res.status(403).json({ error: error.message });
+    }
+    if (error instanceof InvalidCheckoutRequestError) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.error('[stripe/create-checkout-session]', error);
+    return res.status(500).json({ error: 'Failed to create checkout session.' });
   }
 }
