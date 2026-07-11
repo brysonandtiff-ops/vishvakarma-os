@@ -4,6 +4,36 @@ import svgr from 'vite-plugin-svgr';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
+const buildSourceMaps = process.env.VISH_BUILD_SOURCEMAPS === 'true';
+
+const optionalEntryPreloadFragments = [
+  'EditorPage-',
+  'OptimizationPage-',
+  'Viewport3D-',
+  'vendor-3d-',
+  'vendor-react-three-',
+  'vendor-three-',
+  'vendor-postprocessing-',
+  'vendor-camera-controls-',
+  'vendor-gesture-',
+  'vendor-maath-',
+  'vendor-charts-',
+  'vendor-collab-',
+  'vendor-export-',
+  'vendor-video-',
+  'vendor-upload-',
+  'vendor-calendar-',
+  'vendor-forms-',
+];
+
+function filterEntryModulePreloads(dependencies: string[], hostType: 'html' | 'js') {
+  if (hostType !== 'html') return dependencies;
+  return dependencies.filter(
+    (dependency) =>
+      !optionalEntryPreloadFragments.some((fragment) => dependency.includes(fragment)),
+  );
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
@@ -38,14 +68,6 @@ export default defineConfig(({ mode }) => ({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
           // R3.1: Cache mantra audio — 11 MB of MP3s were re-downloaded on every visit.
           // CacheFirst: serve from cache if available, only hit network for new/changed files.
           {
@@ -100,14 +122,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
     chunkSizeWarningLimit: 900,
-    // T3-5: Enable module preload injection so Vite adds <link rel="modulepreload">
-    // hints for all lazy chunks in the built index.html, allowing the browser to
-    // fetch the editor surface in parallel during auth page idle time.
-    modulePreload: { polyfill: true },
-    // 'hidden' emits source maps for error monitoring (Sentry) without referencing
-    // them from the shipped bundles, so prod stack traces stay readable but source
-    // is not exposed to end users.
-    sourcemap: 'hidden',
+    // Keep route-optional editor, 3D, collaboration, and analytics dependencies out
+    // of the HTML entry preload graph. Vite still preloads them when their dynamic
+    // route import actually executes.
+    modulePreload: {
+      polyfill: true,
+      resolveDependencies: (_url, dependencies, context) =>
+        filterEntryModulePreloads(dependencies, context.hostType),
+    },
+    // Source maps are not deployed by default. Opt in only for a controlled build
+    // that uploads maps to monitoring and removes them before public deployment.
+    sourcemap: buildSourceMaps ? 'hidden' : false,
     rollupOptions: {
       output: {
         manualChunks(id) {
