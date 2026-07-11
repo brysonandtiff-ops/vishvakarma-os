@@ -70,12 +70,11 @@ export function isTrustedAppOrigin(
 }
 
 function requireTrustedOrigin(
-  value: string | null | undefined,
+  value: string,
   env: OriginEnvironment,
-): string | null {
+): string {
   const parsed = parseOrigin(value);
-  if (!parsed) return null;
-  if (!isTrustedAppOrigin(parsed.origin, env)) {
+  if (!parsed || !isTrustedAppOrigin(parsed.origin, env)) {
     throw new UntrustedAppOriginError();
   }
   return parsed.origin;
@@ -86,21 +85,25 @@ export function resolveTrustedAppOrigin(
   body: Record<string, unknown> = {},
   env: OriginEnvironment = process.env,
 ): string {
-  const originHeader = firstHeaderValue(req.headers.origin);
+  const originHeader = firstHeaderValue(req.headers.origin)?.trim();
   if (originHeader) {
-    return requireTrustedOrigin(originHeader, env) ?? CANONICAL_ORIGIN;
+    return requireTrustedOrigin(originHeader, env);
   }
 
-  const refererHeader = firstHeaderValue(req.headers.referer);
+  const refererHeader = firstHeaderValue(req.headers.referer)?.trim();
   if (refererHeader) {
-    return requireTrustedOrigin(refererHeader, env) ?? CANONICAL_ORIGIN;
+    return requireTrustedOrigin(refererHeader, env);
   }
 
-  const bodyOrigin = typeof body.origin === 'string' ? body.origin : null;
+  const bodyOrigin = typeof body.origin === 'string' ? body.origin.trim() : '';
   if (bodyOrigin) {
-    return requireTrustedOrigin(bodyOrigin, env) ?? CANONICAL_ORIGIN;
+    return requireTrustedOrigin(bodyOrigin, env);
   }
 
-  const configuredOrigin = requireTrustedOrigin(env.APP_URL, env);
-  return configuredOrigin ?? CANONICAL_ORIGIN;
+  const configuredOrigin = parseOrigin(env.APP_URL);
+  if (configuredOrigin && isTrustedAppOrigin(configuredOrigin.origin, env)) {
+    return configuredOrigin.origin;
+  }
+
+  return CANONICAL_ORIGIN;
 }
