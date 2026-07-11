@@ -47,6 +47,7 @@ describe('release gate hardening', () => {
     expectScriptContains(scripts, 'prebuild', ['scripts/enforce-build.js']);
     expectScriptContains(scripts, 'build', ['vite build']);
     expectScriptContains(scripts, 'test', ['vitest run']);
+    expectScriptContains(scripts, 'hardening:gates', ['check-production-hardening.mjs']);
     expectScriptContains(scripts, 'qe:routes', ['playwright.qe-smoke.config.ts']);
     expectScriptContains(scripts, 'qe:master', [
       'qe:routes',
@@ -60,14 +61,19 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('keeps Core CI aligned with install, quality, performance, and test gates', () => {
+  it('keeps Core CI aligned with install, hardening, artifact, performance, and test gates', () => {
     const ci = readRepoFile('.github', 'workflows', 'ci.yml');
 
     expectContainsAll(ci, [
       'name: Core CI',
+      'permissions:',
+      'contents: read',
       'pnpm install --frozen-lockfile',
       'pnpm run lint',
+      'pnpm run hardening:gates',
       'pnpm run build',
+      'name: Artifact security',
+      'check-dist-security.mjs',
       'name: Performance budgets',
       'pnpm run perf:gates',
       'pnpm run test',
@@ -117,6 +123,36 @@ describe('release gate hardening', () => {
     expect(budget.pwaPrecacheEntries).toBeGreaterThan(0);
   });
 
+  it('does not preload route-optional heavy modules from the HTML entry', () => {
+    const viteConfig = readRepoFile('vite.config.ts');
+
+    expectContainsAll(viteConfig, [
+      'optionalEntryPreloadFragments',
+      'filterEntryModulePreloads',
+      "hostType !== 'html'",
+      "'vendor-3d-'",
+      "'vendor-charts-'",
+      "'vendor-collab-'",
+      'resolveDependencies',
+    ]);
+  });
+
+  it('keeps deploy source maps opt-in and scans artifacts for secret leakage', () => {
+    const viteConfig = readRepoFile('vite.config.ts');
+    const scanner = readRepoFile('scripts', 'security', 'check-dist-security.mjs');
+
+    expectContainsAll(viteConfig, [
+      "process.env.VISH_BUILD_SOURCEMAPS === 'true'",
+      "sourcemap: buildSourceMaps ? 'hidden' : false",
+    ]);
+    expectContainsAll(scanner, [
+      'forbiddenSecretPatterns',
+      'service_role',
+      'productionQaMarkers',
+      'source maps are present',
+    ]);
+  });
+
   it('keeps test-only Radix and cmdk shims scoped to Vitest', () => {
     const vitestConfig = readRepoFile('vitest.config.ts');
     const packageJson = readRepoFile('package.json');
@@ -144,7 +180,7 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('keeps Google SSO as the only accepted Supabase session provider', () => {
+  it('keeps Google SSO as the only accepted provider without duplicating tokens', () => {
     const authGateway = readRepoFile(
       'src',
       'backend',
@@ -157,8 +193,12 @@ describe('release gate hardening', () => {
       'export function isGoogleSupabaseUser',
       'assertGoogleSupabaseUser(user)',
       'Vishvakarma.OS only accepts Google SSO sessions through Supabase',
-      'parsed.authProvider !== REQUIRED_AUTH_PROVIDER',
+      'clearLegacyTokenSnapshot',
+      'Supabase remains the single',
     ]);
+    expect(authGateway).not.toContain('idToken: string;');
+    expect(authGateway).not.toContain('refreshToken: string;');
+    expect(authGateway).not.toContain('storage.setItem(SUPABASE_SESSION_KEY');
   });
 
   it('closes the headless 3D proof before opening export', () => {
