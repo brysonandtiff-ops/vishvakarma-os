@@ -15,6 +15,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
@@ -47,19 +50,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Build production app
-        env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
         run: pnpm run build
 
       - name: Run auth/private-route E2E proof
-        env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
         run: pnpm run test:e2e
 
       - name: Upload Playwright report
@@ -97,20 +90,12 @@ jobs:
       - name: Install Chromium browser
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Build production app
+      - name: Build QA-enabled app
         env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
+          VITE_ENABLE_QA_TOOLS: 'true'
         run: pnpm run build
 
       - name: Run QA panel smoke proof
-        env:
-          VITE_FIREBASE_API_KEY: ci-placeholder-firebase-api-key
-          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: ci-placeholder
-          VITE_FIREBASE_APP_ID: 1:1234567890:web:ci-placeholder
         run: pnpm exec playwright test --config=playwright.qa.config.ts
 
       - name: Upload QA Playwright report
