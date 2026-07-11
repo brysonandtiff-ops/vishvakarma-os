@@ -129,6 +129,7 @@ export function mapAuditLogRow(row: Record<string, unknown>): AuditLog {
     action: asString(row.action),
     entity_type: row.entity_type as AuditLog['entity_type'],
     entity_id: asOptionalString(row.entity_id),
+    actor_id: asOptionalString(row.actor_id),
     details: (row.details ?? {}) as Record<string, unknown>,
     timestamp: asString(row.timestamp ?? row.created_at),
   };
