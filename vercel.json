@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "find public/textures -type f -name '*.jpg' -delete; find public/textures -type f -name '*.jpeg' -delete; pnpm run build && pnpm run perf:gates",
+  "buildCommand": "find public/textures -type f -name '*.jpg' -delete; find public/textures -type f -name '*.jpeg' -delete; pnpm run lint && pnpm exec vitest run src/test/releaseGateHardening.test.ts src/test/vercelBuildGate.test.ts src/backend/supabase/mappers.test.ts && pnpm run build && pnpm run perf:gates",
   "outputDirectory": "dist",
   "rewrites": [
     {
