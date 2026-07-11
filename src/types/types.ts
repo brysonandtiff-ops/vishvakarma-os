@@ -340,6 +340,7 @@ export interface AuditLog {
   action: string;
   entity_type: 'project' | 'spec' | 'registry' | 'change_request' | 'release' | 'optimization_batch';
   entity_id?: string;
+  actor_id?: string;
   details?: Record<string, unknown>;
   timestamp: string;
 }
@@ -417,11 +418,4 @@ export interface ChangeRequestFormData {
   type: 'feature' | 'bugfix' | 'enhancement';
   priority: 'low' | 'medium' | 'high' | 'critical';
   requester?: string;
-}
-
-export interface ReleaseFormData {
-  version: string;
-  title: string;
-  description?: string;
-  change_requests: string[];
 }
