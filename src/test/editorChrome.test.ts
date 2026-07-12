@@ -9,11 +9,14 @@ function read(path: string) {
 }
 
 describe('Editor chrome consolidation', () => {
-  it('wires consolidated editor chrome stylesheet through app startup', () => {
-    const main = read('src/main.tsx');
-    expect(main).toContain('./styles/vish-editor-chrome.css');
-    expect(main).toContain('./styles/vish-editor-polish.css');
-    expect(main).toContain('./styles/vish-ipad-editor-usability.css');
+  it('wires consolidated editor chrome through the lazy editor style entry', () => {
+    const editorStyles = read('src/styles/entries/editor.ts');
+    const routes = read('src/AppRoutes.tsx');
+
+    expect(editorStyles).toContain("import '../vish-editor-chrome.css'");
+    expect(editorStyles).toContain("import '../vish-editor-polish.css'");
+    expect(editorStyles).toContain("import '../vish-ipad-editor-usability.css'");
+    expect(routes).toContain("import('@/styles/entries/editor')");
   });
 
   it('uses shared editor action registry for project menus', () => {
