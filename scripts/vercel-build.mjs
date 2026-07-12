@@ -42,6 +42,8 @@ const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/vercelBuildGate.test.ts',
   'src/test/qaToolsGate.test.ts',
+  'src/test/analyticsConsent.test.tsx',
+  'src/test/monitoringPrivacy.test.ts',
   'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/supabaseAuthPolicy.test.ts',
   'src/backend/supabase/mappers.test.ts',
