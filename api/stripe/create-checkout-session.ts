@@ -1,4 +1,3 @@
-import type { IncomingMessage } from 'node:http';
 import {
   getBillingRecord,
   upsertBillingRecord,
@@ -7,73 +6,39 @@ import {
   resolveTrustedAppOrigin,
   UntrustedAppOriginError,
 } from '../_lib/appOrigin';
+import {
+  ApiRequestError,
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  parseBoundedJsonBody,
+  sendApiFailure,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
 import { getPriceIdForPlan, getStripeClient, type CheckoutPlan } from '../_lib/stripeClient';
 import { authMetadataUidKey, verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { STUDIO_TRIAL_DAYS } from '../../src/config/billingPlans';
 
-type VercelRequest = IncomingMessage & {
-  method?: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-};
-
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-  setHeader?: (name: string, value: string) => void;
-};
-
-class InvalidCheckoutRequestError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidCheckoutRequestError';
-  }
-}
-
 const EXISTING_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
-
-function parseJsonBody(req: VercelRequest): Record<string, unknown> {
-  if (!req.body) return {};
-  if (typeof req.body === 'string') {
-    try {
-      const parsed = JSON.parse(req.body) as unknown;
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        throw new InvalidCheckoutRequestError('Request body must be a JSON object.');
-      }
-      return parsed as Record<string, unknown>;
-    } catch (error) {
-      if (error instanceof InvalidCheckoutRequestError) throw error;
-      throw new InvalidCheckoutRequestError('Request body is not valid JSON.');
-    }
-  }
-  if (typeof req.body === 'object' && !Array.isArray(req.body)) {
-    return req.body as Record<string, unknown>;
-  }
-  throw new InvalidCheckoutRequestError('Request body must be a JSON object.');
-}
 
 export function parseCheckoutPlan(body: Record<string, unknown>): CheckoutPlan {
   if (body.plan === undefined) return 'studio';
   if (body.plan === 'studio' || body.plan === 'enterprise') return body.plan;
-  throw new InvalidCheckoutRequestError('Unsupported checkout plan.');
+  throw new ApiRequestError(400, 'Unsupported checkout plan.');
 }
 
 function parseRequestId(body: Record<string, unknown>): string | null {
   if (body.requestId === undefined) return null;
   if (typeof body.requestId !== 'string' || !REQUEST_ID_PATTERN.test(body.requestId)) {
-    throw new InvalidCheckoutRequestError('Invalid checkout request identifier.');
+    throw new ApiRequestError(400, 'Invalid checkout request identifier.');
   }
   return body.requestId;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader?.('Cache-Control', 'no-store');
-
-  if (req.method !== 'POST') {
-    res.setHeader?.('Allow', 'POST');
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export default async function handler(req: SecureApiRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (!enforceApiMethod(req, res, ['POST'])) return;
 
   const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
@@ -81,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const body = parseJsonBody(req);
+    const body = parseBoundedJsonBody(req);
     const plan = parseCheckoutPlan(body);
     const requestId = parseRequestId(body);
     const origin = resolveTrustedAppOrigin(req, body);
@@ -155,11 +120,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (error instanceof UntrustedAppOriginError) {
       return res.status(403).json({ error: error.message });
     }
-    if (error instanceof InvalidCheckoutRequestError) {
-      return res.status(400).json({ error: error.message });
-    }
-
-    console.error('[stripe/create-checkout-session]', error);
-    return res.status(500).json({ error: 'Failed to create checkout session.' });
+    return sendApiFailure(
+      res,
+      error,
+      'stripe/create-checkout-session',
+      'Failed to create checkout session.',
+    );
   }
 }
