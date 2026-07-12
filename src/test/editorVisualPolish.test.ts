@@ -9,18 +9,20 @@ function read(path: string) {
 }
 
 describe('Blueprint editor visual polish', () => {
-  it('wires the editor chrome and mockup stylesheets through app startup', () => {
+  it('wires core, editor, and workspace polish through explicit style boundaries', () => {
     const main = read('src/main.tsx');
+    const editorStyles = read('src/styles/entries/editor.ts');
+    const workspaceStyles = read('src/styles/entries/workspace-base.ts');
 
     expect(main).toContain('./styles/vish-tokens.css');
     expect(main).toContain('./styles/vish-realism.css');
-    expect(main).toContain('./styles/vish-editor-chrome.css');
-    expect(main).toContain('./styles/vish-editor-polish.css');
-    expect(main).toContain('./styles/vish-mockup-system.css');
-    expect(main).toContain('./styles/vish-editor-mantra.css');
-    expect(main).toContain('./styles/vish-workspace-polish.css');
     expect(main).toContain('./styles/vish-ui-polish.css');
-    const polishImports = main.match(/vish-editor-polish\.css/g) ?? [];
+    expect(editorStyles).toContain("import '../vish-editor-chrome.css'");
+    expect(editorStyles).toContain("import '../vish-editor-polish.css'");
+    expect(editorStyles).toContain("import '../vish-mockup-system.css'");
+    expect(editorStyles).toContain("import '../vish-editor-mantra.css'");
+    expect(workspaceStyles).toContain("import '../vish-workspace-polish.css'");
+    const polishImports = editorStyles.match(/vish-editor-polish\.css/g) ?? [];
     expect(polishImports.length).toBe(1);
   });
 
