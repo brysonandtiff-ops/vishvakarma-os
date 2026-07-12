@@ -11,6 +11,7 @@ const apiRoot = join(root, 'api');
 const policyPath = join(apiRoot, 'endpoint-policy.json');
 const reportPath = join(root, 'docs', 'release', 'evidence', 'api-endpoint-inventory.json');
 const endpointExtensions = new Set(['.ts', '.js', '.mjs', '.cjs']);
+const BODYLESS_METHODS = new Set(['GET', 'HEAD']);
 
 async function listEndpointFiles(directory = apiRoot) {
   const files = [];
@@ -36,7 +37,8 @@ function requireSource(source, phrase, path, failures) {
 function auditEndpoint(path, policy, source, failures) {
   requireSource(source, 'export default', path, failures);
 
-  for (const method of policy.methods ?? []) {
+  const methods = Array.isArray(policy.methods) ? policy.methods : [];
+  for (const method of methods) {
     if (!source.includes(`'${method}'`) && !source.includes(`\"${method}\"`)) {
       failures.push(`${path}: method ${method} is declared but not enforced in source`);
     }
@@ -50,9 +52,11 @@ function auditEndpoint(path, policy, source, failures) {
     if (!hasNoStore) failures.push(`${path}: no-store response policy is missing`);
   }
 
+  const acceptsBody = methods.some((method) => !BODYLESS_METHODS.has(method));
+
   if (policy.auth === 'google-supabase') {
     requireSource(source, 'verifyAuthTokenFromRequest', path, failures);
-    requireSource(source, 'parseBoundedJsonBody', path, failures);
+    if (acceptsBody) requireSource(source, 'parseBoundedJsonBody', path, failures);
   } else if (policy.auth === 'stripe-signature') {
     requireSource(source, 'stripe-signature', path, failures);
     requireSource(source, 'constructEvent', path, failures);
