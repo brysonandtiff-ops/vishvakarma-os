@@ -1,3 +1,4 @@
+import './workspace-base';
 import '../vish-editor-chrome.css';
 import '../vish-editor-polish.css';
 import '../vish-editor-mantra.css';
@@ -8,3 +9,4 @@ import '../vish-ipad-editor-usability.css';
 import '../vish-ipad-king-polish.css';
 import '../vish-ipad-desktop-polish.css';
 import '../vish-editor-3d-polish.css';
+import './themes';
