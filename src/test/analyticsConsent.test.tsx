@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ConsentAnalytics from '@/components/common/ConsentAnalytics';
 import {
   getAnalyticsConsent,
@@ -19,6 +19,10 @@ describe('analytics consent boundary', () => {
   beforeEach(() => {
     window.localStorage.clear();
     track.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('defaults to no consent and stores explicit choices', () => {
@@ -47,16 +51,26 @@ describe('analytics consent boundary', () => {
     });
   });
 
-  it('does not emit custom events without consent', async () => {
+  it('does not emit or log custom events without consent', async () => {
+    const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+
     trackEvent('project_created', { source: 'test' });
     await Promise.resolve();
     expect(track).not.toHaveBeenCalled();
+    expect(consoleInfo).not.toHaveBeenCalled();
 
     setAnalyticsConsent(true);
     trackEvent('project_created', { source: 'test' });
 
-    await waitFor(() => {
-      expect(track).toHaveBeenCalledWith('project_created', { source: 'test' });
-    });
+    if (import.meta.env.DEV) {
+      expect(consoleInfo).toHaveBeenCalledWith('[analytics]', 'project_created', {
+        source: 'test',
+      });
+      expect(track).not.toHaveBeenCalled();
+    } else {
+      await waitFor(() => {
+        expect(track).toHaveBeenCalledWith('project_created', { source: 'test' });
+      });
+    }
   });
 });
