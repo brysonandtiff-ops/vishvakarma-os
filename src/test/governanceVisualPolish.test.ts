@@ -9,11 +9,13 @@ function read(path: string) {
 }
 
 describe('Governance visual polish', () => {
-  it('wires the governance polish stylesheet through app startup', () => {
-    const main = read('src/main.tsx');
+  it('wires governance polish through the lazy workspace style entry', () => {
+    const workspaceStyles = read('src/styles/entries/workspace-base.ts');
+    const routes = read('src/AppRoutes.tsx');
 
-    expect(main).toContain('./styles/vish-governance-polish.css');
-    expect(main).toContain('./styles/vish-workspace-shell.css');
+    expect(workspaceStyles).toContain("import '../vish-governance-polish.css'");
+    expect(workspaceStyles).toContain("import '../vish-workspace-shell.css'");
+    expect(routes).toContain("import('@/styles/entries/workspace')");
   });
 
   it('keeps the shared governance page visual system targeted to existing surfaces', () => {
