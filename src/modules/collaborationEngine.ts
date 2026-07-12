@@ -5,7 +5,7 @@
  */
 
 import { backendStatus } from '@/backend/backendConfig';
-import { resolveSupabaseSessionForApi } from '@/backend/supabase/supabaseAuthGateway';
+import { getSupabaseAccessToken } from '@/backend/supabase/supabaseAccessToken';
 import { CollabSession } from '@/collaboration/sync/CollabSession';
 import { isCollabReadOnlyMode } from '@/collaboration/presenceReadOnly';
 import type { Presence } from '@/collaboration/types';
@@ -79,6 +79,14 @@ export type CollaborationCallback = (message: CollaborationMessage) => void;
 
 type ManifestChangeHandler = (manifest: ProjectManifest, isRemote: boolean) => void;
 
+async function requireSupabaseAccessToken() {
+  const token = await getSupabaseAccessToken();
+  if (!token) {
+    throw new Error('Your secure Supabase session is unavailable. Sign in again and retry.');
+  }
+  return token;
+}
+
 export class CollaborationEngine {
   private static instance: CollaborationEngine | null = null;
   private users: Map<string, User> = new Map();
@@ -106,7 +114,7 @@ export class CollaborationEngine {
     roomId: string,
     userId: string,
     userName: string,
-    options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
+    options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler },
   ): Promise<void> {
     if (this.connected) {
       console.warn('Already connected to collaboration room');
@@ -129,17 +137,12 @@ export class CollaborationEngine {
 
     this.broadcastPresence('online', userName, this.userColor);
 
-    const getIdToken = async () => {
-      const session = await resolveSupabaseSessionForApi();
-      return session.idToken;
-    };
-
     await this.session.connect({
       wsUrl: import.meta.env.VITE_COLLAB_WS_URL ?? 'ws://127.0.0.1:1234',
       projectId: roomId,
       userId,
       userName,
-      getIdToken,
+      getIdToken: requireSupabaseAccessToken,
       readOnly: isCollabReadOnlyMode(),
       initialManifest: options?.initialManifest,
       onManifestChange: (manifest, isRemote) => {
@@ -203,7 +206,7 @@ export class CollaborationEngine {
     operation: string,
     elementId: string | undefined,
     elementType: OperationMessage['data']['elementType'],
-    payload: unknown
+    payload: unknown,
   ): void {
     if (!this.connected || !this.currentUserId) {
       console.warn('Not connected to collaboration room');
@@ -220,7 +223,12 @@ export class CollaborationEngine {
     this.broadcast(message);
   }
 
-  broadcastCursor(x: number, y: number, tool?: string, viewport?: Presence['viewport']): void {
+  broadcastCursor(
+    x: number,
+    y: number,
+    tool?: string,
+    viewport?: Presence['viewport'],
+  ): void {
     if (!this.connected || !this.currentUserId) return;
 
     const message: CursorMessage = {
@@ -238,13 +246,9 @@ export class CollaborationEngine {
     }
 
     this.session.updatePresence({
-      userId: this.currentUserId,
-      name: user?.name ?? 'Architect',
-      color: user?.color ?? this.userColor,
       cursor: { x, y },
       activeTool: tool,
-      ...(viewport ? { viewport } : {}),
-      lastSeen: Date.now(),
+      viewport,
     });
 
     this.broadcast(message);
@@ -252,52 +256,42 @@ export class CollaborationEngine {
 
   broadcastLock(
     elementId: string,
-    elementType: LockMessage['data']['elementType']
+    elementType: LockMessage['data']['elementType'],
   ): void {
     if (!this.connected || !this.currentUserId) return;
+    acquireElementLock(elementId, this.currentUserId, elementType);
 
-    const message: LockMessage = {
+    this.broadcast({
       type: 'lock',
       userId: this.currentUserId,
       timestamp: Date.now(),
       data: { elementId, elementType },
-    };
-
-    this.session.updatePresence({ focusedEntityId: elementId });
-    this.broadcast(message);
+    });
   }
 
   broadcastUnlock(
     elementId: string,
-    elementType: LockMessage['data']['elementType']
+    elementType: LockMessage['data']['elementType'],
   ): void {
     if (!this.connected || !this.currentUserId) return;
+    releaseElementLock(elementId, this.currentUserId);
 
-    const message: LockMessage = {
+    this.broadcast({
       type: 'unlock',
       userId: this.currentUserId,
       timestamp: Date.now(),
       data: { elementId, elementType },
-    };
-
-    this.session.updatePresence({ focusedEntityId: undefined });
-    this.broadcast(message);
+    });
   }
 
-  broadcastChat(message: string): void {
+  broadcastChat(message: string, userName: string): void {
     if (!this.connected || !this.currentUserId) return;
-
-    const user = this.users.get(this.currentUserId);
-    if (!user) return;
-
-    const chatMessage: ChatMessage = {
+    this.broadcast({
       type: 'chat',
       userId: this.currentUserId,
       timestamp: Date.now(),
-      data: { message, userName: user.name },
-    };
-
-    this.broadcast(chatMessage);
+      data: { message, userName },
+    });
   }
 
   subscribe(callback: CollaborationCallback): () => void {
@@ -305,188 +299,120 @@ export class CollaborationEngine {
     return () => this.callbacks.delete(callback);
   }
 
-  getOnlineUsers(): User[] {
-    return Array.from(this.users.values()).filter((u) => u.isOnline);
+  getUsers(): User[] {
+    return Array.from(this.users.values());
   }
 
   getUser(userId: string): User | undefined {
     return this.users.get(userId);
   }
 
-  getCurrentUserId(): string | null {
-    return this.currentUserId;
-  }
-
   isConnected(): boolean {
     return this.connected;
   }
 
-  getRoomId(): string | null {
-    return this.roomId;
-  }
-
-  private broadcastPresence(status: 'online' | 'offline', name: string, color: string): void {
-    if (!this.currentUserId) return;
-
-    const message: PresenceMessage = {
-      type: 'presence',
-      userId: this.currentUserId,
-      timestamp: Date.now(),
-      data: { status, name, color },
-    };
-
-    this.broadcast(message);
+  getCurrentUserId(): string | null {
+    return this.currentUserId;
   }
 
   private broadcast(message: CollaborationMessage): void {
-    this.session.broadcast(message);
-    this.deliverToCallbacks(message);
+    this.session.sendMessage(message);
+    this.callbacks.forEach((callback) => callback(message));
   }
 
   private handleRemoteMessage(message: CollaborationMessage): void {
     if (message.userId === this.currentUserId) return;
 
-    if (message.type === 'presence') {
-      const presenceData = (message as PresenceMessage).data;
-      const user = this.users.get(message.userId);
-
-      if (user) {
-        user.isOnline = presenceData.status === 'online';
-        user.lastSeen = Date.now();
-      } else if (presenceData.status === 'online') {
-        this.users.set(message.userId, {
-          id: message.userId,
-          name: presenceData.name,
-          color: presenceData.color,
-          isOnline: true,
-          lastSeen: Date.now(),
-        });
+    switch (message.type) {
+      case 'cursor': {
+        const cursorMessage = message as CursorMessage;
+        const user = this.users.get(message.userId);
+        if (user) {
+          user.cursor = {
+            x: cursorMessage.data.x,
+            y: cursorMessage.data.y,
+          };
+          user.activeTool = cursorMessage.data.tool;
+          user.lastSeen = Date.now();
+        }
+        break;
       }
-    } else if (message.type === 'cursor') {
-      const cursorData = (message as CursorMessage).data;
-      const user = this.users.get(message.userId);
-
-      if (user) {
-        user.cursor = { x: cursorData.x, y: cursorData.y };
-        user.activeTool = cursorData.tool;
-        user.lastSeen = Date.now();
+      case 'lock': {
+        const lockMessage = message as LockMessage;
+        acquireElementLock(
+          lockMessage.data.elementId,
+          message.userId,
+          lockMessage.data.elementType,
+        );
+        break;
       }
-    } else if (message.type === 'lock') {
-      const lockData = (message as LockMessage).data;
-      const user = this.users.get(message.userId);
-      if (user) {
-        acquireElementLock(lockData.elementId, lockData.elementType, message.userId, user.name);
+      case 'unlock': {
+        const unlockMessage = message as LockMessage;
+        releaseElementLock(unlockMessage.data.elementId, message.userId);
+        break;
       }
-    } else if (message.type === 'unlock') {
-      const lockData = (message as LockMessage).data;
-      releaseElementLock(lockData.elementId, lockData.elementType, message.userId);
+      case 'presence': {
+        const presenceMessage = message as PresenceMessage;
+        if (presenceMessage.data.status === 'offline') {
+          this.users.delete(message.userId);
+        } else {
+          this.users.set(message.userId, {
+            id: message.userId,
+            name: presenceMessage.data.name,
+            color: presenceMessage.data.color,
+            isOnline: true,
+            lastSeen: Date.now(),
+          });
+        }
+        break;
+      }
+      default:
+        break;
     }
 
-    this.deliverToCallbacks(message);
+    this.callbacks.forEach((callback) => callback(message));
   }
 
-  private syncUsersFromPresences(presences: Presence[], localName: string): void {
-    const remoteIds = new Set(presences.map((p) => p.userId));
-
+  private syncUsersFromPresences(presences: Presence[], fallbackName: string) {
+    const next = new Map<string, User>();
     for (const presence of presences) {
-      const existing = this.users.get(presence.userId);
-      this.users.set(presence.userId, {
+      next.set(presence.userId, {
         id: presence.userId,
-        name: presence.name,
-        color: presence.color,
+        name: presence.userName || fallbackName,
+        color: presence.color || this.generateUserColor(),
         cursor: presence.cursor,
         activeTool: presence.activeTool,
-        isOnline: true,
-        lastSeen: presence.lastSeen,
         focusedEntityId: presence.focusedEntityId,
+        isOnline: true,
+        lastSeen: presence.lastSeen ?? Date.now(),
       });
-
-      // Synchronize lock status for the element focused by the remote user
-      if (presence.focusedEntityId) {
-        // Find which type of element this is (wall/opening/furniture etc)
-        // Default to 'wall' if unclear, or check tool/id prefix
-        let type: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation' = 'wall';
-        if (presence.focusedEntityId.startsWith('door') || presence.focusedEntityId.startsWith('window') || presence.focusedEntityId.startsWith('opening')) {
-          type = 'opening';
-        } else if (presence.focusedEntityId.startsWith('furniture') || presence.focusedEntityId.startsWith('column') || presence.focusedEntityId.startsWith('stair')) {
-          type = 'annotation'; // mapped in elementLock
-        }
-        acquireElementLock(presence.focusedEntityId, type, presence.userId, presence.name);
-      }
-
-      if (!existing) {
-        this.deliverToCallbacks({
-          type: 'presence',
-          userId: presence.userId,
-          timestamp: Date.now(),
-          data: { status: 'online', name: presence.name, color: presence.color },
-        });
-      }
     }
-
-    if (this.currentUserId) {
-      const local = this.users.get(this.currentUserId);
-      if (local) {
-        local.isOnline = true;
-        local.name = localName;
-      }
-    }
-
-    for (const [id, user] of this.users.entries()) {
-      if (id !== this.currentUserId && !remoteIds.has(id)) {
-        user.isOnline = false;
-        // Clean up locks held by users who went offline
-        if (user.focusedEntityId) {
-          releaseElementLock(user.focusedEntityId, 'wall', id);
-          releaseElementLock(user.focusedEntityId, 'opening', id);
-          releaseElementLock(user.focusedEntityId, 'annotation', id);
-        }
-      }
-    }
-  }
-
-  private deliverToCallbacks(message: CollaborationMessage): void {
-    this.callbacks.forEach((callback) => {
-      try {
-        callback(message);
-      } catch (error) {
-        console.error('Error in collaboration callback:', error);
-      }
-    });
+    this.users = next;
   }
 
   private startHeartbeat(): void {
     this.heartbeatInterval = window.setInterval(() => {
-      if (this.currentUserId) {
-        const user = this.users.get(this.currentUserId);
-        if (user) {
-          user.lastSeen = Date.now();
-        }
-        this.session.updatePresence({ lastSeen: Date.now() });
-      }
-
-      const now = Date.now();
-      this.users.forEach((user) => {
-        if (user.isOnline && now - user.lastSeen > 30000) {
-          user.isOnline = false;
-        }
-      });
-    }, 5000);
+      if (!this.currentUserId) return;
+      const user = this.users.get(this.currentUserId);
+      if (!user) return;
+      user.lastSeen = Date.now();
+      this.session.updatePresence({ lastSeen: user.lastSeen });
+    }, 30_000);
   }
 
   private stopHeartbeat(): void {
     if (this.heartbeatInterval !== null) {
-      clearInterval(this.heartbeatInterval);
+      window.clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
   }
 
   private generateUserColor(): string {
     const colors = [
-      '#ef4444',
-      '#f59e0b',
-      '#10b981',
       '#3b82f6',
+      '#10b981',
+      '#f59e0b',
+      '#ef4444',
       '#8b5cf6',
       '#ec4899',
       '#06b6d4',
@@ -494,55 +420,21 @@ export class CollaborationEngine {
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
-
-  simulateMessage(message: CollaborationMessage): void {
-    this.handleRemoteMessage(message);
-  }
-
-  static resetInstance(): void {
-    if (this.instance) {
-      void this.instance.disconnect();
-      CollabSession.resetInstance();
-      this.instance = null;
-    }
-  }
 }
 
-export function getCollaborationEngine(): CollaborationEngine {
-  return CollaborationEngine.getInstance();
-}
+export const collaborationEngine = CollaborationEngine.getInstance();
 
 export async function connectToRoom(
   roomId: string,
   userId: string,
   userName: string,
-  options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
-): Promise<void> {
-  const engine = getCollaborationEngine();
+  options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler },
+): Promise<CollaborationEngine> {
+  const engine = CollaborationEngine.getInstance();
   await engine.connect(roomId, userId, userName, options);
+  return engine;
 }
 
 export async function disconnectFromRoom(): Promise<void> {
-  const engine = getCollaborationEngine();
-  await engine.disconnect();
-}
-
-export function broadcastOperation(
-  operation: string,
-  elementId?: string,
-  elementType?: OperationMessage['data']['elementType'],
-  payload?: unknown
-): void {
-  const engine = getCollaborationEngine();
-  engine.broadcastOperation(operation, elementId, elementType, payload);
-}
-
-export function broadcastCursor(
-  x: number,
-  y: number,
-  tool?: string,
-  viewport?: Presence['viewport']
-): void {
-  const engine = getCollaborationEngine();
-  engine.broadcastCursor(x, y, tool, viewport);
+  await CollaborationEngine.getInstance().disconnect();
 }
