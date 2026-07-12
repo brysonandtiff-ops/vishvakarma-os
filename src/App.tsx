@@ -5,6 +5,7 @@ import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { RouteGuard } from '@/components/common/RouteGuard';
 import EditorPwaReloadBlocker from '@/components/common/EditorPwaReloadBlocker';
 import PwaUpdateBanner from '@/components/common/PwaUpdateBanner';
+import MfaChallengeGate from '@/components/auth/MfaChallengeGate';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TutorialProvider } from '@/tutorial/TutorialProvider';
@@ -30,33 +31,35 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
-        <StudioAudioProvider>
-          <TutorialProvider>
-            <RouteGuard>
-              <EditorPwaReloadBlocker />
-              <IntersectObserver />
-              <div className="flex min-h-[100dvh] flex-col overflow-hidden">
-                <AppErrorBoundary title="Workspace failed to render">
-                  <AppRoutes />
-                </AppErrorBoundary>
-              </div>
-              <GuidedDemoSessionController />
-              <EmptyCanvasGuidedStart />
-              <VisualThemeController />
-              <AnalyticsConsentBanner />
-              <ConsentAnalytics />
-              <MantraPlayerWidget />
-              <VoiceGuidedTour />
-              <PwaUpdateBanner />
-              {QaTools ? (
-                <Suspense fallback={null}>
-                  <QaTools />
-                </Suspense>
-              ) : null}
-              <Toaster />
-            </RouteGuard>
-          </TutorialProvider>
-        </StudioAudioProvider>
+        <MfaChallengeGate>
+          <StudioAudioProvider>
+            <TutorialProvider>
+              <RouteGuard>
+                <EditorPwaReloadBlocker />
+                <IntersectObserver />
+                <div className="flex min-h-[100dvh] flex-col overflow-hidden">
+                  <AppErrorBoundary title="Workspace failed to render">
+                    <AppRoutes />
+                  </AppErrorBoundary>
+                </div>
+                <GuidedDemoSessionController />
+                <EmptyCanvasGuidedStart />
+                <VisualThemeController />
+                <AnalyticsConsentBanner />
+                <ConsentAnalytics />
+                <MantraPlayerWidget />
+                <VoiceGuidedTour />
+                <PwaUpdateBanner />
+                {QaTools ? (
+                  <Suspense fallback={null}>
+                    <QaTools />
+                  </Suspense>
+                ) : null}
+                <Toaster />
+              </RouteGuard>
+            </TutorialProvider>
+          </StudioAudioProvider>
+        </MfaChallengeGate>
       </AuthProvider>
     </Router>
   );
