@@ -20,14 +20,16 @@ type GateState =
   | { status: 'error'; message: string };
 
 export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isConfigured, mode } = useAuth();
   const [gate, setGate] = useState<GateState>({ status: 'checking' });
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const inspect = useCallback(async () => {
-    if (!user) {
+    // Local demo and E2E access do not own a Supabase Auth session and must not
+    // become dependent on hosted MFA configuration.
+    if (!user || !isConfigured || mode === 'local') {
       setGate({ status: 'clear' });
       return;
     }
@@ -45,7 +47,7 @@ export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
         message: cause instanceof Error ? cause.message : 'Unable to verify MFA status.',
       });
     }
-  }, [user]);
+  }, [isConfigured, mode, user]);
 
   useEffect(() => {
     void inspect();
