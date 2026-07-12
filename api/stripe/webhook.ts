@@ -4,20 +4,20 @@ import {
   resolveUserIdFromStripeMetadata,
   upsertBillingFromSubscription,
 } from '../_lib/billingBackend';
+import {
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
 import { getStripeClient } from '../_lib/stripeClient';
 import { getInvoiceSubscriptionId } from '../_lib/stripeInvoice';
 
-type VercelRequest = {
+type WebhookRequest = {
   method?: string;
   headers?: Record<string, string | string[] | undefined>;
   body?: unknown;
   on?: (event: string, listener: (...args: unknown[]) => void) => void;
-};
-
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-  setHeader?: (name: string, value: string) => void;
 };
 
 export const config = {
@@ -42,7 +42,7 @@ function enforceBodyLimit(buffer: Buffer) {
   return buffer;
 }
 
-export async function readRawBody(req: VercelRequest): Promise<Buffer> {
+export async function readRawBody(req: WebhookRequest): Promise<Buffer> {
   const chunks: Buffer[] = [];
   let totalBytes = 0;
 
@@ -106,13 +106,15 @@ async function resolveUserId(
   return findUserIdByStripeCustomerId(customerId);
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader?.('Cache-Control', 'no-store');
-
-  if (req.method !== 'POST') {
-    res.setHeader?.('Allow', 'POST');
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export default async function handler(req: WebhookRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (
+    !enforceApiMethod(
+      req as SecureApiRequest,
+      res,
+      ['POST'],
+    )
+  ) return;
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
