@@ -10,6 +10,7 @@ import {
   MAX_AI_UPLOAD_BASE64_LENGTH,
 } from '../../src/config/aiUsage';
 import type { PlanTier } from '../../src/config/billingPlans';
+import type { Point2D } from '../../src/types';
 import { verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { resolveUserPlanTier } from '../_lib/castBackend';
 import { consumeAiQuota } from '../_lib/aiUsage';
@@ -27,6 +28,7 @@ export const MAX_SITE_DOCUMENT_REQUEST_BYTES = 25 * 1024 * 1024;
 const MAX_DOCUMENT_COUNT = 3;
 const MAX_TEXT_DOCUMENT_LENGTH = 1_000_000;
 const MAX_DESIGN_BRIEF_LENGTH = 20_000;
+const MAX_BOUNDARY_POINTS = 5_000;
 
 const documentSchema = z
   .object({
@@ -44,6 +46,25 @@ const requestSchema = z.object({
   designBrief: z.string().max(MAX_DESIGN_BRIEF_LENGTH).optional(),
   documents: z.array(documentSchema).min(1).max(MAX_DOCUMENT_COUNT),
 });
+
+function normalizeBoundaryPolygon(value: unknown): Point2D[] {
+  if (!Array.isArray(value)) return [];
+
+  const points: Point2D[] = [];
+  for (const candidate of value.slice(0, MAX_BOUNDARY_POINTS)) {
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) continue;
+    const point = candidate as Record<string, unknown>;
+    if (
+      typeof point.x === 'number' &&
+      Number.isFinite(point.x) &&
+      typeof point.y === 'number' &&
+      Number.isFinite(point.y)
+    ) {
+      points.push({ x: point.x, y: point.y });
+    }
+  }
+  return points;
+}
 
 async function parseWithGemini(
   kind: string,
@@ -156,13 +177,11 @@ export default async function handler(req: SecureApiRequest, res: SecureApiRespo
 
         if (doc.kind === 'siteSurvey') output.siteSurvey = gemini;
         if (doc.kind === 'boundaryPlan') {
-          const polygon = Array.isArray(gemini.boundaryPolygon)
-            ? gemini.boundaryPolygon
-            : [];
+          const polygon = normalizeBoundaryPolygon(gemini.boundaryPolygon);
           output.boundary = {
+            ...gemini,
             boundaryPolygon: polygon,
             ...boundaryMetricsFromPolygon(polygon),
-            ...gemini,
           };
         }
         if (doc.kind === 'councilRequirements') output.council = gemini;
