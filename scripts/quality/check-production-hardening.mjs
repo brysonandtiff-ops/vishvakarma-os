@@ -70,6 +70,12 @@ const collabServer = readRequiredFile(
 const packageText = readRequiredFile(join(root, 'package.json'), 'package.json');
 const app = readRequiredFile(join(root, 'src/App.tsx'), 'src/App.tsx');
 const main = readRequiredFile(join(root, 'src/main.tsx'), 'src/main.tsx');
+const analytics = readRequiredFile(join(root, 'src/lib/analytics.ts'), 'src/lib/analytics.ts');
+const consentAnalytics = readRequiredFile(
+  join(root, 'src/components/common/ConsentAnalytics.tsx'),
+  'src/components/common/ConsentAnalytics.tsx',
+);
+const monitoring = readRequiredFile(join(root, 'src/lib/monitoring.ts'), 'src/lib/monitoring.ts');
 const viteConfig = readRequiredFile(join(root, 'vite.config.ts'), 'vite.config.ts');
 const vercelConfig = readRequiredFile(join(root, 'vercel.json'), 'vercel.json');
 const vercelBuild = readRequiredFile(
@@ -156,8 +162,21 @@ forbidPhrase(webhookApi, 'error instanceof Error ? error.message', 'Stripe webho
 
 requirePhrase(app, 'QA_TOOLS_ENABLED', 'App QA boundary');
 requirePhrase(app, "lazy(() => import('@/components/qa/QaTools'))", 'App QA boundary');
+requirePhrase(app, '<ConsentAnalytics />', 'App analytics boundary');
+forbidPhrase(app, "import { Analytics } from '@vercel/analytics/react'", 'App analytics boundary');
 forbidPhrase(main, 'DeviceValidationPanel', 'Production entrypoint');
 forbidPhrase(main, 'vish-device-validation.css', 'Production entrypoint');
+
+requirePhrase(analytics, 'ANALYTICS_CONSENT_EVENT', 'Analytics consent policy');
+requirePhrase(analytics, "import('@vercel/analytics')", 'Analytics consent policy');
+forbidPhrase(analytics, "import { track } from '@vercel/analytics'", 'Analytics consent policy');
+requirePhrase(consentAnalytics, 'hasAnalyticsConsent', 'Consent analytics component');
+requirePhrase(consentAnalytics, "import('@vercel/analytics/react')", 'Consent analytics component');
+requirePhrase(monitoring, "import('@sentry/react')", 'Monitoring privacy policy');
+requirePhrase(monitoring, 'sendDefaultPii: false', 'Monitoring privacy policy');
+requirePhrase(monitoring, 'redactMonitoringUrl', 'Monitoring privacy policy');
+requirePhrase(monitoring, 'sanitizeMonitoringContext', 'Monitoring privacy policy');
+forbidPhrase(monitoring, "import * as Sentry from '@sentry/react'", 'Monitoring privacy policy');
 
 requirePhrase(viteConfig, 'filterEntryModulePreloads', 'Vite build configuration');
 requirePhrase(viteConfig, 'VISH_BUILD_SOURCEMAPS', 'Vite build configuration');
@@ -172,6 +191,8 @@ requirePhrase(vercelBuild, "process.env.VERCEL === '1'", 'Vercel build orchestra
 requirePhrase(vercelBuild, 'scripts/security/check-dist-security.mjs', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'api/stripe/webhook.test.ts', 'Vercel build orchestrator');
+requirePhrase(vercelBuild, 'src/test/analyticsConsent.test.tsx', 'Vercel build orchestrator');
+requirePhrase(vercelBuild, 'src/test/monitoringPrivacy.test.ts', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'pnpm run perf:gates', 'Vercel build orchestrator');
 
 requirePhrase(artifactSecurity, 'service_role', 'Artifact security scanner');
@@ -191,5 +212,5 @@ if (failures.length > 0) {
 
 console.log('Vishvakarma.OS production hardening check passed.');
 console.log(
-  'Auth providers, API origins, billing, artifact security, QA boundaries, PWA budgets, collaboration, and runtime policy are guarded.',
+  'Auth, API origins, billing, telemetry privacy, artifact security, QA boundaries, PWA budgets, collaboration, and runtime policy are guarded.',
 );
