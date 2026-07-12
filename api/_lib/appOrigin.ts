@@ -8,7 +8,10 @@ type RequestWithHeaders = IncomingMessage & {
   headers: Record<string, string | string[] | undefined>;
 };
 
-type OriginEnvironment = Pick<NodeJS.ProcessEnv, 'APP_URL' | 'VERCEL'>;
+type OriginEnvironment = {
+  APP_URL?: string;
+  VERCEL?: string;
+};
 
 const VERCEL_TEAM_SUFFIX = '-tyrasic-creations.vercel.app';
 const PROJECT_PREVIEW_PREFIXES = ['vishvakarma-', 'vishvakarma-os-'];
