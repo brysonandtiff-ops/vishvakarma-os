@@ -30,16 +30,15 @@ const STAGGER_CLASSES = ['vish-stagger-1', 'vish-stagger-2', 'vish-stagger-3'] a
 
 export default function PricingPage() {
   const { user } = useAuth();
-  const { isEnterprise, isStudio, idToken, enabled: billingEnabled } = useBilling();
-  const [checkoutLoading, setCheckoutLoading] = useState<CheckoutPlan | null>(null);
+  const { isEnterprise, isStudio, enabled: billingEnabled } = useBilling();
+  const [checkoutLoading, setCheckoutLoading] = useState<CheckoutPlan | 'portal' | null>(null);
   const workspaceTo = user ? '/editor' : '/auth';
   const stripeEnabled = STRIPE_BILLING_ENABLED && billingEnabled;
 
   const handleCheckout = async (plan: CheckoutPlan) => {
-    if (!idToken) return;
     setCheckoutLoading(plan);
     try {
-      await startCheckout(idToken, plan);
+      await startCheckout(plan);
     } catch (error) {
       console.error(`[Vishvakarma.OS] ${plan} checkout failed:`, error);
       setCheckoutLoading(null);
@@ -47,10 +46,9 @@ export default function PricingPage() {
   };
 
   const handleManageSubscription = async () => {
-    if (!idToken) return;
-    setCheckoutLoading('studio');
+    setCheckoutLoading('portal');
     try {
-      await openBillingPortal(idToken);
+      await openBillingPortal();
     } catch (error) {
       console.error('[Vishvakarma.OS] Billing portal failed:', error);
       setCheckoutLoading(null);
@@ -91,7 +89,7 @@ export default function PricingPage() {
           checkoutPlan: plan,
         };
       },
-    [checkoutLoading, isEnterprise, isStudio, stripeEnabled, user, workspaceTo]
+    [checkoutLoading, isEnterprise, isStudio, stripeEnabled, user, workspaceTo],
   );
 
   const studioCta = paidTierCta('studio', `Start ${STUDIO_TRIAL_LABEL} →`, 'studio');
@@ -129,7 +127,7 @@ export default function PricingPage() {
           external: false,
         };
       }),
-    [enterpriseCta, isEnterprise, studioCta, user, workspaceTo]
+    [enterpriseCta, isEnterprise, studioCta, user, workspaceTo],
   );
 
   const FAQ = [
@@ -218,8 +216,9 @@ export default function PricingPage() {
       <MarketingCtaSection
         user={user}
         eyebrow="Ready to start"
-        body="Begin on the free Starter tier, or start a Studio trial when you need the full Export Package."
-        secondaryLink={null}
+        title="Design with the full Vishvakarma.OS workspace."
+        body="Begin with the free blueprint editor, then unlock advanced exports and professional collaboration when your practice needs them."
+        secondaryLink={{ label: 'Explore features', to: '/features' }}
       />
     </>
   );
