@@ -47,12 +47,15 @@ const focusedTests = [
   'src/test/pwaUpdateSafety.test.ts',
   'src/test/routeCssBoundary.test.ts',
   'src/test/supabaseApiVisibility.test.ts',
+  'src/test/supabaseAuthHardeningConfig.test.ts',
   'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/supabaseAuthPolicy.test.ts',
   'src/backend/supabase/supabaseMfaGateway.test.ts',
   'src/backend/supabase/mappers.test.ts',
+  'src/components/auth/MfaChallengeGate.test.tsx',
   'src/services/billing/stripeCheckout.test.ts',
   'api/_lib/appOrigin.test.ts',
+  'api/_lib/httpSecurity.test.ts',
   'api/_lib/verifySupabaseToken.test.ts',
   'api/stripe/create-checkout-session.test.ts',
   'api/stripe/webhook.test.ts',
@@ -60,11 +63,8 @@ const focusedTests = [
 
 const steps = [
   { label: 'Lint', command: 'pnpm run lint' },
+  // hardening:gates includes the recursive API endpoint inventory.
   { label: 'Production hardening', command: 'pnpm run hardening:gates' },
-  {
-    label: 'API endpoint inventory',
-    command: 'node scripts/security/check-api-endpoints.mjs',
-  },
   {
     label: 'Focused regression tests',
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
