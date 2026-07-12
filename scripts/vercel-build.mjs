@@ -44,8 +44,12 @@ const focusedTests = [
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
   'src/test/monitoringPrivacy.test.ts',
+  'src/test/pwaUpdateSafety.test.ts',
+  'src/test/routeCssBoundary.test.ts',
+  'src/test/supabaseApiVisibility.test.ts',
   'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/supabaseAuthPolicy.test.ts',
+  'src/backend/supabase/supabaseMfaGateway.test.ts',
   'src/backend/supabase/mappers.test.ts',
   'src/services/billing/stripeCheckout.test.ts',
   'api/_lib/appOrigin.test.ts',
@@ -57,6 +61,10 @@ const focusedTests = [
 const steps = [
   { label: 'Lint', command: 'pnpm run lint' },
   { label: 'Production hardening', command: 'pnpm run hardening:gates' },
+  {
+    label: 'API endpoint inventory',
+    command: 'node scripts/security/check-api-endpoints.mjs',
+  },
   {
     label: 'Focused regression tests',
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
