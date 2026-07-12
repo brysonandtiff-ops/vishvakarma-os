@@ -1,0 +1,24 @@
+{
+  "stripe/create-checkout-session.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 32768,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "stripe/create-portal-session.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 32768,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "stripe/webhook.ts": {
+    "methods": ["POST"],
+    "auth": "stripe-signature",
+    "bodyLimitBytes": 1048576,
+    "cache": "no-store",
+    "errorExposure": "generic",
+    "publicReason": "Stripe sends signed webhook events without a user session."
+  }
+}
