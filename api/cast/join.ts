@@ -1,28 +1,29 @@
-import type { IncomingMessage } from 'node:http';
 import { joinCastByToken, resolveCollabWsUrl } from '../_lib/castBackend';
+import {
+  ApiRequestError,
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  sendApiFailure,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
 
-type VercelRequest = IncomingMessage & {
-  method?: string;
-  url?: string;
-  headers: Record<string, string | string[] | undefined>;
-};
+const CAST_TOKEN_PATTERN = /^[0-9a-f]{64}$/i;
 
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-};
+function parseToken(req: SecureApiRequest): string {
+  if (!req.url) throw new ApiRequestError(400, 'token query parameter is required');
 
-function parseToken(req: VercelRequest): string | null {
-  if (req.url) {
-    try {
-      const parsed = new URL(req.url, 'http://localhost');
-      const fromQuery = parsed.searchParams.get('token');
-      if (fromQuery) return fromQuery;
-    } catch {
-      // ignore
+  try {
+    const token = new URL(req.url, 'http://localhost').searchParams.get('token')?.trim();
+    if (!token) throw new ApiRequestError(400, 'token query parameter is required');
+    if (!CAST_TOKEN_PATTERN.test(token)) {
+      throw new ApiRequestError(404, 'Cast invitation is invalid or expired.');
     }
+    return token;
+  } catch (error) {
+    if (error instanceof ApiRequestError) throw error;
+    throw new ApiRequestError(400, 'token query parameter is invalid');
   }
-  return null;
 }
 
 function mapSession(row: Awaited<ReturnType<typeof joinCastByToken>>['session']) {
@@ -41,17 +42,12 @@ function mapSession(row: Awaited<ReturnType<typeof joinCastByToken>>['session'])
   };
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const token = parseToken(req);
-  if (!token) {
-    return res.status(400).json({ error: 'token query parameter is required' });
-  }
+export default async function handler(req: SecureApiRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (!enforceApiMethod(req, res, ['GET'])) return;
 
   try {
+    const token = parseToken(req);
     const joined = await joinCastByToken(token);
     return res.status(200).json({
       session: mapSession(joined.session),
@@ -63,8 +59,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       manifest: joined.manifest,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Cast join failed';
-    const status = message.includes('Invalid') || message.includes('expired') ? 404 : 500;
-    return res.status(status).json({ error: message });
+    const message = error instanceof Error ? error.message : '';
+    if (
+      message.includes('Invalid cast token') ||
+      message.includes('expired') ||
+      message.includes('usage limit') ||
+      message.includes('not live') ||
+      message.includes('Project not found')
+    ) {
+      return res.status(404).json({ error: 'Cast invitation is invalid or expired.' });
+    }
+    return sendApiFailure(res, error, 'cast/join', 'Cast join failed.');
   }
 }
