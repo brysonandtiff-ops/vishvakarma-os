@@ -18,13 +18,15 @@ describe('Solar Mandala visual identity', () => {
     expect(config).toContain('isVisualThemeId');
   });
 
-  it('loads the Solar Mandala stylesheet after existing theme layers', () => {
-    const main = read('src/main.tsx');
+  it('loads Solar Mandala after editor polish in the route-owned cascade', () => {
+    const editorStyles = read('src/styles/entries/editor.ts');
+    const themes = read('src/styles/entries/themes.ts');
 
-    expect(main).toContain('./styles/vish-editor-polish.css');
-    expect(main).toContain('./styles/vish-theme-solar-mandala.css');
-    expect(main.indexOf('./styles/vish-theme-solar-mandala.css')).toBeGreaterThan(
-      main.indexOf('./styles/vish-editor-polish.css'),
+    expect(themes).toContain("import '../vish-theme-solar-mandala.css'");
+    expect(editorStyles).toContain("import '../vish-editor-polish.css'");
+    expect(editorStyles).toContain("import './themes'");
+    expect(editorStyles.indexOf("import './themes'")).toBeGreaterThan(
+      editorStyles.indexOf("import '../vish-editor-polish.css'"),
     );
   });
 
