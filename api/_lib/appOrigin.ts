@@ -17,6 +17,13 @@ const VERCEL_TEAM_SUFFIX = '-tyrasic-creations.vercel.app';
 const PROJECT_PREVIEW_PREFIXES = ['vishvakarma-', 'vishvakarma-os-'];
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
+function currentOriginEnvironment(): OriginEnvironment {
+  return {
+    APP_URL: process.env.APP_URL,
+    VERCEL: process.env.VERCEL,
+  };
+}
+
 export class UntrustedAppOriginError extends Error {
   constructor() {
     super('Request origin is not allowed.');
@@ -51,7 +58,7 @@ function isProjectPreviewHost(hostname: string) {
 
 export function isTrustedAppOrigin(
   value: string | null | undefined,
-  env: OriginEnvironment = process.env,
+  env: OriginEnvironment = currentOriginEnvironment(),
 ): boolean {
   const url = parseOrigin(value);
   if (!url) return false;
@@ -86,7 +93,7 @@ function requireTrustedOrigin(
 export function resolveTrustedAppOrigin(
   req: RequestWithHeaders,
   body: Record<string, unknown> = {},
-  env: OriginEnvironment = process.env,
+  env: OriginEnvironment = currentOriginEnvironment(),
 ): string {
   const originHeader = firstHeaderValue(req.headers.origin)?.trim();
   if (originHeader) {
