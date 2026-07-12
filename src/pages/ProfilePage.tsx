@@ -6,6 +6,7 @@ import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import StatPill from '@/components/common/StatPill';
 import WorkspacePanel from '@/components/common/WorkspacePanel';
+import MfaSettingsCard from '@/components/auth/MfaSettingsCard';
 import { Button } from '@/components/ui/button';
 import { backendStatus } from '@/backend/backendConfig';
 import { STRIPE_BILLING_ENABLED } from '@/config/billingFeatures';
@@ -80,7 +81,7 @@ export default function ProfilePage() {
           zone="document"
           eyebrow="Account"
           title="Profile"
-          description="Workspace session, backend mode, and sign-out controls."
+          description="Workspace session, backend mode, security, and sign-out controls."
           stats={
             <StatPill>
               {saveLabel} · session {mode}
@@ -94,6 +95,8 @@ export default function ProfilePage() {
             <BillingBanner billing={billing} loading={billingLoading} error={billingError} />
           </WorkspacePanel>
         )}
+
+        {user && isConfigured && <MfaSettingsCard />}
 
         <WorkspacePanel title="Studio audio" description="Workspace sound feedback and ambience.">
           <StudioAudioSettings />
