@@ -4,9 +4,13 @@ import { describe, expect, it } from 'vitest';
 
 function listSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.isDirectory() && entry.name === 'test') return [];
+
     const entryPath = path.join(directory, entry.name);
     if (entry.isDirectory()) return listSourceFiles(entryPath);
-    return /\.[cm]?[jt]sx?$/.test(entry.name) ? [entryPath] : [];
+    if (!/\.[cm]?[jt]sx?$/.test(entry.name)) return [];
+    if (/\.(?:test|spec)\.[cm]?[jt]sx?$/.test(entry.name)) return [];
+    return [entryPath];
   });
 }
 
@@ -26,12 +30,12 @@ describe('Supabase API visibility', () => {
       path.join(process.cwd(), 'package.json'),
       'utf8',
     );
-    const source = listSourceFiles(path.join(process.cwd(), 'src'))
+    const productionSource = listSourceFiles(path.join(process.cwd(), 'src'))
       .map((file) => readFileSync(file, 'utf8'))
       .join('\n');
 
     expect(packageJson).not.toMatch(/"(?:graphql|@apollo\/client|urql)"\s*:/);
-    expect(source).not.toContain('/graphql/v1');
-    expect(source).not.toContain('ApolloClient');
+    expect(productionSource).not.toContain('/graphql/v1');
+    expect(productionSource).not.toContain('ApolloClient');
   });
 });
