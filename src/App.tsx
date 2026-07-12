@@ -9,12 +9,12 @@ import { TutorialProvider } from '@/tutorial/TutorialProvider';
 import { StudioAudioProvider } from '@/modules/studio-audio/StudioAudioProvider';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
+import ConsentAnalytics from '@/components/common/ConsentAnalytics';
 import VisualThemeController from '@/components/common/VisualThemeController';
 import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
-import { Analytics } from '@vercel/analytics/react';
 import { AppRoutes } from '@/AppRoutes';
 import { QA_TOOLS_ENABLED } from '@/config/qaTools';
 
@@ -41,6 +41,7 @@ const App: React.FC = () => {
               <EmptyCanvasGuidedStart />
               <VisualThemeController />
               <AnalyticsConsentBanner />
+              <ConsentAnalytics />
               <MantraPlayerWidget />
               <VoiceGuidedTour />
               {QaTools ? (
@@ -48,7 +49,6 @@ const App: React.FC = () => {
                   <QaTools />
                 </Suspense>
               ) : null}
-              <Analytics />
               <Toaster />
             </RouteGuard>
           </TutorialProvider>
