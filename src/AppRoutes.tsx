@@ -30,11 +30,7 @@ function lazyStyledPage(
 const loadMarketingStyles = () => import('@/styles/entries/marketing');
 const loadAuthStyles = () => import('@/styles/entries/auth');
 const loadWorkspaceStyles = () => import('@/styles/entries/workspace');
-const loadEditorStyles = () =>
-  Promise.all([
-    import('@/styles/entries/workspace'),
-    import('@/styles/entries/editor'),
-  ]);
+const loadEditorStyles = () => import('@/styles/entries/editor');
 
 // Route-owned CSS is imported with each lazy page family. Landing and auth users
 // no longer download editor, 3D, or governance styles during initial startup.
