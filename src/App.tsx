@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { RouteGuard } from '@/components/common/RouteGuard';
+import PwaUpdateBanner from '@/components/common/PwaUpdateBanner';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TutorialProvider } from '@/tutorial/TutorialProvider';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
               <ConsentAnalytics />
               <MantraPlayerWidget />
               <VoiceGuidedTour />
+              <PwaUpdateBanner />
               {QaTools ? (
                 <Suspense fallback={null}>
                   <QaTools />
