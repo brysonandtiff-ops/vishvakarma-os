@@ -29,7 +29,7 @@ export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
   const inspect = useCallback(async () => {
     // Local demo and E2E access do not own a Supabase Auth session and must not
     // become dependent on hosted MFA configuration.
-    if (!user || !isConfigured || mode === 'local') {
+    if (!user || !isConfigured || mode === 'local-only') {
       setGate({ status: 'clear' });
       return;
     }
