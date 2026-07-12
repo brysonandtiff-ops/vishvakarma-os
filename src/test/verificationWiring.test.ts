@@ -25,7 +25,8 @@ describe('verification command wiring', () => {
     expect(pkg.scripts['production:functional-proof']).toBe(
       'node scripts/production/generate-functional-proof.mjs',
     );
-    expect(pkg.scripts['perf:gates']).toBe('node scripts/performance/check-bundle-budget.mjs');
+    expect(pkg.scripts['perf:gates']).toContain('check-bundle-budget.mjs');
+    expect(pkg.scripts['perf:gates']).toContain('check-pwa-precache.mjs');
     expect(pkg.scripts['stability:gates']).toContain('check-monitoring.mjs');
 
     const verifySteps = pipeline.tiers.verify.steps;
