@@ -1,43 +1,47 @@
-import type { IncomingMessage } from 'node:http';
 import {
   assertProjectAccess,
   createCastSession,
   endCastSession,
   resolveCollabWsUrl,
   resolveUserPlanTier,
+  type CastInviteRole,
 } from '../_lib/castBackend';
-import { verifySupabaseTokenFromRequest } from '../_lib/verifySupabaseToken';
+import { verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
+import {
+  ApiRequestError,
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  parseBoundedJsonBody,
+  sendApiFailure,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
+import {
+  resolveTrustedAppOrigin,
+  UntrustedAppOriginError,
+} from '../_lib/appOrigin';
 
-type VercelRequest = IncomingMessage & {
-  method?: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-};
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const INVITE_ROLES = new Set<CastInviteRole>([
+  'viewer',
+  'family',
+  'council_reviewer',
+]);
 
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-};
-
-function parseJsonBody(req: VercelRequest): Record<string, unknown> {
-  if (!req.body) return {};
-  if (typeof req.body === 'string') {
-    try {
-      return JSON.parse(req.body) as Record<string, unknown>;
-    } catch {
-      return {};
-    }
+function requireUuid(value: unknown, field: string): string {
+  if (typeof value !== 'string' || !UUID_PATTERN.test(value.trim())) {
+    throw new ApiRequestError(400, `${field} is invalid`);
   }
-  if (typeof req.body === 'object') {
-    return req.body as Record<string, unknown>;
-  }
-  return {};
+  return value.trim();
 }
 
-function resolveAppOrigin(req: VercelRequest): string {
-  const originHeader = req.headers.origin;
-  if (typeof originHeader === 'string' && originHeader) return originHeader;
-  return process.env.APP_URL?.trim() || 'https://vishvakarma-os.app';
+function parseInviteRole(value: unknown): CastInviteRole {
+  if (value === undefined) return 'viewer';
+  if (typeof value !== 'string' || !INVITE_ROLES.has(value as CastInviteRole)) {
+    throw new ApiRequestError(400, 'inviteRole is invalid');
+  }
+  return value as CastInviteRole;
 }
 
 function mapSession(row: Awaited<ReturnType<typeof createCastSession>>['session']) {
@@ -56,34 +60,34 @@ function mapSession(row: Awaited<ReturnType<typeof createCastSession>>['session'
   };
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const user = await verifySupabaseTokenFromRequest(req);
+export default async function handler(req: SecureApiRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (!enforceApiMethod(req, res, ['POST', 'DELETE'])) return;
+
+  const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const tier = await resolveUserPlanTier(user.uid, user.email);
-  if (tier === 'starter') {
-    return res.status(403).json({ error: 'Akasha Cast requires Studio or Enterprise plan' });
-  }
+  try {
+    const tier = await resolveUserPlanTier(user.uid, user.email);
+    if (tier === 'starter') {
+      return res.status(403).json({
+        error: 'Akasha Cast requires Studio or Enterprise plan',
+      });
+    }
 
-  if (req.method === 'POST') {
-    try {
-      const body = parseJsonBody(req);
-      const projectId = typeof body.projectId === 'string' ? body.projectId : '';
-      if (!projectId) {
-        return res.status(400).json({ error: 'projectId is required' });
-      }
+    const body = parseBoundedJsonBody(req);
+
+    if (req.method === 'POST') {
+      const projectId = requireUuid(body.projectId, 'projectId');
+      const inviteRole = parseInviteRole(body.inviteRole);
 
       await assertProjectAccess(user.uid, projectId);
-
-      const inviteRole =
-        body.inviteRole === 'family' || body.inviteRole === 'council_reviewer'
-          ? body.inviteRole
-          : 'viewer';
-
       if (inviteRole !== 'viewer' && tier !== 'enterprise') {
-        return res.status(403).json({ error: 'Role-scoped invites require Enterprise plan' });
+        return res.status(403).json({
+          error: 'Role-scoped invites require Enterprise plan',
+        });
       }
 
       const { session, token } = await createCastSession({
@@ -91,35 +95,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         projectId,
         inviteRole,
       });
+      const origin = resolveTrustedAppOrigin(req, body);
 
-      const origin = resolveAppOrigin(req);
       return res.status(200).json({
         session: mapSession(session),
         token,
         shareUrl: `${origin}/cast/${token}`,
         wsUrl: resolveCollabWsUrl(),
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create cast session';
-      return res.status(500).json({ error: message });
     }
-  }
 
-  if (req.method === 'DELETE') {
-    try {
-      const body = parseJsonBody(req);
-      const sessionId = typeof body.sessionId === 'string' ? body.sessionId : '';
-      if (!sessionId) {
-        return res.status(400).json({ error: 'sessionId is required' });
-      }
-
-      await endCastSession(sessionId, user.uid);
-      return res.status(200).json({ ok: true });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to end cast session';
-      return res.status(500).json({ error: message });
+    const sessionId = requireUuid(body.sessionId, 'sessionId');
+    await endCastSession(sessionId, user.uid);
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    if (error instanceof UntrustedAppOriginError) {
+      return res.status(403).json({ error: error.message });
     }
-  }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+    const message = error instanceof Error ? error.message : '';
+    if (message === 'Forbidden') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (
+      message.includes('not found') ||
+      message.includes('not found or forbidden')
+    ) {
+      return res.status(404).json({ error: 'Cast session was not found.' });
+    }
+
+    return sendApiFailure(
+      res,
+      error,
+      'cast/sessions',
+      req.method === 'DELETE'
+        ? 'Failed to end cast session.'
+        : 'Failed to create cast session.',
+    );
+  }
 }
