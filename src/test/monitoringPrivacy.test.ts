@@ -35,8 +35,9 @@ describe('monitoring privacy', () => {
 
   it('truncates oversized diagnostic strings', () => {
     const context = sanitizeMonitoringContext({ detail: 'x'.repeat(600) });
-    expect(String(context?.detail)).toHaveLength(501);
-    expect(String(context?.detail)).toEndWith('…');
+    const detail = String(context?.detail);
+    expect(detail).toHaveLength(501);
+    expect(detail.endsWith('…')).toBe(true);
   });
 
   it('keeps Sentry behind a dynamic production-only import', () => {
