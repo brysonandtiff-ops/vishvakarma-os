@@ -54,6 +54,7 @@ const focusedTests = [
   'src/backend/supabase/mappers.test.ts',
   'src/components/auth/MfaChallengeGate.test.tsx',
   'src/services/billing/stripeCheckout.test.ts',
+  'api/endpointHandlers.test.ts',
   'api/_lib/appOrigin.test.ts',
   'api/_lib/httpSecurity.test.ts',
   'api/_lib/verifySupabaseToken.test.ts',
@@ -69,6 +70,7 @@ const steps = [
     label: 'Focused regression tests',
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
   },
+  { label: 'Full unit suite', command: 'pnpm run test' },
   { label: 'Production build', command: 'pnpm run build' },
   {
     label: 'Artifact security',
