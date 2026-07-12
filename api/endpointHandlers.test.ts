@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   SecureApiRequest,
   SecureApiResponse,
@@ -77,13 +77,28 @@ function expectStatus(
   expect(result.headers.get('Cache-Control')).toContain('no-store');
 }
 
+const previousSupabaseUrl = process.env.SUPABASE_URL;
+const previousServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 describe('serverless endpoint security boundaries', () => {
   beforeEach(() => {
-    for (const mock of Object.values(mocks)) {
-      if ('mockReset' in mock) mock.mockReset();
-    }
-    mocks.resolveCollabWsUrl.mockReturnValue('');
+    mocks.verifyAuthTokenFromRequest.mockReset();
+    mocks.joinCastByToken.mockReset();
+    mocks.resolveUserPlanTier.mockReset();
+    mocks.fetchCastEvidence.mockReset();
+    mocks.assertProjectAccess.mockReset();
+    mocks.createCastSession.mockReset();
+    mocks.endCastSession.mockReset();
+    mocks.resolveCollabWsUrl.mockReset().mockReturnValue('');
+    mocks.consumeAiQuota.mockReset();
     delete process.env.GEMINI_API_KEY;
+  });
+
+  afterEach(() => {
+    if (previousSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = previousSupabaseUrl;
+    if (previousServiceRole === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    else process.env.SUPABASE_SERVICE_ROLE_KEY = previousServiceRole;
   });
 
   it.each([
@@ -99,16 +114,24 @@ describe('serverless endpoint security boundaries', () => {
   });
 
   it.each([
-    ['cast evidence', castEvidence, '/api/cast/evidence?sessionId=00000000-0000-4000-8000-000000000000'],
-    ['cast sessions', castSessions, '/api/cast/sessions'],
-  ] as const)('rejects unauthenticated %s requests', async (_label, handler, url) => {
-    mocks.verifyAuthTokenFromRequest.mockResolvedValue(null);
-    const result = response();
+    [
+      'cast evidence',
+      castEvidence,
+      'GET',
+      '/api/cast/evidence?sessionId=00000000-0000-4000-8000-000000000000',
+    ],
+    ['cast sessions', castSessions, 'POST', '/api/cast/sessions'],
+  ] as const)(
+    'rejects unauthenticated %s requests',
+    async (_label, handler, method, url) => {
+      mocks.verifyAuthTokenFromRequest.mockResolvedValue(null);
+      const result = response();
 
-    await handler(request({ method: 'GET', url }), result.res);
+      await handler(request({ method, url, body: {} }), result.res);
 
-    expectStatus(result, 401);
-  });
+      expectStatus(result, 401);
+    },
+  );
 
   it('rejects malformed public cast tokens before database work', async () => {
     const result = response();
@@ -123,8 +146,6 @@ describe('serverless endpoint security boundaries', () => {
   });
 
   it('returns a minimal healthy response without provider configuration details', () => {
-    const previousUrl = process.env.SUPABASE_URL;
-    const previousKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     process.env.SUPABASE_URL = 'https://project.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'configured-for-test';
 
@@ -135,11 +156,6 @@ describe('serverless endpoint security boundaries', () => {
     const body = result.json.mock.calls[0]?.[0] as Record<string, unknown>;
     expect(body).toMatchObject({ ok: true, service: 'vishvakarma-os' });
     expect(body).not.toHaveProperty('checks');
-
-    if (previousUrl === undefined) delete process.env.SUPABASE_URL;
-    else process.env.SUPABASE_URL = previousUrl;
-    if (previousKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-    else process.env.SUPABASE_SERVICE_ROLE_KEY = previousKey;
   });
 
   it('rejects unsupported methods consistently', async () => {
