@@ -43,6 +43,7 @@ const focusedTests = [
   'src/test/vercelBuildGate.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/backend/supabase/supabaseAuthCallback.test.ts',
+  'src/backend/supabase/supabaseAuthPolicy.test.ts',
   'src/backend/supabase/mappers.test.ts',
   'src/services/billing/stripeCheckout.test.ts',
   'api/_lib/appOrigin.test.ts',
