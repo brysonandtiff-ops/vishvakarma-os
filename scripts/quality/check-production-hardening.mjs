@@ -149,7 +149,7 @@ for (const [content, label] of [
   [portalApi, 'Stripe portal API'],
 ]) {
   requirePhrase(content, 'resolveTrustedAppOrigin', label);
-  requirePhrase(content, "res.setHeader?.('Cache-Control', 'no-store')", label);
+  requirePhrase(content, 'applyApiSecurityHeaders', label);
   requirePhrase(content, 'UntrustedAppOriginError', label);
   forbidPhrase(content, 'const fromBody', label);
 }
@@ -157,7 +157,7 @@ requirePhrase(checkoutApi, 'EXISTING_SUBSCRIPTION_STATUSES', 'Stripe checkout AP
 requirePhrase(checkoutApi, 'idempotencyKey', 'Stripe checkout API');
 requirePhrase(webhookApi, 'MAX_STRIPE_WEBHOOK_BYTES', 'Stripe webhook API');
 requirePhrase(webhookApi, 'StripeWebhookPayloadTooLargeError', 'Stripe webhook API');
-requirePhrase(webhookApi, "res.setHeader?.('Cache-Control', 'no-store')", 'Stripe webhook API');
+requirePhrase(webhookApi, 'applyApiSecurityHeaders', 'Stripe webhook API');
 forbidPhrase(webhookApi, 'error instanceof Error ? error.message', 'Stripe webhook API');
 
 requirePhrase(app, 'QA_TOOLS_ENABLED', 'App QA boundary');
