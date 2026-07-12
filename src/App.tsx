@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import { RouteGuard } from '@/components/common/RouteGuard';
+import EditorPwaReloadBlocker from '@/components/common/EditorPwaReloadBlocker';
 import PwaUpdateBanner from '@/components/common/PwaUpdateBanner';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -32,6 +33,7 @@ const App: React.FC = () => {
         <StudioAudioProvider>
           <TutorialProvider>
             <RouteGuard>
+              <EditorPwaReloadBlocker />
               <IntersectObserver />
               <div className="flex min-h-[100dvh] flex-col overflow-hidden">
                 <AppErrorBoundary title="Workspace failed to render">
