@@ -45,10 +45,23 @@ export function enforceApiMethod(
   return false;
 }
 
+function serializeJsonBody(value: unknown): string {
+  try {
+    const serialized = JSON.stringify(value ?? {});
+    if (typeof serialized !== 'string') {
+      throw new ApiRequestError(400, 'Request body must be JSON serializable.');
+    }
+    return serialized;
+  } catch (error) {
+    if (error instanceof ApiRequestError) throw error;
+    throw new ApiRequestError(400, 'Request body must be JSON serializable.');
+  }
+}
+
 function byteLength(value: unknown) {
   if (typeof value === 'string') return Buffer.byteLength(value);
   if (Buffer.isBuffer(value)) return value.byteLength;
-  return Buffer.byteLength(JSON.stringify(value ?? {}));
+  return Buffer.byteLength(serializeJsonBody(value));
 }
 
 export function parseBoundedJsonBody(
