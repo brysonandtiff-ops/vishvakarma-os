@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
     user: { uid: 'user-1', email: 'architect@firm.com' },
     signOut: vi.fn(),
     isConfigured: true,
-    mode: 'supabase',
+    mode: 'connected' as 'connected' | 'local-only',
   },
   getMfaStatus: vi.fn(),
   verifyTotpFactor: vi.fn(),
@@ -26,14 +26,14 @@ describe('MfaChallengeGate', () => {
   beforeEach(() => {
     mocks.auth.user = { uid: 'user-1', email: 'architect@firm.com' };
     mocks.auth.isConfigured = true;
-    mocks.auth.mode = 'supabase';
+    mocks.auth.mode = 'connected';
     mocks.auth.signOut.mockReset();
     mocks.getMfaStatus.mockReset();
     mocks.verifyTotpFactor.mockReset();
   });
 
   it('bypasses hosted MFA checks for local sessions', async () => {
-    mocks.auth.mode = 'local';
+    mocks.auth.mode = 'local-only';
 
     render(
       <MfaChallengeGate>
