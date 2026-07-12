@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { resolveSupabaseSessionForApi } from '@/backend/supabase/supabaseAuthGateway';
+import { getSupabaseAccessToken } from '@/backend/supabase/supabaseAccessToken';
 import { getCastSessionManager } from '@/cast/CastSessionManager';
 import type { CastChronoState, CastIntentEvent, CastLensState } from '@/cast/types';
 import type { ProjectManifest } from '@/types';
+
+async function requireSupabaseAccessToken() {
+  const token = await getSupabaseAccessToken();
+  if (!token) {
+    throw new Error('Your secure Supabase session is unavailable. Sign in again and retry.');
+  }
+  return token;
+}
 
 export function useCastSession() {
   const manager = useMemo(() => getCastSessionManager(), []);
@@ -43,16 +51,13 @@ export function useCastSession() {
     }) => {
       const result = await manager.startPresenter({
         ...options,
-        getIdToken: async () => {
-          const session = await resolveSupabaseSessionForApi();
-          return session.idToken;
-        },
+        getIdToken: requireSupabaseAccessToken,
       });
       setShareUrl(result.shareUrl);
       setLive(true);
       return result;
     },
-    [manager]
+    [manager],
   );
 
   const stopCast = useCallback(async () => {
@@ -133,7 +138,7 @@ export function useCastViewer(options: {
       setFollowPresenter(value);
       manager.setFollowPresenter(value);
     },
-    [manager]
+    [manager],
   );
 
   return {
