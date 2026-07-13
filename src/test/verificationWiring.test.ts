@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -40,22 +40,15 @@ describe('verification command wiring', () => {
     expect(verifyCiSteps).toContain('pnpm run test:routes');
   });
 
-  it('keeps GitHub verification workflow enforcing security, evidence, tests, route smoke, and build', () => {
-    const workflow = read('.github/workflows/verify.yml');
+  it('enforces local-only verification with no executable GitHub workflows', () => {
+    const workflowDirectory = resolve(repoRoot, '.github/workflows');
+    const entries = existsSync(workflowDirectory) ? readdirSync(workflowDirectory) : [];
+    const executableWorkflows = entries.filter((entry) => /\.ya?ml$/i.test(entry));
 
-    expect(workflow).toContain('pnpm install --frozen-lockfile');
-    expect(workflow).toContain('pnpm run lint');
-    expect(workflow).toContain('node scripts/quality/check-vercel-security.mjs');
-    expect(workflow).toContain('pnpm run flawless:gates');
-    expect(workflow).toContain('pnpm run stability:gates');
-    expect(workflow).toContain('pnpm run launch:evidence');
-    expect(workflow).toContain('pnpm run test:coverage');
-    expect(workflow).toContain('pnpm run test:routes');
-    expect(workflow).toContain('pnpm run build');
-    expect(workflow).toContain('pnpm run perf:gates');
-    expect(workflow).toContain('pnpm run record:measure');
-    expect(workflow).toContain('pnpm run test:e2e');
-    expect(workflow).toMatch(/actions\/upload-artifact@[\da-f]{40} # v4\.6\.2/);
-    expect(workflow).toContain('name: vishvakarma-os-dist');
+    expect(executableWorkflows).toEqual([]);
+    const policy = read('.github/workflows/README.md');
+    expect(policy).toContain('GitHub Actions is intentionally not used');
+    expect(policy).toContain('Run `pnpm run lint`');
+    expect(policy).toContain('never from GitHub Actions');
   });
 });

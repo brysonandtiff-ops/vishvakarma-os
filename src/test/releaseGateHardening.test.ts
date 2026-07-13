@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -61,22 +61,18 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('keeps Core CI aligned with install, hardening, artifact, performance, and test gates', () => {
-    const ci = readRepoFile('.github', 'workflows', 'ci.yml');
+  it('keeps verification local and rejects executable GitHub workflows', () => {
+    const workflowDirectory = path.join(repoRoot, '.github', 'workflows');
+    const entries = existsSync(workflowDirectory) ? readdirSync(workflowDirectory) : [];
+    const executableWorkflows = entries.filter((entry) => /\.ya?ml$/i.test(entry));
+    const policy = readRepoFile('.github', 'workflows', 'README.md');
 
-    expectContainsAll(ci, [
-      'name: Core CI',
-      'permissions:',
-      'contents: read',
-      'pnpm install --frozen-lockfile',
-      'pnpm run lint',
+    expect(executableWorkflows).toEqual([]);
+    expectContainsAll(policy, [
+      'GitHub Actions is intentionally not used',
       'pnpm run hardening:gates',
-      'pnpm run build',
-      'name: Artifact security',
-      'check-dist-security.mjs',
-      'name: Performance budgets',
-      'pnpm run perf:gates',
-      'pnpm run test',
+      'relevant Playwright/QE commands',
+      'never from GitHub Actions',
     ]);
   });
 
