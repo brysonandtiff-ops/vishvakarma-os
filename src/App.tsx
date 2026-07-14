@@ -19,9 +19,8 @@ import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
 import { AppRoutes } from '@/AppRoutes';
-import { QA_TOOLS_ENABLED } from '@/config/qaTools';
 
-const QaTools = QA_TOOLS_ENABLED
+const QaTools = __VISH_QA_TOOLS_ENABLED__
   ? lazy(() => import('@/components/qa/QaTools'))
   : null;
 
