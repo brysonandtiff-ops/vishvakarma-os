@@ -36,8 +36,15 @@ function filterEntryModulePreloads(dependencies: string[], hostType: 'html' | 'j
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ command, mode }) => ({
   envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
+  define: {
+    __VISH_QA_TOOLS_ENABLED__: JSON.stringify(
+      command === 'serve' ||
+        mode.startsWith('e2e') ||
+        process.env.VITE_ENABLE_QA_TOOLS === 'true',
+    ),
+  },
   plugins: [
     react(),
     svgr({
@@ -193,7 +200,6 @@ export default defineConfig(({ mode }) => ({
             normalizedId.includes('/node_modules/scheduler/')
           ) return 'vendor-react';
           // R1.4: Split vendor-misc into named chunks for better long-term cache efficiency.
-          // Each group changes at a different rate, so they can be cached independently.
           if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
