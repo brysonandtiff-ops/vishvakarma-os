@@ -2,23 +2,7 @@
  * Collaboration Engine Tests
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-vi.mock('@/backend/backendConfig', async () => {
-  const actual = await vi.importActual<typeof import('@/backend/backendConfig')>(
-    '@/backend/backendConfig',
-  );
-
-  return {
-    ...actual,
-    backendStatus: {
-      ...actual.backendStatus,
-      isConfigured: false,
-      mode: 'local-only' as const,
-    },
-  };
-});
-
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   CollaborationEngine,
   getCollaborationEngine,
