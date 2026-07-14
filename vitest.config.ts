@@ -69,5 +69,6 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify('test'),
+    __VISH_QA_TOOLS_ENABLED__: JSON.stringify(false),
   },
 });
