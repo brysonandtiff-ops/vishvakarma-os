@@ -50,4 +50,20 @@ describe('backendConfig', () => {
     expect(status.mode).toBe('connected');
     expect(status.configurationError).toBeNull();
   });
+
+  it('forces standard unit-test environments onto the local backend', () => {
+    const status = getBackendStatus({
+      MODE: 'test',
+      VITE_SUPABASE_URL: 'https://jyocvwipthswfcmvqgqe.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'sb_publishable_test',
+    });
+
+    expect(status).toMatchObject({
+      provider: 'supabase',
+      isConfigured: false,
+      mode: 'local-only',
+      missingKeys: [],
+    });
+    expect(status.configurationError).toContain('disabled during unit tests');
+  });
 });
