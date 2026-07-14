@@ -37,11 +37,16 @@ describe('route CSS boundaries', () => {
     const marketing = readRepoFile('src', 'styles', 'entries', 'marketing.ts');
     const auth = readRepoFile('src', 'styles', 'entries', 'auth.ts');
     const workspace = readRepoFile('src', 'styles', 'entries', 'workspace.ts');
+    const workspaceBase = readRepoFile('src', 'styles', 'entries', 'workspace-base.ts');
+    const themes = readRepoFile('src', 'styles', 'entries', 'themes.ts');
     const editor = readRepoFile('src', 'styles', 'entries', 'editor.ts');
 
     expect(marketing).toContain("import '../vish-marketing.css'");
     expect(auth).toContain("import '../vish-auth-gate.css'");
-    expect(workspace).toContain("import '../vish-workspace-shell.css'");
+    expect(workspace).toContain("import './workspace-base'");
+    expect(workspace).toContain("import './themes'");
+    expect(workspaceBase).toContain("import '../vish-workspace-shell.css'");
+    expect(themes).toContain("import '../vish-theme-solar-mandala.css'");
     expect(editor).toContain("import '../vish-editor-chrome.css'");
     expect(editor).toContain("import '../../ipad-workspace.css'");
   });
