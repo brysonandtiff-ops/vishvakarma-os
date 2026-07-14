@@ -2,7 +2,23 @@
  * Collaboration Engine Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/backend/backendConfig', async () => {
+  const actual = await vi.importActual<typeof import('@/backend/backendConfig')>(
+    '@/backend/backendConfig',
+  );
+
+  return {
+    ...actual,
+    backendStatus: {
+      ...actual.backendStatus,
+      isConfigured: false,
+      mode: 'local-only' as const,
+    },
+  };
+});
+
 import {
   CollaborationEngine,
   getCollaborationEngine,
@@ -88,7 +104,6 @@ describe('CollaborationEngine', () => {
       engine.subscribe(msg => messages.push(msg));
 
       engine.broadcastOperation('add-wall', 'wall-1', 'wall', { x: 0, y: 0 });
-
       expect(messages).toHaveLength(1);
       expect(messages[0].type).toBe('operation');
 
