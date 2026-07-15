@@ -175,7 +175,8 @@
   flex: 0 0 auto;
 }
 
-[data-testid='lite-editor-page'] > div:nth-of-type(2) {
+[data-testid='lite-editor-page'] > div:nth-of-type(2),
+[data-testid='lite-editor-page'] section.flex-1 {
   height: auto !important;
   min-height: 0;
   flex: 1 1 auto;
@@ -183,6 +184,7 @@
 
 @media (max-width: 1279px) {
   [data-testid='lite-editor-page'] section > .flex.min-h-0.flex-1 {
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
