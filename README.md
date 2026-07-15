@@ -21,11 +21,15 @@ pnpm run dev
 
 ## Verification policy
 
-GitHub Actions is intentionally disabled by owner policy. Release verification is run locally and recorded under `docs/release/evidence/`; Vercel remains the deployment status provider.
+The allow-listed `.github/workflows/production-certification.yml` workflow certifies every `main` SHA with hosted Auth hardening, Chromium/Firefox/WebKit E2E, accessibility, editor performance, production-auth verification, and strict release evidence gates. Vercel separately verifies the production build.
 
 ```bash
 pnpm run verify:ci
-pnpm run test:e2e
+PLAYWRIGHT_BROWSERS=all pnpm run test:e2e
+pnpm run test:e2e:a11y
+pnpm run test:e2e:perf
 pnpm run release:gates:strict
 pnpm run launch:evidence:strict
 ```
+
+Phone MFA remains an explicit paid-control exception until an SMS provider, recovery flow, and recurring Advanced MFA Phone cost are approved. TOTP and leaked-password protection are required controls.
