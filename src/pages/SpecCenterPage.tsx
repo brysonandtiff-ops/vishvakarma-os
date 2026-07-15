@@ -1,4 +1,3 @@
-import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Spec Center page - displays locked specifications with hash verification
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

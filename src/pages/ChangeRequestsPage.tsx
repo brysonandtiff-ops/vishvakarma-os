@@ -1,4 +1,3 @@
-import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Change Requests Page - Structured change management workflow
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { Plus, GitPullRequest, Check, X, Clock, AlertTriangle, ArrowUp, Minus, AlertCircle } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';

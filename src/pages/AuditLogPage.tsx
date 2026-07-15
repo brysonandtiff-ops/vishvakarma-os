@@ -1,14 +1,12 @@
-import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 // Audit Log Page - System audit trail with timeline display
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
+import { History, FileText, Database, GitPullRequest, Package, FolderOpen, RefreshCw, ArrowRight, ChevronRight } from 'lucide-react';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import PageStateBlock from '@/components/common/PageStateBlock';
-import PageToolbar from '@/components/common/PageToolbar';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import WorkspacePanel from '@/components/common/WorkspacePanel';
 import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';

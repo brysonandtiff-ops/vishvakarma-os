@@ -1,5 +1,5 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
-/// <reference path="../three.d.ts" />
+/// <reference path="../../three.d.ts" />
 import React, { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';

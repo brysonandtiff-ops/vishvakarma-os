@@ -2,15 +2,11 @@
 // Vishvakarma.OS — iPad-first blueprint editor workspace
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import PageMeta from '@/components/common/PageMeta';
-import { roomTypeLabel, ROOM_TYPES, type RoomType } from '@/domain/rooms/roomType';
+import { roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
 import { Box, SlidersHorizontal } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
 import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
@@ -72,7 +68,6 @@ import {
   clearLocalDraft,
   hasMeaningfulDraftContent,
   readLocalDraft,
-  saveLocalDraft,
   scheduleLocalDraftSave,
   type LocalDraftPayload,
 } from '@/editor/localDraft';

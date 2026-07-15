@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import {
@@ -47,8 +46,6 @@ export default function ReleasesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedGates, setExpandedGates] = useState<Set<string>>(new Set());
-  const [showStopShipViolations, setShowStopShipViolations] = useState(false); // State for Stop-Ship Violations visibility
-
   useEffect(() => {
     loadReleases();
   }, []);
@@ -74,10 +71,6 @@ export default function ReleasesPage() {
       else next.add(id);
       return next;
     });
-  }
-
-  function toggleStopShipViolations() {
-    setShowStopShipViolations((prev) => !prev);
   }
 
   // Release gates — aligned with scripts/verify-all.js via gate-manifest.json

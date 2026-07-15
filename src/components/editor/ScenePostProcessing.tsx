@@ -1,4 +1,4 @@
-/// <reference path="../three.d.ts" />
+/// <reference path="../../three.d.ts" />
 import { useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import {
