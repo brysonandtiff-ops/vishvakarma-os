@@ -1,0 +1,12 @@
+revoke all privileges on table public.billing from anon;
+revoke all privileges on table public.cast_events from anon;
+revoke all privileges on table public.cast_invites from anon;
+revoke all privileges on table public.cast_sessions from anon;
+revoke all privileges on table public.change_requests from anon;
+revoke all privileges on table public.optimization_batches from anon;
+revoke all privileges on table public.profiles from anon;
+revoke all privileges on table public.projects from anon;
+revoke all privileges on table public.registry from anon;
+revoke all privileges on table public.releases from anon;
+revoke all privileges on table public.route_manifest from anon;
+revoke all privileges on table public.specs from anon;
