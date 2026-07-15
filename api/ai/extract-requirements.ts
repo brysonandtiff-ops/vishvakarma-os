@@ -1,27 +1,30 @@
-import type { IncomingMessage } from 'node:http';
 import { buildingRequestSchema } from '../../src/ai/building-designer/prompts/outputSchema';
 import {
   EXTRACT_REQUIREMENTS_SYSTEM,
   buildExtractUserPrompt,
 } from '../../src/ai/building-designer/prompts/extractRequirements';
-import { parseRequirementsFallback, normalizeBuildingRequest } from '../../src/ai/building-designer/generators/requirementsExtractor';
+import {
+  parseRequirementsFallback,
+  normalizeBuildingRequest,
+} from '../../src/ai/building-designer/generators/requirementsExtractor';
 import type { PlanTier } from '../../src/config/billingPlans';
-import { verifySupabaseTokenFromRequest } from '../_lib/verifySupabaseToken';
+import { verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { resolveUserPlanTier } from '../_lib/castBackend';
 import { consumeAiQuota } from '../_lib/aiUsage';
+import {
+  ApiRequestError,
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  parseBoundedJsonBody,
+  sendApiFailure,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
 
-type VercelRequest = IncomingMessage & {
-  method?: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-};
+export const MAX_EXTRACT_REQUIREMENTS_BODY_BYTES = 64 * 1024;
+const MAX_PROMPT_LENGTH = 20_000;
 
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-};
-
-async function extractWithGemini(prompt: string, parcelOverride?: Record<string, unknown>) {
+async function extractWithGemini(prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
@@ -38,35 +41,50 @@ async function extractWithGemini(prompt: string, parcelOverride?: Record<string,
     { text: buildExtractUserPrompt(prompt) },
   ]);
 
-  const text = result.response.text();
-  const parsed = JSON.parse(text);
+  const parsed = JSON.parse(result.response.text()) as unknown;
   const validated = buildingRequestSchema.safeParse(parsed);
   if (!validated.success) return null;
   return normalizeBuildingRequest(validated.data);
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+function parseRequest(body: Record<string, unknown>) {
+  if (typeof body.prompt !== 'string') {
+    throw new ApiRequestError(400, 'prompt is required');
   }
 
-  // Server-side Gemini is for authenticated users only. Unauthenticated callers get a
-  // 401 and fall back to the in-browser local parser — no anonymous Gemini cost.
-  const user = await verifySupabaseTokenFromRequest(req);
+  const prompt = body.prompt.trim();
+  if (!prompt) throw new ApiRequestError(400, 'prompt is required');
+  if (prompt.length > MAX_PROMPT_LENGTH) {
+    throw new ApiRequestError(413, 'prompt exceeds the allowed length');
+  }
+
+  const parcelOverride = body.parcelOverride;
+  if (
+    parcelOverride !== undefined &&
+    (!parcelOverride || typeof parcelOverride !== 'object' || Array.isArray(parcelOverride))
+  ) {
+    throw new ApiRequestError(400, 'parcelOverride must be a JSON object');
+  }
+
+  return {
+    prompt,
+    parcelOverride: parcelOverride as Record<string, unknown> | undefined,
+  };
+}
+
+export default async function handler(req: SecureApiRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (!enforceApiMethod(req, res, ['POST'])) return;
+
+  const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
     return res.status(401).json({ error: 'Authentication required for AI extraction' });
   }
 
-  const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) as {
-    prompt?: string;
-    parcelOverride?: Record<string, unknown>;
-  };
-
-  if (!body?.prompt || typeof body.prompt !== 'string') {
-    return res.status(400).json({ error: 'prompt is required' });
-  }
-
   try {
+    const { prompt, parcelOverride } = parseRequest(
+      parseBoundedJsonBody(req, MAX_EXTRACT_REQUIREMENTS_BODY_BYTES),
+    );
     let fromGemini: Awaited<ReturnType<typeof extractWithGemini>> = null;
 
     if (process.env.GEMINI_API_KEY) {
@@ -74,23 +92,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         tier = await resolveUserPlanTier(user.uid, user.email);
       } catch {
-        // default to the starter ceiling if tier lookup fails
+        // Fail closed to the starter quota when billing lookup is unavailable.
       }
+
       const quota = await consumeAiQuota(user.uid, tier);
       if (!quota.allowed) {
         return res
           .status(429)
           .json({ error: 'Daily AI limit reached', used: quota.used, limit: quota.limit });
       }
-      fromGemini = await extractWithGemini(body.prompt, body.parcelOverride);
+      fromGemini = await extractWithGemini(prompt);
     }
 
     const request =
-      fromGemini ?? normalizeBuildingRequest(parseRequirementsFallback(body.prompt, body.parcelOverride));
+      fromGemini ??
+      normalizeBuildingRequest(parseRequirementsFallback(prompt, parcelOverride));
 
-    return res.status(200).json({ request, source: fromGemini ? 'gemini' : 'fallback' });
+    return res.status(200).json({
+      request,
+      source: fromGemini ? 'gemini' : 'fallback',
+    });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Extraction failed';
-    return res.status(500).json({ error: message });
+    return sendApiFailure(
+      res,
+      error,
+      'ai/extract-requirements',
+      'Requirement extraction failed.',
+    );
   }
 }

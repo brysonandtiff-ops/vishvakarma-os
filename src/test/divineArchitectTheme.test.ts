@@ -9,15 +9,18 @@ function read(path: string) {
 }
 
 describe('Divine Architect visual theme', () => {
-  it('loads the global theme after existing polish layers', () => {
-    const main = read('src/main.tsx');
-    const solarThemeIndex = main.indexOf('./styles/vish-theme-solar-mandala.css');
-    const divineThemeIndex = main.indexOf('./styles/vish-divine-architect-theme.css');
-    const authReferenceIndex = main.indexOf('./styles/vish-auth-reference-screen.css');
+  it('loads the theme stack before final auth reference overrides', () => {
+    const themes = read('src/styles/entries/themes.ts');
+    const authStyles = read('src/styles/entries/auth.ts');
+    const solarThemeIndex = themes.indexOf("import '../vish-theme-solar-mandala.css'");
+    const divineThemeIndex = themes.indexOf("import '../vish-divine-architect-theme.css'");
+    const themeEntryIndex = authStyles.indexOf("import './themes'");
+    const authReferenceIndex = authStyles.indexOf("import '../vish-auth-reference-screen.css'");
 
     expect(divineThemeIndex).toBeGreaterThan(-1);
     expect(divineThemeIndex).toBeGreaterThan(solarThemeIndex);
-    expect(authReferenceIndex).toBeGreaterThan(divineThemeIndex);
+    expect(themeEntryIndex).toBeGreaterThan(-1);
+    expect(authReferenceIndex).toBeGreaterThan(themeEntryIndex);
   });
 
   it('preserves the owner supplied swan SVG logo source of truth', () => {

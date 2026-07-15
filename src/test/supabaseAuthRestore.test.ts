@@ -9,7 +9,7 @@ function read(path: string) {
 }
 
 describe('Supabase-only backend wiring', () => {
-  it('exports Supabase AuthProvider without Firebase branching', () => {
+  it('exports Google-only Supabase AuthProvider without Firebase or email-link branching', () => {
     const authContext = read('src/contexts/AuthContext.tsx');
     const backendConfig = read('src/backend/backendConfig.ts');
     const supabaseAuth = read('src/backend/supabase/supabaseAuthGateway.ts');
@@ -19,7 +19,10 @@ describe('Supabase-only backend wiring', () => {
     expect(backendConfig).toContain('VITE_SUPABASE_URL');
     expect(backendConfig).toContain("provider: 'supabase'");
     expect(supabaseAuth).toContain('requestSupabaseAccessLink');
-    expect(supabaseAuth).toContain('signInWithOtp');
+    expect(supabaseAuth).toContain('Magic-link sign-in is disabled');
+    expect(supabaseAuth).toContain('GOOGLE_ONLY_AUTH_MESSAGE');
+    expect(supabaseAuth).not.toContain('client.auth.signInWithOtp');
+    expect(supabaseAuth).not.toContain('client.auth.signInWithPassword');
     expect(supabaseAuth).toContain('isSupabaseOAuthCallback');
   });
 

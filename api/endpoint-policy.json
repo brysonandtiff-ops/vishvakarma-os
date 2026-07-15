@@ -1,0 +1,68 @@
+{
+  "ai/extract-requirements.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 65536,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "ai/parse-site-documents.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 26214400,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "cast/evidence.ts": {
+    "methods": ["GET"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 1024,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "cast/join.ts": {
+    "methods": ["GET"],
+    "auth": "public",
+    "bodyLimitBytes": 1024,
+    "cache": "no-store",
+    "errorExposure": "generic",
+    "publicReason": "A high-entropy, expiring cast invite token is the viewer credential."
+  },
+  "cast/sessions.ts": {
+    "methods": ["POST", "DELETE"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 32768,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "health.ts": {
+    "methods": ["GET", "HEAD"],
+    "auth": "public",
+    "bodyLimitBytes": 1024,
+    "cache": "no-store",
+    "errorExposure": "generic",
+    "publicReason": "Infrastructure health probes need an unauthenticated liveness endpoint without secret configuration details."
+  },
+  "stripe/create-checkout-session.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 32768,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "stripe/create-portal-session.ts": {
+    "methods": ["POST"],
+    "auth": "google-supabase",
+    "bodyLimitBytes": 32768,
+    "cache": "no-store",
+    "errorExposure": "generic"
+  },
+  "stripe/webhook.ts": {
+    "methods": ["POST"],
+    "auth": "stripe-signature",
+    "bodyLimitBytes": 1048576,
+    "cache": "no-store",
+    "errorExposure": "generic",
+    "publicReason": "Stripe sends signed webhook events without a user session."
+  }
+}

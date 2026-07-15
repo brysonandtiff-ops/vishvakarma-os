@@ -5,7 +5,7 @@
  */
 
 import { backendStatus } from '@/backend/backendConfig';
-import { resolveSupabaseSessionForApi } from '@/backend/supabase/supabaseAuthGateway';
+import { getSupabaseAccessToken } from '@/backend/supabase/supabaseAccessToken';
 import { CollabSession } from '@/collaboration/sync/CollabSession';
 import { isCollabReadOnlyMode } from '@/collaboration/presenceReadOnly';
 import type { Presence } from '@/collaboration/types';
@@ -79,6 +79,14 @@ export type CollaborationCallback = (message: CollaborationMessage) => void;
 
 type ManifestChangeHandler = (manifest: ProjectManifest, isRemote: boolean) => void;
 
+async function requireSupabaseAccessToken() {
+  const token = await getSupabaseAccessToken();
+  if (!token) {
+    throw new Error('Your secure Supabase session is unavailable. Sign in again and retry.');
+  }
+  return token;
+}
+
 export class CollaborationEngine {
   private static instance: CollaborationEngine | null = null;
   private users: Map<string, User> = new Map();
@@ -106,7 +114,7 @@ export class CollaborationEngine {
     roomId: string,
     userId: string,
     userName: string,
-    options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
+    options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler },
   ): Promise<void> {
     if (this.connected) {
       console.warn('Already connected to collaboration room');
@@ -129,34 +137,38 @@ export class CollaborationEngine {
 
     this.broadcastPresence('online', userName, this.userColor);
 
-    const getIdToken = async () => {
-      const session = await resolveSupabaseSessionForApi();
-      return session.idToken;
-    };
+    try {
+      await this.session.connect({
+        wsUrl: import.meta.env.VITE_COLLAB_WS_URL ?? 'ws://127.0.0.1:1234',
+        projectId: roomId,
+        userId,
+        userName,
+        getIdToken: requireSupabaseAccessToken,
+        readOnly: isCollabReadOnlyMode(),
+        initialManifest: options?.initialManifest,
+        onManifestChange: (manifest, isRemote) => {
+          this.manifestHandler?.(manifest, isRemote);
+        },
+        onPresenceChange: (presences) => {
+          this.syncUsersFromPresences(presences, userName);
+        },
+      });
 
-    await this.session.connect({
-      wsUrl: import.meta.env.VITE_COLLAB_WS_URL ?? 'ws://127.0.0.1:1234',
-      projectId: roomId,
-      userId,
-      userName,
-      getIdToken,
-      readOnly: isCollabReadOnlyMode(),
-      initialManifest: options?.initialManifest,
-      onManifestChange: (manifest, isRemote) => {
-        this.manifestHandler?.(manifest, isRemote);
-      },
-      onPresenceChange: (presences) => {
+      this.sessionUnsub = this.session.subscribe((message) => {
+        this.handleRemoteMessage(message);
+      });
+
+      this.presenceUnsub = this.session.subscribePresence((presences) => {
         this.syncUsersFromPresences(presences, userName);
-      },
-    });
-
-    this.sessionUnsub = this.session.subscribe((message) => {
-      this.handleRemoteMessage(message);
-    });
-
-    this.presenceUnsub = this.session.subscribePresence((presences) => {
-      this.syncUsersFromPresences(presences, userName);
-    });
+      });
+    } catch (error) {
+      this.connected = false;
+      this.roomId = null;
+      this.currentUserId = null;
+      this.users.clear();
+      this.manifestHandler = null;
+      throw error;
+    }
 
     if (!backendStatus.isConfigured) {
       console.warn('[Collaboration] Backend not configured — using local session delivery only.');
@@ -203,7 +215,7 @@ export class CollaborationEngine {
     operation: string,
     elementId: string | undefined,
     elementType: OperationMessage['data']['elementType'],
-    payload: unknown
+    payload: unknown,
   ): void {
     if (!this.connected || !this.currentUserId) {
       console.warn('Not connected to collaboration room');
@@ -220,7 +232,12 @@ export class CollaborationEngine {
     this.broadcast(message);
   }
 
-  broadcastCursor(x: number, y: number, tool?: string, viewport?: Presence['viewport']): void {
+  broadcastCursor(
+    x: number,
+    y: number,
+    tool?: string,
+    viewport?: Presence['viewport'],
+  ): void {
     if (!this.connected || !this.currentUserId) return;
 
     const message: CursorMessage = {
@@ -252,7 +269,7 @@ export class CollaborationEngine {
 
   broadcastLock(
     elementId: string,
-    elementType: LockMessage['data']['elementType']
+    elementType: LockMessage['data']['elementType'],
   ): void {
     if (!this.connected || !this.currentUserId) return;
 
@@ -269,7 +286,7 @@ export class CollaborationEngine {
 
   broadcastUnlock(
     elementId: string,
-    elementType: LockMessage['data']['elementType']
+    elementType: LockMessage['data']['elementType'],
   ): void {
     if (!this.connected || !this.currentUserId) return;
 
@@ -306,7 +323,7 @@ export class CollaborationEngine {
   }
 
   getOnlineUsers(): User[] {
-    return Array.from(this.users.values()).filter((u) => u.isOnline);
+    return Array.from(this.users.values()).filter((user) => user.isOnline);
   }
 
   getUser(userId: string): User | undefined {
@@ -386,7 +403,7 @@ export class CollaborationEngine {
   }
 
   private syncUsersFromPresences(presences: Presence[], localName: string): void {
-    const remoteIds = new Set(presences.map((p) => p.userId));
+    const remoteIds = new Set(presences.map((presence) => presence.userId));
 
     for (const presence of presences) {
       const existing = this.users.get(presence.userId);
@@ -401,15 +418,20 @@ export class CollaborationEngine {
         focusedEntityId: presence.focusedEntityId,
       });
 
-      // Synchronize lock status for the element focused by the remote user
       if (presence.focusedEntityId) {
-        // Find which type of element this is (wall/opening/furniture etc)
-        // Default to 'wall' if unclear, or check tool/id prefix
-        let type: 'wall' | 'opening' | 'room' | 'window' | 'roof' | 'annotation' = 'wall';
-        if (presence.focusedEntityId.startsWith('door') || presence.focusedEntityId.startsWith('window') || presence.focusedEntityId.startsWith('opening')) {
+        let type: LockMessage['data']['elementType'] = 'wall';
+        if (
+          presence.focusedEntityId.startsWith('door') ||
+          presence.focusedEntityId.startsWith('window') ||
+          presence.focusedEntityId.startsWith('opening')
+        ) {
           type = 'opening';
-        } else if (presence.focusedEntityId.startsWith('furniture') || presence.focusedEntityId.startsWith('column') || presence.focusedEntityId.startsWith('stair')) {
-          type = 'annotation'; // mapped in elementLock
+        } else if (
+          presence.focusedEntityId.startsWith('furniture') ||
+          presence.focusedEntityId.startsWith('column') ||
+          presence.focusedEntityId.startsWith('stair')
+        ) {
+          type = 'annotation';
         }
         acquireElementLock(presence.focusedEntityId, type, presence.userId, presence.name);
       }
@@ -435,7 +457,6 @@ export class CollaborationEngine {
     for (const [id, user] of this.users.entries()) {
       if (id !== this.currentUserId && !remoteIds.has(id)) {
         user.isOnline = false;
-        // Clean up locks held by users who went offline
         if (user.focusedEntityId) {
           releaseElementLock(user.focusedEntityId, 'wall', id);
           releaseElementLock(user.focusedEntityId, 'opening', id);
@@ -467,11 +488,11 @@ export class CollaborationEngine {
 
       const now = Date.now();
       this.users.forEach((user) => {
-        if (user.isOnline && now - user.lastSeen > 30000) {
+        if (user.isOnline && now - user.lastSeen > 30_000) {
           user.isOnline = false;
         }
       });
-    }, 5000);
+    }, 5_000);
   }
 
   private stopHeartbeat(): void {
@@ -516,7 +537,7 @@ export async function connectToRoom(
   roomId: string,
   userId: string,
   userName: string,
-  options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler }
+  options?: { initialManifest?: ProjectManifest; onManifestChange?: ManifestChangeHandler },
 ): Promise<void> {
   const engine = getCollaborationEngine();
   await engine.connect(roomId, userId, userName, options);
@@ -531,7 +552,7 @@ export function broadcastOperation(
   operation: string,
   elementId?: string,
   elementType?: OperationMessage['data']['elementType'],
-  payload?: unknown
+  payload?: unknown,
 ): void {
   const engine = getCollaborationEngine();
   engine.broadcastOperation(operation, elementId, elementType, payload);
@@ -541,7 +562,7 @@ export function broadcastCursor(
   x: number,
   y: number,
   tool?: string,
-  viewport?: Presence['viewport']
+  viewport?: Presence['viewport'],
 ): void {
   const engine = getCollaborationEngine();
   engine.broadcastCursor(x, y, tool, viewport);

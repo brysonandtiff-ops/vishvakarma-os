@@ -20,7 +20,7 @@ function coOwnerBillingRecord(userId: string): BillingSubscription {
 }
 
 export function useBilling() {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const [billing, setBilling] = useState<BillingSubscription | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +65,6 @@ export function useBilling() {
     isStudio: isStudioSubscription(effectiveBilling),
     isEnterprise: isEnterpriseSubscription(effectiveBilling),
     isPaid: isPaidSubscription(effectiveBilling),
-    idToken: session?.idToken ?? null,
     refreshBilling,
   };
 }

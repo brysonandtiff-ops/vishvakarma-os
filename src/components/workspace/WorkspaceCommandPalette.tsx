@@ -22,8 +22,6 @@ import {
 } from '@/components/ui/command';
 import { startGuidedDemoSession } from '@/demo-session/GuidedDemoSessionController';
 import { useAuth } from '@/contexts/AuthContext';
-import { openQaEvidencePanel } from '@/qa-evidence/QaEvidencePanel';
-import { openIpadTouchAuditHud } from '@/touch-audit/IpadTouchAuditHud';
 import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import { OPEN_VOICE_TOUR_EVENT } from '@/voice-tour/voiceTourContent';
@@ -79,13 +77,15 @@ export function WorkspaceCommandPalette() {
     startGuidedDemoSession({ autoPlayVoice: true });
   };
 
-  const runQaEvidence = () => {
+  const runQaEvidence = async () => {
     setOpen(false);
+    const { openQaEvidencePanel } = await import('@/qa-evidence/QaEvidencePanel');
     openQaEvidencePanel();
   };
 
-  const runTouchAudit = () => {
+  const runTouchAudit = async () => {
     setOpen(false);
+    const { openIpadTouchAuditHud } = await import('@/touch-audit/IpadTouchAuditHud');
     openIpadTouchAuditHud();
   };
 
@@ -122,16 +122,26 @@ export function WorkspaceCommandPalette() {
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Learn">
-          <CommandItem value="ipad touch audit hud tester tap target overflow blocked controls" onSelect={runTouchAudit}>
-            <Tablet />
-            <span>iPad Touch Audit HUD</span>
-            <CommandShortcut>iPad</CommandShortcut>
-          </CommandItem>
-          <CommandItem value="qa evidence proof checklist ipad pwa smoke testing" onSelect={runQaEvidence}>
-            <ClipboardCheck />
-            <span>QA Evidence mode</span>
-            <CommandShortcut>Proof</CommandShortcut>
-          </CommandItem>
+          {__VISH_QA_TOOLS_ENABLED__ ? (
+            <>
+              <CommandItem
+                value="ipad touch audit hud tester tap target overflow blocked controls"
+                onSelect={() => void runTouchAudit()}
+              >
+                <Tablet />
+                <span>iPad Touch Audit HUD</span>
+                <CommandShortcut>iPad</CommandShortcut>
+              </CommandItem>
+              <CommandItem
+                value="qa evidence proof checklist ipad pwa smoke testing"
+                onSelect={() => void runQaEvidence()}
+              >
+                <ClipboardCheck />
+                <span>QA Evidence mode</span>
+                <CommandShortcut>Proof</CommandShortcut>
+              </CommandItem>
+            </>
+          ) : null}
           <CommandItem value="start demo session sample grid voice tour guided first run" onSelect={runDemoSession}>
             <Sparkles />
             <span>Start demo session</span>

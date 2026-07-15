@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 import { MarketingLayout } from '@/components/layouts/MarketingLayout';
@@ -13,35 +13,54 @@ import { RouteLoadingFallback } from '@/components/layouts/RouteLoadingFallback'
 import AuthAwareNotFound from '@/pages/AuthAwareNotFound';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 
-// All pages are lazy-loaded — EditorPage was previously a static import (the only one),
-// pulling the entire editor surface (canvas, 3D viewport, tool rail, dialogs) into the
-// initial bundle even for users on /auth or /. Now deferred like every other route.
-const EditorPage = lazy(() => import('@/pages/EditorPage'));
-const LiteEditorPage = lazy(() => import('@/pages/LiteEditorPage'));
-const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'));
-const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
-const LandingPage = lazy(() => import('@/pages/LandingPage'));
-const FeaturesPage = lazy(() => import('@/pages/FeaturesPage'));
-const PricingPage = lazy(() => import('@/pages/PricingPage'));
-const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
-const SpecCenterPage = lazy(() => import('@/pages/SpecCenterPage'));
-const RegistryPage = lazy(() => import('@/pages/RegistryPage'));
-const ChangeRequestsPage = lazy(() => import('@/pages/ChangeRequestsPage'));
-const ReleasesPage = lazy(() => import('@/pages/ReleasesPage'));
-const AuditLogPage = lazy(() => import('@/pages/AuditLogPage'));
-const WorldRecordsPage = lazy(() => import('@/pages/WorldRecordsPage'));
-const OptimizationPage = lazy(() => import('@/pages/OptimizationPage'));
-const ThreeDRoomPage = lazy(() => import('@/pages/ThreeDRoomPage'));
-const AuthPage = lazy(() => import('@/pages/AuthPage'));
-const NotFoundPage = lazy(() => import('@/pages/NotFound'));
-const CastViewerPage = lazy(() => import('@/pages/CastViewerPage'));
+type PageModule = { default: ComponentType };
+type PageLoader = () => Promise<PageModule>;
+type StyleLoader = () => Promise<unknown>;
 
-function withSuspense(element: React.ReactNode, variant: React.ComponentProps<typeof RouteLoadingFallback>['variant']) {
+function lazyStyledPage(
+  loadPage: PageLoader,
+  loadStyles: StyleLoader,
+): LazyExoticComponent<ComponentType> {
+  return lazy(async () => {
+    await loadStyles();
+    return loadPage();
+  });
+}
+
+const loadMarketingStyles = () => import('@/styles/entries/marketing');
+const loadAuthStyles = () => import('@/styles/entries/auth');
+const loadWorkspaceStyles = () => import('@/styles/entries/workspace');
+const loadEditorStyles = () => import('@/styles/entries/editor');
+
+// Route-owned CSS is imported with each lazy page family. Landing and auth users
+// no longer download editor, 3D, or governance styles during initial startup.
+const EditorPage = lazyStyledPage(() => import('@/pages/EditorPage'), loadEditorStyles);
+const LiteEditorPage = lazyStyledPage(() => import('@/pages/LiteEditorPage'), loadEditorStyles);
+const ProjectsPage = lazyStyledPage(() => import('@/pages/ProjectsPage'), loadWorkspaceStyles);
+const ProfilePage = lazyStyledPage(() => import('@/pages/ProfilePage'), loadWorkspaceStyles);
+const LandingPage = lazyStyledPage(() => import('@/pages/LandingPage'), loadMarketingStyles);
+const FeaturesPage = lazyStyledPage(() => import('@/pages/FeaturesPage'), loadMarketingStyles);
+const PricingPage = lazyStyledPage(() => import('@/pages/PricingPage'), loadMarketingStyles);
+const ResetPasswordPage = lazyStyledPage(() => import('@/pages/ResetPasswordPage'), loadAuthStyles);
+const SpecCenterPage = lazyStyledPage(() => import('@/pages/SpecCenterPage'), loadWorkspaceStyles);
+const RegistryPage = lazyStyledPage(() => import('@/pages/RegistryPage'), loadWorkspaceStyles);
+const ChangeRequestsPage = lazyStyledPage(() => import('@/pages/ChangeRequestsPage'), loadWorkspaceStyles);
+const ReleasesPage = lazyStyledPage(() => import('@/pages/ReleasesPage'), loadWorkspaceStyles);
+const AuditLogPage = lazyStyledPage(() => import('@/pages/AuditLogPage'), loadWorkspaceStyles);
+const WorldRecordsPage = lazyStyledPage(() => import('@/pages/WorldRecordsPage'), loadWorkspaceStyles);
+const OptimizationPage = lazyStyledPage(() => import('@/pages/OptimizationPage'), loadWorkspaceStyles);
+const ThreeDRoomPage = lazyStyledPage(() => import('@/pages/ThreeDRoomPage'), loadEditorStyles);
+const AuthPage = lazyStyledPage(() => import('@/pages/AuthPage'), loadAuthStyles);
+const NotFoundPage = lazyStyledPage(() => import('@/pages/NotFound'), loadMarketingStyles);
+const CastViewerPage = lazyStyledPage(() => import('@/pages/CastViewerPage'), loadEditorStyles);
+
+function withSuspense(
+  element: React.ReactNode,
+  variant: React.ComponentProps<typeof RouteLoadingFallback>['variant'],
+) {
   return <Suspense fallback={<RouteLoadingFallback variant={variant} />}>{element}</Suspense>;
 }
 
-// All screen surfaces now get isolated boundaries so a crash in any route shows
-// a contained recovery card instead of taking down the whole shell.
 function withBoundary(
   element: React.ReactNode,
   title: string,

@@ -1,3 +1,9 @@
+import {
+  clearPwaUpdatePending,
+  isPwaReloadBlocked,
+  markPwaUpdatePending,
+} from '@/pwaUpdateSafety';
+
 const UPDATE_CHECK_INTERVAL_MS = 60_000;
 const SERVICE_WORKER_URL = '/sw.js';
 
@@ -5,11 +11,19 @@ let updateCheckTimer: number | undefined;
 let hasInstalledAutoUpdater = false;
 let hasReloadedForControllerChange = false;
 let shouldReloadForUpdate = false;
+let pendingRegistration: ServiceWorkerRegistration | null = null;
 
 function reloadForFreshDeployment() {
   if (!shouldReloadForUpdate) return;
   if (hasReloadedForControllerChange) return;
+
+  if (isPwaReloadBlocked()) {
+    markPwaUpdatePending();
+    return;
+  }
+
   hasReloadedForControllerChange = true;
+  clearPwaUpdatePending();
   window.location.reload();
 }
 
@@ -20,12 +34,35 @@ function requestFreshServiceWorker(registration: ServiceWorkerRegistration | und
   });
 }
 
-function activateWaitingWorker(registration: ServiceWorkerRegistration | undefined) {
+function stageWaitingWorker(registration: ServiceWorkerRegistration | undefined) {
   const waitingWorker = registration?.waiting;
-  if (!waitingWorker) return;
+  if (!registration || !waitingWorker) return;
   if (!navigator.serviceWorker.controller) return;
 
+  pendingRegistration = registration;
+  if (isPwaReloadBlocked()) {
+    markPwaUpdatePending();
+    return;
+  }
+
+  activatePendingPwaUpdate();
+}
+
+export function activatePendingPwaUpdate() {
+  const waitingWorker = pendingRegistration?.waiting;
+  if (!waitingWorker) {
+    // A controller may already have changed while work was blocked. In that case
+    // an explicit user request is still required before reloading the editor.
+    if (shouldReloadForUpdate) {
+      hasReloadedForControllerChange = true;
+      clearPwaUpdatePending();
+      window.location.reload();
+    }
+    return;
+  }
+
   shouldReloadForUpdate = true;
+  clearPwaUpdatePending();
   waitingWorker.postMessage({ type: 'SKIP_WAITING' });
 }
 
@@ -36,7 +73,7 @@ function watchInstallingWorker(registration: ServiceWorkerRegistration) {
 
     installingWorker.addEventListener('statechange', () => {
       if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-        activateWaitingWorker(registration);
+        stageWaitingWorker(registration);
       }
     });
   });
@@ -58,7 +95,7 @@ export function installPwaAutoUpdate() {
       .then((registration) => {
         const checkForUpdate = () => requestFreshServiceWorker(registration);
 
-        activateWaitingWorker(registration);
+        stageWaitingWorker(registration);
         watchInstallingWorker(registration);
         checkForUpdate();
 

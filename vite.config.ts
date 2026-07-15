@@ -4,9 +4,47 @@ import svgr from 'vite-plugin-svgr';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
+const buildSourceMaps =
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.VERCEL !== '1';
+
+const optionalEntryPreloadFragments = [
+  'EditorPage-',
+  'OptimizationPage-',
+  'Viewport3D-',
+  'vendor-3d-',
+  'vendor-react-three-',
+  'vendor-three-',
+  'vendor-postprocessing-',
+  'vendor-camera-controls-',
+  'vendor-gesture-',
+  'vendor-maath-',
+  'vendor-charts-',
+  'vendor-collab-',
+  'vendor-export-',
+  'vendor-video-',
+  'vendor-upload-',
+  'vendor-calendar-',
+  'vendor-forms-',
+];
+
+function filterEntryModulePreloads(dependencies: string[], hostType: 'html' | 'js') {
+  if (hostType !== 'html') return dependencies;
+  return dependencies.filter(
+    (dependency) =>
+      !optionalEntryPreloadFragments.some((fragment) => dependency.includes(fragment)),
+  );
+}
+
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ command, mode }) => ({
   envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
+  define: {
+    __VISH_QA_TOOLS_ENABLED__: JSON.stringify(
+      command === 'serve' ||
+        mode.startsWith('e2e') ||
+        process.env.VITE_ENABLE_QA_TOOLS === 'true',
+    ),
+  },
   plugins: [
     react(),
     svgr({
@@ -19,29 +57,25 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
-      includeAssets: ['icons/**/*', 'brand/**/*', 'manifest.webmanifest'],
       manifest: false,
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — allows large WebP normal maps
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}'],
-        // iOS apple-touch-startup-image set is large and only used by the OS at
-        // launch — keep it out of the precache manifest (served on-demand like the
-        // other heavy media) so it never bloats the PWA install.
-        globIgnores: ['**/splash/**'],
+        // Heavy media is loaded and bounded by runtime caches. Keeping it out of
+        // precache avoids downloading route-optional 3D assets during PWA install.
+        globIgnores: [
+          '**/splash/**',
+          '**/textures/**',
+          '**/models/**',
+          '**/hdri/**',
+          '**/audio/**',
+        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
           // R3.1: Cache mantra audio — 11 MB of MP3s were re-downloaded on every visit.
           // CacheFirst: serve from cache if available, only hit network for new/changed files.
           {
@@ -96,14 +130,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
     chunkSizeWarningLimit: 900,
-    // T3-5: Enable module preload injection so Vite adds <link rel="modulepreload">
-    // hints for all lazy chunks in the built index.html, allowing the browser to
-    // fetch the editor surface in parallel during auth page idle time.
-    modulePreload: { polyfill: true },
-    // 'hidden' emits source maps for error monitoring (Sentry) without referencing
-    // them from the shipped bundles, so prod stack traces stay readable but source
-    // is not exposed to end users.
-    sourcemap: 'hidden',
+    // Keep route-optional editor, 3D, collaboration, and analytics dependencies out
+    // of the HTML entry preload graph. Vite still preloads them when their dynamic
+    // route import actually executes.
+    modulePreload: {
+      polyfill: true,
+      resolveDependencies: (_url, dependencies, context) =>
+        filterEntryModulePreloads(dependencies, context.hostType),
+    },
+    // Source maps may be generated only for controlled non-Vercel builds that
+    // upload them privately before deployment. Public Vercel builds always disable them.
+    sourcemap: buildSourceMaps ? 'hidden' : false,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -163,7 +200,6 @@ export default defineConfig(({ mode }) => ({
             normalizedId.includes('/node_modules/scheduler/')
           ) return 'vendor-react';
           // R1.4: Split vendor-misc into named chunks for better long-term cache efficiency.
-          // Each group changes at a different rate, so they can be cached independently.
           if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';

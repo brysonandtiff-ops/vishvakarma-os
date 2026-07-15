@@ -9,14 +9,17 @@ function read(path: string) {
 }
 
 describe('Sanskrit auth gate design', () => {
-  it('loads auth and final polish styles through app startup', () => {
+  it('loads core, auth, and editor polish through their intended style boundaries', () => {
     const main = read('src/main.tsx');
+    const authStyles = read('src/styles/entries/auth.ts');
+    const editorStyles = read('src/styles/entries/editor.ts');
+
     expect(main).toContain('./styles/vish-sacred-layers.css');
-    expect(main).toContain('./styles/vish-auth-gate.css');
-    expect(main).toContain('./styles/vish-login-page.css');
     expect(main).toContain('./styles/vish-device-unity.css');
-    expect(main).toContain('./styles/vish-ipad-desktop-polish.css');
-    expect(main).toContain('./styles/vish-editor-3d-polish.css');
+    expect(authStyles).toContain("import '../vish-auth-gate.css'");
+    expect(authStyles).toContain("import '../vish-login-page.css'");
+    expect(editorStyles).toContain("import '../vish-ipad-desktop-polish.css'");
+    expect(editorStyles).toContain("import '../vish-editor-3d-polish.css'");
   });
 
   it('keeps the sacred auth page shell and hero artwork', () => {

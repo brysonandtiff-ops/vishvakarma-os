@@ -28,6 +28,10 @@ function isPlaceholderValue(value: string) {
   );
 }
 
+function isUnitTestEnvironment(env: EnvSource) {
+  return envString(env, 'MODE').toLowerCase() === 'test' || envString(env, 'VITEST') === 'true';
+}
+
 export function getMissingSupabaseKeys(env: EnvSource) {
   return SUPABASE_KEYS.filter((key) => {
     const value = envString(env, key);
@@ -57,16 +61,19 @@ export function resolveSupabaseConfig(env: EnvSource = import.meta.env) {
 
 export function getBackendStatus(env: EnvSource = import.meta.env) {
   const { missingKeys } = resolveSupabaseConfig(env);
-  const isConfigured = missingKeys.length === 0;
+  const unitTestEnvironment = isUnitTestEnvironment(env);
+  const isConfigured = !unitTestEnvironment && missingKeys.length === 0;
 
   return {
     provider: 'supabase' as const,
     isConfigured,
     mode: (isConfigured ? 'connected' : 'local-only') as BackendMode,
     missingKeys: [...missingKeys],
-    configurationError: isConfigured
-      ? null
-      : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
+    configurationError: unitTestEnvironment
+      ? 'Supabase backend is disabled during unit tests. Use a dedicated live-integration command for remote verification.'
+      : isConfigured
+        ? null
+        : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
   };
 }
 

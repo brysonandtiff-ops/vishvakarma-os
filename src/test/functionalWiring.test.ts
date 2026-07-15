@@ -62,7 +62,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const app = read('src/App.tsx');
     const appRoutes = read('src/AppRoutes.tsx');
 
-    expect(app).toContain('import { AppRoutes } from \'@/AppRoutes\'');
+    expect(app).toContain("import { AppRoutes } from '@/AppRoutes'");
     expect(app).toContain('<AppRoutes />');
     expect(appRoutes).toContain('path="/editor"');
     expect(appRoutes).toContain('path="/projects"');
@@ -78,7 +78,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).toContain("route.access === 'private'");
     expect(routeGuard).toContain('isProtectedRoute');
     expect(routeGuard).toContain("navigate('/auth'");
-    expect(routeGuard).toContain("state: { from: location.pathname }");
+    expect(routeGuard).toContain('state: { from: location.pathname }');
     expect(routeGuard).toContain('allowLocalAccess');
     expect(routeGuard).toContain('isE2eAuthGateBuild');
     expect(routeGuard).toContain('showServiceConfigBanner');
@@ -103,13 +103,18 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(editor).toContain('onImport={() => setImportDialogOpen(true)}');
   });
 
-  it('loads Sanskrit boot/auth styles at app startup', () => {
+  it('loads core, auth, and editor startup styles through explicit boundaries', () => {
     const main = read('src/main.tsx');
+    const authStyles = read('src/styles/entries/auth.ts');
+    const editorStyles = read('src/styles/entries/editor.ts');
+    const routes = read('src/AppRoutes.tsx');
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
-    expect(main).toContain('./styles/vish-auth-gate.css');
-    expect(main).toContain('./styles/vish-login-page.css');
-    expect(main).toContain('./styles/vish-mockup-system.css');
+    expect(authStyles).toContain("import '../vish-auth-gate.css'");
+    expect(authStyles).toContain("import '../vish-login-page.css'");
+    expect(editorStyles).toContain("import '../vish-mockup-system.css'");
+    expect(routes).toContain("import('@/styles/entries/auth')");
+    expect(routes).toContain("import('@/styles/entries/editor')");
     expect(main).toContain('bootstrapClientGovernanceState');
     expect(main).toContain('blockOnFailure: false');
     expect(main).toContain('import.meta.env.PROD');

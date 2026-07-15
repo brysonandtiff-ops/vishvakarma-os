@@ -1,65 +1,44 @@
-import type { IncomingMessage } from 'node:http';
 import {
   getBillingRecord,
   upsertBillingRecord,
 } from '../_lib/billingBackend';
+import {
+  resolveTrustedAppOrigin,
+  UntrustedAppOriginError,
+} from '../_lib/appOrigin';
+import {
+  ApiRequestError,
+  applyApiSecurityHeaders,
+  enforceApiMethod,
+  parseBoundedJsonBody,
+  sendApiFailure,
+  type SecureApiRequest,
+  type SecureApiResponse,
+} from '../_lib/httpSecurity';
 import { getPriceIdForPlan, getStripeClient, type CheckoutPlan } from '../_lib/stripeClient';
 import { authMetadataUidKey, verifyAuthTokenFromRequest } from '../_lib/verifyAuthToken';
 import { STUDIO_TRIAL_DAYS } from '../../src/config/billingPlans';
 
-type VercelRequest = IncomingMessage & {
-  method?: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-};
+const EXISTING_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
 
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: unknown) => void;
-};
-
-function parseJsonBody(req: VercelRequest): Record<string, unknown> {
-  if (!req.body) return {};
-  if (typeof req.body === 'string') {
-    try {
-      return JSON.parse(req.body) as Record<string, unknown>;
-    } catch {
-      return {};
-    }
-  }
-  if (typeof req.body === 'object') {
-    return req.body as Record<string, unknown>;
-  }
-  return {};
+export function parseCheckoutPlan(body: Record<string, unknown>): CheckoutPlan {
+  if (body.plan === undefined) return 'studio';
+  if (body.plan === 'studio' || body.plan === 'enterprise') return body.plan;
+  throw new ApiRequestError(400, 'Unsupported checkout plan.');
 }
 
-function resolveAppOrigin(req: VercelRequest, body: Record<string, unknown>): string {
-  const fromBody = typeof body.origin === 'string' ? body.origin.trim() : '';
-  if (fromBody) return fromBody;
-
-  const originHeader = req.headers.origin;
-  if (typeof originHeader === 'string' && originHeader) return originHeader;
-
-  const referer = req.headers.referer;
-  if (typeof referer === 'string') {
-    try {
-      return new URL(referer).origin;
-    } catch {
-      // ignore invalid referer
-    }
+function parseRequestId(body: Record<string, unknown>): string | null {
+  if (body.requestId === undefined) return null;
+  if (typeof body.requestId !== 'string' || !REQUEST_ID_PATTERN.test(body.requestId)) {
+    throw new ApiRequestError(400, 'Invalid checkout request identifier.');
   }
-
-  return process.env.APP_URL?.trim() || 'http://127.0.0.1:5173';
+  return body.requestId;
 }
 
-function parseCheckoutPlan(body: Record<string, unknown>): CheckoutPlan {
-  return body.plan === 'enterprise' ? 'enterprise' : 'studio';
-}
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export default async function handler(req: SecureApiRequest, res: SecureApiResponse) {
+  applyApiSecurityHeaders(res);
+  if (!enforceApiMethod(req, res, ['POST'])) return;
 
   const user = await verifyAuthTokenFromRequest(req);
   if (!user) {
@@ -67,23 +46,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const stripe = getStripeClient();
-    const body = parseJsonBody(req);
+    const body = parseBoundedJsonBody(req);
     const plan = parseCheckoutPlan(body);
+    const requestId = parseRequestId(body);
+    const origin = resolveTrustedAppOrigin(req, body);
     const priceId = getPriceIdForPlan(plan);
-    const origin = resolveAppOrigin(req, body);
+    const stripe = getStripeClient();
 
     const existingBilling = await getBillingRecord(user.uid);
-    let customerId = existingBilling?.stripeCustomerId;
+    if (
+      existingBilling?.stripeSubscriptionId &&
+      EXISTING_SUBSCRIPTION_STATUSES.has(existingBilling.status)
+    ) {
+      return res.status(409).json({
+        error: 'An active subscription already exists. Use the billing portal to manage it.',
+      });
+    }
 
+    let customerId = existingBilling?.stripeCustomerId;
     const uidKey = authMetadataUidKey();
     const uidValue = user.uid;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue },
-      });
+      const customer = await stripe.customers.create(
+        {
+          email: user.email,
+          metadata: { [uidKey]: uidValue },
+        },
+        { idempotencyKey: `vish-customer-${uidValue}` },
+      );
       customerId = customer.id;
       await upsertBillingRecord(user.uid, {
         stripeCustomerId: customerId,
@@ -96,32 +87,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       metadata: Record<string, string>;
       trial_period_days?: number;
     } = {
-      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
+      metadata: { [uidKey]: uidValue, plan },
     };
 
     if (plan === 'studio') {
       subscriptionData.trial_period_days = STUDIO_TRIAL_DAYS;
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: customerId,
-      client_reference_id: user.uid,
-      line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: subscriptionData,
-      metadata: { [uidKey]: uidValue, firebaseUid: uidValue, supabaseUid: uidValue, plan },
-      success_url: `${origin}/profile?checkout=success`,
-      cancel_url: `${origin}/pricing?checkout=canceled`,
-    });
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'subscription',
+        customer: customerId,
+        client_reference_id: user.uid,
+        line_items: [{ price: priceId, quantity: 1 }],
+        subscription_data: subscriptionData,
+        metadata: { [uidKey]: uidValue, plan },
+        success_url: `${origin}/profile?checkout=success`,
+        cancel_url: `${origin}/pricing?checkout=canceled`,
+      },
+      requestId
+        ? { idempotencyKey: `vish-checkout-${uidValue}-${plan}-${requestId}` }
+        : undefined,
+    );
 
     if (!session.url) {
-      return res.status(500).json({ error: 'Stripe checkout session missing redirect URL' });
+      console.error('[stripe/create-checkout-session] Stripe returned no redirect URL');
+      return res.status(502).json({ error: 'Checkout provider did not return a redirect URL.' });
     }
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create checkout session';
-    console.error('[stripe/create-checkout-session]', message);
-    return res.status(500).json({ error: message });
+    if (error instanceof UntrustedAppOriginError) {
+      return res.status(403).json({ error: error.message });
+    }
+    return sendApiFailure(
+      res,
+      error,
+      'stripe/create-checkout-session',
+      'Failed to create checkout session.',
+    );
   }
 }
