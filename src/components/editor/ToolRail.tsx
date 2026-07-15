@@ -58,9 +58,9 @@ function ToolButton({
       {...pressHandlers}
     >
       <Icon className="h-[18px] w-[18px] shrink-0" />
-      <span className="font-technical w-full truncate px-0.5 text-center text-[8px] leading-[1.15] tracking-[0.02em]">{meta.label}</span>
+      <span className="font-technical w-full truncate px-0.5 text-center text-[9px] leading-[1.15] tracking-[0.02em]">{meta.label}</span>
       {meta.shortcut && (
-        <span className="font-technical text-[8px] leading-none opacity-55">{meta.shortcut}</span>
+        <span className="font-technical text-[9px] leading-none opacity-55">{meta.shortcut}</span>
       )}
     </button>
   );

@@ -25,14 +25,14 @@ export default function CollaboratorAvatars({ users, maxVisible = 4 }: Collabora
         <span
           key={user.id}
           title={user.name}
-          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-ws-toolbar text-[8px] font-bold text-white"
+          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-ws-toolbar text-[9px] font-bold text-white"
           style={{ backgroundColor: user.color }}
         >
           {initials(user.name)}
         </span>
       ))}
       {overflow > 0 && (
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar px-1 text-[8px] font-semibold text-ws-text-dim">
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar px-1 text-[9px] font-semibold text-ws-text-dim">
           +{overflow}
         </span>
       )}

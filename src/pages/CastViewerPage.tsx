@@ -72,7 +72,7 @@ export default function CastViewerPage() {
             <div className="flex items-center gap-2">
               <p className="vish-eyebrow text-primary">Akasha Cast</p>
               {ready && (
-                <span className="flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-success">
+                <span className="flex items-center gap-1 rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-success">
                   <span className="h-1 w-1 animate-pulse rounded-full bg-success" />
                   Live
                 </span>
@@ -173,7 +173,7 @@ export default function CastViewerPage() {
                 <section>
                   <div className="mb-3 flex items-center justify-between">
                     <p className="vish-eyebrow text-muted-foreground">Intent relay</p>
-                    <span className="text-[8px] uppercase tracking-widest text-ws-text-faint">Real-time</span>
+                    <span className="text-[10px] uppercase tracking-widest text-ws-text-faint">Real-time</span>
                   </div>
                   <CastIntentTimeline intents={intents} />
                 </section>

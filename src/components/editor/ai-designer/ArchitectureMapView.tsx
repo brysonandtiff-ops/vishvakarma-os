@@ -43,7 +43,7 @@ export default function ArchitectureMapView({ graph }: { graph: ArchitectureMapG
         return (
           <g key={node.id}>
             <circle cx={pos.x} cy={pos.y} r={18} className="fill-primary/15 stroke-primary/60" strokeWidth={1.5} />
-            <text x={pos.x} y={pos.y + 32} textAnchor="middle" className="fill-foreground text-[8px]">
+            <text x={pos.x} y={pos.y + 32} textAnchor="middle" className="fill-foreground text-[9px]">
               {node.label.length > 12 ? `${node.label.slice(0, 11)}…` : node.label}
             </text>
           </g>

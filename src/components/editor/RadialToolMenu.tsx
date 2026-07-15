@@ -21,7 +21,7 @@ export default function RadialToolMenu({ visible, x, y, currentTool, onSelectToo
   const menuSize = outerRadius * 2 + 24;
   const toolButtonClass = isCoarsePointer
     ? 'h-12 w-12 text-[9px]'
-    : 'h-9 w-9 text-[8px]';
+    : 'h-9 w-9 text-[9px]';
 
   return (
     <div

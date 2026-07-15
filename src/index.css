@@ -94,7 +94,7 @@
     --ws-border-subtle: 220 14% 18%;   /* #272d38 – subtle dividers */
     --ws-text:        0 0% 82%;        /* #d1d1d1 – text on dark */
     --ws-text-dim:    0 0% 50%;        /* #808080 – dim text */
-    --ws-text-faint:  0 0% 35%;        /* #595959 – very dim */
+    --ws-text-faint:  0 0% 54%;        /* readable dim — AA at 10px on ink canvas */
     --ws-hover:       220 14% 18%;     /* hover row */
     --ws-active:      39 61% 58%;      /* vish-gold – active tool */
     --ws-active-bg:   39 49% 19%;      /* gold bg on dark */
