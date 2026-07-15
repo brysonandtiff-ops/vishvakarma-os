@@ -1,0 +1,3 @@
+# Rule
+
+Ready means checked.
