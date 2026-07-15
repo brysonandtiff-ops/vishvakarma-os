@@ -1,25 +1,31 @@
-# Vishvakarma-os Workspace
+# Vishvakarma.OS
 
-This folder wraps the Vishvakarma.OS application. **All development, git operations, and documentation live in the subdirectory below.**
+Vishvakarma.OS is an iPad-first, browser-native architectural workstation for 2D planning, live 3D review, governance, exports, and AI-assisted design.
 
 ## Start here
 
+All application code, documentation, migrations, and development commands live at the repository root.
+
+- **Documentation hub:** [docs/README.md](docs/README.md)
+- **Valuation / due diligence:** [docs/handoff/HANDOFF.md](docs/handoff/HANDOFF.md)
+- **Production:** https://vishvakarma-os.app
+- **Vercel fallback:** https://vishvakarma-os.vercel.app
+
+## Local development
+
 ```bash
-cd vishvakarma-os-live
-```
-
-**Documentation hub:** [vishvakarma-os-live/docs/README.md](vishvakarma-os-live/docs/README.md)
-
-**Valuation / due diligence:** [vishvakarma-os-live/docs/handoff/HANDOFF.md](vishvakarma-os-live/docs/handoff/HANDOFF.md)
-
-**Quick dev start:**
-
-```bash
-cd vishvakarma-os-live
 pnpm install --frozen-lockfile
 cp .env.example .env.local
 pnpm run dev
 ```
 
-**Production:** https://vishvakarma-os.app  
-**Vercel fallback:** https://vishvakarma-os.vercel.app
+## Verification policy
+
+GitHub Actions is intentionally disabled by owner policy. Release verification is run locally and recorded under `docs/release/evidence/`; Vercel remains the deployment status provider.
+
+```bash
+pnpm run verify:ci
+pnpm run test:e2e
+pnpm run release:gates:strict
+pnpm run launch:evidence:strict
+```
