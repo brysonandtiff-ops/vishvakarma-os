@@ -132,15 +132,15 @@ export default function LandingPage() {
               <Button variant="gold" size="gold" className="touch-target w-full gap-2 px-8 sm:w-auto" asChild>
                 <Link to={cta.to}>{cta.primary}</Link>
               </Button>
-              <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                <Link to="/editor-lite">Try the Lite editor — no signup</Link>
-              </Button>
-              <Link
-                to="/features"
-                className="touch-target inline-flex items-center justify-center px-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
-              >
-                View all features →
-              </Link>
+              {user ? (
+                <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
+                  <Link to="/editor-lite">Open the Lite editor</Link>
+                </Button>
+              ) : (
+                <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
+                  <Link to="/features">Explore the features</Link>
+                </Button>
+              )}
             </div>
 
             <ul className="mt-8 flex flex-wrap gap-2" aria-label="Product proof points">

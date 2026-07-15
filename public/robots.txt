@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /$
+Allow: /features
+Allow: /pricing
+Allow: /auth
+Disallow: /editor
+Disallow: /editor-lite
+Disallow: /projects
+Disallow: /profile
+Disallow: /releases
+Disallow: /registry
+Disallow: /audit
+Disallow: /spec-center
+Disallow: /change-requests
+Disallow: /optimization
+Disallow: /world-records
+Disallow: /3d-room
+Disallow: /cast/
+
+Sitemap: https://vishvakarma-os.app/sitemap.xml
