@@ -20,6 +20,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/reset-password',
       '/cast/:token',
       '/404',
+      '/terms',
+      '/privacy',
       '/editor',
       '/editor-lite',
       '/3d-room',
@@ -45,6 +47,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
       '/reset-password',
       '/cast/:token',
       '/404',
+      '/terms',
+      '/privacy',
     ];
     for (const path of publicPaths) {
       expect(routes.find((route) => route.path === path)?.access).toBe('public');
