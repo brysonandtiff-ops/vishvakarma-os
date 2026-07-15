@@ -73,8 +73,11 @@ export default function ThreeDRoomPage() {
 
   return (
     <AppLayout immersive>
-      <div className="flex h-[100dvh] min-h-0 flex-col bg-background text-ws-text">
-        <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-ws-border bg-black/70 px-4 py-3 backdrop-blur-md">
+      <div
+        className="flex h-[100dvh] min-h-0 flex-col bg-background text-ws-text"
+        data-testid="three-d-room-page"
+      >
+        <header className="flex shrink-0 flex-col items-stretch gap-3 border-b border-ws-border bg-black/70 px-4 py-3 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Market-class 3D Room
@@ -82,24 +85,24 @@ export default function ThreeDRoomPage() {
             <h1 className="truncate text-lg font-semibold">{manifest?.name ?? 'Detached 3D chamber'}</h1>
             <p className="text-xs text-ws-text-dim">Fast WebGL review route with premium sample staging, walk mode, and all-floor 3D preview.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="max-w-[min(72vw,28rem)] truncate rounded-full border border-primary/25 bg-primary/10 px-3 py-2 text-xs text-primary">{sourceLabel}</span>
-            <Button type="button" variant="outline" size="sm" onClick={() => setWalkMode((value) => !value)}>
+          <div className="flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0">
+            <span className="max-w-[70vw] shrink-0 truncate rounded-full border border-primary/25 bg-primary/10 px-3 py-2 text-xs text-primary sm:max-w-[min(52vw,28rem)]">{sourceLabel}</span>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target" onClick={() => setWalkMode((value) => !value)}>
               <Footprints className="mr-2 h-4 w-4" />
               {walkMode ? 'Orbit mode' : 'Walk mode'}
             </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => void loadDetachedManifest()}>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target" onClick={() => void loadDetachedManifest()}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Reload snapshot
             </Button>
-            <Button type="button" className="vish-gold-action" size="sm" onClick={() => navigate('/editor')}>
+            <Button type="button" className="vish-gold-action shrink-0 touch-target" size="sm" onClick={() => navigate('/editor')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to editor
             </Button>
           </div>
         </header>
 
-        <section className="flex shrink-0 flex-wrap items-center gap-2 border-b border-ws-border/70 bg-black/40 px-4 py-2 text-xs text-ws-text-dim">
+        <section className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto border-b border-ws-border/70 bg-black/40 px-4 py-2 text-xs text-ws-text-dim">
           {HERO_SAMPLE_IDS.map((sampleId) => {
             const definition = getSampleDefinition(sampleId);
             return (
@@ -108,16 +111,16 @@ export default function ThreeDRoomPage() {
                 type="button"
                 variant={activeSampleId === sampleId ? 'gold' : 'outline'}
                 size="sm"
-                className="min-h-[44px] min-w-[44px]"
+                className="min-h-[44px] min-w-[44px] shrink-0"
                 onClick={() => void loadSampleRoom(sampleId)}
               >
                 {definition?.name ?? sampleId}
               </Button>
             );
           })}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-2">
             {stats.map(([label, value]) => (
-              <span key={label} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px]">
+              <span key={label} className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px]">
                 {label}: <strong className="text-primary">{value}</strong>
               </span>
             ))}
