@@ -1,0 +1,209 @@
+/* Vishvakarma.OS — cross-route responsive audit fixes.
+ * Loaded after the legacy workspace polish layers so current page composition
+ * wins over stale layout classes without weakening the visual system. */
+
+/* Projects: preserve useful two/three-column density on tablets and desktop. */
+.vish-projects-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
+}
+
+/* Profile: current markup is a single-column document, not the retired
+ * sidebar + content composition that originally owned these class names. */
+.vish-profile-layout {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  flex-direction: column;
+  gap: 1.5rem;
+  grid-template-columns: none;
+}
+
+.vish-profile-layout > * {
+  min-width: 0;
+  width: 100%;
+}
+
+.vish-profile-layout .vish-profile-sidebar {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 0 1.5rem;
+  border: 0;
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+/* Governance tab rows remain reachable instead of wrapping into crowded,
+ * uneven multi-line controls on phones and touch tablets. */
+.vish-governance-shell [role='tablist'] {
+  max-width: 100%;
+}
+
+@media (pointer: coarse), (max-width: 900px) {
+  .vish-governance-shell [role='tablist'] {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .vish-governance-shell [role='tablist']::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vish-governance-shell [role='tab'] {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .vish-governance-shell button,
+  .vish-governance-shell [role='button'],
+  .vish-workspace-page .vish-page-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Narrow dialogs must stack paired fields rather than squeezing two controls
+ * into a 320–390px viewport. */
+@media (max-width: 560px) {
+  [data-slot='dialog-content'] .grid.grid-cols-2 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .vish-profile-layout .vish-profile-sidebar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Release Center: verification cards and header actions stack cleanly on
+ * phones; desktop keeps the compact three-column scorecard. */
+@media (max-width: 639px) {
+  .vish-governance-shell .gov-content-area .grid.grid-cols-3 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .vish-governance-shell .gov-content-area .grid.grid-cols-3.divide-x > :not([hidden]) ~ :not([hidden]) {
+    border-left-width: 0;
+    border-top-width: 1px;
+  }
+
+  .vish-governance-shell .vish-gov-card-dark > .flex.items-start.justify-between {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vish-governance-shell .vish-gov-card-dark > .flex.items-start.justify-between > button {
+    width: 100%;
+  }
+
+  .vish-gov-page-header .vish-workspace-header-inner > div:last-child,
+  .vish-gov-page-header .vish-workspace-header-inner > div:last-child > .flex {
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* Audit Log: the selected detail panel was desktop-only. On mobile it becomes
+ * a bounded second row so selecting an event always reveals useful detail. */
+@media (max-width: 1023px) {
+  .vish-audit-timeline {
+    padding-right: 0 !important;
+  }
+
+  .vish-audit-details {
+    position: static !important;
+    display: flex !important;
+    height: auto !important;
+    min-height: 18rem;
+    max-height: 50dvh;
+  }
+}
+
+/* Cast Viewer: keep 3D and the relay panel reachable inside a fixed viewport
+ * by giving mobile a vertical scroll lane instead of an expanding grid row. */
+@media (max-width: 1023px) {
+  [data-testid='cast-viewer-page'] .vish-cast-header {
+    gap: 0.5rem;
+    padding-inline: 0.75rem;
+  }
+
+  [data-testid='cast-viewer-page'] .vish-cast-header button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  [data-testid='cast-viewer-page'] > .relative.grid {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  [data-testid='cast-viewer-3d'] {
+    flex: 0 0 clamp(18rem, 52dvh, 28rem);
+    min-height: 18rem !important;
+  }
+
+  [data-testid='cast-viewer-page'] .vish-cast-sidebar {
+    max-height: none;
+    flex: 0 0 auto;
+  }
+}
+
+/* Lite Editor: account for wrapped header height and provide a scroll path for
+ * stacked 2D + 3D panes on short phones. */
+[data-testid='lite-editor-page'] {
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+[data-testid='lite-editor-page'] > .vish-editor-topbar {
+  flex: 0 0 auto;
+}
+
+[data-testid='lite-editor-page'] > div:nth-of-type(2) {
+  height: auto !important;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 1279px) {
+  [data-testid='lite-editor-page'] section > .flex.min-h-0.flex-1 {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  [data-testid='lite-editor-page'] .vish-canvas-stage {
+    min-height: 20rem;
+    flex: 0 0 clamp(20rem, 52dvh, 30rem);
+  }
+
+  [data-testid='lite-editor-page'] .vish-3d-viewport-pane {
+    min-height: 18rem !important;
+    max-height: none;
+    flex: 0 0 clamp(18rem, 44dvh, 26rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-governance-shell [role='tablist'],
+  [data-testid='cast-viewer-page'] > .relative.grid,
+  [data-testid='lite-editor-page'] section > .flex.min-h-0.flex-1 {
+    scroll-behavior: auto !important;
+  }
+}
