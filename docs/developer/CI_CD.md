@@ -1,86 +1,66 @@
-# CI/CD and Verification
+# Verification and Deployment
 
 **Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** developer  
+**Last reviewed:** 2026-07-16  
+**Audience:** developers and operators
 
-GitHub Actions workflows and local verify scripts.
+## Current policy
 
-Command cheat sheet: [release/VERIFY_COMMANDS.md](../release/VERIFY_COMMANDS.md)
+GitHub Actions is intentionally disabled by owner policy. Files under `.github/workflows/` are ignored and no push or pull request should be described as automatically certified by GitHub Actions.
 
----
+Verification is performed from a trusted local checkout. Results must be bound to an exact commit SHA and committed under `docs/release/evidence/`. Vercel provides deployment/build status, but a green Vercel build is not a replacement for the application test and release-gate ladder.
 
-## GitHub Actions workflows
-
-| Workflow | File | Trigger | Purpose |
-|----------|------|---------|---------|
-| **Verify** | `.github/workflows/verify.yml` | push/PR to `main` | Lint, security headers, auth gates, Supabase schema, unit tests, route smoke, build, bundle budget, world record measure |
-| **E2E** | `.github/workflows/e2e.yml` | (matrix) | Playwright cross-browser after verify job |
-| **Lighthouse** | `.github/workflows/lighthouse.yml` | scheduled/manual | Performance audits |
-
-### Verify job (main gate)
-
-Runs on every push/PR to `main`:
-
-1. `pnpm run lint`
-2. Security header check
-3. `auth:gates`, `flawless:gates`, `contract:gates`, `stability:gates`
-4. Supabase auth/schema verification
-5. `pnpm run test:coverage`
-6. `pnpm run test:routes`
-7. `pnpm run build`
-8. `pnpm run perf:gates`
-9. `pnpm run record:measure`
-
-Downstream jobs: production OAuth verification, Playwright E2E matrix, release gates.
-
----
-
-## Key npm scripts
-
-| Script | Purpose |
-|--------|---------|
-| `verify:ci` | Local CI-style verification bundle |
-| `release:gates` | 13-gate release manifest |
-| `handoff:generate` | Regenerate appendices A–H |
-| `handoff:verify` | Handoff pack completeness |
-| `docs:verify` | Documentation link and stale checks |
-| `lint:types` | TypeScript check (tsgo) |
-| `hardening:gates` | Security hardening checks |
-| `auth:gates` | Auth configuration guards |
-
-Full script list: [appendix C](../handoff/appendices/C-npm-scripts.md)
-
----
-
-## Pre-merge checklist
+## Required release ladder
 
 ```bash
-pnpm run handoff:generate   # if routes/api/schema/scripts changed
+pnpm install --frozen-lockfile
+pnpm run handoff:generate
 pnpm run handoff:verify
-pnpm run docs:verify        # if docs changed
-pnpm run lint:types
+pnpm run docs:verify
+pnpm run lint
 pnpm run verify:ci
-pnpm run test:e2e           # for UI/auth changes
+pnpm run test:e2e
+pnpm run test:e2e:cross-browser
+pnpm run test:e2e:a11y
+pnpm run release:gates:strict
+pnpm run launch:evidence:strict
 ```
 
----
+For Supabase or authentication changes also run:
 
-## Deploy pipeline
+```bash
+pnpm run verify:supabase-schema:live
+pnpm run test:supabase-auth
+pnpm run verify:production-auth-flow
+pnpm run verify:supabase-save-reload
+```
 
-Production deploy uses Vercel. The `deploy:vercel` script runs `verify:ci` and requires a clean git tree.
+## Evidence requirements
 
-Runbook: [operations/DEPLOYMENT_RUNBOOK.md](../operations/DEPLOYMENT_RUNBOOK.md)
+A release evidence record must include:
 
----
+- exact candidate commit SHA;
+- command list and exit status;
+- production or preview deployment URL;
+- Supabase migration/advisor status when the database changed;
+- any skipped, unavailable, or operator-only checks;
+- a clear PASS, FAIL, or PARTIAL verdict.
 
-## Documentation in CI
+Do not copy a prior PASS verdict onto a newer SHA. Historical GitHub Actions runs remain valid historical evidence only for the commits they tested.
 
-Add `pnpm run docs:verify` to local pre-merge flow. Wire into CI verify job when documentation changes are frequent.
+## Deployment
 
----
+Production deploys use Vercel. `pnpm run deploy:vercel` runs the local verification path and requires a clean worktree. See [operations/DEPLOYMENT_RUNBOOK.md](../operations/DEPLOYMENT_RUNBOOK.md).
 
-## Related
+## Key scripts
 
-- [TESTING.md](./TESTING.md) — test pyramid
-- [CONTRIBUTING_EXTENDED.md](./CONTRIBUTING_EXTENDED.md) — PR protocol
+| Script | Purpose |
+|---|---|
+| `verify:ci` | Local CI-equivalent verification bundle |
+| `release:gates:strict` | Strict release manifest |
+| `launch:evidence:strict` | Strict launch-evidence validation |
+| `handoff:generate` | Regenerate handoff appendices |
+| `handoff:verify` | Verify handoff completeness |
+| `docs:verify` | Documentation links and staleness checks |
+| `hardening:gates` | Production security checks |
+| `auth:gates` | Authentication configuration guards |
