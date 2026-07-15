@@ -22,6 +22,8 @@ export function MarketingFooter() {
             <Link to="/pricing" className="hover:text-primary">Pricing</Link>
           )}
           <Link to={accountTo} className="hover:text-primary">{accountLabel}</Link>
+          <Link to="/terms" className="hover:text-primary">Terms</Link>
+          <Link to="/privacy" className="hover:text-primary">Privacy</Link>
         </nav>
         <div className="md:justify-self-end">
           <FoundersAcknowledgment variant="footer" />

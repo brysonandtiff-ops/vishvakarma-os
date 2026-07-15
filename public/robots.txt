@@ -3,6 +3,8 @@ Allow: /$
 Allow: /features
 Allow: /pricing
 Allow: /auth
+Allow: /terms
+Allow: /privacy
 Disallow: /editor
 Disallow: /editor-lite
 Disallow: /projects

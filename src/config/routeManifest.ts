@@ -49,6 +49,8 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
   { path: '/reset-password', name: 'Reset Password', access: 'public', visible: false, layout: 'auth' },
   { path: '/cast/:token', name: 'Akasha Cast Viewer', access: 'public', visible: false, layout: 'cast' },
   { path: '/404', name: 'Not Found', access: 'public', visible: false, layout: 'marketing' },
+  { path: '/terms', name: 'Terms of Service', access: 'public', visible: false, layout: 'marketing' },
+  { path: '/privacy', name: 'Privacy Policy', access: 'public', visible: false, layout: 'marketing' },
   {
     path: '/editor',
     name: 'Blueprint Editor',

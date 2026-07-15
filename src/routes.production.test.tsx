@@ -11,6 +11,8 @@ const expectedRoutePaths = [
   '/reset-password',
   '/cast/:token',
   '/404',
+  '/terms',
+  '/privacy',
   '/editor',
   '/editor-lite',
   '/3d-room',
@@ -33,6 +35,8 @@ const expectedPublicRoutePaths = [
   '/reset-password',
   '/cast/:token',
   '/404',
+  '/terms',
+  '/privacy',
 ];
 
 const expectedPrivateRoutePaths = [

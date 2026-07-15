@@ -40,9 +40,12 @@ export default defineConfig(({ command, mode }) => ({
   envDir: mode === 'e2e' ? path.resolve(__dirname, 'config/e2e-env') : undefined,
   define: {
     __VISH_QA_TOOLS_ENABLED__: JSON.stringify(
+      // Never in production bundles: QA chrome (evidence pill, device HUD,
+      // touch audit) is internal tooling. Dev serve + e2e modes only, with the
+      // env escape hatch honoured everywhere except production builds.
       command === 'serve' ||
         mode.startsWith('e2e') ||
-        process.env.VITE_ENABLE_QA_TOOLS === 'true',
+        (process.env.VITE_ENABLE_QA_TOOLS === 'true' && mode !== 'production'),
     ),
   },
   plugins: [

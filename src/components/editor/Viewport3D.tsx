@@ -1334,23 +1334,23 @@ export default function Viewport3D({
 // ── Premium 3D Viewport Header ──────────────────────────────────────────────
 function Viewport3DHeader({ wallCount, atmosphereMode }: { wallCount: number; atmosphereMode: AtmospherePerformanceMode }) {
   return (
-    <div className="vish-3d-viewport-header flex h-7 shrink-0 items-center gap-2 px-3">
-      <div className="flex items-center gap-1.5">
-        <Box className="h-3 w-3 text-ws-active" />
-        <span className="vish-3d-viewport-header-label">Sacred 3D View</span>
+    <div className="vish-3d-viewport-header flex h-7 shrink-0 items-center gap-2 overflow-hidden px-3">
+      <div className="flex min-w-0 items-center gap-1.5">
+        <Box className="h-3 w-3 shrink-0 text-ws-active" />
+        <span className="vish-3d-viewport-header-label truncate whitespace-nowrap">Sacred 3D View</span>
       </div>
 
       <div className="flex-1" />
 
-      <div className="vish-3d-badge vish-3d-badge-gold flex items-center gap-1 rounded px-1.5 py-0.5">
+      <div className="vish-3d-badge vish-3d-badge-gold flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5">
         <Layers className="h-2.5 w-2.5 text-ws-active" />
-        <span className="font-mono text-[9px] text-ws-active">
+        <span className="whitespace-nowrap font-mono text-[9px] text-ws-active">
           {wallCount} wall{wallCount !== 1 ? 's' : ''}
         </span>
       </div>
 
-      <div className="vish-3d-badge vish-3d-badge-muted rounded px-1.5 py-0.5">
-        <span className="text-[9px] tracking-wide text-ws-text-faint">
+      <div className="vish-3d-badge vish-3d-badge-muted hidden shrink-0 rounded px-1.5 py-0.5 min-[380px]:block">
+        <span className="whitespace-nowrap text-[9px] tracking-wide text-ws-text-faint">
           WebGL · {ATMOSPHERE_MODES[atmosphereMode].label}
         </span>
       </div>

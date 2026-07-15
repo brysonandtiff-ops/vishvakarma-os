@@ -9,6 +9,29 @@ import '@fontsource/noto-sans-devanagari/600.css';
 import '@fontsource/noto-sans-devanagari/700.css';
 import "./index.css";
 import "./styles/vish-tokens.css";
+
+// Stale-chunk recovery: after a fresh deploy, an open session can request an old
+// hashed chunk and receive index.html ("'text/html' is not a valid JavaScript MIME
+// type"). Recover by activating any waiting service worker and reloading — at most
+// once per minute so a genuinely broken deploy still surfaces the error boundary.
+const CHUNK_RELOAD_KEY = 'vish:chunk-reload-at';
+window.addEventListener('vite:preloadError', (event) => {
+  const last = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? 0);
+  if (Date.now() - last < 60_000) return; // let the error boundary handle a loop
+  event.preventDefault();
+  sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
+  const reload = () => window.location.reload();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .getRegistration()
+      .then((registration) => {
+        registration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+      })
+      .finally(reload);
+  } else {
+    reload();
+  }
+});
 import "./styles/vish-layout-tokens.css";
 import "./vish-theme.css";
 import "./styles/vish-sacred-tokens.css";

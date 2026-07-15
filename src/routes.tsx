@@ -19,6 +19,8 @@ const OptimizationPage = lazy(() => import('./pages/OptimizationPage'));
 const ThreeDRoomPage = lazy(() => import('./pages/ThreeDRoomPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const CastViewerPage = lazy(() => import('./pages/CastViewerPage'));
 
 function lazyRoute(element: ReactNode) {
@@ -43,6 +45,8 @@ const ROUTE_ELEMENTS: Record<string, ReactNode> = {
   '/reset-password': lazyRoute(<ResetPasswordPage />),
   '/cast/:token': lazyRoute(<CastViewerPage />),
   '/404': lazyRoute(<NotFoundPage />),
+  '/terms': lazyRoute(<TermsPage />),
+  '/privacy': lazyRoute(<PrivacyPage />),
   '/editor': lazyRoute(<EditorPage />),
   '/editor-lite': lazyRoute(<LiteEditorPage />),
   '/3d-room': lazyRoute(<ThreeDRoomPage />),

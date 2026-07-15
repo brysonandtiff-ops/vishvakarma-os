@@ -3,4 +3,6 @@
   <url><loc>https://vishvakarma-os.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://vishvakarma-os.app/features</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://vishvakarma-os.app/pricing</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vishvakarma-os.app/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://vishvakarma-os.app/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
