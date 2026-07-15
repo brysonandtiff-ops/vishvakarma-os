@@ -110,7 +110,7 @@ export default function LandingPage() {
           <div className="vish-hero-copy vish-landing-hero__copy">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ws-text-dim shadow-lg backdrop-blur" aria-label="Release status">
               <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_14px_hsl(142_60%_45%/0.75)]" />
-              <span>v1.5 · Production UI pass</span>
+              <span>Live now · install-free PWA</span>
             </div>
 
             <MarketingPageHeader
@@ -128,16 +128,19 @@ export default function LandingPage() {
               description="Vishvakarma.OS is an iPad-first, browser-native architecture studio that turns one governed project into a 2D plan, a live 3D review, and a client-ready export package."
             />
 
-            <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+            <div className="vish-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <Button variant="gold" size="gold" className="touch-target w-full gap-2 px-8 sm:w-auto" asChild>
                 <Link to={cta.to}>{cta.primary}</Link>
               </Button>
               <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                <Link to="/features">View features</Link>
+                <Link to="/editor-lite">Try the Lite editor — no signup</Link>
               </Button>
-              <Button variant="goldOutline" size="gold" className="touch-target w-full px-8 sm:w-auto" asChild>
-                <Link to="/editor-lite">Try Lite Editor</Link>
-              </Button>
+              <Link
+                to="/features"
+                className="touch-target inline-flex items-center justify-center px-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                View all features →
+              </Link>
             </div>
 
             <ul className="mt-8 flex flex-wrap gap-2" aria-label="Product proof points">
@@ -197,7 +200,7 @@ export default function LandingPage() {
       <MarketingSection
         className="vish-fade-rise vish-landing-clarity-section"
         title="A complete project path, not just a toolbar"
-        description="The landing page now leads with the real buyer journey: draw the plan, inspect it in 3D, prove the release state, then export the handoff package."
+        description="Draw the plan, inspect it in 3D, prove the release state, then export the handoff package — one governed project, one path."
       >
         <ol className="vish-workflow-strip vish-landing-clarity-grid" aria-label="Vishvakarma.OS workflow">
           {WORKFLOW.map((item, index) => (
@@ -220,7 +223,7 @@ export default function LandingPage() {
       <MarketingSection
         className="vish-fade-rise"
         title="Nothing ships unless it is specified, gated, and provable"
-        description="Vish’s proof model stays visible: specs, registry, audit, editor rendering, export evidence, and release gates."
+        description="Specs, registry, audit trail, editor rendering, export evidence, and release gates stay visible — so you always know what's verified."
       >
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div className="rounded-2xl border border-primary/20 bg-card/45 p-6 shadow-lg backdrop-blur-sm md:p-8">
@@ -267,7 +270,7 @@ export default function LandingPage() {
       <MarketingSection
         className="vish-fade-rise"
         title="Rooms for every step of the architecture workflow"
-        description="Each room has a clear purpose so users know where to draw, inspect, govern, and deliver."
+        description="Draw, inspect, govern, and deliver — each room does one job, so you always know where to work."
       >
         <PageSectionGrid cols={4}>
           {ROOMS.map((room) => (
@@ -278,7 +281,7 @@ export default function LandingPage() {
               badge={room.eyebrow}
               className="vish-landing-room-card"
               footer={
-                <Link to={room.to} className="inline-flex text-sm font-semibold text-primary hover:text-primary/80">
+                <Link to={room.to} className="touch-target inline-flex items-center text-sm font-semibold text-primary underline-offset-4 hover:text-primary/80 hover:underline">
                   Open room →
                 </Link>
               }
@@ -289,8 +292,8 @@ export default function LandingPage() {
 
       <MarketingSection
         className="vish-fade-rise"
-        title="Device checks are part of the product, not an afterthought"
-        description="The interface is tuned for touch targets, safe-area spacing, and readable cards across iPad and phone layouts."
+        title="Made for iPad, honest on every screen"
+        description="Touch-first controls, safe-area spacing, and readable layouts from iPad landscape down to your phone."
       >
         <div className="grid gap-4 md:grid-cols-3">
           {DEVICE_PROOF.map((item) => (
@@ -305,7 +308,7 @@ export default function LandingPage() {
       <MarketingSection
         className="vish-fade-rise"
         title="Proof pillars"
-        description="The public page now mirrors the software honestly: editor, 3D view, exports, and release evidence."
+        description="Editor, 3D view, exports, and release evidence — everything shown here exists in the product today."
       >
         <PageSectionGrid cols={4}>
           {PROOF.map((item) => (
