@@ -43,7 +43,7 @@ test.describe('iPad production readiness', () => {
     await page.goto('/auth');
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/continue with google oauth/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /continue with google sso/i })).toBeVisible();
     await page.screenshot({ path: 'docs/release/evidence/ipad-auth-landscape.png', fullPage: false });
   });
 
@@ -52,7 +52,7 @@ test.describe('iPad production readiness', () => {
     await page.goto('/auth');
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/continue with google oauth/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /continue with google sso/i })).toBeVisible();
     await page.screenshot({ path: 'docs/release/evidence/ipad-auth-portrait.png', fullPage: false });
   });
 });
