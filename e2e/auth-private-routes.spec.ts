@@ -15,7 +15,7 @@ test.describe('production auth gate', () => {
     await page.goto('/auth');
 
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/continue with google sso/i)).toBeVisible();
+    await expect(page.getByTestId('google-sso-button')).toBeVisible();
     await expect(page.getByRole('button', { name: /continue with google sso/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /send secure access link/i })).toHaveCount(0);
   });
