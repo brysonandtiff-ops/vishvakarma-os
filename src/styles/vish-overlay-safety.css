@@ -1,0 +1,56 @@
+/*
+  Global overlay exclusivity.
+
+  First-run onboarding and modal workflows must stay visually and interactively
+  isolated. Analytics waits behind a blocking modal, while internal QA chrome is
+  unavailable until onboarding/consent is resolved. This prevents stacked panels
+  from obscuring controls or stealing pointer events in tablet and phone layouts.
+*/
+
+body:has([data-testid='first-run-welcome']) .vish-analytics-consent,
+body:has([aria-modal='true']) .vish-analytics-consent {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body:has(.vish-analytics-consent) :is(
+  .vish-device-validation,
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-touch-audit-hud
+),
+body:has([data-testid='first-run-welcome']) :is(
+  .vish-device-validation,
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-touch-audit-hud
+),
+body:has([aria-modal='true']) :is(
+  .vish-device-validation,
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-touch-audit-hud
+) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.vish-analytics-consent,
+.vish-device-validation,
+.vish-qa-evidence-launch,
+.vish-qa-evidence-panel,
+.vish-touch-audit-hud {
+  transition: opacity 120ms ease, visibility 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-analytics-consent,
+  .vish-device-validation,
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-touch-audit-hud {
+    transition: none;
+  }
+}
