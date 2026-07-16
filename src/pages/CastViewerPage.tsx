@@ -33,35 +33,24 @@ export default function CastViewerPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const onManifestChange = useCallback((next: ProjectManifest, isRemote: boolean) => {
-    if (isRemote) {
-      setManifest(next);
-    }
+    if (isRemote) setManifest(next);
   }, []);
 
   const { ready, error, projectName, lenses, chrono, intents, followPresenter, toggleFollow } =
-    useCastViewer({
-      token,
-      viewerName,
-      onManifestChange,
-    });
+    useCastViewer({ token, viewerName, onManifestChange });
 
   useEffect(() => {
     if (!ready) return;
     const collab = CollabSession.getInstance();
     const bridge = collab.getBridge();
     const remote = bridge?.toManifest();
-    if (remote) {
-      setManifest(remote);
-    }
+    if (remote) setManifest(remote);
   }, [ready]);
 
   const lighting = chrono.locked ? chrono.lighting : manifest.lighting;
   const layerVisibility = useMemo(
-    () => ({
-      ...DEFAULT_LAYER_VISIBILITY,
-      ...(lenses.layers ?? {}),
-    }),
-    [lenses.layers]
+    () => ({ ...DEFAULT_LAYER_VISIBILITY, ...(lenses.layers ?? {}) }),
+    [lenses.layers],
   );
 
   return (
@@ -100,7 +89,8 @@ export default function CastViewerPage() {
           <Button
             variant="ghost"
             size="icon"
-            className={`min-h-[44px] min-w-[44px] text-ws-text-dim hover:text-ws-text ${sidebarOpen ? 'bg-ws-active-bg text-primary' : ''}`}
+            className={`shrink-0 p-0 text-ws-text-dim hover:text-ws-text ${sidebarOpen ? 'bg-ws-active-bg text-primary' : ''}`}
+            style={{ width: 44, minWidth: 44, height: 44, minHeight: 44 }}
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label="Toggle sidebar"
             title="Toggle sidebar"
