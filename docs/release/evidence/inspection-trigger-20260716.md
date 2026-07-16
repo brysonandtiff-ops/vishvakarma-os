@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Refresh the active round-four release certification snapshot and report the current Playwright gate and failures.
+Refresh round-four app-smoke progress and report the current gate, failure count, and result artifact.
