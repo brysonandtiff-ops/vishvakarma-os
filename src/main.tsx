@@ -47,7 +47,6 @@ import "./styles/vish-empty-guided-start.css";
 import "./styles/vish-ui-display-fixes.css";
 import "./styles/vish-device-unity.css";
 import "./styles/vish-ios-performance-hardening.css";
-import "./styles/vish-auth-certification-fixes.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
