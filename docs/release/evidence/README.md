@@ -5,7 +5,7 @@
 | Field | State |
 |---|---|
 | Candidate branch | `agent/accelerated-v1.5.0-closeout-20260717` |
-| Candidate SHA | `8a0a649e424500f8ebbb6d03b07d4b5ee939c8e8` |
+| Candidate source head | `fcd412baaf915a090635cdbd11596f6c80b20949` |
 | Production `main` | `b57b946bdc41142ceacdd9fa08569373394d7a36` — unchanged |
 | Route/device matrix | **PASS — 60/60** |
 | Firefox auth + smoke | **PASS** |
@@ -30,24 +30,9 @@ The accelerated candidate resolves the shared failure causes captured by the sav
 - local project persistence and profile sign-out contracts,
 - reset-password-unavailable notice on the Google SSO auth page.
 
-## Required Evidence Files
-
-| File | Purpose | Public Launch Required |
-|---|---|---:|
-| `latest-ci-run.md` | Records the latest CI run and artifact status | Yes |
-| `security-headers.md` | Records deployed response headers and CSP/HSTS proof | Yes |
-| `auth-sign-in-proof.md` | Proves production auth gate and Google SSO evidence | Yes |
-| `save-load-proof.md` | Proves project save, reload, export and import behaviour | Yes |
-| `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
-| `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
-| `performance-notes.md` | Records build size, load behaviour and interaction performance | Yes |
-| `functional-workflow-proof.md` | Proves core app workflows end-to-end | Yes |
-| `screenshots/` | Stores route, iPad, parity and deployment screenshots | Yes |
-
 ## Evidence Rules
 
 - Evidence must reference the exact commit SHA and deployment URL it came from.
-- Screenshots and command logs must be current, not copied from older builds.
 - A route-matrix pass does not replace Chromium, accessibility, performance, production-auth or strict release certification.
 - Temporary certification branches, workflows, Vercel configs and draft PRs must never be merged into production.
 - The `v1.5.0` tag must point to the exact verified production `main` SHA.
