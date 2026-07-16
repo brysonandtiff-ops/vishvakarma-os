@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Inspect round-six sandbox `vish-production-cert-1784231422156` after the parent Vercel build timeout. Report whether it is still active, the current gate, total failures, unique failure details, and the exact candidate result artifact.
+Restore and inspect saved Chromium snapshot `snap_jEsLVtxQ4CAvQeCRdbKAsPh565OG`. Report every unique failure and concise error stack.
