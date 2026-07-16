@@ -1,3 +1,3 @@
 # Hosted Auth hardening rerun — 2026-07-16
 
-Certification rerun marker for the hosted authentication hardening and release verification sequence.
+Fresh certification trigger after the Supabase management credential was provisioned in Vercel for Preview and Production.
