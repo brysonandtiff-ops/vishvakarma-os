@@ -3,41 +3,62 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
-function run(command) {
-  const result = spawnSync('bash', ['-lc', command], {
-    cwd: process.cwd(),
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: 120_000,
-  });
+const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
+const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
+const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
+
+function baseEnv() {
   return {
-    status: result.status,
-    stdout: result.stdout ?? '',
-    stderr: result.stderr ?? '',
+    ...process.env,
+    VERCEL_TOKEN: oidcToken ?? '',
+    VERCEL_TEAM_ID: teamId,
+    VERCEL_PROJECT_ID: projectId,
   };
 }
 
+function runCli(args, timeout = 240_000) {
+  const result = spawnSync('pnpm', ['dlx', 'sandbox', ...args], {
+    env: baseEnv(),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout,
+  });
+  return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
+}
+
+function runInSandbox(sandboxName, command) {
+  return runCli([
+    'exec', '--sudo', '--timeout', '3m', sandboxName,
+    '--', 'bash', '-lc', command,
+  ]);
+}
+
 async function main() {
-  const sourceMatches = run(
-    "grep -RInE --exclude-dir=node_modules --exclude-dir=dist --exclude='*.map' " +
-      "'Device Validation|Device validation proof mode|vish-device-validation|Optional product analytics|vish-editor-overlay-backdrop' src e2e 2>/dev/null | head -n 400",
-  );
+  if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
 
-  const matchingFiles = run(
-    "grep -RIlE --exclude-dir=node_modules --exclude-dir=dist --exclude='*.map' " +
-      "'Device Validation|Device validation proof mode|vish-device-validation|Optional product analytics|vish-editor-overlay-backdrop' src e2e 2>/dev/null | sort",
-  );
+  const listed = runCli(['list']);
+  const names = `${listed.stdout}\n${listed.stderr}`.match(/vish-production-cert-\d+/g) ?? [];
+  const sandboxName = [...new Set(names)].sort().at(-1);
+  if (!sandboxName) {
+    throw new Error(`No active production certification sandbox found. List output: ${listed.stdout || listed.stderr}`);
+  }
 
-  const fileContents = run(
-    "for f in $(grep -RIlE --exclude-dir=node_modules --exclude-dir=dist --exclude='*.map' " +
-      "'Device Validation|Device validation proof mode|vish-device-validation|Optional product analytics|vish-editor-overlay-backdrop' src e2e 2>/dev/null | sort); do " +
-      "echo '===== FILE' $f; sed -n '1,320p' \"$f\"; done",
-  );
+  const processState = runInSandbox(sandboxName, "ps -eo pid,etimes,cmd --sort=etimes | tail -n 120");
+  const failedList = runInSandbox(sandboxName, "cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
+  const failureContext = runInSandbox(sandboxName, "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== CONTEXT ' $f; cat \"$f\"; done");
+  const resultArtifact = runInSandbox(sandboxName, "cat /opt/ubuntu/app/docs/release/evidence/sandbox-production-certification-result.json 2>/dev/null || true");
+  const screenshots = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report -type f \\( -name '*.png' -o -name '*.webp' \\) -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 120");
+  const artifacts = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report /opt/ubuntu/app/docs/release/evidence -maxdepth 4 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 180");
 
   const result = {
-    sourceMatches,
-    matchingFiles,
-    fileContents,
+    sandboxName,
+    listed,
+    processState,
+    failedList,
+    failureContext,
+    resultArtifact,
+    screenshots,
+    artifacts,
     inspectedAt: new Date().toISOString(),
   };
 
