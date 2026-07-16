@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "node scripts/sandbox-certification-probe.mjs",
+  "buildCommand": "node scripts/sandbox-production-certification.mjs",
   "outputDirectory": "dist",
   "rewrites": [
     {
