@@ -303,7 +303,7 @@ export function checkChangeRequestRequired(specName: string, newHash: string): C
  * This should be called during the build process
  */
 export function blockBuildOnSpecMismatch(): void {
-  console.log('[SPEC HASH] Validating all specs...');
+  import.meta.env?.DEV && console.log('[SPEC HASH] Validating all specs...');
   
   const results = validateAllSpecs();
   const failures: string[] = [];
@@ -322,7 +322,7 @@ export function blockBuildOnSpecMismatch(): void {
     throw new Error(`Build blocked: Spec hash mismatch detected. ${failures.length} spec(s) failed validation.`);
   }
   
-  console.log('[SPEC HASH] ✅ All specs validated successfully');
+  import.meta.env?.DEV && console.log('[SPEC HASH] ✅ All specs validated successfully');
 }
 
 // ============================================================================
@@ -392,7 +392,7 @@ export function approveSpecHash(
   spec.approvedAt = Date.now();
   spec.approvedBy = approvedBy;
   
-  console.log(`[SPEC HASH] ✅ Approved new hash for spec '${specName}': ${newHash}`);
+  import.meta.env?.DEV && console.log(`[SPEC HASH] ✅ Approved new hash for spec '${specName}': ${newHash}`);
   
   return {
     success: true,

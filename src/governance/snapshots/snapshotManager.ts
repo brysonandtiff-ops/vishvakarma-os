@@ -210,7 +210,7 @@ export function createSnapshot(
   // Save chain
   saveSnapshotChain(chain);
   
-  console.log(`[SNAPSHOT] ✅ Created snapshot ${id} (hash: ${hash})`);
+  import.meta.env?.DEV && console.log(`[SNAPSHOT] ✅ Created snapshot ${id} (hash: ${hash})`);
   
   return snapshot;
 }
@@ -230,7 +230,7 @@ export function detectCorruption(): boolean {
     return true;
   }
   
-  console.log('[SNAPSHOT] ✅ No corruption detected');
+  import.meta.env?.DEV && console.log('[SNAPSHOT] ✅ No corruption detected');
   return false;
 }
 
@@ -276,7 +276,7 @@ export function rollbackToLastValid(): RollbackResult {
     };
   }
   
-  console.log(`[SNAPSHOT] 🔄 Rolling back to snapshot ${lastValidSnapshot.id}`);
+  import.meta.env?.DEV && console.log(`[SNAPSHOT] 🔄 Rolling back to snapshot ${lastValidSnapshot.id}`);
   
   return {
     success: true,
@@ -314,7 +314,7 @@ export function rollbackToSnapshot(snapshotId: string): RollbackResult {
     };
   }
   
-  console.log(`[SNAPSHOT] 🔄 Rolling back to snapshot ${snapshotId}`);
+  import.meta.env?.DEV && console.log(`[SNAPSHOT] 🔄 Rolling back to snapshot ${snapshotId}`);
   
   return {
     success: true,
@@ -384,7 +384,7 @@ export function getChainStatus(): {
  */
 export function clearAllSnapshots(): void {
   localStorage.removeItem(SNAPSHOT_STORAGE_KEY);
-  console.log('[SNAPSHOT] 🗑️ All snapshots cleared');
+  import.meta.env?.DEV && console.log('[SNAPSHOT] 🗑️ All snapshots cleared');
 }
 
 // ============================================================================

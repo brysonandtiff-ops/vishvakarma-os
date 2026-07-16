@@ -130,6 +130,11 @@ export default defineConfig(({ command, mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Production bundles drop verbose console traces (log/debug/trace) while
+  // keeping console.warn/error intact for Sentry breadcrumbs and field triage.
+  esbuild: {
+    pure: ['console.log', 'console.debug', 'console.trace'],
+  },
   build: {
     // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
     chunkSizeWarningLimit: 900,

@@ -53,7 +53,7 @@ export class GovernanceLock {
     this.eventLog.push(event);
 
     if (this.config.logAllOperations) {
-      console.log('[Governance]', event);
+      import.meta.env?.DEV && console.log('[Governance]', event);
     }
 
     // Persist to localStorage for audit trail

@@ -661,7 +661,7 @@ export function enforce(manifest?: ProjectManifest): EnforcementResult {
   
   // Log result
   if (result.success) {
-    console.log(`[GOVERNANCE ENFORCER] ✅ Enforcement passed (${result.metrics.totalTime.toFixed(2)}ms)`);
+    import.meta.env?.DEV && console.log(`[GOVERNANCE ENFORCER] ✅ Enforcement passed (${result.metrics.totalTime.toFixed(2)}ms)`);
   } else {
     console.warn(`[GOVERNANCE ENFORCER] ⚠️ Enforcement failed (${result.metrics.totalTime.toFixed(2)}ms)`);
     console.warn('[GOVERNANCE ENFORCER] Errors:', result.errors);
@@ -676,7 +676,7 @@ export function enforce(manifest?: ProjectManifest): EnforcementResult {
  */
 export function configureEnforcement(config: Partial<EnforcementConfig>): void {
   currentConfig = { ...currentConfig, ...config };
-  console.log('[GOVERNANCE ENFORCER] Configuration updated:', currentConfig);
+  import.meta.env?.DEV && console.log('[GOVERNANCE ENFORCER] Configuration updated:', currentConfig);
 }
 
 /**
@@ -696,7 +696,7 @@ export function enableProductionMode(): void {
     enableAutoRepair: false,
     blockOnFailure: true,
   });
-  console.log('[GOVERNANCE ENFORCER] 🔒 Production mode enabled');
+  import.meta.env?.DEV && console.log('[GOVERNANCE ENFORCER] 🔒 Production mode enabled');
 }
 
 /**
@@ -709,7 +709,7 @@ export function enableDevelopmentMode(): void {
     enableAutoRepair: true,
     blockOnFailure: false,
   });
-  console.log('[GOVERNANCE ENFORCER] 🔧 Development mode enabled');
+  import.meta.env?.DEV && console.log('[GOVERNANCE ENFORCER] 🔧 Development mode enabled');
 }
 
 // ============================================================================

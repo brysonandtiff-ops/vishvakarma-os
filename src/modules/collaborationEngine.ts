@@ -175,7 +175,7 @@ export class CollaborationEngine {
     }
 
     this.startHeartbeat();
-    console.log(`Connected to room ${roomId} as ${userName}`);
+    import.meta.env?.DEV && console.log(`Connected to room ${roomId} as ${userName}`);
   }
 
   async disconnect(): Promise<void> {
@@ -200,7 +200,7 @@ export class CollaborationEngine {
     this.currentUserId = null;
     this.users.clear();
     this.manifestHandler = null;
-    console.log('Disconnected from collaboration room');
+    import.meta.env?.DEV && console.log('Disconnected from collaboration room');
   }
 
   getCollabSession(): CollabSession {

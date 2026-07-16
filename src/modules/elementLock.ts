@@ -300,7 +300,7 @@ export class ElementLockingSystem {
       });
 
       if (expiredKeys.length > 0) {
-        console.log(`Cleaned up ${expiredKeys.length} expired locks`);
+        import.meta.env?.DEV && console.log(`Cleaned up ${expiredKeys.length} expired locks`);
       }
     }, 5000); // Every 5 seconds
   }
