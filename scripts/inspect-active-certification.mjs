@@ -10,7 +10,7 @@ const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
 
 function run(command) {
   const result = spawnSync('pnpm', [
-    'dlx', 'sandbox', 'exec', '--sudo', '--timeout', '2m', sandboxName,
+    'dlx', 'sandbox', 'exec', '--sudo', '--timeout', '3m', sandboxName,
     '--', 'bash', '-lc', command,
   ], {
     env: {
@@ -21,7 +21,7 @@ function run(command) {
     },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    timeout: 180_000,
+    timeout: 240_000,
   });
   return {
     status: result.status,
@@ -32,9 +32,10 @@ function run(command) {
 
 async function main() {
   if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
-  const processState = run("ps -eo pid,etimes,cmd --sort=etimes | tail -n 40");
-  const artifacts = run("find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report /opt/ubuntu/app/docs/release/evidence -maxdepth 3 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 80");
-  const result = { sandboxName, processState, artifacts, inspectedAt: new Date().toISOString() };
+  const processState = run("ps -eo pid,etimes,cmd --sort=etimes | tail -n 60");
+  const failures = run("for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | tail -n 12); do echo '===== ' $f ' ====='; sed -n '1,220p' \"$f\"; echo; done");
+  const reportFiles = run("find /opt/ubuntu/app/playwright-report /opt/ubuntu/app/test-results -maxdepth 3 -type f \\( -name '*.json' -o -name '*.xml' \\) -printf '%p\\n' 2>/dev/null | sort | tail -n 40");
+  const result = { sandboxName, processState, failures, reportFiles, inspectedAt: new Date().toISOString() };
   console.log(JSON.stringify(result, null, 2));
   await mkdir('dist', { recursive: true });
   await writeFile('dist/index.html', `<pre>${JSON.stringify(result, null, 2)}</pre>`, 'utf8');
