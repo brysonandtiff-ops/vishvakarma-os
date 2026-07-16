@@ -4,14 +4,20 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: production-certification-${{ github.ref }}
+  group: production-certification-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
+
+env:
+  CERTIFICATION_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   auth-platform-hardening:
@@ -24,6 +30,11 @@ jobs:
     steps:
       - name: Checkout exact SHA
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CERTIFICATION_SHA }}
+
+      - name: Verify exact checkout
+        run: test "$(git rev-parse HEAD)" = "$CERTIFICATION_SHA"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -34,7 +45,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -61,6 +72,11 @@ jobs:
     steps:
       - name: Checkout exact SHA
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CERTIFICATION_SHA }}
+
+      - name: Verify exact checkout
+        run: test "$(git rev-parse HEAD)" = "$CERTIFICATION_SHA"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -71,7 +87,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -102,7 +118,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: production-certification-${{ github.sha }}
+          name: production-certification-${{ env.CERTIFICATION_SHA }}
           if-no-files-found: warn
           retention-days: 30
           path: |
