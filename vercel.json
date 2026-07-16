@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "node scripts/vercel-build.mjs",
+  "buildCommand": "node scripts/run-every-page-audit.mjs",
   "outputDirectory": "dist",
   "rewrites": [
     {
