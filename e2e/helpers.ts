@@ -147,13 +147,45 @@ async function activateProjectMenuItem(page: Page, name: RegExp) {
   });
 }
 
-export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {
+async function openSampleDialogFromDirectAction(page: Page) {
   const directDemo = page.getByTestId('editor-demo-quick-action');
-  if (!(await dismissVisibleControl(directDemo))) {
+  if (!(await directDemo.isVisible({ timeout: 1_500 }).catch(() => false))) return false;
+
+  await directDemo.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
+  await directDemo.evaluate((element) => {
+    const init = { bubbles: true, cancelable: true, button: 0 };
+    element.dispatchEvent(new PointerEvent('pointerdown', {
+      ...init,
+      buttons: 1,
+      pointerId: 91,
+      pointerType: 'touch',
+      isPrimary: true,
+    }));
+    element.dispatchEvent(new PointerEvent('pointerup', {
+      ...init,
+      buttons: 0,
+      pointerId: 91,
+      pointerType: 'touch',
+      isPrimary: true,
+    }));
+  });
+
+  return page
+    .getByRole('dialog', { name: /load sample blueprint/i })
+    .waitFor({ state: 'visible', timeout: 3_000 })
+    .then(() => true)
+    .catch(() => false);
+}
+
+export async function loadSampleProject(page: Page, sampleName = 'Sample House 01') {
+  const openedDirectly = await openSampleDialogFromDirectAction(page);
+  if (!openedDirectly) {
     await openProjectActionsMenu(page);
     await activateProjectMenuItem(page, /load sample blueprint|load demo blueprint/i);
   }
-  await expect(page.getByRole('dialog', { name: /load sample blueprint/i })).toBeVisible({ timeout: 15_000 });
+
+  const dialog = page.getByRole('dialog', { name: /load sample blueprint/i });
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
   if (sampleName !== 'Sample House 01') {
     await page.getByRole('button', { name: sampleName }).click();
   }
