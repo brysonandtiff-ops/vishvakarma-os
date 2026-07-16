@@ -11,6 +11,15 @@ test.describe('Authentication and Private Route Gate', () => {
     '/audit',
   ];
 
+  test('never renders the removed blocking session boot screen', async ({ page }) => {
+    await page.goto('/editor', { waitUntil: 'domcontentloaded' });
+
+    await expect(
+      page.locator('.vish-boot-stage, .vish-boot-mandala, .vish-boot-ring, .vish-boot-logo-wrap'),
+    ).toHaveCount(0);
+    await expect(page.getByText(/checking secure session/i)).not.toBeVisible();
+  });
+
   for (const route of privateRoutes) {
     test(`redirects unauthenticated user from ${route} to /auth`, async ({ page }) => {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
