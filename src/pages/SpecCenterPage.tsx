@@ -20,6 +20,7 @@ import { createSpec, getSpecs } from '@/db/api';
 import { getSystemSpecHash } from '@/governance/core/specHash';
 import { buildTextPdf, pdfBytesToBlob } from '@/utils/minimalPdf';
 import type { Spec } from '@/types';
+import PageMeta from '@/components/common/PageMeta';
 
 const requiredSections = [
   'Required UI Regions',
@@ -133,6 +134,7 @@ export default function SpecCenterPage() {
 
   return (
     <>
+      <PageMeta title="Spec Center — Vishvakarma.OS" description="Specifications and acceptance criteria that govern the studio." />
         <div data-tutorial="spec-center-header">
         <WorkspacePageHeader
           zone="governance"

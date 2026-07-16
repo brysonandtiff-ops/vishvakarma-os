@@ -14,6 +14,7 @@ import { GovernanceBackendBanner } from '@/components/governance/GovernanceBacke
 import { getAuditLogs } from '@/db/api';
 import type { AuditLog } from '@/types';
 import { useNavigate } from 'react-router-dom';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -80,6 +81,7 @@ export default function AuditLogPage() {
 
   return (
     <>
+      <PageMeta title="Audit Log — Vishvakarma.OS" description="Every governed action in your workspace, timestamped and traceable." />
         <WorkspacePageHeader
           zone="governance"
           variant="fullBleed"

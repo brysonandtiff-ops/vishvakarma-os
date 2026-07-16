@@ -19,6 +19,7 @@ import {
   type WorldRecordEntry,
 } from '@/governance/records/worldRecordRegistry';
 import { toast } from 'sonner';
+import PageMeta from '@/components/common/PageMeta';
 
 function statusVariant(status: WorldRecordEntry['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
   if (status === 'guinness_verified') return 'default';
@@ -73,6 +74,7 @@ export default function WorldRecordsPage() {
 
   return (
     <>
+      <PageMeta title="World Records — Vishvakarma.OS" description="Performance benchmarks and record runs across the studio." />
         <WorkspacePageHeader
           zone="governance"
           variant="fullBleed"

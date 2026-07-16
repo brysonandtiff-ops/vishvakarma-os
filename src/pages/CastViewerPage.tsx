@@ -9,6 +9,7 @@ import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_LAYER_VISIBILITY, type ProjectManifest } from '@/types';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import PageMeta from '@/components/common/PageMeta';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -65,6 +66,7 @@ export default function CastViewerPage() {
 
   return (
     <div className="vish-cast-viewer flex h-[100dvh] min-h-0 flex-col bg-ws-canvas" data-testid="cast-viewer-page">
+      <PageMeta title="Live Cast — Vishvakarma.OS" description="Watch a Vishvakarma.OS design session live, synced from the studio." />
       <header className="vish-cast-header vish-cast-viewer-controls flex min-h-nav-row shrink-0 items-center justify-between gap-4 border-b border-ws-border bg-ws-toolbar px-page-x py-2">
         <div className="flex min-w-0 items-center gap-3">
           <img src={OFFICIAL_LOGO_SRC} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />

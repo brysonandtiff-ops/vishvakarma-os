@@ -7,6 +7,7 @@ import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
 import { DEFAULT_SAMPLE_ID, getSampleDefinition, loadSampleById } from '@/core/sampleCatalog';
 import { readLocalDraft } from '@/editor/localDraft';
 import type { ProjectManifest } from '@/types';
+import PageMeta from '@/components/common/PageMeta';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 const FALLBACK_SAMPLE_ID = 'six-three-atrium-wing';
@@ -73,6 +74,7 @@ export default function ThreeDRoomPage() {
 
   return (
     <AppLayout immersive>
+      <PageMeta title="3D Room — Vishvakarma.OS" description="Walk your design in the immersive Sacred 3D room." />
       <div
         className="flex h-[100dvh] min-h-0 flex-col bg-background text-ws-text"
         data-testid="three-d-room-page"

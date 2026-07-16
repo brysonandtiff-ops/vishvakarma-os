@@ -29,6 +29,7 @@ import {
 import type { Release } from '@/types';
 import { Link } from 'react-router-dom';
 import { APP_VERSION } from '@/config/appVersion';
+import PageMeta from '@/components/common/PageMeta';
 
 interface ReleaseGate {
   id: string;
@@ -168,6 +169,7 @@ export default function ReleasesPage() {
 
   return (
     <>
+      <PageMeta title="Releases — Vishvakarma.OS" description="Release gates, proof runs, and ship/no-ship status for every version." />
         <WorkspacePageHeader
           zone="governance"
           variant="fullBleed"

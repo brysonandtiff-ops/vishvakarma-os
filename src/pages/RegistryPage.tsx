@@ -18,6 +18,7 @@ import { GovernanceBackendBanner } from '@/components/governance/GovernanceBacke
 import { backendStatus } from '@/backend/backendConfig';
 import { getRegistryEntries, createRegistryEntry } from '@/db/api';
 import type { RegistryEntry } from '@/types';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function RegistryPage() {
   const [entries, setEntries] = useState<RegistryEntry[]>([]);
@@ -66,6 +67,7 @@ export default function RegistryPage() {
 
   return (
     <>
+      <PageMeta title="Registry — Vishvakarma.OS" description="The canonical registry of modules, tools, and capabilities in your studio." />
         <WorkspacePageHeader
           zone="governance"
           variant="fullBleed"

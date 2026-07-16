@@ -18,6 +18,7 @@ import { GovernanceBackendBanner } from '@/components/governance/GovernanceBacke
 import { backendStatus } from '@/backend/backendConfig';
 import { getChangeRequests, createChangeRequest, updateChangeRequest } from '@/db/api';
 import type { ChangeRequest } from '@/types';
+import PageMeta from '@/components/common/PageMeta';
 
 export default function ChangeRequestsPage() {
   const [requests, setRequests] = useState<ChangeRequest[]>([]);
@@ -120,6 +121,7 @@ export default function ChangeRequestsPage() {
 
   return (
     <>
+      <PageMeta title="Change Requests — Vishvakarma.OS" description="Review, approve, and track proposed changes before they land." />
         <WorkspacePageHeader
           zone="governance"
           variant="fullBleed"
