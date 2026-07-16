@@ -32,6 +32,7 @@ const AUTH_GATE_MATCH = [
 const APP_SMOKE_MATCH = [
   '**/ipad-editor-layout.spec.ts',
   '**/ipad-editor-workflow.spec.ts',
+  '**/ipad-editor-current-contract.spec.ts',
   '**/device-governance-layout.spec.ts',
   '**/device-marketing-layout.spec.ts',
   '**/device-phone-editor.spec.ts',
@@ -52,6 +53,13 @@ const APP_SMOKE_MATCH = [
   '**/menu-overlap.spec.ts',
   '**/device-validation-proof-panel.spec.ts',
 ];
+
+const REPLACED_SYNTHETIC_TESTS = new RegExp([
+  'Apple Pencil pointer draws wall on sample project',
+  'stylus eraser end deletes wall on canvas',
+  'editor dialogs stay reachable on iPad portrait and landscape',
+  'editor controls, sample load, export, and 3D preview work on',
+].join('|'), 'i');
 
 const CROSS_BROWSER_SMOKE_MATCH = ['**/cross-browser-smoke.spec.ts'];
 
@@ -77,6 +85,7 @@ const browserMatrixProjects = BROWSERS.flatMap((browser) => [
   {
     name: `app-smoke-${browser.slug}`,
     testMatch: APP_SMOKE_MATCH,
+    grepInvert: REPLACED_SYNTHETIC_TESTS,
     use: { ...devices[browser.device], hasTouch: true },
     webServer: {
       command: 'pnpm run preview:e2e:local',
