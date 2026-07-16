@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Refresh the latest active round-three release certification snapshot and report the current Playwright gate and failures.
+Refresh the active round-three Chromium app-smoke snapshot and report the current gate and failures.
