@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Fresh read-only inspection requested after the Akasha Cast interaction fix.
+Follow-up read-only inspection for the Akasha Cast certification rerun.
