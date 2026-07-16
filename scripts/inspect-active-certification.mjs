@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 
 const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
 const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
-const sandboxName = 'vish-production-cert-1784165317927';
+const sandboxName = 'vish-production-cert-1784211838523';
 const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
 
 function run(command) {
