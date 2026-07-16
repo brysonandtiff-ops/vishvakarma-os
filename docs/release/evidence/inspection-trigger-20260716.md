@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Refresh the active release browser snapshot for sandbox vish-production-cert-1784226738663.
+Refresh the latest active v1.5.0 release certification snapshot and report the current gate and failures.
