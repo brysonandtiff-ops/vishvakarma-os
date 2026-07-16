@@ -48,6 +48,9 @@ const APP_SMOKE_MATCH = [
   '**/collaboration-sync.spec.ts',
   '**/compliance-gate.spec.ts',
   '**/akasha-cast.spec.ts',
+  '**/overlay-exclusivity.spec.ts',
+  '**/menu-overlap.spec.ts',
+  '**/device-validation-proof-panel.spec.ts',
 ];
 
 const CROSS_BROWSER_SMOKE_MATCH = ['**/cross-browser-smoke.spec.ts'];
@@ -103,9 +106,7 @@ const chromiumAppSmoke = browserMatrixProjects.find((project) => project.name ==
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
-  expect: {
-    timeout: 15_000,
-  },
+  expect: { timeout: 15_000 },
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 1,
