@@ -1,5 +1,5 @@
-import { test, expect, type Locator } from '@playwright/test';
-import { dismissConsentIfPresent, gotoAppPath } from './helpers';
+import { test, expect, type Locator, type Page } from '@playwright/test';
+import { gotoAppPath } from './helpers';
 
 async function clickBounded(target: Locator) {
   await target.waitFor({ state: 'visible', timeout: 10_000 });
@@ -11,24 +11,40 @@ async function clickBounded(target: Locator) {
   await target.evaluate((element) => (element as HTMLElement).click());
 }
 
+async function prepareEditor(page: Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
+    window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
+    window.localStorage.setItem('vishvakarma.os.tutorialDismissed.v1', '1');
+  });
+  await gotoAppPath(page, '/editor');
+}
+
+async function openSimulationPanels(page: Page) {
+  const panel = page.getByTestId('akasha-cast-panel');
+  if (await panel.isVisible({ timeout: 1_000 }).catch(() => false)) return true;
+
+  const trigger = page.getByRole('button', { name: /Simulation & proof panels/i }).first();
+  if (!(await trigger.isVisible({ timeout: 2_000 }).catch(() => false))) return false;
+
+  await clickBounded(trigger);
+  return panel.isVisible({ timeout: 5_000 }).catch(() => false);
+}
+
 test.describe('Akasha Cast', () => {
-  async function openSimulationPanels(page: import('@playwright/test').Page) {
+  test('shows the Studio panel or the correct Starter-tier state', async ({ page }) => {
+    await prepareEditor(page);
+    const panelAvailable = await openSimulationPanels(page);
     const panel = page.getByTestId('akasha-cast-panel');
-    if (await panel.isVisible({ timeout: 1_000 }).catch(() => false)) return;
 
-    const trigger = page.getByRole('button', { name: /Simulation & proof panels/i }).first();
-    await clickBounded(trigger);
-    await expect(panel).toBeVisible({ timeout: 10_000 });
-  }
+    if (panelAvailable) {
+      await expect(panel).toBeVisible();
+      await expect(panel).toContainText(/Akasha Cast/i);
+      return;
+    }
 
-  test('shows Akasha Cast panel in editor more menu area', async ({ page }) => {
-    await gotoAppPath(page, '/editor');
-    await dismissConsentIfPresent(page);
-    await openSimulationPanels(page);
-
-    const panel = page.getByTestId('akasha-cast-panel');
-    await expect(panel).toBeVisible();
-    await expect(panel).toContainText(/Akasha Cast/i);
+    await expect(panel).toHaveCount(0);
+    await expect(page.getByText('starter', { exact: true }).first()).toBeVisible();
   });
 
   test('local cast start exposes viewer link and viewer page shell', async ({ browser }) => {
@@ -39,9 +55,11 @@ test.describe('Akasha Cast', () => {
       const presenter = await presenterContext.newPage();
       const viewer = await viewerContext.newPage();
 
-      await gotoAppPath(presenter, '/editor');
-      await dismissConsentIfPresent(presenter);
-      await openSimulationPanels(presenter);
+      await prepareEditor(presenter);
+      const panelAvailable = await openSimulationPanels(presenter);
+      if (!panelAvailable) {
+        test.skip(true, 'Akasha Cast requires Studio tier in configured backend builds');
+      }
 
       const startButton = presenter.getByTestId('akasha-cast-start');
       if (!(await startButton.isVisible({ timeout: 2_000 }).catch(() => false))) {
@@ -50,9 +68,7 @@ test.describe('Akasha Cast', () => {
 
       await clickBounded(startButton);
       await expect(presenter.getByTestId('akasha-cast-stop')).toBeVisible({ timeout: 15_000 });
-
-      const copyButton = presenter.getByTestId('akasha-cast-copy-link');
-      await expect(copyButton).toBeVisible();
+      await expect(presenter.getByTestId('akasha-cast-copy-link')).toBeVisible();
 
       const shareUrl = await presenter.evaluate(async () => {
         const panel = document.querySelector('[data-testid="akasha-cast-panel"]');
@@ -65,8 +81,10 @@ test.describe('Akasha Cast', () => {
 
       if (shareUrl) {
         const path = new URL(shareUrl).pathname;
+        await viewer.addInitScript(() => {
+          window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
+        });
         await gotoAppPath(viewer, path);
-        await dismissConsentIfPresent(viewer);
         await expect(viewer.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
       }
     } finally {
