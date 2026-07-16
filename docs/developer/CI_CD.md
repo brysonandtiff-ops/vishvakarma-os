@@ -6,9 +6,18 @@
 
 ## Current policy
 
-GitHub Actions is intentionally disabled by owner policy. Files under `.github/workflows/` are ignored and no push or pull request should be described as automatically certified by GitHub Actions.
+GitHub Actions is allow-listed rather than globally enabled. `.github/workflows/production-certification.yml` is the sole approved workflow and runs against every push to `main` plus manual dispatches.
 
-Verification is performed from a trusted local checkout. Results must be bound to an exact commit SHA and committed under `docs/release/evidence/`. Vercel provides deployment/build status, but a green Vercel build is not a replacement for the application test and release-gate ladder.
+The workflow binds results to the exact commit SHA and performs:
+
+- hosted Supabase Auth hardening verification;
+- Chromium, Firefox, and WebKit E2E;
+- accessibility and editor-performance browser audits;
+- production auth-route verification;
+- strict release and launch-evidence gates;
+- evidence artifact upload.
+
+Vercel remains the deployment/build provider. A green Vercel build and a green Production Certification run are both required for a fully production-verified claim.
 
 ## Required release ladder
 
@@ -19,9 +28,10 @@ pnpm run handoff:verify
 pnpm run docs:verify
 pnpm run lint
 pnpm run verify:ci
-pnpm run test:e2e
-pnpm run test:e2e:cross-browser
+PLAYWRIGHT_BROWSERS=all pnpm run test:e2e
 pnpm run test:e2e:a11y
+pnpm run test:e2e:perf
+pnpm run verify:production-auth-flow
 pnpm run release:gates:strict
 pnpm run launch:evidence:strict
 ```
@@ -29,11 +39,18 @@ pnpm run launch:evidence:strict
 For Supabase or authentication changes also run:
 
 ```bash
+pnpm run setup:supabase-auth:hardening
 pnpm run verify:supabase-schema:live
 pnpm run test:supabase-auth
-pnpm run verify:production-auth-flow
 pnpm run verify:supabase-save-reload
 ```
+
+## Auth platform decision
+
+- HaveIBeenPwned leaked-password protection must remain enabled.
+- TOTP enrollment and verification must remain enabled.
+- Phone MFA is intentionally disabled until an SMS provider, recovery UX, SIM-swap risk posture, and the recurring Advanced MFA Phone add-on cost are explicitly approved.
+- The Supabase `auth_insufficient_mfa_options` advisor warning is therefore a documented product/cost exception, not an unreviewed control gap.
 
 ## Evidence requirements
 
@@ -42,11 +59,12 @@ A release evidence record must include:
 - exact candidate commit SHA;
 - command list and exit status;
 - production or preview deployment URL;
-- Supabase migration/advisor status when the database changed;
-- any skipped, unavailable, or operator-only checks;
-- a clear PASS, FAIL, or PARTIAL verdict.
+- Supabase Auth configuration and advisor disposition;
+- workflow run and uploaded artifact references;
+- any skipped or unavailable checks;
+- a clear PASS, FAIL, or PASS-WITH-DOCUMENTED-EXCEPTION verdict.
 
-Do not copy a prior PASS verdict onto a newer SHA. Historical GitHub Actions runs remain valid historical evidence only for the commits they tested.
+Do not copy a prior PASS verdict onto a newer SHA.
 
 ## Deployment
 
@@ -57,10 +75,12 @@ Production deploys use Vercel. `pnpm run deploy:vercel` runs the local verificat
 | Script | Purpose |
 |---|---|
 | `verify:ci` | Local CI-equivalent verification bundle |
+| `test:e2e` | Browser E2E; use `PLAYWRIGHT_BROWSERS=all` for certification |
+| `test:e2e:a11y` | Browser accessibility audit |
+| `test:e2e:perf` | Editor browser performance audit |
+| `setup:supabase-auth:hardening` | Enable and verify hosted HIBP/TOTP controls |
 | `release:gates:strict` | Strict release manifest |
 | `launch:evidence:strict` | Strict launch-evidence validation |
 | `handoff:generate` | Regenerate handoff appendices |
 | `handoff:verify` | Verify handoff completeness |
 | `docs:verify` | Documentation links and staleness checks |
-| `hardening:gates` | Production security checks |
-| `auth:gates` | Authentication configuration guards |

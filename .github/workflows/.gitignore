@@ -1,3 +1,4 @@
-# Owner policy: GitHub Actions is disabled; verification is local-only.
+# Owner policy: workflows are opt-in and explicitly allow-listed.
 *.yml
 *.yaml
+!production-certification.yml

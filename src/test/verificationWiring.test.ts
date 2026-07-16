@@ -40,15 +40,19 @@ describe('verification command wiring', () => {
     expect(verifyCiSteps).toContain('pnpm run test:routes');
   });
 
-  it('enforces local-only verification with no executable GitHub workflows', () => {
+  it('enforces the single audited GitHub certification workflow', () => {
     const workflowDirectory = resolve(repoRoot, '.github/workflows');
     const entries = existsSync(workflowDirectory) ? readdirSync(workflowDirectory) : [];
     const executableWorkflows = entries.filter((entry) => /\.ya?ml$/i.test(entry));
 
-    expect(executableWorkflows).toEqual([]);
+    expect(executableWorkflows).toEqual(['production-certification.yml']);
     const policy = read('.github/workflows/README.md');
-    expect(policy).toContain('GitHub Actions is intentionally not used');
-    expect(policy).toContain('Run `pnpm run lint`');
-    expect(policy).toContain('never from GitHub Actions');
+    const workflow = read('.github/workflows/production-certification.yml');
+    expect(policy).toContain('Allow-listed verification policy');
+    expect(policy).toContain('only executable workflow allowed');
+    expect(policy).toContain('does not deploy production');
+    expect(workflow).toContain('PLAYWRIGHT_BROWSERS: all');
+    expect(workflow).toContain('pnpm run setup:supabase-auth:hardening');
+    expect(workflow).toContain('pnpm run launch:evidence:strict');
   });
 });
