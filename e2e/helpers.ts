@@ -270,6 +270,7 @@ export async function activateEditorTool(page: Page, toolName: string) {
     if ((await candidate.count().catch(() => 0)) === 0) continue;
     if (!(await candidate.isVisible({ timeout: 1_000 }).catch(() => false))) continue;
     await tapReachable(candidate);
+    await expect(candidate).toHaveAttribute('aria-pressed', 'true', { timeout: 5_000 });
     return;
   }
   throw new Error(`Editor tool not found: ${toolName}`);
@@ -277,38 +278,75 @@ export async function activateEditorTool(page: Page, toolName: string) {
 
 type CanvasPoint = { x: number; y: number };
 type CanvasPointerType = 'pointerdown' | 'pointermove' | 'pointerup';
+type CanvasPointerKind = 'touch' | 'pen' | 'mouse';
+
+type CanvasPointerOptions = {
+  pointerType?: CanvasPointerKind;
+  pointerId?: number;
+  button?: number;
+  buttons?: number;
+  pressure?: number;
+};
+
+export async function dispatchCanvasPointer(
+  canvas: Locator,
+  eventType: CanvasPointerType,
+  point: CanvasPoint,
+  options: CanvasPointerOptions = {},
+) {
+  await canvas.evaluate(
+    (element, payload) => {
+      const rect = element.getBoundingClientRect();
+      const isUp = payload.eventType === 'pointerup';
+      const button = payload.options.button ?? 0;
+      const buttons = payload.options.buttons ?? (isUp ? 0 : button === 5 ? 32 : 1);
+      element.dispatchEvent(new PointerEvent(payload.eventType, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: payload.options.pointerId ?? 73,
+        pointerType: payload.options.pointerType ?? 'touch',
+        isPrimary: true,
+        button,
+        buttons,
+        pressure: payload.options.pressure ?? (isUp ? 0 : 0.5),
+        clientX: rect.left + payload.point.x,
+        clientY: rect.top + payload.point.y,
+      }));
+    },
+    { eventType, point, options },
+  );
+}
 
 export async function dispatchCanvasTouchPointer(canvas: Locator, eventType: CanvasPointerType, point: CanvasPoint) {
-  await canvas.evaluate((element, payload) => {
-    const rect = element.getBoundingClientRect();
-    const isUp = payload.eventType === 'pointerup';
-    element.dispatchEvent(new PointerEvent(payload.eventType, {
-      bubbles: true,
-      cancelable: true,
-      pointerId: 73,
-      pointerType: 'touch',
-      isPrimary: true,
-      button: 0,
-      buttons: isUp ? 0 : 1,
-      pressure: isUp ? 0 : 0.5,
-      clientX: rect.left + payload.point.x,
-      clientY: rect.top + payload.point.y,
-    }));
-  }, { eventType, point });
+  await dispatchCanvasPointer(canvas, eventType, point, { pointerType: 'touch', pointerId: 73 });
+}
+
+export async function drawWallSegment(
+  canvas: Locator,
+  from: CanvasPoint,
+  to: CanvasPoint,
+  pointerType: CanvasPointerKind = 'touch',
+) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', from, { pointerType, pointerId: 73 });
+  await canvas.page().waitForTimeout(50);
+  for (let step = 1; step <= 5; step += 1) {
+    await dispatchCanvasPointer(
+      canvas,
+      'pointermove',
+      {
+        x: from.x + ((to.x - from.x) * step) / 5,
+        y: from.y + ((to.y - from.y) * step) / 5,
+      },
+      { pointerType, pointerId: 73 },
+    );
+    await canvas.page().waitForTimeout(20);
+  }
+  await dispatchCanvasPointer(canvas, 'pointerup', to, { pointerType, pointerId: 73 });
+  await canvas.page().waitForTimeout(80);
 }
 
 export async function drawWallSegmentTouch(canvas: Locator, from: CanvasPoint, to: CanvasPoint) {
-  await dispatchCanvasTouchPointer(canvas, 'pointerdown', from);
-  await dispatchCanvasTouchPointer(canvas, 'pointerup', from);
-  await canvas.page().waitForTimeout(40);
-  await dispatchCanvasTouchPointer(canvas, 'pointerdown', to);
-  for (let step = 1; step <= 4; step += 1) {
-    await dispatchCanvasTouchPointer(canvas, 'pointermove', {
-      x: from.x + ((to.x - from.x) * step) / 4,
-      y: from.y + ((to.y - from.y) * step) / 4,
-    });
-  }
-  await dispatchCanvasTouchPointer(canvas, 'pointerup', to);
+  await drawWallSegment(canvas, from, to, 'touch');
 }
 
 export async function readEditorMetricCount(page: Page, label: string) {
