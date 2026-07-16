@@ -82,8 +82,8 @@ const steps = [
 
 const certificationSteps = [
   {
-    label: 'Install browser runtimes',
-    command: 'pnpm exec playwright install chromium firefox webkit',
+    label: 'Install browser runtimes and system dependencies',
+    command: 'pnpm exec playwright install --with-deps chromium firefox webkit',
   },
   {
     label: 'Chromium, Firefox, and WebKit E2E',
