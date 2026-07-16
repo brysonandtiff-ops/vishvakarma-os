@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Restore and inspect saved Chromium snapshot `snap_jEsLVtxQ4CAvQeCRdbKAsPh565OG`. Report every unique failure and concise error stack.
+Run the fresh saved Chromium snapshot inspector and publish the complete unique failure list for the v1.5.0 closeout.
