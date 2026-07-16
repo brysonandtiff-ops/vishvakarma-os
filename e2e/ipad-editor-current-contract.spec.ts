@@ -25,37 +25,17 @@ async function setupEditor(page: Page, viewport: { width: number; height: number
   await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 }
 
-async function activateDraftingTool(page: Page, toolName: 'Wall' | 'Door' | 'Window') {
-  const button = page.getByTestId('tool-rail').getByRole('button', { name: toolName, exact: true });
+async function activatePersistentTool(page: Page, name: 'Wall' | 'Door' | 'Window') {
+  const button = page.getByTestId('tool-rail').getByRole('button', { name, exact: true });
   await button.scrollIntoViewIfNeeded({ timeout: 10_000 });
   await expect(button).toBeVisible({ timeout: 10_000 });
-
-  await button.evaluate((element) => {
-    const init = { bubbles: true, cancelable: true, button: 0 };
-    element.dispatchEvent(new PointerEvent('pointerdown', {
-      ...init,
-      buttons: 1,
-      pointerId: 61,
-      pointerType: 'touch',
-      isPrimary: true,
-    }));
-    element.dispatchEvent(new PointerEvent('pointerup', {
-      ...init,
-      buttons: 0,
-      pointerId: 61,
-      pointerType: 'touch',
-      isPrimary: true,
-    }));
-  });
-
+  await tapReachable(button);
   await expect(button).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 });
 }
 
 async function activateMenuItem(item: Locator) {
   await item.waitFor({ state: 'visible', timeout: 10_000 });
-  await item.evaluate((element) => {
-    (element as HTMLElement).click();
-  });
+  await item.evaluate((element) => (element as HTMLElement).click());
 }
 
 async function expect3DPane(page: Page) {
@@ -70,10 +50,27 @@ async function expect3DPane(page: Page) {
 
 async function canvasBox(page: Page) {
   const canvas = page.getByTestId('blueprint-canvas');
-  await expect(canvas).toBeVisible({ timeout: 30_000 });
   const box = await canvas.boundingBox();
   if (!box) throw new Error('Blueprint canvas is not measurable');
   return { canvas, box };
+}
+
+async function pencilTap(
+  canvas: Locator,
+  point: { x: number; y: number },
+  pointerId: number,
+) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', point, {
+    pointerType: 'pen',
+    pointerId,
+  });
+  await canvas.page().waitForTimeout(70);
+  await dispatchCanvasPointer(canvas, 'pointerup', point, {
+    pointerType: 'pen',
+    pointerId,
+    buttons: 0,
+  });
+  await canvas.page().waitForTimeout(130);
 }
 
 async function drawPencilWall(
@@ -81,68 +78,41 @@ async function drawPencilWall(
   from: { x: number; y: number },
   to: { x: number; y: number },
 ) {
-  await dispatchCanvasPointer(canvas, 'pointerdown', from, {
-    pointerType: 'pen',
-    pointerId: 73,
-  });
-  await canvas.page().waitForTimeout(80);
-  await dispatchCanvasPointer(canvas, 'pointerup', from, {
-    pointerType: 'pen',
-    pointerId: 73,
-    buttons: 0,
-  });
-  await canvas.page().waitForTimeout(140);
-
-  await dispatchCanvasPointer(canvas, 'pointerdown', to, {
-    pointerType: 'pen',
-    pointerId: 74,
-  });
-  await canvas.page().waitForTimeout(80);
-  await dispatchCanvasPointer(canvas, 'pointerup', to, {
-    pointerType: 'pen',
-    pointerId: 74,
-    buttons: 0,
-  });
-  await canvas.page().waitForTimeout(160);
+  await pencilTap(canvas, from, 73);
+  await pencilTap(canvas, to, 74);
 }
 
 test.describe('current iPad editor interaction contract', () => {
   test.setTimeout(120_000);
 
-  test('staged Apple Pencil taps create a wall', async ({ page }) => {
+  test('Apple Pencil taps create a wall on a blank canvas', async ({ page }) => {
     await setupEditor(page, iPadLandscape);
-    await loadSampleProject(page);
     const initialWalls = await readEditorMetricCount(page, 'Walls');
     const { canvas, box } = await canvasBox(page);
 
-    await activateDraftingTool(page, 'Wall');
-    const y = box.height * 0.72;
+    await activatePersistentTool(page, 'Wall');
+    const y = box.height * 0.64;
     await drawPencilWall(
       canvas,
-      { x: box.width * 0.58, y },
-      { x: box.width * 0.82, y },
+      { x: box.width * 0.3, y },
+      { x: box.width * 0.7, y },
     );
 
-    await expect
-      .poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 })
-      .toBeGreaterThan(initialWalls);
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
   });
 
-  test('staged Pencil eraser deletes the created wall', async ({ page }) => {
+  test('Pencil eraser deletes a newly created wall', async ({ page }) => {
     await setupEditor(page, iPadLandscape);
-    await loadSampleProject(page);
     const initialWalls = await readEditorMetricCount(page, 'Walls');
     const { canvas, box } = await canvasBox(page);
 
-    await activateDraftingTool(page, 'Wall');
-    const y = box.height * 0.78;
-    const from = { x: box.width * 0.56, y };
-    const to = { x: box.width * 0.80, y };
+    await activatePersistentTool(page, 'Wall');
+    const y = box.height * 0.7;
+    const from = { x: box.width * 0.32, y };
+    const to = { x: box.width * 0.72, y };
     const midpoint = { x: (from.x + to.x) / 2, y };
     await drawPencilWall(canvas, from, to);
-    await expect
-      .poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 })
-      .toBeGreaterThan(initialWalls);
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
 
     await dispatchCanvasPointer(canvas, 'pointerdown', midpoint, {
       pointerType: 'pen',
@@ -158,9 +128,7 @@ test.describe('current iPad editor interaction contract', () => {
       buttons: 0,
     });
 
-    await expect
-      .poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 })
-      .toBe(initialWalls);
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls);
   });
 
   test('project, export and Copilot dialogs remain reachable across iPad orientations', async ({ page }) => {
@@ -197,8 +165,9 @@ test.describe('current iPad editor interaction contract', () => {
       await loadSampleProject(page);
 
       for (const tool of ['Wall', 'Door', 'Window'] as const) {
-        await activateDraftingTool(page, tool);
+        await activatePersistentTool(page, tool);
       }
+
       const room = page.getByTestId('tool-rail').getByRole('button', { name: 'Room', exact: true });
       await room.scrollIntoViewIfNeeded({ timeout: 10_000 });
       await expect(room).toBeVisible();
