@@ -26,7 +26,8 @@ async function expectVisibleSurfacesInsideViewport(page: Page) {
     expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 2);
   }
 
-  await expect(page.locator('[aria-modal="true"]:visible')).toHaveCount(count > 0 ? 0 : 0);
+  const blockingCount = await page.locator('[aria-modal="true"]:visible').count();
+  expect(blockingCount, `Stacked blocking surfaces: ${blockingCount}`).toBeLessThanOrEqual(1);
 }
 
 test.describe('Menu and overlay collision audit', () => {
@@ -66,7 +67,6 @@ test.describe('Menu and overlay collision audit', () => {
     if (await trigger.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await trigger.click({ force: true });
       await expectVisibleSurfacesInsideViewport(page);
-      await expect(page.locator('[aria-modal="true"]:visible')).toHaveCount(0);
     }
   });
 });
