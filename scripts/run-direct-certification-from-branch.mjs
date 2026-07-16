@@ -1,27 +1,10 @@
 #!/usr/bin/env node
 
-const branch = process.env.VERCEL_GIT_COMMIT_REF?.trim() || '';
-const knownPhases = [
-  'app-services',
-  'app-editor',
-  'perf-auth',
-  'app-ui',
-  'firefox',
-  'webkit',
-  'release',
-  'evidence',
-  'auth',
-  'a11y',
-];
+import { readFile } from 'node:fs/promises';
 
-const marker = 'agent/direct-cert-';
-const remainder = branch.startsWith(marker) ? branch.slice(marker.length) : '';
-const phase = knownPhases.find((candidate) => remainder === candidate || remainder.startsWith(`${candidate}-`));
-
-if (!phase) {
-  throw new Error(`Unable to infer certification phase from branch: ${branch || '(empty)'}`);
-}
+const phase = (await readFile(new URL('../cert-phase.txt', import.meta.url), 'utf8')).trim();
+if (!phase) throw new Error('cert-phase.txt is empty');
 
 process.env.CERT_PHASE = phase;
-console.log(`[direct-cert] inferred phase ${phase} from ${branch}`);
+console.log(`[direct-cert] loaded phase ${phase} from cert-phase.txt`);
 await import('./run-direct-certification-phase.mjs');
