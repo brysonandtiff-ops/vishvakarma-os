@@ -176,7 +176,7 @@ export default function LandingPage() {
                 <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
                 <strong className="ml-3 truncate font-mono text-[10px] uppercase tracking-[0.22em] text-ws-text-dim">sacred-3d-view · Premium</strong>
               </div>
-              <img src="/marketing/product-3d.png" alt="Live Sacred 3D View generated from a floor plan" width={1280} height={800} decoding="async" loading="eager" />
+              <img src="/marketing/product-3d.webp" alt="Live Sacred 3D View generated from a floor plan" width={954} height={834} decoding="async" loading="eager" />
               <figcaption>
                 <span className="vish-hero-showcase__dot" />
                 Sacred 3D View · live sync
@@ -189,7 +189,7 @@ export default function LandingPage() {
                 <span className="h-2 w-2 rounded-full bg-success/70" />
                 <strong className="ml-2 truncate font-mono text-[9px] uppercase tracking-[0.18em] text-ws-text-dim">2D blueprint</strong>
               </div>
-              <img src="/marketing/product-2d.png" alt="2D blueprint editor with a sample floor plan" width={1280} height={800} decoding="async" loading="lazy" />
+              <img src="/marketing/product-2d.webp" alt="2D blueprint editor with a sample floor plan" width={592} height={412} decoding="async" loading="lazy" />
               <figcaption>2D Blueprint</figcaption>
             </figure>
             <span className="vish-hero-showcase__flow">2D&nbsp;→&nbsp;3D&nbsp;live</span>
