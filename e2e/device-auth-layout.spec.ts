@@ -8,7 +8,7 @@ import {
 
 const AUTH_TOUCH_SELECTORS = [
   '[data-testid="auth-mockup-card"] .vish-login-page__primary',
-  '[data-testid="auth-mockup-card"] .vish-login-page__secondary',
+  '[data-testid="auth-mockup-card"] .vish-login-page__link',
   '.vish-auth-google-button',
 ];
 
@@ -16,6 +16,7 @@ async function assertAuthPageLayout(page: import('@playwright/test').Page) {
   await page.goto('/auth', { waitUntil: 'domcontentloaded' });
   await expect(page.getByTestId('auth-page')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId('google-sso-button')).toBeVisible();
   await assertNoHorizontalOverflow(page);
   await assertTouchTargets(page, AUTH_TOUCH_SELECTORS);
 }
@@ -32,29 +33,22 @@ test.describe('Device auth layout', () => {
     await expect(page.getByTestId('auth-trust-pillars')).toBeHidden();
   });
 
-  test('auth primary action stays reachable when keyboard is open on iPad portrait', async ({ page }) => {
-    await page.setViewportSize(iPadPortrait);
+  test('Google SSO action stays reachable in reduced-height iPad viewport', async ({ page }) => {
+    const reducedViewport = { width: iPadPortrait.width, height: 520 };
+    await page.setViewportSize(reducedViewport);
     await page.goto('/auth', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 30_000 });
 
-    const email = page.getByLabel(/email/i).first();
-    await email.click();
-    await email.fill('architect@firm.com');
-
-    await page.evaluate(() => {
-      const viewport = window.visualViewport;
-      if (!viewport) return;
-      Object.defineProperty(window, 'innerHeight', { configurable: true, value: 520 });
-      viewport.dispatchEvent(new Event('resize'));
-      viewport.dispatchEvent(new Event('scroll'));
-    });
-
-    const submit = page.getByRole('button', { name: /sign in|continue|send.*link|request access/i }).first();
+    const submit = page.getByTestId('google-sso-button');
+    await submit.scrollIntoViewIfNeeded();
     await expect(submit).toBeVisible();
     const box = await submit.boundingBox();
     expect(box).not.toBeNull();
     if (box) {
-      expect(box.y + box.height).toBeLessThanOrEqual(1180 + 2);
+      expect(box.x).toBeGreaterThanOrEqual(-2);
+      expect(box.y).toBeGreaterThanOrEqual(-2);
+      expect(box.x + box.width).toBeLessThanOrEqual(reducedViewport.width + 2);
+      expect(box.y + box.height).toBeLessThanOrEqual(reducedViewport.height + 2);
     }
   });
 });
