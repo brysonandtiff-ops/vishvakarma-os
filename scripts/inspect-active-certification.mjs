@@ -41,10 +41,10 @@ async function main() {
   const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
   const errorStacks = runInSandbox(
     sandboxName,
-    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | grep -E 'full-customer-audit|ipad-editor-layout|ipad-editor-workflow'); do " +
+    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | grep -E 'ipad-editor-layout|ipad-editor-workflow' | grep -v retry1); do " +
       "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
       "echo '===== TEST' \"$name\"; " +
-      "sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | sed '$d' | head -n 45; done",
+      "sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | sed '$d' | head -n 55; done",
   );
   const resultArtifact = runInSandbox(
     sandboxName,
