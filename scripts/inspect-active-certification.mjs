@@ -39,26 +39,39 @@ async function main() {
   const listed = runCli(['list']);
   const names = `${listed.stdout}\n${listed.stderr}`.match(/vish-production-cert-\d+/g) ?? [];
   const sandboxName = [...new Set(names)].sort().at(-1);
-  if (!sandboxName) {
-    throw new Error(`No active production certification sandbox found. List output: ${listed.stdout || listed.stderr}`);
-  }
+  if (!sandboxName) throw new Error('No active production certification sandbox found.');
 
-  const processState = runInSandbox(sandboxName, "ps -eo pid,etimes,cmd --sort=etimes | tail -n 120");
+  const activeCommands = runInSandbox(
+    sandboxName,
+    "ps -eo pid,etimes,cmd --sort=etimes | grep -E 'pnpm run test:e2e|playwright test|run-e2e-gates|release:gates|launch:evidence' | grep -v grep || true",
+  );
   const failedList = runInSandbox(sandboxName, "cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
-  const failureContext = runInSandbox(sandboxName, "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== CONTEXT ' $f; cat \"$f\"; done");
+  const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
+  const failureSummary = runInSandbox(
+    sandboxName,
+    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do " +
+      "echo '===== '$(dirname \"$f\" | sed 's#^.*/##'); " +
+      "grep -E '^- Name:|^Error:|^TimeoutError:|Touch targets below|Expected:|Received:|toBeVisible|toHaveCount|horizontal overflow|offscreen|overlap' \"$f\" | head -n 16; done",
+  );
+  const screenshotSummary = runInSandbox(
+    sandboxName,
+    "find /opt/ubuntu/app/test-results -name '*.png' -type f 2>/dev/null | sed 's#/test-failed-1.png##' | sed 's#^.*/##' | sort | uniq -c | tail -n 80",
+  );
+  const overlayShots = runInSandbox(
+    sandboxName,
+    "find /opt/ubuntu/app/test-results -type f -name '*.png' 2>/dev/null | grep -E 'overlay|onboarding|analytics|qa-ready' | sort | tail -n 40 || true",
+  );
   const resultArtifact = runInSandbox(sandboxName, "cat /opt/ubuntu/app/docs/release/evidence/sandbox-production-certification-result.json 2>/dev/null || true");
-  const screenshots = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report -type f \\( -name '*.png' -o -name '*.webp' \\) -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 120");
-  const artifacts = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report /opt/ubuntu/app/docs/release/evidence -maxdepth 4 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 180");
 
   const result = {
     sandboxName,
-    listed,
-    processState,
+    activeCommands,
     failedList,
-    failureContext,
+    failureCount,
+    failureSummary,
+    screenshotSummary,
+    overlayShots,
     resultArtifact,
-    screenshots,
-    artifacts,
     inspectedAt: new Date().toISOString(),
   };
 
