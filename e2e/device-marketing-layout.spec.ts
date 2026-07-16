@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   assertNoHorizontalOverflow,
   assertTouchTargets,
@@ -17,12 +17,17 @@ const MARKETING_TOUCH_SELECTORS = [
   '.vish-pricing-card .touch-target',
 ];
 
+const LANDING_HEADING = /draw floor plans.*review in 3d.*export proof/i;
+
 async function assertMarketingPage(
   page: import('@playwright/test').Page,
   path: string,
   heading: string | RegExp,
 ) {
-  await page.goto(path);
+  await page.addInitScript(() => {
+    window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
+  });
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible({ timeout: 30_000 });
   await assertNoHorizontalOverflow(page);
   await assertTouchTargets(page, MARKETING_TOUCH_SELECTORS);
@@ -31,17 +36,17 @@ async function assertMarketingPage(
 test.describe('Device marketing layout', () => {
   test('landing page fits iPad portrait', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    await assertMarketingPage(page, '/', /architecture studio/i);
+    await assertMarketingPage(page, '/', LANDING_HEADING);
   });
 
   test('landing page fits iPad landscape', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
-    await assertMarketingPage(page, '/', /architecture studio/i);
+    await assertMarketingPage(page, '/', LANDING_HEADING);
   });
 
   test('landing page fits iPhone portrait', async ({ page }) => {
     await page.setViewportSize(iPhonePortrait);
-    await assertMarketingPage(page, '/', /architecture studio/i);
+    await assertMarketingPage(page, '/', LANDING_HEADING);
   });
 
   test('features page fits iPad portrait', async ({ page }) => {
@@ -60,28 +65,25 @@ test.describe('Device marketing layout', () => {
   });
 
   test('pricing page fits iPad portrait when enabled', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
+    });
     await page.setViewportSize(iPadPortrait);
-    await page.goto('/pricing');
+    await page.goto('/pricing', { waitUntil: 'domcontentloaded' });
 
     const pricingHeading = page.getByRole('heading', {
       name: /professional-grade tools|fair, predictable pricing/i,
     });
     const notFound = page.getByRole('heading', { name: /404|not found|route not found/i });
 
-    const pricingVisible = await pricingHeading
-      .first()
-      .isVisible({ timeout: 15_000 })
-      .catch(() => false);
+    const pricingVisible = await pricingHeading.first().isVisible({ timeout: 15_000 }).catch(() => false);
     if (pricingVisible) {
       await assertNoHorizontalOverflow(page);
       await assertTouchTargets(page, MARKETING_TOUCH_SELECTORS);
       return;
     }
 
-    const routeMissing = await notFound
-      .first()
-      .isVisible({ timeout: 5_000 })
-      .catch(() => false);
+    const routeMissing = await notFound.first().isVisible({ timeout: 5_000 }).catch(() => false);
     if (routeMissing) {
       test.skip(true, 'Pricing page disabled in this build');
       return;
@@ -91,8 +93,11 @@ test.describe('Device marketing layout', () => {
   });
 
   test('marketing 404 fits iPad portrait', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
+    });
     await page.setViewportSize(iPadPortrait);
-    await page.goto('/404');
+    await page.goto('/404', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /404|not found|route not found/i }).first()).toBeVisible({
       timeout: 15_000,
     });
