@@ -19,6 +19,7 @@ import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
 import { AppRoutes } from '@/AppRoutes';
+import '@/styles/vish-overlay-safety.css';
 
 const QaTools = __VISH_QA_TOOLS_ENABLED__
   ? lazy(() => import('@/components/qa/QaTools'))
