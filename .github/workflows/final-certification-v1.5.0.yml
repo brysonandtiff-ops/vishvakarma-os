@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/github-cert-v1.5.0-20260717
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
