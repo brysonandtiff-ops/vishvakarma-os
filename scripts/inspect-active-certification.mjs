@@ -39,10 +39,12 @@ async function main() {
     "ps -eo pid,etimes,cmd --sort=etimes | grep -E 'pnpm run test:e2e|playwright test|run-e2e-gates|cross-browser|accessibility|editor-performance|production-auth|release:gates|launch:evidence' | grep -v grep || true",
   );
   const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
-  const detailedFailures = runInSandbox(
+  const errorStacks = runInSandbox(
     sandboxName,
     "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | grep -E 'full-customer-audit|ipad-editor-layout|ipad-editor-workflow'); do " +
-      "echo '===== FILE' $f; sed -n '1,260p' \"$f\"; done",
+      "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
+      "echo '===== TEST' \"$name\"; " +
+      "sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | sed '$d' | head -n 45; done",
   );
   const resultArtifact = runInSandbox(
     sandboxName,
@@ -53,7 +55,7 @@ async function main() {
     sandboxName,
     activeCommands,
     failureCount,
-    detailedFailures,
+    errorStacks,
     resultArtifact,
     inspectedAt: new Date().toISOString(),
   };
