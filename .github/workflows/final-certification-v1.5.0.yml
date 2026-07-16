@@ -1,0 +1,107 @@
+name: Vish Final Certification v1.5.0
+
+on:
+  push:
+    branches:
+      - agent/github-cert-v1.5.0-20260717
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: 53ea1445f71e976c19a99a53833cf50ec267ee4c
+  CI: '1'
+  VITE_E2E_ALLOW_LOCAL_ACCESS: 'true'
+  VITE_ALLOW_LOCAL_DEMO: 'true'
+  PRODUCTION_AUTH_URL: https://vishvakarma-os.app/auth
+
+jobs:
+  certify:
+    name: ${{ matrix.phase }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - phase: auth-chromium
+            browser: chromium
+            command: pnpm exec playwright test --project=auth-gate-chromium
+          - phase: app-editor-chromium
+            browser: chromium
+            command: pnpm exec playwright test --project=app-smoke-chromium e2e/ipad-editor-layout.spec.ts e2e/ipad-editor-workflow.spec.ts e2e/ipad-editor-current-contract.spec.ts e2e/full-customer-audit.spec.ts e2e/editor-features.spec.ts
+          - phase: app-ui-chromium
+            browser: chromium
+            command: pnpm exec playwright test --project=app-smoke-chromium e2e/device-governance-layout.spec.ts e2e/device-marketing-layout.spec.ts e2e/device-phone-editor.spec.ts e2e/device-collaboration-chrome.spec.ts e2e/device-desktop-layout.spec.ts e2e/governance-smoke.spec.ts e2e/marketing-pages.spec.ts e2e/overlay-exclusivity.spec.ts e2e/menu-overlap.spec.ts e2e/device-validation-proof-panel.spec.ts
+          - phase: app-services-chromium
+            browser: chromium
+            command: pnpm exec playwright test --project=app-smoke-chromium e2e/workspace-navigation.spec.ts e2e/projects-profile.spec.ts e2e/optimization.spec.ts e2e/ai-designer.spec.ts e2e/collaboration-sync.spec.ts e2e/compliance-gate.spec.ts e2e/akasha-cast.spec.ts
+          - phase: firefox
+            browser: firefox
+            command: pnpm exec playwright test --project=auth-gate-firefox && pnpm exec playwright test --project=cross-browser-smoke-firefox
+          - phase: webkit
+            browser: webkit
+            command: pnpm exec playwright test --project=auth-gate-webkit && pnpm exec playwright test --project=cross-browser-smoke-webkit
+          - phase: accessibility
+            browser: chromium
+            command: pnpm run test:e2e:a11y
+          - phase: performance-auth
+            browser: chromium
+            command: pnpm run test:e2e:perf && pnpm run verify:production-auth-flow
+          - phase: strict-release
+            browser: chromium
+            command: pnpm run release:gates:strict
+          - phase: strict-evidence
+            browser: none
+            command: pnpm run launch:evidence:strict
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser and system dependencies
+        if: matrix.browser != 'none'
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Verify exact source SHA
+        run: test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+
+      - name: Run certification phase
+        run: ${{ matrix.command }}
+
+      - name: Write phase result
+        if: success()
+        run: |
+          mkdir -p certification-results
+          printf '{\n  "status": "PASS",\n  "phase": "%s",\n  "candidateSha": "%s",\n  "completedAt": "%s"\n}\n' \
+            '${{ matrix.phase }}' "$CANDIDATE_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > "certification-results/${{ matrix.phase }}.json"
+
+      - name: Upload certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: certification-${{ matrix.phase }}
+          path: |
+            certification-results
+            test-results
+            playwright-report
+            docs/release/evidence
+          if-no-files-found: ignore
+          retention-days: 30
