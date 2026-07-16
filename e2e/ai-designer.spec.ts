@@ -40,7 +40,17 @@ test.describe('Architecture Copilot', () => {
   });
 
   test('generates design via copilot wizard and loads walls in editor', async ({ page }) => {
-    await openAIDesigner(page);
+    const directCopilotButton = page
+      .getByTestId('editor-ai-designer')
+      .or(page.getByRole('button', { name: 'Architecture Copilot', exact: true }))
+      .first();
+
+    if (await directCopilotButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await directCopilotButton.click({ force: true, timeout: 5_000 });
+    } else {
+      await openAIDesigner(page);
+    }
+
     await expect(page.getByRole('dialog')).toContainText('AI Architecture Copilot');
     await page.getByLabel('Design brief').fill('4-bedroom modern home on 600m² corner block with double garage');
     await page.getByRole('button', { name: 'Review inputs' }).click();
