@@ -39,18 +39,21 @@ async function main() {
     "ps -eo pid,etimes,cmd --sort=etimes | grep -E 'pnpm run test:e2e|playwright test|run-e2e-gates|cross-browser|accessibility|editor-performance|production-auth|release:gates|launch:evidence' | grep -v grep || true",
   );
   const lastRun = runInSandbox(sandboxName, "cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
-  const failures = runInSandbox(
-    sandboxName,
-    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== '$(dirname \"$f\" | sed 's#^.*/##'); grep -E '^- Name:|^Error:|^TimeoutError:|Touch targets below|Expected:|Received:|toBeVisible|toHaveCount|horizontal overflow|Stacked blocking|Clipped' \"$f\" | head -n 20; done",
-  );
   const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
+  const uniqueFailures = runInSandbox(
+    sandboxName,
+    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do " +
+      "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
+      "err=$(grep -m1 -E '^Error:|^TimeoutError:|Touch targets below|strict mode violation|horizontal overflow|Stacked blocking|Clipped' \"$f\"); " +
+      "printf '%s\\t%s\\n' \"$name\" \"$err\"; done | sort -u",
+  );
   const resultArtifact = runInSandbox(
     sandboxName,
     "cat /opt/ubuntu/app/docs/release/evidence/sandbox-production-certification-result.json 2>/dev/null || true",
   );
   const evidenceTail = runInSandbox(
     sandboxName,
-    "find /opt/ubuntu/app/docs/release/evidence -maxdepth 2 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 80",
+    "find /opt/ubuntu/app/docs/release/evidence -maxdepth 2 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 40",
   );
 
   const result = {
@@ -58,7 +61,7 @@ async function main() {
     activeCommands,
     lastRun,
     failureCount,
-    failures,
+    uniqueFailures,
     resultArtifact,
     evidenceTail,
     inspectedAt: new Date().toISOString(),
