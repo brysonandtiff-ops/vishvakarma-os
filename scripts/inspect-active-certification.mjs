@@ -1,73 +1,66 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 
-const roots = ['src', 'e2e', 'docs'];
-const allowedExtensions = new Set(['.ts', '.tsx', '.js', '.mjs', '.css', '.md']);
-const terms = [
-  'Follow presenter',
-  'cast-viewer-controls',
-  'Device marketing layout',
-  'landing page fits',
-  'full customer audit',
-  'iPad editor',
-];
+const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
+const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
+const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
 
-async function walk(root) {
-  const found = [];
-  const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
-  for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === 'dist') continue;
-    const fullPath = path.join(root, entry.name);
-    if (entry.isDirectory()) {
-      found.push(...await walk(fullPath));
-    } else if (allowedExtensions.has(path.extname(entry.name))) {
-      found.push(fullPath);
-    }
-  }
-  return found;
+function runCli(args, timeout = 240_000) {
+  const result = spawnSync('pnpm', ['dlx', 'sandbox', ...args], {
+    env: {
+      ...process.env,
+      VERCEL_TOKEN: oidcToken ?? '',
+      VERCEL_TEAM_ID: teamId,
+      VERCEL_PROJECT_ID: projectId,
+    },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout,
+  });
+  return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
+}
+
+function runInSandbox(sandboxName, command) {
+  return runCli(['exec', '--sudo', '--timeout', '3m', sandboxName, '--', 'bash', '-lc', command]);
 }
 
 async function main() {
-  const allFiles = [];
-  for (const root of roots) allFiles.push(...await walk(root));
-  if (await stat('README.md').catch(() => null)) allFiles.push('README.md');
+  if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
 
-  const matches = [];
-  const matchingFiles = [];
-  const contents = {};
-  const evidenceReadmes = [];
+  const listed = runCli(['list']);
+  const names = `${listed.stdout}\n${listed.stderr}`.match(/vish-production-cert-\d+/g) ?? [];
+  const sandboxName = [...new Set(names)].sort().at(-1);
+  if (!sandboxName) throw new Error(`No active final certification sandbox found. ${listed.stdout || listed.stderr}`);
 
-  for (const file of allFiles) {
-    const text = await readFile(file, 'utf8').catch(() => '');
-    const hitTerms = terms.filter((term) => text.toLowerCase().includes(term.toLowerCase()));
-    if (hitTerms.length) {
-      matchingFiles.push(file);
-      contents[file] = text.slice(0, 30000);
-      text.split('\n').forEach((line, index) => {
-        if (hitTerms.some((term) => line.toLowerCase().includes(term.toLowerCase()))) {
-          matches.push(`${file}:${index + 1}:${line.trim()}`);
-        }
-      });
-    }
-
-    const normalized = file.toLowerCase();
-    if (
-      normalized.endsWith('/readme.md') ||
-      normalized.includes('evidence') ||
-      normalized.includes('readiness') ||
-      normalized.includes('truth')
-    ) {
-      evidenceReadmes.push(file);
-    }
-  }
+  const activeCommands = runInSandbox(
+    sandboxName,
+    "ps -eo pid,etimes,cmd --sort=etimes | grep -E 'pnpm run test:e2e|playwright test|run-e2e-gates|cross-browser|accessibility|editor-performance|production-auth|release:gates|launch:evidence' | grep -v grep || true",
+  );
+  const lastRun = runInSandbox(sandboxName, "cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
+  const failures = runInSandbox(
+    sandboxName,
+    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== '$(dirname \"$f\" | sed 's#^.*/##'); grep -E '^- Name:|^Error:|^TimeoutError:|Touch targets below|Expected:|Received:|toBeVisible|toHaveCount|horizontal overflow|Stacked blocking|Clipped' \"$f\" | head -n 20; done",
+  );
+  const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
+  const resultArtifact = runInSandbox(
+    sandboxName,
+    "cat /opt/ubuntu/app/docs/release/evidence/sandbox-production-certification-result.json 2>/dev/null || true",
+  );
+  const evidenceTail = runInSandbox(
+    sandboxName,
+    "find /opt/ubuntu/app/docs/release/evidence -maxdepth 2 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 80",
+  );
 
   const result = {
-    matches: matches.slice(0, 800),
-    matchingFiles,
-    contents,
-    evidenceReadmes: evidenceReadmes.sort().slice(0, 500),
+    sandboxName,
+    activeCommands,
+    lastRun,
+    failureCount,
+    failures,
+    resultArtifact,
+    evidenceTail,
     inspectedAt: new Date().toISOString(),
   };
 
