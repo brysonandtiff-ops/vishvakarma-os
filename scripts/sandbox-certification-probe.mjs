@@ -1,15 +1,28 @@
 #!/usr/bin/env node
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
 const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
+const teamSlug = 'tyrasic-creations';
 const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
-const sandboxName = `vish-cert-probe-${Date.now()}`;
+const projectSlug = 'vishvakarma-os';
+const repositoryName = 'playwright-cert';
+const imageTag = 'v1.60.0-noble';
+const sourceImage = `mcr.microsoft.com/playwright:${imageTag}`;
+const destinationImage = `vcr.vercel.com/${teamSlug}/${projectSlug}/${repositoryName}:${imageTag}`;
+const provisionerName = `vish-image-provisioner-${Date.now()}`;
+const browserProbeName = `vish-browser-probe-${Date.now()}`;
 const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
+const localTokenPath = '/tmp/vish-vercel-oidc-token';
 
-function run(args, { allowFailure = false } = {}) {
-  console.log(`[sandbox-probe] pnpm ${args.join(' ')}`);
+function sandboxArgs(args) {
+  return ['dlx', 'sandbox', ...args];
+}
+
+function run(args, { allowFailure = false, timeoutMs = 20 * 60_000 } = {}) {
+  const printable = ['pnpm', ...args].join(' ');
+  console.log(`[sandbox-probe] ${printable}`);
   const result = spawnSync('pnpm', args, {
     cwd: process.cwd(),
     env: {
@@ -20,25 +33,58 @@ function run(args, { allowFailure = false } = {}) {
     },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: timeoutMs,
   });
 
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
 
   if (!allowFailure && result.status !== 0) {
-    throw new Error(`Command failed with exit code ${result.status}: pnpm ${args.join(' ')}`);
+    throw new Error(`Command failed with exit code ${result.status}: ${printable}`);
   }
 
   return result;
+}
+
+async function ensureVcrRepository() {
+  const response = await fetch(
+    `https://api.vercel.com/v1/vcr/repository?teamId=${encodeURIComponent(teamId)}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${oidcToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ projectId, name: repositoryName }),
+    },
+  );
+
+  const body = await response.text();
+  if (response.ok) {
+    console.log(`[sandbox-probe] VCR repository ready: ${repositoryName}`);
+    return;
+  }
+
+  if (response.status === 409 || /already exists/i.test(body)) {
+    console.log(`[sandbox-probe] VCR repository already exists: ${repositoryName}`);
+    return;
+  }
+
+  throw new Error(`VCR repository request failed (${response.status}): ${body.slice(0, 500)}`);
 }
 
 async function writeProbeArtifact(status) {
   await mkdir('dist', { recursive: true });
   await writeFile(
     'dist/index.html',
-    `<!doctype html><html><body><h1>Vishvakarma.OS Sandbox Probe</h1><pre>${status}</pre></body></html>`,
+    `<!doctype html><html><body><h1>Vishvakarma.OS Browser Sandbox Probe</h1><pre>${status}</pre></body></html>`,
     'utf8',
   );
+}
+
+function stopAndRemove(name) {
+  run(sandboxArgs(['stop', name]), { allowFailure: true, timeoutMs: 120_000 });
+  run(sandboxArgs(['remove', name]), { allowFailure: true, timeoutMs: 120_000 });
 }
 
 async function main() {
@@ -48,35 +94,126 @@ async function main() {
     throw new Error('VERCEL_OIDC_TOKEN is unavailable; Sandbox cannot authenticate.');
   }
 
-  let created = false;
+  await ensureVcrRepository();
+  await writeFile(localTokenPath, oidcToken, { mode: 0o600 });
+
+  let provisionerCreated = false;
+  let browserProbeCreated = false;
   try {
-    run(['dlx', 'sandbox', '--version']);
-    run([
-      'dlx',
-      'sandbox',
-      'create',
-      '--name',
-      sandboxName,
-      '--runtime',
-      'node24',
-      '--timeout',
-      '5m',
-    ]);
-    created = true;
-    run(['dlx', 'sandbox', 'exec', '--sudo', sandboxName, '--', 'dnf', '--version']);
-    run(['dlx', 'sandbox', 'exec', sandboxName, '--', 'node', '--version']);
-    await writeProbeArtifact(`PASS: ${sandboxName} created and sudo execution verified.`);
-    console.log('[sandbox-probe] PASS — Sandbox creation and sudo execution verified.');
+    run(sandboxArgs(['--version']));
+
+    run(
+      sandboxArgs([
+        'create',
+        '--name',
+        provisionerName,
+        '--runtime',
+        'node24',
+        '--timeout',
+        '30m',
+        '--vcpus',
+        '4',
+      ]),
+    );
+    provisionerCreated = true;
+
+    run(sandboxArgs(['copy', localTokenPath, `${provisionerName}:/tmp/vercel-oidc-token`]));
+    run(
+      sandboxArgs([
+        'exec',
+        '--sudo',
+        '--timeout',
+        '10m',
+        provisionerName,
+        '--',
+        'dnf',
+        'install',
+        '-y',
+        'skopeo',
+      ]),
+      { timeoutMs: 12 * 60_000 },
+    );
+    run(
+      sandboxArgs([
+        'exec',
+        '--sudo',
+        '--timeout',
+        '5m',
+        provisionerName,
+        '--',
+        'bash',
+        '-lc',
+        "cat /tmp/vercel-oidc-token | skopeo login --username oidc --password-stdin vcr.vercel.com",
+      ]),
+    );
+    run(
+      sandboxArgs([
+        'exec',
+        '--sudo',
+        '--timeout',
+        '20m',
+        provisionerName,
+        '--',
+        'skopeo',
+        'copy',
+        '--override-os',
+        'linux',
+        '--override-arch',
+        'amd64',
+        `docker://${sourceImage}`,
+        `docker://${destinationImage}`,
+      ]),
+      { timeoutMs: 25 * 60_000 },
+    );
+    stopAndRemove(provisionerName);
+    provisionerCreated = false;
+
+    run(
+      sandboxArgs([
+        'create',
+        '--name',
+        browserProbeName,
+        '--image',
+        `${repositoryName}:${imageTag}`,
+        '--timeout',
+        '15m',
+        '--vcpus',
+        '4',
+      ]),
+    );
+    browserProbeCreated = true;
+
+    run(sandboxArgs(['exec', browserProbeName, '--', 'node', '--version']));
+    run(
+      sandboxArgs([
+        'exec',
+        '--timeout',
+        '10m',
+        '--workdir',
+        '/tmp',
+        browserProbeName,
+        '--',
+        'bash',
+        '-lc',
+        'npm init -y >/dev/null && npm install playwright@1.60.0 --no-save >/dev/null && PLAYWRIGHT_BROWSERS_PATH=/ms-playwright node -e "const { chromium, firefox, webkit } = require(\'playwright\'); (async()=>{ for (const [name,type] of Object.entries({chromium,firefox,webkit})) { const browser = await type.launch({headless:true}); const page = await browser.newPage(); await page.setContent(\'<title>Vish Browser Probe</title><h1>PASS</h1>\'); console.log(name + \':\' + await page.title()); await browser.close(); } })().catch(error=>{ console.error(error); process.exit(1); });"',
+      ]),
+      { timeoutMs: 12 * 60_000 },
+    );
+
+    await writeProbeArtifact(
+      `PASS: ${destinationImage} mirrored to VCR; Chromium, Firefox, and WebKit launched successfully.`,
+    );
+    console.log('[sandbox-probe] PASS — browser-ready custom image and all three engines verified.');
   } finally {
-    if (created) {
-      run(['dlx', 'sandbox', 'stop', sandboxName], { allowFailure: true });
-      run(['dlx', 'sandbox', 'remove', sandboxName], { allowFailure: true });
-    }
+    if (browserProbeCreated) stopAndRemove(browserProbeName);
+    if (provisionerCreated) stopAndRemove(provisionerName);
+    await rm(localTokenPath, { force: true });
   }
 }
 
 main().catch(async (error) => {
   console.error('[sandbox-probe] FAIL:', error instanceof Error ? error.message : String(error));
   await writeProbeArtifact(`FAIL: ${error instanceof Error ? error.message : String(error)}`);
+  await rm(localTokenPath, { force: true });
   process.exit(1);
 });
