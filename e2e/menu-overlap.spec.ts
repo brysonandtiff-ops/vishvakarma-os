@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
+import { openProjectActionsMenu } from './helpers';
 
 async function seedSettledUi(page: Page) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(() => {
     window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
     window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
@@ -9,17 +11,19 @@ async function seedSettledUi(page: Page) {
 }
 
 async function expectVisibleSurfacesInsideViewport(page: Page) {
-  const surfaces = page.locator(
-    '[role="menu"]:visible, [role="dialog"]:visible, [role="listbox"]:visible, [data-radix-popper-content-wrapper]:visible',
-  );
+  await page.waitForTimeout(120);
+  const surfaces = page.locator('[role="menu"]:visible, [role="dialog"]:visible, [role="listbox"]:visible');
   const count = await surfaces.count();
   const viewport = page.viewportSize();
   expect(viewport).not.toBeNull();
   if (!viewport) return;
 
   for (let index = 0; index < count; index += 1) {
-    const box = await surfaces.nth(index).boundingBox();
+    const surface = surfaces.nth(index);
+    const box = await surface.boundingBox();
     if (!box) continue;
+    expect(box.width, 'Visible menu/dialog must have measurable width').toBeGreaterThan(0);
+    expect(box.height, 'Visible menu/dialog must have measurable height').toBeGreaterThan(0);
     expect(box.x).toBeGreaterThanOrEqual(-2);
     expect(box.y).toBeGreaterThanOrEqual(-2);
     expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 2);
@@ -37,12 +41,11 @@ test.describe('Menu and overlay collision audit', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /draw floor plans.*review in 3d.*export proof/i })).toBeVisible({ timeout: 45_000 });
 
-    const trigger = page.locator('.vish-marketing-nav-menu-btn').first();
-    if (await trigger.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await trigger.click({ force: true });
-      await expectVisibleSurfacesInsideViewport(page);
-      await page.keyboard.press('Escape');
-    }
+    await page.getByRole('button', { name: /open menu/i }).click({ force: true });
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10_000 });
+    await expectVisibleSurfacesInsideViewport(page);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toBeHidden();
   });
 
   test('project actions menu remains in bounds on iPad landscape', async ({ page }) => {
@@ -51,10 +54,11 @@ test.describe('Menu and overlay collision audit', () => {
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
 
-    await page.getByRole('button', { name: /project actions/i }).click({ force: true });
+    await openProjectActionsMenu(page);
     await expect(page.getByRole('menuitem').first()).toBeVisible({ timeout: 10_000 });
     await expectVisibleSurfacesInsideViewport(page);
     await page.keyboard.press('Escape');
+    await expect(page.getByRole('menuitem').first()).toBeHidden();
   });
 
   test('workspace navigation does not stack over another blocking dialog', async ({ page }) => {
@@ -63,10 +67,8 @@ test.describe('Menu and overlay collision audit', () => {
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
 
-    const trigger = page.getByRole('button', { name: /open workspace navigation/i });
-    if (await trigger.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await trigger.click({ force: true });
-      await expectVisibleSurfacesInsideViewport(page);
-    }
+    await page.getByRole('button', { name: /open workspace navigation/i }).click({ force: true });
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10_000 });
+    await expectVisibleSurfacesInsideViewport(page);
   });
 });
