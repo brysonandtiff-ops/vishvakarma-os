@@ -3,9 +3,16 @@ import { expect, test } from '@playwright/test';
 const iPadLandscape = { width: 1180, height: 820 };
 const iPadPortrait = { width: 820, height: 1180 };
 
+async function expectCurrentAuthGate(page: import('@playwright/test').Page) {
+  await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
+  const googleSso = page.getByTestId('google-sso-button');
+  await expect(googleSso).toBeVisible();
+  await expect(googleSso).toHaveText(/continue with google sso/i);
+}
+
 test.describe('iPad production readiness', () => {
   test('serves install metadata for iPad Home Screen', async ({ page }) => {
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
@@ -19,7 +26,7 @@ test.describe('iPad production readiness', () => {
   });
 
   test('registers service worker shell in production preview', async ({ page }) => {
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(async () => {
       if (!('serviceWorker' in navigator)) return false;
       const registration = await navigator.serviceWorker.getRegistration();
@@ -40,19 +47,17 @@ test.describe('iPad production readiness', () => {
 
   test('auth gate fits iPad landscape viewport', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/continue with google oauth/i)).toBeVisible();
+    await expectCurrentAuthGate(page);
     await page.screenshot({ path: 'docs/release/evidence/ipad-auth-landscape.png', fullPage: false });
   });
 
   test('auth gate fits iPad portrait viewport', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/continue with google oauth/i)).toBeVisible();
+    await expectCurrentAuthGate(page);
     await page.screenshot({ path: 'docs/release/evidence/ipad-auth-portrait.png', fullPage: false });
   });
 });
