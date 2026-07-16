@@ -44,7 +44,8 @@ test.describe('accessibility audit (WCAG 2.1 AA scan)', () => {
   test('features page', async ({ page }) => {
     await page.goto('/features');
     await dismissAnalyticsBanner(page);
-    await expect(page.getByRole('button', { name: 'Interactive Guides' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /interactive guides.*full feature reference/i })).toBeVisible();
+    await expect(page.getByTestId('features-tab-guides')).toBeVisible();
     await expectNoCriticalViolations(page, 'features');
   });
 
