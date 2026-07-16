@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   androidTabletLandscape,
   assertNoHorizontalOverflow,
@@ -41,9 +41,17 @@ async function assertGovernancePage(
   await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
 }
 
+async function assertRoomPage(page: import('@playwright/test').Page) {
+  await page.goto('/3d-room', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Market-class 3D Room', { exact: true })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
+  await assertNoHorizontalOverflow(page);
+}
+
 test.describe('Device governance layout', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      window.localStorage.setItem('vishvakarma-analytics-consent', 'denied');
       window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
       window.localStorage.setItem('vishvakarma.os.tutorialDismissed.v1', '1');
     });
@@ -72,21 +80,13 @@ test.describe('Device governance layout', () => {
 
   test('/3d-room fits iPad landscape without overflow', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
-    await page.goto('/3d-room', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /detached 3d chamber|market-class 3d room/i }).first()).toBeVisible({
-      timeout: 60_000,
-    });
-    await assertNoHorizontalOverflow(page);
+    await assertRoomPage(page);
     await assertTouchTargets(page, ['header button', 'section.border-b button']);
   });
 
   test('/3d-room fits iPad portrait without overflow', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    await page.goto('/3d-room', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /detached 3d chamber|market-class 3d room/i }).first()).toBeVisible({
-      timeout: 60_000,
-    });
-    await assertNoHorizontalOverflow(page);
+    await assertRoomPage(page);
   });
 
   test('unknown workspace route fits iPad portrait without overflow', async ({ page }) => {
@@ -100,16 +100,18 @@ test.describe('Device governance layout', () => {
 });
 
 test.describe('Cast viewer device layout', () => {
+  const castPreviewPath = '/cast/e2e-preview-id';
+
   test('cast viewer header controls meet touch targets on iPad portrait', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    await page.goto('/cast/e2e-preview-token');
+    await page.goto(castPreviewPath);
     await expect(page.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
     await assertTouchTargets(page, ['.vish-cast-viewer-controls label', '.vish-cast-viewer-controls button']);
   });
 
   test('cast viewer fits iPad landscape without horizontal overflow', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
-    await page.goto('/cast/e2e-preview-token');
+    await page.goto(castPreviewPath);
     await expect(page.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, ['.vish-cast-viewer-controls label', '.vish-cast-viewer-controls button']);
@@ -117,7 +119,7 @@ test.describe('Cast viewer device layout', () => {
 
   test('cast viewer fits iPhone portrait without horizontal overflow', async ({ page }) => {
     await page.setViewportSize(iPhonePortrait);
-    await page.goto('/cast/e2e-preview-token');
+    await page.goto(castPreviewPath);
     await expect(page.getByTestId('cast-viewer-page')).toBeVisible({ timeout: 15_000 });
     await assertNoHorizontalOverflow(page);
   });
