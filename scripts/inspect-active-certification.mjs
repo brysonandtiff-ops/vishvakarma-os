@@ -1,70 +1,41 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 
-async function walk(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await walk(path));
-    else if (/\.tsx?$/.test(entry.name)) files.push(path);
-  }
-  return files;
-}
+const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
+const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
+const sandboxName = 'vish-production-cert-1784165317927';
+const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
 
-function importedHelperNames(source) {
-  const names = new Set();
-  const pattern = /import\s*\{([\s\S]*?)\}\s*from\s*['"]\.\/helpers['"]/g;
-  for (const match of source.matchAll(pattern)) {
-    for (const item of match[1].split(',')) {
-      const name = item.trim().split(/\s+as\s+/)[0]?.trim();
-      if (name) names.add(name);
-    }
-  }
-  return names;
-}
-
-function exportedNames(source) {
-  const names = new Set();
-  for (const match of source.matchAll(/export\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/g)) names.add(match[1]);
-  for (const match of source.matchAll(/export\s+const\s+([A-Za-z_$][\w$]*)/g)) names.add(match[1]);
-  for (const match of source.matchAll(/export\s*\{([\s\S]*?)\}/g)) {
-    for (const item of match[1].split(',')) {
-      const name = item.trim().split(/\s+as\s+/).pop()?.trim();
-      if (name) names.add(name);
-    }
-  }
-  return names;
+function run(command) {
+  const result = spawnSync('pnpm', [
+    'dlx', 'sandbox', 'exec', '--sudo', '--timeout', '3m', sandboxName,
+    '--', 'bash', '-lc', command,
+  ], {
+    env: {
+      ...process.env,
+      VERCEL_TOKEN: oidcToken ?? '',
+      VERCEL_TEAM_ID: teamId,
+      VERCEL_PROJECT_ID: projectId,
+    },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 240_000,
+  });
+  return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
 }
 
 async function main() {
-  const files = await walk('e2e');
-  const importers = {};
-  const imported = new Set();
-  for (const file of files) {
-    const source = await readFile(file, 'utf8');
-    const names = [...importedHelperNames(source)].sort();
-    if (names.length) {
-      importers[file] = names;
-      names.forEach((name) => imported.add(name));
-    }
-  }
-
-  const helpersSource = await readFile('e2e/helpers.ts', 'utf8');
-  const exported = exportedNames(helpersSource);
-  const missing = [...imported].filter((name) => !exported.has(name)).sort();
-  const output = {
-    imported: [...imported].sort(),
-    exported: [...exported].sort(),
-    missing,
-    importers,
-    inspectedAt: new Date().toISOString(),
-  };
-  console.log(JSON.stringify(output, null, 2));
+  if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
+  const processState = run("ps -eo pid,etimes,cmd --sort=etimes | tail -n 90");
+  const failedList = run("cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
+  const failureSummary = run("for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== ' $f; grep -E '^- Name:|^Error:|^Locator:|^Expected:|^Received:|^Timeout:' \"$f\" | head -n 16; done");
+  const artifacts = run("find /opt/ubuntu/app/test-results /opt/ubuntu/app/playwright-report /opt/ubuntu/app/docs/release/evidence -maxdepth 3 -type f -printf '%TY-%Tm-%TdT%TH:%TM:%TS %s %p\\n' 2>/dev/null | sort | tail -n 140");
+  const result = { sandboxName, processState, failedList, failureSummary, artifacts, inspectedAt: new Date().toISOString() };
+  console.log(JSON.stringify(result, null, 2));
   await mkdir('dist', { recursive: true });
-  await writeFile('dist/index.html', `<pre>${JSON.stringify(output, null, 2)}</pre>`, 'utf8');
+  await writeFile('dist/index.html', `<pre>${JSON.stringify(result, null, 2)}</pre>`, 'utf8');
 }
 
 main().catch(async (error) => {
