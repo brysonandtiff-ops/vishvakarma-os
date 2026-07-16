@@ -21,7 +21,8 @@ export default function AnalyticsConsentBanner() {
       aria-modal="false"
       aria-labelledby="analytics-consent-title"
       aria-describedby="analytics-consent-description"
-      className="fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-lg flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/95 p-4 shadow-lg backdrop-blur"
+      data-testid="analytics-consent"
+      className="vish-analytics-consent fixed bottom-4 left-4 right-4 z-50 mx-auto flex max-w-lg flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/95 p-4 shadow-lg backdrop-blur"
     >
       <div className="space-y-1">
         <h2 id="analytics-consent-title" className="text-sm font-medium">
