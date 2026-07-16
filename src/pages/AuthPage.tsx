@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Shield, Trophy } from 'lucide-react';
 import { WORLD_RECORD_METRIC_GATE_COUNT } from '@/governance/gates/releaseGateManifest';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
@@ -29,6 +29,7 @@ export default function AuthPage() {
   } = useAuth();
   const { loading: capabilitiesLoading, winner } = useAuthCapabilities();
   const navigate = useNavigate();
+  const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,14 @@ export default function AuthPage() {
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
   const adminApprovalMessage = 'Ask your Vishvakarma.OS admin to approve the Google account you will use for Supabase SSO.';
+
+  useEffect(() => {
+    const state = location.state as { message?: string } | null;
+    if (state?.message !== 'password-reset-unavailable') return;
+
+    setMessage('Password reset is not available. Vishvakarma.OS uses Google SSO instead of passwords.');
+    navigate('/auth', { replace: true, state: null });
+  }, [location.state, navigate]);
 
   const status = useMemo<AuthLoginStatus | null>(() => {
     if (error) return { message: error, variant: 'error' };
