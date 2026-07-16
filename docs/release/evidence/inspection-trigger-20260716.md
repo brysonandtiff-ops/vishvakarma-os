@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Refresh round-four app-smoke progress and report the current gate, failure count, and result artifact.
+Collect the complete round-four Chromium failure set and report whether app-smoke has finished.
