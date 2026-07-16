@@ -230,6 +230,142 @@ export async function selectWorkspaceMode(page: Page, mode: RegExp) {
   await page.getByRole('menuitem', { name: mode }).click({ force: true });
 }
 
+export async function tapReachable(target: Locator) {
+  await target.waitFor({ state: 'visible', timeout: 15_000 });
+  await target.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
+  const clicked = await target.click({ force: true, timeout: 5_000 }).then(() => true).catch(() => false);
+  if (clicked) return;
+  await target.evaluate((element) => {
+    element.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const init = { bubbles: true, cancelable: true, button: 0 };
+    element.dispatchEvent(new PointerEvent('pointerdown', { ...init, buttons: 1, pointerType: 'touch' }));
+    element.dispatchEvent(new PointerEvent('pointerup', { ...init, buttons: 0, pointerType: 'touch' }));
+    element.dispatchEvent(new MouseEvent('click', init));
+  });
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export async function activateEditorTool(page: Page, toolName: string) {
+  const pattern = new RegExp(`^${escapeRegExp(toolName)}(?:\\b|$)`, 'i');
+  const rail = page.getByTestId('tool-rail');
+  const candidates = [
+    rail.getByRole('button', { name: pattern }).first(),
+    page.getByRole('button', { name: pattern }).first(),
+    page.locator(`[data-tool="${toolName.toLowerCase()}"]`).first(),
+  ];
+
+  for (const candidate of candidates) {
+    if ((await candidate.count().catch(() => 0)) === 0) continue;
+    if (!(await candidate.isVisible({ timeout: 1_000 }).catch(() => false))) continue;
+    await tapReachable(candidate);
+    return;
+  }
+
+  throw new Error(`Editor tool not found: ${toolName}`);
+}
+
+type CanvasPoint = { x: number; y: number };
+type CanvasPointerType = 'pointerdown' | 'pointermove' | 'pointerup';
+
+export async function dispatchCanvasTouchPointer(
+  canvas: Locator,
+  eventType: CanvasPointerType,
+  point: CanvasPoint,
+) {
+  await canvas.evaluate(
+    (element, payload) => {
+      const rect = element.getBoundingClientRect();
+      const isUp = payload.eventType === 'pointerup';
+      element.dispatchEvent(
+        new PointerEvent(payload.eventType, {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 73,
+          pointerType: 'touch',
+          isPrimary: true,
+          button: 0,
+          buttons: isUp ? 0 : 1,
+          pressure: isUp ? 0 : 0.5,
+          clientX: rect.left + payload.point.x,
+          clientY: rect.top + payload.point.y,
+        }),
+      );
+    },
+    { eventType, point },
+  );
+}
+
+export async function drawWallSegmentTouch(canvas: Locator, from: CanvasPoint, to: CanvasPoint) {
+  await dispatchCanvasTouchPointer(canvas, 'pointerdown', from);
+  await dispatchCanvasTouchPointer(canvas, 'pointerup', from);
+  await canvas.page().waitForTimeout(40);
+
+  await dispatchCanvasTouchPointer(canvas, 'pointerdown', to);
+  for (let step = 1; step <= 4; step += 1) {
+    await dispatchCanvasTouchPointer(canvas, 'pointermove', {
+      x: from.x + ((to.x - from.x) * step) / 4,
+      y: from.y + ((to.y - from.y) * step) / 4,
+    });
+  }
+  await dispatchCanvasTouchPointer(canvas, 'pointerup', to);
+}
+
+export async function readEditorMetricCount(page: Page, label: string) {
+  const text = await page.locator('.ws-status-bar').textContent().catch(() => '');
+  const match = text?.match(new RegExp(`${escapeRegExp(label)}:\\s*(\\d+)`, 'i'));
+  return match ? Number(match[1]) : 0;
+}
+
+export async function selectDrawnWallForProperties(page: Page) {
+  const canvas = page.getByTestId('blueprint-canvas');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Blueprint canvas is not visible');
+
+  const attempts = [0.5, 0.45, 0.55];
+  for (const yRatio of attempts) {
+    await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * yRatio);
+    if (await page.getByTestId('wall-property-length').isVisible({ timeout: 1_500 }).catch(() => false)) {
+      return;
+    }
+  }
+
+  throw new Error('Unable to select the drawn wall for properties inspection');
+}
+
+export async function stopMotionForE2E(page: Page) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    `,
+  });
+}
+
+export async function assertActiveDialogFitsIpad(page: Page) {
+  const dialog = page.getByRole('dialog').filter({ visible: true }).last();
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
+  const box = await dialog.boundingBox();
+  expect(box).not.toBeNull();
+  if (!box) return;
+
+  const viewport = page.viewportSize();
+  expect(viewport).not.toBeNull();
+  if (!viewport) return;
+
+  expect(box.x).toBeGreaterThanOrEqual(-2);
+  expect(box.y).toBeGreaterThanOrEqual(-2);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 2);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 2);
+}
+
 export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
@@ -272,6 +408,7 @@ export async function expandSidebarIfCollapsed(page: Page) {
 
 export const iPadLandscape = { width: 1180, height: 820 };
 export const iPadPortrait = { width: 820, height: 1180 };
+export const androidTabletLandscape = { width: 1280, height: 800 };
 /** iPhone 14/15 class portrait */
 export const iPhonePortrait = { width: 390, height: 844 };
 export const iPhoneLandscape = { width: 844, height: 390 };
@@ -286,4 +423,9 @@ export async function applyTouchMode(page: Page, viewport: { width: number; heig
   }
 }
 
-export { assertNoHorizontalOverflow, assertTouchTargets };
+export {
+  assertNoHorizontalOverflow,
+  assertTouchTargets,
+  emulateCoarsePointer,
+  emulateFinePointer,
+};
