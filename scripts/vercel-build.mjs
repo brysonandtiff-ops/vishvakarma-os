@@ -8,6 +8,12 @@ const root = process.cwd();
 const textureRoot = join(root, 'public', 'textures');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
 const isVercelBuild = process.env.VERCEL === '1';
+const gitRef = process.env.VERCEL_GIT_COMMIT_REF ?? '';
+const certificationRefs = new Set([
+  'main',
+  'agent/vercel-native-certification-20260716',
+]);
+const isCertificationBuild = isVercelBuild && certificationRefs.has(gitRef);
 
 async function removeLegacyJpegTextures(directory) {
   let removed = 0;
@@ -79,6 +85,41 @@ const steps = [
   { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
+const certificationSteps = [
+  {
+    label: 'Install browser runtimes',
+    command: 'pnpm exec playwright install chromium firefox webkit',
+  },
+  {
+    label: 'Chromium, Firefox, and WebKit E2E',
+    command: 'pnpm run test:e2e',
+    env: { PLAYWRIGHT_BROWSERS: 'all' },
+  },
+  {
+    label: 'Accessibility browser audit',
+    command: 'pnpm run test:e2e:a11y',
+  },
+  {
+    label: 'Editor performance browser audit',
+    command: 'pnpm run test:e2e:perf',
+  },
+  {
+    label: 'Production auth route verification',
+    command: 'pnpm run verify:production-auth-flow',
+    env: { PRODUCTION_AUTH_URL: 'https://vishvakarma-os.app/auth' },
+  },
+  { label: 'Strict release gates', command: 'pnpm run release:gates:strict' },
+  { label: 'Strict launch evidence gates', command: 'pnpm run launch:evidence:strict' },
+];
+
+function runStep(step) {
+  console.log(`\n[vercel-build] ${step.label}`);
+  runCommand(step.command, {
+    stdio: 'inherit',
+    env: { ...process.env, ...(step.env ?? {}) },
+  });
+}
+
 async function main() {
   if (isVercelBuild) {
     const removedTextures = await removeLegacyJpegTextures(textureRoot);
@@ -87,9 +128,29 @@ async function main() {
     console.log('[vercel-build] Local run detected; skipping destructive texture cleanup.');
   }
 
-  for (const step of steps) {
-    console.log(`\n[vercel-build] ${step.label}`);
-    runCommand(step.command, { stdio: 'inherit' });
+  for (const step of steps) runStep(step);
+
+  if (isCertificationBuild) {
+    const hasManagementToken = Boolean(process.env.SUPABASE_ACCESS_TOKEN?.trim());
+    console.log(
+      `[vercel-certification] Supabase management credential: ${hasManagementToken ? 'configured' : 'not configured'}`,
+    );
+
+    if (hasManagementToken) {
+      runStep({
+        label: 'Hosted Supabase HIBP and TOTP hardening',
+        command: 'pnpm run setup:supabase-auth:hardening',
+      });
+    } else {
+      console.warn(
+        '[vercel-certification] Hosted Auth mutation skipped because SUPABASE_ACCESS_TOKEN is unavailable.',
+      );
+    }
+
+    for (const step of certificationSteps) runStep(step);
+    console.log('\n[vercel-certification] Browser and strict release certification passed.');
+  } else {
+    console.log(`[vercel-certification] Skipped for ref "${gitRef || 'unknown'}".`);
   }
 
   console.log('\n[vercel-build] All quality and build gates passed.');
