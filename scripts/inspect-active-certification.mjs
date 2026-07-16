@@ -6,6 +6,8 @@ import { spawnSync } from 'node:child_process';
 const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
 const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
 const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
+const snapshotId = 'snap_jEsLVtxQ4CAvQeCRdbKAsPh565OG';
+const sandboxName = `vish-inspect-chromium-${Date.now()}`;
 
 function runCli(args, timeout = 240_000) {
   const result = spawnSync('pnpm', ['dlx', 'sandbox', ...args], {
@@ -22,64 +24,71 @@ function runCli(args, timeout = 240_000) {
   return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
 }
 
-function runInSandbox(sandboxName, command) {
+function runInSandbox(command) {
   return runCli(['exec', '--sudo', '--timeout', '3m', sandboxName, '--', 'bash', '-lc', command]);
+}
+
+function cleanup() {
+  runCli(['stop', sandboxName], 90_000);
+  runCli(['remove', sandboxName], 90_000);
 }
 
 async function main() {
   if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
 
-  const listed = runCli(['list']);
-  const names = `${listed.stdout}\n${listed.stderr}`.match(/vish-production-cert-\d+/g) ?? [];
-  const sandboxName = [...new Set(names)].sort().at(-1);
-  if (!sandboxName) throw new Error(`No active certification sandbox found. ${listed.stdout || listed.stderr}`);
+  const created = runCli([
+    'create', '--name', sandboxName, '--snapshot', snapshotId,
+    '--timeout', '10m', '--vcpus', '2', '--network-policy', 'allow-all',
+  ]);
+  if (created.status !== 0) {
+    throw new Error(`Unable to restore snapshot: ${created.stderr || created.stdout}`);
+  }
 
-  const activeCommands = runInSandbox(
-    sandboxName,
-    "ps -eo pid,etimes,cmd --sort=etimes | grep -E 'pnpm run test:e2e|playwright test|run-e2e-gates|cross-browser|accessibility|editor-performance|production-auth|release:gates|launch:evidence' | grep -v grep || true",
-  );
-  const failureCount = runInSandbox(sandboxName, "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l");
-  const uniqueFailures = runInSandbox(
-    sandboxName,
-    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do " +
-      "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
-      "err=$(sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | grep -m1 -E '^Error:|^TimeoutError:|Touch targets below|strict mode violation|horizontal overflow|Stacked blocking|Clipped'); " +
-      "printf '%s\\t%s\\n' \"$name\" \"$err\"; done | sort -u",
-  );
-  const detailedFailures = runInSandbox(
-    sandboxName,
-    "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | grep -v retry1); do " +
-      "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
-      "echo '===== TEST' \"$name\"; " +
-      "sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | sed '$d' | head -n 48; done",
-  );
-  const resultArtifact = runInSandbox(
-    sandboxName,
-    "cat /opt/ubuntu/app/docs/release/evidence/sandbox-production-certification-result.json 2>/dev/null || true",
-  );
+  try {
+    const failureCount = runInSandbox(
+      "find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | wc -l",
+    );
+    const uniqueFailures = runInSandbox(
+      "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do " +
+        "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
+        "err=$(sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | grep -m1 -E '^Error:|^TimeoutError:|Touch targets below|strict mode violation|horizontal overflow|Stacked blocking|Clipped|Expected:|Received:'); " +
+        "printf '%s\\t%s\\n' \"$name\" \"$err\"; done | sort -u",
+    );
+    const detailedFailures = runInSandbox(
+      "for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | grep -v retry1); do " +
+        "name=$(grep -m1 '^- Name:' \"$f\" | sed 's/^- Name: //'); " +
+        "echo '===== TEST' \"$name\"; " +
+        "sed -n '/# Error details/,/# Page snapshot/p' \"$f\" | sed '$d' | head -n 70; done",
+    );
+    const lastRun = runInSandbox(
+      "cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true",
+    );
+    const result = {
+      snapshotId,
+      sandboxName,
+      failureCount,
+      uniqueFailures,
+      detailedFailures,
+      lastRun,
+      inspectedAt: new Date().toISOString(),
+    };
 
-  const result = {
-    sandboxName,
-    activeCommands,
-    failureCount,
-    uniqueFailures,
-    detailedFailures,
-    resultArtifact,
-    inspectedAt: new Date().toISOString(),
-  };
-
-  console.log(JSON.stringify(result, null, 2));
-  await mkdir('dist', { recursive: true });
-  const escaped = JSON.stringify(result, null, 2)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-  await writeFile('dist/index.html', `<pre>${escaped}</pre>`, 'utf8');
+    console.log(JSON.stringify(result, null, 2));
+    await mkdir('dist', { recursive: true });
+    const escaped = JSON.stringify(result, null, 2)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+    await writeFile('dist/index.html', `<pre>${escaped}</pre>`, 'utf8');
+  } finally {
+    cleanup();
+  }
 }
 
 main().catch(async (error) => {
   console.error(error);
   await mkdir('dist', { recursive: true });
   await writeFile('dist/index.html', `<pre>${String(error)}</pre>`, 'utf8');
+  cleanup();
   process.exit(1);
 });
