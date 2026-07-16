@@ -1,28 +1,23 @@
 #!/usr/bin/env node
 /** Run auth-gate and app-smoke Playwright projects with isolated e2e builds. */
 import { execSync, spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const previewPort = process.env.PLAYWRIGHT_PREVIEW_PORT ?? '4173';
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${previewPort}`;
 const ALL_BROWSERS = ['chromium', 'firefox', 'webkit'];
+const useShell = process.platform === 'win32';
 
 function parseBrowsers() {
   const raw = process.env.PLAYWRIGHT_BROWSERS ?? 'chromium';
-  if (raw === 'all') {
-    return ALL_BROWSERS;
-  }
+  if (raw === 'all') return ALL_BROWSERS;
 
-  const selected = raw
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-
+  const selected = raw.split(',').map((value) => value.trim()).filter(Boolean);
   const invalid = selected.filter((browser) => !ALL_BROWSERS.includes(browser));
   if (invalid.length > 0) {
     throw new Error(`Unknown PLAYWRIGHT_BROWSERS value(s): ${invalid.join(', ')}`);
   }
-
   return selected.length > 0 ? selected : ['chromium'];
 }
 
@@ -48,7 +43,12 @@ function freePreviewPort() {
         { stdio: 'ignore' },
       );
     } else {
-      execSync(`lsof -ti:${previewPort} | xargs kill -9 2>/dev/null || true`, { stdio: 'ignore', shell: true });
+      execSync(
+        `(command -v lsof >/dev/null && lsof -ti:${previewPort} | xargs -r kill -9) || true; ` +
+        `(command -v fuser >/dev/null && fuser -k ${previewPort}/tcp) || true; ` +
+        `pkill -9 -f 'vite.*preview.*--port ${previewPort}' 2>/dev/null || true`,
+        { stdio: 'ignore', shell: true },
+      );
     }
   } catch {
     // port already free
@@ -79,21 +79,37 @@ function run(command, env) {
 
 function runPlaywrightAsync(project, env) {
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      'pnpm',
-      ['exec', 'playwright', 'test', `--project=${project}`],
-      {
-        stdio: 'inherit',
-        env: { ...baseEnv, ...env, PLAYWRIGHT_REUSE_SERVER: '1' },
-        shell: true,
-      },
-    );
+    const child = spawn('pnpm', ['exec', 'playwright', 'test', `--project=${project}`], {
+      stdio: 'inherit',
+      env: { ...baseEnv, ...env, PLAYWRIGHT_REUSE_SERVER: '1' },
+      shell: useShell,
+    });
     child.on('error', reject);
     child.on('exit', (code) => {
       if (code === 0) resolve();
       else reject(new Error(`Playwright exited with code ${code} for project ${project}`));
     });
   });
+}
+
+async function stopPreview(preview) {
+  if (preview.exitCode !== null || preview.pid == null) return;
+
+  const sendSignal = (signal) => {
+    try {
+      if (process.platform === 'win32') preview.kill(signal);
+      else process.kill(-preview.pid, signal);
+    } catch {
+      preview.kill(signal);
+    }
+  };
+
+  sendSignal('SIGTERM');
+  await Promise.race([once(preview, 'exit').catch(() => undefined), delay(4_000)]);
+  if (preview.exitCode === null) {
+    sendSignal('SIGKILL');
+    await Promise.race([once(preview, 'exit').catch(() => undefined), delay(2_000)]);
+  }
 }
 
 async function runPlaywrightProject(project, env) {
@@ -103,7 +119,12 @@ async function runPlaywrightProject(project, env) {
   const preview = spawn(
     'pnpm',
     ['exec', 'vite', 'preview', '--host', '127.0.0.1', '--port', previewPort],
-    { env: { ...baseEnv, ...env }, stdio: 'inherit', shell: true },
+    {
+      env: { ...baseEnv, ...env },
+      stdio: 'inherit',
+      shell: useShell,
+      detached: !useShell,
+    },
   );
 
   const keepalive = setInterval(() => {
@@ -118,9 +139,7 @@ async function runPlaywrightProject(project, env) {
     await runPlaywrightAsync(project, env);
   } finally {
     clearInterval(keepalive);
-    if (preview.exitCode === null) {
-      preview.kill('SIGTERM');
-    }
+    await stopPreview(preview);
     freePreviewPort();
     await delay(1000);
   }
@@ -142,10 +161,7 @@ run(
 );
 
 for (const browser of browsers) {
-  // Firefox/WebKit run the lightweight cross-browser smoke suite in CI — full app-smoke
-  // editor flows exceed the 30m job budget on Firefox due to slower sample-load paths.
-  const project =
-    browser === 'chromium' ? `app-smoke-${browser}` : `cross-browser-smoke-${browser}`;
+  const project = browser === 'chromium' ? `app-smoke-${browser}` : `cross-browser-smoke-${browser}`;
   console.log(`[e2e] ${project}`);
   await runPlaywrightProject(project, {
     VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
