@@ -52,16 +52,28 @@ export async function resetWorkspacePrefs(page: Page) {
   });
 }
 
-export async function dismissTutorialIfPresent(page: Page) {
-  const skipTutorial = page.getByRole('button', { name: /skip tutorial/i });
-  if (await skipTutorial.isVisible().catch(() => false)) {
-    await skipTutorial.click({ force: true });
-  }
+async function dismissVisibleControl(target: Locator) {
+  const control = target.first();
+  if (!(await control.isVisible({ timeout: 1_000 }).catch(() => false))) return;
 
-  const tutorialClose = page.locator('[data-testid="tutorial-card"] button[aria-label="Skip tutorial"]');
-  if (await tutorialClose.isVisible().catch(() => false)) {
-    await tutorialClose.click({ force: true });
-  }
+  const clicked = await control
+    .click({ force: true, timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (clicked) return;
+
+  await control
+    .evaluate((element) => {
+      (element as HTMLElement).click();
+    })
+    .catch(() => {});
+}
+
+export async function dismissTutorialIfPresent(page: Page) {
+  await dismissVisibleControl(page.getByRole('button', { name: /skip tutorial/i }));
+  await dismissVisibleControl(
+    page.locator('[data-testid="tutorial-card"] button[aria-label="Skip tutorial"]'),
+  );
 }
 
 export async function gotoAppPath(page: Page, path: string) {
@@ -72,10 +84,7 @@ export async function gotoAppPath(page: Page, path: string) {
 }
 
 export async function dismissConsentIfPresent(page: Page) {
-  const declineAnalytics = page.getByRole('button', { name: /decline/i });
-  if (await declineAnalytics.isVisible().catch(() => false)) {
-    await declineAnalytics.click({ force: true, timeout: 5_000 }).catch(() => {});
-  }
+  await dismissVisibleControl(page.getByRole('button', { name: /decline/i }));
 }
 
 async function findProjectActionsButton(page: Page): Promise<Locator> {
@@ -370,26 +379,10 @@ export async function dismissEditorOverlays(page: Page) {
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('editor-top-bar').waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
 
-  const skipWelcome = page.getByRole('button', { name: /skip.*start drawing/i });
-  if (await skipWelcome.isVisible().catch(() => false)) {
-    await skipWelcome.click({ force: true });
-  }
-
-  const onboardingClose = page.getByRole('button', { name: /close|dismiss|got it/i });
-  if (await onboardingClose.first().isVisible().catch(() => false)) {
-    await onboardingClose.first().click();
-  }
-
-  const recoveryDiscard = page.getByRole('button', { name: /discard draft/i });
-  if (await recoveryDiscard.isVisible().catch(() => false)) {
-    await recoveryDiscard.click();
-  }
-
-  const declineAnalytics = page.getByRole('button', { name: /decline/i });
-  if (await declineAnalytics.isVisible().catch(() => false)) {
-    await declineAnalytics.click();
-  }
-
+  await dismissVisibleControl(page.getByRole('button', { name: /skip.*start drawing/i }));
+  await dismissVisibleControl(page.getByRole('button', { name: /close|dismiss|got it/i }));
+  await dismissVisibleControl(page.getByRole('button', { name: /discard draft/i }));
+  await dismissConsentIfPresent(page);
   await dismissTutorialIfPresent(page);
 }
 
