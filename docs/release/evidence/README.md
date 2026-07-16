@@ -2,6 +2,24 @@
 
 This folder stores production-launch evidence generated from the current codebase and current deployment target.
 
+## Current Release Candidate
+
+| Field | Verified state |
+|---|---|
+| Candidate branch | `agent/production-certification-closeout-20260716` |
+| Candidate base | Current `main` at `b57b946bdc41142ceacdd9fa08569373394d7a36` |
+| Branch drift | `0` commits behind `main` |
+| Route matrix | **PASS — 60/60 unique checks** |
+| Route devices | Desktop, iPad landscape, phone portrait |
+| Supabase leaked-password protection | **PASS — enabled** |
+| Supabase TOTP MFA | **PASS — enabled** |
+| Overlay exclusivity | Welcome, analytics consent, and QA chrome cannot stack |
+| Cast touch target | **PASS — 44px minimum enforced** |
+| Marketing contract | Current landing hero and responsive route assertions aligned |
+| Final release state | **CANDIDATE — exact-SHA browser/release ladder must pass before merge, freeze, or tag** |
+
+The 60-check route audit covered every routed page for server errors, crash surfaces, visible page identity, browser exceptions, console errors, and horizontal overflow. The final release ladder additionally covers Chromium application workflows, Firefox, WebKit, accessibility, performance, production authentication, strict release gates, and strict evidence validation.
+
 ## Required Evidence Files
 
 | File | Purpose | Public Launch Required |
@@ -13,7 +31,7 @@ This folder stores production-launch evidence generated from the current codebas
 | `2d-3d-parity-proof.md` | Proves 2D wall/opening data matches 3D render expectations | Yes |
 | `ipad-touch-audit.md` | Proves iPad/coarse-pointer touch safety | Yes |
 | `performance-notes.md` | Records build size, load behaviour, and interaction performance | Yes |
-| `functional-workflow-proof.md` | Proves core app workflows end-to-end (issue #7 matrix) | Yes |
+| `functional-workflow-proof.md` | Proves core app workflows end-to-end | Yes |
 | `screenshots/` | Stores route, iPad, parity, and deployment screenshots | Yes |
 
 ## Evidence Rules
@@ -23,6 +41,8 @@ This folder stores production-launch evidence generated from the current codebas
 - Manual evidence cannot be marked complete without a human-readable result and reproduction steps.
 - Public production launch remains blocked until every required file is filled.
 - Do not mark production ready if any required evidence file is missing or still contains placeholder values.
+- A route matrix pass does not replace cross-browser, accessibility, performance, production-auth, or strict release certification.
+- The release tag must point to the exact verified production `main` SHA, never a preview or temporary certification branch.
 
 ## Evidence Header Template
 
@@ -53,4 +73,6 @@ Before public release, attach:
 5. 2D/3D parity proof,
 6. iPad touch audit,
 7. performance notes,
-8. route screenshots.
+8. route screenshots,
+9. exact-SHA full certification result,
+10. frozen production tag.
