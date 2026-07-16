@@ -23,19 +23,16 @@ function run(command) {
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: 240_000,
   });
-  return {
-    status: result.status,
-    stdout: result.stdout ?? '',
-    stderr: result.stderr ?? '',
-  };
+  return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
 }
 
 async function main() {
   if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN unavailable');
   const processState = run("ps -eo pid,etimes,cmd --sort=etimes | tail -n 60");
-  const failures = run("for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort | tail -n 12); do echo '===== ' $f ' ====='; sed -n '1,220p' \"$f\"; echo; done");
-  const reportFiles = run("find /opt/ubuntu/app/playwright-report /opt/ubuntu/app/test-results -maxdepth 3 -type f \\( -name '*.json' -o -name '*.xml' \\) -printf '%p\\n' 2>/dev/null | sort | tail -n 40");
-  const result = { sandboxName, processState, failures, reportFiles, inspectedAt: new Date().toISOString() };
+  const failedList = run("cat /opt/ubuntu/app/test-results/.last-run.json 2>/dev/null || true");
+  const failureSummary = run("for f in $(find /opt/ubuntu/app/test-results -name error-context.md -type f 2>/dev/null | sort); do echo '===== ' $f; grep -E '^- Name:|^Error:|^Locator:|^Expected:|^Received:|^Timeout:' \"$f\" | head -n 12; done");
+  const cssRules = run("grep -RIn -C 5 --include='*.css' --include='*.tsx' --include='*.ts' -E 'vish-login-page__trust|sacred-auth-trust|auth-trust-pillars' /opt/ubuntu/app/src /opt/ubuntu/app/e2e 2>/dev/null | head -n 500");
+  const result = { sandboxName, processState, failedList, failureSummary, cssRules, inspectedAt: new Date().toISOString() };
   console.log(JSON.stringify(result, null, 2));
   await mkdir('dist', { recursive: true });
   await writeFile('dist/index.html', `<pre>${JSON.stringify(result, null, 2)}</pre>`, 'utf8');
