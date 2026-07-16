@@ -4,9 +4,10 @@
 
 | Field | State |
 |---|---|
+| Release PR | `#123` |
 | Candidate branch | `agent/accelerated-v1.5.0-closeout-20260717` |
-| Candidate source head | `fcd412baaf915a090635cdbd11596f6c80b20949` |
-| Production `main` | `b57b946bdc41142ceacdd9fa08569373394d7a36` — unchanged |
+| Candidate code SHA before evidence refresh | `78f52e38bdec35d2a41f5a5efdffe8b4b1ecc3e0` |
+| Production `main` base | `ade8cd0d8700e2f957611382b695a88d8f116840` |
 | Route/device matrix | **PASS — 60/60** |
 | Firefox auth + smoke | **PASS** |
 | WebKit auth + smoke | **PASS** |
@@ -14,12 +15,15 @@
 | Supabase TOTP MFA | **PASS — enabled** |
 | Accessibility stale locator | Fixed on candidate |
 | Chromium shared failures | Batched and fixed on candidate |
-| Deployment blocker | Vercel project currently reports `live: false`; new preview deployments are not being created |
-| Freeze/tag | Blocked until focused exact-candidate phases execute and pass |
+| Blocking session boot screen | **REMOVED** — visual component and `boot` layout path deleted |
+| Boot-screen regression | Added to `e2e/auth-gate.spec.ts` |
+| Workflow policy blocker | Fixed — unauthorized `final-certification-v1.5.0.yml` deleted |
+| Approved certification path | Sole allow-listed `.github/workflows/production-certification.yml` on PR #123 |
+| Freeze/tag | Blocked only until exact PR-head certification is green |
 
-## Accelerated Chromium Fix Batch
+## Accelerated Fix Batch
 
-The accelerated candidate resolves the shared failure causes captured by the saved Chromium certification snapshot:
+The release candidate resolves the shared causes captured by the Chromium certification evidence:
 
 - current landing, CTA, 404, pricing-off and reset-password contracts,
 - visible-only mobile and workspace navigation controls,
@@ -28,7 +32,8 @@ The accelerated candidate resolves the shared failure causes captured by the sav
 - deterministic touch and Pencil wall drawing plus eraser verification,
 - stable project, export and Copilot dialog activation,
 - local project persistence and profile sign-out contracts,
-- reset-password-unavailable notice on the Google SSO auth page.
+- reset-password-unavailable notice on the Google SSO auth page,
+- removal of the full-screen secure-session boot/mandala experience while retaining fail-closed route protection.
 
 ## Evidence Rules
 
@@ -36,12 +41,11 @@ The accelerated candidate resolves the shared failure causes captured by the sav
 - A route-matrix pass does not replace Chromium, accessibility, performance, production-auth or strict release certification.
 - Temporary certification branches, workflows, Vercel configs and draft PRs must never be merged into production.
 - The `v1.5.0` tag must point to the exact verified production `main` SHA.
-- Do not claim 100% while Vercel remains unable to execute the final focused phases.
+- Do not claim 100% until the approved Production Certification workflow is green on the exact PR head.
 
 ## Remaining Release Sequence
 
-1. Resume Vercel project deployments.
-2. Run focused exact-candidate Chromium, accessibility, performance/auth, release and evidence phases.
-3. Merge only the verified production-safe candidate.
-4. Verify the exact production `main` deployment.
-5. Create the frozen release branch and `v1.5.0` tag on that same SHA.
+1. Complete the approved Production Certification workflow on PR #123.
+2. Squash-merge only the verified production-safe candidate.
+3. Verify the exact merged `main` production deployment.
+4. Create the frozen release branch and `v1.5.0` tag on that same SHA.
