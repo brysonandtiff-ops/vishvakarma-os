@@ -61,18 +61,33 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('keeps verification local and rejects executable GitHub workflows', () => {
+  it('allow-lists only the audited production certification workflow', () => {
     const workflowDirectory = path.join(repoRoot, '.github', 'workflows');
     const entries = existsSync(workflowDirectory) ? readdirSync(workflowDirectory) : [];
     const executableWorkflows = entries.filter((entry) => /\.ya?ml$/i.test(entry));
     const policy = readRepoFile('.github', 'workflows', 'README.md');
+    const workflow = readRepoFile(
+      '.github',
+      'workflows',
+      'production-certification.yml',
+    );
 
-    expect(executableWorkflows).toEqual([]);
+    expect(executableWorkflows).toEqual(['production-certification.yml']);
     expectContainsAll(policy, [
-      'GitHub Actions is intentionally not used',
-      'pnpm run hardening:gates',
-      'relevant Playwright/QE commands',
-      'never from GitHub Actions',
+      'Allow-listed verification policy',
+      '`production-certification.yml` is the only executable workflow allowed',
+      'No other `.yml` or `.yaml` workflow may be added',
+      'does not deploy production',
+    ]);
+    expectContainsAll(workflow, [
+      'name: Production Certification',
+      'SUPABASE_ACCESS_TOKEN',
+      'PLAYWRIGHT_BROWSERS: all',
+      'pnpm run test:e2e',
+      'pnpm run test:e2e:a11y',
+      'pnpm run test:e2e:perf',
+      'pnpm run release:gates:strict',
+      'pnpm run launch:evidence:strict',
     ]);
   });
 
