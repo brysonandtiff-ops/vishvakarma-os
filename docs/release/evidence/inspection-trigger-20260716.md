@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Fresh read-only status snapshot requested for the active production certification run.
+Run the corrected root-cause inspector against the active production certification Sandbox.
