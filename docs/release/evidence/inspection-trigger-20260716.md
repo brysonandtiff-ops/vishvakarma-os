@@ -1,3 +1,3 @@
 # Certification inspection trigger
 
-Inspect live final certification sandbox `vish-production-cert-1784226001797` for the v1.5.0 freeze candidate.
+Refresh the live final certification snapshot for sandbox `vish-production-cert-1784226001797` and report the current gate and any failures.
