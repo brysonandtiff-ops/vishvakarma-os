@@ -7,6 +7,7 @@ const teamId = 'team_cNWlNxzn9b9GNQhKf6cmUdfJ';
 const projectId = 'prj_Hkp9ttkSAnmAGk5ZISG7pnEj3HrF';
 const sandboxName = `vish-production-cert-${Date.now()}`;
 const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
+const managementToken = process.env.SUPABASE_ACCESS_TOKEN?.trim();
 const candidateSha = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || 'unknown';
 const sourceArchive = '/tmp/vish-production-cert-source.tgz';
 const resultFile = '/tmp/vish-production-cert-result.json';
@@ -84,6 +85,13 @@ async function writeDeploymentArtifact(result) {
 
 async function main() {
   if (!oidcToken) throw new Error('VERCEL_OIDC_TOKEN is unavailable; Sandbox cannot authenticate.');
+  if (!managementToken) {
+    throw new Error('SUPABASE_ACCESS_TOKEN is unavailable; hosted Auth hardening cannot run.');
+  }
+
+  console.log('[production-cert] Supabase management credential: configured');
+  run('pnpm', ['run', 'setup:supabase-auth:hardening'], { timeoutMs: 15 * 60_000 });
+  console.log('[production-cert] Hosted Supabase Auth hardening passed.');
 
   await createSourceArchive();
   let created = false;
