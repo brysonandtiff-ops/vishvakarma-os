@@ -8,12 +8,7 @@ const root = process.cwd();
 const textureRoot = join(root, 'public', 'textures');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
 const isVercelBuild = process.env.VERCEL === '1';
-const gitRef = process.env.VERCEL_GIT_COMMIT_REF ?? '';
-const certificationRefs = new Set([
-  'main',
-  'agent/vercel-native-certification-20260716',
-]);
-const isCertificationBuild = isVercelBuild && certificationRefs.has(gitRef);
+const isCertificationBuild = isVercelBuild;
 
 async function removeLegacyJpegTextures(directory) {
   let removed = 0;
@@ -149,8 +144,6 @@ async function main() {
 
     for (const step of certificationSteps) runStep(step);
     console.log('\n[vercel-certification] Browser and strict release certification passed.');
-  } else {
-    console.log(`[vercel-certification] Skipped for ref "${gitRef || 'unknown'}".`);
   }
 
   console.log('\n[vercel-build] All quality and build gates passed.');
