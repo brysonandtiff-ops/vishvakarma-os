@@ -26,6 +26,9 @@ const PHASES = {
 };
 
 const command = PHASES[phase];
+const browserInstallCommand = ['e2e', 'a11y', 'perfauth'].includes(phase)
+  ? 'pnpm exec playwright install --with-deps chromium firefox webkit'
+  : ':';
 
 function run(program, args, { allowFailure = false, timeoutMs = 12 * 60_000 } = {}) {
   console.log(`[v1.5-cert:${phase}] ${[program, ...args].join(' ')}`);
@@ -137,6 +140,7 @@ async function main() {
       'corepack enable',
       'corepack prepare pnpm@9.15.0 --activate',
       'pnpm install --frozen-lockfile',
+      browserInstallCommand,
       'export CI=1',
       'export PRODUCTION_AUTH_URL=https://vishvakarma-os.app/auth',
       command,
