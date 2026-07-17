@@ -3,6 +3,7 @@ import {
   dismissEditorOverlays,
   loadSampleProject,
   resetWorkspacePrefs,
+  tapReachable,
 } from './helpers';
 
 test.describe('editor performance smoke', () => {
@@ -26,9 +27,8 @@ test.describe('editor performance smoke', () => {
     await loadSampleProject(page);
     const started = Date.now();
     const toggle = page.getByRole('button', { name: /toggle 3d view/i }).first();
-    if (await toggle.isVisible().catch(() => false)) {
-      await toggle.click({ force: true });
-    }
+    await expect(toggle).toBeVisible({ timeout: 15_000 });
+    await tapReachable(toggle);
 
     const pane = page.locator('.vish-3d-viewport-pane');
     await pane.waitFor({ state: 'attached', timeout: 30_000 });
