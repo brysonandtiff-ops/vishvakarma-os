@@ -17,7 +17,7 @@ import "./styles/vish-tokens.css";
 const CHUNK_RELOAD_KEY = 'vish:chunk-reload-at';
 window.addEventListener('vite:preloadError', (event) => {
   const last = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? 0);
-  if (Date.now() - last < 60_000) return; // let the error boundary handle a loop
+  if (Date.now() - last < 60_000) return;
   event.preventDefault();
   sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
   const reload = () => window.location.reload();
@@ -58,23 +58,6 @@ import {
 } from "./governance/core/enforcer";
 
 const isE2eBuild = import.meta.env.MODE === 'e2e';
-
-function dismissBootSplash() {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-  const splash = document.getElementById('boot-splash');
-  if (!splash) return;
-
-  const hide = () => {
-    splash.classList.add('boot-splash--hidden');
-    splash.setAttribute('aria-hidden', 'true');
-    window.setTimeout(() => splash.remove(), 520);
-  };
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(hide);
-  });
-}
 
 if (isE2eBuild || import.meta.env.DEV) {
   enableDevelopmentMode();
@@ -125,5 +108,3 @@ createRoot(document.getElementById('root')!).render(
     </AppWrapper>
   </StrictMode>,
 );
-
-dismissBootSplash();
