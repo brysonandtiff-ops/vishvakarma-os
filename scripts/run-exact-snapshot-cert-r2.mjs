@@ -4,10 +4,15 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const sourcePath = new URL('./run-exact-snapshot-cert.mjs', import.meta.url);
-const generatedPath = '/tmp/vish-exact-cert-browser-r2.mjs';
+const phase = (await readFile(new URL('../cert-phase.txt', import.meta.url), 'utf8')).trim();
+const generatedPath = '/tmp/vish-exact-cert-browser-r3.mjs';
 let source = await readFile(sourcePath, 'utf8');
 
 source = source
+  .replace(
+    "const phase = (await readFile(new URL('../cert-phase.txt', import.meta.url), 'utf8')).trim();",
+    `const phase = ${JSON.stringify(phase)};`,
+  )
   .replace(
     "auth: 'pnpm exec playwright test --project=auth-gate-chromium'",
     "auth: 'pnpm run test:e2e:auth'",
