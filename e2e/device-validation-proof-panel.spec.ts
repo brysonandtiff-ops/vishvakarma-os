@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Vishvakarma.OS QA proof panel", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      window.localStorage.setItem("vishvakarma-analytics-consent", "denied");
       Object.defineProperty(navigator, "clipboard", {
         configurable: true,
         value: {
@@ -50,6 +51,9 @@ test.describe("Vishvakarma.OS responsive QA launcher", () => {
 
   for (const device of devices) {
     test(`QA launcher remains reachable on ${device.name}`, async ({ page }) => {
+      await page.addInitScript(() => {
+        window.localStorage.setItem("vishvakarma-analytics-consent", "denied");
+      });
       await page.setViewportSize({ width: device.width, height: device.height });
       await page.goto("/", { waitUntil: "domcontentloaded" });
 

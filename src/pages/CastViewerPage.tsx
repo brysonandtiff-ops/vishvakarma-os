@@ -33,35 +33,24 @@ export default function CastViewerPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const onManifestChange = useCallback((next: ProjectManifest, isRemote: boolean) => {
-    if (isRemote) {
-      setManifest(next);
-    }
+    if (isRemote) setManifest(next);
   }, []);
 
   const { ready, error, projectName, lenses, chrono, intents, followPresenter, toggleFollow } =
-    useCastViewer({
-      token,
-      viewerName,
-      onManifestChange,
-    });
+    useCastViewer({ token, viewerName, onManifestChange });
 
   useEffect(() => {
     if (!ready) return;
     const collab = CollabSession.getInstance();
     const bridge = collab.getBridge();
     const remote = bridge?.toManifest();
-    if (remote) {
-      setManifest(remote);
-    }
+    if (remote) setManifest(remote);
   }, [ready]);
 
   const lighting = chrono.locked ? chrono.lighting : manifest.lighting;
   const layerVisibility = useMemo(
-    () => ({
-      ...DEFAULT_LAYER_VISIBILITY,
-      ...(lenses.layers ?? {}),
-    }),
-    [lenses.layers]
+    () => ({ ...DEFAULT_LAYER_VISIBILITY, ...(lenses.layers ?? {}) }),
+    [lenses.layers],
   );
 
   return (
@@ -85,23 +74,25 @@ export default function CastViewerPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="flex shrink-0 items-center gap-2 rounded-full border border-ws-border bg-ws-sidebar/60 px-3 py-1.5 text-[10px] uppercase tracking-wide text-ws-text-dim transition-colors hover:bg-ws-sidebar touch-target cursor-pointer">
+          <label className="flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-ws-border bg-ws-sidebar/60 px-3 py-1.5 text-[10px] uppercase tracking-wide text-ws-text-dim transition-colors hover:bg-ws-sidebar touch-target">
             <input
               type="checkbox"
               checked={followPresenter}
               onChange={(event) => toggleFollow(event.target.checked)}
               data-testid="cast-follow-presenter"
-              className="h-3.5 w-3.5 accent-primary"
+              className="h-4 w-4 accent-primary"
             />
             <span className="hidden sm:inline">Follow presenter</span>
-            <Radio className="h-3.5 w-3.5 sm:hidden" />
+            <Radio className="h-4 w-4 sm:hidden" />
           </label>
-          
+
           <Button
             variant="ghost"
             size="icon"
-            className={`h-8 w-8 text-ws-text-dim hover:text-ws-text ${sidebarOpen ? 'bg-ws-active-bg text-primary' : ''}`}
+            className={`shrink-0 p-0 text-ws-text-dim hover:text-ws-text ${sidebarOpen ? 'bg-ws-active-bg text-primary' : ''}`}
+            style={{ width: 44, minWidth: 44, height: 44, minHeight: 44 }}
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle sidebar"
             title="Toggle sidebar"
           >
             <PanelRight className="h-4 w-4" />
@@ -155,7 +146,7 @@ export default function CastViewerPage() {
               />
             </Suspense>
           </div>
-          
+
           {sidebarOpen && (
             <aside className="vish-cast-sidebar vish-section-stack w-full shrink-0 overflow-y-auto border-t border-ws-border bg-black/40 backdrop-blur-md p-card-md lg:w-72 lg:border-l lg:border-t-0">
               <div className="space-y-6">
@@ -179,7 +170,7 @@ export default function CastViewerPage() {
                   </div>
                   <CastIntentTimeline intents={intents} />
                 </section>
-                
+
                 <footer className="pt-4 mt-auto border-t border-ws-border/30">
                   <p className="text-[10px] leading-relaxed text-ws-text-faint italic">
                     Decision-support preview only — not certified council review. Vishvakarma.OS manifest sync.

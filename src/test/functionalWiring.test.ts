@@ -111,31 +111,33 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const main = read('src/main.tsx');
     const authStyles = read('src/styles/entries/auth.ts');
     const editorStyles = read('src/styles/entries/editor.ts');
-    const routes = read('src/AppRoutes.tsx');
+    const appRoutes = read('src/AppRoutes.tsx');
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(authStyles).toContain("import '../vish-auth-gate.css'");
     expect(authStyles).toContain("import '../vish-login-page.css'");
     expect(editorStyles).toContain("import '../vish-mockup-system.css'");
-    expect(routes).toContain("import('@/styles/entries/auth')");
-    expect(routes).toContain("import('@/styles/entries/editor')");
+    expect(appRoutes).toContain("import('@/styles/entries/auth')");
+    expect(appRoutes).toContain("import('@/styles/entries/editor')");
     expect(main).toContain('bootstrapClientGovernanceState');
     expect(main).toContain('blockOnFailure: false');
     expect(main).toContain('import.meta.env.PROD');
   });
 
-  it('keeps loading, auth, and app shell surfaces on the official brand asset', () => {
+  it('keeps auth and app shell surfaces on the official brand asset without a loading screen', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
     const authLoginCard = read('src/components/auth/AuthLoginCard.tsx');
     const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
     const appLayout = read('src/components/layouts/AppLayout.tsx');
+    const html = read('index.html');
 
-    expect(routeGuard).toContain('OFFICIAL_LOGO_SRC');
     expect(authLoginCard).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
-    expect(routeGuard).toContain('Checking secure session');
+    expect(routeGuard).not.toContain('OFFICIAL_LOGO_SRC');
+    expect(routeGuard).not.toContain('SessionBootScreen');
+    expect(html).not.toContain('boot-splash');
     expect(authPage).toContain('handleRequestAccess');
     expect(authPage).toContain('Google access required');
     expect(authLoginCard).toContain('Request access');

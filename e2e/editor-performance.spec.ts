@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import {
   dismissEditorOverlays,
-  expect3DPreviewPane,
   loadSampleProject,
   resetWorkspacePrefs,
+  tapReachable,
 } from './helpers';
 
 test.describe('editor performance smoke', () => {
@@ -26,11 +26,20 @@ test.describe('editor performance smoke', () => {
   test('3D preview becomes visible within budget after sample load', async ({ page }) => {
     await loadSampleProject(page);
     const started = Date.now();
-    const toggle = page.getByRole('button', { name: /3d/i }).first();
-    if (await toggle.isVisible().catch(() => false)) {
-      await toggle.click();
+    const toggle = page.getByRole('button', { name: /toggle 3d view/i }).first();
+    await expect(toggle).toBeVisible({ timeout: 15_000 });
+    await tapReachable(toggle);
+
+    const pane = page.locator('.vish-3d-viewport-pane');
+    await pane.waitFor({ state: 'attached', timeout: 30_000 });
+    await pane.scrollIntoViewIfNeeded().catch(() => {});
+    await expect(pane).toBeVisible({ timeout: 30_000 });
+
+    const fallback = page.getByText('3D Preview Unavailable');
+    if (!(await fallback.isVisible().catch(() => false))) {
+      await expect(pane.locator('canvas').first()).toBeAttached({ timeout: 30_000 });
     }
-    await expect3DPreviewPane(page);
+
     const elapsed = Date.now() - started;
     console.log(`editor-3d-preview-ms=${elapsed}`);
     expect(elapsed).toBeLessThan(45_000);

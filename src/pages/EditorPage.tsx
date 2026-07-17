@@ -88,8 +88,6 @@ import { filterWallsByFloor } from '@/utils/floorHelpers';
 import { findAllRoomFaces, polygonCentroid } from '@/utils/roomCalculations';
 import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosphericMask';
-import { frustrationDetector } from '@/modules/telemetry/frustrationDetector';
-import ShunyaOverlay from '@/components/editor/ShunyaOverlay';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
@@ -194,16 +192,6 @@ function EditorWorkspace() {
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
   const [monsoonActive, setMonsoonActive] = useState(false);
   const [pranaActive, setPranaActive] = useState(false);
-  const [frustrated, setFrustrated] = useState(false);
-
-  useEffect(() => {
-    frustrationDetector.start(() => {
-      setFrustrated(true);
-    });
-    return () => {
-      frustrationDetector.stop();
-    };
-  }, []);
 
   useEffect(() => {
     if (pranaActive) {
@@ -1456,7 +1444,6 @@ function EditorWorkspace() {
         onCreate={(material) => engine.addMaterial(material)}
         userId={user?.id}
       />
-      {frustrated && <ShunyaOverlay onClose={() => setFrustrated(false)} />}
     </>
   );
 }

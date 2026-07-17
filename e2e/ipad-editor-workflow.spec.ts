@@ -1,33 +1,84 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
-  activateEditorTool,
   assertActiveDialogFitsIpad,
   dismissEditorOverlays,
-  drawWallSegmentTouch,
+  dispatchCanvasPointer,
   emulateCoarsePointer,
   expect3DPreviewPane,
   iPadLandscape,
   iPadPortrait,
   loadSampleProject,
   openExportDialog,
+  openProjectActionsMenu,
   readEditorMetricCount,
   resetWorkspacePrefs,
   saveProject,
-  selectDrawnWallForProperties,
   stopMotionForE2E,
   tapReachable,
-  dispatchCanvasTouchPointer,
 } from './helpers';
 
 const BLOCKED_COPY = /Backend not configured|Service configuration required|Application error|Something went wrong/i;
 
-async function setupIpadEditor(page: import('@playwright/test').Page, viewport: { width: number; height: number }) {
+async function setupIpadEditor(page: Page, viewport: { width: number; height: number }) {
   await page.setViewportSize(viewport);
   await emulateCoarsePointer(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await resetWorkspacePrefs(page);
   await dismissEditorOverlays(page);
   await stopMotionForE2E(page);
+  await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+}
+
+async function activatePersistentTool(page: Page, name: 'Select' | 'Wall' | 'Door' | 'Window') {
+  const button = page.getByTestId('tool-rail').getByRole('button', { name, exact: true });
+  await button.scrollIntoViewIfNeeded({ timeout: 10_000 });
+  await expect(button).toBeVisible({ timeout: 10_000 });
+  await tapReachable(button);
+  await expect(button).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 });
+}
+
+async function tapCanvas(
+  canvas: import('@playwright/test').Locator,
+  point: { x: number; y: number },
+  pointerId: number,
+  pointerType: 'touch' | 'pen' = 'touch',
+) {
+  await dispatchCanvasPointer(canvas, 'pointerdown', point, { pointerType, pointerId });
+  await canvas.page().waitForTimeout(70);
+  await dispatchCanvasPointer(canvas, 'pointerup', point, {
+    pointerType,
+    pointerId,
+    buttons: 0,
+  });
+  await canvas.page().waitForTimeout(120);
+}
+
+async function drawTouchWall(
+  canvas: import('@playwright/test').Locator,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+) {
+  await tapCanvas(canvas, from, 71);
+  await tapCanvas(canvas, to, 72);
+}
+
+async function canvasGeometry(page: Page) {
+  const canvas = page.getByTestId('blueprint-canvas');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Canvas not visible');
+  return { canvas, box };
+}
+
+async function createNamedLocalProject(page: Page, name: string) {
+  await openProjectActionsMenu(page);
+  const newProject = page.getByRole('menuitem', { name: /new project/i });
+  await newProject.waitFor({ state: 'visible', timeout: 10_000 });
+  await newProject.evaluate((element) => (element as HTMLElement).click());
+  await expect(page.getByRole('dialog', { name: /create new project/i })).toBeVisible({ timeout: 15_000 });
+  await page.getByLabel(/project name/i).fill(name);
+  await page.getByRole('button', { name: /create project/i }).click({ force: true });
+  await expect(page.getByRole('dialog', { name: /create new project/i })).toBeHidden({ timeout: 15_000 });
 }
 
 test.describe('iPad editor workflow', () => {
@@ -35,105 +86,78 @@ test.describe('iPad editor workflow', () => {
 
   test('draws wall, places door, and shows properties on iPad landscape', async ({ page }) => {
     await setupIpadEditor(page, iPadLandscape);
-    await loadSampleProject(page);
-
     const initialWalls = await readEditorMetricCount(page, 'Walls');
     const initialOpenings = await readEditorMetricCount(page, 'Openings');
+    const { canvas, box } = await canvasGeometry(page);
 
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
+    const centerY = box.height * 0.62;
+    const from = { x: box.width * 0.32, y: centerY };
+    const to = { x: box.width * 0.72, y: centerY };
+    const midpoint = { x: (from.x + to.x) / 2, y: centerY };
 
-    const centerY = box.height * 0.5;
-    const from = { x: box.width * 0.25, y: centerY };
-    const to = { x: box.width * 0.75, y: centerY };
+    await activatePersistentTool(page, 'Wall');
+    await drawTouchWall(canvas, from, to);
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
 
-    await activateEditorTool(page, 'Wall');
-    await drawWallSegmentTouch(canvas, from, to);
+    await activatePersistentTool(page, 'Door');
+    await tapCanvas(canvas, midpoint, 73);
+    await expect.poll(() => readEditorMetricCount(page, 'Openings'), { timeout: 20_000 }).toBe(initialOpenings + 1);
 
-    await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 15_000 })
-      .toBeGreaterThan(initialWalls);
-
-    await activateEditorTool(page, 'Door');
-    const doorPoint = { x: box.width * 0.5, y: centerY };
-    await dispatchCanvasTouchPointer(canvas, 'pointerdown', doorPoint);
-    await dispatchCanvasTouchPointer(canvas, 'pointerup', doorPoint);
-
-    await expect
-      .poll(async () => readEditorMetricCount(page, 'Openings'), { timeout: 15_000 })
-      .toBeGreaterThan(initialOpenings);
-
-    await activateEditorTool(page, 'Select');
-    await selectDrawnWallForProperties(page);
-
-    await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
+    await activatePersistentTool(page, 'Select');
+    await page.mouse.click(box.x + midpoint.x, box.y + midpoint.y);
+    await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('wall-openings-count')).toHaveText('1');
     await expect(page.getByText(BLOCKED_COPY)).toHaveCount(0);
   });
 
-  test('draws wall, places door, and shows properties on iPad portrait', async ({ page }) => {
+  test('draws wall and shows properties on iPad portrait', async ({ page }) => {
     await setupIpadEditor(page, iPadPortrait);
-    await loadSampleProject(page);
-
     const initialWalls = await readEditorMetricCount(page, 'Walls');
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
+    const { canvas, box } = await canvasGeometry(page);
 
-    const centerY = box.height * 0.45;
-    await activateEditorTool(page, 'Wall');
-    await drawWallSegmentTouch(
-      canvas,
-      { x: box.width * 0.2, y: centerY },
-      { x: box.width * 0.7, y: centerY },
-    );
+    const centerY = box.height * 0.7;
+    const from = { x: box.width * 0.25, y: centerY };
+    const to = { x: box.width * 0.7, y: centerY };
+    const midpoint = { x: (from.x + to.x) / 2, y: centerY };
 
-    await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 15_000 })
-      .toBeGreaterThan(initialWalls);
+    await activatePersistentTool(page, 'Wall');
+    await drawTouchWall(canvas, from, to);
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
 
-    await activateEditorTool(page, 'Select');
-    await selectDrawnWallForProperties(page);
-    await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 10_000 });
+    await activatePersistentTool(page, 'Select');
+    await page.mouse.click(box.x + midpoint.x, box.y + midpoint.y);
+    await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 15_000 });
   });
 
   test('undo reverts wall draw on iPad landscape', async ({ page }) => {
     await setupIpadEditor(page, iPadLandscape);
-    await loadSampleProject(page);
-
     const wallsBefore = await readEditorMetricCount(page, 'Walls');
-    const canvas = page.getByTestId('blueprint-canvas');
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error('Canvas not visible');
+    const { canvas, box } = await canvasGeometry(page);
 
-    const centerY = box.height * 0.5;
-    await activateEditorTool(page, 'Wall');
-    await drawWallSegmentTouch(
+    await activatePersistentTool(page, 'Wall');
+    await drawTouchWall(
       canvas,
-      { x: box.width * 0.25, y: centerY },
-      { x: box.width * 0.75, y: centerY },
+      { x: box.width * 0.3, y: box.height * 0.66 },
+      { x: box.width * 0.72, y: box.height * 0.66 },
     );
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(wallsBefore + 1);
 
-    await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 30_000 })
-      .toBeGreaterThan(wallsBefore);
-
-    const undo = page.getByRole('button', { name: /^undo$/i });
-    await tapReachable(undo);
-    await expect
-      .poll(async () => readEditorMetricCount(page, 'Walls'), { timeout: 15_000 })
-      .toBe(wallsBefore);
+    await tapReachable(page.getByRole('button', { name: /^undo$/i }));
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(wallsBefore);
   });
 
-  test('local draft persists after reload on iPad landscape', async ({ page }) => {
+  test('named local project persists after reload on iPad landscape', async ({ page }) => {
     await setupIpadEditor(page, iPadLandscape);
+    await createNamedLocalProject(page, 'E2E iPad Draft');
     await loadSampleProject(page);
     await saveProject(page);
+    await expect(page.getByText(/project saved locally/i)).toBeVisible({ timeout: 15_000 });
+
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/E2E iPad Draft/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 30_000 });
   });
 
   test('export dialog fits iPad portrait', async ({ page }) => {

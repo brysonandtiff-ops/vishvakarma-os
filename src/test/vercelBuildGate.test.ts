@@ -69,6 +69,14 @@ describe('Vercel build gate', () => {
     );
   });
 
+  it('keeps serverless functions on a CommonJS boundary under the ESM root', () => {
+    const apiPackage = JSON.parse(
+      readFileSync(path.join(process.cwd(), 'api', 'package.json'), 'utf8'),
+    ) as { type?: string };
+
+    expect(apiPackage.type).toBe('commonjs');
+  });
+
   it('prevents caching of APIs and forces service-worker revalidation', () => {
     const config = JSON.parse(
       readFileSync(path.join(process.cwd(), 'vercel.json'), 'utf8'),

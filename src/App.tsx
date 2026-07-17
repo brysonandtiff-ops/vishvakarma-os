@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
@@ -19,12 +19,56 @@ import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
 import { AppRoutes } from '@/AppRoutes';
+import '@/styles/vish-overlay-safety.css';
 
 const QaTools = __VISH_QA_TOOLS_ENABLED__
   ? lazy(() => import('@/components/qa/QaTools'))
   : null;
 
 initMonitoring();
+
+/**
+ * Mirrors mounted overlay state onto body attributes.
+ *
+ * The CSS keeps :has() as a modern progressive enhancement, while these
+ * attributes provide equivalent exclusivity on the older browsers declared in
+ * browserslist (including Safari/iOS 14, Firefox 88, and Chrome 90).
+ */
+function OverlayExclusivityController() {
+  useEffect(() => {
+    const body = document.body;
+
+    const syncOverlayState = () => {
+      const blockingOverlayOpen = Boolean(
+        document.querySelector("[data-testid='first-run-welcome'], [aria-modal='true']"),
+      );
+      const analyticsConsentVisible = Boolean(
+        document.querySelector('.vish-analytics-consent'),
+      );
+
+      body.toggleAttribute('data-vish-blocking-overlay', blockingOverlayOpen);
+      body.toggleAttribute('data-vish-analytics-visible', analyticsConsentVisible);
+    };
+
+    syncOverlayState();
+
+    const observer = new MutationObserver(syncOverlayState);
+    observer.observe(body, {
+      attributes: true,
+      attributeFilter: ['aria-modal', 'class', 'data-testid'],
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      body.removeAttribute('data-vish-blocking-overlay');
+      body.removeAttribute('data-vish-analytics-visible');
+    };
+  }, []);
+
+  return null;
+}
 
 const App: React.FC = () => {
   return (
@@ -34,6 +78,7 @@ const App: React.FC = () => {
           <StudioAudioProvider>
             <TutorialProvider>
               <RouteGuard>
+                <OverlayExclusivityController />
                 <EditorPwaReloadBlocker />
                 <IntersectObserver />
                 <div className="flex min-h-[100dvh] flex-col overflow-hidden">

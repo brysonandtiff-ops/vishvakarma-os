@@ -23,8 +23,9 @@ const deviceMatrix = [
 
 async function expectGoogleOnlyAuth(page: Page) {
   await expect(page.getByTestId('auth-page')).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId('google-sso-button')).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByText(/continue with google sso/i)).toBeVisible();
+  const googleSso = page.getByTestId('google-sso-button');
+  await expect(googleSso).toBeVisible({ timeout: 15_000 });
+  await expect(googleSso).toHaveText(/continue with google sso/i);
   await expect(page.getByText(/magic link/i)).toHaveCount(0);
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
   await expect(page.locator('input[type="email"]')).toHaveCount(0);

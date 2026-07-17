@@ -53,15 +53,16 @@ describe('Workspace layout polish', () => {
     expect(pageContainer).toContain('max-w-page-wide');
   });
 
-  it('shares auth shell between auth page and session boot', () => {
+  it('keeps the auth shell scoped to auth routes with no session boot variant', () => {
     const authLayout = read('src/components/layouts/AuthLayout.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
     const routeGuard = read('src/components/common/RouteGuard.tsx');
 
     expect(authLayout).toContain('SanskritRainBackground');
     expect(authPage).not.toContain('SanskritRainBackground');
-    expect(routeGuard).toContain('AuthLayout');
-    expect(routeGuard).toContain('variant="boot"');
+    expect(routeGuard).not.toContain('AuthLayout');
+    expect(routeGuard).not.toContain('variant="boot"');
+    expect(routeGuard).not.toContain('SessionBootScreen');
   });
 
   it('avoids nested main landmarks in the app root', () => {

@@ -1,6 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   clearSupabaseSessionSnapshot,
@@ -9,7 +8,6 @@ import {
 import { readAndClearAuthReturnPath, resolvePostAuthDestination } from '@/backend/supabase/supabaseOAuthGateway';
 import { useAuth } from '@/contexts/AuthContext';
 import routes from '@/routes';
-import AuthLayout from '@/components/layouts/AuthLayout';
 
 interface RouteGuardProps {
   children: ReactNode;
@@ -32,7 +30,7 @@ const allowLocalAccess = isE2eAuthGateBuild
 const showServiceConfigBanner =
   import.meta.env.PROD && !backendStatus.isConfigured && !allowLocalDemoMode && !isE2eLocalAccess;
 
-/** Max wait on SessionBootScreen before clearing a stale snapshot and returning to sign-in. */
+/** Max wait before clearing a stale snapshot and returning to sign-in. */
 export const SESSION_BOOT_TIMEOUT_MS = 9_000;
 
 /** Paths that require an authenticated session before rendering. */
@@ -44,34 +42,6 @@ export function isProtectedRoute(pathname: string): boolean {
 
 function isPublicRoute(pathname: string): boolean {
   return !isProtectedRoute(pathname);
-}
-
-function SessionBootScreen() {
-  return (
-    <AuthLayout variant="boot">
-      <div className="relative z-10 flex max-w-full flex-col items-center gap-5 px-2 text-center sm:gap-6">
-        <div className="vish-boot-mandala relative grid h-72 w-72 max-w-full place-items-center sm:h-96 sm:w-96" aria-hidden="true">
-          <div className="vish-boot-ring vish-boot-ring-outer" />
-          <div className="vish-boot-ring vish-boot-ring-middle" />
-          <div className="vish-boot-ring vish-boot-ring-inner" />
-          <div className="vish-boot-aura" />
-        </div>
-
-        <div className="vish-boot-logo-wrap absolute top-1/2 z-20 flex h-20 w-20 -translate-y-1/2 items-center justify-center rounded-[1.5rem] p-2 sm:h-28 sm:w-28 sm:rounded-[2rem]">
-          <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS official swan logo" className="vish-boot-swan h-full w-full rounded-2xl object-cover sm:rounded-3xl" />
-        </div>
-
-        <div className="vish-fade-rise vish-stagger-2 relative z-20 mt-[-2.75rem] max-w-full space-y-3 sm:mt-[-3.5rem]">
-          <p className="vish-wordmark break-words text-base font-bold tracking-[0.28em] text-foreground sm:text-xl sm:tracking-[0.46em]">VISHVAKARMA.OS</p>
-          <div className="mx-auto h-px w-40 max-w-full bg-gradient-to-r from-transparent via-primary/70 to-transparent sm:w-48" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary/70 sm:text-[11px] sm:tracking-[0.34em]">Checking secure session</p>
-          <p className="mx-auto max-w-sm text-xs leading-6 text-muted-foreground">
-            Aligning workspace, mantra gate, and protected project state…
-          </p>
-        </div>
-      </div>
-    </AuthLayout>
-  );
 }
 
 export function RouteGuard({ children }: RouteGuardProps) {
@@ -121,7 +91,12 @@ export function RouteGuard({ children }: RouteGuardProps) {
   }, [location.pathname, navigate, publicRoute, restoringSession, user]);
 
   if (awaitingAuth && !publicRoute) {
-    return <SessionBootScreen />;
+    // Keep protected content gated without presenting a blocking full-screen wait experience.
+    return (
+      <span className="sr-only" role="status" aria-live="polite">
+        Checking secure session
+      </span>
+    );
   }
 
   if (gated && !awaitingAuth && !user && !publicRoute && !hasCachedAuthSession()) {
