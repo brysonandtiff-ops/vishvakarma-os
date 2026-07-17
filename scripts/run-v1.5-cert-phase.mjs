@@ -79,20 +79,26 @@ function cleanup() {
 
 async function readRemoteExitCode() {
   await rm(localExitMarker, { force: true });
-  for (let attempt = 1; attempt <= 30; attempt += 1) {
+  for (let attempt = 1; attempt <= 60; attempt += 1) {
     const copied = sandbox(
       ['copy', `${sandboxName}:${remoteExitMarker}`, localExitMarker],
       { allowFailure: true, timeoutMs: 90_000 },
     );
+
     if (copied.status === 0) {
-      const raw = (await readFile(localExitMarker, 'utf8')).trim();
-      const code = Number.parseInt(raw, 10);
-      if (!Number.isInteger(code)) {
-        throw new Error(`Invalid remote exit marker: ${JSON.stringify(raw)}`);
+      try {
+        const raw = (await readFile(localExitMarker, 'utf8')).trim();
+        const code = Number.parseInt(raw, 10);
+        if (Number.isInteger(code)) return code;
+        console.error(`[v1.5-cert:${phase}] invalid remote marker: ${JSON.stringify(raw)}`);
+      } catch {
+        // The Sandbox CLI can return zero for a missing source path. Keep polling
+        // until the remote command has actually written the completion marker.
       }
-      return code;
+      await rm(localExitMarker, { force: true });
     }
-    if (attempt < 30) await delay(5_000);
+
+    if (attempt < 60) await delay(5_000);
   }
   throw new Error(`Remote exit marker was not produced for ${phase}`);
 }
@@ -128,6 +134,7 @@ async function main() {
       'cp --remove-destination /etc/hosts /opt/ubuntu/etc/hosts',
       "find /opt/ubuntu/app -mindepth 1 -maxdepth 1 ! -name node_modules -exec rm -rf {} +",
       'tar -xzf /tmp/source.tgz -C /opt/ubuntu/app',
+      'cp /opt/ubuntu/app/scripts/cert-canonical-vercel.json /opt/ubuntu/app/vercel.json',
     ].join('; ');
     sandbox(['exec', '--sudo', '--timeout', '4m', sandboxName, '--', 'bash', '-lc', refresh], {
       timeoutMs: 5 * 60_000,
