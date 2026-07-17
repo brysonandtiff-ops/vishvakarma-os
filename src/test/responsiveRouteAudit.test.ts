@@ -49,12 +49,16 @@ describe('cross-route responsive visual audit', () => {
     expect(styles).toContain('overscroll-behavior: contain');
   });
 
-  it('scales the secure-session boot composition below phone width', () => {
+  it('does not ship a secure-session or startup boot composition at any phone width', () => {
     const guard = read('src/components/common/RouteGuard.tsx');
+    const html = read('index.html');
+    const authLayout = read('src/components/layouts/AuthLayout.tsx');
 
-    expect(guard).toContain('h-72 w-72 max-w-full');
-    expect(guard).toContain('sm:h-96 sm:w-96');
-    expect(guard).toContain('text-base font-bold tracking-[0.28em]');
+    expect(guard).not.toContain('SessionBootScreen');
+    expect(guard).not.toContain('vish-boot-');
+    expect(html).not.toContain('boot-splash');
+    expect(html).not.toContain('apple-touch-startup-image');
+    expect(authLayout).not.toContain('variant="boot"');
   });
 
   it('keeps detached 3D controls in horizontal rails instead of consuming the viewport', () => {
