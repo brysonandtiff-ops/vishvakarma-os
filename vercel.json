@@ -1,5 +1,5 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "node scripts/run-exact-snapshot-cert.mjs",
+  "buildCommand": "node scripts/run-exact-snapshot-cert-r2.mjs",
   "outputDirectory": "dist"
 }
