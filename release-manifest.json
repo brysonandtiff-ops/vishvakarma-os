@@ -1,0 +1,37 @@
+{
+  "product": "Vishvakarma.OS",
+  "repository": "brysonandtiff-ops/vishvakarma-os",
+  "releaseSha": "d93ae40493e2d54b16706bb54552c7e5e59cbc27",
+  "stage": "release-candidate",
+  "coreFlow": "Create or import an architectural plan, edit it in 2D, inspect the generated 3D model, run decision-support analysis, and export a governed project package.",
+  "commands": {
+    "install": "pnpm install --frozen-lockfile",
+    "verify": "pnpm run hardening:gates",
+    "build": "pnpm run build"
+  },
+  "deployment": {
+    "provider": "Vercel",
+    "status": "ready",
+    "evidence": "PR #123 head deployment is green; exact-head production certification remains the merge gate"
+  },
+  "evidence": {
+    "typecheck": "not-run",
+    "lint": "not-run",
+    "unit": "not-run",
+    "e2e": "not-run",
+    "security": "not-run",
+    "realDevice": "not-run",
+    "humanAcceptance": "not-run"
+  },
+  "truth": {
+    "usesMockData": true,
+    "hasSimulatedFlows": true,
+    "knownLimitations": [
+      "Compliance, approval and cost outputs are decision-support rather than certified determinations.",
+      "PR #123 must not merge until the exact head SHA passes the complete production certification workflow.",
+      "Some collaboration and enterprise integration paths remain preview or planned."
+    ]
+  },
+  "nextMilestone": "Complete exact-head certification for PR #123, merge the single release candidate, verify production, freeze the release branch and tag v1.5.0.",
+  "updatedAt": "2026-07-17T10:20:00+08:00"
+}
