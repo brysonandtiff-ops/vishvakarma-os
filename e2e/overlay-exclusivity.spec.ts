@@ -35,6 +35,7 @@ for (const device of devices) {
     await page.goto('/editor', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
 
+    const body = page.locator('body');
     const welcome = page.getByTestId('first-run-welcome');
     const analytics = page.getByTestId('analytics-consent');
     const qaLauncher = page.locator('.vish-device-validation__launcher');
@@ -42,6 +43,7 @@ for (const device of devices) {
 
     const welcomeVisible = await welcome.isVisible({ timeout: 5_000 }).catch(() => false);
     if (welcomeVisible) {
+      await expect(body).toHaveAttribute('data-vish-blocking-overlay', '');
       await expect(analytics).toBeHidden();
       await expect(qaLauncher).toBeHidden();
       await expect(qaEvidence).toBeHidden();
@@ -55,6 +57,8 @@ for (const device of devices) {
     }
 
     await expect(analytics).toBeVisible({ timeout: 15_000 });
+    await expect(body).not.toHaveAttribute('data-vish-blocking-overlay', '');
+    await expect(body).toHaveAttribute('data-vish-analytics-visible', '');
     await expect(qaLauncher).toBeHidden();
     await expect(qaEvidence).toBeHidden();
     await expectSingleVisibleDialog(page);
@@ -63,6 +67,7 @@ for (const device of devices) {
     await page.getByRole('button', { name: /^decline$/i }).click({ force: true });
 
     await expect(analytics).toBeHidden();
+    await expect(body).not.toHaveAttribute('data-vish-analytics-visible', '');
     await expect(qaLauncher).toBeVisible({ timeout: 10_000 });
     await expect(qaEvidence).toBeVisible();
     await expect(page.locator('[role="dialog"]:visible')).toHaveCount(0);
