@@ -87,7 +87,11 @@ async function readText(path) {
 }
 
 function runCommand(command) {
-  execSync(command, { stdio: 'pipe', encoding: 'utf-8' });
+  execSync(command, {
+    stdio: 'inherit',
+    env: process.env,
+    shell: true,
+  });
 }
 
 async function checkSpecGate() {
@@ -257,7 +261,7 @@ async function checkAutomatedCommandGate(name, command) {
     runCommand(command);
     return pass(name, `${command} completed successfully.`);
   } catch (error) {
-    return fail(name, `${command} failed.`, [String(error?.stdout ?? error?.message ?? error)]);
+    return fail(name, `${command} failed.`, [String(error?.message ?? error)]);
   }
 }
 
