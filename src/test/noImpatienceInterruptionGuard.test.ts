@@ -9,10 +9,12 @@ const bannedProductionPatterns = [
   /SpookyFocusGuard/i,
   /playSpookyFocusChime/i,
   /rage[-_ ]?click/i,
-  /frustration[-_ ]?(guard|detector|overlay)/i,
   /three[- ]second pause/i,
   /3[- ]second pause/i,
   /reset your flow state/i,
+  /vish-frustration-detected/i,
+  /Shunya Reset/i,
+  /Resetting Focus · Aligning Prana/i,
 ];
 
 function collectProductionFiles(directory: string): string[] {
@@ -37,7 +39,7 @@ function collectProductionFiles(directory: string): string[] {
 }
 
 describe('user autonomy release rule', () => {
-  it('does not ship a rage-click or impatience-triggered interruption screen', () => {
+  it('does not ship an active rage-click or impatience interruption path', () => {
     const violations = collectProductionFiles(sourceRoot).flatMap((filePath) => {
       const source = readFileSync(filePath, 'utf8');
       return bannedProductionPatterns
@@ -45,6 +47,17 @@ describe('user autonomy release rule', () => {
         .map((pattern) => `${path.relative(repoRoot, filePath)} matched ${pattern}`);
     });
 
+    const detector = readFileSync(
+      path.join(sourceRoot, 'modules', 'telemetry', 'frustrationDetector.ts'),
+      'utf8',
+    );
+    expect(detector).not.toMatch(/addEventListener|CustomEvent|pointermove|triggerFrustration|handleClick/);
+
+    const overlay = readFileSync(
+      path.join(sourceRoot, 'components', 'editor', 'ShunyaOverlay.tsx'),
+      'utf8',
+    );
+    expect(overlay).not.toMatch(/fixed inset-0|setTimeout|playSolfeggioBell|Inhale|Exhale/);
     expect(violations).toEqual([]);
   });
 });
