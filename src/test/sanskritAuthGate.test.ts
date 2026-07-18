@@ -16,6 +16,7 @@ describe('Sanskrit auth gate design', () => {
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-device-unity.css');
+    expect(main).toContain('./styles/vish-auth-email-fallback.css');
     expect(authStyles).toContain("import '../vish-auth-gate.css'");
     expect(authStyles).toContain("import '../vish-login-page.css'");
     expect(editorStyles).toContain("import '../vish-ipad-desktop-polish.css'");
@@ -38,26 +39,29 @@ describe('Sanskrit auth gate design', () => {
     expect(hero).toContain('vish-login-page__deity-visual');
   });
 
-  it('enforces Google SSO as the only visible production login path', () => {
+  it('exposes only approved Google SSO and existing-account email links', () => {
     const authPage = read('src/pages/AuthPage.tsx');
     const loginCard = read('src/components/auth/AuthLoginCard.tsx');
     const oauthGateway = read('src/backend/supabase/supabaseOAuthGateway.ts');
+    const authGateway = read('src/backend/supabase/supabaseAuthGateway.ts');
 
     expect(authPage).toContain('signInWithGoogle');
-    expect(authPage).not.toContain('requestAccessLink');
-    expect(authPage).not.toContain('completeEmailLinkSignIn');
+    expect(authPage).toContain('requestAccessLink');
+    expect(authPage).toContain('handleEmailLinkSignIn');
     expect(authPage).not.toContain('signInWithApple');
     expect(authPage).not.toContain('onLocalWorkspace');
 
     expect(loginCard).toContain('data-testid="google-sso-button"');
     expect(loginCard).toContain('Continue with Google SSO');
-    expect(loginCard).toContain('Supabase Google OAuth as the only production login path');
-    expect(loginCard).not.toContain('Send magic link');
-    expect(loginCard).not.toContain('Complete sign-in');
-    expect(loginCard).not.toContain('type="email"');
+    expect(loginCard).toContain('data-testid="email-magic-link-input"');
+    expect(loginCard).toContain('data-testid="email-magic-link-button"');
+    expect(loginCard).toContain('Email me a sign-in link');
+    expect(loginCard).toContain('type="email"');
     expect(loginCard).not.toContain('type="password"');
     expect(loginCard).not.toContain('Enter local workspace');
 
+    expect(authGateway).toContain('shouldCreateUser: false');
+    expect(authGateway).not.toContain('client.auth.signInWithPassword');
     expect(oauthGateway).toContain("provider: 'google'");
   });
 
@@ -75,8 +79,8 @@ describe('Sanskrit auth gate design', () => {
     expect(authPage).toContain('auth-trust-pillars');
     expect(authPage).toContain('auth-trust-pillar-gates');
     expect(authPage).toContain('auth-trust-pillar-records');
-    expect(authPage).toContain('Sign in with Google SSO to inspect release gate snapshots.');
-    expect(authPage).toContain('Sign in with Google SSO to view the Self-Verified Candidate registry.');
+    expect(authPage).toContain('Sign in to inspect release gate snapshots.');
+    expect(authPage).toContain('Sign in to view the Self-Verified Candidate registry.');
     expect(loginStyles).toContain('.vish-login-page__auth-card');
     expect(loginStyles).toContain('@media (prefers-reduced-motion: reduce)');
     expect(marketingFooter).toContain('FoundersAcknowledgment');
@@ -84,17 +88,19 @@ describe('Sanskrit auth gate design', () => {
     expect(marketingStyles).toContain('.vish-marketing-founders');
   });
 
-  it('keeps Supabase OAuth callback handling stable', () => {
+  it('keeps Supabase OAuth and email callback handling stable', () => {
     const authContext = read('src/contexts/AuthContext.tsx');
     const supabaseProvider = read('src/contexts/SupabaseAuthProvider.tsx');
     const supabaseAuthGateway = read('src/backend/supabase/supabaseAuthGateway.ts');
 
     expect(authContext).toContain('SupabaseAuthProvider');
     expect(supabaseProvider).toContain('resolveSupabaseOAuthRedirectSession');
+    expect(supabaseProvider).toContain('completeSupabaseEmailLinkSignIn');
     expect(supabaseProvider).toContain('markFreshSignIn');
     expect(supabaseProvider).toContain('POST_AUTH_DESTINATION');
     expect(supabaseProvider).toContain('signInWithGoogle');
     expect(supabaseAuthGateway).toContain('isSupabaseOAuthCallback');
+    expect(supabaseAuthGateway).toContain('isSupabaseEmailLinkCallback');
   });
 
   it('keeps the premium workspace shell treatment after login', () => {
