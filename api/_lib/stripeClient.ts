@@ -1,10 +1,16 @@
-import Stripe = require('stripe');
+import Stripe from 'stripe';
 
-let stripeClient: Stripe.Stripe | null = null;
+function createStripeClient(secretKey: string) {
+  return new Stripe(secretKey);
+}
+
+export type StripeClient = ReturnType<typeof createStripeClient>;
+
+let stripeClient: StripeClient | null = null;
 
 export type CheckoutPlan = 'studio' | 'enterprise';
 
-export function getStripeClient(): Stripe.Stripe {
+export function getStripeClient(): StripeClient {
   if (stripeClient) return stripeClient;
 
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
@@ -12,7 +18,7 @@ export function getStripeClient(): Stripe.Stripe {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
 
-  stripeClient = new Stripe(secretKey);
+  stripeClient = createStripeClient(secretKey);
   return stripeClient;
 }
 
