@@ -1,4 +1,4 @@
-import type Stripe from 'stripe';
+import Stripe = require('stripe');
 import { createClient } from '@supabase/supabase-js';
 import { planFromPriceId } from './stripeClient';
 
