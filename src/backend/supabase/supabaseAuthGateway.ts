@@ -4,9 +4,14 @@ import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
 
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
 const LEGACY_SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
-const REQUIRED_AUTH_PROVIDER = 'google';
-export const GOOGLE_ONLY_AUTH_MESSAGE =
-  'Vishvakarma.OS only accepts Google SSO sessions through Supabase. Sign out, then continue with Google SSO.';
+const SUPPORTED_AUTH_PROVIDERS = ['google', 'email'] as const;
+
+export type SupportedAuthProvider = (typeof SUPPORTED_AUTH_PROVIDERS)[number];
+
+export const SUPPORTED_AUTH_MESSAGE =
+  'Vishvakarma.OS accepts approved Google SSO or secure email magic-link sessions through Supabase.';
+/** @deprecated Kept for compatibility with older error and test imports. */
+export const GOOGLE_ONLY_AUTH_MESSAGE = SUPPORTED_AUTH_MESSAGE;
 
 /**
  * Non-sensitive auth metadata used by React state. Supabase remains the single
@@ -14,7 +19,7 @@ export const GOOGLE_ONLY_AUTH_MESSAGE =
  */
 export interface SupabaseSessionSnapshot {
   provider: 'supabase';
-  authProvider: 'google';
+  authProvider: SupportedAuthProvider;
   uid: string;
   email: string;
   expiresAt: number;
@@ -32,8 +37,8 @@ function clearLegacyTokenSnapshot() {
   getBrowserStorage()?.removeItem(LEGACY_SUPABASE_SESSION_KEY);
 }
 
-function googleOnlyAuthError() {
-  return new Error(GOOGLE_ONLY_AUTH_MESSAGE);
+function unsupportedAuthProviderError() {
+  return new Error(SUPPORTED_AUTH_MESSAGE);
 }
 
 function normalizeSupabaseAuthError(error: unknown) {
@@ -76,13 +81,29 @@ function getSupabaseAuthProviders(user: User): string[] {
   return Array.from(providers).map((provider) => provider.toLowerCase());
 }
 
-export function isGoogleSupabaseUser(user: User): boolean {
-  return getSupabaseAuthProviders(user).includes(REQUIRED_AUTH_PROVIDER);
+function resolveSupportedAuthProvider(user: User): SupportedAuthProvider | null {
+  const providers = getSupabaseAuthProviders(user);
+  if (providers.includes('google')) return 'google';
+  if (providers.includes('email')) return 'email';
+  return null;
 }
 
-function assertGoogleSupabaseUser(user: User) {
-  if (isGoogleSupabaseUser(user)) return;
-  throw googleOnlyAuthError();
+export function isGoogleSupabaseUser(user: User): boolean {
+  return getSupabaseAuthProviders(user).includes('google');
+}
+
+export function isEmailSupabaseUser(user: User): boolean {
+  return getSupabaseAuthProviders(user).includes('email');
+}
+
+export function isSupportedSupabaseUser(user: User): boolean {
+  return resolveSupportedAuthProvider(user) !== null;
+}
+
+function assertSupportedSupabaseUser(user: User): SupportedAuthProvider {
+  const provider = resolveSupportedAuthProvider(user);
+  if (provider) return provider;
+  throw unsupportedAuthProviderError();
 }
 
 /** @deprecated Tokens are owned by supabase-js and are never copied by application code. */
@@ -107,7 +128,7 @@ export async function buildSupabaseSessionFromAuthSession(
   session: Session,
   user: User,
 ): Promise<SupabaseSessionSnapshot> {
-  assertGoogleSupabaseUser(user);
+  const authProvider = assertSupportedSupabaseUser(user);
   clearLegacyTokenSnapshot();
 
   const expiresAt = session.expires_at
@@ -116,7 +137,7 @@ export async function buildSupabaseSessionFromAuthSession(
 
   return {
     provider: 'supabase',
-    authProvider: REQUIRED_AUTH_PROVIDER,
+    authProvider,
     uid: user.id,
     email: user.email ?? '',
     expiresAt,
@@ -162,14 +183,12 @@ export function hasCachedAuthSession(): boolean {
   return false;
 }
 
-/** @deprecated Google SSO does not require pending email state. */
 export function storePendingSupabaseEmail(email: string) {
   const storage = getBrowserStorage();
   if (!storage) return;
   storage.setItem(SUPABASE_PENDING_EMAIL_KEY, email.trim().toLowerCase());
 }
 
-/** @deprecated Google SSO does not require pending email state. */
 export function readPendingSupabaseEmail() {
   const storage = getBrowserStorage();
   if (!storage) return null;
@@ -182,7 +201,7 @@ export function clearPendingSupabaseEmail() {
   storage.removeItem(SUPABASE_PENDING_EMAIL_KEY);
 }
 
-/** PKCE OAuth return — query `code` without email OTP `token_hash`. */
+/** PKCE auth return — query `code` without email OTP `token_hash`. */
 export function isSupabaseOAuthCallback(
   search = typeof window !== 'undefined' ? window.location.search : '',
 ) {
@@ -190,7 +209,6 @@ export function isSupabaseOAuthCallback(
   return params.has('code') && !params.has('token_hash');
 }
 
-/** Legacy email-link callbacks are recognized only so they can fail closed. */
 export function isSupabaseEmailLinkCallback(
   hash = typeof window !== 'undefined' ? window.location.hash : '',
   search = typeof window !== 'undefined' ? window.location.search : '',
@@ -198,23 +216,59 @@ export function isSupabaseEmailLinkCallback(
   if (isSupabaseOAuthCallback(search)) return false;
 
   const params = new URLSearchParams(search);
-  return hash.includes('type=magiclink') || params.has('token_hash');
+  const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+  return (
+    hashParams.get('type') === 'magiclink' ||
+    hashParams.get('type') === 'email' ||
+    params.has('token_hash')
+  );
 }
 
-/** @deprecated Password sign-in is disabled; Google SSO is the only supported method. */
+/** Password sign-in remains disabled; use Google SSO or email magic link. */
 export async function signInWithPasswordSupabase(_email: string, _password: string) {
-  return { error: googleOnlyAuthError(), session: null };
+  return {
+    error: new Error('Password sign-in is disabled. Use Google SSO or a secure email magic link.'),
+    session: null,
+  };
 }
 
-/** @deprecated Password reset is disabled because password sign-in is unsupported. */
+/** Password reset remains disabled because password sign-in is unsupported. */
 export async function requestSupabasePasswordReset(_email: string, _redirectTo: string) {
-  return { error: googleOnlyAuthError() };
+  return {
+    error: new Error('Password reset is unavailable. Request a secure email sign-in link instead.'),
+  };
 }
 
-/** @deprecated Magic-link sign-in is disabled; Google SSO is the only supported method. */
-export async function requestSupabaseAccessLink(_email: string, _redirectTo: string) {
-  clearPendingSupabaseEmail();
-  return { error: googleOnlyAuthError() };
+export async function requestSupabaseAccessLink(email: string, redirectTo: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    return { error: new Error('Enter a valid email address.') };
+  }
+
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      error: new Error(
+        backendStatus.configurationError ?? 'Supabase backend is not configured.',
+      ),
+    };
+  }
+
+  storePendingSupabaseEmail(normalizedEmail);
+  const { error } = await client.auth.signInWithOtp({
+    email: normalizedEmail,
+    options: {
+      emailRedirectTo: redirectTo,
+      shouldCreateUser: false,
+    },
+  });
+
+  if (error) {
+    clearPendingSupabaseEmail();
+    return { error: normalizeSupabaseAuthError(error) };
+  }
+
+  return { error: null };
 }
 
 type EmailLinkResult =
@@ -222,15 +276,58 @@ type EmailLinkResult =
   | { status: 'needs_email' }
   | { status: 'error'; error: Error };
 
-/** @deprecated Legacy magic links fail closed and never create an application session. */
 export async function completeSupabaseEmailLinkSignIn(
-  _email?: string,
+  email?: string,
 ): Promise<EmailLinkResult> {
-  clearPendingSupabaseEmail();
   const client = getSupabaseClient();
-  await client?.auth.signOut().catch(() => undefined);
-  clearSupabaseSessionSnapshot();
-  return { status: 'error', error: googleOnlyAuthError() };
+  if (!client) {
+    return {
+      status: 'error',
+      error: new Error(backendStatus.configurationError ?? 'Supabase backend is not configured.'),
+    };
+  }
+
+  try {
+    const params = new URLSearchParams(
+      typeof window !== 'undefined' ? window.location.search : '',
+    );
+    const tokenHash = params.get('token_hash');
+
+    if (tokenHash) {
+      const { data, error } = await client.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'email',
+      });
+      if (error) throw error;
+      if (!data.session?.user) {
+        throw new Error('Supabase did not return a session for this email link.');
+      }
+      await buildAuthorizedSessionOrSignOut(client, data.session, data.session.user);
+      clearPendingSupabaseEmail();
+      return { status: 'completed' };
+    }
+
+    const { data, error } = await client.auth.getSession();
+    if (error) throw error;
+    if (data.session?.user) {
+      await buildAuthorizedSessionOrSignOut(client, data.session, data.session.user);
+      clearPendingSupabaseEmail();
+      return { status: 'completed' };
+    }
+
+    const pendingEmail = email?.trim().toLowerCase() || readPendingSupabaseEmail();
+    if (!pendingEmail) return { status: 'needs_email' };
+
+    return {
+      status: 'error',
+      error: new Error('The email sign-in link is incomplete or expired. Request a new link.'),
+    };
+  } catch (error) {
+    clearPendingSupabaseEmail();
+    await client.auth.signOut().catch(() => undefined);
+    clearSupabaseSessionSnapshot();
+    return { status: 'error', error: normalizeSupabaseAuthError(error) };
+  }
 }
 
 export async function resolveSupabaseSessionForApi() {

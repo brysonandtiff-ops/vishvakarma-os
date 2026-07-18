@@ -1,0 +1,99 @@
+/* Secure email-link fallback for the production auth card. */
+.vish-login-page__auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.85rem 0;
+  color: hsl(0 0% 62%);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vish-login-page__auth-divider::before,
+.vish-login-page__auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(43 55% 48% / 0.35));
+}
+
+.vish-login-page__auth-divider::after {
+  background: linear-gradient(90deg, hsl(43 55% 48% / 0.35), transparent);
+}
+
+.vish-login-page__email-link-form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.vish-login-page__email-label {
+  color: hsl(42 35% 78%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vish-login-page__email-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid hsl(43 40% 35% / 0.42);
+  border-radius: 0.65rem;
+  background: hsl(240 20% 5% / 0.82);
+  color: hsl(0 0% 96%);
+  font-size: 0.9rem;
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.vish-login-page__email-input::placeholder {
+  color: hsl(0 0% 52%);
+}
+
+.vish-login-page__email-input:hover {
+  border-color: hsl(43 58% 48% / 0.65);
+}
+
+.vish-login-page__email-input:focus {
+  outline: none;
+  border-color: hsl(43 74% 58% / 0.9);
+  background: hsl(240 20% 6% / 0.96);
+  box-shadow: 0 0 0 3px hsl(43 74% 58% / 0.16), 0 8px 24px hsl(240 48% 2% / 0.3);
+}
+
+.vish-login-page__email-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.vish-login-page__email-link-button {
+  width: 100%;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  border-color: hsl(43 58% 48% / 0.52);
+  background: hsl(43 50% 12% / 0.3);
+  color: hsl(43 70% 72%);
+  font-weight: 750;
+}
+
+.vish-login-page__email-link-button:hover:not(:disabled) {
+  border-color: hsl(43 74% 58% / 0.84);
+  background: hsl(43 55% 16% / 0.48);
+  color: hsl(43 82% 82%);
+}
+
+.vish-login-page__email-link-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 640px) {
+  .vish-login-page__email-input,
+  .vish-login-page__email-link-button {
+    min-height: 48px;
+  }
+}

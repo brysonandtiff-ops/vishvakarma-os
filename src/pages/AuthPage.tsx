@@ -25,12 +25,14 @@ export default function AuthPage() {
   const {
     user,
     isConfigured,
+    requestAccessLink,
     signInWithGoogle,
   } = useAuth();
   const { loading: capabilitiesLoading, winner } = useAuthCapabilities();
   const navigate = useNavigate();
   const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,13 +49,14 @@ export default function AuthPage() {
     [],
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
-  const adminApprovalMessage = 'Ask your Vishvakarma.OS admin to approve the Google account you will use for Supabase SSO.';
+  const adminApprovalMessage =
+    'Use an approved account. Google SSO and secure email magic links are handled by Supabase.';
 
   useEffect(() => {
     const state = location.state as { message?: string } | null;
     if (state?.message !== 'password-reset-unavailable') return;
 
-    setMessage('Password reset is not available. Vishvakarma.OS uses Google SSO instead of passwords.');
+    setMessage('Password reset is not required. Request a secure email sign-in link instead.');
     navigate('/auth', { replace: true, state: null });
   }, [location.state, navigate]);
 
@@ -71,7 +74,7 @@ export default function AuthPage() {
     try {
       await navigator.clipboard.writeText(externalAuthUrl);
       toast.success('Sign-in link copied', {
-        description: 'Paste into Chrome or Safari to complete Google sign-in.',
+        description: 'Paste into Chrome or Safari to complete sign-in.',
       });
     } catch {
       toast.message('Copy this URL', { description: externalAuthUrl });
@@ -96,8 +99,31 @@ export default function AuthPage() {
     navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
+  const handleEmailLinkSignIn = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !normalizedEmail.includes('@')) {
+      setMessage(null);
+      setError('Enter the approved email address for your Vishvakarma.OS account.');
+      return;
+    }
+
+    setError(null);
+    setMessage(null);
+    storeAuthReturnPath(POST_AUTH_DESTINATION);
+    setSubmitting(true);
+    const result = await requestAccessLink(normalizedEmail);
+    setSubmitting(false);
+
+    if (result.error) {
+      setError(result.error.message);
+      return;
+    }
+
+    setMessage(`Secure sign-in link sent to ${normalizedEmail}. Open it in this browser to continue.`);
+  };
+
   const handleRequestAccess = () => {
-    toast.message('Google access required', {
+    toast.message('Approved account required', {
       description: adminApprovalMessage,
     });
   };
@@ -106,7 +132,7 @@ export default function AuthPage() {
     <>
       <PageMeta
         title="Sign In — Vishvakarma.OS"
-        description="Enter the sacred architecture workspace with Google SSO via Supabase."
+        description="Enter the architecture workspace with Google SSO or a secure Supabase email magic link."
       />
 
       <main className="vish-login-page vish-login-page--reference-replica" aria-labelledby="auth-page-title" data-testid="auth-page">
@@ -115,10 +141,13 @@ export default function AuthPage() {
           submitting={submitting}
           disabled={authDisabled}
           status={status}
+          email={email}
           embeddedAuthBrowser={embeddedAuthBrowser}
           embeddedBrowserLabel={embeddedBrowserLabel}
           externalAuthUrl={externalAuthUrl}
           showConfigRequired={showConfigRequired}
+          onEmailChange={setEmail}
+          onEmailLink={handleEmailLinkSignIn}
           onSso={handleGoogleSignIn}
           onRequestAccess={handleRequestAccess}
           onCopyAuthUrl={handleCopyAuthUrl}
@@ -148,7 +177,7 @@ export default function AuthPage() {
             testId="auth-trust-pillar-gates"
             onLearnMore={() =>
               toast.message('Release evidence', {
-                description: 'Sign in with Google SSO to inspect release gate snapshots.',
+                description: 'Sign in to inspect release gate snapshots.',
               })
             }
           />
@@ -163,7 +192,7 @@ export default function AuthPage() {
             testId="auth-trust-pillar-records"
             onLearnMore={() =>
               toast.message('World Records', {
-                description: 'Sign in with Google SSO to view the Self-Verified Candidate registry.',
+                description: 'Sign in to view the Self-Verified Candidate registry.',
               })
             }
           />
