@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -18,15 +18,21 @@ function readConfig(path: string) {
 }
 
 describe('Vercel API runtime module boundary', () => {
-  it('emits API functions and bundled src dependencies as CommonJS', () => {
+  it('emits API functions as CommonJS and creates the src boundary after quality gates', () => {
     const rootConfig = readConfig('tsconfig.json');
     const apiPackage = JSON.parse(readText('api/package.json')) as { type?: string };
-    const srcPackage = JSON.parse(readText('src/package.json')) as { type?: string };
+    const buildScript = readText('scripts/vercel-build.mjs');
 
     expect(rootConfig.compilerOptions?.module).toBe('CommonJS');
     expect(rootConfig.compilerOptions?.moduleResolution).toBe('Node');
     expect(apiPackage.type).toBe('commonjs');
-    expect(srcPackage.type).toBe('commonjs');
+    expect(existsSync(join(process.cwd(), 'src', 'package.json'))).toBe(false);
+
+    expect(buildScript).toContain('writeVercelSrcRuntimeBoundary');
+    expect(buildScript).toContain("type: 'commonjs'");
+    expect(buildScript.indexOf('for (const step of steps)')).toBeLessThan(
+      buildScript.lastIndexOf('await writeVercelSrcRuntimeBoundary()'),
+    );
   });
 
   it('keeps source-level API checks and the browser toolchain on ES modules', () => {
