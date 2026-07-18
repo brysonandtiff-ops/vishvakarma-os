@@ -2,6 +2,7 @@ import {
   Building2,
   Copy,
   ExternalLink,
+  Mail,
 } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { APP_VERSION } from '@/config/appVersion';
@@ -16,10 +17,13 @@ interface AuthLoginCardProps {
   submitting: boolean;
   disabled: boolean;
   status: AuthLoginStatus | null;
+  email: string;
   embeddedAuthBrowser: boolean;
   embeddedBrowserLabel: string;
   externalAuthUrl: string;
   showConfigRequired: boolean;
+  onEmailChange: (email: string) => void;
+  onEmailLink: () => void;
   onSso: () => void;
   onRequestAccess: () => void;
   onCopyAuthUrl: () => void;
@@ -29,10 +33,13 @@ export default function AuthLoginCard({
   submitting,
   disabled,
   status,
+  email,
   embeddedAuthBrowser,
   embeddedBrowserLabel,
   externalAuthUrl,
   showConfigRequired,
+  onEmailChange,
+  onEmailLink,
   onSso,
   onRequestAccess,
   onCopyAuthUrl,
@@ -67,20 +74,20 @@ export default function AuthLoginCard({
           </h1>
           <p>Architect • Engineer • Create</p>
           <p className="vish-login-page__auth-note">
-            Continue with Google SSO. Vishvakarma.OS uses Supabase Google OAuth as the only production login path.
+            Sign in with Google SSO or request a secure one-time email link through Supabase.
           </p>
         </div>
 
         {showConfigRequired && (
           <p className="vish-login-page__status vish-login-page__status--error" role="alert">
-            Backend not configured. Set Supabase environment variables and enable Google OAuth to sign in.
+            Backend not configured. Set the Supabase environment variables to enable sign-in.
           </p>
         )}
 
-        <div className="vish-login-page__form" data-testid="google-sso-only-auth">
+        <div className="vish-login-page__form" data-testid="supabase-auth-options">
           {showEmbeddedAuthRecovery && (
             <div className="vish-login-page__embedded-recovery">
-              <p>Open in your system browser — Google OAuth is blocked in {embeddedBrowserLabel}.</p>
+              <p>Google OAuth is blocked in {embeddedBrowserLabel}. Use the email link below or open this page in your system browser.</p>
               <div className="vish-login-page__embedded-recovery-actions">
                 <a
                   href={externalAuthUrl}
@@ -106,12 +113,50 @@ export default function AuthLoginCard({
             disabled={submitting || disabled || embeddedAuthBrowser}
             data-testid="google-sso-button"
           >
-            {submitting ? 'Redirecting to Google…' : 'Continue with Google SSO'}
+            {submitting ? 'Starting secure sign-in…' : 'Continue with Google SSO'}
             <Building2 size={18} aria-hidden="true" />
           </button>
 
+          <div className="vish-login-page__auth-divider" aria-hidden="true">
+            <span>or</span>
+          </div>
+
+          <form
+            className="vish-login-page__email-link-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onEmailLink();
+            }}
+          >
+            <label htmlFor="vish-auth-email" className="vish-login-page__email-label">
+              Approved account email
+            </label>
+            <input
+              id="vish-auth-email"
+              type="email"
+              value={email}
+              onChange={(event) => onEmailChange(event.target.value)}
+              autoComplete="email"
+              inputMode="email"
+              placeholder="name@example.com"
+              className="vish-login-page__email-input"
+              disabled={submitting || disabled}
+              data-testid="email-magic-link-input"
+              required
+            />
+            <button
+              type="submit"
+              className="vish-auth-open-browser-btn vish-login-page__email-link-button touch-target"
+              disabled={submitting || disabled}
+              data-testid="email-magic-link-button"
+            >
+              <Mail size={16} aria-hidden="true" />
+              {submitting ? 'Sending secure link…' : 'Email me a sign-in link'}
+            </button>
+          </form>
+
           <p className="vish-login-page__field-help vish-login-page__magic-help">
-            No password, magic-link, or local demo login is available. Approved users sign in with Google through Supabase.
+            Email links are one-time use, expire automatically, and do not create unapproved accounts.
           </p>
 
           <p
