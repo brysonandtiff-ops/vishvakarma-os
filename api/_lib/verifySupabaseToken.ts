@@ -9,10 +9,7 @@ export type VerifiedSupabaseUser = {
 type SupabaseApiUser = {
   id: string;
   email?: string | null;
-  app_metadata?: {
-    provider?: unknown;
-    providers?: unknown;
-  };
+  app_metadata?: { provider?: unknown; providers?: unknown };
   identities?: Array<{ provider?: unknown }> | null;
 };
 
@@ -24,7 +21,7 @@ type SupabaseAuthVerifier = {
 };
 
 const MAX_BEARER_TOKEN_LENGTH = 8_192;
-const REQUIRED_AUTH_PROVIDER = 'google';
+const SUPPORTED_AUTH_PROVIDERS = new Set(['google', 'email']);
 
 export function readBearerToken(
   req: IncomingMessage & { headers: Record<string, string | string[] | undefined> },
@@ -48,18 +45,19 @@ function authProviders(user: SupabaseApiUser) {
       if (typeof provider === 'string') providers.add(provider.toLowerCase());
     }
   }
-
   for (const identity of user.identities ?? []) {
-    if (typeof identity.provider === 'string') {
-      providers.add(identity.provider.toLowerCase());
-    }
+    if (typeof identity.provider === 'string') providers.add(identity.provider.toLowerCase());
   }
-
   return providers;
 }
 
+export function isSupportedSupabaseApiUser(user: SupabaseApiUser): boolean {
+  const providers = authProviders(user);
+  return [...SUPPORTED_AUTH_PROVIDERS].some((provider) => providers.has(provider));
+}
+
 export function isGoogleSupabaseApiUser(user: SupabaseApiUser): boolean {
-  return authProviders(user).has(REQUIRED_AUTH_PROVIDER);
+  return authProviders(user).has('google');
 }
 
 export async function verifySupabaseBearerToken(
@@ -67,12 +65,8 @@ export async function verifySupabaseBearerToken(
   auth: SupabaseAuthVerifier,
 ): Promise<VerifiedSupabaseUser | null> {
   const { data, error } = await auth.getUser(token);
-  if (error || !data.user || !isGoogleSupabaseApiUser(data.user)) return null;
-
-  return {
-    uid: data.user.id,
-    email: data.user.email ?? undefined,
-  };
+  if (error || !data.user || !isSupportedSupabaseApiUser(data.user)) return null;
+  return { uid: data.user.id, email: data.user.email ?? undefined };
 }
 
 function getSupabaseAdmin() {
@@ -89,10 +83,7 @@ export async function verifySupabaseTokenFromRequest(
 ): Promise<VerifiedSupabaseUser | null> {
   const token = readBearerToken(req);
   if (!token) return null;
-
   const admin = getSupabaseAdmin();
   if (!admin) return null;
-
-  // SupabaseAuthClient's declared type can omit inherited GoTrueClient methods in Vercel's TS build.
   return verifySupabaseBearerToken(token, admin.auth as unknown as SupabaseAuthVerifier);
 }
