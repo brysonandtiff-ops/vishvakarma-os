@@ -14,13 +14,28 @@ function readText(path: string) {
 }
 
 describe('Vercel API runtime module boundary', () => {
-  it('emits standalone API functions as CommonJS for the api package runtime', () => {
+  it('emits API functions and bundled src dependencies as CommonJS', () => {
     const rootConfig = JSON.parse(readText('tsconfig.json')) as TypeScriptConfig;
     const apiPackage = JSON.parse(readText('api/package.json')) as { type?: string };
+    const srcPackage = JSON.parse(readText('src/package.json')) as { type?: string };
 
     expect(rootConfig.compilerOptions?.module).toBe('CommonJS');
     expect(rootConfig.compilerOptions?.moduleResolution).toBe('Node');
     expect(apiPackage.type).toBe('commonjs');
+    expect(srcPackage.type).toBe('commonjs');
+  });
+
+  it('uses the Stripe v22 CommonJS TypeScript import form in server modules', () => {
+    for (const path of [
+      'api/_lib/stripeClient.ts',
+      'api/_lib/billingBackend.ts',
+      'api/_lib/billingSupabase.ts',
+      'api/_lib/stripeInvoice.ts',
+      'api/stripe/webhook.ts',
+    ]) {
+      expect(readText(path)).toContain("import Stripe = require('stripe');");
+      expect(readText(path)).not.toContain("import type Stripe from 'stripe';");
+    }
   });
 
   it('keeps the browser and Vite configs on ES modules', () => {
