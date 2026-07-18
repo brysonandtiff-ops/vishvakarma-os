@@ -7,10 +7,26 @@ import { spawnSync } from 'node:child_process';
 const MAX_TEXT_FILE_BYTES = 2 * 1024 * 1024;
 const SELF_PATH = 'scripts/security/check-repository-secrets.mjs';
 const BUILD_PRUNED_PREFIXES = ['public/textures/'];
-const ALLOWED_TRACKED_ENV_PATHS = new Set(['config/e2e-env/.env']);
+const ALLOWED_TRACKED_ENV_PATHS = new Set([
+  '.env',
+  '.env.e2e',
+  '.env.e2e-local',
+  '.env.vercel.production',
+  'config/e2e-env/.env',
+]);
+const SENSITIVE_ENV_KEYS = new Set([
+  'VERCEL_OIDC_TOKEN',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'FIREBASE_SERVICE_ACCOUNT_JSON',
+  'SUPABASE_AUTH_GOOGLE_SECRET',
+  'GOOGLE_CLIENT_SECRET',
+]);
 
 const allowedEnvFiles = new Set(['.env.example']);
 const allowedEnvPattern = /^\.env\..+\.example$/;
+const placeholderValuePattern = /^(?:|your-|replace-with-|placeholder|example|<)/i;
 
 const secretRules = [
   {
@@ -32,12 +48,6 @@ const secretRules = [
   {
     name: 'service-account JSON',
     pattern: /["']type["']\s*:\s*["']service_account["'][\s\S]{0,4000}["']private_key["']\s*:/,
-  },
-  {
-    name: 'server credential assignment',
-    envOnly: true,
-    pattern:
-      /^(?:SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|FIREBASE_SERVICE_ACCOUNT_JSON)\s*=\s*(?!\s*$|your-|replace-with-|placeholder|example|<)/m,
   },
 ];
 
@@ -76,6 +86,41 @@ function looksBinary(buffer) {
   return sample.includes(0);
 }
 
+function stripWrappingQuotes(value) {
+  const trimmed = value.trim();
+  if (
+    trimmed.length >= 2 &&
+    ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'")))
+  ) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
+}
+
+function scanSensitiveEnvAssignments(path, text) {
+  if (!isEnvLikePath(path)) return [];
+
+  const findings = [];
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    const separator = line.indexOf('=');
+    if (separator <= 0) continue;
+
+    const key = line.slice(0, separator).trim().replace(/^export\s+/, '');
+    if (!SENSITIVE_ENV_KEYS.has(key)) continue;
+
+    const value = stripWrappingQuotes(line.slice(separator + 1));
+    if (!placeholderValuePattern.test(value)) {
+      findings.push({ path, name: `non-placeholder ${key}` });
+    }
+  }
+
+  return findings;
+}
+
 async function scanFile(path) {
   if (path === SELF_PATH) return [];
 
@@ -98,10 +143,12 @@ async function scanFile(path) {
   if (buffer.length > MAX_TEXT_FILE_BYTES || looksBinary(buffer)) return [];
 
   const text = buffer.toString('utf8');
-  return secretRules
-    .filter(({ envOnly }) => !envOnly || isEnvLikePath(path))
-    .filter(({ pattern }) => pattern.test(text))
-    .map(({ name }) => ({ path, name }));
+  return [
+    ...secretRules
+      .filter(({ pattern }) => pattern.test(text))
+      .map(({ name }) => ({ path, name })),
+    ...scanSensitiveEnvAssignments(path, text),
+  ];
 }
 
 async function main() {
