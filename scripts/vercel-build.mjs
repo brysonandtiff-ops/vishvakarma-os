@@ -41,6 +41,8 @@ async function removeLegacyJpegTextures(directory) {
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/vercelBuildGate.test.ts',
+  'src/test/productionAuthVerifier.test.ts',
+  'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
   'src/test/monitoringPrivacy.test.ts',
@@ -63,6 +65,10 @@ const focusedTests = [
 ];
 
 const steps = [
+  {
+    label: 'Repository secret guard',
+    command: 'node scripts/security/check-repository-secrets.mjs',
+  },
   { label: 'Lint', command: 'pnpm run lint' },
   // hardening:gates includes the recursive API endpoint inventory.
   { label: 'Production hardening', command: 'pnpm run hardening:gates' },
