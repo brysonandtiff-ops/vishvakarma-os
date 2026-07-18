@@ -13,14 +13,21 @@ function readText(path: string) {
   return readFileSync(join(process.cwd(), path), 'utf8');
 }
 
+function readConfig(path: string) {
+  return JSON.parse(readText(path)) as TypeScriptConfig;
+}
+
 describe('Vercel API runtime module boundary', () => {
-  it('emits API functions and bundled src dependencies as CommonJS', () => {
-    const rootConfig = JSON.parse(readText('tsconfig.json')) as TypeScriptConfig;
+  it('emits and type-checks API functions plus bundled src dependencies as CommonJS', () => {
+    const rootConfig = readConfig('tsconfig.json');
+    const apiCheckConfig = readConfig('tsconfig.api-check.json');
     const apiPackage = JSON.parse(readText('api/package.json')) as { type?: string };
     const srcPackage = JSON.parse(readText('src/package.json')) as { type?: string };
 
-    expect(rootConfig.compilerOptions?.module).toBe('CommonJS');
-    expect(rootConfig.compilerOptions?.moduleResolution).toBe('Node');
+    for (const config of [rootConfig, apiCheckConfig]) {
+      expect(config.compilerOptions?.module).toBe('CommonJS');
+      expect(config.compilerOptions?.moduleResolution).toBe('Node');
+    }
     expect(apiPackage.type).toBe('commonjs');
     expect(srcPackage.type).toBe('commonjs');
   });
