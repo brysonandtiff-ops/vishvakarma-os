@@ -1,6 +1,6 @@
-import { isCoOwnerEmail } from '@/config/coOwners';
-import { EXPORT_FORMAT_COUNT, EXPORT_FORMATS_LABEL } from '@/config/marketingFeatures';
-import type { BillingStatus } from '@/types/billing';
+import { isCoOwnerEmail } from './coOwners';
+import { EXPORT_FORMAT_COUNT, EXPORT_FORMATS_LABEL } from './exportFormats';
+import type { BillingStatus } from '../types/billing';
 
 export type PlanTier = 'starter' | 'studio' | 'enterprise';
 
@@ -83,7 +83,11 @@ export const BILLING_PLANS: Record<PlanTier, BillingPlan> = {
   },
 };
 
-export const PRICING_TIERS = [BILLING_PLANS.starter, BILLING_PLANS.studio, BILLING_PLANS.enterprise] as const;
+export const PRICING_TIERS = [
+  BILLING_PLANS.starter,
+  BILLING_PLANS.studio,
+  BILLING_PLANS.enterprise,
+] as const;
 
 export const STUDIO_TRIAL_DAYS = BILLING_PLANS.studio.trialDays ?? 0;
 
@@ -110,8 +114,7 @@ export function resolveExportTier(options: {
 
   const plan = options.billingPlan ?? 'starter';
   const status = options.billingStatus ?? 'none';
-  const isActive =
-    status === 'active' || status === 'trialing' || status === 'past_due';
+  const isActive = status === 'active' || status === 'trialing' || status === 'past_due';
 
   if (plan === 'enterprise' && isActive) {
     return 'enterprise';
