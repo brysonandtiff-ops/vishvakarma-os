@@ -1,4 +1,4 @@
-import type Stripe from 'stripe';
+import Stripe = require('stripe');
 import * as billingSupabase from './billingSupabase';
 
 export type BillingRecord = billingSupabase.BillingRecord;
