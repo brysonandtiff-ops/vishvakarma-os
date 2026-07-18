@@ -41,6 +41,7 @@ import "./styles/vish-copilot-swan.css";
 import "./styles/vish-sacred-layers.css";
 import "./styles/vish-indian-sacred.css";
 import "./styles/vish-ui-polish.css";
+import "./styles/vish-auth-email-fallback.css";
 import "./styles/vish-mantra-widget.css";
 import "./styles/vish-voice-tour.css";
 import "./styles/vish-empty-guided-start.css";
