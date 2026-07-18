@@ -1,5 +1,5 @@
-import Stripe = require('stripe');
 import * as billingSupabase from './billingSupabase';
+import type { StripeMetadataShape, StripeSubscriptionShape } from './stripeShapes';
 
 export type BillingRecord = billingSupabase.BillingRecord;
 
@@ -16,14 +16,14 @@ export async function upsertBillingRecord(
 
 export async function upsertBillingFromSubscription(
   userId: string,
-  subscription: Stripe.Subscription,
+  subscription: StripeSubscriptionShape,
   stripeCustomerId?: string
 ): Promise<void> {
   return billingSupabase.upsertBillingFromSubscription(userId, subscription, stripeCustomerId);
 }
 
 export async function resolveUserIdFromStripeMetadata(
-  metadata: Stripe.Metadata | null | undefined
+  metadata: StripeMetadataShape | null | undefined
 ): Promise<string | null> {
   return billingSupabase.resolveUserIdFromStripeMetadata(metadata);
 }
