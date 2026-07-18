@@ -1,12 +1,32 @@
 /**
- * Headless Playwright check: production /auth Google OAuth starts without production auth errors.
- * Post-login redirect to /editor is covered by verify-live-auth-flow.mjs (interactive accept path).
+ * Headless Playwright check: production /auth must reach a usable Google sign-in
+ * surface. Provider error pages (invalid/deleted clients, policy blocks, etc.)
+ * are release failures even when Supabase successfully issued a redirect.
+ *
+ * Post-login redirect to /editor is covered by verify-live-auth-flow.mjs.
  * Run: pnpm run verify:production-auth-flow
  */
-import { webkit, chromium, firefox } from '@playwright/test';
+import { chromium, firefox, webkit } from '@playwright/test';
 import { CANONICAL_AUTH_URL } from './lib/canonical-origin.mjs';
 
 const PRODUCTION_AUTH = process.env.PRODUCTION_AUTH_URL ?? CANONICAL_AUTH_URL;
+const GOOGLE_HOST = 'accounts.google.com';
+const PROVIDER_ERROR_MARKERS = [
+  'invalid_client',
+  'deleted_client',
+  'oauth client was not found',
+  'the oauth client was not found',
+  'error 401',
+  'access blocked',
+  'policy violation',
+  'authorization error',
+];
+const GOOGLE_SIGN_IN_MARKERS = [
+  'sign in',
+  'choose an account',
+  'use another account',
+  'to continue to',
+];
 
 const results = [];
 
@@ -15,81 +35,117 @@ function record(name, pass, detail) {
   console.log(pass ? '[PASS]' : '[FAIL]', name, detail);
 }
 
+function safeDecode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function hasProviderError(url, bodyText) {
+  const normalized = `${safeDecode(url)}\n${bodyText}`.toLowerCase();
+  return PROVIDER_ERROR_MARKERS.find((marker) => normalized.includes(marker)) ?? null;
+}
+
+async function waitForGoogleTarget(page, popupPromise) {
+  await page
+    .waitForURL(
+      (url) => url.hostname === GOOGLE_HOST || url.hostname.endsWith('.supabase.co'),
+      { timeout: 15_000 },
+    )
+    .catch(() => null);
+
+  const popup = await popupPromise;
+  const target = popup ?? page;
+
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const current = new URL(target.url());
+    if (current.hostname === GOOGLE_HOST) return target;
+    await target.waitForTimeout(500);
+  }
+
+  return target;
+}
+
 async function testBrowser(name, launcher) {
   const browser = await launcher.launch({ headless: true });
   const page = await browser.newPage();
   const consoleErrors = [];
 
   page.on('console', (msg) => {
-    if (msg.type() === 'error') {
-      const text = msg.text();
-      if (text.includes('auth/') || text.includes('Firebase')) {
-        consoleErrors.push(text);
-      }
+    if (msg.type() !== 'error') return;
+    const text = msg.text();
+    if (text.includes('auth/') || text.includes('Supabase') || text.includes('Firebase')) {
+      consoleErrors.push(text);
     }
   });
 
-  await page.goto(PRODUCTION_AUTH, { waitUntil: 'networkidle', timeout: 30_000 });
-  await page.waitForTimeout(1500);
+  try {
+    await page.goto(PRODUCTION_AUTH, { waitUntil: 'networkidle', timeout: 30_000 });
+    await page.waitForTimeout(1000);
 
-  const preAlert = (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
-  record(`${name}: no error before click`, preAlert === null, preAlert ?? 'none');
+    const preAlert =
+      (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
+    record(`${name}: no error before click`, preAlert === null, preAlert ?? 'none');
 
-  const googleButton = page.getByRole('button', { name: /continue with google/i });
-  await googleButton.waitFor({ state: 'visible', timeout: 10_000 });
-  record(`${name}: Google button visible`, true, 'Continue with Google');
+    const googleButton = page.getByRole('button', { name: /continue with google/i });
+    await googleButton.waitFor({ state: 'visible', timeout: 10_000 });
+    record(`${name}: Google button visible`, true, 'Continue with Google');
 
-  const popupPromise = page.waitForEvent('popup', { timeout: 15_000 }).catch(() => null);
-  const redirectPromise = page
-    .waitForURL(
-      (url) =>
-        url.href.includes('accounts.google.com') ||
-        url.href.includes('supabase.co/auth/v1/authorize') ||
-        url.href.includes('firebaseapp.com/__/auth/handler'),
-      { timeout: 12_000 }
-    )
-    .catch(() => null);
-  await googleButton.click({ noWaitAfter: true });
-  const popup = await popupPromise;
-  await redirectPromise;
-  await page.waitForTimeout(1500);
+    const popupPromise = page.waitForEvent('popup', { timeout: 5_000 }).catch(() => null);
+    await googleButton.click({ noWaitAfter: true });
+    const target = await waitForGoogleTarget(page, popupPromise);
+    await target.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => undefined);
+    await target.waitForTimeout(1000);
 
-  const url = page.url();
-  const popupUrl = popup?.url() ?? '';
-  const postAlert = (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
-  const reachedOAuth =
-    url.includes('accounts.google.com') ||
-    url.includes('supabase.co/auth/v1/authorize') ||
-    url.includes('firebaseapp.com/__/auth/handler') ||
-    popupUrl.includes('accounts.google.com') ||
-    popupUrl.includes('supabase.co/auth/v1/authorize') ||
-    popupUrl.includes('firebaseapp.com/__/auth/handler');
-  const oauthStarted = reachedOAuth || (name === 'firefox' && postAlert === null);
-  const oauthDetail = popup
-    ? `popup:${popupUrl.slice(0, 80)}`
-    : reachedOAuth
-      ? url.slice(0, 120)
-      : name === 'firefox'
-        ? 'firefox-no-error'
-        : url.slice(0, 120);
-  record(`${name}: OAuth flow started`, oauthStarted, oauthDetail);
+    const providerUrl = target.url();
+    const providerBody =
+      (await target.locator('body').innerText({ timeout: 5_000 }).catch(() => '')) ?? '';
+    const providerLocation = new URL(providerUrl);
+    const providerError = hasProviderError(providerUrl, providerBody);
+    const isGoogle = providerLocation.hostname === GOOGLE_HOST;
+    const isOAuthErrorPath = providerLocation.pathname.includes('/signin/oauth/error');
+    const hasSignInSurface = GOOGLE_SIGN_IN_MARKERS.some((marker) =>
+      providerBody.toLowerCase().includes(marker),
+    );
 
-  record(`${name}: no error after click`, postAlert === null, postAlert ?? 'none');
+    record(
+      `${name}: reached Google`,
+      isGoogle,
+      isGoogle ? providerLocation.hostname : providerUrl.slice(0, 160),
+    );
+    record(
+      `${name}: Google OAuth client accepted`,
+      isGoogle && !isOAuthErrorPath && providerError === null && hasSignInSurface,
+      providerError ??
+        (isOAuthErrorPath
+          ? 'Google OAuth error path'
+          : hasSignInSurface
+            ? 'usable Google sign-in surface'
+            : 'Google sign-in surface not detected'),
+    );
 
-  record(
-    `${name}: no production auth console errors`,
-    consoleErrors.length === 0,
-    consoleErrors.join(' | ') || 'none',
-  );
+    const postAlert =
+      (await page.locator('[role="alert"]').textContent().catch(() => null))?.trim() ?? null;
+    record(`${name}: no app error after click`, postAlert === null, postAlert ?? 'none');
+    record(
+      `${name}: no production auth console errors`,
+      consoleErrors.length === 0,
+      consoleErrors.join(' | ') || 'none',
+    );
 
-  await browser.close();
+    if (target !== page) await target.close().catch(() => undefined);
+  } finally {
+    await browser.close();
+  }
 }
 
 await testBrowser('webkit', webkit);
 await testBrowser('chromium', chromium);
 await testBrowser('firefox', firefox);
 
-const failed = results.filter((r) => !r.pass);
+const failed = results.filter((result) => !result.pass);
 if (failed.length > 0) {
   console.error('\nFAILED CHECKS:', failed.length);
   process.exit(1);
