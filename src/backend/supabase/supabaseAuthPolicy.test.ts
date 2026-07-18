@@ -3,21 +3,25 @@ import type { Session, User } from '@supabase/supabase-js';
 import {
   buildSupabaseSessionFromAuthSession,
   completeSupabaseEmailLinkSignIn,
-  GOOGLE_ONLY_AUTH_MESSAGE,
   hydrateSupabaseAuthSession,
   requestSupabaseAccessLink,
   requestSupabasePasswordReset,
   signInWithPasswordSupabase,
+  SUPPORTED_AUTH_MESSAGE,
 } from '@/backend/supabase/supabaseAuthGateway';
 
 const getSession = vi.fn();
 const signOut = vi.fn();
+const signInWithOtp = vi.fn();
+const verifyOtp = vi.fn();
 
 vi.mock('@/backend/supabase/supabaseClient', () => ({
   getSupabaseClient: () => ({
     auth: {
       getSession,
       signOut,
+      signInWithOtp,
+      verifyOtp,
     },
   }),
 }));
@@ -44,41 +48,42 @@ function authSession(provider: string): Session {
   } as Session;
 }
 
-describe('Google-only Supabase auth policy', () => {
+describe('Supabase production auth policy', () => {
   beforeEach(() => {
     getSession.mockReset();
     signOut.mockReset();
+    signInWithOtp.mockReset();
+    verifyOtp.mockReset();
     signOut.mockResolvedValue({ error: null });
+    signInWithOtp.mockResolvedValue({ data: { user: null, session: null }, error: null });
     localStorage.clear();
+    window.history.replaceState({}, '', '/auth');
   });
 
-  it('builds non-sensitive metadata for a Google session', async () => {
-    const snapshot = await buildSupabaseSessionFromAuthSession(
-      authSession('google'),
-      authUser('google'),
-    );
-
-    expect(snapshot).toMatchObject({
-      provider: 'supabase',
-      authProvider: 'google',
-      uid: 'user-1',
-      email: 'architect@firm.com',
-    });
-    expect(snapshot).not.toHaveProperty('idToken');
-    expect(snapshot).not.toHaveProperty('refreshToken');
-  });
-
-  it.each(['email', 'apple', 'github'])(
-    'rejects an unsupported provider session: %s',
+  it.each(['google', 'email'])(
+    'builds non-sensitive metadata for an approved %s session',
     async (provider) => {
-      await expect(
-        buildSupabaseSessionFromAuthSession(
-          authSession(provider),
-          authUser(provider),
-        ),
-      ).rejects.toThrow(GOOGLE_ONLY_AUTH_MESSAGE);
+      const snapshot = await buildSupabaseSessionFromAuthSession(
+        authSession(provider),
+        authUser(provider),
+      );
+
+      expect(snapshot).toMatchObject({
+        provider: 'supabase',
+        authProvider: provider,
+        uid: 'user-1',
+        email: 'architect@firm.com',
+      });
+      expect(snapshot).not.toHaveProperty('idToken');
+      expect(snapshot).not.toHaveProperty('refreshToken');
     },
   );
+
+  it.each(['apple', 'github'])('rejects an unsupported provider session: %s', async (provider) => {
+    await expect(
+      buildSupabaseSessionFromAuthSession(authSession(provider), authUser(provider)),
+    ).rejects.toThrow(SUPPORTED_AUTH_MESSAGE);
+  });
 
   it('signs out an unsupported session discovered during hydration', async () => {
     getSession.mockResolvedValue({
@@ -86,44 +91,77 @@ describe('Google-only Supabase auth policy', () => {
       error: null,
     });
 
-    await expect(hydrateSupabaseAuthSession()).rejects.toThrow(
-      GOOGLE_ONLY_AUTH_MESSAGE,
-    );
+    await expect(hydrateSupabaseAuthSession()).rejects.toThrow(SUPPORTED_AUTH_MESSAGE);
     expect(signOut).toHaveBeenCalledTimes(1);
   });
 
-  it('disables password, password reset, and magic-link entry points', async () => {
+  it('keeps password and password reset disabled', async () => {
     const password = await signInWithPasswordSupabase('user@example.com', 'password');
     const reset = await requestSupabasePasswordReset(
       'user@example.com',
       'https://vishvakarma-os.app/reset-password',
     );
-    const magicLink = await requestSupabaseAccessLink(
-      'user@example.com',
+
+    expect(password.session).toBeNull();
+    expect(password.error?.message).toContain('Password sign-in is disabled');
+    expect(reset.error?.message).toContain('Password reset is unavailable');
+  });
+
+  it('requests an existing-account-only email magic link', async () => {
+    const result = await requestSupabaseAccessLink(
+      ' Architect@Firm.com ',
       'https://vishvakarma-os.app/auth',
     );
 
-    expect(password.session).toBeNull();
-    expect(password.error?.message).toBe(GOOGLE_ONLY_AUTH_MESSAGE);
-    expect(reset.error?.message).toBe(GOOGLE_ONLY_AUTH_MESSAGE);
-    expect(magicLink.error?.message).toBe(GOOGLE_ONLY_AUTH_MESSAGE);
+    expect(result.error).toBeNull();
+    expect(signInWithOtp).toHaveBeenCalledWith({
+      email: 'architect@firm.com',
+      options: {
+        emailRedirectTo: 'https://vishvakarma-os.app/auth',
+        shouldCreateUser: false,
+      },
+    });
+    expect(localStorage.getItem('vishvakarma.os.supabase.pendingEmail.v1')).toBe(
+      'architect@firm.com',
+    );
   });
 
-  it('fails a legacy email-link callback closed and clears the SDK session', async () => {
+  it('completes a token-hash email callback and clears pending state', async () => {
     localStorage.setItem(
       'vishvakarma.os.supabase.pendingEmail.v1',
-      'user@example.com',
+      'architect@firm.com',
     );
-
-    const result = await completeSupabaseEmailLinkSignIn('user@example.com');
-
-    expect(result).toMatchObject({
-      status: 'error',
-      error: expect.objectContaining({ message: GOOGLE_ONLY_AUTH_MESSAGE }),
+    window.history.replaceState({}, '', '/auth?token_hash=secure-token-hash&type=email');
+    verifyOtp.mockResolvedValue({
+      data: { session: authSession('email'), user: authUser('email') },
+      error: null,
     });
-    expect(signOut).toHaveBeenCalledTimes(1);
+
+    const result = await completeSupabaseEmailLinkSignIn();
+
+    expect(result).toEqual({ status: 'completed' });
+    expect(verifyOtp).toHaveBeenCalledWith({
+      token_hash: 'secure-token-hash',
+      type: 'email',
+    });
     expect(
       localStorage.getItem('vishvakarma.os.supabase.pendingEmail.v1'),
     ).toBeNull();
+  });
+
+  it('fails closed when an email callback resolves to an unsupported session', async () => {
+    window.history.replaceState({}, '', '/auth?token_hash=secure-token-hash&type=email');
+    verifyOtp.mockResolvedValue({
+      data: { session: authSession('github'), user: authUser('github') },
+      error: null,
+    });
+
+    const result = await completeSupabaseEmailLinkSignIn();
+
+    expect(result).toMatchObject({
+      status: 'error',
+      error: expect.objectContaining({ message: SUPPORTED_AUTH_MESSAGE }),
+    });
+    expect(signOut).toHaveBeenCalledTimes(1);
   });
 });
