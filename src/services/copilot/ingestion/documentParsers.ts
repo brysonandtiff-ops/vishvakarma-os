@@ -2,14 +2,14 @@ import {
   createCouncilRequirements,
   DEFAULT_COUNCIL_REQUIREMENTS,
   type CouncilRequirements,
-} from '@/domain/copilot/councilRequirements';
+} from '../../../domain/copilot/councilRequirements';
 import type {
   BoundaryPlanExtraction,
   CopilotIngestionResult,
   CopilotUploadedDocument,
   SiteSurveyExtraction,
-} from '@/domain/copilot/copilotSession';
-import { boundaryMetricsFromPolygon, parseDxfBoundary } from '@/services/copilot/ingestion/dxfBoundaryParser';
+} from '../../../domain/copilot/copilotSession';
+import { boundaryMetricsFromPolygon, parseDxfBoundary } from './dxfBoundaryParser';
 
 function parseSiteSurveyText(text: string): SiteSurveyExtraction {
   const slopeMatch = text.match(/slope[:\s]+(\d+(?:\.\d+)?)\s*(?:%|deg)?/i);
@@ -45,7 +45,9 @@ function parseCouncilText(text: string): CouncilRequirements {
       side: sideMatch ? Number(sideMatch[1]) : DEFAULT_COUNCIL_REQUIREMENTS.setbacks.side,
       rear: rearMatch ? Number(rearMatch[1]) : DEFAULT_COUNCIL_REQUIREMENTS.setbacks.rear,
     },
-    maxCoverageRatio: coverageMatch ? Number(coverageMatch[1]) / 100 : DEFAULT_COUNCIL_REQUIREMENTS.maxCoverageRatio,
+    maxCoverageRatio: coverageMatch
+      ? Number(coverageMatch[1]) / 100
+      : DEFAULT_COUNCIL_REQUIREMENTS.maxCoverageRatio,
     maxHeightM: heightMatch ? Number(heightMatch[1]) : DEFAULT_COUNCIL_REQUIREMENTS.maxHeightM,
     heritageOverlay: /heritage/i.test(text),
     specialConditions: conditions.length ? conditions : [],
@@ -118,14 +120,16 @@ export async function parseCopilotDocumentsViaApi(
     try {
       // Dynamic import keeps this client-only module out of the serverless bundle that
       // also imports the local-parser exports from this file.
-      const { getSupabaseAccessToken } = await import('@/backend/supabase/supabaseAccessToken');
+      const { getSupabaseAccessToken } = await import(
+        '../../../backend/supabase/supabaseAccessToken'
+      );
       const token = await getSupabaseAccessToken();
       if (token) headers.Authorization = `Bearer ${token}`;
     } catch {
       // proceed unauthenticated; the server returns 401 and we fall back to local parsing
     }
 
-    const { fetchWithRetry } = await import('@/backend/fetchWithRetry');
+    const { fetchWithRetry } = await import('../../../backend/fetchWithRetry');
     const res = await fetchWithRetry(
       (attemptSignal) =>
         fetch('/api/ai/parse-site-documents', {

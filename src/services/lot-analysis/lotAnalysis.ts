@@ -1,5 +1,5 @@
-import { createParcel, type Parcel } from '@/domain/parcels/parcel';
-import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
+import { createParcel, type Parcel } from '../../domain/parcels/parcel';
+import type { BuildingRequest } from '../../domain/buildings/buildingRequest';
 
 export function analyzeLot(request: BuildingRequest): BuildingRequest {
   const parcel = { ...request.parcel };
@@ -14,7 +14,7 @@ export function analyzeLot(request: BuildingRequest): BuildingRequest {
 
 export function parcelFromPromptHints(
   prompt: string,
-  override?: Partial<Parcel>
+  override?: Partial<Parcel>,
 ): Parcel {
   const areaMatch = prompt.match(/(\d+)\s*m[²2]/i);
   const corner = /corner/i.test(prompt);
