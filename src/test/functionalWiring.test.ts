@@ -114,6 +114,7 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const appRoutes = read('src/AppRoutes.tsx');
 
     expect(main).toContain('./styles/vish-sacred-layers.css');
+    expect(main).toContain('./styles/vish-auth-email-fallback.css');
     expect(authStyles).toContain("import '../vish-auth-gate.css'");
     expect(authStyles).toContain("import '../vish-login-page.css'");
     expect(editorStyles).toContain("import '../vish-mockup-system.css'");
@@ -139,8 +140,10 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(routeGuard).not.toContain('SessionBootScreen');
     expect(html).not.toContain('boot-splash');
     expect(authPage).toContain('handleRequestAccess');
-    expect(authPage).toContain('Google access required');
+    expect(authPage).toContain('Approved account required');
+    expect(authPage).toContain('handleEmailLinkSignIn');
     expect(authLoginCard).toContain('Request access');
+    expect(authLoginCard).toContain('email-magic-link-button');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
     expect(appLayout).toContain('PrototypeDisclaimerBadge');
