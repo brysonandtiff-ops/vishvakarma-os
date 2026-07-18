@@ -1,17 +1,21 @@
-import { createParcel } from '@/domain/parcels/parcel';
-import type { BuildingRequest } from '@/domain/buildings/buildingRequest';
-import { DEFAULT_BUILDING_REQUEST } from '@/domain/buildings/buildingRequest';
-import { parcelFromPromptHints } from '@/services/lot-analysis/lotAnalysis';
+import { createParcel } from '../../../domain/parcels/parcel';
+import type { BuildingRequest } from '../../../domain/buildings/buildingRequest';
+import { DEFAULT_BUILDING_REQUEST } from '../../../domain/buildings/buildingRequest';
+import { parcelFromPromptHints } from '../../../services/lot-analysis/lotAnalysis';
 import {
   buildingRequestSchema,
   type BuildingRequestPayload,
-} from '@/ai/building-designer/prompts/outputSchema';
-import { fetchWithRetry } from '@/backend/fetchWithRetry';
+} from '../prompts/outputSchema';
+import { fetchWithRetry } from '../../../backend/fetchWithRetry';
 
-export function parseRequirementsFallback(prompt: string, parcelOverride?: Partial<BuildingRequest['parcel']>): BuildingRequest {
+export function parseRequirementsFallback(
+  prompt: string,
+  parcelOverride?: Partial<BuildingRequest['parcel']>,
+): BuildingRequest {
   const bedroomsMatch = prompt.match(/(\d+)\s*[- ]?bed/i);
   const bathroomsMatch = prompt.match(/(\d+)\s*[- ]?bath/i);
-  const garageMatch = prompt.match(/(\d+)\s*[- ]?(?:car\s*)?garage/i) ?? prompt.match(/double\s+garage/i);
+  const garageMatch =
+    prompt.match(/(\d+)\s*[- ]?(?:car\s*)?garage/i) ?? prompt.match(/double\s+garage/i);
   const styleMatch = prompt.match(/\b(modern|contemporary|traditional|craftsman|minimal)\b/i);
 
   let garageSpaces = 0;
@@ -26,7 +30,9 @@ export function parseRequirementsFallback(prompt: string, parcelOverride?: Parti
   return {
     style: styleMatch?.[1]?.toLowerCase() ?? 'modern',
     bedrooms: bedroomsMatch ? Number(bedroomsMatch[1]) : DEFAULT_BUILDING_REQUEST.bedrooms,
-    bathrooms: bathroomsMatch ? Number(bathroomsMatch[1]) : Math.max(2, Math.ceil((bedroomsMatch ? Number(bedroomsMatch[1]) : 3) / 2)),
+    bathrooms: bathroomsMatch
+      ? Number(bathroomsMatch[1])
+      : Math.max(2, Math.ceil((bedroomsMatch ? Number(bedroomsMatch[1]) : 3) / 2)),
     garageSpaces,
     levels: /two\s*storey|2\s*level/i.test(prompt) ? 2 : 1,
     parcel,
@@ -47,7 +53,9 @@ export async function extractRequirements(
     try {
       // Dynamic import keeps this client-only module out of the serverless bundle that
       // also imports the local-parser exports from this file.
-      const { getSupabaseAccessToken } = await import('@/backend/supabase/supabaseAccessToken');
+      const { getSupabaseAccessToken } = await import(
+        '../../../backend/supabase/supabaseAccessToken'
+      );
       const token = await getSupabaseAccessToken();
       if (token) headers.Authorization = `Bearer ${token}`;
     } catch {
