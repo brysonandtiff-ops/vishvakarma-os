@@ -1,10 +1,10 @@
-import Stripe from 'stripe';
+import Stripe = require('stripe');
 
-let stripeClient: Stripe | null = null;
+let stripeClient: Stripe.Stripe | null = null;
 
 export type CheckoutPlan = 'studio' | 'enterprise';
 
-export function getStripeClient(): Stripe {
+export function getStripeClient(): Stripe.Stripe {
   if (stripeClient) return stripeClient;
 
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
