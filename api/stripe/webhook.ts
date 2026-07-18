@@ -1,4 +1,4 @@
-import type Stripe from 'stripe';
+import Stripe = require('stripe');
 import {
   findUserIdByStripeCustomerId,
   resolveUserIdFromStripeMetadata,
