@@ -1,4 +1,4 @@
-import type Stripe from 'stripe';
+import Stripe = require('stripe');
 
 export function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
   const subscription = invoice.parent?.subscription_details?.subscription;
