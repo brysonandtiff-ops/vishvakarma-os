@@ -1,7 +1,5 @@
-import type Stripe from 'stripe';
+import { expandableId, type StripeInvoiceShape } from './stripeShapes';
 
-export function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
-  const subscription = invoice.parent?.subscription_details?.subscription;
-  if (!subscription) return null;
-  return typeof subscription === 'string' ? subscription : subscription.id;
+export function getInvoiceSubscriptionId(invoice: StripeInvoiceShape): string | null {
+  return expandableId(invoice.parent?.subscription_details?.subscription);
 }

@@ -1,6 +1,6 @@
-import type Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { planFromPriceId } from './stripeClient';
+import type { StripeMetadataShape, StripeSubscriptionShape } from './stripeShapes';
 
 export type BillingPlan = 'starter' | 'studio' | 'enterprise';
 export type BillingStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'none';
@@ -32,7 +32,7 @@ function isoFromUnix(seconds: number | null | undefined): string | undefined {
   return new Date(seconds * 1000).toISOString();
 }
 
-function mapSubscriptionStatus(status: Stripe.Subscription.Status): BillingStatus {
+function mapSubscriptionStatus(status: string): BillingStatus {
   switch (status) {
     case 'active':
       return 'active';
@@ -49,11 +49,10 @@ function mapSubscriptionStatus(status: Stripe.Subscription.Status): BillingStatu
   }
 }
 
-function subscriptionCurrentPeriodEnd(subscription: Stripe.Subscription): number | null | undefined {
-  const items = subscription.items?.data ?? [];
-  if (items.length === 0) return undefined;
-
-  const periodEnds = items
+function subscriptionCurrentPeriodEnd(
+  subscription: StripeSubscriptionShape,
+): number | null | undefined {
+  const periodEnds = subscription.items.data
     .map((item) => item.current_period_end)
     .filter((value): value is number => typeof value === 'number' && value > 0);
 
@@ -61,7 +60,10 @@ function subscriptionCurrentPeriodEnd(subscription: Stripe.Subscription): number
   return Math.max(...periodEnds);
 }
 
-function planFromSubscription(subscription: Stripe.Subscription, status: BillingStatus): BillingPlan {
+function planFromSubscription(
+  subscription: StripeSubscriptionShape,
+  status: BillingStatus,
+): BillingPlan {
   if (status === 'canceled' || status === 'none') return 'starter';
 
   const priceId = subscription.items.data[0]?.price?.id;
@@ -118,7 +120,7 @@ export async function upsertBillingRecord(
 
 export async function upsertBillingFromSubscription(
   userId: string,
-  subscription: Stripe.Subscription,
+  subscription: StripeSubscriptionShape,
   stripeCustomerId?: string
 ): Promise<void> {
   const status = mapSubscriptionStatus(subscription.status);
@@ -129,7 +131,7 @@ export async function upsertBillingFromSubscription(
     status,
     stripeCustomerId:
       stripeCustomerId ??
-      (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id),
+      (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id),
     stripeSubscriptionId: subscription.id,
     currentPeriodEnd: isoFromUnix(subscriptionCurrentPeriodEnd(subscription)),
     trialEnd: isoFromUnix(subscription.trial_end),
@@ -137,7 +139,7 @@ export async function upsertBillingFromSubscription(
 }
 
 export async function resolveUserIdFromStripeMetadata(
-  metadata: Stripe.Metadata | null | undefined
+  metadata: StripeMetadataShape | null | undefined
 ): Promise<string | null> {
   const supabaseUid = metadata?.supabaseUid?.trim();
   const firebaseUid = metadata?.firebaseUid?.trim();

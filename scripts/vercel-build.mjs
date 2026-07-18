@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { readdir, rm } from 'node:fs/promises';
+import { readdir, rm, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { runCommand } from './lib/run-command.mjs';
 
 const root = process.cwd();
 const textureRoot = join(root, 'public', 'textures');
+const srcRuntimePackagePath = join(root, 'src', 'package.json');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
 const isVercelBuild = process.env.VERCEL === '1';
 
@@ -36,6 +37,15 @@ async function removeLegacyJpegTextures(directory) {
   }
 
   return removed;
+}
+
+async function writeVercelSrcRuntimeBoundary() {
+  await writeFile(
+    srcRuntimePackagePath,
+    `${JSON.stringify({ private: true, type: 'commonjs' }, null, 2)}\n`,
+    'utf8',
+  );
+  console.log('[vercel-build] Wrote src/package.json CommonJS runtime boundary.');
 }
 
 const focusedTests = [
@@ -97,6 +107,10 @@ async function main() {
   for (const step of steps) {
     console.log(`\n[vercel-build] ${step.label}`);
     runCommand(step.command, { stdio: 'inherit' });
+  }
+
+  if (isVercelBuild) {
+    await writeVercelSrcRuntimeBoundary();
   }
 
   console.log('\n[vercel-build] All quality and build gates passed.');

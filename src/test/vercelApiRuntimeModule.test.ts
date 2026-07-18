@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -13,21 +13,56 @@ function readText(path: string) {
   return readFileSync(join(process.cwd(), path), 'utf8');
 }
 
+function readConfig(path: string) {
+  return JSON.parse(readText(path)) as TypeScriptConfig;
+}
+
 describe('Vercel API runtime module boundary', () => {
-  it('emits standalone API functions as CommonJS for the api package runtime', () => {
-    const rootConfig = JSON.parse(readText('tsconfig.json')) as TypeScriptConfig;
+  it('emits API functions as CommonJS and creates the src boundary after quality gates', () => {
+    const rootConfig = readConfig('tsconfig.json');
     const apiPackage = JSON.parse(readText('api/package.json')) as { type?: string };
+    const buildScript = readText('scripts/vercel-build.mjs');
 
     expect(rootConfig.compilerOptions?.module).toBe('CommonJS');
     expect(rootConfig.compilerOptions?.moduleResolution).toBe('Node');
     expect(apiPackage.type).toBe('commonjs');
+    expect(existsSync(join(process.cwd(), 'src', 'package.json'))).toBe(false);
+
+    expect(buildScript).toContain('writeVercelSrcRuntimeBoundary');
+    expect(buildScript).toContain("type: 'commonjs'");
+    expect(buildScript.indexOf('for (const step of steps)')).toBeLessThan(
+      buildScript.lastIndexOf('await writeVercelSrcRuntimeBoundary()'),
+    );
   });
 
-  it('keeps the browser and Vite configs on ES modules', () => {
-    for (const configPath of ['tsconfig.app.json', 'tsconfig.node.json']) {
+  it('keeps source-level API checks and the browser toolchain on ES modules', () => {
+    for (const configPath of [
+      'tsconfig.api-check.json',
+      'tsconfig.app.json',
+      'tsconfig.node.json',
+    ]) {
       const source = readText(configPath);
       expect(source).toMatch(/"module"\s*:\s*"ESNext"/);
       expect(source).toMatch(/"moduleResolution"\s*:\s*"bundler"/);
     }
+  });
+
+  it('avoids Stripe namespace types that break CommonJS function compilation', () => {
+    expect(readText('api/_lib/stripeClient.ts')).toContain("import Stripe from 'stripe';");
+    expect(readText('api/_lib/stripeClient.ts')).toContain('ReturnType<typeof createStripeClient>');
+
+    for (const path of [
+      'api/_lib/billingBackend.ts',
+      'api/_lib/billingSupabase.ts',
+      'api/_lib/stripeInvoice.ts',
+      'api/stripe/webhook.ts',
+    ]) {
+      const source = readText(path);
+      expect(source).not.toContain("import type Stripe from 'stripe';");
+      expect(source).not.toContain("import Stripe = require('stripe');");
+      expect(source).not.toMatch(/Stripe\.(Subscription|Metadata|Invoice|Checkout)/);
+    }
+
+    expect(readText('api/_lib/stripeShapes.ts')).toContain('StripeSubscriptionShape');
   });
 });

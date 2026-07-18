@@ -1,4 +1,3 @@
-import type Stripe from 'stripe';
 import {
   findUserIdByStripeCustomerId,
   resolveUserIdFromStripeMetadata,
@@ -12,6 +11,13 @@ import {
 } from '../_lib/httpSecurity';
 import { getStripeClient } from '../_lib/stripeClient';
 import { getInvoiceSubscriptionId } from '../_lib/stripeInvoice';
+import {
+  expandableId,
+  type StripeCheckoutSessionShape,
+  type StripeInvoiceShape,
+  type StripeMetadataShape,
+  type StripeSubscriptionShape,
+} from '../_lib/stripeShapes';
 
 type WebhookRequest = {
   method?: string;
@@ -99,7 +105,7 @@ export async function readRawBody(req: WebhookRequest): Promise<Buffer> {
 
 async function resolveUserId(
   customerId: string,
-  metadata?: Stripe.Metadata | null,
+  metadata?: StripeMetadataShape | null,
 ): Promise<string | null> {
   const fromMetadata = await resolveUserIdFromStripeMetadata(metadata);
   if (fromMetadata) return fromMetadata;
@@ -108,13 +114,7 @@ async function resolveUserId(
 
 export default async function handler(req: WebhookRequest, res: SecureApiResponse) {
   applyApiSecurityHeaders(res);
-  if (
-    !enforceApiMethod(
-      req as SecureApiRequest,
-      res,
-      ['POST'],
-    )
-  ) return;
+  if (!enforceApiMethod(req as SecureApiRequest, res, ['POST'])) return;
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
@@ -136,13 +136,9 @@ export default async function handler(req: WebhookRequest, res: SecureApiRespons
 
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const customerId =
-          typeof session.customer === 'string' ? session.customer : session.customer?.id;
-        const subscriptionId =
-          typeof session.subscription === 'string'
-            ? session.subscription
-            : session.subscription?.id;
+        const session = event.data.object as unknown as StripeCheckoutSessionShape;
+        const customerId = expandableId(session.customer);
+        const subscriptionId = expandableId(session.subscription);
 
         if (!customerId || !subscriptionId) break;
 
@@ -153,12 +149,16 @@ export default async function handler(req: WebhookRequest, res: SecureApiRespons
         if (!uid) break;
 
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        await upsertBillingFromSubscription(uid, subscription, customerId);
+        await upsertBillingFromSubscription(
+          uid,
+          subscription as unknown as StripeSubscriptionShape,
+          customerId,
+        );
         break;
       }
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as unknown as StripeSubscriptionShape;
         const customerId =
           typeof subscription.customer === 'string'
             ? subscription.customer
@@ -169,9 +169,8 @@ export default async function handler(req: WebhookRequest, res: SecureApiRespons
         break;
       }
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId =
-          typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+        const invoice = event.data.object as unknown as StripeInvoiceShape;
+        const customerId = expandableId(invoice.customer);
         const subscriptionId = getInvoiceSubscriptionId(invoice);
 
         if (!customerId || !subscriptionId) break;
@@ -180,7 +179,11 @@ export default async function handler(req: WebhookRequest, res: SecureApiRespons
         if (!uid) break;
 
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        await upsertBillingFromSubscription(uid, subscription, customerId);
+        await upsertBillingFromSubscription(
+          uid,
+          subscription as unknown as StripeSubscriptionShape,
+          customerId,
+        );
         break;
       }
       default:
