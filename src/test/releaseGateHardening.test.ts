@@ -191,7 +191,7 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('keeps Google SSO as the only accepted provider without duplicating tokens', () => {
+  it('accepts only Google or existing-account email sessions without duplicating tokens', () => {
     const authGateway = readRepoFile(
       'src',
       'backend',
@@ -200,16 +200,20 @@ describe('release gate hardening', () => {
     );
 
     expectContainsAll(authGateway, [
-      "const REQUIRED_AUTH_PROVIDER = 'google'",
+      "SUPPORTED_AUTH_PROVIDERS = ['google', 'email']",
       'export function isGoogleSupabaseUser',
-      'assertGoogleSupabaseUser(user)',
-      'Vishvakarma.OS only accepts Google SSO sessions through Supabase',
+      'export function isEmailSupabaseUser',
+      'assertSupportedSupabaseUser(user)',
+      'shouldCreateUser: false',
+      'client.auth.signInWithOtp',
+      'client.auth.verifyOtp',
       'clearLegacyTokenSnapshot',
       'Supabase remains the single',
     ]);
     expect(authGateway).not.toContain('idToken: string;');
     expect(authGateway).not.toContain('refreshToken: string;');
     expect(authGateway).not.toContain('storage.setItem(SUPABASE_SESSION_KEY');
+    expect(authGateway).not.toContain('client.auth.signInWithPassword');
   });
 
   it('closes the headless 3D proof before opening export', () => {
