@@ -41,6 +41,7 @@ async function removeLegacyJpegTextures(directory) {
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/vercelBuildGate.test.ts',
+  'src/test/vercelApiRuntimeModule.test.ts',
   'src/test/productionAuthVerifier.test.ts',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
