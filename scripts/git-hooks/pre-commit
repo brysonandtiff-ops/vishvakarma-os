@@ -1,0 +1,34 @@
+#!/bin/sh
+# Vishvakarma.OS pre-commit guard
+# 1) Block committing env files (only *.example and the CI e2e env are allowed).
+# 2) Run the repository secrets scan against the index.
+
+set -e
+
+ALLOWED_ENV_REGEX='^(\.env\.example|\.env\..+\.example|config/e2e-env/\.env)$'
+
+staged_env_files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)\.env(\..*)?$' || true)
+
+blocked=""
+for f in $staged_env_files; do
+  if ! echo "$f" | grep -Eq "$ALLOWED_ENV_REGEX"; then
+    blocked="$blocked  $f\n"
+  fi
+done
+
+if [ -n "$blocked" ]; then
+  printf '\n[pre-commit] Blocked env file(s) staged for commit:\n%b' "$blocked"
+  printf '[pre-commit] Env files are gitignored by policy. Use *.example templates instead.\n'
+  printf '[pre-commit] If this is intentional, bypass with: git commit --no-verify\n\n'
+  exit 1
+fi
+
+# Secrets scan (checks tracked/index content for live key material)
+if [ -f scripts/security/check-repository-secrets.mjs ]; then
+  node scripts/security/check-repository-secrets.mjs || {
+    printf '\n[pre-commit] Repository secrets scan failed. Fix or bypass with --no-verify.\n\n'
+    exit 1
+  }
+fi
+
+exit 0

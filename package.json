@@ -139,7 +139,8 @@
     "assets:samples": "node scripts/generate-sample-json.mjs",
     "auto-ship": "node scripts/auto-ship/auto-ship.mjs --trigger=manual",
     "auto-ship:dry": "node scripts/auto-ship/auto-ship.mjs --trigger=manual --dry-run",
-    "auto-ship:install-user": "node scripts/auto-ship/install-user-hooks.mjs"
+    "auto-ship:install-user": "node scripts/auto-ship/install-user-hooks.mjs",
+    "prepare": "git config core.hooksPath scripts/git-hooks || true"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
