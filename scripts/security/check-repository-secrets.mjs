@@ -10,6 +10,7 @@ const BUILD_PRUNED_PREFIXES = ['public/textures/'];
 const ALLOWED_TRACKED_ENV_PATHS = new Set([
   '.env.e2e',
   '.env.e2e-local',
+  '.env.vercel.production',
   'config/e2e-env/.env',
 ]);
 const SENSITIVE_ENV_KEYS = new Set([

@@ -58,6 +58,8 @@ export default defineConfig(({ command, mode }) => ({
       },
     }),
     VitePWA({
+    includeAssets /* pwaAssets */: ['icons/**/*', 'brand/**/*', 'manifest.webmanifest'],
+    globIgnores: ['**/splash/**'],
       registerType: 'autoUpdate',
       injectRegister: false,
       manifest: false,

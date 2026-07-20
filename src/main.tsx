@@ -52,6 +52,7 @@ import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { installPwaAutoUpdate } from "./pwaAutoUpdate";
 import {
+
   bootstrapClientGovernanceState,
   configureEnforcement,
   enforce,
