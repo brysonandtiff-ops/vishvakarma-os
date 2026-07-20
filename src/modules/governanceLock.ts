@@ -66,7 +66,7 @@ export class GovernanceLock {
   private persistEventLog(): void {
     try {
       const recentEvents = this.eventLog.slice(-100); // Keep last 100 events
-      localStorage.setItem('governance-event-log', JSON.stringify(recentEvents));
+      globalThis.localStorage?.setItem('governance-event-log', JSON.stringify(recentEvents));
     } catch (error) {
       console.error('Failed to persist governance event log:', error);
     }
@@ -77,7 +77,7 @@ export class GovernanceLock {
    */
   loadEventLog(): void {
     try {
-      const stored = localStorage.getItem('governance-event-log');
+      const stored = globalThis.localStorage?.getItem('governance-event-log');
       if (stored) {
         this.eventLog = JSON.parse(stored);
       }
@@ -98,7 +98,7 @@ export class GovernanceLock {
    */
   clearEventLog(): void {
     this.eventLog = [];
-    localStorage.removeItem('governance-event-log');
+    globalThis.localStorage?.removeItem('governance-event-log');
   }
 
   /**

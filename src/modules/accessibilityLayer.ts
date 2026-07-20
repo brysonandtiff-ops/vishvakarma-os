@@ -414,7 +414,7 @@ export class AccessibilityLayer {
    */
   private saveConfig(): void {
     try {
-      localStorage.setItem('accessibility-config', JSON.stringify(this.config));
+      globalThis.localStorage?.setItem('accessibility-config', JSON.stringify(this.config));
     } catch (error) {
       console.error('Failed to save accessibility config:', error);
     }
@@ -425,7 +425,7 @@ export class AccessibilityLayer {
    */
   private loadConfig(): void {
     try {
-      const saved = localStorage.getItem('accessibility-config');
+      const saved = globalThis.localStorage?.getItem('accessibility-config');
       if (saved) {
         this.config = { ...this.config, ...JSON.parse(saved) };
       }

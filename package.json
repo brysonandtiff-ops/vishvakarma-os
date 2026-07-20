@@ -48,7 +48,7 @@
     "assets:ios-splash": "node scripts/generate-ios-startup-images.mjs",
     "test:e2e:install": "pnpm exec playwright install --with-deps chromium firefox webkit",
     "lint": "pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure",
-    "lint:types": "tsgo -p tsconfig.check.json && tsgo -p tsconfig.api-check.json",
+    "lint:types": "tsc -p tsconfig.check.json && tsc -p tsconfig.api-check.json",
     "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",
     "lint:structure": "ast-grep scan",
     "contract:gates": "node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs",

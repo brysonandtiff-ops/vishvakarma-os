@@ -414,9 +414,9 @@ export class ThemeManager {
    */
   private saveThemePreference(mode: ThemeMode): void {
     try {
-      localStorage.setItem('theme-preference', mode);
+      globalThis.localStorage?.setItem('theme-preference', mode);
       if (mode === 'custom' && this.customTheme) {
-        localStorage.setItem('custom-theme', JSON.stringify(this.customTheme.colors));
+        globalThis.localStorage?.setItem('custom-theme', JSON.stringify(this.customTheme.colors));
       }
     } catch (error) {
       console.error('Failed to save theme preference:', error);
@@ -428,9 +428,9 @@ export class ThemeManager {
    */
   private loadThemePreference(): ThemeMode {
     try {
-      const saved = localStorage.getItem('theme-preference') as ThemeMode;
+      const saved = globalThis.localStorage?.getItem('theme-preference') as ThemeMode;
       if (saved === 'custom') {
-        const customColors = localStorage.getItem('custom-theme');
+        const customColors = globalThis.localStorage?.getItem('custom-theme');
         if (customColors) {
           const colors = JSON.parse(customColors);
           this.setCustomTheme(colors);
