@@ -53,3 +53,7 @@ Thumbs.db
 
 # Generated app assets that should be rebuilt, not committed
 public/splash/generated/
+
+node_modules/
+visual-pack/pack/_rejected/
+test-results/

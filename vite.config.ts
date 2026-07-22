@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+﻿import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -25,10 +25,10 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB — allows large WebP normal maps
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB â€” allows large WebP normal maps
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}'],
         // iOS apple-touch-startup-image set is large and only used by the OS at
-        // launch — keep it out of the precache manifest (served on-demand like the
+        // launch â€” keep it out of the precache manifest (served on-demand like the
         // other heavy media) so it never bloats the PWA install.
         globIgnores: ['**/splash/**'],
         navigateFallback: '/index.html',
@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
-          // R3.1: Cache mantra audio — 11 MB of MP3s were re-downloaded on every visit.
+          // R3.1: Cache mantra audio â€” 11 MB of MP3s were re-downloaded on every visit.
           // CacheFirst: serve from cache if available, only hit network for new/changed files.
           {
             urlPattern: /\/audio\/mantras\/.*\.mp3$/i,
@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
-          // R3.2a: Cache 3D material textures — 35 MB of JPGs, previously re-downloaded
+          // R3.2a: Cache 3D material textures â€” 35 MB of JPGs, previously re-downloaded
           // on every 3D session. After first load, served instantly from cache.
           {
             urlPattern: /\/textures\/.*\.(jpg|jpeg|png|webp)$/i,
@@ -62,7 +62,7 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
           },
-          // R3.2b: Cache 3D GLB models — 35 MB of models, previously re-downloaded
+          // R3.2b: Cache 3D GLB models â€” 35 MB of models, previously re-downloaded
           // on every 3D session. After first load, served instantly from cache.
           {
             urlPattern: /\/models\/.*\.glb$/i,
@@ -168,7 +168,7 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
           if (id.includes('@vercel/analytics') || id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
-          // T3-3: recharts (+ d3 internals) only used in OptimizationPage — isolate it
+          // T3-3: recharts (+ d3 internals) only used in OptimizationPage â€” isolate it
           // so it doesn't inflate vendor-misc for users who never visit /optimization.
           if (id.includes('recharts') || id.includes('d3-scale') || id.includes('d3-shape') || id.includes('d3-color') || id.includes('d3-interpolate') || id.includes('d3-format') || id.includes('d3-time') || id.includes('victory-vendor')) return 'vendor-charts';
           return 'vendor-misc';
@@ -177,3 +177,4 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
+
