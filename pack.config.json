@@ -1,0 +1,70 @@
+{
+  "appName": "VISHVAKARMA.OS v1.5.0",
+  "baseUrl": "http://127.0.0.1:4173",
+  "loginPath": "/auth",
+  "outputZip": "VishvakarmaOS-FableMax-Visual-Hardening-Pack.zip",
+  "settleMs": 1200,
+  "navTimeoutMs": 30000,
+
+  "devices": {
+    "desktop":        { "engine": "chromium", "viewport": { "width": 1440, "height": 900 } },
+    "ipad-landscape": { "engine": "webkit",   "viewport": { "width": 1194, "height": 834 }, "isMobile": true, "deviceScaleFactor": 2 },
+    "mobile":         { "engine": "webkit",   "viewport": { "width": 390,  "height": 844 }, "isMobile": true, "deviceScaleFactor": 3 }
+  },
+
+  "shots": [
+    { "id": "login",          "path": "/auth",           "purpose": "Sign-in hero, SSO, consent banner" },
+    { "id": "landing",        "path": "/",               "purpose": "Brand landing" },
+    { "id": "dashboard",      "path": "/dashboard",      "purpose": "Post-login home" },
+    { "id": "projects",       "path": "/projects",       "purpose": "Project list / management" },
+    { "id": "workspace",      "path": "/workspace",      "purpose": "Primary creation environment" },
+    { "id": "viewport3d",     "path": "/3d-room",        "purpose": "3D engine default view", "settleMs": 4000 },
+    { "id": "editor",         "path": "/editor",         "purpose": "Editor chrome" },
+    { "id": "materials",      "path": "/editor",         "purpose": "Material editing panel", "state": "materials-open",
+      "actions": [ { "do": "click", "selector": "[data-testid='materials-tab']" } ] },
+    { "id": "tools",          "path": "/editor",         "purpose": "Tool palette", "state": "tools-open",
+      "actions": [ { "do": "click", "selector": "[data-testid='tools-tab']" } ] },
+    { "id": "collaboration",  "path": "/collaboration",  "purpose": "Cast/session UI" },
+    { "id": "governance",     "path": "/governance",     "purpose": "Governance home" },
+    { "id": "spec-center",    "path": "/governance/specs",    "purpose": "Spec Center" },
+    { "id": "registry",       "path": "/governance/registry", "purpose": "Registry Center" },
+    { "id": "release-center", "path": "/releases",       "purpose": "Release Center" },
+    { "id": "settings",       "path": "/profile",        "purpose": "Profile / settings" },
+    { "id": "mobile",         "path": "/dashboard",      "device": "mobile",         "purpose": "Small-screen behavior" },
+    { "id": "ipad-landscape", "path": "/workspace",      "device": "ipad-landscape", "purpose": "iPad-first target device" }
+  ],
+
+  "viewportStates": [
+    { "id": "viewport3d-empty",     "path": "/3d-room", "device": "ipad-landscape", "state": "empty-scene",   "settleMs": 4000,
+      "purpose": "3D empty scene baseline" },
+    { "id": "viewport3d-model",     "path": "/3d-room", "device": "ipad-landscape", "state": "model-loaded",  "settleMs": 4000,
+      "actions": [ { "do": "click", "selector": "[data-testid='load-sample-model']" }, { "do": "wait", "ms": 3000 } ],
+      "purpose": "Loaded model" },
+    { "id": "viewport3d-materials", "path": "/3d-room", "device": "ipad-landscape", "state": "material-edit", "settleMs": 4000,
+      "actions": [ { "do": "click", "selector": "[data-testid='materials-tab']" } ],
+      "purpose": "Material editing over 3D" },
+    { "id": "viewport3d-lighting",  "path": "/3d-room", "device": "ipad-landscape", "state": "lighting",      "settleMs": 4000,
+      "actions": [ { "do": "click", "selector": "[data-testid='lighting-presets']" } ],
+      "purpose": "Lighting preset change" },
+    { "id": "collab-live",          "path": "/collaboration", "state": "session-active",
+      "actions": [ { "do": "click", "selector": "[data-testid='start-session']" }, { "do": "wait", "ms": 2000 } ],
+      "purpose": "Collaboration mode active" },
+    { "id": "presentation",         "path": "/workspace", "state": "presentation-mode",
+      "actions": [ { "do": "click", "selector": "[data-testid='present-button']" }, { "do": "wait", "ms": 1500 } ],
+      "purpose": "Presentation mode" }
+  ],
+
+  "evidenceFiles": [
+    "docs/release/evidence/*/report.json",
+    "docs/release/auth-audit/auth-report.json",
+    "docs/release/evidence/*/BUILD_FINGERPRINT.txt",
+    "docs/governance/*hash*"
+  ],
+
+  "sourceRoot": ".",
+  "sourceIncludes": [
+    "package.json", "vite.config.*", "tsconfig*.json",
+    "src/**/*.ts", "src/**/*.tsx", "src/**/*.css"
+  ],
+  "sourceExcludes": ["node_modules", "dist", ".git", "coverage"]
+}

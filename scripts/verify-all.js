@@ -87,7 +87,20 @@ async function readText(path) {
 }
 
 function runCommand(command) {
-  execSync(command, { stdio: 'pipe', encoding: 'utf-8' });
+  console.log(`\n? Running: ${command}`);
+
+  try {
+    return execSync(command, {
+      stdio: 'inherit',
+      encoding: 'utf-8',
+      timeout: 900000,
+      windowsHide: false,
+    });
+  } catch (error) {
+    throw new Error(
+      `Command failed: ${command}\n${error.message}`
+    );
+  }
 }
 
 async function checkSpecGate() {

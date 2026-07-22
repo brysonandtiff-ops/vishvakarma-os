@@ -1,0 +1,22 @@
+﻿
+/* Auth Champion iPad Header Fix */
+
+.hero-tagline,
+.auth-tagline,
+.header-tagline {
+ white-space:normal;
+ overflow:visible;
+ text-overflow:clip;
+ max-width:100%;
+ line-height:1.4;
+}
+
+@media(max-width:1024px){
+ .hero-tagline,
+ .auth-tagline,
+ .header-tagline{
+   font-size:0.95rem;
+ }
+}
+
+

@@ -1,0 +1,294 @@
+import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
+// Registry Center Page - Component and feature registry
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
+import { Plus, Database, Wrench, Box, Layers, AlertCircle } from 'lucide-react';
+import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
+import { GovernanceStatPill } from '@/components/governance/GovernanceStatPill';
+import { GovernanceBackendBanner } from '@/components/governance/GovernanceBackendBanner';
+import { backendStatus } from '@/backend/backendConfig';
+import { getRegistryEntries, createRegistryEntry } from '@/db/api';
+import type { RegistryEntry } from '@/types';
+
+export default function RegistryPage() {
+  const [entries, setEntries] = useState<RegistryEntry[]>([]);
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadEntries();
+  }, []);
+
+  const loadEntries = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getRegistryEntries();
+      setEntries(data);
+    } catch (err) {
+      console.error('Failed to load registry:', err);
+      setError('Failed to load registry entries');
+      toast.error('Failed to load registry entries');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const types = ['all', 'component', 'feature', 'tool'];
+
+  const filteredEntries =
+    selectedType === 'all' ? entries : entries.filter((entry) => entry.type === selectedType);
+
+  const typeCounts = {
+    component: entries.filter(e => e.type === 'component').length,
+    feature: entries.filter(e => e.type === 'feature').length,
+    tool: entries.filter(e => e.type === 'tool').length,
+  };
+
+  const getTypeConfig = (type: string) => {
+    switch (type) {
+      case 'component': return { icon: Box, label: 'Component', className: 'bg-primary/10 text-primary border-primary/20' };
+      case 'feature': return { icon: Database, label: 'Feature', className: 'bg-success/10 text-success border-success/20' };
+      case 'tool': return { icon: Wrench, label: 'Tool', className: 'bg-warning/10 text-warning border-warning/20' };
+      default: return { icon: Layers, label: type, className: 'bg-muted text-muted-foreground border-border' };
+    }
+  };
+
+  return (
+    <>
+        <WorkspacePageHeader
+          zone="governance"
+          variant="fullBleed"
+          eyebrow="Governance"
+          title="Registry Center"
+          description="Component and feature registry — track every system element"
+          actions={<NewRegistryDialog onEntryCreated={loadEntries} />}
+          stats={
+            <>
+              {([
+                { label: 'Total', count: entries.length, color: 'text-foreground' },
+                { label: 'Components', count: typeCounts.component, color: 'text-primary' },
+                { label: 'Features', count: typeCounts.feature, color: 'text-success' },
+                { label: 'Tools', count: typeCounts.tool, color: 'text-warning' },
+              ] as const).map(stat => (
+                <GovernanceStatPill key={stat.label} label={stat.label} value={stat.count} valueClassName={stat.color} />
+              ))}
+            </>
+          }
+        />
+
+        <WorkspacePageScroll>
+          <div className="vish-section-stack gov-content-area">
+            <GovernanceBackendBanner />
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="space-y-3" data-testid="registry-loading-skeleton" aria-busy="true">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="vish-skeleton h-24 rounded-xl" />
+                ))}
+                <p className="sr-only">Loading registry entries…</p>
+              </div>
+            ) : (
+            <Tabs value={selectedType} onValueChange={setSelectedType}>
+              <TabsList className="mb-6">
+                {types.map((type) => (
+                  <TabsTrigger key={type} value={type} className="touch-target min-h-[44px] min-w-[44px] capitalize">
+                    {type}
+                    {type !== 'all' && typeCounts[type as keyof typeof typeCounts] > 0 && (
+                      <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        {typeCounts[type as keyof typeof typeCounts]}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              <TabsContent value={selectedType}>
+                {filteredEntries.length === 0 ? (
+                  <div className="vish-empty-state rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
+                    <Database className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
+                    <h3 className="mt-3 text-sm font-semibold text-foreground">No registry entries</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {selectedType === 'all'
+                        ? 'Register your first component or feature to begin tracking'
+                        : `No ${selectedType}s registered yet`}
+                    </p>
+                    <div className="mt-5 flex flex-col items-center gap-2">
+                      {selectedType === 'all' ? (
+                        <NewRegistryDialog onEntryCreated={loadEntries} />
+                      ) : (
+                        <>
+                          <NewRegistryDialog onEntryCreated={loadEntries} />
+                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => setSelectedType('all')}>
+                            View all entries
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="vish-table vish-registry-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredEntries.map((entry) => {
+                      const cfg = getTypeConfig(entry.type);
+                      const Icon = cfg.icon;
+                      return ( // Apply crystal-surface for a premium feel
+                        <Card key={entry.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 crystal-surface">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                                {/* Type-coloured icon badge */}
+                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${cfg.className}`}>
+                                  <Icon className="h-4 w-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <CardTitle className="truncate text-sm text-balance">{entry.name}</CardTitle>
+                                  <CardDescription className="mt-0.5 font-mono text-[10px]">
+                                    {entry.id.slice(0, 12)}…
+                                  </CardDescription>
+                                </div>
+                              </div>
+                              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                                {/* Prominent type badge */}
+                                <span className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-bold tracking-wide ${cfg.className}`}>
+                                  <Icon className="h-2.5 w-2.5" />
+                                  {cfg.label}
+                                </span>
+                                <Badge
+                                  variant={entry.status === 'active' ? 'default' : 'secondary'}
+                                  className="text-[10px]"
+                                >
+                                  {entry.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="flex-1 pt-0">
+                            <p className="mb-3 text-sm text-pretty text-muted-foreground">
+                              {entry.description || 'No description provided'}
+                            </p>
+                            {entry.metadata && Object.keys(entry.metadata).length > 0 && (
+                              <div className="mb-3 overflow-hidden rounded-lg border border-border bg-muted/50">
+                                <div className="border-b border-border bg-muted/80 px-2 py-1">
+                                  <span className="font-mono text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Metadata
+                                  </span>
+                                </div>
+                                <pre className="max-h-24 overflow-y-auto p-2 text-xs text-muted-foreground">
+                                  {JSON.stringify(entry.metadata, null, 2)}
+                                </pre>
+                              </div>
+                            )}
+                            <p className="font-mono text-[10px] text-muted-foreground/60">
+                              Registered {new Date(entry.created_at).toLocaleDateString()}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+            )}
+          </div>
+        </WorkspacePageScroll>
+    </>
+  );
+}
+
+function NewRegistryDialog({ onEntryCreated }: { onEntryCreated: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [type, setType] = useState<'component' | 'feature' | 'tool'>('component');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<'active' | 'deprecated'>('active');
+  const cloudReady = backendStatus.isConfigured;
+
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+
+    try {
+      await createRegistryEntry({ name, type, description: description || undefined, metadata: {}, status });
+      toast.success('Registry entry created successfully');
+      setOpen(false);
+      setName('');
+      setType('component');
+      setDescription('');
+      setStatus('active');
+      onEntryCreated();
+    } catch (error) {
+      console.error('Failed to create registry entry:', error);
+      toast.error('Failed to create registry entry');
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="shrink-0 touch-target h-11 min-h-[44px]" disabled={!cloudReady} title={cloudReady ? undefined : 'Sign in with Supabase to register entries — go to Account Access'}>
+          <Plus className="mr-2 h-4 w-4" />
+          Register Entry
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[calc(100%-2rem)] md:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Register New Entry</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reg-name">Name</Label>
+            <Input id="reg-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Entry name" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="reg-type">Type</Label>
+              <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
+                <SelectTrigger id="reg-type"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="component">Component</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="tool">Tool</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reg-status">Status</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+                <SelectTrigger id="reg-status"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="deprecated">Deprecated</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="reg-description">Description <span className="text-muted-foreground">(optional)</span></Label>
+            <Textarea id="reg-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief description of this entry" rows={3} />
+          </div>
+          <Button onClick={handleCreate} className="w-full">Register Entry</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -1,0 +1,417 @@
+{
+  "tool": "auth_champion",
+  "timestamp": "2026-07-21 20:53:58",
+  "score": 0,
+  "counts": {
+    "FAIL": 1,
+    "WARN": 42,
+    "PASS": 12,
+    "INFO": 1
+  },
+  "findings": [
+    {
+      "check": "perf.image-weight",
+      "severity": "FAIL",
+      "message": "public\\deity-hero.png = 4038 KB (> 300 KB budget, no AVIF/WebP sibling) \u2014 hero art gates first paint",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\deity-hero.png",
+      "fix": "fix-snippets/picture-hero.html"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#000000 on #0b1020 = 1.11:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\index.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#000000 on #0b1020 = 1.11:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-gate.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#010102 on #0b1020 = 1.10:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-vibhuti-obsidian.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#01040b on #0b1020 = 1.08:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-screen.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#01040b on #0b1020 = 1.08:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-divine-architect-theme.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#01050f on #0b1020 = 1.08:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-exact-reference.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#02040c on #0b1020 = 1.08:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-divine-architect-theme.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#020712 on #0b1020 = 1.06:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-screen.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#020712 on #0b1020 = 1.06:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-divine-architect-theme.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#020715 on #0b1020 = 1.06:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-exact-reference.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#020817 on #0b1020 = 1.06:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-exact-reference.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.contrast",
+      "severity": "WARN",
+      "message": "#020817 on #0b1020 = 1.06:1 (< 4.5:1 AA) \u2014 fails if used for body/small text ('Need access?' style greys)",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-match.css",
+      "fix": "raise lightness or reserve for decorative/large text"
+    },
+    {
+      "check": "a11y.focus",
+      "severity": "WARN",
+      "message": "outline:none used in 13 place(s) \u2014 verify every one has a focus-visible replacement",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-mockup-page.css",
+      "line": 440
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\index.css",
+      "line": 337,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-exact-reference.css",
+      "line": 54,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-match.css",
+      "line": 363,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-match.css",
+      "line": 376,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-screen.css",
+      "line": 75,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-auth-reference-screen.css",
+      "line": 527,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-device-unity.css",
+      "line": 224,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-3d-polish.css",
+      "line": 15,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-3d-polish.css",
+      "line": 17,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-chrome.css",
+      "line": 306,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-polish.css",
+      "line": 48,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-polish.css",
+      "line": 55,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-polish.css",
+      "line": 56,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-editor-polish.css",
+      "line": 262,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ipad-editor-usability.css",
+      "line": 246,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ipad-editor-usability.css",
+      "line": 257,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ipad-editor-usability.css",
+      "line": 270,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ipad-king-polish.css",
+      "line": 220,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-landing-showcase-fix.css",
+      "line": 113,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-mantra-widget.css",
+      "line": 71,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-mantra-widget.css",
+      "line": 131,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-marketing.css",
+      "line": 147,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ui-display-fixes.css",
+      "line": 62,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ui-display-fixes.css",
+      "line": 97,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-ui-polish.css",
+      "line": 906,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-workspace-polish.css",
+      "line": 511,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-workspace-polish.css",
+      "line": 599,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-workspace-polish.css",
+      "line": 671,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "layout.truncation",
+      "severity": "WARN",
+      "message": "nowrap/ellipsis on auth surface \u2014 verify tagline/header at 768\u20131024px widths (observed clipping: 'ENGINEERING \u2022 CONS\u2026')",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\src\\styles\\vish-workspace-polish.css",
+      "line": 705,
+      "fix": "fix-snippets/header-responsive.css"
+    },
+    {
+      "check": "a11y.alt",
+      "severity": "PASS",
+      "message": "All <img> tags in auth scope carry alt attributes"
+    },
+    {
+      "check": "auth.sso-lockin",
+      "severity": "PASS",
+      "message": "SSO plus an email fallback path detected"
+    },
+    {
+      "check": "media.autoplay",
+      "severity": "PASS",
+      "message": "No autoplay calls in auth scope"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\stone\\normal.jpg = 2463 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\stone\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\grass\\normal.jpg = 2283 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\grass\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\bark\\normal.jpg = 2252 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\bark\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\plaster\\normal.jpg = 2098 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\plaster\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\paint\\normal.jpg = 2042 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\paint\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\fabric\\normal.jpg = 2017 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\fabric\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\concrete\\normal.jpg = 1904 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\concrete\\normal.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\bark\\color.jpg = 1823 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\bark\\color.jpg"
+    },
+    {
+      "check": "perf.image-weight",
+      "severity": "PASS",
+      "message": "public\\textures\\grass\\color.jpg = 1723 KB",
+      "file": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\Vishvakarma-os\\vishvakarma-os-live\\public\\textures\\grass\\color.jpg"
+    },
+    {
+      "check": "ux.consent",
+      "severity": "INFO",
+      "message": "No consent banner code found in auth scope"
+    }
+  ]
+}

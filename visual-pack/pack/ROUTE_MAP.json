@@ -1,0 +1,176 @@
+{
+  "app": "VISHVAKARMA.OS v1.5.0",
+  "baseUrl": "http://127.0.0.1:4173",
+  "routes": {
+    "/auth": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "002-auth.png"
+      ]
+    },
+    "/projects": {
+      "devices": [
+        "desktop",
+        "ipad-landscape",
+        "mobile"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "005-projects.png",
+        "020-ipad-projects.png",
+        "022-mobile-projects.png"
+      ]
+    },
+    "/editor": {
+      "devices": [
+        "desktop",
+        "ipad-landscape"
+      ],
+      "states": [
+        "default",
+        "mep-tool",
+        "furniture-tool"
+      ],
+      "files": [
+        "006-editor.png",
+        "018-ipad-editor.png",
+        "025-editor-tool-mep.png",
+        "026-editor-tool-furniture.png"
+      ]
+    },
+    "/editor-lite": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "007-editor-lite.png"
+      ]
+    },
+    "/3d-room": {
+      "devices": [
+        "desktop",
+        "ipad-landscape"
+      ],
+      "states": [
+        "default",
+        "walk-mode",
+        "alt-sample"
+      ],
+      "files": [
+        "008-viewport3d.png",
+        "019-ipad-viewport3d.png",
+        "023-viewport3d-walk.png",
+        "024-viewport3d-alt-sample.png"
+      ]
+    },
+    "/optimization": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "009-optimization.png"
+      ]
+    },
+    "/spec-center": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "010-spec-center.png"
+      ]
+    },
+    "/registry": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "011-registry.png"
+      ]
+    },
+    "/change-requests": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "012-change-requests.png"
+      ]
+    },
+    "/releases": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "013-releases.png"
+      ]
+    },
+    "/audit": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "014-audit.png"
+      ]
+    },
+    "/world-records": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "015-world-records.png"
+      ]
+    },
+    "/profile": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "016-profile.png"
+      ]
+    },
+    "/404": {
+      "devices": [
+        "desktop"
+      ],
+      "states": [
+        "default"
+      ],
+      "files": [
+        "017-notfound.png"
+      ]
+    }
+  }
+}

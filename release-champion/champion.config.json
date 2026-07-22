@@ -1,0 +1,24 @@
+{
+  "appName": "VISHVAKARMA.OS",
+  "appUrl": "https://vishvakarma-os.app",
+  "packageManager": "pnpm",
+  "distDir": "dist",
+  "evidenceDir": "docs/release/evidence",
+  "screenshotsGlob": "docs/release/screenshots/*.png",
+  "requiredScorePct": 100,
+  "stages": [
+    { "id": "lint",          "label": "Lint",                "script": "lint",             "required": true },
+    { "id": "types",         "label": "Type check",          "script": "typecheck",        "required": true },
+    { "id": "tests",         "label": "Tests",               "script": "test",             "required": true },
+    { "id": "build",         "label": "Build",               "script": "build",            "required": true },
+    { "id": "governance",    "label": "Governance",          "script": "governance",       "required": true },
+    { "id": "budgets",       "label": "Bundle budgets",      "script": "budgets",          "required": true },
+    { "id": "pwa",           "label": "PWA audit",           "script": "audit:pwa",        "required": false },
+    { "id": "three",         "label": "Three.js audit",      "script": "audit:three",      "required": false },
+    { "id": "safari",        "label": "Safari/iPad audit",   "script": "audit:safari",     "required": false },
+    { "id": "a11y",          "label": "Accessibility audit", "script": "audit:a11y",       "required": false },
+    { "id": "lighthouse",    "label": "Lighthouse",          "script": "audit:lighthouse", "required": false },
+    { "id": "release_gates", "label": "Release gates",       "script": "release:gates",    "required": true },
+    { "id": "perf_gates",    "label": "Perf gates",          "script": "perf:gates",       "required": false }
+  ]
+}

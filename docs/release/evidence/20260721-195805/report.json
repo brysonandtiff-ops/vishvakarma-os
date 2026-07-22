@@ -1,0 +1,143 @@
+{
+  "app": "VISHVAKARMA.OS",
+  "appUrl": "https://vishvakarma-os.app",
+  "timestamp": "2026-07-21 19:58:05",
+  "runId": "20260721-195805",
+  "evidenceDir": "docs\\release\\evidence\\20260721-195805",
+  "totalSeconds": 0.04293394088745117,
+  "scorePct": 0.0,
+  "verdict": "NOT RELEASE-READY",
+  "passed": 0,
+  "gated": 4,
+  "git": {
+    "commit": "d89f37cb4",
+    "branch": "assistant/end-to-end-gates-20260709",
+    "lastTag": "",
+    "dirty": true
+  },
+  "fingerprint": {
+    "present": true,
+    "sha256": "feb62a68166162909502f72def5bba48205bfaccc8911bb31c78b80b465d948a",
+    "fileCount": 358,
+    "totalBytes": 142203558
+  },
+  "stages": [
+    {
+      "id": "lint",
+      "label": "Lint",
+      "status": "FAIL",
+      "seconds": 0.008728742599487305,
+      "required": true,
+      "detail": "pnpm not found on PATH",
+      "log": "docs\\release\\evidence\\20260721-195805\\logs\\lint.log"
+    },
+    {
+      "id": "types",
+      "label": "Type check",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": true,
+      "detail": "no \"typecheck\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "tests",
+      "label": "Tests",
+      "status": "FAIL",
+      "seconds": 0.006514787673950195,
+      "required": true,
+      "detail": "pnpm not found on PATH",
+      "log": "docs\\release\\evidence\\20260721-195805\\logs\\tests.log"
+    },
+    {
+      "id": "build",
+      "label": "Build",
+      "status": "FAIL",
+      "seconds": 0.007474422454833984,
+      "required": true,
+      "detail": "pnpm not found on PATH",
+      "log": "docs\\release\\evidence\\20260721-195805\\logs\\build.log"
+    },
+    {
+      "id": "governance",
+      "label": "Governance",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": true,
+      "detail": "no \"governance\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "budgets",
+      "label": "Bundle budgets",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": true,
+      "detail": "no \"budgets\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "pwa",
+      "label": "PWA audit",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": false,
+      "detail": "no \"audit:pwa\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "three",
+      "label": "Three.js audit",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": false,
+      "detail": "no \"audit:three\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "safari",
+      "label": "Safari/iPad audit",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": false,
+      "detail": "no \"audit:safari\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "a11y",
+      "label": "Accessibility audit",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": false,
+      "detail": "no \"audit:a11y\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "lighthouse",
+      "label": "Lighthouse",
+      "status": "SKIP",
+      "seconds": 0.0,
+      "required": false,
+      "detail": "no \"audit:lighthouse\" script in package.json",
+      "log": null
+    },
+    {
+      "id": "release_gates",
+      "label": "Release gates",
+      "status": "FAIL",
+      "seconds": 0.006533384323120117,
+      "required": true,
+      "detail": "pnpm not found on PATH",
+      "log": "docs\\release\\evidence\\20260721-195805\\logs\\release_gates.log"
+    },
+    {
+      "id": "perf_gates",
+      "label": "Perf gates",
+      "status": "FAIL",
+      "seconds": 0.008828163146972656,
+      "required": false,
+      "detail": "pnpm not found on PATH",
+      "log": "docs\\release\\evidence\\20260721-195805\\logs\\perf_gates.log"
+    }
+  ]
+}

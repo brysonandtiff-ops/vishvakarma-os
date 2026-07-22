@@ -1,0 +1,39 @@
+{
+  "all": [
+    "/",
+    "/3d-room",
+    "/404",
+    "/audit",
+    "/auth",
+    "/change-requests",
+    "/editor",
+    "/editor-lite",
+    "/features",
+    "/optimization",
+    "/pricing",
+    "/profile",
+    "/projects",
+    "/registry",
+    "/releases",
+    "/reset-password",
+    "/spec-center",
+    "/world-records"
+  ],
+  "renderedOk": [
+    "/",
+    "/3d-room",
+    "/audit",
+    "/change-requests",
+    "/editor",
+    "/editor-lite",
+    "/features",
+    "/optimization",
+    "/pricing",
+    "/profile",
+    "/projects",
+    "/registry",
+    "/releases",
+    "/spec-center",
+    "/world-records"
+  ]
+}

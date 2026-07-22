@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-14T11:21:54.711Z",
+  "generatedAt": "2026-07-21T12:42:53.336Z",
   "source": "scripts/verify-all.js",
   "strict": false,
   "gates": {
@@ -32,8 +32,8 @@
       "message": "pnpm run test completed successfully."
     },
     "gate-8": {
-      "status": "pass",
-      "message": "node scripts/run-e2e-gates.mjs completed successfully."
+      "status": "fail",
+      "message": "node scripts/run-e2e-gates.mjs failed."
     },
     "gate-9": {
       "status": "pass",
@@ -48,17 +48,37 @@
       "message": "Evidence attached at docs/release/evidence/ipad-touch-audit.md."
     },
     "gate-12": {
-      "status": "pass",
-      "message": "Evidence attached at docs/release/evidence/performance-notes.md."
+      "status": "warning",
+      "message": "Manual or runtime proof is required. This gate is not auto-passed."
     },
     "gate-13": {
       "status": "pass",
-      "message": "World record artifact present with 12 metric gates."
+      "message": "World record artifact present with 12 metric gates and 19 total gates."
+    },
+    "gate-14": {
+      "status": "pass",
+      "message": "node scripts/verify-gates-14-18.mjs --gate=14 completed successfully."
+    },
+    "gate-15": {
+      "status": "pass",
+      "message": "node scripts/verify-gates-14-18.mjs --gate=15 completed successfully."
+    },
+    "gate-16": {
+      "status": "pass",
+      "message": "node scripts/verify-gates-14-18.mjs --gate=16 completed successfully."
+    },
+    "gate-17": {
+      "status": "pass",
+      "message": "node scripts/verify-gates-14-18.mjs --gate=17 completed successfully."
+    },
+    "gate-18": {
+      "status": "pass",
+      "message": "node scripts/verify-gates-14-18.mjs --gate=18 completed successfully."
     }
   },
   "verification": {
-    "lint": "pass",
-    "tests": "pass",
+    "lint": "fail",
+    "tests": "fail",
     "build": "pending",
     "note": "Run pnpm run release:gates:strict locally or in CI for live test counts"
   }

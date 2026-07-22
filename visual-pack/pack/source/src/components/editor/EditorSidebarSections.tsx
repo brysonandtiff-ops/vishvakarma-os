@@ -1,0 +1,217 @@
+import { Loader2, type LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import type { EditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
+import { getEditorProjectAction, getEditorViewAction } from '@/editor/editorActionRegistry';
+
+interface EditorSidebarSectionsProps {
+  config: EditorSidebarConfig;
+  collapsed?: boolean;
+  onAfterAction?: () => void;
+}
+
+interface ActionDef {
+  id: string;
+  testId: string;
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+}
+
+function SidebarActionButton({
+  icon: Icon,
+  label,
+  onClick,
+  active,
+  disabled,
+  loading,
+  testId,
+  collapsed,
+}: {
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  testId: string;
+  collapsed?: boolean;
+}) {
+  const button = (
+    <Button
+      type="button"
+      variant="outline"
+      data-testid={testId}
+      disabled={disabled || loading}
+      className={`vish-editor-sidebar-action touch-target w-full justify-start gap-3 text-sm ${
+        collapsed ? 'h-10 w-10 min-h-[44px] min-w-[44px] justify-center p-0' : 'min-h-[44px] h-12'
+      } ${active ? 'border-primary/50 bg-primary/10' : ''}`}
+      onClick={onClick}
+      aria-label={label}
+    >
+      {loading ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Icon className="h-4 w-4 shrink-0" />}
+      {!collapsed && label}
+    </Button>
+  );
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={6} className="text-xs">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return button;
+}
+
+function ActionSection({
+  title,
+  testId,
+  actions,
+  collapsed,
+  onAfterAction,
+}: {
+  title: string;
+  testId: string;
+  actions: ActionDef[];
+  collapsed?: boolean;
+  onAfterAction?: () => void;
+}) {
+  const run = (action: ActionDef) => {
+    action.onClick();
+    onAfterAction?.();
+  };
+
+  return (
+    <div className="vish-editor-sidebar-section" data-testid={testId}>
+      {!collapsed && (
+        <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-widest text-ws-text-faint">
+          {title}
+        </p>
+      )}
+      <div className={`space-y-1 ${collapsed ? 'px-0' : 'px-0'}`}>
+        {actions.map((action) => (
+          <SidebarActionButton
+            key={action.id}
+            icon={action.icon}
+            label={action.label}
+            testId={action.testId}
+            active={action.active}
+            disabled={action.disabled}
+            loading={action.loading}
+            collapsed={collapsed}
+            onClick={() => run(action)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function EditorSidebarSections({
+  config,
+  collapsed = false,
+  onAfterAction,
+}: EditorSidebarSectionsProps) {
+  const toggle3D = getEditorViewAction('toggle3D');
+  const toggleGrid = getEditorViewAction('toggleGrid');
+
+  const projectActions: ActionDef[] = [
+    {
+      id: 'new-project',
+      testId: 'editor-sidebar-new-project',
+      icon: getEditorProjectAction('newProject').icon,
+      label: getEditorProjectAction('newProject').label,
+      onClick: config.onNewProject,
+    },
+    {
+      id: 'open-project',
+      testId: 'editor-sidebar-open-project',
+      icon: getEditorProjectAction('openProject').icon,
+      label: getEditorProjectAction('openProject').label,
+      onClick: config.onOpenProject,
+    },
+    {
+      id: 'save',
+      testId: 'editor-sidebar-save',
+      icon: getEditorProjectAction('save').icon,
+      label: getEditorProjectAction('save').label,
+      onClick: config.onSave,
+      loading: config.savingProject,
+      disabled: config.savingProject,
+    },
+    {
+      id: 'import',
+      testId: 'editor-sidebar-import',
+      icon: getEditorProjectAction('import').icon,
+      label: getEditorProjectAction('import').label,
+      onClick: config.onImport,
+    },
+    {
+      id: 'export',
+      testId: 'editor-sidebar-export',
+      icon: getEditorProjectAction('export').icon,
+      label: getEditorProjectAction('export').label,
+      onClick: config.onExport,
+    },
+    {
+      id: 'load-sample',
+      testId: 'editor-sidebar-load-sample',
+      icon: getEditorProjectAction('loadSample').icon,
+      label: getEditorProjectAction('loadSample').label,
+      onClick: config.onLoadSample,
+    },
+    {
+      id: 'ai-copilot',
+      testId: 'editor-sidebar-ai-copilot',
+      icon: getEditorProjectAction('aiDesigner').icon,
+      label: getEditorProjectAction('aiDesigner').label,
+      onClick: config.onAIDesigner,
+    },
+  ];
+
+  const viewActions: ActionDef[] = [
+    {
+      id: 'toggle-3d',
+      testId: 'editor-sidebar-toggle-3d',
+      icon: toggle3D.icon,
+      label: config.show3DView ? 'Hide 3D view' : 'Show 3D view',
+      onClick: config.onToggle3D,
+      active: config.show3DView,
+    },
+    {
+      id: 'toggle-grid',
+      testId: 'editor-sidebar-toggle-grid',
+      icon: toggleGrid.icon,
+      label: config.gridVisible ? 'Hide grid' : 'Show grid',
+      onClick: config.onToggleGrid,
+      active: config.gridVisible,
+    },
+  ];
+
+  return (
+    <div className={`space-y-3 ${collapsed ? 'pt-1' : 'pt-2'}`}>
+      <ActionSection
+        title="Project actions"
+        testId="editor-sidebar-project-actions"
+        actions={projectActions}
+        collapsed={collapsed}
+        onAfterAction={onAfterAction}
+      />
+      <ActionSection
+        title="View"
+        testId="editor-sidebar-view"
+        actions={viewActions}
+        collapsed={collapsed}
+        onAfterAction={onAfterAction}
+      />
+    </div>
+  );
+}

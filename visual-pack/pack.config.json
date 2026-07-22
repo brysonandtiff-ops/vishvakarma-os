@@ -1,0 +1,70 @@
+{
+  "appName": "VISHVAKARMA.OS v1.5.0",
+  "baseUrl": "http://127.0.0.1:4173",
+  "loginPath": "/auth",
+  "authProbePath": "/projects",
+  "outputZip": "VishvakarmaOS-FableMax-Visual-Hardening-Pack.zip",
+  "settleMs": 1400,
+  "navTimeoutMs": 60000,
+  "minBodyChars": 120,
+
+  "devices": {
+    "desktop":        { "engine": "chromium", "viewport": { "width": 1440, "height": 900 } },
+    "ipad-landscape": { "engine": "webkit",   "viewport": { "width": 1194, "height": 834 }, "isMobile": true, "deviceScaleFactor": 1 },
+    "mobile":         { "engine": "webkit",   "viewport": { "width": 390,  "height": 844 }, "isMobile": true, "deviceScaleFactor": 1 }
+  },
+
+  "shots": [
+    { "id": "landing",         "path": "/",                "purpose": "Marketing landing — hero, value prop" },
+    { "id": "auth",            "path": "/auth",            "expectKind": "AUTH WALL", "purpose": "Sign-in hero, SSO, consent banner" },
+    { "id": "features",        "path": "/features",        "purpose": "Feature marketing page" },
+    { "id": "pricing",         "path": "/pricing",         "purpose": "Pricing tiers" },
+    { "id": "projects",        "path": "/projects",        "purpose": "Project list — primary post-login surface" },
+    { "id": "editor",          "path": "/editor",          "settleMs": 6000, "purpose": "Full editor chrome — main creation environment" },
+    { "id": "editor-lite",     "path": "/editor-lite",     "settleMs": 4000, "purpose": "Lite editor variant" },
+    { "id": "viewport3d",      "path": "/3d-room",         "settleMs": 12000, "purpose": "3D engine — the product differentiator" },
+    { "id": "optimization",    "path": "/optimization",    "purpose": "Optimization tooling" },
+    { "id": "spec-center",     "path": "/spec-center",     "purpose": "Governance — Spec Center" },
+    { "id": "registry",        "path": "/registry",        "purpose": "Governance — Registry" },
+    { "id": "change-requests", "path": "/change-requests", "purpose": "Governance — Change Requests" },
+    { "id": "releases",        "path": "/releases",        "purpose": "Release Center" },
+    { "id": "audit",           "path": "/audit",           "purpose": "Audit log" },
+    { "id": "world-records",   "path": "/world-records",   "purpose": "World Records page" },
+    { "id": "profile",         "path": "/profile",         "purpose": "Profile / settings" },
+    { "id": "notfound",        "path": "/404",             "expectKind": "404", "purpose": "404 page — intentional capture" },
+
+    { "id": "ipad-editor",     "path": "/editor",   "device": "ipad-landscape", "settleMs": 6000,  "purpose": "iPad-first target: editor at 1194x834 WebKit" },
+    { "id": "ipad-viewport3d", "path": "/3d-room",  "device": "ipad-landscape", "settleMs": 12000, "purpose": "iPad 3D viewport — Safari-class rendering" },
+    { "id": "ipad-projects",   "path": "/projects", "device": "ipad-landscape", "purpose": "iPad project list" },
+    { "id": "mobile-landing",  "path": "/",         "device": "mobile",         "purpose": "Small-screen marketing" },
+    { "id": "mobile-projects", "path": "/projects", "device": "mobile",         "purpose": "Small-screen app behaviour" }
+  ],
+
+  "viewportStates": [
+    { "id": "viewport3d-walk", "path": "/3d-room", "device": "ipad-landscape", "state": "walk-mode", "settleMs": 12000,
+      "actions": [ { "do": "click", "selector": "text=Walk mode" }, { "do": "wait", "ms": 3000 } ],
+      "purpose": "Walk mode — first-person navigation" },
+    { "id": "viewport3d-alt-sample", "path": "/3d-room", "device": "ipad-landscape", "state": "alt-sample", "settleMs": 12000,
+      "actions": [ { "do": "click", "selector": "section button:nth-of-type(2)" }, { "do": "wait", "ms": 4000 } ],
+      "purpose": "Second premium sample loaded" },
+    { "id": "editor-tool-mep", "path": "/editor", "device": "ipad-landscape", "state": "mep-tool", "settleMs": 6000,
+      "actions": [ { "do": "click", "selector": "[data-tutorial='tool-mep']" }, { "do": "wait", "ms": 1500 } ],
+      "purpose": "MEP tool active" },
+    { "id": "editor-tool-furniture", "path": "/editor", "device": "ipad-landscape", "state": "furniture-tool", "settleMs": 6000,
+      "actions": [ { "do": "click", "selector": "[data-tutorial='tool-furniture']" }, { "do": "wait", "ms": 1500 } ],
+      "purpose": "Furniture tool active" }
+  ],
+
+  "evidenceFiles": [
+    "docs/release/evidence/*/report.json",
+    "docs/release/evidence/*/BUILD_FINGERPRINT.txt",
+    "docs/release/auth-audit/auth-report.json"
+  ],
+
+  "sourceRoot": ".",
+  "sourceIncludes": [
+    "package.json", "vite.config.*", "tsconfig*.json",
+    "src/**/*.ts", "src/**/*.tsx", "src/**/*.css"
+  ],
+  "sourceExcludes": ["node_modules", "dist", ".git", "coverage"]
+}
