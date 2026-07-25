@@ -1,0 +1,7 @@
+DO NOT CHANGE DNS UNTIL:
+- GitHub production gates pass
+- pages.dev deployment succeeds
+- Supabase auth passes
+- Stripe checkout and signed webhook pass
+- deep SPA routes pass
+- PWA service worker and cache headers pass
