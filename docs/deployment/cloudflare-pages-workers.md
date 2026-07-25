@@ -16,7 +16,7 @@ Do not change DNS until the generated `vishvakarma-os.pages.dev` deployment pass
 ## Runtime architecture
 
 ```text
-GitHub main
+GitHub migration branch (validation) -> GitHub main (after merge)
    |
    +-- Vite production build ----------------------> Cloudflare Pages static assets
    |                                                   |
@@ -37,16 +37,18 @@ Only `/api/*` invokes Pages Functions. Static assets remain on Cloudflare's stat
 
 Create a **Pages** project connected to GitHub.
 
-| Setting | Value |
-|---|---|
-| Repository | `brysonandtiff-ops/vishvakarma-os` |
-| Production branch | `main` |
-| Framework preset | Vite |
-| Build command | `node scripts/vercel-build.mjs` |
-| Build output directory | `dist` |
-| Root directory | repository root |
-| Node.js | `22` |
-| pnpm | `9.15.0` |
+For the first deployment, temporarily use the migration branch so Cloudflare can be tested without merging or changing `main`. After every preview and repository gate passes, merge pull request #144 and change the Cloudflare production branch to `main`.
+
+| Setting | Initial validation | Final production |
+|---|---|---|
+| Repository | `brysonandtiff-ops/vishvakarma-os` | same |
+| Production branch | `agent/cloudflare-pages-workers-migration` | `main` |
+| Framework preset | Vite | Vite |
+| Build command | `node scripts/vercel-build.mjs` | same |
+| Build output directory | `dist` | same |
+| Root directory | repository root | same |
+| Node.js | `22` | `22` |
+| pnpm | `9.15.0` | `9.15.0` |
 
 `wrangler.jsonc` supplies the Pages output directory, compatibility date, and `nodejs_compat` runtime flag. The build command intentionally runs the repository's existing secret guard, lint, hardening gates, focused regressions, full test suite, production build, artifact scan, and performance budgets.
 
@@ -117,6 +119,7 @@ Run these checks against the generated `https://vishvakarma-os.pages.dev` addres
 8. Stripe test webhook signature verification succeeds.
 9. `sw.js` is served with `Service-Worker-Allowed: /` and a revalidation cache policy.
 10. Hashed `/assets/*` responses use immutable caching.
+11. The same branch passes the full repository production gate from a working runner.
 
 ## Supabase preparation
 
@@ -144,9 +147,18 @@ Use its signing secret as the Cloudflare `STRIPE_WEBHOOK_SECRET`. Keep the old V
 https://vishvakarma-os.app/api/stripe/webhook
 ```
 
+## Merge and production-branch transition
+
+After the branch deployment passes every check:
+
+1. Merge pull request #144 into `main`.
+2. Change the Cloudflare Pages production branch from `agent/cloudflare-pages-workers-migration` to `main`.
+3. Confirm the resulting `main` deployment uses the merged commit.
+4. Re-run the complete smoke checklist before adding the custom domain.
+
 ## Custom-domain cutover
 
-Only after the Pages address passes every smoke check:
+Only after the `main` Pages deployment passes every smoke check:
 
 1. Open the Pages project and select **Custom domains**.
 2. Add `vishvakarma-os.app`.
