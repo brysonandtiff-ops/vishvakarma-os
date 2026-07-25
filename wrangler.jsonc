@@ -1,0 +1,8 @@
+{
+  "name": "vishvakarma-os",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-07-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "send_metrics": false,
+  "upload_source_maps": false
+}
