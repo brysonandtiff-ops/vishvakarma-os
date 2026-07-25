@@ -11,7 +11,7 @@ describe('Cloudflare Vercel handler adapter', () => {
       expect(req.method).toBe('POST');
       expect(req.headers.authorization).toBe('Bearer test-token');
       expect(Buffer.isBuffer(req.body)).toBe(true);
-      expect(req.body?.toString()).toBe('{"prompt":"design a studio"}');
+      expect((req.body as Buffer).toString()).toBe('{"prompt":"design a studio"}');
 
       res.setHeader?.('X-Adapter-Test', 'passed');
       return res.status(201).json({ ok: true });
