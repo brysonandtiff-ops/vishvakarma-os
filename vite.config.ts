@@ -1,3 +1,4 @@
+// Deployment refresh marker: 2026-07-25. No runtime behaviour change.
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
@@ -80,8 +81,6 @@ export default defineConfig(({ command, mode }) => ({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
-          // R3.1: Cache mantra audio — 11 MB of MP3s were re-downloaded on every visit.
-          // CacheFirst: serve from cache if available, only hit network for new/changed files.
           {
             urlPattern: /\/audio\/mantras\/.*\.mp3$/i,
             handler: 'CacheFirst',
@@ -90,8 +89,6 @@ export default defineConfig(({ command, mode }) => ({
               expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
-          // R3.2a: Cache 3D material textures — 35 MB of JPGs, previously re-downloaded
-          // on every 3D session. After first load, served instantly from cache.
           {
             urlPattern: /\/textures\/.*\.(jpg|jpeg|png|webp)$/i,
             handler: 'CacheFirst',
@@ -100,8 +97,6 @@ export default defineConfig(({ command, mode }) => ({
               expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
           },
-          // R3.2b: Cache 3D GLB models — 35 MB of models, previously re-downloaded
-          // on every 3D session. After first load, served instantly from cache.
           {
             urlPattern: /\/models\/.*\.glb$/i,
             handler: 'CacheFirst',
@@ -110,7 +105,6 @@ export default defineConfig(({ command, mode }) => ({
               expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 90 },
             },
           },
-          // R3.2c: Cache HDRI environment maps used by the 3D viewport.
           {
             urlPattern: /\/hdri\/.*\.hdr$/i,
             handler: 'CacheFirst',
@@ -131,24 +125,16 @@ export default defineConfig(({ command, mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // Production bundles drop verbose console traces (log/debug/trace) while
-  // keeping console.warn/error intact for Sentry breadcrumbs and field triage.
   esbuild: {
     pure: ['console.log', 'console.debug', 'console.trace'],
   },
   build: {
-    // Budget keeps the intentionally split Troika text chunk visible while catching new regressions.
     chunkSizeWarningLimit: 900,
-    // Keep route-optional editor, 3D, collaboration, and analytics dependencies out
-    // of the HTML entry preload graph. Vite still preloads them when their dynamic
-    // route import actually executes.
     modulePreload: {
       polyfill: true,
       resolveDependencies: (_url, dependencies, context) =>
         filterEntryModulePreloads(dependencies, context.hostType),
     },
-    // Source maps may be generated only for controlled non-Vercel builds that
-    // upload them privately before deployment. Public Vercel builds always disable them.
     sourcemap: buildSourceMaps ? 'hidden' : false,
     rollupOptions: {
       output: {
@@ -157,7 +143,6 @@ export default defineConfig(({ command, mode }) => ({
 
           const normalizedId = id.replace(/\\/g, '/');
 
-          // Keep the 3D stack cacheable without shipping one >1 MB vendor blob.
           if (normalizedId.includes('/node_modules/@react-three/fiber/')) return 'vendor-react-three-fiber';
           if (normalizedId.includes('/node_modules/@react-three/drei/')) return 'vendor-react-three-drei';
           if (normalizedId.includes('/node_modules/three-stdlib/')) return 'vendor-three-stdlib';
@@ -184,7 +169,6 @@ export default defineConfig(({ command, mode }) => ({
             normalizedId.includes('/node_modules/its-fine/')
           ) return 'vendor-3d-helpers';
 
-          // Split broad app helpers out of vendor-misc and keep React itself stable.
           if (normalizedId.includes('/node_modules/motion/')) return 'vendor-motion';
           if (normalizedId.includes('/node_modules/jszip/')) return 'vendor-export';
           if (normalizedId.includes('/node_modules/qrcode/')) return 'vendor-qrcode';
@@ -208,13 +192,10 @@ export default defineConfig(({ command, mode }) => ({
             normalizedId.includes('/node_modules/react-dom/') ||
             normalizedId.includes('/node_modules/scheduler/')
           ) return 'vendor-react';
-          // R1.4: Split vendor-misc into named chunks for better long-term cache efficiency.
           if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
           if (id.includes('@vercel/analytics') || id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
-          // T3-3: recharts (+ d3 internals) only used in OptimizationPage — isolate it
-          // so it doesn't inflate vendor-misc for users who never visit /optimization.
           if (id.includes('recharts') || id.includes('d3-scale') || id.includes('d3-shape') || id.includes('d3-color') || id.includes('d3-interpolate') || id.includes('d3-format') || id.includes('d3-time') || id.includes('victory-vendor')) return 'vendor-charts';
           return 'vendor-misc';
         },
