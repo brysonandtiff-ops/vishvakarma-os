@@ -25,6 +25,12 @@ function requirePhrase(content, phrase, label) {
   }
 }
 
+function forbidPhrase(content, phrase, label) {
+  if (content.includes(phrase)) {
+    fail(`${label} contains forbidden phrase: ${phrase}`);
+  }
+}
+
 function readPngSize(relativePath) {
   const path = join(root, relativePath);
   if (!existsSync(path)) {
@@ -143,7 +149,10 @@ requirePngSize('public/brand/vishvakarma-apple-touch-icon.png', 180);
 const viteConfig = readRequired('vite.config.ts');
 requirePhrase(viteConfig, 'VitePWA', 'vite.config.ts');
 requirePhrase(viteConfig, "registerType: 'autoUpdate'", 'vite.config.ts');
-requirePhrase(viteConfig, "includeAssets: ['icons/**/*', 'brand/**/*', 'manifest.webmanifest']", 'vite.config.ts');
+// Public icons, brand assets, and the web manifest are already matched by the
+// Workbox glob. A second explicit asset list duplicates precache URLs.
+forbidPhrase(viteConfig, 'includeAssets:', 'vite.config.ts');
+requirePhrase(viteConfig, "globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}']", 'vite.config.ts');
 requirePhrase(viteConfig, "navigateFallback: '/index.html'", 'vite.config.ts');
 requirePhrase(viteConfig, 'navigateFallbackDenylist: [/^\\/api\\//]', 'vite.config.ts');
 // iOS launch images are served on-demand, never precached (keeps the install lean).
