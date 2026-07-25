@@ -62,6 +62,9 @@ jobs:
       - name: PWA and bundle performance gates
         run: pnpm run perf:gates
 
+      - name: Install Chromium for release route smoke
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Release gates
         run: pnpm run release:gates
 
