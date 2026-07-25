@@ -1,0 +1,31 @@
+{
+  "migration": "cloudflare-pages-workers",
+  "status": "implementation-ready-for-ci",
+  "baseBranch": "main",
+  "migrationBranch": "agent/cloudflare-pages-workers-migration",
+  "dnsCutoverPerformed": false,
+  "staticHost": "Cloudflare Pages",
+  "apiRuntime": "Cloudflare Pages Functions",
+  "apiRoute": "/api/*",
+  "outputDirectory": "dist",
+  "nodeCompatibility": "nodejs_compat",
+  "preservedEndpoints": [
+    "/api/ai/extract-requirements",
+    "/api/ai/parse-site-documents",
+    "/api/cast/evidence",
+    "/api/cast/join",
+    "/api/cast/sessions",
+    "/api/health",
+    "/api/stripe/create-checkout-session",
+    "/api/stripe/create-portal-session",
+    "/api/stripe/webhook"
+  ],
+  "requiredBeforeDns": [
+    "GitHub production gates pass",
+    "Cloudflare pages.dev deployment succeeds",
+    "Supabase auth callback passes",
+    "Stripe test checkout passes",
+    "Stripe signed webhook passes",
+    "PWA and deep-route smoke checks pass"
+  ]
+}
