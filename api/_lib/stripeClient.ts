@@ -1,7 +1,9 @@
 import Stripe from 'stripe';
 
 function createStripeClient(secretKey: string) {
-  return new Stripe(secretKey);
+  return new Stripe(secretKey, {
+    httpClient: Stripe.createFetchHttpClient(),
+  });
 }
 
 export type StripeClient = ReturnType<typeof createStripeClient>;
