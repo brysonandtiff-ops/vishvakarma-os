@@ -40,10 +40,30 @@ function expectScriptContains(
 describe('release gate hardening', () => {
   it('keeps package scripts wired to the release-candidate ladder', () => {
     const scripts = readJson<PackageJson>('package.json').scripts ?? {};
+    const portableLint = readRepoFile(
+      'scripts',
+      'quality',
+      'run-portable-lint.mjs',
+    );
 
     expectScriptContains(scripts, 'lint', ['lint:types', 'lint:deps', 'lint:structure']);
     expectScriptContains(scripts, 'lint:types', ['tsconfig.check.json', 'tsconfig.api-check.json']);
-    expectScriptContains(scripts, 'lint:deps', ['noUndeclaredDependencies']);
+    expectScriptContains(scripts, 'lint:deps', [
+      'run-portable-lint.mjs',
+      'dependencies',
+    ]);
+    expectScriptContains(scripts, 'lint:structure', [
+      'run-portable-lint.mjs',
+      'structure',
+    ]);
+    expectContainsAll(portableLint, [
+      "command: 'biome'",
+      "'--only=correctness/noUndeclaredDependencies'",
+      "command: 'ast-grep'",
+      'Boolean(process.env.ANDROID_ROOT)',
+      "process.platform === 'android'",
+      'process.exit(result.status ?? 1)',
+    ]);
     expectScriptContains(scripts, 'prebuild', ['scripts/enforce-build.js']);
     expectScriptContains(scripts, 'build', ['vite build']);
     expectScriptContains(scripts, 'test', ['vitest run']);
