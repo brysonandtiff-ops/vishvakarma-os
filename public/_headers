@@ -1,3 +1,6 @@
+/build-meta.json
+  Cache-Control: no-store, max-age=0, must-revalidate
+
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
   Service-Worker-Allowed: /
