@@ -34,8 +34,10 @@ pnpm-debug.log*
 .dev.vars.*
 !.dev.vars.example
 
-# Local authenticated browser state. This can contain live Supabase session tokens.
+# Local authenticated browser state and Windows-encrypted proof vault.
+# These can contain live Supabase/Stripe credentials or session tokens.
 .local/cloudflare-auth/
+.local/cloudflare-proof/
 
 # OS / editor noise
 .DS_Store
