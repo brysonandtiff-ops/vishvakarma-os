@@ -116,9 +116,9 @@ requirePhrase(indexHtml, '<meta name="apple-mobile-web-app-capable" content="yes
 requirePhrase(indexHtml, '<meta name="apple-mobile-web-app-title" content="Vishvakarma.OS" />', 'index.html');
 requirePhrase(indexHtml, '<link rel="apple-touch-icon" sizes="180x180" href="/brand/vishvakarma-apple-touch-icon.png" />', 'index.html');
 
-// Startup splash + iOS launch images.
-requirePhrase(indexHtml, 'id="boot-splash"', 'index.html startup splash');
-requirePhrase(indexHtml, 'rel="apple-touch-startup-image"', 'index.html iOS launch images');
+// PWA navigation must remain non-blocking.
+forbidPhrase(indexHtml, 'id="boot-splash"', 'index.html startup splash');
+forbidPhrase(indexHtml, 'rel="apple-touch-startup-image"', 'index.html iOS launch images');
 const startupImages = [
   { path: 'public/splash/apple-splash-750-1334.png', width: 750, height: 1334 },
   { path: 'public/splash/apple-splash-1290-2796.png', width: 1290, height: 2796 },

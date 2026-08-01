@@ -25,8 +25,12 @@ function requirePhrase(content, phrase, label) {
   }
 }
 
-const mainTsx = readRequired('src/main.tsx');
-requirePhrase(mainTsx, './ipad-workspace.css', 'main.tsx device workspace import');
+const editorStyleEntry = readRequired('src/styles/entries/editor.ts');
+requirePhrase(
+  editorStyleEntry,
+  '../../ipad-workspace.css',
+  'editor style entry device workspace import',
+);
 
 const layoutTokens = readRequired('src/styles/vish-layout-tokens.css');
 requirePhrase(layoutTokens, '--vish-phone-max:', 'vish-layout-tokens.css');

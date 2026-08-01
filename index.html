@@ -40,76 +40,12 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/vishvakarma-apple-touch-icon.png" />
-    <link
-      rel="apple-touch-startup-image"
-      href="/splash/apple-splash-750-1334.png"
-      media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
-    />
-    <link
-      rel="apple-touch-startup-image"
-      href="/splash/apple-splash-1290-2796.png"
-      media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)"
-    />
-    <link
-      rel="apple-touch-startup-image"
-      href="/splash/apple-splash-2048-2732.png"
-      media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-    />
-    <link
-      rel="apple-touch-startup-image"
-      href="/splash/apple-splash-2732-2048.png"
-      media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
-    />
-    <style id="boot-splash-styles">
-      #boot-splash {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: grid;
-        place-content: center;
-        justify-items: center;
-        gap: 1rem;
-        color: #f7e7bd;
-        background:
-          radial-gradient(circle at 50% 42%, rgb(184 134 53 / 20%), transparent 34%),
-          #17120c;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-
-      #boot-splash img {
-        width: 5rem;
-        height: 5rem;
-        border-radius: 1.25rem;
-        box-shadow: 0 0 0 1px rgb(247 231 189 / 24%), 0 1rem 3rem rgb(0 0 0 / 38%);
-      }
-
-      #boot-splash span {
-        font-size: 0.875rem;
-        font-weight: 650;
-        letter-spacing: 0.12em;
-      }
-    </style>
     <!-- Fonts are self-hosted via @fontsource packages in src/main.tsx. -->
   
 </head>
   <body>
 
-    <div id="root">
-      <div
-        id="boot-splash"
-        role="status"
-        aria-live="polite"
-        aria-label="Loading Vishvakarma.OS"
-      >
-        <img
-          src="/brand/vishvakarma-apple-touch-icon.png"
-          width="80"
-          height="80"
-          alt=""
-        />
-        <span>VISHVAKARMA.OS</span>
-      </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
