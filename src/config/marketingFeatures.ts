@@ -4,5 +4,11 @@ export {
   EXPORT_FORMATS_LABEL,
 } from './exportFormats';
 
-/** Public `/pricing` route + nav links — `VITE_PRICING_PAGE_ENABLED=true` in env (default on in .env.example). */
-export const PRICING_PAGE_ENABLED = import.meta.env.VITE_PRICING_PAGE_ENABLED === 'true';
+/**
+ * Public `/pricing` route + nav links.
+ *
+ * Pricing is part of the shipped public surface and therefore defaults on.
+ * Set `VITE_PRICING_PAGE_ENABLED=false` only for an intentional, audited rollback.
+ */
+export const PRICING_PAGE_ENABLED =
+  import.meta.env.VITE_PRICING_PAGE_ENABLED !== 'false';
