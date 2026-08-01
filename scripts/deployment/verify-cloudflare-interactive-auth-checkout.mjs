@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { access, chmod, mkdir, rm, writeFile } from 'node:fs/promises';
+import { dirname, join, relative } from 'node:path';
 import { chromium } from '@playwright/test';
 
+const args = new Set(process.argv.slice(2));
+const forceHeaded = args.has('--headed');
+const resetSession = args.has('--reset-session');
+const bootstrapOnly = args.has('--bootstrap-only');
+const nonInteractive = args.has('--non-interactive');
 const baseUrl = new URL(
   process.env.CLOUDFLARE_PAGES_URL ||
     process.env.PRODUCTION_URL ||
@@ -12,15 +17,17 @@ const baseUrl = new URL(
 );
 const baseOrigin = baseUrl.origin;
 const evidenceDir = join(process.cwd(), 'evidence', 'cloudflare-cutover');
+const authStatePath =
+  process.env.CLOUDFLARE_AUTH_STATE_PATH ||
+  join(process.cwd(), '.local', 'cloudflare-auth', 'storage-state.json');
 const timestamp = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
-const evidencePath = join(
-  evidenceDir,
-  `interactive-auth-checkout-${timestamp}.json`,
-);
+const evidencePath = join(evidenceDir, `auth-checkout-${timestamp}.json`);
+const summaryPath = join(evidenceDir, `auth-checkout-${timestamp}.md`);
 const results = [];
 
 function record(name, pass, detail) {
-  results.push({ name, pass, detail, recordedAt: new Date().toISOString() });
+  const entry = { name, pass, detail, recordedAt: new Date().toISOString() };
+  results.push(entry);
   console.log(pass ? '[PASS]' : '[FAIL]', name, '-', detail);
 }
 
@@ -35,15 +42,49 @@ function currentGitHead() {
   }
 }
 
+function relativeStatePath() {
+  return relative(process.cwd(), authStatePath).replaceAll('\\', '/');
+}
+
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isIgnoredByGit(path) {
+  try {
+    execFileSync('git', ['check-ignore', '--quiet', path], {
+      cwd: process.cwd(),
+      stdio: 'ignore',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function findPage(context, predicate, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     for (const candidate of context.pages()) {
       if (predicate(candidate.url())) return candidate;
     }
-    await new Promise((resolve) => setTimeout(resolve, 750));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
   return null;
+}
+
+async function isAuthenticatedEditor(page) {
+  await page.goto(`${baseOrigin}/editor`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 45_000,
+  });
+  await page.waitForTimeout(2500);
+  return page.url().startsWith(baseOrigin) && page.url().includes('/editor');
 }
 
 async function findVisibleCheckoutCta(page) {
@@ -62,124 +103,207 @@ async function findVisibleCheckoutCta(page) {
   return null;
 }
 
-await mkdir(evidenceDir, { recursive: true });
+async function startBrowser({ headless, storageState }) {
+  const browser = await chromium.launch({ headless });
+  const context = await browser.newContext(storageState ? { storageState } : {});
+  const page = await context.newPage();
+  return { browser, context, page };
+}
 
-console.log('[interactive-proof] Target:', baseOrigin);
-console.log('[interactive-proof] A Chromium window will open.');
-console.log('[interactive-proof] Complete Google sign-in when prompted.');
-console.log('[interactive-proof] Do not enter payment card details; the test stops after Stripe Checkout opens.\n');
+async function bootstrapAuthSession() {
+  console.log('\n[auth-bootstrap] A Chromium window is opening for the one-time Google sign-in.');
+  console.log('[auth-bootstrap] Complete Google consent or MFA. The script will continue automatically.\n');
 
-let browser;
-try {
-  browser = await chromium.launch({ headless: false });
-  const context = await browser.newContext();
-  let page = await context.newPage();
+  const session = await startBrowser({ headless: false });
+  let editorPage = session.page;
 
-  await page.goto(`${baseOrigin}/editor`, {
-    waitUntil: 'domcontentloaded',
-    timeout: 45_000,
-  });
-
-  if (page.url().includes('/auth')) {
-    const googleButton = page.getByRole('button', {
-      name: /continue with google/i,
+  try {
+    await editorPage.goto(`${baseOrigin}/editor`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 45_000,
     });
-    await googleButton.waitFor({ state: 'visible', timeout: 30_000 });
-    await googleButton.click({ noWaitAfter: true });
-  }
 
-  console.log('[interactive-proof] Waiting up to five minutes for Google sign-in to return to /editor...');
-  const editorPage = await findPage(
-    context,
-    (url) => url.startsWith(baseOrigin) && url.includes('/editor'),
-    300_000,
-  );
+    if (editorPage.url().includes('/auth')) {
+      const googleButton = editorPage.getByRole('button', {
+        name: /continue with google/i,
+      });
+      await googleButton.waitFor({ state: 'visible', timeout: 30_000 });
+      await googleButton.click({ noWaitAfter: true });
+    }
 
-  if (!editorPage) {
-    record(
-      'Supabase Google callback returns to editor',
-      false,
-      'Timed out waiting for an authenticated /editor page.',
+    editorPage = await findPage(
+      session.context,
+      (url) => url.startsWith(baseOrigin) && url.includes('/editor'),
+      300_000,
     );
-    throw new Error('Google sign-in did not return to /editor within five minutes.');
+
+    if (!editorPage) {
+      throw new Error('Google sign-in did not return to /editor within five minutes.');
+    }
+
+    record('Supabase Google callback returns to editor', true, editorPage.url());
+    await mkdir(dirname(authStatePath), { recursive: true });
+    await session.context.storageState({ path: authStatePath });
+    await chmod(authStatePath, 0o600).catch(() => null);
+    record('Reusable authenticated browser state saved', true, relativeStatePath());
+  } finally {
+    await session.browser.close().catch(() => null);
   }
+}
 
-  page = editorPage;
-  record('Supabase Google callback returns to editor', true, page.url());
-
-  await page.reload({ waitUntil: 'domcontentloaded', timeout: 45_000 });
-  await page.waitForTimeout(2500);
-  const sessionPersisted = page.url().startsWith(baseOrigin) && page.url().includes('/editor');
-  record(
-    'Supabase session persists after refresh',
-    sessionPersisted,
-    page.url(),
-  );
-  if (!sessionPersisted) {
-    throw new Error('Authenticated session did not persist after refresh.');
-  }
-
-  await page.goto(`${baseOrigin}/pricing`, {
-    waitUntil: 'domcontentloaded',
-    timeout: 45_000,
+async function verifyReusableSessionAndCheckout() {
+  const session = await startBrowser({
+    headless: !forceHeaded,
+    storageState: authStatePath,
   });
-  await page.waitForTimeout(1500);
 
-  const checkoutCta = await findVisibleCheckoutCta(page);
-  if (!checkoutCta) {
+  try {
+    const authenticated = await isAuthenticatedEditor(session.page);
+    record(
+      'Saved Supabase session opens the editor',
+      authenticated,
+      session.page.url(),
+    );
+    if (!authenticated) {
+      throw new Error('Saved session is expired or no longer accepted.');
+    }
+
+    await session.page.reload({ waitUntil: 'domcontentloaded', timeout: 45_000 });
+    await session.page.waitForTimeout(2500);
+    const persisted =
+      session.page.url().startsWith(baseOrigin) &&
+      session.page.url().includes('/editor');
+    record('Supabase session persists after refresh', persisted, session.page.url());
+    if (!persisted) {
+      throw new Error('Authenticated session did not persist after refresh.');
+    }
+
+    if (bootstrapOnly) return;
+
+    await session.page.goto(`${baseOrigin}/pricing`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 45_000,
+    });
+    await session.page.waitForTimeout(1500);
+
+    const checkoutCta = await findVisibleCheckoutCta(session.page);
+    const ctaVisible = Boolean(checkoutCta);
     record(
       'Studio checkout action is visible',
-      false,
-      'Could not find the Start 14-day free trial action.',
+      ctaVisible,
+      ctaVisible ? 'Start 14-day free trial' : 'missing',
     );
-    throw new Error('Studio checkout action is not visible.');
+    if (!checkoutCta) {
+      throw new Error('Studio checkout action is not visible.');
+    }
+
+    await checkoutCta.click({ noWaitAfter: true });
+    const stripePage = await findPage(
+      session.context,
+      (url) => {
+        try {
+          const hostname = new URL(url).hostname;
+          return (
+            hostname === 'checkout.stripe.com' ||
+            hostname.endsWith('.checkout.stripe.com') ||
+            hostname === 'payments.stripe.com' ||
+            hostname.endsWith('.payments.stripe.com')
+          );
+        } catch {
+          return false;
+        }
+      },
+      120_000,
+    );
+
+    if (!stripePage) {
+      record(
+        'Stripe Checkout opens from the Studio plan',
+        false,
+        `No Stripe-hosted page opened; application URL is ${session.page.url()}`,
+      );
+      throw new Error('Stripe Checkout did not open within two minutes.');
+    }
+
+    await stripePage.waitForLoadState('domcontentloaded', { timeout: 45_000 }).catch(() => null);
+    const stripeHost = new URL(stripePage.url()).hostname;
+    record('Stripe Checkout opens from the Studio plan', true, stripeHost);
+    await stripePage.close().catch(() => null);
+  } finally {
+    await session.browser.close().catch(() => null);
   }
-  record('Studio checkout action is visible', true, 'Start 14-day free trial');
+}
 
-  await checkoutCta.click({ noWaitAfter: true });
-  console.log('[interactive-proof] Waiting for Stripe Checkout to open...');
+await mkdir(evidenceDir, { recursive: true });
+await mkdir(dirname(authStatePath), { recursive: true });
 
-  const stripePage = await findPage(
-    context,
-    (url) => {
-      try {
-        const hostname = new URL(url).hostname;
-        return (
-          hostname === 'checkout.stripe.com' ||
-          hostname.endsWith('.checkout.stripe.com') ||
-          hostname === 'payments.stripe.com' ||
-          hostname.endsWith('.payments.stripe.com')
-        );
-      } catch {
-        return false;
-      }
-    },
-    120_000,
+const stateRelativePath = relativeStatePath();
+const stateIgnored = isIgnoredByGit(stateRelativePath);
+if (!stateIgnored) {
+  record(
+    'Authenticated browser state is excluded from Git',
+    false,
+    `${stateRelativePath} is not ignored by .gitignore`,
   );
+} else {
+  record('Authenticated browser state is excluded from Git', true, stateRelativePath);
+}
 
-  if (!stripePage) {
-    record(
-      'Stripe Checkout opens from the Studio plan',
-      false,
-      `No Stripe-hosted checkout page opened. Current application URL: ${page.url()}`,
-    );
-    throw new Error('Stripe Checkout did not open within two minutes.');
+if (resetSession) {
+  await rm(authStatePath, { force: true });
+  console.log('[auth-session] Removed the saved authenticated browser state.');
+}
+
+let needBootstrap = false;
+
+if (stateIgnored) {
+  const initialStateExists = await exists(authStatePath);
+  needBootstrap = !initialStateExists;
+
+  if (initialStateExists) {
+    let probe;
+    try {
+      probe = await startBrowser({ headless: true, storageState: authStatePath });
+      const valid = await isAuthenticatedEditor(probe.page);
+      if (valid) {
+        record('Existing authenticated browser state is valid', true, probe.page.url());
+      } else {
+        console.warn('[auth-session] Saved session is expired; automatic re-bootstrap is required.');
+        needBootstrap = true;
+      }
+    } catch (error) {
+      console.warn(
+        '[auth-session] Saved session could not be reused; automatic re-bootstrap is required:',
+        error instanceof Error ? error.message : String(error),
+      );
+      needBootstrap = true;
+    } finally {
+      await probe?.browser.close().catch(() => null);
+    }
   }
 
-  record('Stripe Checkout opens from the Studio plan', true, stripePage.url());
-  console.log('\n[interactive-proof] Stripe Checkout is visible. Do not enter card details.');
-  console.log('[interactive-proof] The browser will close automatically in 10 seconds.\n');
-  await stripePage.waitForTimeout(10_000);
-} catch (error) {
-  if (!results.some((result) => result.pass === false)) {
-    record(
-      'Interactive Cloudflare auth and checkout proof',
-      false,
-      error instanceof Error ? error.message : String(error),
-    );
+  try {
+    if (needBootstrap) {
+      if (nonInteractive) {
+        throw new Error(
+          'No valid saved auth session is available. Run once without --non-interactive to complete Google sign-in.',
+        );
+      }
+      await rm(authStatePath, { force: true });
+      await bootstrapAuthSession();
+      record('Authenticated browser session bootstrap completed', true, relativeStatePath());
+    }
+
+    await verifyReusableSessionAndCheckout();
+  } catch (error) {
+    if (!results.some((result) => result.pass === false && result.name.includes('Stripe Checkout'))) {
+      record(
+        'Automated Cloudflare auth and checkout proof',
+        false,
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   }
-} finally {
-  await browser?.close().catch(() => null);
 }
 
 const failed = results.filter((result) => !result.pass);
@@ -187,20 +311,42 @@ const evidence = {
   generatedAt: new Date().toISOString(),
   target: baseOrigin,
   gitHead: currentGitHead(),
+  authStatePath: stateRelativePath,
+  mode: needBootstrap ? 'bootstrap-then-automated' : 'fully-automated-reuse',
   result: failed.length === 0 ? 'PASS' : 'FAIL',
   results,
 };
 await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 
-console.log('\n--- Interactive proof summary ---');
+const markdown = [
+  '# Cloudflare Auth and Checkout Proof',
+  '',
+  `- Generated: ${evidence.generatedAt}`,
+  `- Target: ${evidence.target}`,
+  `- Git head: ${evidence.gitHead}`,
+  `- Mode: ${evidence.mode}`,
+  `- Result: **${evidence.result}**`,
+  '',
+  '| Check | Result | Detail |',
+  '| --- | --- | --- |',
+  ...results.map(
+    (result) =>
+      `| ${result.name.replaceAll('|', '\\|')} | ${result.pass ? 'PASS' : 'FAIL'} | ${String(result.detail).replaceAll('|', '\\|')} |`,
+  ),
+  '',
+].join('\n');
+await writeFile(summaryPath, markdown, 'utf8');
+
+console.log('\n--- Automated auth and checkout summary ---');
 for (const result of results) {
   console.log(`${result.pass ? 'PASS' : 'FAIL'} | ${result.name} | ${result.detail}`);
 }
-console.log('Evidence:', evidencePath);
+console.log('JSON evidence:', evidencePath);
+console.log('Markdown evidence:', summaryPath);
 
 if (failed.length > 0) {
-  console.error(`\nINTERACTIVE CLOUDFLARE PROOF: FAILED (${failed.length})`);
+  console.error(`\nAUTOMATED CLOUDFLARE AUTH/CHECKOUT PROOF: FAILED (${failed.length})`);
   process.exitCode = 1;
 } else {
-  console.log(`\nINTERACTIVE CLOUDFLARE PROOF: PASS (${results.length})`);
+  console.log(`\nAUTOMATED CLOUDFLARE AUTH/CHECKOUT PROOF: PASS (${results.length})`);
 }
