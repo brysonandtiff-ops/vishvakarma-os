@@ -57,6 +57,14 @@
     "cache": "no-store",
     "errorExposure": "generic"
   },
+  "stripe/proof-webhook.ts": {
+    "methods": ["POST"],
+    "auth": "ephemeral-proof-token",
+    "bodyLimitBytes": 1024,
+    "cache": "no-store",
+    "errorExposure": "generic",
+    "publicReason": "The endpoint is inert unless a temporary high-entropy Cloudflare proof token is configured and supplied through the private proof header."
+  },
   "stripe/webhook.ts": {
     "methods": ["POST"],
     "auth": "stripe-signature",
