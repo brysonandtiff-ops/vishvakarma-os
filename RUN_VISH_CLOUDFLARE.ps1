@@ -21,13 +21,18 @@ Set-StrictMode -Version Latest
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Controller = Join-Path $RepoRoot "RUN_CLOUDFLARE_RELEASE_CONTROLLER.ps1"
+$AuthBootstrap = Join-Path $RepoRoot "scripts\deployment\bootstrap-cloudflare-auth-session.mjs"
 $WranglerVersion = "4.118.0"
+$PnpmVersion = "9.15.0"
 $SupabaseTempRoot = Join-Path $RepoRoot "supabase\.temp"
 
 Set-Location $RepoRoot
 
 if (-not (Test-Path $Controller)) {
     throw "Missing Cloudflare release controller: $Controller"
+}
+if (-not (Test-Path $AuthBootstrap)) {
+    throw "Missing hardened auth bootstrap: $AuthBootstrap"
 }
 
 Write-Host "VISHVAKARMA.OS ONE-COMMAND CLOUDFLARE RELEASE" -ForegroundColor Cyan
@@ -86,6 +91,44 @@ if (-not $WranglerAuthenticated) {
     }
 }
 
+# Validate or bootstrap the Google/Supabase browser session before any new
+# Cloudflare deployment is created. The bootstrap requires both a stable
+# /editor route and a real, non-expired Supabase access token before saving.
+if (-not $PreflightOnly) {
+    Write-Host "Verifying hardened Google/Supabase browser session..." -ForegroundColor Cyan
+
+    if (-not (Test-Path (Join-Path $RepoRoot "node_modules\@playwright\test"))) {
+        Write-Host "Installing locked dependencies required for auth verification..." -ForegroundColor Cyan
+        $global:LASTEXITCODE = 0
+        npx --yes "pnpm@$PnpmVersion" install --frozen-lockfile
+        if ($LASTEXITCODE -ne 0) {
+            throw "Locked dependency installation failed before auth verification."
+        }
+    }
+
+    if (-not $SkipBrowserInstall) {
+        $global:LASTEXITCODE = 0
+        npx --yes "pnpm@$PnpmVersion" exec playwright install chromium
+        if ($LASTEXITCODE -ne 0) {
+            throw "Playwright Chromium installation failed before auth verification."
+        }
+    }
+
+    $AuthArguments = [System.Collections.Generic.List[string]]::new()
+    [void]$AuthArguments.Add($AuthBootstrap)
+    [void]$AuthArguments.Add('--pages-url')
+    [void]$AuthArguments.Add($PagesUrl)
+    if ($ResetAuthSession) { [void]$AuthArguments.Add('--reset') }
+    if ($NonInteractive) { [void]$AuthArguments.Add('--non-interactive') }
+
+    $global:LASTEXITCODE = 0
+    & node @AuthArguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "Hardened Google/Supabase auth-session verification failed."
+    }
+    Write-Host "PASS: Hardened Google/Supabase browser session verified" -ForegroundColor Green
+}
+
 $Forward = @{
     PagesUrl = $PagesUrl
     ProjectName = $ProjectName
@@ -94,7 +137,9 @@ $Forward = @{
     MinimumFreeDiskGB = $MinimumFreeDiskGB
 }
 if ($ResetVault) { $Forward.ResetVault = $true }
-if ($ResetAuthSession) { $Forward.ResetAuthSession = $true }
+# ResetAuthSession is intentionally consumed by the hardened preflight above;
+# forwarding it would delete the newly verified browser state inside the legacy
+# proof runner and recreate the expired-session loop.
 if ($NonInteractive) { $Forward.NonInteractive = $true }
 if ($SkipSupabaseConfigPush) { $Forward.SkipSupabaseConfigPush = $true }
 if ($SkipCloudflareDeploy) { $Forward.SkipCloudflareDeploy = $true }
