@@ -6,6 +6,7 @@ import castSessions from '../../api/cast/sessions';
 import health from '../../api/health';
 import createCheckoutSession from '../../api/stripe/create-checkout-session';
 import createPortalSession from '../../api/stripe/create-portal-session';
+import proofStripeWebhook from '../../api/stripe/proof-webhook';
 import stripeWebhook from '../../api/stripe/webhook';
 import {
   runVercelHandler,
@@ -27,6 +28,7 @@ const handlers: Record<string, VercelStyleHandler> = {
   health: health as VercelStyleHandler,
   'stripe/create-checkout-session': createCheckoutSession as VercelStyleHandler,
   'stripe/create-portal-session': createPortalSession as VercelStyleHandler,
+  'stripe/proof-webhook': proofStripeWebhook as VercelStyleHandler,
   'stripe/webhook': stripeWebhook as VercelStyleHandler,
 };
 
