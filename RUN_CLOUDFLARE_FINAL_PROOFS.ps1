@@ -162,10 +162,46 @@ try {
         node --version
     } -Required | Out-Null
 
-    Invoke-Proof "Enable Corepack and activate pnpm 9.15.0" {
-        corepack enable
-        if ($LASTEXITCODE -ne 0) { throw "corepack enable failed" }
-        corepack prepare pnpm@9.15.0 --activate
+    Invoke-Proof "Resolve pnpm 9.15.0 without privileged Corepack shims" {
+        $RequiredPnpmVersion = "9.15.0"
+        $NativePnpm = Get-Command pnpm -ErrorAction SilentlyContinue
+        $NativeVersion = $null
+
+        if ($null -ne $NativePnpm) {
+            try {
+                $NativeVersion = (& pnpm --version).Trim()
+            }
+            catch {
+                $NativeVersion = $null
+            }
+        }
+
+        if ($NativeVersion -eq $RequiredPnpmVersion) {
+            Write-Host "Using existing pnpm $NativeVersion at $($NativePnpm.Source)" -ForegroundColor Green
+            return
+        }
+
+        if ($null -eq (Get-Command npx -ErrorAction SilentlyContinue)) {
+            throw "pnpm $RequiredPnpmVersion is unavailable and npx could not be found for the user-writable fallback."
+        }
+
+        $ShimRoot = Join-Path $env:TEMP "vishvakarma-pnpm-$RequiredPnpmVersion"
+        $ShimPath = Join-Path $ShimRoot "pnpm.cmd"
+        New-Item -ItemType Directory -Force -Path $ShimRoot | Out-Null
+        @"
+@echo off
+npx --yes pnpm@$RequiredPnpmVersion %*
+"@ | Set-Content -Path $ShimPath -Encoding ascii
+
+        $env:PATH = "$ShimRoot;$env:PATH"
+        $ResolvedPnpm = Get-Command pnpm -ErrorAction Stop
+        $ResolvedVersion = (& pnpm --version).Trim()
+
+        if ($LASTEXITCODE -ne 0 -or $ResolvedVersion -ne $RequiredPnpmVersion) {
+            throw "Could not activate the user-writable pnpm $RequiredPnpmVersion shim. Resolved version: '$ResolvedVersion'."
+        }
+
+        Write-Host "Using user-writable pnpm $ResolvedVersion shim at $($ResolvedPnpm.Source)" -ForegroundColor Green
     } -Required | Out-Null
 
     if (-not $SkipInstall) {
