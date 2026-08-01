@@ -3,6 +3,7 @@
 const baseUrl = new URL(
   process.env.CLOUDFLARE_PAGES_URL || 'https://vishvakarma-os.pages.dev',
 );
+const expectedGitSha = process.env.EXPECTED_GIT_SHA?.trim();
 
 const failures = [];
 const passes = [];
@@ -25,6 +26,41 @@ async function request(path, init = {}) {
     ...init,
   });
   return { url, response };
+}
+
+async function checkBuildMetadata() {
+  const cacheBuster = Date.now();
+  const { response } = await request(`/build-meta.json?proof=${cacheBuster}`, {
+    headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+    cache: 'no-store',
+  });
+
+  let payload;
+  try {
+    payload = await response.json();
+  } catch {
+    fail(`/build-meta.json returned non-JSON HTTP ${response.status}`);
+    return;
+  }
+
+  if (!response.ok) {
+    fail(`/build-meta.json returned HTTP ${response.status}`);
+    return;
+  }
+  if (payload?.service !== 'vishvakarma-os' || typeof payload?.gitSha !== 'string') {
+    fail(`/build-meta.json has an invalid payload: ${JSON.stringify(payload)}`);
+    return;
+  }
+  if (expectedGitSha && payload.gitSha !== expectedGitSha) {
+    fail(`Cloudflare is serving ${payload.gitSha}, expected exact commit ${expectedGitSha}`);
+    return;
+  }
+
+  pass(
+    expectedGitSha
+      ? `Cloudflare serves the exact commit ${payload.gitSha}`
+      : `Cloudflare build metadata is available (${payload.gitSha})`,
+  );
 }
 
 async function checkSpaRoute(path) {
@@ -147,6 +183,7 @@ async function checkHashedAsset(homeHtml) {
 async function main() {
   console.log(`[cloudflare-live] ${baseUrl.origin}`);
 
+  await checkBuildMetadata();
   const homeHtml = await checkSpaRoute('/');
   for (const path of ['/auth', '/pricing', '/profile', '/editor']) {
     await checkSpaRoute(path);
@@ -158,11 +195,11 @@ async function main() {
   await checkHashedAsset(homeHtml);
 
   console.log(`\n[cloudflare-live] ${passes.length} passed, ${failures.length} failed`);
-  if (failures.length > 0) process.exit(1);
+  if (failures.length > 0) process.exitCode = 1;
 }
 
 main().catch((error) => {
   console.error('[FAIL] Cloudflare live verification crashed');
   console.error(error instanceof Error ? error.stack : String(error));
-  process.exit(1);
+  process.exitCode = 1;
 });
