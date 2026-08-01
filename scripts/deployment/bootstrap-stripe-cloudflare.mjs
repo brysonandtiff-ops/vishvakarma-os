@@ -19,7 +19,7 @@ const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
 if (!outputPath) {
   throw new Error('--output PATH is required.');
 }
-if (!secretKey || !/^sk_(test|live|restricted)_/.test(secretKey)) {
+if (!secretKey || !/^(sk|rk)_(test|live)_/.test(secretKey)) {
   throw new Error('STRIPE_SECRET_KEY is missing or unsupported.');
 }
 
@@ -160,7 +160,8 @@ const output = {
   STRIPE_PRICE_ENTERPRISE_MONTHLY: enterprisePrice,
   APP_URL: baseUrl.origin,
   metadata: {
-    stripeMode: secretKey.startsWith('sk_live_') ? 'live' : 'test',
+    stripeMode: /_live_/.test(secretKey) ? 'live' : 'test',
+    keyType: secretKey.startsWith('rk_') ? 'restricted' : 'secret',
     currency,
     webhookId: webhook.id,
     webhookUrl: webhook.url,
