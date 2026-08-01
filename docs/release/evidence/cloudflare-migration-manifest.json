@@ -1,8 +1,10 @@
 {
   "migration": "cloudflare-pages-workers",
-  "status": "implementation-ready-for-ci",
+  "status": "redeploy-requested",
   "baseBranch": "main",
   "migrationBranch": "agent/cloudflare-pages-workers-migration",
+  "lastRedeployRequestedAt": "2026-08-01T13:27:00Z",
+  "redeployReason": "Apply the current Cloudflare runtime configuration and encrypted production secrets.",
   "dnsCutoverPerformed": false,
   "staticHost": "Cloudflare Pages",
   "apiRuntime": "Cloudflare Pages Functions",
