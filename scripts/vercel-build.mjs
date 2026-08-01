@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
-import { readdir, rm, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { runCommand } from './lib/run-command.mjs';
 
 const root = process.cwd();
 const textureRoot = join(root, 'public', 'textures');
 const srcRuntimePackagePath = join(root, 'src', 'package.json');
+const buildMetadataPath = join(root, 'dist', 'build-meta.json');
+const packageJsonPath = join(root, 'package.json');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
 const isVercelBuild = process.env.VERCEL === '1';
 
@@ -46,6 +49,41 @@ async function writeVercelSrcRuntimeBoundary() {
     'utf8',
   );
   console.log('[vercel-build] Wrote src/package.json CommonJS runtime boundary.');
+}
+
+function resolveGitSha() {
+  const configured =
+    process.env.CF_PAGES_COMMIT_SHA?.trim() ||
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
+    process.env.GITHUB_SHA?.trim();
+  if (configured) return configured;
+
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
+async function writeBuildMetadata() {
+  const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
+  const payload = {
+    service: packageJson.name,
+    version: packageJson.version,
+    gitSha: resolveGitSha(),
+    branch:
+      process.env.CF_PAGES_BRANCH?.trim() ||
+      process.env.VERCEL_GIT_COMMIT_REF?.trim() ||
+      null,
+    provider: process.env.CF_PAGES === '1' ? 'cloudflare-pages' : isVercelBuild ? 'vercel' : 'local',
+    builtAt: new Date().toISOString(),
+  };
+
+  await writeFile(buildMetadataPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  console.log(`[vercel-build] Wrote deployment metadata for ${payload.gitSha}.`);
 }
 
 const focusedTests = [
@@ -103,12 +141,15 @@ async function main() {
     const removedTextures = await removeLegacyJpegTextures(textureRoot);
     console.log(`[vercel-build] Removed ${removedTextures} legacy JPEG texture file(s).`);
   } else {
-    console.log('[vercel-build] Local run detected; skipping destructive texture cleanup.');
+    console.log('[vercel-build] Local/Cloudflare run detected; skipping destructive texture cleanup.');
   }
 
   for (const step of steps) {
     console.log(`\n[vercel-build] ${step.label}`);
     runCommand(step.command, { stdio: 'inherit' });
+    if (step.label === 'Production build') {
+      await writeBuildMetadata();
+    }
   }
 
   if (isVercelBuild) {
