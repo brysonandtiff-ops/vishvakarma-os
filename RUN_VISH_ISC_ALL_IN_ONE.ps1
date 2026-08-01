@@ -103,10 +103,12 @@ try {
     Write-Host "PASS: Generated Supabase temp state normalized" -ForegroundColor Green
 
     Write-IscStep "VERIFY LIVE HEALTH"
-    $Health = Invoke-RestMethod \
-        -Uri "$($PagesUrl.TrimEnd('/'))/api/health?isc=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())" \
-        -Headers @{ "Cache-Control" = "no-cache" } \
-        -TimeoutSec 30
+    $HealthRequest = @{
+        Uri = "$($PagesUrl.TrimEnd('/'))/api/health?isc=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+        Headers = @{ "Cache-Control" = "no-cache" }
+        TimeoutSec = 30
+    }
+    $Health = Invoke-RestMethod @HealthRequest
     $Status.HealthBefore = $Health
     if ($Health.ok -ne $true) {
         throw "Live health is not ok:true."
@@ -153,15 +155,17 @@ try {
     } | ConvertTo-Json
 
     try {
-        $null = Invoke-RestMethod \
-            -Uri $ManagementApi \
-            -Method Patch \
-            -Headers @{
+        $ProviderRequest = @{
+            Uri = $ManagementApi
+            Method = "Patch"
+            Headers = @{
                 Authorization = "Bearer $SupabaseAccessToken"
                 "Content-Type" = "application/json"
-            } \
-            -Body $Body \
-            -TimeoutSec 60
+            }
+            Body = $Body
+            TimeoutSec = 60
+        }
+        $null = Invoke-RestMethod @ProviderRequest
         $Status.GoogleProviderConfigured = $true
         Write-Host "PASS: Supabase Google provider updated securely" -ForegroundColor Green
     }
@@ -204,6 +208,7 @@ try {
     $Status.Result = "PASS"
     $Status.Detail = "Google OAuth provider configured and Cloudflare release controller completed."
     Write-Host "`nISC ALL-IN-ONE: PASS" -ForegroundColor Green
+    $global:LASTEXITCODE = 0
 }
 catch {
     $Status.Result = "BLOCKED"
