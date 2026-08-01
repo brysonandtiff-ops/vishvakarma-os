@@ -5,16 +5,12 @@ const { syncBuiltinESMExports } = require('node:module');
 
 const originalSpawnSync = childProcess.spawnSync;
 
-function quoteForCmd(value) {
-  const text = String(value ?? '');
-  if (text.length === 0) return '""';
-  return `"${text.replaceAll('"', '""')}"`;
-}
-
 /**
  * Node cannot execute Windows .cmd/.bat files directly with spawnSync on every
- * supported Windows/Node combination. Route only those commands through the
- * native command processor while leaving normal executables untouched.
+ * supported Windows/Node combination. Route only those scripts through the
+ * native command processor. Each token is passed as a separate spawn argument,
+ * so Node/Windows performs the quoting instead of us constructing escaped
+ * command text by hand.
  */
 childProcess.spawnSync = function windowsCompatibleSpawnSync(
   command,
@@ -29,15 +25,9 @@ childProcess.spawnSync = function windowsCompatibleSpawnSync(
     return originalSpawnSync(command, args, options);
   }
 
-  const commandLine = [
-    'call',
-    quoteForCmd(commandText),
-    ...args.map(quoteForCmd),
-  ].join(' ');
-
   return originalSpawnSync(
     process.env.ComSpec || 'cmd.exe',
-    ['/d', '/s', '/c', commandLine],
+    ['/d', '/c', commandText, ...args.map((value) => String(value))],
     options,
   );
 };
