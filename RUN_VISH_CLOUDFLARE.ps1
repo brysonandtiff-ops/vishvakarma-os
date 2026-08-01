@@ -22,6 +22,7 @@ Set-StrictMode -Version Latest
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Controller = Join-Path $RepoRoot "RUN_CLOUDFLARE_RELEASE_CONTROLLER.ps1"
 $WranglerVersion = "4.118.0"
+$SupabaseTempRoot = Join-Path $RepoRoot "supabase\.temp"
 
 Set-Location $RepoRoot
 
@@ -32,6 +33,22 @@ if (-not (Test-Path $Controller)) {
 Write-Host "VISHVAKARMA.OS ONE-COMMAND CLOUDFLARE RELEASE" -ForegroundColor Cyan
 Write-Host "Repository: $RepoRoot"
 Write-Host "Target: $PagesUrl"
+
+# Supabase CLI writes generated version/cache files under supabase/.temp. Some
+# historical versions are tracked, so ordinary ignore rules cannot hide their
+# modifications. Remove only this generated directory, then restore its tracked
+# baseline before the controller performs its fail-closed source-change scan.
+Write-Host "Normalizing generated Supabase CLI temp state..." -ForegroundColor Cyan
+if (Test-Path -LiteralPath $SupabaseTempRoot) {
+    Remove-Item -LiteralPath $SupabaseTempRoot -Recurse -Force
+}
+$global:LASTEXITCODE = 0
+git restore --staged --worktree -- "supabase/.temp" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    # A repository with no tracked supabase/.temp files is also valid.
+    $global:LASTEXITCODE = 0
+}
+Write-Host "PASS: Supabase CLI temp state normalized" -ForegroundColor Green
 
 $Npx = Get-Command npx -ErrorAction SilentlyContinue
 if (-not $Npx) {
