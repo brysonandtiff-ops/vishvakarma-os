@@ -18,12 +18,39 @@ Set-StrictMode -Version Latest
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $NodeCore = Join-Path $RepoRoot "scripts\deployment\vish-supercharged-core.mjs"
+$WindowsSpawnCompat = Join-Path $RepoRoot "scripts\deployment\windows-command-spawn-compat.cjs"
 
 if (-not (Test-Path $NodeCore)) {
     throw "Missing supercharged Node core: $NodeCore"
 }
+if (-not (Test-Path $WindowsSpawnCompat)) {
+    throw "Missing Windows command compatibility layer: $WindowsSpawnCompat"
+}
+
+if ($IsWindows) {
+    $ProbePath = Join-Path $env:TEMP "vish-command-spawn-probe-$PID.cmd"
+    try {
+        "@echo off`r`nexit /b 0`r`n" | Set-Content -Path $ProbePath -Encoding ascii
+        $ProbeJavaScript = @'
+const { spawnSync } = require('node:child_process');
+const result = spawnSync(process.argv[1], [], { stdio: 'inherit' });
+if (result.error) throw result.error;
+process.exit(result.status ?? 1);
+'@
+        & node --require $WindowsSpawnCompat -e $ProbeJavaScript $ProbePath
+        if ($LASTEXITCODE -ne 0) {
+            throw "Windows .cmd compatibility self-test failed with exit code $LASTEXITCODE."
+        }
+        Write-Host "PASS: Windows .cmd/.bat process-launch compatibility" -ForegroundColor Green
+    }
+    finally {
+        Remove-Item -Force $ProbePath -ErrorAction SilentlyContinue
+    }
+}
 
 $Arguments = [System.Collections.Generic.List[string]]::new()
+[void]$Arguments.Add('--require')
+[void]$Arguments.Add($WindowsSpawnCompat)
 [void]$Arguments.Add($NodeCore)
 [void]$Arguments.Add('--pages-url')
 [void]$Arguments.Add($PagesUrl)
