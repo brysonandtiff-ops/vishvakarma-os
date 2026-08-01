@@ -4,23 +4,26 @@ param(
     [string]$ProjectName = "vishvakarma-os",
     [int]$MaxAttempts = 3,
     [int]$RetryDelaySeconds = 20,
+    [int]$MinimumFreeDiskGB = 3,
     [switch]$ResetVault,
     [switch]$ResetAuthSession,
     [switch]$NonInteractive,
     [switch]$SkipSupabaseConfigPush,
     [switch]$SkipCloudflareDeploy,
     [switch]$SkipBrowserInstall,
-    [switch]$NoSelfUpdate
+    [switch]$ForceUnlock,
+    [switch]$PreflightOnly,
+    [switch]$DisableAutoRollback
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Autopilot = Join-Path $RepoRoot "RUN_CLOUDFLARE_AUTOPILOT.ps1"
+$Master = Join-Path $RepoRoot "RUN_VISH_CLOUDFLARE.ps1"
 
-if (-not (Test-Path $Autopilot)) {
-    throw "Missing Cloudflare autopilot: $Autopilot"
+if (-not (Test-Path $Master)) {
+    throw "Missing Vish Cloudflare master runner: $Master"
 }
 
 $Forward = @{
@@ -28,6 +31,7 @@ $Forward = @{
     ProjectName = $ProjectName
     MaxAttempts = $MaxAttempts
     RetryDelaySeconds = $RetryDelaySeconds
+    MinimumFreeDiskGB = $MinimumFreeDiskGB
 }
 if ($ResetVault) { $Forward.ResetVault = $true }
 if ($ResetAuthSession) { $Forward.ResetAuthSession = $true }
@@ -35,7 +39,8 @@ if ($NonInteractive) { $Forward.NonInteractive = $true }
 if ($SkipSupabaseConfigPush) { $Forward.SkipSupabaseConfigPush = $true }
 if ($SkipCloudflareDeploy) { $Forward.SkipCloudflareDeploy = $true }
 if ($SkipBrowserInstall) { $Forward.SkipBrowserInstall = $true }
-if ($NoSelfUpdate) { $Forward.NoSelfUpdate = $true }
+if ($ForceUnlock) { $Forward.ForceUnlock = $true }
+if ($PreflightOnly) { $Forward.PreflightOnly = $true }
+if ($DisableAutoRollback) { $Forward.DisableAutoRollback = $true }
 
-& $Autopilot @Forward
-$global:LASTEXITCODE = $LASTEXITCODE
+& $Master @Forward
