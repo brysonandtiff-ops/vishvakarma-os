@@ -56,8 +56,17 @@ function checkGatewayCanonicalFallbacks() {
   if (auth.includes("'https://vishvakarma-os.vercel.app/auth'")) {
     failures.push('supabaseAuthGateway.ts must not hardcode Vercel as primary auth URL');
   }
-  if (!oauth.includes('CANONICAL_ORIGIN') || !auth.includes('CANONICAL_AUTH_URL')) {
-    failures.push('Supabase auth gateways must import canonical origin constants');
+  if (
+    !oauth.includes('CANONICAL_ORIGIN') ||
+    !oauth.includes('CLOUDFLARE_PAGES_ORIGIN')
+  ) {
+    failures.push('Supabase OAuth gateway must import approved production origins');
+  }
+  if (
+    !auth.includes('requestSupabaseAccessLink(email: string, redirectTo: string)') ||
+    !auth.includes('emailRedirectTo: redirectTo')
+  ) {
+    failures.push('Supabase email auth gateway must receive and forward its caller-approved redirect');
   }
   if (!canonical.includes(CANONICAL_ORIGIN)) {
     failures.push('src/config/canonicalOrigin.ts missing canonical origin constant');

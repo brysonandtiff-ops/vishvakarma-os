@@ -1,5 +1,9 @@
 import type { Session } from '@supabase/supabase-js';
-import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
+import {
+  CANONICAL_ORIGIN,
+  CLOUDFLARE_PAGES_ORIGIN,
+  VERCEL_FALLBACK_ORIGIN,
+} from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -25,7 +29,7 @@ const LEGACY_OAUTH_PENDING_SESSION_KEY = 'vish-oauth-redirect-pending';
 export const POST_AUTH_DESTINATION = '/editor';
 const DEFAULT_AUTH_RETURN_PATH = POST_AUTH_DESTINATION;
 const PRODUCTION_AUTH_ORIGIN = CANONICAL_ORIGIN;
-const ALLOWED_AUTH_ORIGINS = new Set([CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN]);
+const ALLOWED_AUTH_ORIGINS = new Set([CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN, VERCEL_FALLBACK_ORIGIN]);
 
 function readOAuthPendingStartedAt(): number | null {
   try {
