@@ -139,6 +139,53 @@ function Invoke-NativeRequired {
     Write-Host "PASS: $Name" -ForegroundColor Green
 }
 
+function Save-KnownGeneratedChanges {
+    param([Parameter(Mandatory = $true)][string]$Reason)
+
+    $StatusLines = @(git status --porcelain --untracked-files=no)
+    if ($StatusLines.Count -eq 0) {
+        return
+    }
+
+    $ChangedPaths = @(
+        foreach ($Line in $StatusLines) {
+            if ([string]::IsNullOrWhiteSpace($Line) -or $Line.Length -lt 4) {
+                continue
+            }
+
+            $PathText = $Line.Substring(3).Trim()
+            if ($PathText -match ' -> ') {
+                $PathText = ($PathText -split ' -> ')[-1]
+            }
+            $PathText.Replace('\', '/')
+        }
+    )
+
+    $UnexpectedPaths = @(
+        $ChangedPaths | Where-Object {
+            $_ -notlike 'docs/release/evidence/*' -and
+            $_ -ne 'public/build-meta.json'
+        }
+    )
+
+    if ($UnexpectedPaths.Count -gt 0) {
+        $UnexpectedList = $UnexpectedPaths -join ', '
+        throw "Tracked source changes are present and were not touched: $UnexpectedList"
+    }
+
+    if ($ChangedPaths.Count -eq 0) {
+        return
+    }
+
+    $StashName = "cloudflare-proof generated evidence ($Reason) $(Get-Date -Format 'yyyyMMdd-HHmmss')"
+    Write-Host "Preserving generated evidence in Git stash: $($ChangedPaths -join ', ')" -ForegroundColor Yellow
+    & git stash push -m $StashName -- @ChangedPaths
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not preserve generated evidence before $Reason."
+    }
+    Write-Host "Generated evidence preserved safely as stash: $StashName" -ForegroundColor Green
+}
+
 function Invoke-StripeGet {
     param(
         [Parameter(Mandatory = $true)][string]$SecretKey,
@@ -303,10 +350,7 @@ try {
         throw "Wrong branch. Expected '$ExpectedBranch' but found '$CurrentBranch'."
     }
 
-    $TrackedChanges = @(git status --porcelain --untracked-files=no)
-    if ($TrackedChanges.Count -gt 0) {
-        throw "Tracked local changes are present. Commit or stash them before running this repair."
-    }
+    Save-KnownGeneratedChanges -Reason "updating the migration branch"
 
     Invoke-NativeRequired "Fetch migration branch" {
         git fetch origin $ExpectedBranch
@@ -438,6 +482,8 @@ npx --yes pnpm@$PnpmVersion %*
                 --commit-message "Automated Cloudflare secret, auth and Stripe repair"
         }
     }
+
+    Save-KnownGeneratedChanges -Reason "starting the final live proofs"
 
     $RunnerArguments = @(
         "-SkipPull",
