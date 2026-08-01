@@ -11,12 +11,6 @@ const strict = process.argv.includes('--strict');
 const failures = [];
 const warnings = [];
 
-function resolveBillingBackendProvider() {
-  return 'supabase';
-}
-
-const billingBackend = resolveBillingBackendProvider();
-
 const requiredServerVars = [
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
@@ -26,7 +20,12 @@ const requiredServerVars = [
   'SUPABASE_URL',
 ];
 
-const recommendedClientVars = ['VITE_STRIPE_BILLING_ENABLED', 'VITE_PRICING_PAGE_ENABLED', 'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
+const recommendedClientVars = [
+  'VITE_STRIPE_BILLING_ENABLED',
+  'VITE_PRICING_PAGE_ENABLED',
+  'VITE_SUPABASE_URL',
+  'VITE_SUPABASE_ANON_KEY',
+];
 
 const EXPECTED_PRICE_AMOUNTS = {
   STRIPE_PRICE_STUDIO_MONTHLY: 49900,
@@ -36,6 +35,7 @@ const EXPECTED_PRICE_AMOUNTS = {
 async function stripeRequest(secretKey, path) {
   const response = await fetch(`https://api.stripe.com/v1${path}`, {
     headers: { Authorization: `Bearer ${secretKey}` },
+    signal: AbortSignal.timeout(30_000),
   });
   const payload = await response.json();
   if (!response.ok) {
@@ -56,7 +56,7 @@ async function verifyStripePrices(secretKey) {
       }
       if (price.unit_amount !== expectedAmount) {
         failures.push(
-          `${envName} (${priceId}) is $${(price.unit_amount / 100).toFixed(0)}/mo — expected $${(expectedAmount / 100).toFixed(0)}/mo.`
+          `${envName} (${priceId}) is $${(price.unit_amount / 100).toFixed(0)}/mo — expected $${(expectedAmount / 100).toFixed(0)}/mo.`,
         );
       }
       if (price.recurring?.interval !== 'month') {
@@ -64,7 +64,7 @@ async function verifyStripePrices(secretKey) {
       }
     } catch (error) {
       failures.push(
-        `${envName} (${priceId}) could not be verified: ${error instanceof Error ? error.message : error}`
+        `${envName} (${priceId}) could not be verified: ${error instanceof Error ? error.message : error}`,
       );
     }
   }
@@ -80,7 +80,9 @@ async function verifyStripeAccount(secretKey) {
       warnings.push('Stripe account details_submitted=false — complete business profile in Dashboard.');
     }
   } catch (error) {
-    failures.push(`STRIPE_SECRET_KEY could not access Stripe account: ${error instanceof Error ? error.message : error}`);
+    failures.push(
+      `STRIPE_SECRET_KEY could not access Stripe account: ${error instanceof Error ? error.message : error}`,
+    );
   }
 }
 
@@ -94,13 +96,33 @@ function checkEnvVar(name) {
   if (name === 'STRIPE_SECRET_KEY' && strict && !value.startsWith('sk_live_')) {
     warnings.push('STRIPE_SECRET_KEY is not a live key (expected sk_live_...).');
   }
-
+  if (name === 'STRIPE_WEBHOOK_SECRET' && !value.startsWith('whsec_')) {
+    failures.push('STRIPE_WEBHOOK_SECRET must be a Stripe signing secret (whsec_...).');
+  }
   if (name === 'STRIPE_PRICE_STUDIO_MONTHLY' && !value.startsWith('price_')) {
     failures.push('STRIPE_PRICE_STUDIO_MONTHLY must be a Stripe Price ID (price_...).');
   }
-
   if (name === 'STRIPE_PRICE_ENTERPRISE_MONTHLY' && !value.startsWith('price_')) {
     failures.push('STRIPE_PRICE_ENTERPRISE_MONTHLY must be a Stripe Price ID (price_...).');
+  }
+}
+
+function verifyCloudflareCsp() {
+  const headersPath = join(process.cwd(), 'public', '_headers');
+  if (!existsSync(headersPath)) {
+    failures.push('Missing public/_headers Cloudflare security configuration.');
+    return;
+  }
+
+  const headers = readFileSync(headersPath, 'utf8');
+  for (const token of [
+    'https://js.stripe.com',
+    'https://checkout.stripe.com',
+    'https://api.stripe.com',
+  ]) {
+    if (!headers.includes(token)) {
+      failures.push(`public/_headers CSP missing Stripe allowlist: ${token}`);
+    }
   }
 }
 
@@ -113,27 +135,13 @@ for (const name of recommendedClientVars) {
   if (!value || value.trim().length === 0) {
     warnings.push(`Recommended env var not set: ${name}`);
   } else if (name === 'VITE_PRICING_PAGE_ENABLED' && value !== 'true') {
-    warnings.push('VITE_PRICING_PAGE_ENABLED is not true — /pricing will 404 in production builds.');
+    warnings.push('VITE_PRICING_PAGE_ENABLED is not true — /pricing may be intentionally disabled.');
   } else if (name === 'VITE_STRIPE_BILLING_ENABLED' && value !== 'true') {
     warnings.push('VITE_STRIPE_BILLING_ENABLED is not true — checkout buttons stay in fallback mode.');
   }
 }
 
-const vercelPath = join(process.cwd(), 'vercel.json');
-if (existsSync(vercelPath)) {
-  const config = JSON.parse(readFileSync(vercelPath, 'utf8'));
-  const csp = (config.headers ?? [])
-    .flatMap((entry) => entry.headers ?? [])
-    .find((header) => header.key === 'Content-Security-Policy')?.value;
-
-  for (const token of ['https://js.stripe.com', 'https://checkout.stripe.com', 'https://api.stripe.com']) {
-    if (!csp?.includes(token)) {
-      failures.push(`vercel.json CSP missing Stripe allowlist: ${token}`);
-    }
-  }
-} else {
-  failures.push('Missing vercel.json');
-}
+verifyCloudflareCsp();
 
 const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
 if (secretKey) {
@@ -153,12 +161,9 @@ if (failures.length > 0) {
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
-  process.exit(1);
+  process.exitCode = 1;
+} else {
+  console.log('Stripe billing env, Cloudflare CSP, account, and live Price API checks passed.');
+  console.log('Cloudflare target: /api/stripe/create-checkout-session and /api/stripe/webhook');
+  console.log('The final proof runner opens Studio Checkout and sends a harmless signed webhook probe.');
 }
-
-console.log('Stripe billing env, CSP, and live Stripe API checks passed.');
-console.log('Operator next steps:');
-console.log('- Stripe Dashboard (live): Studio $499/mo + Enterprise $1,000/mo prices + webhook to /api/stripe/webhook');
-console.log('- Archive old $99 / $249 price IDs in Stripe Dashboard after updating Vercel env vars');
-console.log('- Vercel Production: set all STRIPE_* and backend vars, redeploy');
-console.log('- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Supabase');
