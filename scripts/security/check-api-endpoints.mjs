@@ -62,6 +62,13 @@ function auditEndpoint(path, policy, source, failures) {
     requireSource(source, 'constructEvent', path, failures);
     requireSource(source, 'MAX_STRIPE_WEBHOOK_BYTES', path, failures);
     if (!policy.publicReason) failures.push(`${path}: public webhook requires publicReason`);
+  } else if (policy.auth === 'ephemeral-proof-token') {
+    requireSource(source, 'CLOUDFLARE_PROOF_TOKEN', path, failures);
+    requireSource(source, 'x-vish-proof-token', path, failures);
+    requireSource(source, 'timingSafeEqual', path, failures);
+    if (!policy.publicReason) {
+      failures.push(`${path}: ephemeral proof endpoint requires publicReason`);
+    }
   } else if (policy.auth === 'public') {
     if (!policy.publicReason) failures.push(`${path}: public endpoint requires publicReason`);
   } else {
