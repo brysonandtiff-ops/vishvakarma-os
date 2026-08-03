@@ -38,6 +38,7 @@ if (-not (Test-Path $AuthBootstrap)) {
 Write-Host "VISHVAKARMA.OS ONE-COMMAND CLOUDFLARE RELEASE" -ForegroundColor Cyan
 Write-Host "Repository: $RepoRoot"
 Write-Host "Target: $PagesUrl"
+Write-Host "Authentication: Supabase email/password only"
 
 # Supabase CLI writes generated version/cache files under supabase/.temp. Some
 # historical versions are tracked, so ordinary ignore rules cannot hide their
@@ -91,11 +92,11 @@ if (-not $WranglerAuthenticated) {
     }
 }
 
-# Validate or bootstrap the Google/Supabase browser session before any new
-# Cloudflare deployment is created. The bootstrap requires both a stable
-# /editor route and a real, non-expired Supabase access token before saving.
+# Validate or bootstrap the approved Supabase email/password browser session
+# before any new Cloudflare deployment is created. The bootstrap requires both
+# a stable /editor route and a real, non-expired Supabase access token before saving.
 if (-not $PreflightOnly) {
-    Write-Host "Verifying hardened Google/Supabase browser session..." -ForegroundColor Cyan
+    Write-Host "Verifying hardened Supabase email/password browser session..." -ForegroundColor Cyan
 
     if (-not (Test-Path (Join-Path $RepoRoot "node_modules\@playwright\test"))) {
         Write-Host "Installing locked dependencies required for auth verification..." -ForegroundColor Cyan
@@ -124,9 +125,9 @@ if (-not $PreflightOnly) {
     $global:LASTEXITCODE = 0
     & node @AuthArguments
     if ($LASTEXITCODE -ne 0) {
-        throw "Hardened Google/Supabase auth-session verification failed."
+        throw "Hardened Supabase email/password auth-session verification failed."
     }
-    Write-Host "PASS: Hardened Google/Supabase browser session verified" -ForegroundColor Green
+    Write-Host "PASS: Hardened Supabase email/password browser session verified" -ForegroundColor Green
 }
 
 $Forward = @{
@@ -138,8 +139,7 @@ $Forward = @{
 }
 if ($ResetVault) { $Forward.ResetVault = $true }
 # ResetAuthSession is intentionally consumed by the hardened preflight above;
-# forwarding it would delete the newly verified browser state inside the legacy
-# proof runner and recreate the expired-session loop.
+# forwarding it would delete the newly verified browser state inside the proof runner.
 if ($NonInteractive) { $Forward.NonInteractive = $true }
 if ($SkipSupabaseConfigPush) { $Forward.SkipSupabaseConfigPush = $true }
 if ($SkipCloudflareDeploy) { $Forward.SkipCloudflareDeploy = $true }
