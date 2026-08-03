@@ -111,25 +111,21 @@ async function startBrowser({ headless, storageState }) {
 }
 
 async function bootstrapAuthSession() {
-  console.log('\n[auth-bootstrap] A Chromium window is opening for the one-time Google sign-in.');
-  console.log('[auth-bootstrap] Complete Google consent or MFA. The script will continue automatically.\n');
+  console.log('\n[auth-bootstrap] A Chromium window is opening for the approved Supabase email/password sign-in.');
+  console.log('[auth-bootstrap] Enter the approved account in the Vishvakarma.OS form. The script will continue automatically.\n');
 
   const session = await startBrowser({ headless: false });
   let editorPage = session.page;
 
   try {
-    await editorPage.goto(`${baseOrigin}/editor`, {
+    await editorPage.goto(`${baseOrigin}/auth`, {
       waitUntil: 'domcontentloaded',
       timeout: 45_000,
     });
 
-    if (editorPage.url().includes('/auth')) {
-      const googleButton = editorPage.getByRole('button', {
-        name: /continue with google/i,
-      });
-      await googleButton.waitFor({ state: 'visible', timeout: 30_000 });
-      await googleButton.click({ noWaitAfter: true });
-    }
+    const emailInput = editorPage.getByTestId('supabase-email-input');
+    await emailInput.waitFor({ state: 'visible', timeout: 30_000 });
+    await emailInput.focus();
 
     editorPage = await findPage(
       session.context,
@@ -138,10 +134,10 @@ async function bootstrapAuthSession() {
     );
 
     if (!editorPage) {
-      throw new Error('Google sign-in did not return to /editor within five minutes.');
+      throw new Error('Supabase email/password sign-in did not return to /editor within five minutes.');
     }
 
-    record('Supabase Google callback returns to editor', true, editorPage.url());
+    record('Supabase email/password sign-in returns to editor', true, editorPage.url());
     await mkdir(dirname(authStatePath), { recursive: true });
     await session.context.storageState({ path: authStatePath });
     await chmod(authStatePath, 0o600).catch(() => null);
@@ -160,12 +156,12 @@ async function verifyReusableSessionAndCheckout() {
   try {
     const authenticated = await isAuthenticatedEditor(session.page);
     record(
-      'Saved Supabase session opens the editor',
+      'Saved Supabase password session opens the editor',
       authenticated,
       session.page.url(),
     );
     if (!authenticated) {
-      throw new Error('Saved session is expired or no longer accepted.');
+      throw new Error('Saved Supabase password session is expired or no longer accepted.');
     }
 
     await session.page.reload({ waitUntil: 'domcontentloaded', timeout: 45_000 });
@@ -173,9 +169,9 @@ async function verifyReusableSessionAndCheckout() {
     const persisted =
       session.page.url().startsWith(baseOrigin) &&
       session.page.url().includes('/editor');
-    record('Supabase session persists after refresh', persisted, session.page.url());
+    record('Supabase password session persists after refresh', persisted, session.page.url());
     if (!persisted) {
-      throw new Error('Authenticated session did not persist after refresh.');
+      throw new Error('Authenticated Supabase password session did not persist after refresh.');
     }
 
     if (bootstrapOnly) return;
@@ -266,14 +262,14 @@ if (stateIgnored) {
       probe = await startBrowser({ headless: true, storageState: authStatePath });
       const valid = await isAuthenticatedEditor(probe.page);
       if (valid) {
-        record('Existing authenticated browser state is valid', true, probe.page.url());
+        record('Existing authenticated Supabase password state is valid', true, probe.page.url());
       } else {
-        console.warn('[auth-session] Saved session is expired; automatic re-bootstrap is required.');
+        console.warn('[auth-session] Saved Supabase password session is expired; automatic re-bootstrap is required.');
         needBootstrap = true;
       }
     } catch (error) {
       console.warn(
-        '[auth-session] Saved session could not be reused; automatic re-bootstrap is required:',
+        '[auth-session] Saved Supabase password session could not be reused; automatic re-bootstrap is required:',
         error instanceof Error ? error.message : String(error),
       );
       needBootstrap = true;
@@ -286,12 +282,12 @@ if (stateIgnored) {
     if (needBootstrap) {
       if (nonInteractive) {
         throw new Error(
-          'No valid saved auth session is available. Run once without --non-interactive to complete Google sign-in.',
+          'No valid saved Supabase password session is available. Run once without --non-interactive to complete email/password sign-in.',
         );
       }
       await rm(authStatePath, { force: true });
       await bootstrapAuthSession();
-      record('Authenticated browser session bootstrap completed', true, relativeStatePath());
+      record('Authenticated Supabase password session bootstrap completed', true, relativeStatePath());
     }
 
     await verifyReusableSessionAndCheckout();
@@ -312,6 +308,7 @@ const evidence = {
   target: baseOrigin,
   gitHead: currentGitHead(),
   authStatePath: stateRelativePath,
+  authMethod: 'supabase-email-password',
   mode: needBootstrap ? 'bootstrap-then-automated' : 'fully-automated-reuse',
   result: failed.length === 0 ? 'PASS' : 'FAIL',
   results,
@@ -324,6 +321,7 @@ const markdown = [
   `- Generated: ${evidence.generatedAt}`,
   `- Target: ${evidence.target}`,
   `- Git head: ${evidence.gitHead}`,
+  `- Auth method: ${evidence.authMethod}`,
   `- Mode: ${evidence.mode}`,
   `- Result: **${evidence.result}**`,
   '',
