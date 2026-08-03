@@ -1,7 +1,6 @@
 [CmdletBinding()]
 param(
     [string]$PagesUrl = "https://vishvakarma-os.pages.dev",
-    [string]$ProjectRef = "jyocvwipthswfcmvqgqe",
     [switch]$ForceUnlock
 )
 
@@ -10,7 +9,7 @@ Set-StrictMode -Version Latest
 
 # ISC = Injection Script Code
 # One controlled injection chain:
-# VERIFY -> OPEN -> CONFIGURE -> PROVE -> RELEASE
+# VERIFY -> NORMALIZE -> PROVE SUPABASE -> RELEASE
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ExpectedBranch = "agent/cloudflare-pages-workers-migration"
@@ -19,26 +18,11 @@ $ReleaseRunner = Join-Path $RepoRoot "RUN_VISH_CLOUDFLARE.ps1"
 $AuthState = Join-Path $RepoRoot ".local\cloudflare-auth\storage-state.json"
 $EvidenceRoot = Join-Path $RepoRoot ".local\cloudflare-proof"
 $RunId = Get-Date -Format "yyyyMMdd-HHmmss"
-$StatusPath = Join-Path $EvidenceRoot "isc-google-oauth-$RunId.json"
-$GoogleClientPage = "https://console.cloud.google.com/auth/clients/create"
-$SupabaseProviderPage = "https://supabase.com/dashboard/project/$ProjectRef/auth/providers?provider=Google"
-$GoogleCallback = "https://$ProjectRef.supabase.co/auth/v1/callback"
-$ManagementApi = "https://api.supabase.com/v1/projects/$ProjectRef/config/auth"
+$StatusPath = Join-Path $EvidenceRoot "isc-supabase-auth-$RunId.json"
 
 function Write-IscStep {
     param([string]$Name)
     Write-Host "`nISC:: $Name" -ForegroundColor Cyan
-}
-
-function ConvertFrom-SecureText {
-    param([Security.SecureString]$Secure)
-    $Ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Secure)
-    try {
-        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($Ptr)
-    }
-    finally {
-        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($Ptr)
-    }
 }
 
 function Assert-NativeSuccess {
@@ -54,21 +38,20 @@ Set-Location $RepoRoot
 $Status = [ordered]@{
     StartedAt = (Get-Date).ToString("o")
     Result = "BLOCKED"
-    ProjectRef = $ProjectRef
+    Authentication = "supabase-email-password"
     PagesUrl = $PagesUrl
-    GoogleCallback = $GoogleCallback
     GitHead = $null
     HealthBefore = $null
-    GoogleProviderConfigured = $false
     ReleaseControllerStarted = $false
     Detail = $null
 }
 
 try {
-    Write-Host "VISHVAKARMA.OS ISC ALL-IN-ONE OAUTH + CLOUDFLARE RELEASE" -ForegroundColor Magenta
-    Write-Host "ISC chain: VERIFY -> OPEN -> CONFIGURE -> PROVE -> RELEASE"
+    Write-Host "VISHVAKARMA.OS ISC ALL-IN-ONE SUPABASE + CLOUDFLARE RELEASE" -ForegroundColor Magenta
+    Write-Host "ISC chain: VERIFY -> NORMALIZE -> PROVE SUPABASE -> RELEASE"
     Write-Host "Repository: $RepoRoot"
     Write-Host "Branch: $ExpectedBranch"
+    Write-Host "Authentication: Supabase email/password only"
 
     Write-IscStep "VERIFY REPOSITORY AND BRANCH"
     $Origin = (git remote get-url origin).Trim()
@@ -115,86 +98,17 @@ try {
     }
     Write-Host "PASS: Live Cloudflare health is ok:true" -ForegroundColor Green
 
-    Write-IscStep "OPEN GOOGLE OAUTH CLIENT CREATION"
-    Write-Host "Create a WEB APPLICATION OAuth client with these exact values:" -ForegroundColor Yellow
-    Write-Host "  Name: Vishvakarma.OS Production"
-    Write-Host "  Authorized JavaScript origin: $PagesUrl"
-    Write-Host "  Authorized JavaScript origin: https://vishvakarma-os.app"
-    Write-Host "  Authorized redirect URI: $GoogleCallback" -ForegroundColor Green
-    Set-Clipboard -Value $GoogleCallback
-    Write-Host "The exact Supabase callback URL is copied to your clipboard." -ForegroundColor Green
-    Start-Process $GoogleClientPage
-
-    $GoogleClientId = (Read-Host "After Google creates the client, paste the Client ID").Trim()
-    if ($GoogleClientId -notmatch '^[A-Za-z0-9._-]+\.apps\.googleusercontent\.com$') {
-        throw "The Google Client ID format is invalid. It must end with .apps.googleusercontent.com"
-    }
-
-    $GoogleSecretSecure = Read-Host "Paste the Google Client Secret (hidden)" -AsSecureString
-    $GoogleClientSecret = ConvertFrom-SecureText $GoogleSecretSecure
-    if ([string]::IsNullOrWhiteSpace($GoogleClientSecret)) {
-        throw "Google Client Secret was empty."
-    }
-
-    $SupabaseAccessToken = $env:SUPABASE_ACCESS_TOKEN
-    if ([string]::IsNullOrWhiteSpace($SupabaseAccessToken)) {
-        Write-Host "A Supabase personal access token is required once to update the Google provider." -ForegroundColor Yellow
-        Write-Host "Supabase profile -> Account Settings -> Access Tokens -> Generate token"
-        $SupabaseTokenSecure = Read-Host "Paste the Supabase personal access token (hidden)" -AsSecureString
-        $SupabaseAccessToken = ConvertFrom-SecureText $SupabaseTokenSecure
-    }
-    if ($SupabaseAccessToken -notmatch '^sbp_') {
-        throw "The Supabase personal access token format is invalid; expected sbp_."
-    }
-
-    Write-IscStep "INJECT GOOGLE PROVIDER INTO SUPABASE"
-    $Body = @{
-        external_google_enabled = $true
-        external_google_client_id = $GoogleClientId
-        external_google_secret = $GoogleClientSecret
-    } | ConvertTo-Json
-
-    try {
-        $ProviderRequest = @{
-            Uri = $ManagementApi
-            Method = "Patch"
-            Headers = @{
-                Authorization = "Bearer $SupabaseAccessToken"
-                "Content-Type" = "application/json"
-            }
-            Body = $Body
-            TimeoutSec = 60
-        }
-        $null = Invoke-RestMethod @ProviderRequest
-        $Status.GoogleProviderConfigured = $true
-        Write-Host "PASS: Supabase Google provider updated securely" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Automatic Supabase provider update failed: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "Opening the exact provider page for manual save." -ForegroundColor Yellow
-        Start-Process $SupabaseProviderPage
-        throw "Supabase provider configuration was not updated. No secret was printed or committed."
-    }
-    finally {
-        $GoogleClientSecret = $null
-        $SupabaseAccessToken = $null
-        Remove-Variable GoogleClientSecret -ErrorAction SilentlyContinue
-        Remove-Variable SupabaseAccessToken -ErrorAction SilentlyContinue
-    }
-
-    Write-IscStep "WAIT FOR AUTH CONFIG PROPAGATION"
-    Start-Sleep -Seconds 8
-    Write-Host "PASS: Provider propagation wait complete" -ForegroundColor Green
-
-    Write-IscStep "RESET EXPIRED AUTH SESSION"
+    Write-IscStep "RESET PREVIOUS AUTH SESSION"
     Remove-Item -LiteralPath $AuthState -Force -ErrorAction SilentlyContinue
     Write-Host "PASS: Previous browser auth state removed" -ForegroundColor Green
 
-    Write-IscStep "PROVE GOOGLE LOGIN AND RUN FULL RELEASE"
-    Write-Host "Chromium will open. Complete Google login/MFA once." -ForegroundColor Yellow
+    Write-IscStep "PROVE SUPABASE EMAIL/PASSWORD AND RUN FULL RELEASE"
+    Write-Host "Chromium will open the Vishvakarma.OS Supabase login form." -ForegroundColor Yellow
+    Write-Host "Enter the approved email and password once; the controller will continue automatically." -ForegroundColor Yellow
     $Status.ReleaseControllerStarted = $true
 
     $Arguments = @{
+        PagesUrl = $PagesUrl
         ResetAuthSession = $true
         ForceUnlock = $true
     }
@@ -206,7 +120,7 @@ try {
     }
 
     $Status.Result = "PASS"
-    $Status.Detail = "Google OAuth provider configured and Cloudflare release controller completed."
+    $Status.Detail = "Supabase email/password session proved and Cloudflare release controller completed."
     Write-Host "`nISC ALL-IN-ONE: PASS" -ForegroundColor Green
     $global:LASTEXITCODE = 0
 }
@@ -214,7 +128,7 @@ catch {
     $Status.Result = "BLOCKED"
     $Status.Detail = $_.Exception.Message
     Write-Host "`nISC ALL-IN-ONE: BLOCKED - $($Status.Detail)" -ForegroundColor Red
-    Write-Host "No secret values were printed or committed." -ForegroundColor Yellow
+    Write-Host "No password or secret value was printed or committed." -ForegroundColor Yellow
     $global:LASTEXITCODE = 1
 }
 finally {
