@@ -107,7 +107,7 @@ async function stableAuthenticatedEditor(page, settleMs = 2500) {
   return {
     valid: session.valid === true,
     detail: session.valid
-      ? `stable authenticated editor${session.expiresAt ? `; expires ${new Date(session.expiresAt * 1000).toISOString()}` : ''}`
+      ? `stable Supabase password session${session.expiresAt ? `; expires ${new Date(session.expiresAt * 1000).toISOString()}` : ''}`
       : 'editor URL has no valid Supabase access token',
   };
 }
@@ -129,24 +129,22 @@ async function verifySavedState() {
 }
 
 async function bootstrap() {
-  console.log('[auth-bootstrap] Opening Chromium for Google/Supabase sign-in.');
+  console.log('[auth-bootstrap] Opening Chromium for the approved Supabase email/password sign-in.');
+  console.log('[auth-bootstrap] Enter the approved account in the visible Vishvakarma.OS form.');
   console.log('[auth-bootstrap] The session will not be saved until /editor remains stable and a real Supabase access token exists.');
 
   const browser = await chromium.launch({ headless: false });
   try {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto(`${baseOrigin}/editor`, {
+    await page.goto(`${baseOrigin}/auth`, {
       waitUntil: 'domcontentloaded',
       timeout: 45_000,
     });
-    await page.waitForTimeout(1500);
 
-    if (page.url().includes('/auth')) {
-      const googleButton = page.getByRole('button', { name: /continue with google/i });
-      await googleButton.waitFor({ state: 'visible', timeout: 30_000 });
-      await googleButton.click({ noWaitAfter: true });
-    }
+    const emailInput = page.getByTestId('supabase-email-input');
+    await emailInput.waitFor({ state: 'visible', timeout: 30_000 });
+    await emailInput.focus();
 
     const deadline = Date.now() + 300_000;
     let authenticated = null;
@@ -162,13 +160,13 @@ async function bootstrap() {
     }
 
     if (!authenticated) {
-      throw new Error('Google sign-in did not produce a stable authenticated /editor session within five minutes.');
+      throw new Error('Supabase email/password sign-in did not produce a stable authenticated /editor session within five minutes.');
     }
 
     await mkdir(dirname(authStatePath), { recursive: true });
     await context.storageState({ path: authStatePath });
     await chmod(authStatePath, 0o600).catch(() => null);
-    console.log(`PASS: Fresh Google/Supabase session saved - ${authenticated.state.detail}`);
+    console.log(`PASS: Fresh Supabase email/password session saved - ${authenticated.state.detail}`);
   } finally {
     await browser.close().catch(() => null);
   }
@@ -184,7 +182,7 @@ let state = await verifySavedState();
 if (!state.valid) {
   console.log(`[auth-bootstrap] ${state.detail}`);
   if (nonInteractive) {
-    throw new Error('No valid saved Google/Supabase session is available in non-interactive mode.');
+    throw new Error('No valid saved Supabase email/password session is available in non-interactive mode.');
   }
   await rm(authStatePath, { force: true });
   await bootstrap();
@@ -192,7 +190,7 @@ if (!state.valid) {
 }
 
 if (!state.valid) {
-  throw new Error(`Saved auth session failed independent verification: ${state.detail}`);
+  throw new Error(`Saved Supabase auth session failed independent verification: ${state.detail}`);
 }
 
 console.log(`AUTH SESSION BOOTSTRAP: PASS - ${state.detail}`);
