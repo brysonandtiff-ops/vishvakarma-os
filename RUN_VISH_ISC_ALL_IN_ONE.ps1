@@ -9,18 +9,23 @@ Set-StrictMode -Version Latest
 
 # ISC = Injection Script Code
 # One controlled injection chain:
-# VERIFY -> NORMALIZE -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE
+# VERIFY -> NORMALIZE -> BUILD -> DEPLOY -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ExpectedBranch = "agent/cloudflare-pages-workers-migration"
 $ExpectedRemote = "brysonandtiff-ops/vishvakarma-os"
+$ProjectName = "vishvakarma-os"
 $ReleaseRunner = Join-Path $RepoRoot "RUN_VISH_CLOUDFLARE.ps1"
 $LiveAuthVerifier = Join-Path $RepoRoot "scripts\deployment\verify-supabase-only-auth-live.mjs"
+$BuildRunner = Join-Path $RepoRoot "scripts\vercel-build.mjs"
 $AuthState = Join-Path $RepoRoot ".local\cloudflare-auth\storage-state.json"
 $EvidenceRoot = Join-Path $RepoRoot ".local\cloudflare-proof"
 $RunId = Get-Date -Format "yyyyMMdd-HHmmss"
 $StatusPath = Join-Path $EvidenceRoot "isc-supabase-auth-$RunId.json"
 $PnpmVersion = "9.15.0"
+$WranglerVersion = "4.118.0"
+$SupabaseUrl = "https://jyocvwipthswfcmvqgqe.supabase.co"
+$SupabasePublishableKey = "sb_publishable_2vZsi4PoOlDb2lqs9mV0QQ_peQDtE6b"
 
 function Write-IscStep {
     param([string]$Name)
@@ -44,6 +49,7 @@ $Status = [ordered]@{
     PagesUrl = $PagesUrl
     GitHead = $null
     HealthBefore = $null
+    SurfaceDeploymentStarted = $false
     LiveSupabaseSurface = $false
     ReleaseControllerStarted = $false
     Detail = $null
@@ -51,7 +57,7 @@ $Status = [ordered]@{
 
 try {
     Write-Host "VISHVAKARMA.OS ISC ALL-IN-ONE SUPABASE + CLOUDFLARE RELEASE" -ForegroundColor Magenta
-    Write-Host "ISC chain: VERIFY -> NORMALIZE -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE"
+    Write-Host "ISC chain: VERIFY -> NORMALIZE -> BUILD -> DEPLOY -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE"
     Write-Host "Repository: $RepoRoot"
     Write-Host "Branch: $ExpectedBranch"
     Write-Host "Authentication: Supabase email/password only"
@@ -75,11 +81,10 @@ try {
     $Status.GitHead = (git rev-parse HEAD).Trim()
     Write-Host "PASS: Repository and branch verified at $($Status.GitHead.Substring(0, 8))" -ForegroundColor Green
 
-    if (-not (Test-Path -LiteralPath $ReleaseRunner)) {
-        throw "Missing release runner: $ReleaseRunner"
-    }
-    if (-not (Test-Path -LiteralPath $LiveAuthVerifier)) {
-        throw "Missing live Supabase auth verifier: $LiveAuthVerifier"
+    foreach ($RequiredPath in @($ReleaseRunner, $LiveAuthVerifier, $BuildRunner)) {
+        if (-not (Test-Path -LiteralPath $RequiredPath)) {
+            throw "Missing required ISC release file: $RequiredPath"
+        }
     }
 
     Write-IscStep "NORMALIZE GENERATED SUPABASE STATE"
@@ -91,7 +96,7 @@ try {
     $global:LASTEXITCODE = 0
     Write-Host "PASS: Generated Supabase temp state normalized" -ForegroundColor Green
 
-    Write-IscStep "VERIFY LIVE HEALTH"
+    Write-IscStep "VERIFY CURRENT LIVE HEALTH"
     $HealthRequest = @{
         Uri = "$($PagesUrl.TrimEnd('/'))/api/health?isc=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
         Headers = @{ "Cache-Control" = "no-cache" }
@@ -102,13 +107,53 @@ try {
     if ($Health.ok -ne $true) {
         throw "Live health is not ok:true."
     }
-    Write-Host "PASS: Live Cloudflare health is ok:true" -ForegroundColor Green
+    Write-Host "PASS: Current live Cloudflare health is ok:true" -ForegroundColor Green
+
+    Write-IscStep "INSTALL LOCKED DEPENDENCIES"
+    npx --yes "pnpm@$PnpmVersion" install --frozen-lockfile
+    Assert-NativeSuccess "Install locked dependencies"
+    Write-Host "PASS: Locked dependencies installed" -ForegroundColor Green
+
+    Write-IscStep "VERIFY CLOUDFLARE WRANGLER LOGIN"
+    $global:LASTEXITCODE = 0
+    npx --yes "wrangler@$WranglerVersion" whoami --json *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Cloudflare login is required once; opening the browser." -ForegroundColor Yellow
+        npx --yes "wrangler@$WranglerVersion" login
+        Assert-NativeSuccess "Cloudflare Wrangler login"
+    }
+    Write-Host "PASS: Cloudflare Wrangler authenticated" -ForegroundColor Green
+
+    Write-IscStep "BUILD EXACT SUPABASE-ONLY AUTH COMMIT"
+    $env:SUPABASE_URL = $SupabaseUrl
+    $env:VITE_SUPABASE_URL = $SupabaseUrl
+    $env:VITE_SUPABASE_ANON_KEY = $SupabasePublishableKey
+    $env:VITE_AUTH_REDIRECT_ORIGIN = $PagesUrl.TrimEnd('/')
+    $env:VITE_STRIPE_BILLING_ENABLED = "true"
+    $env:VITE_PRICING_PAGE_ENABLED = "true"
+    $env:APP_URL = $PagesUrl.TrimEnd('/')
+    $env:CLOUDFLARE_PAGES_URL = $PagesUrl.TrimEnd('/')
+    $env:PRODUCTION_URL = $PagesUrl.TrimEnd('/')
+
+    & node $BuildRunner
+    Assert-NativeSuccess "Build exact Supabase-only auth commit"
+    if (-not (Test-Path -LiteralPath (Join-Path $RepoRoot "dist\index.html"))) {
+        throw "Production build completed without dist/index.html."
+    }
+    Write-Host "PASS: Production artifact built" -ForegroundColor Green
+
+    Write-IscStep "DEPLOY EXACT COMMIT BEFORE LIVE BADGE PROOF"
+    $Status.SurfaceDeploymentStarted = $true
+    $CommitMessage = "ISC Supabase-only auth surface $($Status.GitHead.Substring(0, 8))"
+    npx --yes "wrangler@$WranglerVersion" pages deploy dist `
+        --project-name $ProjectName `
+        --branch $ExpectedBranch `
+        --commit-hash $Status.GitHead `
+        --commit-message $CommitMessage
+    Assert-NativeSuccess "Deploy exact Supabase-only auth commit"
+    Write-Host "PASS: Exact Git commit submitted to Cloudflare Pages" -ForegroundColor Green
 
     Write-IscStep "WAIT FOR LIVE SUPABASE-ONLY AUTH SURFACE"
-    if (-not (Test-Path (Join-Path $RepoRoot "node_modules\@playwright\test"))) {
-        npx --yes "pnpm@$PnpmVersion" install --frozen-lockfile
-        Assert-NativeSuccess "Install locked dependencies"
-    }
     npx --yes "pnpm@$PnpmVersion" exec playwright install chromium
     Assert-NativeSuccess "Install or verify Playwright Chromium"
 
@@ -139,7 +184,7 @@ try {
     }
 
     $Status.Result = "PASS"
-    $Status.Detail = "Live Supabase-only badge proved, email/password session proved, and Cloudflare release controller completed."
+    $Status.Detail = "Exact commit deployed, live Supabase-only badge proved, email/password session proved, and Cloudflare release controller completed."
     Write-Host "`nISC ALL-IN-ONE: PASS" -ForegroundColor Green
     $global:LASTEXITCODE = 0
 }
