@@ -6,15 +6,7 @@ import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecor
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthCapabilities } from '@/hooks/useAuthCapabilities';
 import { toast } from 'sonner';
-import {
-  getAuthPageUrl,
-  getEmbeddedAuthBrowserLabel,
-  isEmbeddedAuthBrowser,
-} from '@/backend/authUiHelpers';
-import {
-  POST_AUTH_DESTINATION,
-  storeAuthReturnPath,
-} from '@/backend/supabase/supabaseOAuthGateway';
+import { POST_AUTH_DESTINATION } from '@/backend/supabase/supabaseOAuthGateway';
 import AuthLoginHero from '@/components/auth/AuthLoginHero';
 import AuthLoginCard, { AuthLoginStatus } from '@/components/auth/AuthLoginCard';
 import AuthTrustPillar from '@/components/auth/AuthTrustPillar';
@@ -22,41 +14,27 @@ import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgmen
 import PageMeta from '@/components/common/PageMeta';
 
 export default function AuthPage() {
-  const {
-    user,
-    isConfigured,
-    requestAccessLink,
-    signInWithGoogle,
-  } = useAuth();
+  const { user, isConfigured, signInWithPassword } = useAuth();
   const { loading: capabilitiesLoading, winner } = useAuthCapabilities();
   const navigate = useNavigate();
   const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const isProduction = import.meta.env.PROD;
   const showConfigRequired = isProduction && !isConfigured;
   const authDisabled = submitting || showConfigRequired;
-
-  const embeddedAuthBrowser = useMemo(
-    () => typeof navigator !== 'undefined' && isEmbeddedAuthBrowser(),
-    [],
-  );
-  const embeddedBrowserLabel = useMemo(
-    () => (typeof navigator !== 'undefined' ? getEmbeddedAuthBrowserLabel() : 'embedded browser'),
-    [],
-  );
-  const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
   const adminApprovalMessage =
-    'Use an approved account. Google SSO and secure email magic links are handled by Supabase.';
+    'Use the approved Supabase email account created by the Vishvakarma.OS administrator.';
 
   useEffect(() => {
     const state = location.state as { message?: string } | null;
     if (state?.message !== 'password-reset-unavailable') return;
 
-    setMessage('Password reset is not required. Request a secure email sign-in link instead.');
+    setMessage('Use your approved Supabase email and password to sign in.');
     navigate('/auth', { replace: true, state: null });
   }, [location.state, navigate]);
 
@@ -70,48 +48,23 @@ export default function AuthPage() {
     return <Navigate to={POST_AUTH_DESTINATION} replace />;
   }
 
-  const handleCopyAuthUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(externalAuthUrl);
-      toast.success('Sign-in link copied', {
-        description: 'Paste into Chrome or Safari to complete sign-in.',
-      });
-    } catch {
-      toast.message('Copy this URL', { description: externalAuthUrl });
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    setMessage(null);
-    storeAuthReturnPath(POST_AUTH_DESTINATION);
-    setSubmitting(true);
-    const result = await signInWithGoogle();
-    setSubmitting(false);
-    if (result.error) {
-      setError(result.error.message);
-      return;
-    }
-    if (result.redirecting) {
-      setMessage('Redirecting to Google…');
-      return;
-    }
-    navigate(POST_AUTH_DESTINATION, { replace: true });
-  };
-
-  const handleEmailLinkSignIn = async () => {
+  const handleSupabaseSignIn = async () => {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !normalizedEmail.includes('@')) {
       setMessage(null);
       setError('Enter the approved email address for your Vishvakarma.OS account.');
       return;
     }
+    if (!password) {
+      setMessage(null);
+      setError('Enter your Supabase account password.');
+      return;
+    }
 
     setError(null);
     setMessage(null);
-    storeAuthReturnPath(POST_AUTH_DESTINATION);
     setSubmitting(true);
-    const result = await requestAccessLink(normalizedEmail);
+    const result = await signInWithPassword(normalizedEmail, password);
     setSubmitting(false);
 
     if (result.error) {
@@ -119,11 +72,12 @@ export default function AuthPage() {
       return;
     }
 
-    setMessage(`Secure sign-in link sent to ${normalizedEmail}. Open it in this browser to continue.`);
+    setMessage('Supabase verified. Opening your workspace…');
+    navigate(POST_AUTH_DESTINATION, { replace: true });
   };
 
   const handleRequestAccess = () => {
-    toast.message('Approved account required', {
+    toast.message('Approved Supabase account required', {
       description: adminApprovalMessage,
     });
   };
@@ -132,25 +86,26 @@ export default function AuthPage() {
     <>
       <PageMeta
         title="Sign In — Vishvakarma.OS"
-        description="Enter the architecture workspace with Google SSO or a secure Supabase email magic link."
+        description="Enter the architecture workspace using the approved Supabase email and password login."
       />
 
-      <main className="vish-login-page vish-login-page--reference-replica" aria-labelledby="auth-page-title" data-testid="auth-page">
+      <main
+        className="vish-login-page vish-login-page--reference-replica"
+        aria-labelledby="auth-page-title"
+        data-testid="auth-page"
+      >
         <AuthLoginHero />
         <AuthLoginCard
           submitting={submitting}
           disabled={authDisabled}
           status={status}
           email={email}
-          embeddedAuthBrowser={embeddedAuthBrowser}
-          embeddedBrowserLabel={embeddedBrowserLabel}
-          externalAuthUrl={externalAuthUrl}
+          password={password}
           showConfigRequired={showConfigRequired}
           onEmailChange={setEmail}
-          onEmailLink={handleEmailLinkSignIn}
-          onSso={handleGoogleSignIn}
+          onPasswordChange={setPassword}
+          onSubmit={handleSupabaseSignIn}
           onRequestAccess={handleRequestAccess}
-          onCopyAuthUrl={handleCopyAuthUrl}
         />
       </main>
 
