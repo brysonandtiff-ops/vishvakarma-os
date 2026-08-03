@@ -9,16 +9,18 @@ Set-StrictMode -Version Latest
 
 # ISC = Injection Script Code
 # One controlled injection chain:
-# VERIFY -> NORMALIZE -> PROVE SUPABASE -> RELEASE
+# VERIFY -> NORMALIZE -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ExpectedBranch = "agent/cloudflare-pages-workers-migration"
 $ExpectedRemote = "brysonandtiff-ops/vishvakarma-os"
 $ReleaseRunner = Join-Path $RepoRoot "RUN_VISH_CLOUDFLARE.ps1"
+$LiveAuthVerifier = Join-Path $RepoRoot "scripts\deployment\verify-supabase-only-auth-live.mjs"
 $AuthState = Join-Path $RepoRoot ".local\cloudflare-auth\storage-state.json"
 $EvidenceRoot = Join-Path $RepoRoot ".local\cloudflare-proof"
 $RunId = Get-Date -Format "yyyyMMdd-HHmmss"
 $StatusPath = Join-Path $EvidenceRoot "isc-supabase-auth-$RunId.json"
+$PnpmVersion = "9.15.0"
 
 function Write-IscStep {
     param([string]$Name)
@@ -42,13 +44,14 @@ $Status = [ordered]@{
     PagesUrl = $PagesUrl
     GitHead = $null
     HealthBefore = $null
+    LiveSupabaseSurface = $false
     ReleaseControllerStarted = $false
     Detail = $null
 }
 
 try {
     Write-Host "VISHVAKARMA.OS ISC ALL-IN-ONE SUPABASE + CLOUDFLARE RELEASE" -ForegroundColor Magenta
-    Write-Host "ISC chain: VERIFY -> NORMALIZE -> PROVE SUPABASE -> RELEASE"
+    Write-Host "ISC chain: VERIFY -> NORMALIZE -> PROVE LIVE SURFACE -> PROVE SUPABASE -> RELEASE"
     Write-Host "Repository: $RepoRoot"
     Write-Host "Branch: $ExpectedBranch"
     Write-Host "Authentication: Supabase email/password only"
@@ -75,6 +78,9 @@ try {
     if (-not (Test-Path -LiteralPath $ReleaseRunner)) {
         throw "Missing release runner: $ReleaseRunner"
     }
+    if (-not (Test-Path -LiteralPath $LiveAuthVerifier)) {
+        throw "Missing live Supabase auth verifier: $LiveAuthVerifier"
+    }
 
     Write-IscStep "NORMALIZE GENERATED SUPABASE STATE"
     $SupabaseTemp = Join-Path $RepoRoot "supabase\.temp"
@@ -98,6 +104,19 @@ try {
     }
     Write-Host "PASS: Live Cloudflare health is ok:true" -ForegroundColor Green
 
+    Write-IscStep "WAIT FOR LIVE SUPABASE-ONLY AUTH SURFACE"
+    if (-not (Test-Path (Join-Path $RepoRoot "node_modules\@playwright\test"))) {
+        npx --yes "pnpm@$PnpmVersion" install --frozen-lockfile
+        Assert-NativeSuccess "Install locked dependencies"
+    }
+    npx --yes "pnpm@$PnpmVersion" exec playwright install chromium
+    Assert-NativeSuccess "Install or verify Playwright Chromium"
+
+    & node $LiveAuthVerifier --pages-url $PagesUrl --wait-seconds 600
+    Assert-NativeSuccess "Verify live Supabase-only auth surface"
+    $Status.LiveSupabaseSurface = $true
+    Write-Host "PASS: Live auth page shows Supabase badge and only email/password controls" -ForegroundColor Green
+
     Write-IscStep "RESET PREVIOUS AUTH SESSION"
     Remove-Item -LiteralPath $AuthState -Force -ErrorAction SilentlyContinue
     Write-Host "PASS: Previous browser auth state removed" -ForegroundColor Green
@@ -120,7 +139,7 @@ try {
     }
 
     $Status.Result = "PASS"
-    $Status.Detail = "Supabase email/password session proved and Cloudflare release controller completed."
+    $Status.Detail = "Live Supabase-only badge proved, email/password session proved, and Cloudflare release controller completed."
     Write-Host "`nISC ALL-IN-ONE: PASS" -ForegroundColor Green
     $global:LASTEXITCODE = 0
 }
