@@ -1,12 +1,6 @@
-import {
-  Building2,
-  Copy,
-  ExternalLink,
-  Mail,
-} from 'lucide-react';
+import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { APP_VERSION } from '@/config/appVersion';
-import { isEmbeddedAuthErrorMessage } from '@/backend/authUiHelpers';
 
 export type AuthLoginStatus = {
   message: string;
@@ -18,15 +12,12 @@ interface AuthLoginCardProps {
   disabled: boolean;
   status: AuthLoginStatus | null;
   email: string;
-  embeddedAuthBrowser: boolean;
-  embeddedBrowserLabel: string;
-  externalAuthUrl: string;
+  password: string;
   showConfigRequired: boolean;
   onEmailChange: (email: string) => void;
-  onEmailLink: () => void;
-  onSso: () => void;
+  onPasswordChange: (password: string) => void;
+  onSubmit: () => void;
   onRequestAccess: () => void;
-  onCopyAuthUrl: () => void;
 }
 
 export default function AuthLoginCard({
@@ -34,20 +25,13 @@ export default function AuthLoginCard({
   disabled,
   status,
   email,
-  embeddedAuthBrowser,
-  embeddedBrowserLabel,
-  externalAuthUrl,
+  password,
   showConfigRequired,
   onEmailChange,
-  onEmailLink,
-  onSso,
+  onPasswordChange,
+  onSubmit,
   onRequestAccess,
-  onCopyAuthUrl,
 }: AuthLoginCardProps) {
-  const showEmbeddedAuthRecovery =
-    embeddedAuthBrowser ||
-    Boolean(status?.variant === 'error' && status.message && isEmbeddedAuthErrorMessage(status.message));
-
   return (
     <section className="vish-login-page__auth-side" aria-label="Sign in to Vishvakarma.OS">
       <div className="vish-login-page__top-line">
@@ -74,8 +58,17 @@ export default function AuthLoginCard({
           </h1>
           <p>Architect • Engineer • Create</p>
           <p className="vish-login-page__auth-note">
-            Sign in with Google SSO or request a secure one-time email link through Supabase.
+            Sign in with the approved Supabase email account. Legacy social and magic-link options are disabled.
           </p>
+        </div>
+
+        <div
+          className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200"
+          data-testid="supabase-auth-badge"
+          aria-label={showConfigRequired ? 'Supabase Auth setup required' : 'Supabase Auth connected'}
+        >
+          <ShieldCheck size={14} aria-hidden="true" />
+          {showConfigRequired ? 'Supabase Auth • Setup required' : 'Supabase Auth • Connected'}
         </div>
 
         {showConfigRequired && (
@@ -84,79 +77,74 @@ export default function AuthLoginCard({
           </p>
         )}
 
-        <div className="vish-login-page__form" data-testid="supabase-auth-options">
-          {showEmbeddedAuthRecovery && (
-            <div className="vish-login-page__embedded-recovery">
-              <p>Google OAuth is blocked in {embeddedBrowserLabel}. Use the email link below or open this page in your system browser.</p>
-              <div className="vish-login-page__embedded-recovery-actions">
-                <a
-                  href={externalAuthUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="vish-auth-open-browser-btn touch-target flex-1"
-                >
-                  <ExternalLink size={14} aria-hidden="true" />
-                  Open in browser
-                </a>
-                <button type="button" className="vish-auth-copy-url-btn touch-target" onClick={onCopyAuthUrl}>
-                  <Copy size={14} aria-hidden="true" />
-                  Copy
-                </button>
-              </div>
-            </div>
-          )}
-
-          <button
-            type="button"
-            className="vish-login-page__primary touch-target"
-            onClick={onSso}
-            disabled={submitting || disabled || embeddedAuthBrowser}
-            data-testid="google-sso-button"
-          >
-            {submitting ? 'Starting secure sign-in…' : 'Continue with Google SSO'}
-            <Building2 size={18} aria-hidden="true" />
-          </button>
-
-          <div className="vish-login-page__auth-divider" aria-hidden="true">
-            <span>or</span>
-          </div>
-
+        <div className="vish-login-page__form" data-testid="supabase-password-auth">
           <form
             className="vish-login-page__email-link-form"
             onSubmit={(event) => {
               event.preventDefault();
-              onEmailLink();
+              onSubmit();
             }}
           >
             <label htmlFor="vish-auth-email" className="vish-login-page__email-label">
-              Approved account email
+              Approved Supabase email
             </label>
-            <input
-              id="vish-auth-email"
-              type="email"
-              value={email}
-              onChange={(event) => onEmailChange(event.target.value)}
-              autoComplete="email"
-              inputMode="email"
-              placeholder="name@example.com"
-              className="vish-login-page__email-input"
-              disabled={submitting || disabled}
-              data-testid="email-magic-link-input"
-              required
-            />
+            <div className="relative">
+              <Mail
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <input
+                id="vish-auth-email"
+                type="email"
+                value={email}
+                onChange={(event) => onEmailChange(event.target.value)}
+                autoComplete="email"
+                inputMode="email"
+                placeholder="name@example.com"
+                className="vish-login-page__email-input pl-10"
+                disabled={submitting || disabled}
+                data-testid="supabase-email-input"
+                required
+              />
+            </div>
+
+            <label htmlFor="vish-auth-password" className="vish-login-page__email-label">
+              Password
+            </label>
+            <div className="relative">
+              <LockKeyhole
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <input
+                id="vish-auth-password"
+                type="password"
+                value={password}
+                onChange={(event) => onPasswordChange(event.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                className="vish-login-page__email-input pl-10"
+                disabled={submitting || disabled}
+                data-testid="supabase-password-input"
+                required
+              />
+            </div>
+
             <button
               type="submit"
-              className="vish-auth-open-browser-btn vish-login-page__email-link-button touch-target"
+              className="vish-login-page__primary touch-target"
               disabled={submitting || disabled}
-              data-testid="email-magic-link-button"
+              data-testid="supabase-password-button"
             >
-              <Mail size={16} aria-hidden="true" />
-              {submitting ? 'Sending secure link…' : 'Email me a sign-in link'}
+              {submitting ? 'Verifying with Supabase…' : 'Sign in with Supabase'}
+              <ShieldCheck size={18} aria-hidden="true" />
             </button>
           </form>
 
           <p className="vish-login-page__field-help vish-login-page__magic-help">
-            Email links are one-time use, expire automatically, and do not create unapproved accounts.
+            This is the only enabled sign-in method. Authentication is verified directly by Supabase.
           </p>
 
           <p
