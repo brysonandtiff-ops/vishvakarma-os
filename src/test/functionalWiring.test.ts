@@ -13,50 +13,18 @@ function read(path: string) {
 describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps route manifest complete and access-scoped', () => {
     const expectedRoutes = [
-      '/',
-      '/features',
-      ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
-      '/auth',
-      '/reset-password',
-      '/cast/:token',
-      '/404',
-      '/terms',
-      '/privacy',
-      '/editor',
-      '/editor-lite',
-      '/3d-room',
-      '/projects',
-      '/optimization',
-      '/profile',
-      '/spec-center',
-      '/registry',
-      '/change-requests',
-      '/releases',
-      '/world-records',
-      '/audit',
+      '/', '/features', ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
+      '/auth', '/reset-password', '/cast/:token', '/404', '/terms', '/privacy',
+      '/editor', '/editor-lite', '/3d-room', '/projects', '/optimization', '/profile',
+      '/spec-center', '/registry', '/change-requests', '/releases', '/world-records', '/audit',
     ];
     const actualRoutes = routes.map((route) => route.path);
-
     expect(actualRoutes).toEqual(expectedRoutes);
     expect(new Set(actualRoutes).size).toBe(actualRoutes.length);
-    const publicPaths = [
-      '/',
-      '/features',
-      ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []),
-      '/auth',
-      '/reset-password',
-      '/cast/:token',
-      '/404',
-      '/terms',
-      '/privacy',
-    ];
-    for (const path of publicPaths) {
+    for (const path of ['/', '/features', ...(PRICING_PAGE_ENABLED ? ['/pricing' as const] : []), '/auth', '/reset-password', '/cast/:token', '/404', '/terms', '/privacy']) {
       expect(routes.find((route) => route.path === path)?.access).toBe('public');
     }
-
-    const privateRoutes = routes.filter((route) => route.access === 'private');
-    for (const route of privateRoutes) {
-      expect(route.access).toBe('private');
+    for (const route of routes.filter((route) => route.access === 'private')) {
       expect(route.element).toBeTruthy();
       expect(route.name.trim().length).toBeGreaterThan(0);
     }
@@ -65,7 +33,6 @@ describe('Vishvakarma.OS functional wiring guard', () => {
   it('keeps App routing driven by the canonical route manifest', () => {
     const app = read('src/App.tsx');
     const appRoutes = read('src/AppRoutes.tsx');
-
     expect(app).toContain("import { AppRoutes } from '@/AppRoutes'");
     expect(app).toContain('<AppRoutes />');
     expect(appRoutes).toContain('path="/editor"');
@@ -78,29 +45,13 @@ describe('Vishvakarma.OS functional wiring guard', () => {
 
   it('keeps protected routing enforced through RouteGuard', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
-
-    expect(routeGuard).toContain("route.access === 'private'");
-    expect(routeGuard).toContain('isProtectedRoute');
-    expect(routeGuard).toContain("navigate('/auth'");
-    expect(routeGuard).toContain('state: { from: location.pathname }');
-    expect(routeGuard).toContain('allowLocalAccess');
-    expect(routeGuard).toContain('isE2eAuthGateBuild');
-    expect(routeGuard).toContain('showServiceConfigBanner');
-    expect(routeGuard).toContain('import.meta.env.PROD');
-    expect(routeGuard).toContain('hasCachedAuthSession');
-    expect(routeGuard).toContain('awaitingAuth');
-    expect(routeGuard).toContain('restoringSession');
-    expect(routeGuard).toContain('SESSION_BOOT_TIMEOUT_MS');
-    expect(routeGuard).toContain('clearSupabaseSessionSnapshot');
-    expect(routeGuard).toContain('session-restore-timeout');
-    expect(routeGuard).toContain('if (awaitingAuth && !publicRoute)');
-    expect(routeGuard).toContain('if (gated && !awaitingAuth && !user && !publicRoute');
-    expect(routeGuard).toContain('<Navigate to="/auth"');
+    for (const fragment of ["route.access === 'private'", 'isProtectedRoute', "navigate('/auth'", 'state: { from: location.pathname }', 'allowLocalAccess', 'isE2eAuthGateBuild', 'showServiceConfigBanner', 'import.meta.env.PROD', 'hasCachedAuthSession', 'awaitingAuth', 'restoringSession', 'SESSION_BOOT_TIMEOUT_MS', 'clearSupabaseSessionSnapshot', 'session-restore-timeout', 'if (awaitingAuth && !publicRoute)', 'if (gated && !awaitingAuth && !user && !publicRoute', '<Navigate to="/auth"']) {
+      expect(routeGuard).toContain(fragment);
+    }
   });
 
   it('wires import and new-project flows in the editor', () => {
     const editor = read('src/pages/EditorPage.tsx');
-
     expect(editor).toContain('ImportFloorPlanDialog');
     expect(editor).toContain('onImported={handleImportedManifest}');
     expect(editor).toContain('onProjectCreated={handleProjectCreated}');
@@ -112,7 +63,6 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     const authStyles = read('src/styles/entries/auth.ts');
     const editorStyles = read('src/styles/entries/editor.ts');
     const appRoutes = read('src/AppRoutes.tsx');
-
     expect(main).toContain('./styles/vish-sacred-layers.css');
     expect(main).toContain('./styles/vish-auth-email-fallback.css');
     expect(authStyles).toContain("import '../vish-auth-gate.css'");
@@ -125,31 +75,34 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(main).toContain('import.meta.env.PROD');
   });
 
-  it('keeps auth and app shell surfaces on the official brand asset without a loading screen', () => {
+  it('keeps branded Supabase account creation, sign-in, and recovery surfaces', () => {
     const routeGuard = read('src/components/common/RouteGuard.tsx');
     const authPage = read('src/pages/AuthPage.tsx');
-    const authLoginCard = read('src/components/auth/AuthLoginCard.tsx');
+    const card = read('src/components/auth/AuthLoginCard.tsx');
+    const reset = read('src/pages/ResetPasswordPage.tsx');
+    const lifecycle = read('src/backend/supabase/supabaseAccountLifecycle.ts');
     const authHeader = read('src/components/auth/AuthSignInHeader.tsx');
     const appLayout = read('src/components/layouts/AppLayout.tsx');
     const html = read('index.html');
 
-    expect(authLoginCard).toContain('OFFICIAL_LOGO_SRC');
+    expect(card).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).not.toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).not.toContain('SessionBootScreen');
     expect(html).not.toContain('boot-splash');
-    expect(authPage).toContain('handleRequestAccess');
-    expect(authPage).toContain('Approved Supabase account required');
     expect(authPage).toContain('handleSupabaseSignIn');
-    expect(authPage).toContain('signInWithPassword');
-    expect(authLoginCard).toContain('Request access');
-    expect(authLoginCard).toContain('supabase-auth-badge');
-    expect(authLoginCard).toContain('supabase-email-input');
-    expect(authLoginCard).toContain('supabase-password-input');
-    expect(authLoginCard).toContain('supabase-password-button');
-    expect(authLoginCard).not.toContain('google-sso-button');
-    expect(authLoginCard).not.toContain('email-magic-link-button');
+    expect(authPage).toContain('handleCreateAccount');
+    expect(authPage).toContain('handleForgotPassword');
+    expect(card).toContain('supabase-auth-badge');
+    expect(card).toContain('supabase-create-account-button');
+    expect(card).toContain('supabase-forgot-password-button');
+    expect(reset).toContain('recovery-update-password-button');
+    expect(lifecycle).toContain('client.auth.signUp');
+    expect(lifecycle).toContain('client.auth.resetPasswordForEmail');
+    expect(lifecycle).toContain('client.auth.updateUser');
+    expect(card).not.toContain('google-sso-button');
+    expect(card).not.toContain('email-magic-link-button');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');
     expect(appLayout).toContain('PrototypeDisclaimerBadge');
