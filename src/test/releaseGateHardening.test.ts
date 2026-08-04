@@ -211,7 +211,7 @@ describe('release gate hardening', () => {
     ]);
   });
 
-  it('accepts only Google or existing-account email sessions without duplicating tokens', () => {
+  it('keeps Supabase as the token owner and enables approved password sessions', () => {
     const authGateway = readRepoFile(
       'src',
       'backend',
@@ -221,19 +221,17 @@ describe('release gate hardening', () => {
 
     expectContainsAll(authGateway, [
       "SUPPORTED_AUTH_PROVIDERS = ['google', 'email']",
-      'export function isGoogleSupabaseUser',
       'export function isEmailSupabaseUser',
       'assertSupportedSupabaseUser(user)',
-      'shouldCreateUser: false',
-      'client.auth.signInWithOtp',
-      'client.auth.verifyOtp',
+      'client.auth.signInWithPassword',
+      'client.auth.resetPasswordForEmail',
       'clearLegacyTokenSnapshot',
       'Supabase remains the single',
     ]);
+    expect(authGateway).not.toContain('Password sign-in is disabled');
     expect(authGateway).not.toContain('idToken: string;');
     expect(authGateway).not.toContain('refreshToken: string;');
     expect(authGateway).not.toContain('storage.setItem(SUPABASE_SESSION_KEY');
-    expect(authGateway).not.toContain('client.auth.signInWithPassword');
   });
 
   it('closes the headless 3D proof before opening export', () => {
