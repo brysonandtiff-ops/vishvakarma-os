@@ -78,14 +78,13 @@ requirePhrase(authGateway, 'clearLegacyTokenSnapshot', 'Supabase auth gateway');
 requirePhrase(authGateway, 'Supabase remains the single', 'Supabase auth gateway');
 requirePhrase(authGateway, "SUPPORTED_AUTH_PROVIDERS = ['google', 'email']", 'Supabase auth gateway');
 requirePhrase(authGateway, 'buildAuthorizedSessionOrSignOut', 'Supabase auth gateway');
-requirePhrase(authGateway, 'Password sign-in is disabled', 'Supabase auth gateway');
-requirePhrase(authGateway, 'client.auth.signInWithOtp', 'Supabase auth gateway');
-requirePhrase(authGateway, 'shouldCreateUser: false', 'Supabase auth gateway');
-requirePhrase(authGateway, 'client.auth.verifyOtp', 'Supabase auth gateway');
+requirePhrase(authGateway, 'client.auth.signInWithPassword', 'Supabase auth gateway');
+requirePhrase(authGateway, 'client.auth.resetPasswordForEmail', 'Supabase auth gateway');
+requirePhrase(authGateway, 'Supabase did not return an authenticated session', 'Supabase auth gateway');
+forbidPhrase(authGateway, 'Password sign-in is disabled', 'Supabase auth gateway');
 forbidPhrase(authGateway, 'idToken: string;', 'Supabase auth gateway');
 forbidPhrase(authGateway, 'refreshToken: string;', 'Supabase auth gateway');
 forbidPhrase(authGateway, 'storage.setItem(SUPABASE_SESSION_KEY', 'Supabase auth gateway');
-forbidPhrase(authGateway, 'client.auth.signInWithPassword', 'Supabase auth gateway');
 
 requirePhrase(apiTokenVerifier, 'isSupportedSupabaseApiUser', 'Supabase API token verifier');
 requirePhrase(apiTokenVerifier, 'verifySupabaseBearerToken', 'Supabase API token verifier');
@@ -141,7 +140,7 @@ requirePhrase(vercelBuild, "process.env.VERCEL === '1'", 'Vercel build orchestra
 requirePhrase(vercelBuild, 'scripts/security/check-dist-security.mjs', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'api/stripe/webhook.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Vercel build orchestrator');
+requirePhrase(vercelBuild, 'src/test/supabaseOnlyAuthSurface.test.ts', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'src/test/analyticsConsent.test.tsx', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'src/test/monitoringPrivacy.test.ts', 'Vercel build orchestrator');
 requirePhrase(vercelBuild, 'pnpm run perf:gates', 'Vercel build orchestrator');
