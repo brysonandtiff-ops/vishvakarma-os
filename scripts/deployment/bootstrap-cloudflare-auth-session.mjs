@@ -2,7 +2,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { access, chmod, mkdir, rm } from 'node:fs/promises';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const argv = process.argv.slice(2);
@@ -20,6 +20,11 @@ const nonInteractive = hasFlag('--non-interactive');
 const authStatePath =
   process.env.CLOUDFLARE_AUTH_STATE_PATH ||
   join(process.cwd(), '.local', 'cloudflare-auth', 'storage-state.json');
+const credentialVaultValue = valueArg(
+  '--credential-vault',
+  process.env.VISH_SUPABASE_CREDENTIAL_VAULT || '',
+).trim();
+const credentialVaultPath = credentialVaultValue ? resolve(credentialVaultValue) : null;
 
 async function exists(path) {
   try {
@@ -38,8 +43,56 @@ function ensureIgnored(path) {
       stdio: 'ignore',
     });
   } catch {
-    throw new Error(`${relativePath} must be excluded by .gitignore before auth state can be saved.`);
+    throw new Error(`${relativePath} must be excluded by .gitignore before auth data can be used.`);
   }
+}
+
+function readWindowsEncryptedCredential(path) {
+  const script = [
+    "$ErrorActionPreference = 'Stop'",
+    '$credential = Import-Clixml -LiteralPath $args[0]',
+    "if (-not ($credential -is [System.Management.Automation.PSCredential])) { throw 'Credential vault does not contain a PSCredential.' }",
+    '$password = $credential.GetNetworkCredential().Password',
+    "if ([string]::IsNullOrWhiteSpace($credential.UserName) -or [string]::IsNullOrEmpty($password)) { throw 'Credential vault is incomplete.' }",
+    '[pscustomobject]@{ email = $credential.UserName; password = $password } | ConvertTo-Json -Compress',
+  ].join('; ');
+
+  let output;
+  try {
+    output = execFileSync(
+      'pwsh',
+      ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script, path],
+      {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+        windowsHide: true,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    ).trim();
+  } catch (error) {
+    const detail = error?.stderr?.toString?.().trim();
+    throw new Error(
+      `Windows encrypted Supabase credential could not be opened${detail ? `: ${detail}` : '.'}`,
+    );
+  }
+
+  let credential;
+  try {
+    credential = JSON.parse(output);
+  } catch {
+    throw new Error('Windows credential vault returned invalid data.');
+  }
+
+  if (
+    typeof credential?.email !== 'string' ||
+    !credential.email.includes('@') ||
+    typeof credential?.password !== 'string' ||
+    credential.password.length === 0
+  ) {
+    throw new Error('Windows credential vault does not contain a valid Supabase email/password pair.');
+  }
+
+  return credential;
 }
 
 async function inspectSupabaseSession(page) {
@@ -129,8 +182,16 @@ async function verifySavedState() {
 }
 
 async function bootstrap() {
+  let credential = credentialVaultPath
+    ? readWindowsEncryptedCredential(credentialVaultPath)
+    : null;
+
   console.log('[auth-bootstrap] Opening Chromium for the approved Supabase email/password sign-in.');
-  console.log('[auth-bootstrap] Enter the approved account in the visible Vishvakarma.OS form.');
+  if (credential) {
+    console.log('[auth-bootstrap] ISC automatic login is enabled with a Windows-encrypted local credential.');
+  } else {
+    console.log('[auth-bootstrap] Enter the approved account in the visible Vishvakarma.OS form.');
+  }
   console.log('[auth-bootstrap] The session will not be saved until /editor remains stable and a real Supabase access token exists.');
 
   const browser = await chromium.launch({ headless: false });
@@ -143,8 +204,22 @@ async function bootstrap() {
     });
 
     const emailInput = page.getByTestId('supabase-email-input');
+    const passwordInput = page.getByTestId('supabase-password-input');
+    const submitButton = page.getByTestId('supabase-password-button');
     await emailInput.waitFor({ state: 'visible', timeout: 30_000 });
-    await emailInput.focus();
+
+    if (credential) {
+      await passwordInput.waitFor({ state: 'visible', timeout: 30_000 });
+      await submitButton.waitFor({ state: 'visible', timeout: 30_000 });
+      await emailInput.fill(credential.email);
+      await passwordInput.fill(credential.password);
+      credential.password = '';
+      credential = null;
+      await submitButton.click();
+      console.log('[auth-bootstrap] ISC submitted the Windows-encrypted Supabase credential automatically.');
+    } else {
+      await emailInput.focus();
+    }
 
     const deadline = Date.now() + 300_000;
     let authenticated = null;
@@ -173,6 +248,13 @@ async function bootstrap() {
 }
 
 ensureIgnored(authStatePath);
+if (credentialVaultPath) {
+  ensureIgnored(credentialVaultPath);
+  if (!(await exists(credentialVaultPath))) {
+    throw new Error('Configured Windows-encrypted Supabase credential vault is missing.');
+  }
+}
+
 if (reset) {
   await rm(authStatePath, { force: true });
   console.log('[auth-bootstrap] Removed previous browser session state.');
@@ -181,8 +263,8 @@ if (reset) {
 let state = await verifySavedState();
 if (!state.valid) {
   console.log(`[auth-bootstrap] ${state.detail}`);
-  if (nonInteractive) {
-    throw new Error('No valid saved Supabase email/password session is available in non-interactive mode.');
+  if (nonInteractive && !credentialVaultPath) {
+    throw new Error('No valid saved Supabase session or encrypted automatic-login credential is available in non-interactive mode.');
   }
   await rm(authStatePath, { force: true });
   await bootstrap();
