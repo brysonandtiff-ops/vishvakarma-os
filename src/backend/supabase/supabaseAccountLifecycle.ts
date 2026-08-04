@@ -45,11 +45,8 @@ export async function createSupabaseAccount(
   const { data, error } = await client.auth.signUp({
     email: normalizedEmail,
     password,
-    options: {
-      emailRedirectTo,
-    },
+    options: { emailRedirectTo },
   });
-
   if (error) throw error;
 
   return {
@@ -71,8 +68,24 @@ export async function sendSupabasePasswordRecovery(
   if (error) throw error;
 }
 
-export async function getSupabaseRecoverySession(): Promise<Session | null> {
+function stripRecoveryCodeFromUrl() {
+  if (typeof window === 'undefined') return;
+  window.history.replaceState({}, document.title, '/reset-password');
+}
+
+export async function resolveSupabaseRecoverySession(): Promise<Session | null> {
   const client = configuredClient();
+
+  if (typeof window !== 'undefined') {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      const { data, error } = await client.auth.exchangeCodeForSession(code);
+      if (error) throw error;
+      stripRecoveryCodeFromUrl();
+      if (data.session) return data.session;
+    }
+  }
+
   const { data, error } = await client.auth.getSession();
   if (error) throw error;
   return data.session;
