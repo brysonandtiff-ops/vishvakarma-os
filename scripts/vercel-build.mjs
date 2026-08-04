@@ -92,6 +92,7 @@ const focusedTests = [
   'src/test/vercelApiRuntimeModule.test.ts',
   'src/test/serverRuntimeAliasBoundary.test.ts',
   'src/test/supabaseOnlyAuthSurface.test.ts',
+  'src/backend/supabase/supabaseAccountLifecycle.test.ts',
   'src/test/productionAuthVerifier.test.ts',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
