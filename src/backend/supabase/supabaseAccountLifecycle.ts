@@ -91,6 +91,9 @@ export async function resolveSupabaseRecoverySession(): Promise<Session | null> 
   return data.session;
 }
 
+// Stable public name used by the reset page and existing tests.
+export const getSupabaseRecoverySession = resolveSupabaseRecoverySession;
+
 export async function updateSupabaseAccountPassword(password: string) {
   const passwordError = validateAccountPassword(password);
   if (passwordError) throw new Error(passwordError);
