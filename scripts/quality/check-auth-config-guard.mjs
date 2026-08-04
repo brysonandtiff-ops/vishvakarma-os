@@ -2,190 +2,155 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL, CANONICAL_ORIGIN } from '../lib/canonical-origin.mjs';
+import {
+  CANONICAL_AUTH_URL,
+  CANONICAL_EDITOR_URL,
+  CANONICAL_ORIGIN,
+} from '../lib/canonical-origin.mjs';
 
 const root = process.cwd();
-const authPath = join(root, 'src/contexts/AuthContext.tsx');
-const supabaseAuthPath = join(root, 'src/backend/supabase/supabaseAuthGateway.ts');
-const supabaseOAuthPath = join(root, 'src/backend/supabase/supabaseOAuthGateway.ts');
-const backendConfigPath = join(root, 'src/backend/backendConfig.ts');
-const supabaseProviderPath = join(root, 'src/contexts/SupabaseAuthProvider.tsx');
-const supabaseConfigPath = join(root, 'supabase/config.toml');
-const canonicalOriginPath = join(root, 'src/config/canonicalOrigin.ts');
-
 const failures = [];
 
-function readRequiredFile(path, label) {
-  if (!existsSync(path)) {
-    failures.push(`Missing required file: ${label}`);
+function readRequired(relativePath) {
+  const absolutePath = join(root, relativePath);
+  if (!existsSync(absolutePath)) {
+    failures.push(`Missing required file: ${relativePath}`);
     return '';
   }
-
-  return readFileSync(path, 'utf8');
+  return readFileSync(absolutePath, 'utf8');
 }
 
-function checkSupabaseConfig() {
-  const config = readRequiredFile(supabaseConfigPath, 'supabase/config.toml');
-  if (!config) return;
-
-  const siteUrlMatch = config.match(/site_url\s*=\s*"([^"]+)"/);
-  const siteUrl = siteUrlMatch?.[1] ?? '';
-  if (siteUrl !== CANONICAL_ORIGIN) {
-    failures.push(
-      `supabase/config.toml site_url must be ${CANONICAL_ORIGIN} (found ${siteUrl || 'missing'})`
-    );
-  }
-
-  for (const required of [CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL]) {
-    if (!config.includes(required)) {
-      failures.push(`supabase/config.toml missing redirect URL: ${required}`);
-    }
+function requirePhrase(source, phrase, label) {
+  if (!source.includes(phrase)) {
+    failures.push(`${label} is missing required phrase: ${phrase}`);
   }
 }
 
-function checkGatewayCanonicalFallbacks() {
-  const oauth = readRequiredFile(supabaseOAuthPath, 'src/backend/supabase/supabaseOAuthGateway.ts');
-  const auth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
-  const canonical = readRequiredFile(canonicalOriginPath, 'src/config/canonicalOrigin.ts');
-  const supabaseClientPath = join(root, 'src/backend/supabase/supabaseClient.ts');
-  const supabaseClient = readRequiredFile(supabaseClientPath, 'src/backend/supabase/supabaseClient.ts');
-
-  if (oauth.includes("'https://vishvakarma-os.vercel.app'")) {
-    failures.push('supabaseOAuthGateway.ts must not hardcode Vercel as primary auth origin');
-  }
-  if (auth.includes("'https://vishvakarma-os.vercel.app/auth'")) {
-    failures.push('supabaseAuthGateway.ts must not hardcode Vercel as primary auth URL');
-  }
-  if (
-    !oauth.includes('CANONICAL_ORIGIN') ||
-    !oauth.includes('CLOUDFLARE_PAGES_ORIGIN')
-  ) {
-    failures.push('Supabase OAuth gateway must import approved production origins');
-  }
-  if (
-    !auth.includes('requestSupabaseAccessLink(email: string, redirectTo: string)') ||
-    !auth.includes('emailRedirectTo: redirectTo')
-  ) {
-    failures.push('Supabase email auth gateway must receive and forward its caller-approved redirect');
-  }
-  if (!canonical.includes(CANONICAL_ORIGIN)) {
-    failures.push('src/config/canonicalOrigin.ts missing canonical origin constant');
-  }
-  if (!oauth.includes('completePostAuthRedirect')) {
-    failures.push('supabaseOAuthGateway.ts must export completePostAuthRedirect for OAuth callback landing');
-  }
-  if (!oauth.includes('ALLOWED_AUTH_ORIGINS')) {
-    failures.push('supabaseOAuthGateway.ts must pin OAuth redirectTo to the active allowed production origin');
-  }
-  if (!oauth.includes("POST_AUTH_DESTINATION = '/editor'")) {
-    failures.push("supabaseOAuthGateway.ts POST_AUTH_DESTINATION must be '/editor'");
-  }
-  if (!supabaseClient.includes('detectSessionInUrl: false')) {
-    failures.push('supabaseClient.ts must disable detectSessionInUrl — PKCE exchange is handled in supabaseOAuthGateway');
+function forbidPhrase(source, phrase, label) {
+  if (source.includes(phrase)) {
+    failures.push(`${label} contains retired phrase: ${phrase}`);
   }
 }
 
-const auth = readRequiredFile(authPath, 'src/contexts/AuthContext.tsx');
-const supabaseAuth = readRequiredFile(supabaseAuthPath, 'src/backend/supabase/supabaseAuthGateway.ts');
-const supabaseProvider = readRequiredFile(supabaseProviderPath, 'src/contexts/SupabaseAuthProvider.tsx');
-const backendConfig = readRequiredFile(backendConfigPath, 'src/backend/backendConfig.ts');
-const routeGuardPath = join(root, 'src/components/common/RouteGuard.tsx');
-const routeGuard = readRequiredFile(routeGuardPath, 'src/components/common/RouteGuard.tsx');
+const authContext = readRequired('src/contexts/AuthContext.tsx');
+const provider = readRequired('src/contexts/SupabaseAuthProvider.tsx');
+const authGateway = readRequired('src/backend/supabase/supabaseAuthGateway.ts');
+const lifecycle = readRequired('src/backend/supabase/supabaseAccountLifecycle.ts');
+const client = readRequired('src/backend/supabase/supabaseClient.ts');
+const backendConfig = readRequired('src/backend/backendConfig.ts');
+const routeGuard = readRequired('src/components/common/RouteGuard.tsx');
+const authPage = readRequired('src/pages/AuthPage.tsx');
+const authCard = readRequired('src/components/auth/AuthLoginCard.tsx');
+const resetPage = readRequired('src/pages/ResetPasswordPage.tsx');
+const supabaseConfig = readRequired('supabase/config.toml');
+const hostedSetup = readRequired('scripts/setup-supabase-auth-hardening.mjs');
+const canonicalConfig = readRequired('src/config/canonicalOrigin.ts');
 
-const authRequired = [
-  'SupabaseAuthProvider',
-  'completeEmailLinkSignIn',
-  'emailLinkState',
-  'ensureSupabaseProfile',
-  'normalizeMagicLinkError',
-  "message.includes('fetch failed')",
-  "message.includes('failed to fetch')",
-];
-
-const combinedAuthSource = `${auth}\n${supabaseProvider}\n${readRequiredFile(join(root, 'src/backend/supabase/supabaseProfileGateway.ts'), 'supabaseProfileGateway')}`;
-
-for (const phrase of authRequired) {
-  if (!combinedAuthSource.includes(phrase)) {
-    failures.push(`Auth wiring is missing phrase: ${phrase}`);
-  }
+for (const phrase of ['SupabaseAuthProvider', 'provider: \'supabase\'']) {
+  requirePhrase(`${authContext}\n${backendConfig}`, phrase, 'Supabase auth boundary');
 }
+forbidPhrase(authContext, 'FirebaseAuthProvider', 'AuthContext');
+forbidPhrase(authContext, 'firebaseAuthGateway', 'AuthContext');
 
-if (auth.includes('FirebaseAuthProvider') || auth.includes('firebaseAuthGateway')) {
-  failures.push('AuthContext still references Firebase — Supabase-only cutover required.');
-}
-
-const supabaseRequired = [
-  'requestSupabaseAccessLink',
-  'completeSupabaseEmailLinkSignIn',
-  'readSupabaseSessionSnapshot',
-  'clearSupabaseSessionSnapshot',
-  'writeSupabaseSessionSnapshot',
+for (const phrase of [
   'hydrateSupabaseAuthSession',
-  'readCachedAuthBootstrap',
-  'hasCachedAuthSession',
-  'signInWithOtp',
-  'buildSupabaseSessionFromAuthSession',
-  'isSupabaseOAuthCallback',
-];
-
-for (const phrase of supabaseRequired) {
-  if (!supabaseAuth.includes(phrase)) {
-    failures.push(`src/backend/supabase/supabaseAuthGateway.ts is missing Supabase auth phrase: ${phrase}`);
-  }
-}
-
-const backendRequired = [
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
-  'Supabase backend is not configured',
-  "provider: 'supabase'",
-];
-
-for (const phrase of backendRequired) {
-  if (!backendConfig.includes(phrase)) {
-    failures.push(`src/backend/backendConfig.ts is missing backend phrase: ${phrase}`);
-  }
-}
-
-if (existsSync(join(root, 'src/backend/firebase'))) {
-  failures.push('Legacy src/backend/firebase still exists — remove Firebase backend directory.');
-}
-
-if (existsSync(join(root, 'src/db/supabase.ts'))) {
-  failures.push('Legacy src/db/supabase.ts exists — use src/backend/supabase/supabaseClient.ts instead.');
-}
-
-const supabaseProviderRequired = [
-  'hydrateSupabaseAuthSession',
-  'readCachedAuthBootstrap',
+  'signInWithPasswordSupabase',
   'POST_AUTH_DESTINATION',
   'INITIAL_SESSION',
-];
-
-for (const phrase of supabaseProviderRequired) {
-  if (!supabaseProvider.includes(phrase)) {
-    failures.push(`src/contexts/SupabaseAuthProvider.tsx is missing auth phrase: ${phrase}`);
-  }
+]) {
+  requirePhrase(provider, phrase, 'SupabaseAuthProvider');
 }
 
-const hasPostAuthLanding =
-  supabaseProvider.includes('completePostAuthRedirect') ||
-  (supabaseProvider.includes('POST_AUTH_DESTINATION') &&
-    supabaseProvider.includes('navigate(') &&
-    supabaseProvider.includes("location.pathname !== '/auth'"));
+for (const phrase of [
+  'client.auth.signInWithPassword',
+  'client.auth.getSession',
+  'clearLegacyTokenSnapshot',
+  'buildAuthorizedSessionOrSignOut',
+]) {
+  requirePhrase(authGateway, phrase, 'Supabase auth gateway');
+}
 
-if (!hasPostAuthLanding) {
+for (const phrase of [
+  'client.auth.signUp',
+  'client.auth.resetPasswordForEmail',
+  'client.auth.exchangeCodeForSession',
+  'client.auth.updateUser',
+  'client.auth.signOut',
+  'MIN_ACCOUNT_PASSWORD_LENGTH = 12',
+]) {
+  requirePhrase(lifecycle, phrase, 'Supabase account lifecycle');
+}
+
+for (const phrase of [
+  'handleSupabaseSignIn',
+  'handleCreateAccount',
+  'handleForgotPassword',
+  'createSupabaseAccount',
+]) {
+  requirePhrase(authPage, phrase, 'Auth page');
+}
+forbidPhrase(authPage, 'signInWithGoogle', 'Auth page');
+forbidPhrase(authPage, 'requestAccessLink', 'Auth page');
+
+for (const phrase of [
+  'supabase-auth-badge',
+  'auth-mode-create-account',
+  'supabase-confirm-password-input',
+  'supabase-create-account-button',
+  'supabase-forgot-password-button',
+]) {
+  requirePhrase(authCard, phrase, 'Auth card');
+}
+forbidPhrase(authCard, 'google-sso-button', 'Auth card');
+forbidPhrase(authCard, 'email-magic-link-button', 'Auth card');
+
+for (const phrase of [
+  'recovery-email-input',
+  'recovery-send-email-button',
+  'recovery-new-password-input',
+  'recovery-update-password-button',
+  'getSupabaseRecoverySession',
+]) {
+  requirePhrase(resetPage, phrase, 'Reset password page');
+}
+forbidPhrase(resetPage, 'password-reset-unavailable', 'Reset password page');
+
+const siteUrl = supabaseConfig.match(/site_url\s*=\s*"([^"]+)"/)?.[1] ?? '';
+if (siteUrl !== CANONICAL_ORIGIN) {
   failures.push(
-    'src/contexts/SupabaseAuthProvider.tsx must land signed-in users on POST_AUTH_DESTINATION (completePostAuthRedirect or React Router navigate)',
+    `supabase/config.toml site_url must be ${CANONICAL_ORIGIN} (found ${siteUrl || 'missing'})`,
   );
 }
+for (const required of [CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL, `${CANONICAL_ORIGIN}/reset-password`]) {
+  requirePhrase(supabaseConfig, required, 'Supabase redirect allow-list');
+}
+requirePhrase(supabaseConfig, '[auth.email]\nenable_signup = true', 'Supabase config');
+requirePhrase(supabaseConfig, 'enable_confirmations = true', 'Supabase config');
+requirePhrase(supabaseConfig, '[auth.external.google]\nenabled = false', 'Supabase config');
 
-if (!routeGuard.includes('hasCachedAuthSession')) {
-  failures.push('RouteGuard must defer auth redirect while hasCachedAuthSession() is true');
+for (const phrase of [
+  'external_email_enabled: true',
+  'disable_signup: false',
+  'mailer_autoconfirm: false',
+  'external_google_enabled: false',
+  'mailer_subjects_confirmation',
+  'mailer_subjects_recovery',
+]) {
+  requirePhrase(hostedSetup, phrase, 'Hosted Supabase setup');
 }
 
-checkSupabaseConfig();
-checkGatewayCanonicalFallbacks();
+requirePhrase(client, 'detectSessionInUrl: false', 'Supabase client');
+requirePhrase(routeGuard, 'hasCachedAuthSession', 'RouteGuard');
+requirePhrase(backendConfig, 'VITE_SUPABASE_URL', 'Backend config');
+requirePhrase(backendConfig, 'VITE_SUPABASE_ANON_KEY', 'Backend config');
+requirePhrase(canonicalConfig, CANONICAL_ORIGIN, 'Canonical origin config');
+
+if (existsSync(join(root, 'src/backend/firebase'))) {
+  failures.push('Legacy src/backend/firebase still exists.');
+}
+if (existsSync(join(root, 'src/db/supabase.ts'))) {
+  failures.push('Legacy src/db/supabase.ts exists; use the backend Supabase client.');
+}
 
 if (failures.length > 0) {
   console.error('Vishvakarma.OS auth configuration guard check failed.');
@@ -194,5 +159,5 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS auth configuration guard check passed.');
-console.log('Supabase-only auth configuration handling is guarded.');
+console.log('Signup, confirmation, recovery, password update, redirects, and Supabase-only policy are guarded.');
 console.log(`Canonical auth origin: ${CANONICAL_ORIGIN}`);
