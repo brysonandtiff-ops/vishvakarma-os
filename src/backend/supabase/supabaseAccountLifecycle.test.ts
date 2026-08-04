@@ -11,6 +11,7 @@ import {
 
 const signUp = vi.fn();
 const resetPasswordForEmail = vi.fn();
+const exchangeCodeForSession = vi.fn();
 const getSession = vi.fn();
 const updateUser = vi.fn();
 const signOut = vi.fn();
@@ -20,6 +21,7 @@ vi.mock('@/backend/supabase/supabaseClient', () => ({
     auth: {
       signUp,
       resetPasswordForEmail,
+      exchangeCodeForSession,
       getSession,
       updateUser,
       signOut,
@@ -31,14 +33,20 @@ describe('Supabase account lifecycle', () => {
   beforeEach(() => {
     signUp.mockReset();
     resetPasswordForEmail.mockReset();
+    exchangeCodeForSession.mockReset();
     getSession.mockReset();
     updateUser.mockReset();
     signOut.mockReset();
+    window.history.replaceState({}, '', '/reset-password');
     signUp.mockResolvedValue({
       data: { session: null, user: { id: 'user-1' } },
       error: null,
     });
     resetPasswordForEmail.mockResolvedValue({ data: {}, error: null });
+    exchangeCodeForSession.mockResolvedValue({
+      data: { session: { access_token: 'recovery-session' } },
+      error: null,
+    });
     getSession.mockResolvedValue({
       data: { session: { access_token: 'verified' } },
       error: null,
@@ -62,7 +70,6 @@ describe('Supabase account lifecycle', () => {
       'StrongPassword123',
       'https://vishvakarma-os.pages.dev/auth?confirmed=1',
     );
-
     expect(signUp).toHaveBeenCalledWith({
       email: 'architect@firm.com',
       password: 'StrongPassword123',
@@ -78,14 +85,23 @@ describe('Supabase account lifecycle', () => {
       ' Architect@Firm.com ',
       'https://vishvakarma-os.pages.dev/reset-password',
     );
-
     expect(resetPasswordForEmail).toHaveBeenCalledWith(
       'architect@firm.com',
       { redirectTo: 'https://vishvakarma-os.pages.dev/reset-password' },
     );
   });
 
-  it('returns the verified recovery session', async () => {
+  it('exchanges a recovery code and removes it from the visible URL', async () => {
+    window.history.replaceState({}, '', '/reset-password?code=secure-recovery-code');
+    await expect(getSupabaseRecoverySession()).resolves.toEqual({
+      access_token: 'recovery-session',
+    });
+    expect(exchangeCodeForSession).toHaveBeenCalledWith('secure-recovery-code');
+    expect(window.location.pathname).toBe('/reset-password');
+    expect(window.location.search).toBe('');
+  });
+
+  it('returns an existing verified recovery session when no code is present', async () => {
     await expect(getSupabaseRecoverySession()).resolves.toEqual({
       access_token: 'verified',
     });
