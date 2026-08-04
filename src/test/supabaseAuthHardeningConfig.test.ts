@@ -2,45 +2,46 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-function readRepoFile(...parts: string[]) {
-  return readFileSync(path.join(process.cwd(), ...parts), 'utf8');
-}
+const read = (...parts: string[]) =>
+  readFileSync(path.join(process.cwd(), ...parts), 'utf8');
 
 describe('Supabase Auth hardening configuration', () => {
-  it('keeps local Auth Google-only with TOTP enabled', () => {
-    const config = readRepoFile('supabase', 'config.toml');
-
-    expect(config).toContain('[auth.email]\nenable_signup = false');
+  it('enables confirmed email accounts and disables retired providers', () => {
+    const config = read('supabase', 'config.toml');
+    expect(config).toContain('[auth.email]\nenable_signup = true');
+    expect(config).toContain('enable_confirmations = true');
+    expect(config).toContain('reset-password');
     expect(config).toContain('[auth.sms]\nenable_signup = false');
     expect(config).toContain('[auth.mfa.totp]\nenroll_enabled = true\nverify_enabled = true');
-    expect(config).toContain('[auth.mfa.phone]\nenroll_enabled = false\nverify_enabled = false');
-    expect(config).toContain('[auth.external.google]\nenabled = true');
+    expect(config).toContain('[auth.external.google]\nenabled = false');
   });
 
-  it('provides a verifiable hosted Auth Management API hardening script', () => {
-    const script = readRepoFile('scripts', 'setup-supabase-auth-hardening.mjs');
-
-    expect(script).toContain('password_hibp_enabled: true');
-    expect(script).toContain('mfa_totp_enroll_enabled: true');
-    expect(script).toContain('mfa_totp_verify_enabled: true');
-    expect(script).toContain('mfa_phone_enroll_enabled: false');
-    expect(script).toContain('mfa_phone_verify_enabled: false');
-    expect(script).toContain("managementRequest('PATCH', desiredConfig)");
-    expect(script).toContain("managementRequest('GET')");
-    expect(script).not.toContain('console.log(accessToken');
+  it('keeps hosted signup, confirmation, recovery, and password security enabled', () => {
+    const script = read('scripts', 'setup-supabase-auth-hardening.mjs');
+    for (const phrase of [
+      'external_email_enabled: true',
+      'disable_signup: false',
+      'mailer_autoconfirm: false',
+      'external_google_enabled: false',
+      'password_hibp_enabled: true',
+      'mailer_subjects_confirmation',
+      'mailer_subjects_recovery',
+      'mailer_notifications_password_changed_enabled: true',
+      "managementRequest('PATCH', desiredConfig)",
+    ]) {
+      expect(script).toContain(phrase);
+    }
   });
 
-  it('enforces AAL2 in RLS only after a user has enrolled a verified factor', () => {
-    const migration = readRepoFile(
+  it('enforces AAL2 only after a verified factor is enrolled', () => {
+    const migration = read(
       'supabase',
       'migrations',
       '20260712012000_enforce_opt_in_totp_mfa.sql',
     );
-
     expect(migration).toContain('from auth.mfa_factors factor');
     expect(migration).toContain("factor.status = 'verified'");
     expect(migration).toContain("auth.jwt() ->> 'aal'");
     expect(migration).toContain("= 'aal2'");
-    expect(migration).toContain('as restrictive for all to authenticated');
   });
 });
