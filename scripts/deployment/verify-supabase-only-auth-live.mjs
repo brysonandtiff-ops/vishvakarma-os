@@ -28,49 +28,80 @@ try {
       });
       await page.waitForTimeout(1200);
 
-      const badge = page.getByTestId('supabase-auth-badge');
-      const email = page.getByTestId('supabase-email-input');
-      const password = page.getByTestId('supabase-password-input');
-      const submit = page.getByTestId('supabase-password-button');
-      const google = page.getByTestId('google-sso-button');
-      const magicLink = page.getByTestId('email-magic-link-button');
+      const visible = async (testId) =>
+        page.getByTestId(testId).isVisible().catch(() => false);
 
-      const badgeVisible = await badge.isVisible().catch(() => false);
-      const badgeText = badgeVisible ? await badge.textContent() : '';
-      const emailVisible = await email.isVisible().catch(() => false);
-      const passwordVisible = await password.isVisible().catch(() => false);
-      const submitVisible = await submit.isVisible().catch(() => false);
-      const googleCount = await google.count();
-      const magicLinkCount = await magicLink.count();
+      const badgeVisible = await visible('supabase-auth-badge');
+      const badgeText = badgeVisible
+        ? await page.getByTestId('supabase-auth-badge').textContent()
+        : '';
+      const emailVisible = await visible('supabase-email-input');
+      const passwordVisible = await visible('supabase-password-input');
+      const signInVisible = await visible('supabase-password-button');
+      const createModeVisible = await visible('auth-mode-create-account');
+      const forgotPasswordVisible = await visible('supabase-forgot-password-button');
+      const googleCount = await page.getByTestId('google-sso-button').count();
+      const magicLinkCount = await page.getByTestId('email-magic-link-button').count();
+
+      let createAccountVisible = false;
+      let confirmPasswordVisible = false;
+      if (createModeVisible) {
+        await page.getByTestId('auth-mode-create-account').click();
+        confirmPasswordVisible = await visible('supabase-confirm-password-input');
+        createAccountVisible = await visible('supabase-create-account-button');
+        await page.getByTestId('auth-mode-sign-in').click();
+      }
+
+      const resetResponse = await page.goto(
+        `${baseOrigin}/reset-password?proof=${Date.now()}`,
+        { waitUntil: 'domcontentloaded', timeout: 45_000 },
+      );
+      await page.waitForTimeout(800);
+      const recoveryEmailVisible = await visible('recovery-email-input');
+      const recoverySendVisible = await visible('recovery-send-email-button');
 
       const pass =
         response?.ok() === true &&
+        resetResponse?.ok() === true &&
         badgeVisible &&
         badgeText?.includes('Supabase Auth') &&
         badgeText?.includes('Connected') &&
         emailVisible &&
         passwordVisible &&
-        submitVisible &&
+        signInVisible &&
+        createModeVisible &&
+        forgotPasswordVisible &&
+        confirmPasswordVisible &&
+        createAccountVisible &&
+        recoveryEmailVisible &&
+        recoverySendVisible &&
         googleCount === 0 &&
         magicLinkCount === 0;
 
       if (pass) {
-        console.log('LIVE SUPABASE-ONLY AUTH SURFACE: PASS');
-        console.log(`Target: ${baseOrigin}/auth`);
+        console.log('LIVE SUPABASE ACCOUNT LIFECYCLE: PASS');
+        console.log(`Auth: ${baseOrigin}/auth`);
+        console.log(`Recovery: ${baseOrigin}/reset-password`);
         console.log('Badge: Supabase Auth • Connected');
-        console.log('Controls: email + password + Supabase submit');
+        console.log('Controls: sign in + create account + forgot password + recovery');
         console.log('Removed: Google SSO + email magic link');
         process.exitCode = 0;
         break;
       }
 
       lastDetail = JSON.stringify({
-        status: response?.status() ?? null,
+        authStatus: response?.status() ?? null,
+        resetStatus: resetResponse?.status() ?? null,
         badgeVisible,
-        badgeText,
         emailVisible,
         passwordVisible,
-        submitVisible,
+        signInVisible,
+        createModeVisible,
+        forgotPasswordVisible,
+        confirmPasswordVisible,
+        createAccountVisible,
+        recoveryEmailVisible,
+        recoverySendVisible,
         googleCount,
         magicLinkCount,
       });
@@ -79,7 +110,7 @@ try {
     }
 
     if (Date.now() >= deadline) {
-      console.error('LIVE SUPABASE-ONLY AUTH SURFACE: FAILED');
+      console.error('LIVE SUPABASE ACCOUNT LIFECYCLE: FAILED');
       console.error(`Last observation: ${lastDetail}`);
       process.exitCode = 1;
       break;
