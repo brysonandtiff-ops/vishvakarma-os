@@ -13,11 +13,20 @@ import {
 const getSession = vi.fn();
 const signOut = vi.fn();
 const signInWithOtp = vi.fn();
+const signInWithPassword = vi.fn();
+const resetPasswordForEmail = vi.fn();
 const verifyOtp = vi.fn();
 
 vi.mock('@/backend/supabase/supabaseClient', () => ({
   getSupabaseClient: () => ({
-    auth: { getSession, signOut, signInWithOtp, verifyOtp },
+    auth: {
+      getSession,
+      signOut,
+      signInWithOtp,
+      signInWithPassword,
+      resetPasswordForEmail,
+      verifyOtp,
+    },
   }),
 }));
 
@@ -48,9 +57,16 @@ describe('Supabase production auth policy', () => {
     getSession.mockReset();
     signOut.mockReset();
     signInWithOtp.mockReset();
+    signInWithPassword.mockReset();
+    resetPasswordForEmail.mockReset();
     verifyOtp.mockReset();
     signOut.mockResolvedValue({ error: null });
     signInWithOtp.mockResolvedValue({ data: { user: null, session: null }, error: null });
+    signInWithPassword.mockResolvedValue({
+      data: { session: authSession('email'), user: authUser('email') },
+      error: null,
+    });
+    resetPasswordForEmail.mockResolvedValue({ data: {}, error: null });
     localStorage.clear();
     window.history.replaceState({}, '', '/auth');
   });
@@ -86,16 +102,35 @@ describe('Supabase production auth policy', () => {
     expect(signOut).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps password and password reset disabled', async () => {
-    const password = await signInWithPasswordSupabase('user@example.com', 'password');
-    const reset = await requestSupabasePasswordReset(
-      'user@example.com',
+  it('authenticates an approved email account with a password', async () => {
+    const result = await signInWithPasswordSupabase(
+      ' Architect@Firm.com ',
+      'approved-password',
+    );
+
+    expect(signInWithPassword).toHaveBeenCalledWith({
+      email: 'architect@firm.com',
+      password: 'approved-password',
+    });
+    expect(result.error).toBeNull();
+    expect(result.session).toMatchObject({
+      provider: 'supabase',
+      authProvider: 'email',
+      uid: 'user-1',
+      email: 'architect@firm.com',
+    });
+  });
+
+  it('requests password reset through Supabase for an approved email address', async () => {
+    const result = await requestSupabasePasswordReset(
+      ' Architect@Firm.com ',
       'https://vishvakarma-os.app/reset-password',
     );
 
-    expect(password.session).toBeNull();
-    expect(password.error?.message).toContain('Password sign-in is disabled');
-    expect(reset.error?.message).toContain('Password reset is unavailable');
+    expect(resetPasswordForEmail).toHaveBeenCalledWith('architect@firm.com', {
+      redirectTo: 'https://vishvakarma-os.app/reset-password',
+    });
+    expect(result.error).toBeNull();
   });
 
   it('requests an existing-account-only email magic link', async () => {
