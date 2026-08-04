@@ -9,7 +9,7 @@ const SUPPORTED_AUTH_PROVIDERS = ['google', 'email'] as const;
 export type SupportedAuthProvider = (typeof SUPPORTED_AUTH_PROVIDERS)[number];
 
 export const SUPPORTED_AUTH_MESSAGE =
-  'Vishvakarma.OS accepts approved Google SSO or secure email magic-link sessions through Supabase.';
+  'Vishvakarma.OS accepts approved Supabase account sessions.';
 /** @deprecated Kept for compatibility with older error and test imports. */
 export const GOOGLE_ONLY_AUTH_MESSAGE = SUPPORTED_AUTH_MESSAGE;
 
@@ -224,19 +224,71 @@ export function isSupabaseEmailLinkCallback(
   );
 }
 
-/** Password sign-in remains disabled; use Google SSO or email magic link. */
-export async function signInWithPasswordSupabase(_email: string, _password: string) {
-  return {
-    error: new Error('Password sign-in is disabled. Use Google SSO or a secure email magic link.'),
-    session: null,
-  };
+/** Authenticate an existing approved email account directly through Supabase. */
+export async function signInWithPasswordSupabase(email: string, password: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    return { error: new Error('Enter a valid email address.'), session: null };
+  }
+  if (!password) {
+    return { error: new Error('Enter your Supabase account password.'), session: null };
+  }
+
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      error: new Error(
+        backendStatus.configurationError ?? 'Supabase backend is not configured.',
+      ),
+      session: null,
+    };
+  }
+
+  const { data, error } = await client.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+  if (error) {
+    return { error: normalizeSupabaseAuthError(error), session: null };
+  }
+  if (!data.session?.user) {
+    return {
+      error: new Error('Supabase did not return an authenticated session.'),
+      session: null,
+    };
+  }
+
+  try {
+    const session = await buildAuthorizedSessionOrSignOut(
+      client,
+      data.session,
+      data.session.user,
+    );
+    return { error: null, session };
+  } catch (sessionError) {
+    return { error: normalizeSupabaseAuthError(sessionError), session: null };
+  }
 }
 
-/** Password reset remains disabled because password sign-in is unsupported. */
-export async function requestSupabasePasswordReset(_email: string, _redirectTo: string) {
-  return {
-    error: new Error('Password reset is unavailable. Request a secure email sign-in link instead.'),
-  };
+export async function requestSupabasePasswordReset(email: string, redirectTo: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail || !normalizedEmail.includes('@')) {
+    return { error: new Error('Enter a valid email address.') };
+  }
+
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      error: new Error(
+        backendStatus.configurationError ?? 'Supabase backend is not configured.',
+      ),
+    };
+  }
+
+  const { error } = await client.auth.resetPasswordForEmail(normalizedEmail, {
+    redirectTo,
+  });
+  return { error: error ? normalizeSupabaseAuthError(error) : null };
 }
 
 export async function requestSupabaseAccessLink(email: string, redirectTo: string) {
