@@ -122,8 +122,10 @@ const steps = [
     command: 'node scripts/security/check-repository-secrets.mjs',
   },
   { label: 'Lint', command: 'pnpm run lint' },
-  // hardening:gates includes the recursive API endpoint inventory.
-  { label: 'Production hardening', command: 'pnpm run hardening:gates' },
+  {
+    label: 'Production hardening',
+    command: 'pnpm run hardening:gates && pnpm run auth:gates',
+  },
   {
     label: 'Focused regression tests',
     command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
