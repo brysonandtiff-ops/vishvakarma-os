@@ -9,7 +9,7 @@ function read(path: string) {
 }
 
 describe('Supabase-only backend wiring', () => {
-  it('exports approved Google and email Supabase auth without Firebase or passwords', () => {
+  it('exports approved Supabase email/password auth without Firebase or copied tokens', () => {
     const authContext = read('src/contexts/AuthContext.tsx');
     const backendConfig = read('src/backend/backendConfig.ts');
     const supabaseAuth = read('src/backend/supabase/supabaseAuthGateway.ts');
@@ -18,14 +18,16 @@ describe('Supabase-only backend wiring', () => {
     expect(authContext).not.toContain('FirebaseAuthProvider');
     expect(backendConfig).toContain('VITE_SUPABASE_URL');
     expect(backendConfig).toContain("provider: 'supabase'");
-    expect(supabaseAuth).toContain("SUPPORTED_AUTH_PROVIDERS = ['google', 'email']");
-    expect(supabaseAuth).toContain('requestSupabaseAccessLink');
-    expect(supabaseAuth).toContain('client.auth.signInWithOtp');
-    expect(supabaseAuth).toContain('shouldCreateUser: false');
-    expect(supabaseAuth).toContain('client.auth.verifyOtp');
-    expect(supabaseAuth).not.toContain('client.auth.signInWithPassword');
-    expect(supabaseAuth).toContain('isSupabaseOAuthCallback');
-    expect(supabaseAuth).toContain('isSupabaseEmailLinkCallback');
+    expect(supabaseAuth).toContain('signInWithPasswordSupabase');
+    expect(supabaseAuth).toContain('client.auth.signInWithPassword');
+    expect(supabaseAuth).toContain('client.auth.resetPasswordForEmail');
+    expect(supabaseAuth).toContain('buildAuthorizedSessionOrSignOut');
+    expect(supabaseAuth).toContain('clearLegacyTokenSnapshot');
+    expect(supabaseAuth).toContain('Supabase remains the single');
+    expect(supabaseAuth).not.toContain('Password sign-in is disabled');
+    expect(supabaseAuth).not.toContain('idToken: string;');
+    expect(supabaseAuth).not.toContain('refreshToken: string;');
+    expect(supabaseAuth).not.toContain('storage.setItem(SUPABASE_SESSION_KEY');
   });
 
   it('routes db/api directly through Supabase gateways', () => {
