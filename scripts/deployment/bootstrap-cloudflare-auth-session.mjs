@@ -48,9 +48,17 @@ function ensureIgnored(path) {
 }
 
 function readWindowsEncryptedCredential(path) {
+  if (typeof path !== 'string' || path.trim().length === 0) {
+    throw new Error('Windows encrypted Supabase credential vault path is empty.');
+  }
+
+  const resolvedVaultPath = resolve(path);
   const script = [
     "$ErrorActionPreference = 'Stop'",
-    '$credential = Import-Clixml -LiteralPath $args[0]',
+    '$vaultPath = $env:VISH_SUPABASE_CREDENTIAL_VAULT_PATH',
+    "if ([string]::IsNullOrWhiteSpace($vaultPath)) { throw 'Credential vault path was not provided to PowerShell.' }",
+    "if (-not (Test-Path -LiteralPath $vaultPath -PathType Leaf)) { throw 'Credential vault file does not exist.' }",
+    '$credential = Import-Clixml -LiteralPath $vaultPath',
     "if (-not ($credential -is [System.Management.Automation.PSCredential])) { throw 'Credential vault does not contain a PSCredential.' }",
     '$password = $credential.GetNetworkCredential().Password',
     "if ([string]::IsNullOrWhiteSpace($credential.UserName) -or [string]::IsNullOrEmpty($password)) { throw 'Credential vault is incomplete.' }",
@@ -61,12 +69,16 @@ function readWindowsEncryptedCredential(path) {
   try {
     output = execFileSync(
       'pwsh',
-      ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script, path],
+      ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script],
       {
         cwd: process.cwd(),
         encoding: 'utf8',
         windowsHide: true,
         stdio: ['ignore', 'pipe', 'pipe'],
+        env: {
+          ...process.env,
+          VISH_SUPABASE_CREDENTIAL_VAULT_PATH: resolvedVaultPath,
+        },
       },
     ).trim();
   } catch (error) {
