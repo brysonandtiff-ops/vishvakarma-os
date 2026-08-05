@@ -19,7 +19,23 @@ describe('production authentication certification', () => {
     expect(verifier).not.toContain("name === 'firefox' && postAlert === null");
   });
 
-  it('runs the repository credential guard before Vercel quality gates', () => {
+  it('uses the Windows-encrypted credential for post-deployment Supabase proof', () => {
+    const verifier = readRepositoryFile(
+      'scripts/deployment/verify-cloudflare-interactive-auth-checkout.mjs',
+    );
+
+    expect(verifier).toContain('VISH_SUPABASE_CREDENTIAL_VAULT');
+    expect(verifier).toContain('Import-Clixml');
+    expect(verifier).toContain("getByTestId('supabase-email-input')");
+    expect(verifier).toContain("getByTestId('supabase-password-input')");
+    expect(verifier).toContain("getByTestId('supabase-password-button')");
+    expect(verifier).toContain('Encrypted credential submitted automatically');
+    expect(verifier).toContain('Supabase rejected the encrypted login:');
+    expect(verifier).toContain('Authenticated editor contains a valid Supabase access token');
+    expect(verifier).toContain("credentialMode: credentialVaultPath ? 'windows-dpapi-vault' : 'interactive'");
+  });
+
+  it('runs the repository credential guard before quality gates', () => {
     const build = readRepositoryFile('scripts/vercel-build.mjs');
     const guard = readRepositoryFile('scripts/security/check-repository-secrets.mjs');
 
