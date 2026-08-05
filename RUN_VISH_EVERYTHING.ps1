@@ -16,10 +16,12 @@ Set-StrictMode -Version Latest
 # Final single-entry ISC launcher. Cloudflare cutover is completed and verified
 # first. Vercel retirement is intentionally separated so an optional provider
 # cleanup failure can never roll back a healthy Cloudflare production site.
+# The zero-touch controller is always routed through a full PowerShell parser
+# and compatibility gate before any production action is allowed.
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Branch = "agent/cloudflare-pages-workers-migration"
-$Cutover = Join-Path $RepoRoot "RUN_VISH_ZERO_TOUCH_CUTOVER.ps1"
+$Cutover = Join-Path $RepoRoot "RUN_VISH_ZERO_TOUCH_COMPAT.ps1"
 $LocalRoot = Join-Path $RepoRoot ".local\cloudflare-proof"
 $RunId = Get-Date -Format "yyyyMMdd-HHmmss"
 $FinalPath = Join-Path $LocalRoot "everything-last-run.json"
@@ -59,10 +61,10 @@ function Write-FinalState {
 }
 
 Write-Host "VISHVAKARMA.OS EVERYTHING AUTOPILOT" -ForegroundColor Magenta
-Write-Host "One chain: sync -> repair -> test -> deploy -> merge -> domain -> retire Vercel" -ForegroundColor Cyan
+Write-Host "One chain: sync -> repair -> parse -> test -> deploy -> merge -> domain -> retire Vercel" -ForegroundColor Cyan
 
 # Fetch only enough to obtain the newest launcher. Generated evidence is handled
-# safely by the zero-touch controller after it starts.
+# safely by the one-click and zero-touch controllers after they start.
 Invoke-NativeChecked -Label "Fetch migration branch" -Action {
     git fetch origin $Branch
 } | Out-Null
@@ -78,11 +80,11 @@ if ($CurrentBranch -eq $Branch) {
 }
 
 if (-not (Test-Path -LiteralPath $Cutover -PathType Leaf)) {
-    # Use git-show to materialize the newest launcher without touching other
-    # tracked files when the local checkout is behind and contains generated files.
-    $Content = git show "origin/$Branch`:RUN_VISH_ZERO_TOUCH_CUTOVER.ps1"
+    # Use git-show to materialize the newest parsed compatibility launcher
+    # without touching other tracked files when the local checkout is behind.
+    $Content = git show "origin/$Branch`:RUN_VISH_ZERO_TOUCH_COMPAT.ps1"
     if ($LASTEXITCODE -ne 0 -or -not $Content) {
-        throw "Could not obtain the zero-touch cutover controller."
+        throw "Could not obtain the parsed zero-touch compatibility controller."
     }
     $Content -join "`n" | Set-Content -LiteralPath $Cutover -Encoding utf8
 }
@@ -100,7 +102,7 @@ if ($ResetStripeKey) { $CutoverArguments.ResetStripeKey = $true }
 
 & $Cutover @CutoverArguments
 if ($LASTEXITCODE -ne 0) {
-    Write-FinalState -Result "BLOCKED" -Detail "Cloudflare zero-touch cutover did not pass." -VercelResult "NOT_STARTED"
+    Write-FinalState -Result "BLOCKED" -Detail "Parsed Cloudflare zero-touch cutover did not pass." -VercelResult "NOT_STARTED"
     throw "Cloudflare zero-touch cutover did not pass. Vercel was not changed."
 }
 
