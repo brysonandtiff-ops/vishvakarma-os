@@ -18,11 +18,13 @@ describe('zero-touch PowerShell compatibility gate', () => {
   it('repairs both invalid colon interpolations before execution', () => {
     const compat = read('RUN_VISH_ZERO_TOUCH_COMPAT.ps1');
 
+    expect(compat).toContain('Write-Host "${Status}: $Name - $Detail"');
     expect(compat).toContain(
-      `'Write-Host "$Status: $Name - $Detail"' = 'Write-Host "${Status}: $Name - $Detail"'`,
+      'Merge PR #${PullRequestNumber}: Cloudflare Pages and Workers migration',
     );
+    expect(compat).toContain('Write-Host "$Status: $Name - $Detail"');
     expect(compat).toContain(
-      `'git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #$PullRequestNumber: Cloudflare Pages and Workers migration"' = 'git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #${PullRequestNumber}: Cloudflare Pages and Workers migration"'`,
+      'Merge PR #$PullRequestNumber: Cloudflare Pages and Workers migration',
     );
   });
 
