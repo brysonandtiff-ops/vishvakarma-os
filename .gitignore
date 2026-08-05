@@ -57,3 +57,5 @@ public/splash/generated/
 node_modules/
 visual-pack/pack/_rejected/
 test-results/
+qe-audit-evidence/
+.wrangler/
