@@ -94,6 +94,7 @@ const focusedTests = [
   'src/test/supabaseOnlyAuthSurface.test.ts',
   'src/backend/supabase/supabaseAccountLifecycle.test.ts',
   'src/test/productionAuthVerifier.test.ts',
+  'src/test/zeroTouchCutoverScript.test.ts',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
