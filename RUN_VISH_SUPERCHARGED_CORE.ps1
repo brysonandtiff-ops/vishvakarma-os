@@ -18,13 +18,13 @@ Set-StrictMode -Version Latest
 
 $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $NodeCore = Join-Path $RepoRoot "scripts\deployment\vish-supercharged-core.mjs"
+$StripeFinalizer = Join-Path $RepoRoot "scripts\deployment\vish-stripe-checkout-finalizer.mjs"
 $WindowsSpawnCompat = Join-Path $RepoRoot "scripts\deployment\windows-command-spawn-compat.cjs"
 
-if (-not (Test-Path $NodeCore)) {
-    throw "Missing supercharged Node core: $NodeCore"
-}
-if (-not (Test-Path $WindowsSpawnCompat)) {
-    throw "Missing Windows command compatibility layer: $WindowsSpawnCompat"
+foreach ($Required in @($NodeCore, $StripeFinalizer, $WindowsSpawnCompat)) {
+    if (-not (Test-Path -LiteralPath $Required)) {
+        throw "Missing supercharged release component: $Required"
+    }
 }
 
 if ($IsWindows) {
@@ -73,4 +73,28 @@ if ($ResetVault) {
 }
 
 & node @Arguments
-$global:LASTEXITCODE = $LASTEXITCODE
+$CoreExitCode = $LASTEXITCODE
+
+if ($CoreExitCode -eq 0) {
+    $global:LASTEXITCODE = 0
+    return
+}
+
+Write-Host "`nISC:: CHECK FOR AUTH-PASSED STRIPE-ONLY RECOVERY" -ForegroundColor Cyan
+Write-Host "The primary core blocked. The focused finalizer will continue only when recent evidence proves authentication passed and Stripe Checkout is the sole blocker." -ForegroundColor Yellow
+
+& node `
+    --require $WindowsSpawnCompat `
+    $StripeFinalizer `
+    --pages-url $PagesUrl `
+    --project-name $ProjectName
+
+$FinalizerExitCode = $LASTEXITCODE
+if ($FinalizerExitCode -eq 0) {
+    Write-Host "PASS: Focused Stripe checkout recovery completed" -ForegroundColor Green
+    $global:LASTEXITCODE = 0
+    return
+}
+
+Write-Host "BLOCKED: Primary release core and focused Stripe finalizer both failed." -ForegroundColor Red
+$global:LASTEXITCODE = $FinalizerExitCode
