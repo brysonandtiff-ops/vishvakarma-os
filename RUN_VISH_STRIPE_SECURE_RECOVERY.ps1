@@ -155,7 +155,7 @@ function Get-StripeConfigCandidates {
 
 function Read-StripeCliKey {
     $KeyName = if ($LiveMode) { "live_mode_api_key" } else { "test_mode_api_key" }
-    $Pattern = "^\s*$([regex]::Escape($KeyName))\s*=\s*['\"]?([^'\"\s#]+)"
+    $Pattern = '^\s*{0}\s*=\s*[''\"]?([^''\"\s#]+)' -f [regex]::Escape($KeyName)
 
     foreach ($ConfigPath in Get-StripeConfigCandidates) {
         if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
