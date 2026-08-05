@@ -2,8 +2,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const script = readFileSync(
+const cutover = readFileSync(
   join(process.cwd(), 'RUN_VISH_ZERO_TOUCH_CUTOVER.ps1'),
+  'utf8',
+);
+const everything = readFileSync(
+  join(process.cwd(), 'RUN_VISH_EVERYTHING.ps1'),
   'utf8',
 );
 
@@ -21,10 +25,9 @@ describe('Vishvakarma.OS zero-touch cutover controller', () => {
       'verify-cloudflare-interactive-auth-checkout.mjs',
       'vish-stripe-checkout-finalizer.mjs',
       'Attach and activate the custom Cloudflare domain',
-      'Retire Vercel production traffic',
       'VISHVAKARMA.OS ZERO-TOUCH CUTOVER: PASS',
     ]) {
-      expect(script).toContain(phrase);
+      expect(cutover).toContain(phrase);
     }
   });
 
@@ -38,19 +41,31 @@ describe('Vishvakarma.OS zero-touch cutover controller', () => {
       '/rollback',
       'No password, API key, access token, or webhook secret was printed or committed.',
     ]) {
-      expect(script).toContain(phrase);
+      expect(cutover).toContain(phrase);
     }
-    expect(script).not.toContain('Write-Host $StripeKey');
-    expect(script).not.toContain('Write-Host $CloudflareToken');
+    expect(cutover).not.toContain('Write-Host $StripeKey');
+    expect(cutover).not.toContain('Write-Host $CloudflareToken');
   });
 
   it('requires exact main and custom-domain authentication/payment proof', () => {
-    expect(script).toContain('EXPECTED_GIT_SHA');
-    expect(script).toContain('Run-LiveVerifier -Origin $PagesUrl -ExpectedHead $MainHead');
-    expect(script).toContain('Run-LiveVerifier -Origin $CustomOrigin -ExpectedHead $MainHead');
-    expect(script).toContain('Run-AuthenticatedCheckoutProof -Origin $PagesUrl');
-    expect(script).toContain('Run-AuthenticatedCheckoutProof -Origin $CustomOrigin');
-    expect(script).toContain('Run-StripeFinalizerForCurrentHead -Origin $PagesUrl');
-    expect(script).toContain('Custom-domain health stopped reporting ok:true.');
+    expect(cutover).toContain('EXPECTED_GIT_SHA');
+    expect(cutover).toContain('Run-LiveVerifier -Origin $PagesUrl -ExpectedHead $MainHead');
+    expect(cutover).toContain('Run-LiveVerifier -Origin $CustomOrigin -ExpectedHead $MainHead');
+    expect(cutover).toContain('Run-AuthenticatedCheckoutProof -Origin $PagesUrl');
+    expect(cutover).toContain('Run-AuthenticatedCheckoutProof -Origin $CustomOrigin');
+    expect(cutover).toContain('Run-StripeFinalizerForCurrentHead -Origin $PagesUrl');
+    expect(cutover).toContain('Custom-domain health stopped reporting ok:true.');
+  });
+
+  it('retires Vercel only after Cloudflare passes and never rolls Cloudflare back for cleanup failure', () => {
+    expect(everything).toContain('RUN_VISH_ZERO_TOUCH_CUTOVER.ps1');
+    expect(everything).toContain('KeepVercelRollback = $true');
+    expect(everything).toContain('RETIRE VERCEL AFTER VERIFIED CLOUDFLARE CUTOVER');
+    expect(everything).toContain('alias rm $CustomDomain --yes');
+    expect(everything).toContain('project rm $VercelProjectName --yes');
+    expect(everything).toContain('PASS_WITH_VERCEL_WARNING');
+    expect(everything).toContain('Cloudflare is live and verified, but Vercel cleanup needs attention');
+    expect(everything).not.toContain('STRIPE_SECRET_KEY =');
+    expect(everything).not.toContain('CLOUDFLARE_API_TOKEN =');
   });
 });
