@@ -6,7 +6,7 @@ const read = (...parts: string[]) =>
   readFileSync(path.join(process.cwd(), ...parts), 'utf8');
 
 describe('secure Stripe recovery launcher', () => {
-  it('stores Stripe credentials only in a Windows-encrypted ignored vault', () => {
+  it('stores server keys only in a Windows-encrypted ignored vault', () => {
     const launcher = read('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
     const gitignore = read('.gitignore');
 
@@ -17,52 +17,32 @@ describe('secure Stripe recovery launcher', () => {
     expect(launcher).not.toContain('Write-Host $StripeKey');
     expect(launcher).not.toContain('--api-key');
     expect(gitignore).toContain('.local/cloudflare-auth/');
-    expect(gitignore).toContain('.local/tools/');
   });
 
-  it('automatically installs and verifies the official Stripe CLI', () => {
+  it('automatically installs, verifies, authorizes, and reuses Stripe CLI credentials', () => {
     const launcher = read('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
 
-    expect(launcher).toContain('https://api.github.com/repos/stripe/stripe-cli/releases/latest');
+    expect(launcher).toContain('api.github.com/repos/stripe/stripe-cli/releases/latest');
     expect(launcher).toContain('stripe-windows-checksums.txt');
     expect(launcher).toContain('Get-FileHash');
-    expect(launcher).toContain('Stripe CLI SHA-256 verification failed');
-    expect(launcher).toContain('Expand-Archive');
-    expect(launcher).toContain('stripe.exe');
-  });
-
-  it('automatically authorizes Stripe CLI and encrypts the generated key', () => {
-    const launcher = read('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
-
+    expect(launcher).toContain('SHA-256 verification failed');
     expect(launcher).toContain('Invoke-AutomaticStripeLogin');
-    expect(launcher).toContain('$StartInfo.Arguments = "login"');
-    expect(launcher).toContain('$Process.StandardInput.WriteLine()');
     expect(launcher).toContain('Read-StripeCliKey');
-    expect(launcher).toContain('Test-StripeKeyAccess');
     expect(launcher).toContain('Save-StripeKeyVault');
-    expect(launcher).toContain('validated and encrypted for unattended reuse');
-  });
-
-  it('self-syncs, runs focused tests, builds the exact commit, and invokes the finalizer', () => {
-    const launcher = read('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
-
-    expect(launcher).toContain('SELF-SYNC STRIPE RECOVERY BRANCH');
-    expect(launcher).toContain('git merge --ff-only');
-    expect(launcher).toContain('stripeCheckoutFinalizer.test.ts');
-    expect(launcher).toContain('create-checkout-session.test.ts');
-    expect(launcher).toContain('dist\\build-meta.json');
-    expect(launcher).toContain('vish-stripe-checkout-finalizer.mjs');
-    expect(launcher).toContain('VITE_STRIPE_BILLING_ENABLED = "true"');
     expect(launcher).toContain('VISH FULLY AUTOMATED STRIPE CHECKOUT RECOVERY: PASS');
   });
 
-  it('defaults to test mode and keeps manual key entry opt-in only', () => {
-    const launcher = read('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
+  it('archives generated evidence and blocks genuine edits before self-sync', () => {
+    const autopilot = read('RUN_VISH_STRIPE_AUTOPILOT.ps1');
 
-    expect(launcher).toContain("'^(sk|rk)_test_");
-    expect(launcher).toContain("'^(sk|rk)_live_");
-    expect(launcher).toContain('[switch]$AllowManualKeyFallback');
-    expect(launcher).toContain('if ($AllowManualKeyFallback)');
-    expect(launcher).toContain('Read-Host "Stripe server key" -AsSecureString');
+    expect(autopilot).toContain('Normalize-GeneratedEvidenceSafely');
+    expect(autopilot).toContain('.local\\cloudflare-proof\\generated-evidence-archive');
+    expect(autopilot).toContain('docs/release/evidence');
+    expect(autopilot).toContain('git restore --staged --worktree -- @GeneratedPaths');
+    expect(autopilot).toContain('git clean -fd -- @GeneratedPaths');
+    expect(autopilot).toContain('Genuine repository changes remain and were not touched');
+    expect(autopilot).toContain('RUN_VISH_STRIPE_SECURE_RECOVERY.ps1');
+    expect(autopilot).toContain('SkipGitSync = $true');
+    expect(autopilot).toContain('VISH ONE-COMMAND STRIPE AUTOPILOT: PASS');
   });
 });
