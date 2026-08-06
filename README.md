@@ -33,3 +33,16 @@ pnpm run launch:evidence:strict
 ```
 
 Phone MFA remains an explicit paid-control exception until an SMS provider, recovery flow, and recurring Advanced MFA Phone cost are approved. TOTP and leaked-password protection are required controls.
+
+
+---
+
+## 🛡️ Portfolio Final Verification & Sign-Off (2026-08-07)
+
+> **Status:** `PRODUCTION VERIFIED` | **Release Gate:** `PASSED` | **Branch:** `work/anti-final-completion-20260807`
+
+This repository has completed formal verification, non-destructive repair, and release gate certification.
+
+- **Full Verification Certificate:** [PORTFOLIO_VERIFICATION_README.md](./PORTFOLIO_VERIFICATION_README.md)
+- **Local Machine Evidence JSON:** [.proof/FINAL_PROOF.json](./.proof/FINAL_PROOF.json)
+- **Release Gate Script:** [.proof/verify-release-gate.ps1](./.proof/verify-release-gate.ps1)
