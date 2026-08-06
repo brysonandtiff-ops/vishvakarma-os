@@ -51,7 +51,8 @@
     "lint:types": "tsgo -p tsconfig.check.json && tsgo -p tsconfig.api-check.json",
     "lint:deps": "biome lint --only=correctness/noUndeclaredDependencies",
     "lint:structure": "ast-grep scan",
-    "contract:gates": "node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs",
+    "contract:gates": "node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs && node scripts/quality/check-e2e-spec-integrity.mjs",
+    "e2e-integrity:gates": "node scripts/quality/check-e2e-spec-integrity.mjs",
     "device-hardening:gates": "node scripts/quality/check-device-hardening.mjs",
     "hardening:gates": "node scripts/quality/check-production-hardening.mjs",
     "pwa:gates": "node scripts/quality/check-pwa-install-assets.mjs",
@@ -137,7 +138,9 @@
     "auto-ship": "node scripts/auto-ship/auto-ship.mjs --trigger=manual",
     "auto-ship:dry": "node scripts/auto-ship/auto-ship.mjs --trigger=manual --dry-run",
     "auto-ship:install-user": "node scripts/auto-ship/install-user-hooks.mjs",
-    "release:champion": "python release-champion/scripts/release_champion.py"
+    "release:champion": "python release-champion/scripts/release_champion.py",
+    "qa:prod-signoff": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/qa-prod-signoff.ps1",
+    "qa:prod-signoff:tag": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/qa-prod-signoff-tag.ps1"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

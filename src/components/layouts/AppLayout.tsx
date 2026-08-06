@@ -297,7 +297,7 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
   return (
     <GovernanceNavContext.Provider value={{ openNav }}>
     <EditorSidebarProvider>
-    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background overflow-hidden" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
+    <div className="vish-workspace-shell flex min-h-[100dvh] w-full bg-background overflow-hidden" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined} data-sidebar={showDesktopSidebar ? (collapsed ? 'collapsed' : 'expanded') : undefined}>
       <WorkspaceCommandPalette />
       {showDesktopSidebar && (
       <aside

@@ -55,6 +55,18 @@ body:has([data-testid='auth-page']) .vish-device-validation {
   display: none;
 }
 
+/* The floating chrome is pinned to both top corners on auth (QA pill left,
+   theme controller and voice tour right). Reserve that band so the brand mark
+   and the tagline are not painted underneath it — the pill was sitting over the
+   ॐ, and the controller was clipping "…Construction" mid-word. */
+body:has([data-testid='auth-page']) .vish-login-page__brand-mark {
+  padding-top: calc(var(--vish-auth-chrome-top) + 3rem);
+}
+
+body:has([data-testid='auth-page']) .vish-login-page__top-line {
+  padding-right: calc(var(--vish-auth-chrome-side) + 8rem);
+}
+
 body:has([data-testid='auth-page']) .vish-voice-tour-launch {
   top: calc(var(--vish-auth-chrome-top) + 3.15rem);
   right: var(--vish-auth-chrome-side);

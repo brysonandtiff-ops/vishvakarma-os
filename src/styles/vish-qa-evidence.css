@@ -7,6 +7,23 @@
   z-index: 72;
 }
 
+/* Both are pinned to the viewport's left edge, but on AppLayout routes that
+   edge belongs to the workspace sidebar — the launcher was sitting on top of
+   the founder credits and the session badge in the sidebar footer. Clear the
+   sidebar whenever it is actually on screen (it is `tablet:block`, so it only
+   exists at >=1194px) and track its collapsed width. */
+@media (min-width: 1194px) {
+  body:has(.vish-workspace-shell[data-sidebar='expanded']) .vish-qa-evidence-launch,
+  body:has(.vish-workspace-shell[data-sidebar='expanded']) .vish-qa-evidence-panel {
+    left: calc(var(--vish-sidebar-width) + 1rem + var(--vish-safe-left, 0px));
+  }
+
+  body:has(.vish-workspace-shell[data-sidebar='collapsed']) .vish-qa-evidence-launch,
+  body:has(.vish-workspace-shell[data-sidebar='collapsed']) .vish-qa-evidence-panel {
+    left: calc(var(--vish-sidebar-collapsed) + 1rem + var(--vish-safe-left, 0px));
+  }
+}
+
 .vish-qa-evidence-launch {
   bottom: max(5.25rem, calc(5.25rem + var(--vish-safe-bottom, 0px)));
   display: inline-flex;

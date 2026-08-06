@@ -433,6 +433,11 @@
   background:
     linear-gradient(90deg, hsl(var(--ws-toolbar)), hsl(var(--ws-menubar))),
     radial-gradient(circle at 12% 50%, hsl(var(--ws-active) / 0.13), transparent 9rem);
+  /* This bar is dark, but it can sit on a light-bodied panel (ws-panel-light,
+     the default WorkspacePanel tone) whose color is near-black — the title
+     would inherit that and vanish against the gradient. Pin the foreground to
+     the dark-surface token so the header is legible on either panel tone. */
+  color: hsl(var(--ws-text));
   border-bottom-color: hsl(var(--ws-active) / 0.25);
   box-shadow: inset 0 1px 0 hsl(var(--ws-active) / 0.08);
 }
