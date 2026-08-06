@@ -569,7 +569,7 @@ try {
         $global:LASTEXITCODE = 0
         if (-not $AlreadyMerged) {
             Invoke-NativeChecked -Label "Create PR merge commit" -Action {
-                git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #${PullRequestNumber}: Cloudflare Pages and Workers migration"
+                git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #$PullRequestNumber: Cloudflare Pages and Workers migration"
             } | Out-Null
             Invoke-NativeChecked -Label "Push merged main" -Action { git push origin $MainBranch } | Out-Null
         }
@@ -646,5 +646,4 @@ finally {
     $script:CloudflareToken = $null
     Remove-Lock
 }
-
 

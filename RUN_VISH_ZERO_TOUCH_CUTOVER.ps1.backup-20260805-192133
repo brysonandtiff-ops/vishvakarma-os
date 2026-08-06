@@ -73,7 +73,7 @@ function Add-Step {
         RecordedAt = (Get-Date).ToString("o")
     })
     $Color = if ($Status -eq "PASS") { "Green" } elseif ($Status -eq "WARN") { "Yellow" } else { "Red" }
-    Write-Host "${Status}: $Name - $Detail" -ForegroundColor $Color
+    Write-Host "$Status: $Name - $Detail" -ForegroundColor $Color
 }
 
 function Invoke-Step {
@@ -569,7 +569,7 @@ try {
         $global:LASTEXITCODE = 0
         if (-not $AlreadyMerged) {
             Invoke-NativeChecked -Label "Create PR merge commit" -Action {
-                git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #${PullRequestNumber}: Cloudflare Pages and Workers migration"
+                git merge --no-ff "origin/$MigrationBranch" -m "Merge PR #$PullRequestNumber: Cloudflare Pages and Workers migration"
             } | Out-Null
             Invoke-NativeChecked -Label "Push merged main" -Action { git push origin $MainBranch } | Out-Null
         }
@@ -646,5 +646,3 @@ finally {
     $script:CloudflareToken = $null
     Remove-Lock
 }
-
-
