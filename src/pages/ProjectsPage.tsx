@@ -249,7 +249,7 @@ export default function ProjectsPage() {
           />
         )}
 
-        {!loading && !error && projects.length === 0 && (
+        {!loading && projects.length === 0 && (
           <div className="mt-8 space-y-6" data-testid="projects-empty-demo-samples">
             <WorkspaceEmptyState
               icon={<FolderOpen className="mx-auto h-10 w-10" aria-hidden="true" />}

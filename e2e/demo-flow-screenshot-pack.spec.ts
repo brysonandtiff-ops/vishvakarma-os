@@ -68,6 +68,10 @@ test.describe('2-minute demo flow screenshot pack', () => {
     await expect(page.locator('body')).toContainText(/Vishvakarma\.OS|Sacred 3D View/i);
     await shot(page, '01-landing.png');
 
+    await page.evaluate(() => {
+      localStorage.removeItem('vishvakarma_local_projects');
+      localStorage.removeItem('vishvakarma_local_draft');
+    });
     await page.goto('/projects');
     await dismissConsentIfPresent(page);
     await expect(page.getByTestId('projects-empty-demo-samples')).toBeVisible({ timeout: 30_000 });

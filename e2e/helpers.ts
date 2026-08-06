@@ -45,6 +45,8 @@ export async function resetWorkspacePrefs(page: Page) {
     removeAuthLikeStorage(window.localStorage);
     removeAuthLikeStorage(window.sessionStorage);
     window.localStorage.removeItem('vishvakarma:workspace:prefs');
+    window.localStorage.removeItem('vishvakarma_local_projects');
+    window.localStorage.removeItem('vishvakarma_local_draft');
     window.localStorage.removeItem('vishvakarma.os.supabase.session.v1');
     window.localStorage.removeItem('vishvakarma.os.supabase.pendingEmail.v1');
     window.localStorage.setItem('vishvakarma.os.onboardingDismissed.v1', '1');
