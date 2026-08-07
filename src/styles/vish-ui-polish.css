@@ -1262,6 +1262,72 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
+/* --------------------------------------------------------------------------
+   34. PREMIUM USER USABILITY, GOLD ACTION BUTTONS & DIALOG HARDENING
+   -------------------------------------------------------------------------- */
+
+/* Input & Select Focus Halo */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none !important;
+  border-color: rgba(212, 175, 55, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25), 0 0 12px rgba(212, 175, 55, 0.15) !important;
+}
+
+/* Gold Action Buttons */
+.vish-gold-action,
+button[data-variant="gold"],
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #B89218 100%) !important;
+  color: #050507 !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 223, 118, 0.5) !important;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 0.16s var(--vish-ease-spring, ease), box-shadow 0.16s ease !important;
+}
+
+.vish-gold-action:hover,
+button[data-variant="gold"]:hover,
+.btn-gold:hover {
+  background: linear-gradient(135deg, #F5D76A 0%, #D4AF37 100%) !important;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Tab Indicator Polish */
+[role="tab"] {
+  position: relative;
+  transition: color 0.18s ease, background-color 0.18s ease !important;
+}
+
+[role="tab"][data-state="active"],
+[role="tab"].active {
+  color: #D4AF37 !important;
+}
+
+[role="tab"][data-state="active"]::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: #D4AF37;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #D4AF37;
+}
+
+/* Floating Dialog & Overlay Hardening */
+[role="dialog"],
+.vish-dialog-content {
+  background: rgba(5, 5, 7, 0.92) !important;
+  backdrop-filter: blur(40px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.2) !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.8), 0 0 24px rgba(212, 175, 55, 0.1) !important;
+  border-radius: var(--vish-radius-xl, 1.25rem) !important;
+}
+
 
 
 
