@@ -3,8 +3,8 @@
 **Product Name:** Vishvakarma.OS  
 **Product Version:** v1.5.0  
 **Release Date:** 2026-08-07  
-**Generation Timestamp:** `2026-08-07T16:38:51.375Z`  
-**Git Commit SHA:** `6bb210d0b64612c12cbebe8675cf28895a97585b`  
+**Generation Timestamp:** `2026-08-07T16:50:42.144Z`  
+**Git Commit SHA:** `640c895e16e05641cb8573f520c9a0c0d0ae34d4`  
 **Git Branch:** `assistant/end-to-end-gates-20260709`  
 **Repository Origin:** `https://github.com/brysonandtiff-ops/vishvakarma-os.git`  
 **Production Origin URL:** `https://vishvakarma-os.app` (Supabase Backend)  
@@ -46,25 +46,25 @@ All 19 screenshots below were captured from the compiled production build runnin
 
 | # | Screen / Surface | Image Artifact Link | File Size | Viewport | Status |
 |---|---|---|---|---|---|
-| 01 | **Landing page** | [`sell-closeout/01-landing-page.png`](./sell-closeout/01-landing-page.png) | 980.52 KB | 1194 × 834 | **PASS** |
-| 02 | **Auth page** | [`sell-closeout/02-auth-page.png`](./sell-closeout/02-auth-page.png) | 255.43 KB | 1194 × 834 | **PASS** |
-| 03 | **Projects page** | [`sell-closeout/03-projects-page.png`](./sell-closeout/03-projects-page.png) | 319.46 KB | 1194 × 834 | **PASS** |
-| 04 | **Editor 2d canvas** | [`sell-closeout/04-editor-2d-canvas.png`](./sell-closeout/04-editor-2d-canvas.png) | 579.12 KB | 1194 × 834 | **PASS** |
-| 05 | **Editor 3d viewport** | [`sell-closeout/05-editor-3d-viewport.png`](./sell-closeout/05-editor-3d-viewport.png) | 588.39 KB | 1194 × 834 | **PASS** |
-| 06 | **Export dialog** | [`sell-closeout/06-export-dialog.png`](./sell-closeout/06-export-dialog.png) | 134.17 KB | 1194 × 834 | **PASS** |
-| 07 | **Editor lite** | [`sell-closeout/07-editor-lite.png`](./sell-closeout/07-editor-lite.png) | 634.93 KB | 1194 × 834 | **PASS** |
-| 08 | **Optimization page** | [`sell-closeout/08-optimization-page.png`](./sell-closeout/08-optimization-page.png) | 357.64 KB | 1194 × 834 | **PASS** |
-| 09 | **Profile page** | [`sell-closeout/09-profile-page.png`](./sell-closeout/09-profile-page.png) | 335.09 KB | 1194 × 834 | **PASS** |
-| 10 | **Pricing page** | [`sell-closeout/10-pricing-page.png`](./sell-closeout/10-pricing-page.png) | 987.60 KB | 1194 × 834 | **PASS** |
-| 11 | **Features page** | [`sell-closeout/11-features-page.png`](./sell-closeout/11-features-page.png) | 254.44 KB | 1194 × 834 | **PASS** |
-| 12 | **Spec center** | [`sell-closeout/12-spec-center.png`](./sell-closeout/12-spec-center.png) | 254.73 KB | 1194 × 834 | **PASS** |
-| 13 | **Registry page** | [`sell-closeout/13-registry-page.png`](./sell-closeout/13-registry-page.png) | 298.47 KB | 1194 × 834 | **PASS** |
-| 14 | **Change requests** | [`sell-closeout/14-change-requests.png`](./sell-closeout/14-change-requests.png) | 343.62 KB | 1194 × 834 | **PASS** |
-| 15 | **Releases page** | [`sell-closeout/15-releases-page.png`](./sell-closeout/15-releases-page.png) | 369.70 KB | 1194 × 834 | **PASS** |
-| 16 | **World records** | [`sell-closeout/16-world-records.png`](./sell-closeout/16-world-records.png) | 429.41 KB | 1194 × 834 | **PASS** |
-| 17 | **Audit log** | [`sell-closeout/17-audit-log.png`](./sell-closeout/17-audit-log.png) | 299.96 KB | 1194 × 834 | **PASS** |
-| 18 | **Cast viewer** | [`sell-closeout/18-cast-viewer.png`](./sell-closeout/18-cast-viewer.png) | 471.79 KB | 1194 × 834 | **PASS** |
-| 19 | **3d room** | [`sell-closeout/19-3d-room.png`](./sell-closeout/19-3d-room.png) | 485.23 KB | 1194 × 834 | **PASS** |
+| 01 | **Landing page** | [`sell-closeout/01-landing-page.png`](./sell-closeout/01-landing-page.png) | 989.93 KB | 1194 × 834 | **PASS** |
+| 02 | **Auth page** | [`sell-closeout/02-auth-page.png`](./sell-closeout/02-auth-page.png) | 254.54 KB | 1194 × 834 | **PASS** |
+| 03 | **Projects page** | [`sell-closeout/03-projects-page.png`](./sell-closeout/03-projects-page.png) | 281.20 KB | 1194 × 834 | **PASS** |
+| 04 | **Editor 2d canvas** | [`sell-closeout/04-editor-2d-canvas.png`](./sell-closeout/04-editor-2d-canvas.png) | 583.98 KB | 1194 × 834 | **PASS** |
+| 05 | **Editor 3d viewport** | [`sell-closeout/05-editor-3d-viewport.png`](./sell-closeout/05-editor-3d-viewport.png) | 597.21 KB | 1194 × 834 | **PASS** |
+| 06 | **Export dialog** | [`sell-closeout/06-export-dialog.png`](./sell-closeout/06-export-dialog.png) | 132.07 KB | 1194 × 834 | **PASS** |
+| 07 | **Editor lite** | [`sell-closeout/07-editor-lite.png`](./sell-closeout/07-editor-lite.png) | 634.97 KB | 1194 × 834 | **PASS** |
+| 08 | **Optimization page** | [`sell-closeout/08-optimization-page.png`](./sell-closeout/08-optimization-page.png) | 344.20 KB | 1194 × 834 | **PASS** |
+| 09 | **Profile page** | [`sell-closeout/09-profile-page.png`](./sell-closeout/09-profile-page.png) | 329.17 KB | 1194 × 834 | **PASS** |
+| 10 | **Pricing page** | [`sell-closeout/10-pricing-page.png`](./sell-closeout/10-pricing-page.png) | 998.05 KB | 1194 × 834 | **PASS** |
+| 11 | **Features page** | [`sell-closeout/11-features-page.png`](./sell-closeout/11-features-page.png) | 1.03 MB | 1194 × 834 | **PASS** |
+| 12 | **Spec center** | [`sell-closeout/12-spec-center.png`](./sell-closeout/12-spec-center.png) | 255.32 KB | 1194 × 834 | **PASS** |
+| 13 | **Registry page** | [`sell-closeout/13-registry-page.png`](./sell-closeout/13-registry-page.png) | 390.64 KB | 1194 × 834 | **PASS** |
+| 14 | **Change requests** | [`sell-closeout/14-change-requests.png`](./sell-closeout/14-change-requests.png) | 324.91 KB | 1194 × 834 | **PASS** |
+| 15 | **Releases page** | [`sell-closeout/15-releases-page.png`](./sell-closeout/15-releases-page.png) | 439.17 KB | 1194 × 834 | **PASS** |
+| 16 | **World records** | [`sell-closeout/16-world-records.png`](./sell-closeout/16-world-records.png) | 449.63 KB | 1194 × 834 | **PASS** |
+| 17 | **Audit log** | [`sell-closeout/17-audit-log.png`](./sell-closeout/17-audit-log.png) | 365.89 KB | 1194 × 834 | **PASS** |
+| 18 | **Cast viewer** | [`sell-closeout/18-cast-viewer.png`](./sell-closeout/18-cast-viewer.png) | 440.19 KB | 1194 × 834 | **PASS** |
+| 19 | **3d room** | [`sell-closeout/19-3d-room.png`](./sell-closeout/19-3d-room.png) | 379.21 KB | 1194 × 834 | **PASS** |
 
 ---
 
@@ -133,5 +133,5 @@ npx wrangler pages deploy dist --project-name=vishvakarma-os
 ## 🔒 Verification Signature & Evidence Hash
 
 * **Evidence Report Generated By:** Automated Release Evidence Pipeline (`scripts/generate-release-evidence-doc.mjs`)
-* **Git Commit SHA:** `6bb210d0b64612c12cbebe8675cf28895a97585b`
+* **Git Commit SHA:** `640c895e16e05641cb8573f520c9a0c0d0ae34d4`
 * **Release Verdict:** **VERIFIED, REPRODUCIBLE, BUYER-READY RELEASE**
