@@ -1,8 +1,8 @@
 {
-  "at": "2026-06-29T19:32:32.711Z",
-  "tier": "repairbot:fast",
+  "at": "2026-08-06T23:06:08.266Z",
+  "tier": "repairbot:medium",
   "dryRun": false,
-  "durationMs": 48095,
+  "durationMs": 148263,
   "ok": true,
   "stoppedAt": null,
   "scans": [
@@ -19,6 +19,16 @@
     {
       "step": "pnpm run lint:deps",
       "stepId": "lint:deps",
+      "ok": true
+    },
+    {
+      "step": "pnpm run lint:structure",
+      "stepId": "lint:structure",
+      "ok": true
+    },
+    {
+      "step": "pnpm run pwa:gates",
+      "stepId": "pwa:gates",
       "ok": true
     }
   ],
