@@ -1,4 +1,4 @@
-# Performance Notes
+# Performance Notes — Editor performance overhaul
 
 Generated from commit: `6abb1336fa37f62d420b90e231779224054fce72`
 Generated at: 2026-08-07T12:58:54.037Z

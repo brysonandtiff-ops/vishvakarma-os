@@ -94,7 +94,7 @@ ${buildOutput.split('\n').slice(-12).join('\n')}
     .map(([key, chunk]) => `| ${key} | ${formatBytes(chunk.bytes)} |`)
     .join('\n');
 
-  const performanceNotes = `# Performance Notes
+  const performanceNotes = `# Performance Notes — Editor performance overhaul
 
 Generated from commit: \`${sha}\`
 Generated at: ${generatedAt}
