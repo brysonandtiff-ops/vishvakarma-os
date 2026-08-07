@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-07T13:15:27.536Z
 
 ```
 src/
@@ -573,6 +573,7 @@ pages/
   EditorPage.tsx
   FeaturesPage.tsx
   LandingPage.tsx
+  LiteEditorPage.tsx
   NotFound.tsx
   OptimizationPage.tsx
   PricingPage.tsx
@@ -723,24 +724,32 @@ services/
     resolveZoning.ts
     zoningRules.ts
 styles/
+  focus-champion.css
+  header-champion-fix.css
   vish-auth-exact-reference.css
   vish-auth-gate.css
   vish-auth-ipad-polish.css
+  vish-auth-layout-tidy.css
   vish-auth-mockup-page.css
   vish-auth-reference-breakpoint-fix.css
   vish-auth-reference-match.css
   vish-auth-reference-screen.css
   vish-copilot-swan.css
+  vish-device-unity.css
   vish-device-validation.css
   vish-divine-architect-theme.css
+  vish-editor-3d-polish.css
   vish-editor-chrome.css
   vish-editor-mantra.css
   vish-editor-polish.css
   vish-empty-guided-start.css
   vish-governance-polish.css
   vish-indian-sacred.css
+  vish-ios-performance-hardening.css
+  vish-ipad-desktop-polish.css
   vish-ipad-editor-usability.css
   vish-ipad-king-polish.css
+  vish-landing-showcase-fix.css
   vish-layout-tokens.css
   vish-login-page.css
   vish-mantra-widget.css
@@ -764,6 +773,7 @@ styles/
   vish-tokens.css
   vish-touch-audit-hud.css
   vish-tutorial.css
+  vish-ui-display-fixes.css
   vish-ui-polish.css
   vish-vibhuti-obsidian.css
   vish-voice-tour.css
@@ -825,6 +835,12 @@ test/
   manifestGeometry.test.ts
   marketingCta.test.ts
   marketingRoutes.test.tsx
+  mocks/
+    cmdk.tsx
+    dialog.tsx
+    popover.tsx
+    radix-dialog.tsx
+    radix-popover.tsx
   motionSystem.test.ts
   multiUserGovernance.test.ts
   multiUserRolesCiGate.test.ts
@@ -860,6 +876,7 @@ test/
   verificationWiring.test.ts
   versionControlHooks.test.ts
   viewport3dFpsWiring.test.ts
+  VisualThemeController.runtime.test.tsx
   visualThemeController.test.ts
   workspaceCommandPalette.test.ts
   workspaceLayoutPolish.test.ts
@@ -959,6 +976,7 @@ migrations/
 README.md
 
 scripts/
+auth-hardening.ps1
 auto-ship/
   auto-ship-config.json
   auto-ship-lib.mjs
@@ -966,6 +984,8 @@ auto-ship/
   auto-ship.test.mjs
   install-user-hooks.mjs
 build-e2e-local.mjs
+build_visual_pack.py
+convert-hero.mjs
 demo/
   verify-demo-assets.mjs
 deploy-vercel.sh
@@ -1022,6 +1042,7 @@ quality/
   check-auth-config-guard.mjs
   check-build-gate.mjs
   check-device-hardening.mjs
+  check-e2e-spec-integrity.mjs
   check-editor-export-canonical.mjs
   check-flawless-use-gates.mjs
   check-forbidden-edges.mjs
@@ -1029,6 +1050,7 @@ quality/
   check-production-hardening.mjs
   check-project-roles.mjs
   check-pwa-install-assets.mjs
+  check-qemaster-worktree.mjs
   check-system-contract.mjs
   check-vercel-security.mjs
 refactor.cjs
@@ -1100,11 +1122,13 @@ editor-draw-workflow-proof.spec.ts
 editor-features.spec.ts
 editor-performance.spec.ts
 editor-tool-clickthrough-proof.spec.ts
+full-customer-audit.spec.ts
 governance-smoke.spec.ts
 helpers.ts
 ipad-editor-layout.spec.ts
 ipad-editor-workflow.spec.ts
 ipad-production-readiness.spec.ts
+ipad10-production-proof.spec.ts
 long-session-soak-proof.spec.ts
 marketing-asset-pack.spec.ts
 marketing-pages.spec.ts
@@ -1113,6 +1137,8 @@ page-reference-pack-remainder.spec.ts
 page-reference-pack.spec.ts
 project-demo-load-proof.spec.ts
 projects-profile.spec.ts
+qe-production-route-smoke.spec.ts
+qeGlobalSetup.ts
 release-screenshot-pack.spec.ts
 route-health-smoke.spec.ts
 tutorial-essentials.spec.ts
@@ -1199,6 +1225,7 @@ design/
       29-releases.png
       30-world-records.png
       31-audit.png
+      32-optimization.png
     marketing/
       01-landing.png
       02-features-guides.png
@@ -1208,6 +1235,7 @@ design/
       06-not-found.png
       07-pricing.png
     PAGE_REFERENCE.md
+    POST_HARDENING_REFRESH_NOTE.md
     workspace/
       20-projects-empty.png
       21-projects-populated.png
@@ -1293,6 +1321,9 @@ pilots/
   PILOT_FEEDBACK_TEMPLATE.md
   VISHVAKARMA_OS_PILOT_PLAN.md
 prd.md
+product/
+  VIP_ZIP_AUDIT_2026-07-03.md
+  VISHVAKARMA_MASTER_NOTES.md
 PRODUCT_CAPABILITIES.md
 project-manifest-schema.md
 PROPRIETARY_NOTICE.md
@@ -1313,9 +1344,54 @@ qa/
 README.md
 REGISTRY.md
 release/
+  auth-audit/
+    auth-report.json
+    auth-report.md
   DEPLOYMENT.md
   DEVICE_HARDENING_RUNBOOK.md
   evidence/
+    20260721-191154/
+      dashboard.html
+      logs/
+      report.json
+    20260721-192511/
+      certificate.pdf
+      dashboard.html
+      deploy-checklist.md
+      logs/
+      report.json
+      world-record.md
+    20260721-195805/
+      certificate.pdf
+      dashboard.html
+      deploy-checklist.md
+      logs/
+      release-notes.md
+      report.json
+      world-record.md
+    20260721-200124/
+      certificate.pdf
+      dashboard.html
+      deploy-checklist.md
+      logs/
+      release-notes.md
+      report.json
+      world-record.md
+    20260721-200306/
+      BUILD_FINGERPRINT.txt
+      certificate.pdf
+      dashboard.html
+      deploy-checklist.md
+      logs/
+      release-notes.md
+      report.json
+      world-record.md
+    20260721-200636/
+      logs/
+    20260722-121550/
+      logs/
+    20260722-124253/
+      logs/
     2d-3d-parity-proof.md
     auth-sign-in-proof.md
     build-output.txt
@@ -1348,11 +1424,20 @@ release/
     screenshots/
       01-landing-hero.png
       02-auth-email-link.png
+      02-auth-google-sso.png
       03-editor-2d-sample.png
       04-editor-3d-premium.png
       05-export-package-dialog.png
+      06-editor-lite-recovery.png
       06-projects-empty.png
       07-features-ready-badges.png
+      07-projects-empty.png
+      08-features-truth-badges.png
+      09-pricing-tiers.png
+      10-optimization-empty.png
+      11-releases.png
+      12-world-records.png
+      13-audit.png
       README.md
     SCREENSHOT_PACK.md
     security-headers.md
@@ -1384,6 +1469,8 @@ rfc/
 roadmap/
   WORLD_CLASS_PLAN.md
 route-manifest-schema.md
+security/
+  google-sso-only-supabase.md
 SOFTWARE_INVENTORY.md
 SPEC.md
 specs/
@@ -1603,6 +1690,7 @@ workflows/
   ci.yml
   e2e.yml
   lighthouse.yml
+  prism-auto.yml
   repairbot.yml
   verify.yml
 

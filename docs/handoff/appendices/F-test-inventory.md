@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-07T13:15:27.536Z
 
-## Vitest unit/integration (164 files)
+## Vitest unit/integration (165 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -81,6 +81,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/PropertiesPanel.test.tsx`
 - `src/test/RadialToolMenu.test.tsx`
 - `src/test/ToolRail.test.tsx`
+- `src/test/VisualThemeController.runtime.test.tsx`
 - `src/test/accessibilityLayer.test.ts`
 - `src/test/adaptiveFrameGovernor.test.ts`
 - `src/test/atmosphereMode.test.ts`
@@ -171,7 +172,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (38 specs)
+## Playwright E2E (41 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -195,10 +196,12 @@ Generated: 2026-06-26T11:12:49.851Z
 - `e2e/editor-features.spec.ts`
 - `e2e/editor-performance.spec.ts`
 - `e2e/editor-tool-clickthrough-proof.spec.ts`
+- `e2e/full-customer-audit.spec.ts`
 - `e2e/governance-smoke.spec.ts`
 - `e2e/ipad-editor-layout.spec.ts`
 - `e2e/ipad-editor-workflow.spec.ts`
 - `e2e/ipad-production-readiness.spec.ts`
+- `e2e/ipad10-production-proof.spec.ts`
 - `e2e/long-session-soak-proof.spec.ts`
 - `e2e/marketing-asset-pack.spec.ts`
 - `e2e/marketing-pages.spec.ts`
@@ -207,6 +210,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `e2e/page-reference-pack.spec.ts`
 - `e2e/project-demo-load-proof.spec.ts`
 - `e2e/projects-profile.spec.ts`
+- `e2e/qe-production-route-smoke.spec.ts`
 - `e2e/release-screenshot-pack.spec.ts`
 - `e2e/route-health-smoke.spec.ts`
 - `e2e/tutorial-essentials.spec.ts`

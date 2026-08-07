@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-07T13:15:27.536Z
 
-Total: 119 scripts
+Total: 127 scripts
 
 | Script | Command |
 |--------|--------|
@@ -22,7 +22,7 @@ Total: 119 scripts
 | `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
 | `collab:server` | `node --import tsx server/collab/presenceServer.ts` |
 | `collab:server:dev` | `node --import tsx --watch server/collab/presenceServer.ts` |
-| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
+| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs && node scripts/quality/check-e2e-spec-integrity.mjs` |
 | `deploy:vercel` | `bash scripts/deploy-vercel.sh` |
 | `dev` | `vite --host 127.0.0.1` |
 | `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
@@ -30,6 +30,7 @@ Total: 119 scripts
 | `doctor` | `node scripts/dx/doctor.mjs` |
 | `dx:doctor` | `node scripts/dx/doctor.mjs` |
 | `dx:stack` | `node scripts/dx/local-stack.mjs` |
+| `e2e-integrity:gates` | `node scripts/quality/check-e2e-spec-integrity.mjs` |
 | `fetch:stripe-live-key` | `node scripts/fetch-stripe-live-key.mjs` |
 | `flawless:gates` | `node scripts/quality/check-flawless-use-gates.mjs` |
 | `handoff:generate` | `node scripts/handoff/generate-handoff-appendices.mjs` |
@@ -69,8 +70,14 @@ Total: 119 scripts
 | `project-roles:gates` | `node scripts/quality/check-project-roles.mjs` |
 | `push:supabase-env-vercel` | `node scripts/push-supabase-env-vercel.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
+| `qa:prod-signoff` | `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/qa-prod-signoff.ps1` |
+| `qa:prod-signoff:tag` | `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/qa-prod-signoff-tag.ps1` |
+| `qe:master` | `pnpm run qe:routes && pnpm run test:screenshots && pnpm run capture:page-references` |
+| `qe:routes` | `pnpm exec playwright test --config=playwright.qe-smoke.config.ts` |
+| `qemaster` | `pnpm run qe:master` |
 | `record:measure` | `node scripts/world-record/measure-record.mjs` |
 | `record:perf-overhaul` | `node scripts/performance/record-editor-perf-proof.mjs` |
+| `release:champion` | `python release-champion/scripts/release_champion.py` |
 | `release:gates` | `node scripts/verify-all.js` |
 | `release:gates:strict` | `node scripts/verify-all.js --strict` |
 | `repair:workspace-root` | `python scripts/repair-workspace-root-package.py` |
@@ -109,6 +116,7 @@ Total: 119 scripts
 | `test:e2e:governance` | `node scripts/build-e2e-local.mjs && pnpm exec playwright test --config=playwright.governance.config.ts` |
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
 | `test:e2e:perf` | `node scripts/run-local-preview-playwright.mjs --project=editor-performance` |
+| `test:e2e:qe-routes` | `pnpm run qe:routes` |
 | `test:e2e:soak` | `pnpm exec playwright test --config=playwright.soak.config.ts` |
 | `test:perf-overhaul` | `vitest run src/test/editorPerformanceOverhaul.test.ts` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |

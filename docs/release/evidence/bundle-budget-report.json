@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-31T09:09:11.853Z",
-  "commit": "d2dc851d3b6279fd632fd1cb4ef1f9e2ccb39c70",
-  "distTotalBytes": 4024888,
+  "generatedAt": "2026-08-07T13:15:30.023Z",
+  "commit": "6abb1336fa37f62d420b90e231779224054fce72",
+  "distTotalBytes": 4027034,
   "distTotalMb": 3.84,
   "budget": {
     "totalDistMb": 5,
@@ -19,80 +19,80 @@
     "api": {
       "bytes": 7358,
       "files": [
-        "api-D0pOKoxl.js"
+        "api-AiPSf6lj.js"
       ]
     },
     "appVersion": {
-      "bytes": 12287,
+      "bytes": 12622,
       "files": [
-        "appVersion-D4Wqz9fd.js"
+        "appVersion-BB60Cy3W.js"
       ]
     },
     "AuditLogPage": {
       "bytes": 8733,
       "files": [
-        "AuditLogPage-CVhyM7Z8.js"
+        "AuditLogPage-B4AHBATf.js"
       ]
     },
     "AuthPage": {
       "bytes": 11778,
       "files": [
-        "AuthPage-DgDOiRPt.js"
+        "AuthPage-CW32hGRd.js"
       ]
     },
     "billingPlans": {
       "bytes": 1762,
       "files": [
-        "billingPlans-DHLZc_oF.js"
+        "billingPlans-CuOmxPv7.js"
       ]
     },
     "card": {
       "bytes": 1486,
       "files": [
-        "card-AVUp7xL_.js"
+        "card-BeW4gOZP.js"
       ]
     },
     "CastSessionManager": {
       "bytes": 14338,
       "files": [
-        "CastSessionManager-BV1T9pGb.js",
-        "CastSessionManager-DipRR_Sd.js"
+        "CastSessionManager-Bokfzh1_.js",
+        "CastSessionManager-IWpDQXyk.js"
       ]
     },
     "CastViewerPage": {
       "bytes": 9101,
       "files": [
-        "CastViewerPage-CXkCkNwx.js"
+        "CastViewerPage-DYVHx_sW.js"
       ]
     },
     "ChangeRequestsPage": {
       "bytes": 10691,
       "files": [
-        "ChangeRequestsPage-CgV9mrqm.js"
+        "ChangeRequestsPage-CAZ2bBPn.js"
       ]
     },
     "CollabSession": {
       "bytes": 13608,
       "files": [
-        "CollabSession-Bo38-ZXk.js"
+        "CollabSession-DmEnscMk.js"
       ]
     },
     "dropdown": {
       "bytes": 4112,
       "files": [
-        "dropdown-menu-Cx0HdX_Q.js"
+        "dropdown-menu-CudzyCh7.js"
       ]
     },
     "EditorPage": {
       "bytes": 256561,
       "files": [
-        "EditorPage-DCe2AuaD.js"
+        "EditorPage-BfPULV1E.js"
       ]
     },
     "FeaturesPage": {
       "bytes": 6730,
       "files": [
-        "FeaturesPage-Bg7g3AGh.js"
+        "FeaturesPage-Df9Oqazn.js"
       ]
     },
     "fetchWithRetry": {
@@ -105,80 +105,80 @@
     "GovernanceBackendBanner": {
       "bytes": 1740,
       "files": [
-        "GovernanceBackendBanner-DNgUbscK.js"
+        "GovernanceBackendBanner-DaJ0f_mg.js"
       ]
     },
     "GovernanceStatPill": {
       "bytes": 544,
       "files": [
-        "GovernanceStatPill-DAm_1oGm.js"
+        "GovernanceStatPill-DkkeudxF.js"
       ]
     },
     "index": {
-      "bytes": 755148,
+      "bytes": 756963,
       "files": [
-        "index-DyRpJWaj.css",
-        "index-y5GUgzr_.js"
+        "index-C8xWdqFF.css",
+        "index-CL-bgM94.js"
       ]
     },
     "input": {
       "bytes": 920,
       "files": [
-        "input-BOBkNZ65.js"
+        "input-BqPrABvV.js"
       ]
     },
     "label": {
       "bytes": 530,
       "files": [
-        "label-CeYiBhiA.js"
+        "label-C1MqrdEO.js"
       ]
     },
     "LandingPage": {
       "bytes": 13342,
       "files": [
-        "LandingPage-DbUKBCTs.js"
+        "LandingPage-D5SyB2vA.js"
       ]
     },
     "lightingPresets": {
       "bytes": 23961,
       "files": [
-        "lightingPresets-D1ND3EXa.js"
+        "lightingPresets-BpcWDNc9.js"
       ]
     },
     "LiteEditorPage": {
       "bytes": 12894,
       "files": [
-        "LiteEditorPage-CZli1SK_.js"
+        "LiteEditorPage-Bs9x98Jk.js"
       ]
     },
     "localDraft": {
       "bytes": 924,
       "files": [
-        "localDraft-q_rf2ydM.js"
+        "localDraft-CEn1qFGg.js"
       ]
     },
     "localProjects": {
       "bytes": 12098,
       "files": [
-        "localProjects-fODERLVX.js"
+        "localProjects-2v6Ydnj9.js"
       ]
     },
     "MarketingCtaSection": {
       "bytes": 1112,
       "files": [
-        "MarketingCtaSection-DjMNaI8S.js"
+        "MarketingCtaSection-DchPlaAB.js"
       ]
     },
     "MarketingSection": {
       "bytes": 2120,
       "files": [
-        "MarketingSection-CmrvEkRp.js"
+        "MarketingSection-C3AjUSJh.js"
       ]
     },
     "MetricPill": {
       "bytes": 738,
       "files": [
-        "MetricPill-BQzj2hsH.js"
+        "MetricPill-B7ONpoJl.js"
       ]
     },
     "minimalPdf": {
@@ -190,25 +190,25 @@
     "NotFound": {
       "bytes": 1433,
       "files": [
-        "NotFound-Cw9P_p7P.js"
+        "NotFound-Ck16lmtq.js"
       ]
     },
     "OptimizationPage": {
       "bytes": 64924,
       "files": [
-        "OptimizationPage-COmNJQsq.js"
+        "OptimizationPage-D2JNJycW.js"
       ]
     },
     "orchestrator": {
       "bytes": 42487,
       "files": [
-        "orchestrator-Csuozkip.js"
+        "orchestrator-BZ_UrSdW.js"
       ]
     },
     "PageStateBlock": {
       "bytes": 1676,
       "files": [
-        "PageStateBlock-B1Qc7IKr.js"
+        "PageStateBlock-BqBoVWl9.js"
       ]
     },
     "panchatattva": {
@@ -226,37 +226,37 @@
     "planningPipeline": {
       "bytes": 8432,
       "files": [
-        "planningPipeline-Cpux_vre.js"
+        "planningPipeline-C0abmIdB.js"
       ]
     },
     "PricingPage": {
       "bytes": 7996,
       "files": [
-        "PricingPage-Dvz3z5-B.js"
+        "PricingPage-DZIeNrQI.js"
       ]
     },
     "ProfilePage": {
       "bytes": 6453,
       "files": [
-        "ProfilePage-DYNrypeo.js"
+        "ProfilePage-_JQdGihI.js"
       ]
     },
     "ProjectsPage": {
-      "bytes": 13941,
+      "bytes": 13937,
       "files": [
-        "ProjectsPage-BfY6U-gl.js"
+        "ProjectsPage-Dn904d_Z.js"
       ]
     },
     "projectThumbnail": {
       "bytes": 229,
       "files": [
-        "projectThumbnail-BeBRYL1g.js"
+        "projectThumbnail-BUp-MKjS.js"
       ]
     },
     "RegistryPage": {
       "bytes": 9011,
       "files": [
-        "RegistryPage-C6cIe4dY.js"
+        "RegistryPage-BdmJSv9W.js"
       ]
     },
     "releaseGateManifest": {
@@ -268,13 +268,13 @@
     "ReleasesPage": {
       "bytes": 15799,
       "files": [
-        "ReleasesPage-CN9si6bw.js"
+        "ReleasesPage-CNTmzPUf.js"
       ]
     },
     "ResetPasswordPage": {
       "bytes": 590,
       "files": [
-        "ResetPasswordPage-DDuzq_4r.js"
+        "ResetPasswordPage-BUxuYBvj.js"
       ]
     },
     "rolldown": {
@@ -298,31 +298,31 @@
     "select": {
       "bytes": 3308,
       "files": [
-        "select-CP6TyAXR.js"
+        "select-B3taXVzS.js"
       ]
     },
     "separator": {
       "bytes": 522,
       "files": [
-        "separator-BFoA8aBh.js"
+        "separator-DlzOuny1.js"
       ]
     },
     "slider": {
       "bytes": 889,
       "files": [
-        "slider-4IkVoNEs.js"
+        "slider-hci_GdjG.js"
       ]
     },
     "SpecCenterPage": {
       "bytes": 11454,
       "files": [
-        "SpecCenterPage-8J49quw8.js"
+        "SpecCenterPage-BV1TLsI0.js"
       ]
     },
     "StatPill": {
       "bytes": 416,
       "files": [
-        "StatPill-CxXxOJTX.js"
+        "StatPill-B6vdLb5a.js"
       ]
     },
     "stripeCheckout": {
@@ -334,37 +334,37 @@
     "supabaseAccessToken": {
       "bytes": 294,
       "files": [
-        "supabaseAccessToken-BPzkzPb6.js"
+        "supabaseAccessToken-DTJWFE5r.js"
       ]
     },
     "supabaseProjectGateway": {
       "bytes": 1309,
       "files": [
-        "supabaseProjectGateway-fw4IL93f.js"
+        "supabaseProjectGateway-fyLOxS3M.js"
       ]
     },
     "tabs": {
       "bytes": 1259,
       "files": [
-        "tabs-BQU5osCn.js"
+        "tabs-BRyiQnaz.js"
       ]
     },
     "textarea": {
       "bytes": 610,
       "files": [
-        "textarea-Cd6z9H5x.js"
+        "textarea-DmKndp10.js"
       ]
     },
     "ThreeDRoomPage": {
       "bytes": 6002,
       "files": [
-        "ThreeDRoomPage-CY57JDCm.js"
+        "ThreeDRoomPage-pv7Jps1F.js"
       ]
     },
     "vayuCFD": {
       "bytes": 11854,
       "files": [
-        "vayuCFD-D_hqwS1-.js"
+        "vayuCFD-DJuqwqGq.js"
       ]
     },
     "vendor-3d-helpers": {
@@ -473,7 +473,7 @@
     "Viewport3D": {
       "bytes": 54610,
       "files": [
-        "Viewport3D-DGUrbhu8.js"
+        "Viewport3D-456yTxEk.js"
       ]
     },
     "Viewport3DLoading": {
@@ -485,7 +485,7 @@
     "WorkspacePanel": {
       "bytes": 1228,
       "files": [
-        "WorkspacePanel-Qm6MBcJS.js"
+        "WorkspacePanel-DQ08rxTc.js"
       ]
     },
     "worldRecordRegistry": {
@@ -497,7 +497,7 @@
     "WorldRecordsPage": {
       "bytes": 7155,
       "files": [
-        "WorldRecordsPage-D2y_Dj-f.js"
+        "WorldRecordsPage-DNEjQLEF.js"
       ]
     }
   },

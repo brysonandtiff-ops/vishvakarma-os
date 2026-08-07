@@ -29,6 +29,7 @@ pnpm-debug.log*
 .env.*
 !.env.example
 !.env.*.example
+docs/handoff/OPERATOR_ANNEX.md
 
 # OS / editor noise
 .DS_Store

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-26T11:12:49.851Z",
-  "gitSha": "66f6b86e968c1365ff2c6197c3532a226d033cd9",
+  "generatedAt": "2026-08-07T13:15:27.536Z",
+  "gitSha": "6abb1336fa37f62d420b90e231779224054fce72",
   "productVersion": "1.5.0",
   "appendices": [
     "A-routes-and-api.md",
@@ -15,10 +15,10 @@
   "counts": {
     "routes": 0,
     "apiHandlers": 9,
-    "npmScripts": 119,
+    "npmScripts": 127,
     "tables": 14,
-    "unitTests": 164,
-    "e2eSpecs": 38,
+    "unitTests": 165,
+    "e2eSpecs": 41,
     "prodDependencies": 72,
     "devDependencies": 27
   }

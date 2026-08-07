@@ -2,13 +2,14 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-07T13:15:27.536Z
 
 ## npm verify / gates scripts
 
 | Script | Command |
 |--------|--------|
-| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
+| `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs && node scripts/quality/check-e2e-spec-integrity.mjs` |
+| `e2e-integrity:gates` | `node scripts/quality/check-e2e-spec-integrity.mjs` |
 | `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
 | `hardening:gates` | `node scripts/quality/check-production-hardening.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
@@ -41,6 +42,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `scripts/quality/check-auth-config-guard.mjs`
 - `scripts/quality/check-build-gate.mjs`
 - `scripts/quality/check-device-hardening.mjs`
+- `scripts/quality/check-e2e-spec-integrity.mjs`
 - `scripts/quality/check-editor-export-canonical.mjs`
 - `scripts/quality/check-flawless-use-gates.mjs`
 - `scripts/quality/check-forbidden-edges.mjs`
@@ -48,6 +50,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `scripts/quality/check-production-hardening.mjs`
 - `scripts/quality/check-project-roles.mjs`
 - `scripts/quality/check-pwa-install-assets.mjs`
+- `scripts/quality/check-qemaster-worktree.mjs`
 - `scripts/quality/check-system-contract.mjs`
 - `scripts/quality/check-vercel-security.mjs`
 
