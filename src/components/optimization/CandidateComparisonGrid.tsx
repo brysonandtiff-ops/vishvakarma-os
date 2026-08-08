@@ -24,21 +24,22 @@ export default function CandidateComparisonGrid({
 }) {
   return (
     <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+      className="flex snap-x snap-mandatory overflow-x-auto gap-4 pb-4 sm:grid sm:overflow-visible sm:snap-none sm:pb-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
       data-testid="candidate-grid"
     >
       {candidates.map((candidate) => (
-        <CandidateCard
-          key={candidate.id}
-          candidate={candidate}
-          isWinner={candidate.id === winnerId}
-          isFavorite={favorites.has(candidate.id)}
-          isSelected={selectedId === candidate.id || compareId === candidate.id}
-          onSelect={() => onSelect(candidate.id)}
-          onFavorite={() => onFavorite(candidate.id)}
-          onPromote={() => onPromote(candidate)}
-          onCompare={() => onCompare(candidate.id)}
-        />
+        <div key={candidate.id} className="shrink-0 w-[85vw] sm:w-auto snap-center sm:snap-align-none">
+          <CandidateCard
+            candidate={candidate}
+            isWinner={candidate.id === winnerId}
+            isFavorite={favorites.has(candidate.id)}
+            isSelected={selectedId === candidate.id || compareId === candidate.id}
+            onSelect={() => onSelect(candidate.id)}
+            onFavorite={() => onFavorite(candidate.id)}
+            onPromote={() => onPromote(candidate)}
+            onCompare={() => onCompare(candidate.id)}
+          />
+        </div>
       ))}
     </div>
   );

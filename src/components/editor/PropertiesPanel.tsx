@@ -52,7 +52,7 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
           </Label>
           {field.type === 'select' ? (
             <select
-              className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+              className="w-full min-h-[44px] bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
               defaultValue={field.value}
               aria-label={field.label}
             >
@@ -65,7 +65,7 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
               readOnly
               value={field.value}
               aria-label={field.label}
-              className="w-full h-9 bg-vish-navy-800/50 border border-vish-navy-700 rounded-[8px] text-vish-text-300 text-xs px-2"
+              className="w-full min-h-[44px] bg-vish-navy-800/50 border border-vish-navy-700 rounded-[8px] text-vish-text-300 text-xs px-2"
             />
           )}
         </div>
@@ -117,7 +117,7 @@ export default function PropertiesPanel({
               <div className="space-y-2">
                 <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Type</Label>
                 <select
-                  className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                  className="w-full min-h-[44px] bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
                   value={selectedFixture.type}
                   onChange={(e) => onFixtureUpdate(selectedFixture.id, { type: e.target.value as FixtureItem['type'] })}
                   aria-label="Fixture type"
@@ -170,7 +170,7 @@ export default function PropertiesPanel({
               <div className="space-y-2">
                 <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Text</Label>
                 <input
-                  className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                  className="w-full min-h-[44px] bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
                   value={selectedLabel.text}
                   onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
                   onFocus={scrollFocusedFieldIntoView}
@@ -198,7 +198,7 @@ export default function PropertiesPanel({
                   type="color"
                   value={selectedLabel.color ?? '#2c1810'}
                   onChange={(e) => onLabelUpdate(selectedLabel.id, { color: e.target.value })}
-                  className="h-9 w-full cursor-pointer rounded-[8px] border border-vish-navy-600 bg-vish-navy-800 p-0.5 overflow-hidden"
+                  className="min-h-[44px] w-full cursor-pointer rounded-[8px] border border-vish-navy-600 bg-vish-navy-800 p-0.5 overflow-hidden"
                   aria-label="Label color"
                 />
               </div>
@@ -214,7 +214,7 @@ export default function PropertiesPanel({
                 <div className="space-y-2 pt-2">
                   <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Room type</Label>
                   <select
-                    className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                    className="w-full min-h-[44px] bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
                     value={selectedRoom.roomType ?? 'Bedroom'}
                     onChange={(e) => {
                       const roomType = e.target.value as RoomType;

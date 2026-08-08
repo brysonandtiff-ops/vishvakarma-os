@@ -296,6 +296,8 @@
   min-height: var(--vish-status-bar-height, 32px);
   height: var(--vish-status-bar-height, 32px);
   padding: 0 14px;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: content-box;
   gap: 14px;
   background:
     linear-gradient(180deg, hsl(var(--ws-statusbar)), hsl(var(--ws-menubar)));

@@ -56,6 +56,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      // Sonic bridge integration
+      if (typeof window !== 'undefined') {
+        import('@/lib/sonic-bridge').then(({ sonicBridge }) => {
+           sonicBridge.play432HzResonance();
+        }).catch(() => {});
+      }
+
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         try {
           navigator.vibrate(30);

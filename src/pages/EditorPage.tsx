@@ -497,6 +497,9 @@ function EditorWorkspace() {
       } else if (event.key === '3') {
         event.preventDefault();
         engine.setShow3D(!show3DView);
+      } else if (event.key === 'E' && event.shiftKey) {
+        event.preventDefault();
+        setExportDialogOpen(true);
       } else if (event.key === 's' && event.shiftKey) {
         event.preventDefault();
         engine.setSnapEnabled(!snapEnabled);
@@ -1362,14 +1365,14 @@ function EditorWorkspace() {
           <>
             <button
               type="button"
-              className="vish-properties-fab touch-target fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text shadow-lg md:hidden"
+              className="vish-properties-fab touch-target fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text shadow-lg md:hidden mb-[env(safe-area-inset-bottom)]"
               aria-label="Open properties panel"
               onClick={() => setPropertiesSheetOpen(true)}
             >
               <SlidersHorizontal className="h-5 w-5" />
             </button>
             <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
-              <SheetContent side="bottom" className="bg-vish-navy-900 border-t border-vish-navy-600/50 max-h-[85dvh] overflow-y-auto p-0 md:hidden">
+              <SheetContent side="bottom" className="bg-vish-navy-900 border-t border-vish-navy-600/50 max-h-[85dvh] overflow-y-auto p-0 pb-[env(safe-area-inset-bottom)] md:hidden">
                 <SheetHeader className="border-b border-vish-navy-700/50 px-4 py-3 text-left bg-vish-navy-950">
                   <SheetTitle className="text-sm font-semibold text-white tracking-wide">Properties</SheetTitle>
                 </SheetHeader>

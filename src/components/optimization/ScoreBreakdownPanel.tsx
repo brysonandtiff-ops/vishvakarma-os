@@ -1,12 +1,11 @@
 import type { OptimizationCandidate } from '@/domain/optimization/types';
 import { toDisplayScoresForCandidate } from '@/services/optimization/displayDimensions';
+import { VishEmptyState } from '@/components/common/vish-primitives/VishEmptyState';
 
 export default function ScoreBreakdownPanel({ candidate }: { candidate: OptimizationCandidate | null }) {
   if (!candidate) {
     return (
-      <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 text-sm text-slate-400 shadow-inner">
-        Select a candidate to view score breakdown.
-      </div>
+      <VishEmptyState label="Select a candidate to view score breakdown" />
     );
   }
 

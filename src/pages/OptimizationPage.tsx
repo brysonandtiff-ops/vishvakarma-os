@@ -7,6 +7,7 @@ import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import { WorkspacePageScroll } from '@/components/layouts/WorkspacePageShell';
 import OptimizationBatchHistory from '@/components/optimization/OptimizationBatchHistory';
 import OptimizationDashboard from '@/components/optimization/OptimizationDashboard';
+import { VishEmptyState } from '@/components/common/vish-primitives/VishEmptyState';
 import ComputeOverlay from '@/components/system-intelligence/ComputeOverlay';
 import ConstraintEditor, {
   type ConstraintValues,
@@ -337,9 +338,7 @@ export default function OptimizationPage() {
             )}
 
             {!loading && !batch && (
-              <div className="rounded-2xl border border-dashed border-vish-navy-700/50 bg-vish-navy-950/40 p-8 text-center text-sm text-slate-400">
-                Set your constraints and click Regenerate to compare 5 strategy-driven designs.
-              </div>
+              <VishEmptyState label="Set your constraints and click Regenerate to compare 5 strategy-driven designs." />
             )}
 
             {batch && runnerUp && winner && (

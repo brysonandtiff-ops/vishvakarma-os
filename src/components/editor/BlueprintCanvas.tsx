@@ -107,6 +107,7 @@ import {
   MIN_WALL_LENGTH_PX,
 } from '@/utils/wallDrawConstraints';
 import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
+import { sonicBridge } from '@/lib/sonic-bridge';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -769,6 +770,7 @@ export default function BlueprintCanvas({
     }
 
     onOpeningAdd(opening);
+    sonicBridge.playSnap();
   };
 
   const runHoverPreview = useCallback(
@@ -1337,6 +1339,8 @@ export default function BlueprintCanvas({
       height: 240,
       material: 'material-paint',
     });
+    
+    sonicBridge.playSnap();
 
     setIsDrawing(false);
     setStartPoint(null);
