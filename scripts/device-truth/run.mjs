@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +39,26 @@ function runStreaming(commandName, commandArgs) {
     child.once('error', reject);
     child.once('exit', (code, signal) => resolvePromise({ code: code ?? 1, signal }));
   });
+}
+
+function resolvePlaywrightCli() {
+  const candidates = [
+    resolve(repoRoot, 'node_modules/@playwright/test/cli.js'),
+    resolve(repoRoot, 'node_modules/playwright/cli.js'),
+  ];
+
+  const found = candidates.find((candidate) => existsSync(candidate));
+  if (!found) {
+    throw new Error(
+      'Playwright CLI was not found in node_modules. Run `pnpm install --frozen-lockfile` from the Vishvakarma.OS repo, then retry.',
+    );
+  }
+  return found;
+}
+
+async function runPlaywright(playwrightArgs) {
+  const cli = resolvePlaywrightCli();
+  return runStreaming(process.execPath, [cli, ...playwrightArgs]);
 }
 
 async function repositoryTruthGuard() {
@@ -92,18 +113,20 @@ async function repositoryTruthGuard() {
 async function main() {
   await repositoryTruthGuard();
 
-  const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-
   if (installBrowsers) {
     console.log('📦 Installing Playwright Chromium, Firefox and WebKit...');
-    const install = await runStreaming(pnpm, ['exec', 'playwright', 'install', '--with-deps', 'chromium', 'firefox', 'webkit']);
+    const installArgs = ['install'];
+    // Linux CI benefits from Playwright-managed OS dependency installation.
+    // Windows does not need --with-deps and avoiding it also avoids elevation/shell edge cases.
+    if (process.platform !== 'win32') installArgs.push('--with-deps');
+    installArgs.push('chromium', 'firefox', 'webkit');
+
+    const install = await runPlaywright(installArgs);
     if (install.code !== 0) process.exit(install.code);
   }
 
   console.log('🧪 Running Vishvakarma multi-device human truth baseline...');
-  const testRun = await runStreaming(pnpm, [
-    'exec',
-    'playwright',
+  const testRun = await runPlaywright([
     'test',
     '--config=playwright.device-truth.config.ts',
     ...passthrough,
