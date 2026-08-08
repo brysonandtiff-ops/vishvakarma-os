@@ -140,25 +140,47 @@ Those remain manual real-device gates.
 
 ## Running locally on Windows
 
-From the Vishvakarma.OS repository root:
+Preferred current checkout:
+
+`C:\Users\bryso\dev\projects\vishvakarma-os-cloudflare-cutover`
+
+Before switching branches or running tests:
 
 ```powershell
-.\RUN_VISHVAKARMA_DEVICE_TRUTH.ps1
+cd "C:\Users\bryso\dev\projects\vishvakarma-os-cloudflare-cutover"
+git status --short
+git remote -v
+git branch --show-current
+git rev-parse HEAD
 ```
 
-Install Playwright browsers first if required:
+If the worktree is clean, fetch and switch to the validation branch:
+
+```powershell
+git fetch origin
+git switch feature/multi-device-human-truth-validation
+git pull --ff-only origin feature/multi-device-human-truth-validation
+```
+
+Install the Playwright browsers and run the first baseline:
 
 ```powershell
 .\RUN_VISHVAKARMA_DEVICE_TRUTH.ps1 -InstallBrowsers
 ```
 
-Run only one profile while debugging:
+Subsequent baseline runs:
+
+```powershell
+.\RUN_VISHVAKARMA_DEVICE_TRUTH.ps1
+```
+
+Run only the priority iPad profile while debugging:
 
 ```powershell
 .\RUN_VISHVAKARMA_DEVICE_TRUTH.ps1 -Project "ipad-11-webkit"
 ```
 
-After repairs, generate the final report name instead of the baseline report:
+After repairs, generate the final report:
 
 ```powershell
 .\RUN_VISHVAKARMA_DEVICE_TRUTH.ps1 -Final
@@ -375,3 +397,9 @@ Report separate verdicts for:
 Use `YES`, `CONDITIONAL` or `NO` and state the evidence supporting the verdict.
 
 A green emulated matrix alone can only justify a **conditional** multi-device verdict when physical-device proof is still missing.
+
+## CI availability boundary
+
+The pull-request workflow automatically attempts the emulated-device baseline on relevant changes. If GitHub Actions cannot start because of account, billing, runner or platform restrictions, classify that as **CI BLOCKED**, not as a Vishvakarma product failure.
+
+A blocked CI run does not satisfy the baseline gate. Run the Windows baseline command above and preserve its evidence locally. Do not promote or merge the validation PR until an executable baseline and post-fix final run have completed on a capable environment.
