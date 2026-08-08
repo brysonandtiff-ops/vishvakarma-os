@@ -1,4 +1,4 @@
-import { defineConfig, type Project } from '@playwright/test';
+import { defineConfig, type PlaywrightTestConfig } from '@playwright/test';
 
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
@@ -17,6 +17,7 @@ const appSmokeServerEnv = {
 
 type DeviceClass = 'phone' | 'tablet' | 'desktop' | 'hybrid';
 type EvidenceKind = 'EMULATED';
+type TruthProject = NonNullable<PlaywrightTestConfig['projects']>[number];
 
 type ProfileOptions = {
   name: string;
@@ -30,7 +31,7 @@ type ProfileOptions = {
   label: string;
 };
 
-function profile(options: ProfileOptions): Project {
+function profile(options: ProfileOptions): TruthProject {
   const mobileContext = options.browserName === 'firefox'
     ? {}
     : { isMobile: options.isMobile ?? false };
@@ -53,7 +54,7 @@ function profile(options: ProfileOptions): Project {
   };
 }
 
-const projects: Project[] = [
+const projects: TruthProject[] = [
   profile({
     name: 'iphone-small-webkit',
     browserName: 'webkit',
