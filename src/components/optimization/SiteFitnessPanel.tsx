@@ -21,10 +21,10 @@ export default function SiteFitnessPanel({ siteFitness }: { siteFitness: SiteFit
   ];
 
   return (
-    <div className="rounded-2xl border border-border/60 p-4" data-testid="site-fitness-panel">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-semibold">Site Fitness</h3>
-        <span className="text-2xl font-bold text-primary">{siteFitness.overall}</span>
+    <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl" data-testid="site-fitness-panel">
+      <div className="mb-3 flex items-center justify-between border-b border-vish-navy-700/50 pb-2">
+        <h3 className="font-semibold text-white">Site Fitness</h3>
+        <span className="text-2xl font-bold text-vish-gold drop-shadow-md">{siteFitness.overall}</span>
       </div>
       <ChartContainer config={chartConfig} className="aspect-[2/1] min-h-[180px] w-full">
         <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>

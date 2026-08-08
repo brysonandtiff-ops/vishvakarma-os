@@ -60,16 +60,16 @@ export default function ConstraintEditor({
 }) {
   return (
     <div
-      className="space-y-4 rounded-2xl border border-border/60 bg-card/50 p-4 lg:p-6"
+      className="space-y-4 rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 lg:p-6 shadow-xl"
       data-testid="constraint-editor"
       data-tutorial="optimization-intake"
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <h3 className="font-technical text-xs font-bold uppercase tracking-widest text-vish-gold/90">
           Live constraints
         </h3>
         {dirty && (
-          <span className="text-xs text-earth-500" data-testid="constraints-dirty">
+          <span className="text-xs text-vish-blue-400 font-semibold" data-testid="constraints-dirty">
             Changed — regenerate to update
           </span>
         )}
@@ -77,7 +77,7 @@ export default function ConstraintEditor({
 
       {showPrompt && (
         <div className="space-y-2">
-          <Label htmlFor="constraint-prompt">Design brief</Label>
+          <Label htmlFor="constraint-prompt" className="text-slate-300">Design brief</Label>
           <Textarea
             id="constraint-prompt"
             value={values.prompt}
@@ -85,13 +85,14 @@ export default function ConstraintEditor({
             rows={2}
             disabled={loading}
             data-testid="constraint-prompt"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner"
           />
         </div>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="constraint-budget">Target budget (AUD)</Label>
+          <Label htmlFor="constraint-budget" className="text-slate-300">Target budget (AUD)</Label>
           <Input
             id="constraint-budget"
             type="number"
@@ -100,10 +101,11 @@ export default function ConstraintEditor({
             placeholder="450000"
             disabled={loading}
             data-testid="constraint-budget"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="constraint-parcel">Parcel area m²</Label>
+          <Label htmlFor="constraint-parcel" className="text-slate-300">Parcel area m²</Label>
           <Input
             id="constraint-parcel"
             type="number"
@@ -112,10 +114,11 @@ export default function ConstraintEditor({
             placeholder="600"
             disabled={loading}
             data-testid="constraint-parcel"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="constraint-bedrooms">Bedrooms</Label>
+          <Label htmlFor="constraint-bedrooms" className="text-slate-300">Bedrooms</Label>
           <Input
             id="constraint-bedrooms"
             type="number"
@@ -126,10 +129,11 @@ export default function ConstraintEditor({
             placeholder="4"
             disabled={loading}
             data-testid="constraint-bedrooms"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="constraint-bathrooms">Bathrooms</Label>
+          <Label htmlFor="constraint-bathrooms" className="text-slate-300">Bathrooms</Label>
           <Input
             id="constraint-bathrooms"
             type="number"
@@ -140,10 +144,11 @@ export default function ConstraintEditor({
             placeholder="2"
             disabled={loading}
             data-testid="constraint-bathrooms"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="constraint-garage">Garage spaces</Label>
+          <Label htmlFor="constraint-garage" className="text-slate-300">Garage spaces</Label>
           <Input
             id="constraint-garage"
             type="number"
@@ -154,10 +159,11 @@ export default function ConstraintEditor({
             placeholder="2"
             disabled={loading}
             data-testid="constraint-garage"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="constraint-lifestyle">Lifestyle goals</Label>
+          <Label htmlFor="constraint-lifestyle" className="text-slate-300">Lifestyle goals</Label>
           <Input
             id="constraint-lifestyle"
             value={values.lifestyleGoals}
@@ -165,6 +171,7 @@ export default function ConstraintEditor({
             placeholder="family entertaining, home office"
             disabled={loading}
             data-testid="constraint-lifestyle"
+            className="bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner h-9"
           />
         </div>
       </div>
@@ -172,7 +179,7 @@ export default function ConstraintEditor({
       <Button
         onClick={onRegenerate}
         disabled={loading || !values.prompt.trim()}
-        className="touch-target w-full min-h-[44px]"
+        className="touch-target w-full min-h-[44px] bg-vish-gold hover:bg-vish-gold-light text-vish-navy-950 font-bold shadow-lg shadow-vish-gold/20 tracking-wide"
         data-testid="constraint-regenerate"
         data-tutorial="optimization-run"
       >

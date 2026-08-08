@@ -1,0 +1,18 @@
+{
+  "StartedAt": "2026-08-05T04:11:44.5531434+08:00",
+  "Result": "BLOCKED",
+  "Authentication": "supabase-email-password",
+  "PagesUrl": "https://vishvakarma-os.pages.dev",
+  "GitHead": "0dc689bd25c8dbfb1dca3c88ba815f067cc95a5b",
+  "HealthBefore": {
+    "ok": true,
+    "version": "1.5.0",
+    "service": "vishvakarma-os",
+    "timestamp": "2026-08-04T20:11:46.918Z"
+  },
+  "SurfaceDeploymentStarted": true,
+  "LiveSupabaseSurface": true,
+  "ReleaseControllerStarted": true,
+  "Detail": "Hardened Supabase email/password auth-session verification failed.",
+  "CompletedAt": "2026-08-05T04:27:03.8410243+08:00"
+}

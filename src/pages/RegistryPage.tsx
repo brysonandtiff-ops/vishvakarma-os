@@ -122,10 +122,10 @@ export default function RegistryPage() {
 
               <TabsContent value={selectedType}>
                 {filteredEntries.length === 0 ? (
-                  <div className="vish-empty-state rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
-                    <Database className="vish-empty-icon mx-auto h-10 w-10 text-muted-foreground/40" />
-                    <h3 className="mt-3 text-sm font-semibold text-foreground">No registry entries</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                  <div className="rounded-xl border border-dashed border-vish-navy-700/50 bg-vish-navy-950/40 py-16 text-center shadow-inner">
+                    <Database className="mx-auto h-10 w-10 text-vish-navy-700" />
+                    <h3 className="mt-3 text-sm font-bold text-white">No registry entries</h3>
+                    <p className="mt-1 text-xs text-slate-400">
                       {selectedType === 'all'
                         ? 'Register your first component or feature to begin tracking'
                         : `No ${selectedType}s registered yet`}
@@ -136,7 +136,7 @@ export default function RegistryPage() {
                       ) : (
                         <>
                           <NewRegistryDialog onEntryCreated={loadEntries} />
-                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => setSelectedType('all')}>
+                          <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white" onClick={() => setSelectedType('all')}>
                             View all entries
                           </Button>
                         </>
@@ -149,7 +149,7 @@ export default function RegistryPage() {
                       const cfg = getTypeConfig(entry.type);
                       const Icon = cfg.icon;
                       return ( // Apply crystal-surface for a premium feel
-                        <Card key={entry.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 crystal-surface">
+                        <Card key={entry.id} className="group h-full flex flex-col border-vish-navy-700/50 bg-vish-navy-900/40 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl hover:border-vish-gold/30 hover:-translate-y-0.5">
                           <CardHeader className="pb-2">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -158,8 +158,8 @@ export default function RegistryPage() {
                                   <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0">
-                                  <CardTitle className="truncate text-sm text-balance">{entry.name}</CardTitle>
-                                  <CardDescription className="mt-0.5 font-mono text-[10px]">
+                                  <CardTitle className="truncate text-sm text-white">{entry.name}</CardTitle>
+                                  <CardDescription className="mt-0.5 font-mono text-[10px] text-vish-gold/70">
                                     {entry.id.slice(0, 12)}…
                                   </CardDescription>
                                 </div>
@@ -180,22 +180,22 @@ export default function RegistryPage() {
                             </div>
                           </CardHeader>
                           <CardContent className="flex-1 pt-0">
-                            <p className="mb-3 text-sm text-pretty text-muted-foreground">
+                            <p className="mb-3 text-sm text-slate-300">
                               {entry.description || 'No description provided'}
                             </p>
                             {entry.metadata && Object.keys(entry.metadata).length > 0 && (
-                              <div className="mb-3 overflow-hidden rounded-lg border border-border bg-muted/50">
-                                <div className="border-b border-border bg-muted/80 px-2 py-1">
-                                  <span className="font-mono text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <div className="mb-3 overflow-hidden rounded-lg border border-vish-navy-700/50 bg-vish-navy-950/80 shadow-inner">
+                                <div className="border-b border-vish-navy-700/50 bg-vish-navy-900/60 px-2 py-1">
+                                  <span className="font-technical text-[9px] font-bold uppercase tracking-widest text-slate-400">
                                     Metadata
                                   </span>
                                 </div>
-                                <pre className="max-h-24 overflow-y-auto p-2 text-xs text-muted-foreground">
+                                <pre className="max-h-24 overflow-y-auto p-2 text-xs text-vish-gold/80">
                                   {JSON.stringify(entry.metadata, null, 2)}
                                 </pre>
                               </div>
                             )}
-                            <p className="font-mono text-[10px] text-muted-foreground/60">
+                            <p className="font-mono text-[10px] text-slate-500">
                               Registered {new Date(entry.created_at).toLocaleDateString()}
                             </p>
                           </CardContent>

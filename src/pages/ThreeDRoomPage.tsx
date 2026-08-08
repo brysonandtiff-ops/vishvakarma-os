@@ -79,41 +79,42 @@ export default function ThreeDRoomPage() {
         className="flex h-[100dvh] min-h-0 flex-col bg-background text-ws-text"
         data-testid="three-d-room-page"
       >
-        <header className="flex shrink-0 flex-col items-stretch gap-3 border-b border-ws-border bg-black/70 px-4 py-3 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex shrink-0 flex-col items-stretch gap-3 border-b border-vish-navy-700/50 bg-vish-navy-950/80 px-4 py-3 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+            <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-vish-gold">
               <Sparkles className="h-3.5 w-3.5" /> Market-class 3D Room
             </p>
-            <h1 className="truncate text-lg font-semibold">{manifest?.name ?? 'Detached 3D chamber'}</h1>
-            <p className="text-xs text-ws-text-dim">Fast WebGL review route with premium sample staging, walk mode, and all-floor 3D preview.</p>
+            <h1 className="truncate text-lg font-semibold text-white tracking-wide">{manifest?.name ?? 'Detached 3D chamber'}</h1>
+            <p className="text-xs text-slate-400">Fast WebGL review route with premium sample staging, walk mode, and all-floor 3D preview.</p>
           </div>
           <div className="flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0">
-            <span className="max-w-[70vw] shrink-0 truncate rounded-full border border-primary/25 bg-primary/10 px-3 py-2 text-xs text-primary sm:max-w-[min(52vw,28rem)]">{sourceLabel}</span>
-            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target" onClick={() => setWalkMode((value) => !value)}>
+            <span className="max-w-[70vw] shrink-0 truncate rounded-full border border-vish-blue-500/30 bg-vish-blue-900/30 px-3 py-2 text-xs text-vish-blue-400 sm:max-w-[min(52vw,28rem)]">{sourceLabel}</span>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" onClick={() => setWalkMode((value) => !value)}>
               <Footprints className="mr-2 h-4 w-4" />
               {walkMode ? 'Orbit mode' : 'Walk mode'}
             </Button>
-            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target" onClick={() => void loadDetachedManifest()}>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" onClick={() => void loadDetachedManifest()}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Reload snapshot
             </Button>
-            <Button type="button" className="vish-gold-action shrink-0 touch-target" size="sm" onClick={() => navigate('/editor')}>
+            <Button type="button" className="bg-vish-blue-600 hover:bg-vish-blue-500 text-white shrink-0 touch-target shadow-lg shadow-vish-blue-900/50 border border-vish-blue-400/50" size="sm" onClick={() => navigate('/editor')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to editor
             </Button>
           </div>
         </header>
 
-        <section className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto border-b border-ws-border/70 bg-black/40 px-4 py-2 text-xs text-ws-text-dim">
+        <section className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto border-b border-vish-navy-800 bg-vish-navy-950/60 px-4 py-2 text-xs text-slate-400 backdrop-blur-md">
           {HERO_SAMPLE_IDS.map((sampleId) => {
             const definition = getSampleDefinition(sampleId);
+            const isActive = activeSampleId === sampleId;
             return (
               <Button
                 key={sampleId}
                 type="button"
-                variant={activeSampleId === sampleId ? 'gold' : 'outline'}
+                variant={isActive ? 'default' : 'outline'}
                 size="sm"
-                className="min-h-[44px] min-w-[44px] shrink-0"
+                className={`min-h-[44px] min-w-[44px] shrink-0 ${isActive ? 'bg-vish-navy-700 text-white border-vish-navy-500 shadow-inner' : 'border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300'}`}
                 onClick={() => void loadSampleRoom(sampleId)}
               >
                 {definition?.name ?? sampleId}
@@ -122,8 +123,8 @@ export default function ThreeDRoomPage() {
           })}
           <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-2">
             {stats.map(([label, value]) => (
-              <span key={label} className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px]">
-                {label}: <strong className="text-primary">{value}</strong>
+              <span key={label} className="shrink-0 rounded-full border border-vish-navy-600/50 bg-vish-navy-800/50 px-2.5 py-1 text-[11px] text-slate-300 backdrop-blur-sm">
+                {label}: <strong className="text-vish-blue-400 font-mono ml-1">{value}</strong>
               </span>
             ))}
           </div>

@@ -50,18 +50,19 @@ function ToolButton({
   return (
     <button
       type="button"
-      className={`architect-tool-button vish-pressable touch-manipulation min-h-[44px] min-w-[44px] prana-glow ${isActive ? 'active' : ''}`}
+      className={`touch-target touch-manipulation flex flex-col items-center justify-center gap-1 min-h-[52px] min-w-[52px] rounded-[10px] transition-all duration-200 ${
+        isActive
+          ? 'bg-vish-blue-500 text-white shadow-[0_0_15px_rgba(42,167,255,0.4)] relative before:absolute before:inset-0 before:rounded-[10px] before:border before:border-vish-gold-500/50 before:pointer-events-none'
+          : 'text-vish-text-400 hover:text-white hover:bg-vish-navy-700/50'
+      }`}
       aria-label={meta.label}
       aria-pressed={isActive}
       title={titleText}
       data-tutorial={`tool-${toolId}`}
       {...pressHandlers}
     >
-      <Icon className="h-[18px] w-[18px] shrink-0" />
-      <span className="font-technical w-full truncate px-0.5 text-center text-[9px] leading-[1.15] tracking-[0.02em]">{meta.label}</span>
-      {meta.shortcut && (
-        <span className="font-technical text-[9px] leading-none opacity-55">{meta.shortcut}</span>
-      )}
+      <Icon className="h-5 w-5 shrink-0" />
+      <span className="font-semibold text-[8px] uppercase tracking-widest leading-none">{meta.label}</span>
     </button>
   );
 }
@@ -81,11 +82,11 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
 
   return (
     <div
-      className="vish-tool-rail vish-tool-dock architect-tool-dock vish-stagger-children glass-panel-obsidian laser-etched-border flex h-full shrink-0 flex-col items-center gap-0.5 overflow-y-auto py-2"
+      className="flex flex-col items-center gap-2 p-2 rounded-[12px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-lg h-full overflow-y-auto shrink-0 z-10 mx-1.5 my-1.5 w-[68px]"
       data-testid="tool-rail"
       data-tutorial="tool-rail"
     >
-      <p className="vish-tool-section-label px-1">Base</p>
+      <p className="text-[9px] font-bold uppercase tracking-widest text-vish-text-500 my-1">Base</p>
       {BASE_TOOL_IDS.map((toolId) => (
         <ToolButton
           key={toolId}
@@ -96,7 +97,8 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
       ))}
       {modeToolIds.length > 0 && (
         <>
-          <p className="vish-tool-section-label mt-2 px-1">{MODE_LABELS[workspaceMode]}</p>
+          <div className="w-8 h-px bg-vish-navy-600/50 my-1" />
+          <p className="text-[9px] font-bold uppercase tracking-widest text-vish-text-500 my-1">{MODE_LABELS[workspaceMode]}</p>
           {modeToolIds.map((toolId) => (
             <ToolButton
               key={toolId}
@@ -109,7 +111,8 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
       )}
       {powerToolIds.length > 0 && (
         <>
-          <p className="vish-tool-section-label mt-2 px-1">Power</p>
+          <div className="w-8 h-px bg-vish-navy-600/50 my-1" />
+          <p className="text-[9px] font-bold uppercase tracking-widest text-vish-text-500 my-1">Power</p>
           {powerToolIds.map((toolId) => (
             <ToolButton
               key={toolId}

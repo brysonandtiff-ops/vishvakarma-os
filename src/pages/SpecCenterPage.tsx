@@ -186,10 +186,10 @@ export default function SpecCenterPage() {
               </div>
             )}
             {/* Blueprint Editor Spec — Featured */}
-            <Card className="vish-gov-card-dark overflow-hidden border-2 border-primary/60 shadow-md">
-              <div className="flex items-center gap-2 border-b border-border bg-primary/5 px-6 py-3">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            <Card className="vish-gov-card-dark overflow-hidden border-2 border-vish-gold/60 shadow-md bg-vish-navy-900/40 backdrop-blur-xl">
+              <div className="flex items-center gap-2 border-b border-vish-navy-700/50 bg-vish-gold/5 px-6 py-3">
+                <ShieldCheck className="h-4 w-4 text-vish-gold" />
+                <span className="font-technical text-xs font-bold uppercase tracking-widest text-vish-gold">
                   Governing Specification
                 </span>
               </div>
@@ -197,49 +197,49 @@ export default function SpecCenterPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <CardTitle className="text-lg text-balance">Blueprint Editor v1.0.0</CardTitle>
-                      <Badge className="gap-1 bg-primary text-primary-foreground">
+                      <CardTitle className="text-lg text-white">Blueprint Editor v1.0.0</CardTitle>
+                      <Badge className="gap-1 bg-vish-gold text-vish-navy-950 font-bold border-none">
                         <Lock className="h-3 w-3" /> LOCKED
                       </Badge>
-                      <Badge variant="secondary">Core Feature</Badge>
+                      <Badge variant="secondary" className="bg-vish-navy-800 text-slate-300">Core Feature</Badge>
                     </div>
-                    <CardDescription className="text-pretty">
+                    <CardDescription className="text-slate-400">
                       Complete specification for the architectural blueprint editor workspace
                     </CardDescription>
                   </div>
-                  <FileText className="h-8 w-8 shrink-0 text-primary/60" />
+                  <FileText className="h-8 w-8 shrink-0 text-vish-gold/60" />
                 </div>
               </CardHeader>
               <CardContent className="space-y-5">
                 {/* Hash block */}
-                <div className="rounded-xl border border-border bg-muted/50 p-4">
+                <div className="rounded-xl border border-vish-navy-700/50 bg-vish-navy-950/80 p-4 shadow-inner">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <p className="mb-1 font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         SHA-256 Spec Hash
                       </p>
-                      <p className="break-all font-mono text-xs text-foreground/80">
+                      <p className="break-all font-mono text-xs text-vish-gold/80">
                         {blueprintSpecHash}
                       </p>
                     </div>
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-400" />
                   </div>
                 </div>
 
                 {/* Required sections */}
                 <div>
                   <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-foreground">Required Sections</p>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Compliance Checklist</span>
+                    <p className="text-sm font-semibold text-white">Required Sections</p>
+                    <span className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">Compliance Checklist</span>
                   </div>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4">
                     {requiredSections.map((section) => (
                       <div
                         key={section}
-                        className="flex items-center gap-2 rounded-xl border border-border bg-background/50 px-3 py-2.5 text-xs transition-colors hover:bg-background"
+                        className="flex items-center gap-2 rounded-xl border border-vish-navy-700/50 bg-vish-navy-800/40 px-3 py-2.5 text-xs transition-colors hover:bg-vish-navy-800"
                       >
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-success/80" />
-                        <span className="truncate font-medium text-foreground/80">{section}</span>
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400/80" />
+                        <span className="truncate font-medium text-slate-300">{section}</span>
                       </div>
                     ))}
                   </div>
@@ -249,18 +249,18 @@ export default function SpecCenterPage() {
 
                 {/* Spec content preview */}
                 <div>
-                  <p className="mb-2 text-sm font-semibold text-foreground">Specification Preview</p>
-                  <ScrollArea className="h-40 rounded-lg border border-border bg-muted/40 p-4">
-                    <pre className="whitespace-pre-wrap font-mono text-xs text-foreground/75">
+                  <p className="mb-2 text-sm font-semibold text-white">Specification Preview</p>
+                  <ScrollArea className="h-40 rounded-lg border border-vish-navy-700/50 bg-vish-navy-950/80 p-4 shadow-inner">
+                    <pre className="whitespace-pre-wrap font-mono text-xs text-slate-300">
                       {specContent}
                     </pre>
                   </ScrollArea>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" onClick={openFeaturedSpec}>View Full Spec</Button>
-                  <Button variant="outline" size="sm" onClick={() => openSpecPdf('Blueprint Editor v1.0.0', specContent)}>Export PDF</Button>
-                  <Button variant="outline" size="sm" disabled>
+                  <Button variant="outline" className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800 hover:text-white" size="sm" onClick={openFeaturedSpec}>View Full Spec</Button>
+                  <Button variant="outline" className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800 hover:text-white" size="sm" onClick={() => openSpecPdf('Blueprint Editor v1.0.0', specContent)}>Export PDF</Button>
+                  <Button variant="outline" className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-500 opacity-50" size="sm" disabled>
                     <Lock className="mr-2 h-3.5 w-3.5" />
                     Edit (Locked)
                   </Button>
@@ -272,30 +272,30 @@ export default function SpecCenterPage() {
             {!loading && specs.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-foreground">Registry Specifications</h2>
-                  <Badge variant="outline" className="text-[10px] uppercase tracking-wider">{specs.length} Entries</Badge>
+                  <h2 className="text-base font-semibold text-white">Registry Specifications</h2>
+                  <Badge variant="outline" className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400 border-vish-navy-700/50">{specs.length} Entries</Badge>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {specs.map((spec) => (
-                    <Card key={spec.id} className="group h-full flex flex-col border-border shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+                    <Card key={spec.id} className="group h-full flex flex-col border-vish-navy-700/50 bg-vish-navy-900/40 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl hover:border-vish-gold/30">
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <CardTitle className="text-sm font-semibold text-balance transition-colors group-hover:text-primary">{spec.name}</CardTitle>
-                            <CardDescription className="mt-1 text-[10px] uppercase tracking-wide font-medium">{spec.category}</CardDescription>
+                            <CardTitle className="text-sm font-semibold text-white transition-colors group-hover:text-vish-gold">{spec.name}</CardTitle>
+                            <CardDescription className="mt-1 font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">{spec.category}</CardDescription>
                           </div>
                           <Badge
                             variant={spec.status === 'locked' ? 'default' : spec.status === 'approved' ? 'outline' : 'secondary'}
-                            className="shrink-0 text-[9px] h-5 px-1.5 uppercase tracking-tighter"
+                            className={`shrink-0 font-technical text-[9px] font-bold h-5 px-1.5 uppercase tracking-widest ${spec.status === 'locked' ? 'bg-vish-gold text-vish-navy-950 border-none' : 'bg-vish-navy-800 text-slate-300'}`}
                           >
                             {spec.status}
                           </Badge>
                         </div>
                       </CardHeader>
                       <CardContent className="mt-auto flex gap-2 pt-0 pb-4">
-                        <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1" onClick={() => { setSelectedSpec({ title: spec.name, content: spec.content }); setFullSpecOpen(true); }}>View</Button>
+                        <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1 border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={() => { setSelectedSpec({ title: spec.name, content: spec.content }); setFullSpecOpen(true); }}>View</Button>
                         {spec.status !== 'locked' && (
-                          <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1" onClick={() => openSpecPdf(spec.name, spec.content)}>Export PDF</Button>
+                          <Button variant="outline" size="sm" className="h-7 text-[10px] flex-1 border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={() => openSpecPdf(spec.name, spec.content)}>Export PDF</Button>
                         )}
                       </CardContent>
                     </Card>

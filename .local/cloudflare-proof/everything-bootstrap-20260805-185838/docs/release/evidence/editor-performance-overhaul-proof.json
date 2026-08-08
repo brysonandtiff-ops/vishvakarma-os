@@ -1,0 +1,207 @@
+{
+  "suite": "editor-performance-overhaul",
+  "generatedAt": "2026-07-20T13:44:47.952Z",
+  "commitSha": "bb37cdb1f5f80fc828f06144212a56406b6fc329",
+  "summary": {
+    "pass": 27,
+    "fail": 0,
+    "warn": 0,
+    "total": 27
+  },
+  "metrics": {
+    "canvasSchedulerCoalesced": true,
+    "spatialIndexMs": 10.298999999999069,
+    "linearScanMs": 37.69199999999546
+  },
+  "checks": [
+    {
+      "id": "p0-engine-notify",
+      "phase": "0",
+      "name": "Viewport pan skips geometry listeners",
+      "status": "PASS",
+      "detail": "geometryRevision=0, viewportRevision=1"
+    },
+    {
+      "id": "p0-compliance-pan",
+      "phase": "0",
+      "name": "Geometry manifest excludes camera pan/zoom",
+      "status": "PASS",
+      "detail": "camera omitted from getGeometryManifest()"
+    },
+    {
+      "id": "p0-undo-coalesce",
+      "phase": "0",
+      "name": "Undo coalesces continuous wall drag",
+      "status": "PASS",
+      "detail": "single undo restores pre-drag wall"
+    },
+    {
+      "id": "p1-canvas-raf",
+      "phase": "1",
+      "name": "Canvas rAF scheduler coalesces draws",
+      "status": "PASS",
+      "detail": "3 requestDraw → 1 flush"
+    },
+    {
+      "id": "p1-spatial-index",
+      "phase": "1",
+      "name": "Spatial index hit-test parity + mock benchmark",
+      "status": "PASS",
+      "detail": "indexed=10.30ms linear=37.69ms parity=w200"
+    },
+    {
+      "id": "p1-overlay-cache",
+      "phase": "1",
+      "name": "Vastu analysis memoized by geometry hash",
+      "status": "PASS",
+      "detail": "same object reference"
+    },
+    {
+      "id": "p2-3d-demand",
+      "phase": "2",
+      "name": "Bloom pipeline gated by wall count",
+      "status": "PASS",
+      "detail": "cap=250"
+    },
+    {
+      "id": "p2-wall-batch",
+      "phase": "2",
+      "name": "Wall batch helper thresholds",
+      "status": "PASS",
+      "detail": ">=10 walls, all atmosphere tiers"
+    },
+    {
+      "id": "p4-background",
+      "phase": "4",
+      "name": "Incremental cost invalidation helper",
+      "status": "PASS",
+      "detail": "walls touch cost, name does not"
+    },
+    {
+      "id": "p4-background",
+      "phase": "4",
+      "name": "Room face cache memoizes floor graph",
+      "status": "PASS",
+      "detail": "same array reference"
+    },
+    {
+      "id": "p6-product-ci",
+      "phase": "6",
+      "name": "Performance profile → atmosphere mapping",
+      "status": "PASS",
+      "detail": "draft=standard, presentation=cinematic"
+    },
+    {
+      "id": "p0-mouse-collab",
+      "phase": "0",
+      "name": "Collab cursor broadcast throttled (~80ms)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p0-mouse-collab-radial",
+      "phase": "0",
+      "name": "Radial menu uses dedicated tracker (not stage setMousePos)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p0-compliance-editor",
+      "phase": "0",
+      "name": "EditorPage keys compliance on geometryRevision",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p1-blueprint-raf",
+      "phase": "1",
+      "name": "BlueprintCanvas uses canvas render scheduler",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p4-draft-worker",
+      "phase": "4",
+      "name": "Draft autosave scheduled via worker helper",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p4-crdt-batch",
+      "phase": "4",
+      "name": "CRDT remote updates batched at animation frame",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-frameloop",
+      "phase": "2",
+      "name": "Viewport3D uses demand render loop (always during walk)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-room-fps",
+      "phase": "2",
+      "name": "Room meshes use cached faces, tier LOD, and batching",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-profile-atmosphere",
+      "phase": "2",
+      "name": "Performance profile syncs 3D atmosphere in Viewport3D",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-walk-postfx",
+      "phase": "2",
+      "name": "Walk mode disables cinematic post-FX pipeline",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p2-3d-deferred",
+      "phase": "2",
+      "name": "EditorPage defers 3D geometry props",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p3-lazy-routes",
+      "phase": "3",
+      "name": "Non-editor routes lazy-loaded",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p5-deferred-governance",
+      "phase": "5",
+      "name": "Production governance deferred via requestIdleCallback",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p6-perf-hud",
+      "phase": "6",
+      "name": "Dev performance HUD wired in editor",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p6-perf-profile-ui",
+      "phase": "6",
+      "name": "Performance profile panel in editor more panel",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "id": "p6-docs",
+      "phase": "6",
+      "name": "Performance notes and troubleshooting docs present",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

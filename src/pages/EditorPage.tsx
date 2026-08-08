@@ -1352,7 +1352,7 @@ function EditorWorkspace() {
           </div>
 
           {!presentationLock && !zenMode && !expand3DPanel && (
-          <aside className="vish-dark-panel vish-paper-grain ws-panel-dark hidden w-72 shrink-0 flex-col overflow-hidden md:flex">
+          <aside className="hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
             {propertiesPanel}
           </aside>
           )}
@@ -1369,11 +1369,13 @@ function EditorWorkspace() {
               <SlidersHorizontal className="h-5 w-5" />
             </button>
             <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
-              <SheetContent side="bottom" className="vish-dark-panel ws-panel-dark max-h-[85dvh] overflow-y-auto p-0 md:hidden">
-                <SheetHeader className="border-b border-ws-border px-4 py-3 text-left">
-                  <SheetTitle className="text-sm font-semibold text-ws-text">Properties</SheetTitle>
+              <SheetContent side="bottom" className="bg-vish-navy-900 border-t border-vish-navy-600/50 max-h-[85dvh] overflow-y-auto p-0 md:hidden">
+                <SheetHeader className="border-b border-vish-navy-700/50 px-4 py-3 text-left bg-vish-navy-950">
+                  <SheetTitle className="text-sm font-semibold text-white tracking-wide">Properties</SheetTitle>
                 </SheetHeader>
-                {propertiesPanel}
+                <div className="h-[calc(100%-48px)]">
+                  {propertiesPanel}
+                </div>
               </SheetContent>
             </Sheet>
           </>

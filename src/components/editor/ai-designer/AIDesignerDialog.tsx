@@ -373,18 +373,18 @@ export default function AIDesignerDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="vish-dialog-chrome vish-copilot-dialog max-h-[85vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-3xl"
+        className="vish-dialog-chrome vish-copilot-dialog max-h-[85vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-3xl md:max-w-3xl bg-vish-navy-950/90 backdrop-blur-3xl border border-vish-navy-700/50 shadow-2xl"
         style={isKeyboardOpen ? { paddingBottom: `${keyboardBottomInset + 12}px` } : undefined}
       >
         <DialogHeader>
-          <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
+          <div className="mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] bg-vish-gold/10 text-vish-gold border border-vish-gold/20 shadow-inner">
             Architecture Copilot
           </div>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-white">
             <CopilotSwanMark motion={copilotSwanMotion} size="sm" />
             AI Architecture Copilot
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-400">
             Upload site survey, boundary plan, and council requirements — receive concept design, floor plan, 3D
             model, material list, cost estimate, compliance report, and permit package.
           </DialogDescription>
@@ -403,15 +403,15 @@ export default function AIDesignerDialog({
           ))}
         </ol>
 
-        <p className="text-sm font-semibold text-foreground">{stepTitle}</p>
+        <p className="text-sm font-semibold text-white">{stepTitle}</p>
 
         <div className="space-y-4">
           {(wizardStep === 'upload' || wizardStep === 'review') && (
-            <div className="vish-copilot-brief-card space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <Label htmlFor="copilot-brief" className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+            <div className="vish-copilot-brief-card space-y-2 rounded-xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4">
+              <Label htmlFor="copilot-brief" className="text-xs font-bold uppercase tracking-[0.14em] text-vish-gold/90">
                 Design brief
               </Label>
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
+              <p className="text-[11px] leading-relaxed text-slate-400">
                 Describe bedrooms, style, site constraints, and budget goals. Uploads are optional.
               </p>
               <Textarea
@@ -421,7 +421,7 @@ export default function AIDesignerDialog({
                 placeholder="4-bedroom modern home on 600m² corner block with double garage"
                 rows={4}
                 disabled={parsing || generating}
-                className="min-h-[6.5rem] resize-y bg-background/80"
+                className="min-h-[6.5rem] resize-y bg-vish-navy-950/80 border-vish-navy-700/50 text-white placeholder:text-slate-500 shadow-inner"
               />
             </div>
           )}
@@ -448,11 +448,11 @@ export default function AIDesignerDialog({
                 }
               />
               <div className="space-y-2">
-                <Label htmlFor="copilot-budget">Target budget (AUD, optional)</Label>
+                <Label htmlFor="copilot-budget" className="text-slate-300">Target budget (AUD, optional)</Label>
                 <input
                   id="copilot-budget"
                   type="number"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  className="flex h-9 w-full rounded-md border border-vish-navy-600/50 bg-vish-navy-900/50 px-3 py-1 text-sm text-white placeholder:text-slate-500 shadow-inner"
                   value={targetBudget}
                   onChange={(e) => setTargetBudget(e.target.value)}
                   placeholder="450000"
@@ -463,7 +463,7 @@ export default function AIDesignerDialog({
           )}
 
           {(wizardStep === 'generate' || generating || selectingRunnerUp) && (stage || planningProgress) && (
-            <div className="relative space-y-3 rounded-xl border border-border/60 p-4" data-testid="planning-progress">
+            <div className="relative space-y-3 rounded-xl border border-vish-navy-600/50 bg-vish-navy-900/40 p-4" data-testid="planning-progress">
               <ComputeOverlay
                 status={
                   planningProgress?.phase === 'scoring' || planningProgress?.phase === 'selecting'
@@ -522,12 +522,12 @@ export default function AIDesignerDialog({
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-row">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating || parsing}>
+          <Button variant="outline" className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={() => onOpenChange(false)} disabled={generating || parsing}>
             Cancel
           </Button>
 
           {wizardStep === 'upload' && (
-            <Button onClick={handleParseAndReview} disabled={parsing}>
+            <Button className="bg-vish-gold hover:bg-vish-gold-light text-vish-navy-950 font-bold" onClick={handleParseAndReview} disabled={parsing}>
               {parsing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -541,13 +541,13 @@ export default function AIDesignerDialog({
 
           {wizardStep === 'review' && (
             <>
-              <Button variant="outline" onClick={() => setWizardStep('upload')} disabled={generating}>
+              <Button variant="outline" className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={() => setWizardStep('upload')} disabled={generating}>
                 Back
               </Button>
-              <Button variant="outline" onClick={handleCompareDesigns} disabled={generating} data-testid="compare-5-designs">
+              <Button variant="outline" className="border-vish-navy-600/50 text-vish-gold hover:bg-vish-navy-800 hover:text-vish-gold-light" onClick={handleCompareDesigns} disabled={generating} data-testid="compare-5-designs">
                 Compare 5 designs
               </Button>
-              <Button onClick={handleGenerate} disabled={generating}>
+              <Button className="bg-vish-gold hover:bg-vish-gold-light text-vish-navy-950 font-bold" onClick={handleGenerate} disabled={generating}>
                 Generate design
               </Button>
             </>
@@ -555,7 +555,7 @@ export default function AIDesignerDialog({
 
           {wizardStep === 'deliverables' && result && (
             <>
-              <Button variant="outline" onClick={() => void handleRegenerate()} disabled={generating}>
+              <Button variant="outline" className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={() => void handleRegenerate()} disabled={generating}>
                 {generating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -567,11 +567,12 @@ export default function AIDesignerDialog({
               </Button>
               <Button
                 variant="outline"
+                className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white"
                 onClick={() => downloadComplianceReportPdf(result.complianceReport)}
               >
                 Compliance PDF
               </Button>
-              <Button variant="outline" onClick={handleExportPermit} disabled={exportingPermit}>
+              <Button variant="outline" className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white" onClick={handleExportPermit} disabled={exportingPermit}>
                 {exportingPermit ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -587,6 +588,7 @@ export default function AIDesignerDialog({
               {onSaveProject && (
                 <Button
                   variant="outline"
+                  className="border-vish-navy-600/50 text-slate-300 hover:bg-vish-navy-800 hover:text-white"
                   onClick={async () => {
                     await onSaveProject(result.manifest, projectName);
                     onOpenChange(false);
@@ -596,6 +598,7 @@ export default function AIDesignerDialog({
                 </Button>
               )}
               <Button
+                className="bg-vish-gold hover:bg-vish-gold-light text-vish-navy-950 font-bold"
                 onClick={() => {
                   onOpenInEditor(result.manifest, projectName);
                   onOpenChange(false);

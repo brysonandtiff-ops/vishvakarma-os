@@ -12,8 +12,8 @@ import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
 import { ROOM_TYPES, roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
 import { playStudioSound } from '@/modules/studio-audio/audioEngine';
+import { VishInspector, VishInspectorHeader, VishInspectorContent, VishInspectorSection } from '@/components/common/vish-primitives';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
-
 interface PropertiesPanelProps {
   currentTool: ToolType;
   selectedWall?: Wall;
@@ -41,20 +41,18 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
 
   return (
     <div className="space-y-4 px-4 py-4">
-      <div>
-        <p className="ws-pane-label text-primary">Properties</p>
-        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-ws-text">
-          {config.sectionTitle}
-        </p>
-      </div>
+      <VishInspectorHeader>
+        {config.sectionTitle}
+      </VishInspectorHeader>
+      <div className="space-y-4">
       {config.fields.map((field) => (
         <div key={field.id} className="space-y-1.5">
-          <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">
+          <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">
             {field.label}
           </Label>
           {field.type === 'select' ? (
             <select
-              className="vish-input-workstation h-9 text-xs"
+              className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
               defaultValue={field.value}
               aria-label={field.label}
             >
@@ -67,12 +65,13 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
               readOnly
               value={field.value}
               aria-label={field.label}
-              className="vish-input-workstation h-9 text-xs"
+              className="w-full h-9 bg-vish-navy-800/50 border border-vish-navy-700 rounded-[8px] text-vish-text-300 text-xs px-2"
             />
           )}
         </div>
       ))}
-      <p className="text-[10px] text-ws-text-faint">{config.footnote}</p>
+      </div>
+      <p className="text-[10px] text-vish-text-500 italic mt-2">{config.footnote}</p>
     </div>
   );
 }
@@ -100,150 +99,176 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
   const [moreOpen, setMoreOpen] = useState(false);
 
+  const wallLength = selectedWall
+    ? Math.hypot(selectedWall.end.x - selectedWall.start.x, selectedWall.end.y - selectedWall.start.y)
+    : 0;
+  
+  const wallOpenings = selectedWall
+    ? openings.filter((o) => o.wallId === selectedWall.id)
+    : [];
+
   if (!selectedWall && selectedFixture && onFixtureUpdate) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
-        <div className="ws-pane-header shrink-0">
-          <span className="ws-pane-label">Lighting Fixture</span>
-        </div>
-        <div className="space-y-4 px-4 py-4">
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Type</Label>
-            <select
-              className="vish-input-workstation h-9 w-full text-xs"
-              value={selectedFixture.type}
-              onChange={(e) => onFixtureUpdate(selectedFixture.id, { type: e.target.value as FixtureItem['type'] })}
-              aria-label="Fixture type"
-            >
-              <option value="point">Point light</option>
-              <option value="spot">Spot light</option>
-              <option value="ceiling">Ceiling light</option>
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Intensity</Label>
-              <span className="font-mono text-[11px] text-ws-text">{(selectedFixture.intensity ?? 1).toFixed(1)}</span>
+      <VishInspector>
+        <VishInspectorHeader>Lighting Fixture</VishInspectorHeader>
+        <VishInspectorSection className="flex-1 overflow-y-auto">
+          <VishInspectorContent className="pt-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Type</Label>
+                <select
+                  className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                  value={selectedFixture.type}
+                  onChange={(e) => onFixtureUpdate(selectedFixture.id, { type: e.target.value as FixtureItem['type'] })}
+                  aria-label="Fixture type"
+                >
+                  <option value="point">Point light</option>
+                  <option value="spot">Spot light</option>
+                  <option value="ceiling">Ceiling light</option>
+                </select>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Intensity</Label>
+                  <span className="font-mono text-[11px] text-white">{(selectedFixture.intensity ?? 1).toFixed(1)}</span>
+                </div>
+                <Slider
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  value={[selectedFixture.intensity ?? 1]}
+                  onValueChange={([v]) => onFixtureUpdate(selectedFixture.id, { intensity: v })}
+                />
+              </div>
+
+              {onFixtureDelete && (
+                <div className="pt-4 mt-4 border-t border-vish-navy-700/50">
+                  <Button variant="destructive" size="sm" className="h-10 w-full gap-2 text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 hover:text-rose-300" onClick={() => {
+                    if (navigator.vibrate) navigator.vibrate(50);
+                    playStudioSound('buttonPress');
+                    onFixtureDelete(selectedFixture.id);
+                  }}>
+                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete fixture
+                  </Button>
+                </div>
+              )}
             </div>
-            <Slider
-              min={0}
-              max={2}
-              step={0.1}
-              value={[selectedFixture.intensity ?? 1]}
-              onValueChange={([v]) => onFixtureUpdate(selectedFixture.id, { intensity: v })}
-            />
-          </div>
-          {onFixtureDelete && (
-            <Button variant="destructive" size="sm" className="w-full min-h-[44px] hover:prana-glow transition-all" onClick={() => {
-              if (navigator.vibrate) navigator.vibrate(50);
-              playStudioSound('buttonPress');
-              onFixtureDelete(selectedFixture.id);
-            }}>
-              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete fixture
-            </Button>
-          )}
-        </div>
-      </div>
+          </VishInspectorContent>
+        </VishInspectorSection>
+      </VishInspector>
     );
   }
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
-        <div className="ws-pane-header shrink-0">
-          <span className="ws-pane-label">Label Properties</span>
-        </div>
-        <div className="space-y-4 px-4 py-4">
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Text</Label>
-            <input
-              className="vish-input-workstation h-9 w-full text-xs"
-              value={selectedLabel.text}
-              onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
-              onFocus={scrollFocusedFieldIntoView}
-              aria-label="Label text"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Font size</Label>
-            <Slider
-              min={10}
-              max={32}
-              step={1}
-              value={[selectedLabel.fontSize ?? 14]}
-              onValueChange={([v]) => onLabelUpdate(selectedLabel.id, { fontSize: v })}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Color</Label>
-            <input
-              type="color"
-              value={selectedLabel.color ?? '#2c1810'}
-              onChange={(e) => onLabelUpdate(selectedLabel.id, { color: e.target.value })}
-              className="h-9 w-full cursor-pointer rounded border border-border"
-              aria-label="Label color"
-            />
-          </div>
-          {selectedRoom?.area !== undefined && (
-            <div className="flex items-center justify-between text-[10px]">
-              <span className="text-ws-text-faint">Room area</span>
-              <span className="font-mono text-ws-text">{selectedRoom.area.toFixed(1)} m²</span>
+      <VishInspector>
+        <VishInspectorHeader>Label Properties</VishInspectorHeader>
+        <VishInspectorSection className="flex-1 overflow-y-auto">
+          <VishInspectorContent className="pt-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Text</Label>
+                <input
+                  className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                  value={selectedLabel.text}
+                  onChange={(e) => onLabelUpdate(selectedLabel.id, { text: e.target.value })}
+                  onFocus={scrollFocusedFieldIntoView}
+                  aria-label="Label text"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Font size</Label>
+                  <span className="font-mono text-[11px] text-white">{selectedLabel.fontSize ?? 14}</span>
+                </div>
+                <Slider
+                  min={10}
+                  max={32}
+                  step={1}
+                  value={[selectedLabel.fontSize ?? 14]}
+                  onValueChange={([v]) => onLabelUpdate(selectedLabel.id, { fontSize: v })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Color</Label>
+                <input
+                  type="color"
+                  value={selectedLabel.color ?? '#2c1810'}
+                  onChange={(e) => onLabelUpdate(selectedLabel.id, { color: e.target.value })}
+                  className="h-9 w-full cursor-pointer rounded-[8px] border border-vish-navy-600 bg-vish-navy-800 p-0.5 overflow-hidden"
+                  aria-label="Label color"
+                />
+              </div>
+              
+              {selectedRoom?.area !== undefined && (
+                <div className="flex items-center justify-between text-[10px] pt-2 border-t border-vish-navy-700/50 mt-2">
+                  <span className="text-vish-text-400 uppercase font-semibold tracking-widest">Room area</span>
+                  <span className="font-mono text-white">{selectedRoom.area.toFixed(1)} m²</span>
+                </div>
+              )}
+              
+              {selectedRoom && onRoomUpdate && (
+                <div className="space-y-2 pt-2">
+                  <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Room type</Label>
+                  <select
+                    className="w-full h-9 bg-vish-navy-800 border border-vish-navy-600 rounded-[8px] text-white text-xs px-2 focus:border-vish-blue-500 focus:ring-1 focus:ring-vish-blue-500 outline-none transition-all"
+                    value={selectedRoom.roomType ?? 'Bedroom'}
+                    onChange={(e) => {
+                      const roomType = e.target.value as RoomType;
+                      onRoomUpdate(selectedRoom.id, {
+                        roomType,
+                        name: roomTypeLabel(roomType),
+                      });
+                      if (onLabelUpdate && selectedLabel) {
+                        onLabelUpdate(selectedLabel.id, { text: roomTypeLabel(roomType) });
+                      }
+                    }}
+                    aria-label="Room type"
+                  >
+                    {ROOM_TYPES.map((type) => (
+                      <option key={type} value={type}>{roomTypeLabel(type)}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              {onLabelDelete && (
+                <div className="pt-4 mt-4 border-t border-vish-navy-700/50">
+                  <Button variant="destructive" size="sm" className="h-10 w-full gap-2 text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 hover:text-rose-300" onClick={() => {
+                    if (navigator.vibrate) navigator.vibrate(50);
+                    playStudioSound('buttonPress');
+                    onLabelDelete(selectedLabel.id);
+                  }}>
+                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete label
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-          {selectedRoom && onRoomUpdate && (
-            <div className="space-y-1.5">
-              <Label className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Room type</Label>
-              <select
-                className="vish-input-workstation h-9 w-full text-xs"
-                value={selectedRoom.roomType ?? 'Bedroom'}
-                onChange={(e) => {
-                  const roomType = e.target.value as RoomType;
-                  onRoomUpdate(selectedRoom.id, {
-                    roomType,
-                    name: roomTypeLabel(roomType),
-                  });
-                  if (onLabelUpdate && selectedLabel) {
-                    onLabelUpdate(selectedLabel.id, { text: roomTypeLabel(roomType) });
-                  }
-                }}
-                aria-label="Room type"
-              >
-                {ROOM_TYPES.map((type) => (
-                  <option key={type} value={type}>{roomTypeLabel(type)}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          {onLabelDelete && (
-            <Button variant="destructive" size="sm" className="w-full min-h-[44px] hover:prana-glow transition-all" onClick={() => {
-              if (navigator.vibrate) navigator.vibrate(50);
-              playStudioSound('buttonPress');
-              onLabelDelete(selectedLabel.id);
-            }}>
-              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete label
-            </Button>
-          )}
-        </div>
-      </div>
+          </VishInspectorContent>
+        </VishInspectorSection>
+      </VishInspector>
     );
   }
 
   if (!selectedWall) {
     return (
-      <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="min-h-0 flex-1 overflow-y-auto">
+      <VishInspector>
+        <VishInspectorSection className="flex-1 overflow-y-auto">
           {currentTool === 'room' && onPendingRoomTypeChange && (
-            <div className="border-b border-ws-border px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim">Room type</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="border-b border-vish-navy-600/50 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Room type</p>
+              <div className="mt-3 flex flex-wrap gap-2">
                 {ROOM_TYPES.slice(0, 8).map((type) => (
                   <button
                     key={type}
                     type="button"
-                    className={`rounded-md border px-2 py-1 text-[10px] transition hover:prana-glow ${
+                    className={`rounded-md border px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider transition-all duration-200 ${
                       pendingRoomType === type
-                        ? 'border-primary bg-primary/15 text-primary'
-                        : 'border-ws-border text-ws-text-dim hover:border-primary/40 hover:text-ws-text'
+                        ? 'border-vish-blue-500 bg-vish-blue-500/20 text-white shadow-[0_0_10px_rgba(42,167,255,0.2)]'
+                        : 'border-vish-navy-600 text-vish-text-400 hover:border-vish-blue-400/50 hover:text-white'
                     }`}
                     onClick={() => {
                       if (navigator.vibrate) navigator.vibrate(30);
@@ -258,52 +283,38 @@ export default function PropertiesPanel({
             </div>
           )}
           <ToolDefaultsPanel currentTool={currentTool} />
-        </div>
+        </VishInspectorSection>
         {morePanel && (
-          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
-            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-vish-navy-600/50 bg-vish-navy-900/50">
+            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-vish-text-400 hover:text-white transition-colors">
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
             <CollapsibleContent className={`max-h-[min(42vh,24rem)] overflow-y-auto ${moreOpen ? 'vish-panel-reveal' : ''}`}>{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
-      </div>
+      </VishInspector>
     );
   }
 
-  const wallLength = Math.sqrt(
-    Math.pow(selectedWall.end.x - selectedWall.start.x, 2) +
-    Math.pow(selectedWall.end.y - selectedWall.start.y, 2)
-  );
-
-  const wallOpenings = openings.filter((o) => o.wallId === selectedWall.id);
-
   return (
-    <div className="vish-properties-panel vish-sidebar-panel glass-panel-obsidian laser-etched-border flex h-full flex-col overflow-y-auto">
-      <div className="ws-pane-header shrink-0">
-        <span className="ws-pane-label">Wall Properties</span>
-        <span className="ws-pane-stat">{selectedWall.id.slice(0, 10)}</span>
-      </div>
-
-      <div className="flex-1 space-y-0 overflow-y-auto">
-        <div className="ws-panel-section px-3 py-3">
-          <p className="mb-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">Dimensions</p>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-ws-text-faint">Length</span>
-              <span className="font-mono text-[11px] text-ws-text" data-testid="wall-property-length">
+    <VishInspector>
+      <VishInspectorHeader>Wall Properties · {selectedWall.id.slice(0, 8)}</VishInspectorHeader>
+      <VishInspectorSection className="flex-1 overflow-y-auto">
+        <VishInspectorContent className="pt-4">
+          <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-vish-text-500">Dimensions</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-vish-navy-700/50 pb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Length</span>
+              <span className="font-mono text-xs font-semibold text-white" data-testid="wall-property-length">
                 {formatDimensionBySystem(wallLength, unitSystem, 2)}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-ws-text-faint">ID</span>
-              <span className="font-mono text-[10px] text-ws-text">{selectedWall.id.slice(0, 12)}...</span>
-            </div>
-            <div className="space-y-1">
+            
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="thickness" className="text-[10px] font-normal text-ws-text-faint">Thickness</Label>
-                <span className="font-mono text-[11px] text-ws-text">{selectedWall.thickness}px</span>
+                <Label htmlFor="thickness" className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Thickness</Label>
+                <span className="font-mono text-xs font-semibold text-white">{selectedWall.thickness}px</span>
               </div>
               <Slider
                 id="thickness"
@@ -313,10 +324,11 @@ export default function PropertiesPanel({
                 className="w-full"
               />
             </div>
-            <div className="space-y-1">
+
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="height" className="text-[10px] font-normal text-ws-text-faint">Height</Label>
-                <span className="font-mono text-[11px] text-ws-text">{selectedWall.height}cm</span>
+                <Label htmlFor="height" className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Height</Label>
+                <span className="font-mono text-xs font-semibold text-white">{selectedWall.height}cm</span>
               </div>
               <Slider
                 id="height"
@@ -326,29 +338,30 @@ export default function PropertiesPanel({
                 className="w-full"
               />
             </div>
+
             <div className="flex items-center justify-between pt-2">
-              <Label htmlFor="fachwerk" className="text-[10px] font-semibold uppercase tracking-wider text-ws-text-dim">Exposed Fachwerk</Label>
+              <Label htmlFor="fachwerk" className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Exposed Fachwerk</Label>
               <input
                 id="fachwerk"
                 type="checkbox"
                 checked={selectedWall.fachwerk || false}
                 onChange={(e) => onWallUpdate(selectedWall.id, { fachwerk: e.target.checked })}
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-primary focus:ring-offset-background"
+                className="h-4 w-4 rounded border-vish-navy-600 bg-vish-navy-800 text-vish-blue-500 focus:ring-vish-blue-500 focus:ring-offset-vish-navy-900"
                 data-testid="fachwerk-toggle"
               />
             </div>
           </div>
-        </div>
+        </VishInspectorContent>
 
-        <Separator className="bg-ws-border" />
+        <Separator className="bg-vish-navy-600/50" />
 
-        <div className="px-3 py-3">
-          <p className="mb-2 text-[9px] font-semibold uppercase tracking-widest text-ws-text-faint">
+        <VishInspectorContent className="pt-4">
+          <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-vish-text-500">
             Openings ({wallOpenings.length})
           </p>
           <div data-testid="wall-openings-count" className="sr-only">{wallOpenings.length}</div>
           {wallOpenings.length === 0 ? (
-            <p className="text-[10px] text-ws-text-faint">No doors or windows on this wall</p>
+            <p className="text-xs text-vish-text-500 italic">No doors or windows on this wall</p>
           ) : (
             <div className="space-y-3">
               {wallOpenings.map((opening) => {
@@ -356,12 +369,12 @@ export default function PropertiesPanel({
                 return (
                   <div
                     key={opening.id}
-                    className="space-y-2 rounded-lg border border-ws-border-subtle bg-ws-toolbar p-2.5"
+                    className="space-y-3 rounded-[10px] border border-vish-navy-700 bg-vish-navy-800/30 p-3"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <OpeningIcon className="h-3 w-3 text-ws-text-dim" />
-                        <span className="text-[10px] font-semibold capitalize text-ws-text">{opening.type}</span>
+                    <div className="flex items-center justify-between border-b border-vish-navy-700/50 pb-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <OpeningIcon className="h-4 w-4 text-vish-text-400" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white">{opening.type}</span>
                       </div>
                       <button
                         type="button"
@@ -369,44 +382,45 @@ export default function PropertiesPanel({
                           if (navigator.vibrate) navigator.vibrate(50);
                           onOpeningDelete(opening.id);
                         }}
-                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-ws-text-faint transition-colors hover:bg-destructive/20 hover:text-destructive active:bg-destructive/20 active:text-destructive"
+                        className="flex h-7 w-7 items-center justify-center rounded-[6px] text-vish-text-400 transition-colors hover:bg-rose-500/20 hover:text-rose-400 active:bg-rose-500/30 active:text-rose-400"
                         aria-label={`Delete ${opening.type}`}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    <div className="space-y-1">
+                    
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-[10px] font-normal text-ws-text-faint">Width</Label>
-                        <span className="font-mono text-[10px] text-ws-text">{opening.width}cm</span>
+                        <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Width</Label>
+                        <span className="font-mono text-[10px] text-white">{opening.width}cm</span>
                       </div>
                       <Slider min={60} max={200} step={10} value={[opening.width]}
                         onValueChange={([v]) => onOpeningUpdate(opening.id, { width: v })} />
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-[10px] font-normal text-ws-text-faint">Height</Label>
-                        <span className="font-mono text-[10px] text-ws-text">{opening.height}cm</span>
+                        <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Height</Label>
+                        <span className="font-mono text-[10px] text-white">{opening.height}cm</span>
                       </div>
                       <Slider min={60} max={250} step={10} value={[opening.height]}
                         onValueChange={([v]) => onOpeningUpdate(opening.id, { height: v })} />
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-[10px] font-normal text-ws-text-faint">Position</Label>
-                        <span className="font-mono text-[10px] text-ws-text">{Math.round(opening.position * 100)}%</span>
+                        <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Position</Label>
+                        <span className="font-mono text-[10px] text-white">{Math.round(opening.position * 100)}%</span>
                       </div>
                       <Slider min={0} max={1} step={0.01} value={[opening.position]}
                         onValueChange={([v]) => onOpeningUpdate(opening.id, { position: v })} />
                     </div>
 
                     {opening.type === 'window' && opening.sillHeight !== undefined && (
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-[10px] font-normal text-ws-text-faint">Sill Height</Label>
-                          <span className="font-mono text-[10px] text-ws-text">{opening.sillHeight}cm</span>
+                          <Label className="text-[10px] font-semibold uppercase tracking-widest text-vish-text-400">Sill Height</Label>
+                          <span className="font-mono text-[10px] text-white">{opening.sillHeight}cm</span>
                         </div>
                         <Slider min={0} max={150} step={10} value={[opening.sillHeight]}
                           onValueChange={([v]) => onOpeningUpdate(opening.id, { sillHeight: v })} />
@@ -417,15 +431,15 @@ export default function PropertiesPanel({
               })}
             </div>
           )}
-        </div>
+        </VishInspectorContent>
 
-        <Separator className="bg-ws-border" />
+        <Separator className="bg-vish-navy-600/50" />
 
-        <div className="px-3 py-3">
+        <div className="px-4 py-4">
           <Button
             variant="destructive"
             size="sm"
-            className="h-11 w-full gap-2 text-xs min-h-[44px]"
+            className="h-10 w-full gap-2 text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 hover:text-rose-300"
             onClick={() => {
               if (navigator.vibrate) navigator.vibrate(50);
               onWallDelete(selectedWall.id);
@@ -437,15 +451,15 @@ export default function PropertiesPanel({
         </div>
 
         {morePanel && (
-          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-ws-border">
-            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-ws-text-dim hover:text-ws-text">
+          <Collapsible open={moreOpen} onOpenChange={setMoreOpen} className="shrink-0 border-t border-vish-navy-600/50 bg-vish-navy-900/50">
+            <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-vish-text-400 hover:text-white transition-colors">
               Simulation &amp; proof panels
               <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
             <CollapsibleContent className={`max-h-[min(42vh,24rem)] overflow-y-auto ${moreOpen ? 'vish-panel-reveal' : ''}`}>{morePanel}</CollapsibleContent>
           </Collapsible>
         )}
-      </div>
-    </div>
+      </VishInspectorSection>
+    </VishInspector>
   );
 }

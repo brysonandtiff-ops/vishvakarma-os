@@ -1216,22 +1216,22 @@ export default function Viewport3D({
         {walkMode && (
           <p
             id="vish-3d-walk-hint"
-            className="absolute bottom-3 left-3 rounded-lg border border-primary/30 bg-black/50 px-2 py-1 text-[10px] uppercase tracking-wider text-primary"
+            className="absolute bottom-3 left-3 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 text-[10px] uppercase tracking-wider text-vish-blue-400 backdrop-blur-xl shadow-lg"
           >
             {isCoarsePointer ? 'Drag to look · use pad to move' : 'Click canvas to enter walk · Esc to exit'}
-            <span className="font-devanagari ml-1 text-primary/70">· {WALK_MODE_MANTRA}</span>
+            <span className="font-devanagari ml-2 text-vish-gold/70">· {WALK_MODE_MANTRA}</span>
           </p>
         )}
         {walkMode && isCoarsePointer && (
           <div
-            className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-primary/25 bg-black/45 p-1 touch-none backdrop-blur-md"
+            className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 p-1.5 touch-none backdrop-blur-xl shadow-lg"
             data-testid="vish-3d-walk-pad"
           >
             <span />
             <button
               type="button"
               data-testid="vish-3d-walk-up"
-              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(0, 1)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
@@ -1242,7 +1242,7 @@ export default function Viewport3D({
             <button
               type="button"
               data-testid="vish-3d-walk-left"
-              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(-1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
@@ -1252,7 +1252,7 @@ export default function Viewport3D({
             <button
               type="button"
               data-testid="vish-3d-walk-down"
-              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(0, -1)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
@@ -1262,7 +1262,7 @@ export default function Viewport3D({
             <button
               type="button"
               data-testid="vish-3d-walk-right"
-              className="touch-target rounded-lg bg-white/10 px-3 py-2 text-xs text-primary"
+              className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
@@ -1273,13 +1273,13 @@ export default function Viewport3D({
         )}
         {/* Atmosphere mode controls */}
         {!presentationLock && onShowAllFloorsIn3DChange && floors.length > 1 && (
-          <div className="absolute left-3 top-3 rounded-xl border border-primary/20 bg-black/40 px-2 py-1.5 shadow-2xl backdrop-blur-md">
-            <label className="flex min-h-[44px] items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <div className="absolute left-3 top-3 rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 px-2 py-1.5 shadow-2xl backdrop-blur-xl">
+            <label className="flex min-h-[44px] items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-300">
               <input
                 type="checkbox"
                 checked={showAllFloorsIn3D}
                 onChange={(e) => onShowAllFloorsIn3DChange(e.target.checked)}
-                className="h-4 w-4 min-h-[44px] min-w-[44px] accent-primary"
+                className="h-4 w-4 min-h-[44px] min-w-[44px] accent-vish-blue-500"
                 data-testid="vish-3d-stack-floors"
               />
               Stack floors
@@ -1288,15 +1288,15 @@ export default function Viewport3D({
         )}
         {!presentationLock && (
         <div className="absolute right-3 top-3 space-y-2 text-right">
-          <div className="rounded-xl border border-primary/25 bg-black/35 px-3 py-2 shadow-2xl backdrop-blur-md">
-            <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-primary/80">
+          <div className="rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-2 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-vish-gold/90">
               <Sparkles className="h-3 w-3" /> Architect Energy
             </div>
-            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-slate-400">
               {atmosphereConfig.label} · {atmosphereMode === 'standard' ? 'low power' : atmosphereMode === 'premium' ? 'balanced' : 'max visuals'}
             </p>
           </div>
-          <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-primary/20 bg-black/40 p-1 shadow-2xl backdrop-blur-md">
+          <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-vish-navy-700/50 bg-vish-navy-900/50 p-1 shadow-2xl backdrop-blur-xl">
             {(Object.keys(ATMOSPHERE_MODES) as AtmospherePerformanceMode[])
               .filter((mode) => !isCoarsePointer || mode !== 'cinematic')
               .map((mode) => (
@@ -1306,8 +1306,8 @@ export default function Viewport3D({
                 onClick={() => setAtmosphereMode(mode)}
                 className={`vish-3d-atmosphere-btn touch-target rounded-lg px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] transition ${
                   atmosphereMode === mode
-                    ? 'bg-primary text-primary-foreground shadow-lg'
-                    : 'text-muted-foreground hover:bg-white/10 hover:text-foreground'
+                    ? 'bg-vish-blue-600 text-white shadow-lg shadow-vish-blue-900/50 border border-vish-blue-400/50'
+                    : 'text-slate-400 hover:bg-vish-navy-700/50 hover:text-white border border-transparent'
                 }`}
               >
                 {ATMOSPHERE_MODES[mode].label}
@@ -1318,11 +1318,11 @@ export default function Viewport3D({
         )}
 
         {!walkMode && (
-        <div className="vish-3d-orbit-hint pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-md px-2 py-1">
-          <RotateCcw className="h-2.5 w-2.5 text-ws-text-faint" />
-          <span className="text-[9px] tracking-wide text-ws-text-faint">
+        <div className="vish-3d-orbit-hint pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 backdrop-blur-xl shadow-lg">
+          <RotateCcw className="h-3 w-3 text-slate-400" />
+          <span className="text-[10px] uppercase tracking-wider text-slate-400">
             Drag to orbit · {isCoarsePointer ? 'Pinch to zoom' : 'Scroll to zoom'} · {atmosphereConfig.label} atmosphere
-            <span className="font-devanagari ml-1 text-primary/60">· {ORBIT_MODE_MANTRA}</span>
+            <span className="font-devanagari ml-2 text-vish-gold/70">· {ORBIT_MODE_MANTRA}</span>
           </span>
         </div>
         )}

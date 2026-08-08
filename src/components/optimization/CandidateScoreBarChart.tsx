@@ -53,10 +53,10 @@ export default function CandidateScoreBarChart({
 
   return (
     <div
-      className="rounded-2xl border border-border/60 p-4"
+      className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl"
       data-testid="candidate-score-bar-chart"
     >
-      <h3 className="mb-2 font-semibold">Candidate Comparison — 6 Dimensions</h3>
+      <h3 className="mb-2 font-semibold text-white">Candidate Comparison — 6 Dimensions</h3>
       <ChartContainer config={chartConfig} className="aspect-[2/1] min-h-[260px] w-full">
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} />

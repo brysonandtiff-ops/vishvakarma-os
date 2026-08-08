@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-08-05T08:20:41.920Z",
+  "target": "https://vishvakarma-os.pages.dev",
+  "gitHead": "526d14bde95b2b7c2b713392c7bfcfacc362009c",
+  "authStatePath": ".local/cloudflare-auth/storage-state.json",
+  "authMethod": "supabase-email-password",
+  "credentialMode": "windows-dpapi-vault",
+  "mode": "bootstrap-then-automated",
+  "result": "FAIL",
+  "results": [
+    {
+      "name": "Authenticated browser state is excluded from Git",
+      "pass": true,
+      "detail": ".local/cloudflare-auth/storage-state.json",
+      "recordedAt": "2026-08-05T08:18:16.335Z"
+    },
+    {
+      "name": "Windows-encrypted Supabase credential vault is available",
+      "pass": true,
+      "detail": ".local/cloudflare-auth/supabase-login.clixml",
+      "recordedAt": "2026-08-05T08:18:16.439Z"
+    },
+    {
+      "name": "Supabase email/password sign-in returns to editor",
+      "pass": true,
+      "detail": "https://vishvakarma-os.pages.dev/editor",
+      "recordedAt": "2026-08-05T08:18:24.752Z"
+    },
+    {
+      "name": "Authenticated editor contains a valid Supabase access token",
+      "pass": true,
+      "detail": "stable Supabase session; expires 2026-08-05T09:18:23.000Z",
+      "recordedAt": "2026-08-05T08:18:24.752Z"
+    },
+    {
+      "name": "Reusable authenticated browser state saved",
+      "pass": true,
+      "detail": ".local/cloudflare-auth/storage-state.json",
+      "recordedAt": "2026-08-05T08:18:24.789Z"
+    },
+    {
+      "name": "Authenticated Supabase password session bootstrap completed",
+      "pass": true,
+      "detail": ".local/cloudflare-auth/storage-state.json",
+      "recordedAt": "2026-08-05T08:18:26.246Z"
+    },
+    {
+      "name": "Saved Supabase password session opens the editor",
+      "pass": true,
+      "detail": "https://vishvakarma-os.pages.dev/editor",
+      "recordedAt": "2026-08-05T08:18:30.125Z"
+    },
+    {
+      "name": "Supabase password session persists after refresh",
+      "pass": true,
+      "detail": "stable Supabase session; expires 2026-08-05T09:18:23.000Z",
+      "recordedAt": "2026-08-05T08:18:32.807Z"
+    },
+    {
+      "name": "Studio checkout action is visible",
+      "pass": true,
+      "detail": "Start 14-day free trial",
+      "recordedAt": "2026-08-05T08:18:34.511Z"
+    },
+    {
+      "name": "Stripe Checkout opens from the Studio plan",
+      "pass": false,
+      "detail": "No Stripe-hosted page opened; application URL is https://vishvakarma-os.pages.dev/pricing",
+      "recordedAt": "2026-08-05T08:20:41.521Z"
+    }
+  ]
+}

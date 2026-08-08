@@ -1,0 +1,18 @@
+{
+  "StartedAt": "2026-08-05T00:34:21.5698000+08:00",
+  "Result": "BLOCKED",
+  "Authentication": "supabase-email-password",
+  "PagesUrl": "https://vishvakarma-os.pages.dev",
+  "GitHead": "fc5fccaaf64ff30ac9295ad17612f27ebf37770b",
+  "HealthBefore": {
+    "ok": true,
+    "version": "1.5.0",
+    "service": "vishvakarma-os",
+    "timestamp": "2026-08-04T16:34:24.876Z"
+  },
+  "SurfaceDeploymentStarted": false,
+  "LiveSupabaseSurface": false,
+  "ReleaseControllerStarted": false,
+  "Detail": "Build exact Supabase-only auth commit failed with exit code 1.",
+  "CompletedAt": "2026-08-05T00:40:58.3491780+08:00"
+}

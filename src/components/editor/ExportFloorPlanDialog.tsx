@@ -86,36 +86,36 @@ export default function ExportFloorPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={editorDialogClassName} data-tutorial="export-dialog">
+      <DialogContent className={`${editorDialogClassName} border-vish-navy-600/50 bg-vish-navy-950/80 backdrop-blur-2xl shadow-2xl`} data-tutorial="export-dialog">
         <DialogHeader className="items-center text-center">
-          <div className="vish-logo-tile mb-2 flex h-16 w-16 items-center justify-center rounded-2xl p-1.5">
-            <FileDown className="h-8 w-8 text-primary-foreground" />
+          <div className="vish-logo-tile mb-2 flex h-16 w-16 items-center justify-center rounded-2xl p-1.5 shadow-inner">
+            <FileDown className="h-8 w-8 text-vish-gold" />
           </div>
-          <DialogTitle>Export Package</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Export Package</DialogTitle>
+          <DialogDescription className="text-slate-400">
             Choose a format below. PDF is recommended for sharing visual floor plans.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-2xl border bg-white/70 p-4 text-sm">
-          <div className="flex items-center justify-between border-b pb-2">
-            <span className="text-muted-foreground">Project</span>
-            <span className="font-medium">{projectName}</span>
+        <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 text-sm shadow-inner">
+          <div className="flex items-center justify-between border-b border-vish-navy-700/50 pb-2">
+            <span className="font-technical text-xs font-bold uppercase tracking-widest text-slate-400">Project</span>
+            <span className="font-medium text-white">{projectName}</span>
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-            <div className="rounded-xl bg-muted p-3">
-              <p className="text-2xl font-bold text-primary">{wallCount}</p>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Walls</p>
+            <div className="rounded-xl bg-vish-navy-800/40 border border-vish-navy-700/30 p-3">
+              <p className="text-2xl font-bold text-vish-gold">{wallCount}</p>
+              <p className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">Walls</p>
             </div>
-            <div className="rounded-xl bg-muted p-3">
-              <p className="text-2xl font-bold text-primary">{openingCount}</p>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Openings</p>
+            <div className="rounded-xl bg-vish-navy-800/40 border border-vish-navy-700/30 p-3">
+              <p className="text-2xl font-bold text-vish-gold">{openingCount}</p>
+              <p className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">Openings</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-white/70 p-4 text-xs">
-          <p className="mb-2 font-medium text-foreground">Export layers</p>
+        <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 text-xs shadow-inner">
+          <p className="mb-2 font-technical font-bold uppercase tracking-widest text-slate-400">Export layers</p>
           <div className="flex flex-wrap gap-3">
             {(
               [
@@ -125,11 +125,12 @@ export default function ExportFloorPlanDialog({
                 ['includeLabels', 'Labels'],
               ] as const
             ).map(([key, label]) => (
-              <label key={key} className="flex items-center gap-1.5 text-muted-foreground">
+              <label key={key} className="flex items-center gap-1.5 text-slate-300">
                 <input
                   type="checkbox"
                   checked={layerOptions[key] ?? true}
                   onChange={(e) => setLayerOptions((prev) => ({ ...prev, [key]: e.target.checked }))}
+                  className="accent-vish-gold"
                 />
                 {label}
               </label>
@@ -137,32 +138,32 @@ export default function ExportFloorPlanDialog({
           </div>
         </div>
 
-        <div className="space-y-2 text-[10px] text-muted-foreground">
+        <div className="space-y-2 text-[10px] text-slate-400">
           <p className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[9px]">PDF</Badge>
+            <Badge variant="secondary" className="text-[9px] bg-vish-navy-800 text-slate-300">PDF</Badge>
             <span>{FORMAT_CHIPS.pdf}</span>
-            <Badge className="bg-primary text-[9px] text-primary-foreground">Recommended</Badge>
+            <Badge className="bg-vish-gold text-[9px] text-vish-navy-950 font-bold border-none">Recommended</Badge>
           </p>
           <p className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[9px]">Sheet set</Badge>
+            <Badge variant="secondary" className="text-[9px] bg-vish-navy-800 text-slate-300">Sheet set</Badge>
             <span>{FORMAT_CHIPS.sheetSet}</span>
           </p>
           <p className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[9px]">PNG</Badge>
+            <Badge variant="secondary" className="text-[9px] bg-vish-navy-800 text-slate-300">PNG</Badge>
             <span>{FORMAT_CHIPS.png}</span>
           </p>
           <p className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[9px]">DXF</Badge>
+            <Badge variant="secondary" className="text-[9px] bg-vish-navy-800 text-slate-300">DXF</Badge>
             <span>{FORMAT_CHIPS.dxf}</span>
           </p>
           <p className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="secondary" className="text-[9px]">SVG</Badge>
+            <Badge variant="secondary" className="text-[9px] bg-vish-navy-800 text-slate-300">SVG</Badge>
             <span>{FORMAT_CHIPS.svg}</span>
           </p>
         </div>
 
         {exportBlocked && (
-          <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive" data-testid="export-blocked-message">
+          <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400" data-testid="export-blocked-message">
             Export blocked — resolve building compliance failures before exporting.
             {exportBlockReason ? ` ${exportBlockReason}` : ''}
           </p>
@@ -170,12 +171,13 @@ export default function ExportFloorPlanDialog({
 
         <DialogFooter className="flex flex-col gap-3 sm:items-center">
           <div className="flex flex-wrap justify-center gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button variant="outline" disabled={exportBlocked} onClick={exportPng} title={FORMAT_CHIPS.png}>PNG</Button>
-          <Button variant="outline" disabled={exportBlocked} onClick={exportSvg} title={FORMAT_CHIPS.svg}>SVG</Button>
+          <Button variant="ghost" className="text-slate-400 hover:text-white" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800" disabled={exportBlocked} onClick={exportPng} title={FORMAT_CHIPS.png}>PNG</Button>
+          <Button variant="outline" className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800" disabled={exportBlocked} onClick={exportSvg} title={FORMAT_CHIPS.svg}>SVG</Button>
           <Button
             disabled={!canPdf || exportBlocked}
             variant="outline"
+            className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800"
             title={FORMAT_CHIPS.sheetSet}
             data-testid="export-sheet-set-pdf"
             onClick={() => {
@@ -189,7 +191,7 @@ export default function ExportFloorPlanDialog({
           </Button>
           <Button
             disabled={!canPdf || exportBlocked}
-            className="bg-primary text-primary-foreground"
+            className="bg-vish-gold hover:bg-vish-gold-light text-vish-navy-950 font-bold shadow-lg shadow-vish-gold/20 tracking-wide"
             title={FORMAT_CHIPS.pdf}
             onClick={() => {
               void downloadPdf(manifest, true).then(() => {
@@ -200,11 +202,12 @@ export default function ExportFloorPlanDialog({
             }}
           >
             PDF
-            <Badge variant="secondary" className="ml-1.5 bg-primary-foreground/15 text-[9px] text-primary-foreground">Recommended</Badge>
+            <Badge variant="secondary" className="ml-1.5 bg-vish-navy-950/20 text-[9px] text-vish-navy-950 border-none">Recommended</Badge>
           </Button>
           <Button
             disabled={!canDxf || exportBlocked}
             variant="outline"
+            className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800"
             title={FORMAT_CHIPS.dxf}
             onClick={() => {
               const dxf = exportManifestToDxf(manifest);
@@ -219,6 +222,7 @@ export default function ExportFloorPlanDialog({
           </Button>
           <Button
             variant="outline"
+            className="border-vish-navy-700/50 bg-vish-navy-900/40 text-slate-300 hover:bg-vish-navy-800"
             disabled={exportBlocked}
             data-testid="export-json-button"
             onClick={() => {

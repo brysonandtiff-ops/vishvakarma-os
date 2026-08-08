@@ -1,0 +1,446 @@
+{
+  "generatedAt": "2026-06-29T09:40:11.562Z",
+  "commit": "6ecd6ba46fbc4d2daa15ddac443a8c053610f934",
+  "distTotalBytes": 3955473,
+  "distTotalMb": 3.77,
+  "budget": {
+    "totalDistMb": 5,
+    "chunks": {
+      "vendor-3d": 1250000,
+      "vendor-ui": 400000,
+      "vendor-react": 550000,
+      "vendor-supabase": 210000,
+      "vendor-misc": 480000,
+      "index": 880000,
+      "Viewport3D": 55000
+    }
+  },
+  "chunks": {
+    "AuditLogPage": {
+      "bytes": 8654,
+      "files": [
+        "AuditLogPage-MSmjrYmj.js"
+      ]
+    },
+    "AuthPage": {
+      "bytes": 16603,
+      "files": [
+        "AuthPage-Yhf1CEJ3.js"
+      ]
+    },
+    "CastSessionManager": {
+      "bytes": 14373,
+      "files": [
+        "CastSessionManager-B7cobLg1.js",
+        "CastSessionManager-BK9T294D.js"
+      ]
+    },
+    "CastViewerPage": {
+      "bytes": 8719,
+      "files": [
+        "CastViewerPage-HM0wA6Lz.js"
+      ]
+    },
+    "ChangeRequestsPage": {
+      "bytes": 10647,
+      "files": [
+        "ChangeRequestsPage-ZDM-4J91.js"
+      ]
+    },
+    "CollabSession": {
+      "bytes": 13608,
+      "files": [
+        "CollabSession-Bv2gpKoj.js"
+      ]
+    },
+    "EditorPage": {
+      "bytes": 255982,
+      "files": [
+        "EditorPage-CZeZs9wL.js"
+      ]
+    },
+    "FeaturesPage": {
+      "bytes": 6606,
+      "files": [
+        "FeaturesPage-DwQnrrA2.js"
+      ]
+    },
+    "GovernanceBackendBanner": {
+      "bytes": 1697,
+      "files": [
+        "GovernanceBackendBanner-CqRxtptG.js"
+      ]
+    },
+    "GovernanceStatPill": {
+      "bytes": 541,
+      "files": [
+        "GovernanceStatPill-DPqu4198.js"
+      ]
+    },
+    "LandingPage": {
+      "bytes": 7193,
+      "files": [
+        "LandingPage-DNUc0gcP.js"
+      ]
+    },
+    "MarketingCtaSection": {
+      "bytes": 1114,
+      "files": [
+        "MarketingCtaSection-M_6CjYXA.js"
+      ]
+    },
+    "MarketingSection": {
+      "bytes": 2117,
+      "files": [
+        "MarketingSection-Dq1rFY5l.js"
+      ]
+    },
+    "MetricPill": {
+      "bytes": 735,
+      "files": [
+        "MetricPill-BwjX3pIl.js"
+      ]
+    },
+    "NotFound": {
+      "bytes": 1320,
+      "files": [
+        "NotFound-BMq6JV_e.js"
+      ]
+    },
+    "OptimizationPage": {
+      "bytes": 64835,
+      "files": [
+        "OptimizationPage-Nfe5eNOS.js"
+      ]
+    },
+    "PageStateBlock": {
+      "bytes": 1673,
+      "files": [
+        "PageStateBlock-CLxBQzjv.js"
+      ]
+    },
+    "PricingPage": {
+      "bytes": 7878,
+      "files": [
+        "PricingPage-C-STkb3c.js"
+      ]
+    },
+    "ProfilePage": {
+      "bytes": 6337,
+      "files": [
+        "ProfilePage-CvI0kUEm.js"
+      ]
+    },
+    "ProjectsPage": {
+      "bytes": 13863,
+      "files": [
+        "ProjectsPage-CdxqkXPC.js"
+      ]
+    },
+    "RegistryPage": {
+      "bytes": 8967,
+      "files": [
+        "RegistryPage-BRRQO64F.js"
+      ]
+    },
+    "ReleasesPage": {
+      "bytes": 15720,
+      "files": [
+        "ReleasesPage-CCC7fvz9.js"
+      ]
+    },
+    "ResetPasswordPage": {
+      "bytes": 511,
+      "files": [
+        "ResetPasswordPage-B-0T6vY2.js"
+      ]
+    },
+    "SpecCenterPage": {
+      "bytes": 11410,
+      "files": [
+        "SpecCenterPage-KbJnhzLh.js"
+      ]
+    },
+    "StatPill": {
+      "bytes": 413,
+      "files": [
+        "StatPill-CfxGS3MJ.js"
+      ]
+    },
+    "ThreeDRoomPage": {
+      "bytes": 5541,
+      "files": [
+        "ThreeDRoomPage-CABpWNfG.js"
+      ]
+    },
+    "Viewport3D": {
+      "bytes": 54333,
+      "files": [
+        "Viewport3D-C2N-yGUD.js"
+      ]
+    },
+    "Viewport3DLoading": {
+      "bytes": 783,
+      "files": [
+        "Viewport3DLoading-Mg1MIcd3.js"
+      ]
+    },
+    "WorkspacePanel": {
+      "bytes": 1225,
+      "files": [
+        "WorkspacePanel-zHMGe7mG.js"
+      ]
+    },
+    "WorldRecordsPage": {
+      "bytes": 7111,
+      "files": [
+        "WorldRecordsPage-D5UTEtYH.js"
+      ]
+    },
+    "api": {
+      "bytes": 6895,
+      "files": [
+        "api-DWIkF95C.js"
+      ]
+    },
+    "appVersion": {
+      "bytes": 11965,
+      "files": [
+        "appVersion-BdCYWmSr.js"
+      ]
+    },
+    "billingPlans": {
+      "bytes": 1762,
+      "files": [
+        "billingPlans-BRZoBx7w.js"
+      ]
+    },
+    "card": {
+      "bytes": 1443,
+      "files": [
+        "card-DrqCXkMA.js"
+      ]
+    },
+    "dropdown": {
+      "bytes": 4069,
+      "files": [
+        "dropdown-menu-DK__e1cn.js"
+      ]
+    },
+    "fetchWithRetry": {
+      "bytes": 835,
+      "files": [
+        "fetchWithRetry-DA5c0ZJG.js",
+        "fetchWithRetry-DDMOa6Dw.js"
+      ]
+    },
+    "index": {
+      "bytes": 705804,
+      "files": [
+        "index-B2Z2gak1.css",
+        "index-C8o9szUC.js"
+      ]
+    },
+    "input": {
+      "bytes": 877,
+      "files": [
+        "input-DWraZ6FN.js"
+      ]
+    },
+    "label": {
+      "bytes": 487,
+      "files": [
+        "label-ClyAZqye.js"
+      ]
+    },
+    "lightingPresets": {
+      "bytes": 23918,
+      "files": [
+        "lightingPresets-CvKvsLAG.js"
+      ]
+    },
+    "localDraft": {
+      "bytes": 924,
+      "files": [
+        "localDraft-BxvZYFEa.js"
+      ]
+    },
+    "localProjects": {
+      "bytes": 12098,
+      "files": [
+        "localProjects-KGD914uq.js"
+      ]
+    },
+    "minimalPdf": {
+      "bytes": 3404,
+      "files": [
+        "minimalPdf-b3PqBROx.js"
+      ]
+    },
+    "orchestrator": {
+      "bytes": 42319,
+      "files": [
+        "orchestrator-C-2SFRxj.js"
+      ]
+    },
+    "panchatattva": {
+      "bytes": 1939,
+      "files": [
+        "panchatattva-Wwh3-M7B.js"
+      ]
+    },
+    "planning.worker": {
+      "bytes": 4336,
+      "files": [
+        "planning.worker-C8slriou.js"
+      ]
+    },
+    "planningPipeline": {
+      "bytes": 8467,
+      "files": [
+        "planningPipeline-DQiLflKU.js"
+      ]
+    },
+    "projectThumbnail": {
+      "bytes": 229,
+      "files": [
+        "projectThumbnail-DZc1P60m.js"
+      ]
+    },
+    "releaseGateManifest": {
+      "bytes": 10294,
+      "files": [
+        "releaseGateManifest-KKPR2yql.js"
+      ]
+    },
+    "rolldown": {
+      "bytes": 986,
+      "files": [
+        "rolldown-runtime-BE_SCnlJ.js"
+      ]
+    },
+    "roomType": {
+      "bytes": 673,
+      "files": [
+        "roomType-BsZmswmG.js"
+      ]
+    },
+    "roomTypeColors": {
+      "bytes": 2220,
+      "files": [
+        "roomTypeColors-NhuB7WMZ.js"
+      ]
+    },
+    "select": {
+      "bytes": 3265,
+      "files": [
+        "select-BZQZPUI6.js"
+      ]
+    },
+    "separator": {
+      "bytes": 479,
+      "files": [
+        "separator-CUKsr5Gx.js"
+      ]
+    },
+    "slider": {
+      "bytes": 846,
+      "files": [
+        "slider-DSEGCH7q.js"
+      ]
+    },
+    "stripeCheckout": {
+      "bytes": 605,
+      "files": [
+        "stripeCheckout-BScyOJTd.js"
+      ]
+    },
+    "supabaseAccessToken": {
+      "bytes": 329,
+      "files": [
+        "supabaseAccessToken-DWN4Slr3.js"
+      ]
+    },
+    "supabaseProjectGateway": {
+      "bytes": 1309,
+      "files": [
+        "supabaseProjectGateway-Cw_mTDDr.js"
+      ]
+    },
+    "tabs": {
+      "bytes": 1216,
+      "files": [
+        "tabs-BejrLVl-.js"
+      ]
+    },
+    "textarea": {
+      "bytes": 567,
+      "files": [
+        "textarea-bRBkBZBV.js"
+      ]
+    },
+    "vayuCFD": {
+      "bytes": 11849,
+      "files": [
+        "vayuCFD-Bi2-E9Ss.js"
+      ]
+    },
+    "vendor-3d": {
+      "bytes": 1193268,
+      "files": [
+        "vendor-3d-BiXXKw4j.js"
+      ]
+    },
+    "vendor-charts": {
+      "bytes": 81844,
+      "files": [
+        "vendor-charts-ZqUnTlNi.js"
+      ]
+    },
+    "vendor-collab": {
+      "bytes": 82732,
+      "files": [
+        "vendor-collab-BB6fpsqE.js"
+      ]
+    },
+    "vendor-misc": {
+      "bytes": 243396,
+      "files": [
+        "vendor-misc-Bjo0fp9K.js",
+        "vendor-misc-D7iSeYn8.css"
+      ]
+    },
+    "vendor-react": {
+      "bytes": 529754,
+      "files": [
+        "vendor-react-DKcv2tMD.js"
+      ]
+    },
+    "vendor-supabase": {
+      "bytes": 195375,
+      "files": [
+        "vendor-supabase-C8W72wT8.js"
+      ]
+    },
+    "vendor-ui": {
+      "bytes": 152403,
+      "files": [
+        "vendor-ui-BSAse_LR.js"
+      ]
+    },
+    "vendor-utils": {
+      "bytes": 57060,
+      "files": [
+        "vendor-utils-D3hDT7vD.js"
+      ]
+    },
+    "worldRecordRegistry": {
+      "bytes": 2723,
+      "files": [
+        "worldRecordRegistry-0CVakcl2.js"
+      ]
+    }
+  },
+  "passed": true,
+  "failures": []
+}

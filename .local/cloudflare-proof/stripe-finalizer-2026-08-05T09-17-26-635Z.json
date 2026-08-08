@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-08-05T09:17:26.638Z",
+  "result": "BLOCKED",
+  "detail": "No usable Stripe server key was found. Authenticate Stripe CLI or provide STRIPE_SECRET_KEY securely.",
+  "target": "https://vishvakarma-os.pages.dev",
+  "gitHead": null,
+  "checkout": null,
+  "completedAt": "2026-08-05T09:17:26.834Z"
+}

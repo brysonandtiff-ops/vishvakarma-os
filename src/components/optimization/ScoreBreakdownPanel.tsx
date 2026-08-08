@@ -4,7 +4,7 @@ import { toDisplayScoresForCandidate } from '@/services/optimization/displayDime
 export default function ScoreBreakdownPanel({ candidate }: { candidate: OptimizationCandidate | null }) {
   if (!candidate) {
     return (
-      <div className="rounded-2xl border border-border/60 p-4 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 text-sm text-slate-400 shadow-inner">
         Select a candidate to view score breakdown.
       </div>
     );
@@ -35,22 +35,22 @@ export default function ScoreBreakdownPanel({ candidate }: { candidate: Optimiza
   };
 
   return (
-    <div className="rounded-2xl border border-border/60 p-4" data-testid="score-breakdown">
-      <h3 className="mb-3 font-semibold">{candidate.label} — Score Breakdown</h3>
+    <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl" data-testid="score-breakdown">
+      <h3 className="mb-3 font-semibold text-white">{candidate.label} — Score Breakdown</h3>
       <div className="space-y-3">
         {displayScores.map((score) => (
           <div key={score.dimension} className="space-y-1">
             <div className="flex items-center justify-between text-sm">
-              <span>{score.label}</span>
-              <span className="font-bold">{score.score}/100</span>
+              <span className="text-slate-300">{score.label}</span>
+              <span className="font-bold text-vish-gold">{score.score}/100</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="h-1.5 overflow-hidden rounded-full bg-vish-navy-950/50">
               <div
-                className="h-full rounded-full bg-primary transition-all"
+                className="h-full rounded-full bg-vish-gold transition-all shadow-[0_0_8px_rgba(201,138,46,0.8)]"
                 style={{ width: `${score.score}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">{explanationFor(score.dimension)}</p>
+            <p className="text-xs text-slate-400">{explanationFor(score.dimension)}</p>
           </div>
         ))}
       </div>

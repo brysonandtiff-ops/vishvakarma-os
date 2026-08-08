@@ -34,8 +34,8 @@ export default function TradeoffDeltaChart({
   }));
 
   return (
-    <div className="rounded-2xl border border-border/60 p-4" data-testid="tradeoff-delta-chart">
-      <h3 className="mb-2 font-semibold">Tradeoff Deltas — Winner vs Runner-up</h3>
+    <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl" data-testid="tradeoff-delta-chart">
+      <h3 className="mb-2 font-semibold text-white">Tradeoff Deltas — Winner vs Runner-up</h3>
       <ChartContainer config={chartConfig} className="aspect-[4/3] min-h-[220px] w-full">
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid horizontal={false} />

@@ -320,7 +320,7 @@ export default function OptimizationPage() {
           <div className="relative min-w-0 space-y-6">
             {loading && (
               <div
-                className="vish-crafted-card relative space-y-4 rounded-2xl border border-border/60 p-6"
+                className="relative space-y-4 rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-6 shadow-xl backdrop-blur-xl"
                 data-testid="optimization-loading"
               >
                 <ComputeOverlay
@@ -329,15 +329,15 @@ export default function OptimizationPage() {
                   className="absolute right-4 top-4"
                 />
                 <div className="flex items-center gap-3 pr-32">
-                  <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
-                  <p className="font-medium">Generating 5 design candidates…</p>
+                  <Loader2 className="h-5 w-5 shrink-0 animate-spin text-vish-gold" />
+                  <p className="font-medium text-white tracking-wide">Generating 5 design candidates…</p>
                 </div>
                 <SystemFlowHUD variant="macro" activeStep={stage ?? 'Input'} />
               </div>
             )}
 
             {!loading && !batch && (
-              <div className="vish-crafted-card rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+              <div className="rounded-2xl border border-dashed border-vish-navy-700/50 bg-vish-navy-950/40 p-8 text-center text-sm text-slate-400">
                 Set your constraints and click Regenerate to compare 5 strategy-driven designs.
               </div>
             )}

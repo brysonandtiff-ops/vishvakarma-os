@@ -19,7 +19,7 @@ export default function CandidateRadarChart({
 }) {
   if (!candidate) {
     return (
-      <div className="rounded-2xl border border-border/60 p-4 text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 text-sm text-slate-400 shadow-inner">
         Select a candidate to view radar chart.
       </div>
     );
@@ -31,8 +31,8 @@ export default function CandidateRadarChart({
   }));
 
   return (
-    <div className="rounded-2xl border border-border/60 p-4" data-testid="candidate-radar-chart">
-      <h3 className="mb-2 font-semibold">{candidate.label} — Dimension Profile</h3>
+    <div className="rounded-2xl border border-vish-navy-700/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl" data-testid="candidate-radar-chart">
+      <h3 className="mb-2 font-semibold text-white">{candidate.label} — Dimension Profile</h3>
       <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[280px]">
         <RadarChart data={data}>
           <ChartTooltip content={<ChartTooltipContent />} />

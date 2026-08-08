@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles } from 'lucide-react';
+import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles, FolderDown, Bot } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
-import PageStateBlock from '@/components/common/PageStateBlock';
-import PageToolbar from '@/components/common/PageToolbar';
-import StatPill from '@/components/common/StatPill';
-import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
-import WorkspaceEmptyState, { WorkspaceEmptyStateAction } from '@/components/common/WorkspaceEmptyState';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { deleteProject, getProjects } from '@/db/api';
 import { backendStatus } from '@/backend/backendConfig';
 import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localProjects';
@@ -40,6 +34,8 @@ import {
 import { openManifestInEditor } from '@/editor/openManifestInEditor';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
+import { VishCard, VishCardContent, VishCardHeader, VishCardTitle, VishMetric, VishStatusBadge } from '@/components/common/vish-primitives';
+import { useAuth } from '@/contexts/AuthContext';
 
 function isProjectArchived(project: Project): boolean {
   if (project.manifest.metadata.archived) return true;
@@ -57,6 +53,7 @@ function formatRelativeTime(iso: string): string {
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
+  const { profile, user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +61,8 @@ export default function ProjectsPage() {
   const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+
+  const accountName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Architect';
 
   const demoSamples = useMemo(
     () =>
@@ -202,248 +201,190 @@ export default function ProjectsPage() {
     toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
-  const cloudLabel = backendStatus.isConfigured ? 'Supabase Cloud Save' : 'Local Draft';
+  // Mock system stats for the redesign
+  const systemStats = {
+    activeProjects: projects.length,
+    totalArea: 14500, // sqm
+    rooms: 112,
+    outstandingChanges: 3,
+    complianceWarnings: 1,
+    estCost: '48.7M'
+  };
 
   return (
-    <>
-      <PageMeta title="Projects" description="Open and manage your Vishvakarma.OS floor plans." />
-      <WorkspacePageHeader
-          zone="document"
-          eyebrow="Workspace"
-          title="Your projects"
-          description={
-            backendStatus.isConfigured
-              ? `Cloud projects sync via ${cloudLabel}.`
-              : 'Local Draft mode — projects and auto-saved drafts are stored in this browser.'
-          }
-          stats={
-            <>
-              <StatPill>{projects.length} project{projects.length === 1 ? '' : 's'}</StatPill>
-              <StatPill>{cloudLabel}</StatPill>
-            </>
-          }
-          actions={
-            <Button asChild className="touch-target" data-tutorial="projects-new">
-              <Link to="/editor">
-                <Plus className="mr-2 h-4 w-4" />
-                New in editor
-              </Link>
-            </Button>
-          }
-        />
+    <div className="p-6 tablet:p-10 max-w-7xl mx-auto flex flex-col gap-8 pb-32">
+      <PageMeta title="Home Dashboard" description="Vishvakarma.OS Command Centre" />
 
-        {loading && (
-          <div className="mt-8 space-y-3" data-testid="projects-loading-skeleton" aria-busy="true">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="vish-skeleton h-24 rounded-card-lg" />
+      {/* Hero Area */}
+      <section className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome back, {accountName}</h1>
+          <p className="text-vish-text-300">What would you like to design today?</p>
+        </div>
+
+        {/* Primary Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" asChild>
+            <Link to="/editor">
+              <Plus className="w-5 h-5 text-vish-blue-400" />
+              <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
+            </Link>
+          </Button>
+          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+             <FolderOpen className="w-5 h-5 text-vish-blue-400" />
+             <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+             <FolderDown className="w-5 h-5 text-vish-blue-400" />
+             <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
+          </Button>
+          <Button className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
+             <Bot className="w-5 h-5" />
+             <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
+          </Button>
+        </div>
+      </section>
+
+      {/* System Overview */}
+      <section>
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+          <VishCard className="p-4">
+             <VishMetric label="Active Projects" value={systemStats.activeProjects} />
+          </VishCard>
+          <VishCard className="p-4">
+             <VishMetric label="Total Area" value={systemStats.totalArea.toLocaleString()} subValue="m²" />
+          </VishCard>
+          <VishCard className="p-4">
+             <VishMetric label="Total Rooms" value={systemStats.rooms} />
+          </VishCard>
+          <VishCard className="p-4">
+             <VishMetric label="Change Requests" value={systemStats.outstandingChanges} trend="down" trendValue="-2 this week" />
+          </VishCard>
+          <VishCard className="p-4">
+             <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold tracking-[0.08em] uppercase text-vish-text-400">Compliance</span>
+                <div className="mt-1">
+                  {systemStats.complianceWarnings > 0 ? (
+                    <VishStatusBadge status="warning">{systemStats.complianceWarnings} Warnings</VishStatusBadge>
+                  ) : (
+                    <VishStatusBadge status="success">All Clear</VishStatusBadge>
+                  )}
+                </div>
+             </div>
+          </VishCard>
+          <VishCard className="p-4">
+             <VishMetric label="Est. Portfolio Cost" value={`₹${systemStats.estCost}`} />
+          </VishCard>
+        </div>
+      </section>
+
+      {/* Recent Projects */}
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+           <h2 className="text-sm font-semibold tracking-widest text-vish-text-400 uppercase">Recent Projects</h2>
+           <Link to="/projects/all" className="text-xs text-vish-blue-400 hover:text-vish-blue-300 uppercase tracking-widest font-semibold transition-colors">View All</Link>
+        </div>
+
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="projects-loading-skeleton" aria-busy="true">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-64 rounded-[14px] bg-vish-navy-800/50 animate-pulse border border-vish-navy-700" />
             ))}
           </div>
-        )}
-
-        {!loading && error && (
-          <PageStateBlock
-            variant="error"
-            title="Cloud unavailable"
-            description={error}
-            onRetry={() => void loadProjects()}
-          />
-        )}
-
-        {!loading && !error && projects.length === 0 && (
-          <div className="mt-8 space-y-6" data-testid="projects-empty-demo-samples">
-            <WorkspaceEmptyState
-              icon={<FolderOpen className="mx-auto h-10 w-10" aria-hidden="true" />}
-              title="No saved projects yet"
-              description="Open the editor to create a floor plan, or launch one of the local demo walkthroughs below. Demo projects do not write to Supabase until you save them."
-              action={
-                <WorkspaceEmptyStateAction asChild>
-                  <Link to="/editor">Open editor</Link>
-                </WorkspaceEmptyStateAction>
-              }
-            />
-
-            <section
-              className="vish-crafted-card rounded-card-lg border border-border bg-card/95 p-4 shadow-sm tablet:p-5"
-              aria-labelledby="demo-projects-title"
-            >
-              <div className="flex flex-col gap-2 border-b border-border/70 pb-4 tablet:flex-row tablet:items-end tablet:justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">Demo-safe walkthroughs</p>
-                  <h2 id="demo-projects-title" className="mt-1 text-lg font-semibold text-foreground">
-                    Start with a ready blueprint
-                  </h2>
-                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    These local fixtures give reviewers something real to open, inspect in 2D/3D, and export without needing cloud data first.
-                  </p>
-                </div>
-                <Button asChild variant="outline" className="touch-target self-start tablet:self-auto">
-                  <Link to="/features">View guided tours</Link>
-                </Button>
-              </div>
-
-              <div className="mt-4 grid gap-3 tablet:grid-cols-3">
-                {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
-                  <article
-                    key={sample.id}
-                    className="rounded-xl border border-border bg-background/85 p-4 shadow-sm"
-                    data-testid={`projects-demo-${sample.id}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
-                        <Sparkles className="h-4 w-4" aria-hidden="true" />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
-                        <h3 className="mt-1 truncate text-sm font-semibold text-foreground">{sample.name}</h3>
-                      </div>
-                    </div>
-                    <p className="mt-3 min-h-[3rem] text-xs leading-5 text-muted-foreground">{sample.description}</p>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="rounded-full border border-border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground">
-                        {stats.walls} walls
-                      </span>
-                      <span className="rounded-full border border-border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground">
-                        {stats.openings} openings
-                      </span>
-                      {badges.slice(0, 2).map((badge) => (
-                        <span
-                          key={badge}
-                          className="rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary"
-                        >
-                          {badge}
-                        </span>
-                      ))}
-                    </div>
-                    <Button
-                      type="button"
-                      className="mt-4 w-full touch-target"
-                      onClick={() => openDemoSample(sample.id)}
-                      data-testid={`projects-open-demo-${sample.id}`}
-                    >
-                      Open demo in editor
-                    </Button>
-                  </article>
-                ))}
-              </div>
-
-              <p className="mt-4 text-xs text-muted-foreground">
-                Demo fixtures are generated in-browser from existing sample builders. They are for walkthroughs, screenshots, and pilot demos — not user cloud records until saved.
-              </p>
-            </section>
-          </div>
-        )}
-
-        {!loading && !error && projects.length > 0 && (
-          <>
-            <PageToolbar className="mt-2">
-              <Input
-                placeholder="Search projects…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-xs touch-target"
-                aria-label="Search projects"
-                data-tutorial="projects-search"
-              />
-              <Button
-                variant={showArchived ? 'default' : 'outline'}
-                size="sm"
-                className="touch-target"
-                onClick={() => setShowArchived((v) => !v)}
-              >
-                {showArchived ? 'Hide archived' : 'Show archived'}
-              </Button>
-            </PageToolbar>
-            <div className="vish-projects-grid mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-tutorial="projects-grid">
-              {filteredProjects.map((project) => {
+        ) : filteredProjects.length > 0 ? (
+           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredProjects.slice(0, 8).map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
-                  <article
-                    key={project.id}
-                    className="vish-project-card vish-project-card-v2 vish-crafted-card flex flex-col overflow-hidden rounded-card-lg border border-border bg-card/70 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
-                  >
-                    <div className="vish-frame-bezel relative aspect-[16/10] border-b border-border/60 bg-muted/30">
+                  <VishCard key={project.id} interactive className="flex flex-col cursor-pointer" onClick={() => openProject(project)}>
+                    <div className="relative aspect-[16/10] bg-vish-navy-900 border-b border-vish-navy-700/50 flex items-center justify-center overflow-hidden">
                       {thumb ? (
-                        <img src={thumb} alt="" className="h-full w-full object-contain p-4" />
+                        <img src={thumb} alt="" className="w-full h-full object-contain p-4" />
                       ) : (
-                        <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                          <PenTool className="h-8 w-8 opacity-40" />
-                          <span className="text-xs">Empty plan</span>
+                        <div className="flex flex-col items-center gap-2 text-vish-text-400">
+                          <PenTool className="w-8 h-8 opacity-40" />
+                          <span className="text-xs uppercase tracking-widest">Empty Plan</span>
                         </div>
                       )}
-                      {isDraft && (
-                        <span className="absolute left-3 top-3 rounded-full border border-primary/30 bg-background/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary shadow-sm">
-                          Draft
-                        </span>
-                      )}
+                      <div className="absolute top-3 left-3">
+                         <VishStatusBadge status={isDraft ? "neutral" : "info"}>
+                           {isDraft ? "Draft" : "Saved"}
+                         </VishStatusBadge>
+                      </div>
                     </div>
-                    <div className="flex flex-1 flex-col p-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <h2 className="truncate font-semibold text-foreground">{project.name}</h2>
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-white truncate max-w-[200px]">{project.name}</h3>
+                          <p className="text-xs text-vish-text-400 mt-1 uppercase tracking-widest">{project.manifest.walls.length} Walls • {project.manifest.openings.length} Openings</p>
+                        </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="ghost" className="h-8 w-8 shrink-0 touch-target" aria-label={`More actions for ${project.name}`}>
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-vish-text-400 hover:text-white" onClick={(e) => e.stopPropagation()}>
+                              <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => duplicateProject(project)}>Duplicate</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => void toggleArchive(project)}>
+                          <DropdownMenuContent align="end" className="bg-vish-navy-800 border-vish-navy-600 text-white">
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); duplicateProject(project); }}>Duplicate</DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); void toggleArchive(project); }}>
                               {isProjectArchived(project) ? 'Restore' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
+                              className="text-rose-400 focus:text-rose-300 focus:bg-rose-500/10"
                               disabled={deletingId === project.id}
-                              onClick={() => setPendingDelete(project)}
+                              onClick={(e) => { e.stopPropagation(); setPendingDelete(project); }}
                             >
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                      <p className="mt-1.5 text-xs text-muted-foreground">
-                        {project.manifest.walls.length} walls · {project.manifest.openings.length} openings
-                      </p>
-                      <div className="mt-auto pt-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] text-muted-foreground">
-                            {formatRelativeTime(project.updated_at)}
-                            {!backendStatus.isConfigured && ' · Local'}
-                          </span>
-                          <Button size="sm" className="h-8 px-4" onClick={() => openProject(project)}>
-                            Open
-                          </Button>
-                        </div>
+                      <div className="mt-auto pt-4 flex items-center justify-between">
+                         <span className="text-[10px] text-vish-text-400 uppercase tracking-widest">{formatRelativeTime(project.updated_at)}</span>
+                         <span className="text-xs font-semibold text-vish-blue-400 uppercase tracking-widest group-hover:text-vish-blue-300">Open Project &rarr;</span>
                       </div>
                     </div>
-                  </article>
+                  </VishCard>
                 );
               })}
-            </div>
-          </>
+           </div>
+        ) : (
+          <VishCard className="p-10 flex flex-col items-center justify-center text-center">
+             <div className="w-16 h-16 rounded-full bg-vish-navy-800 border border-vish-navy-600 flex items-center justify-center mb-4">
+                <FolderOpen className="w-8 h-8 text-vish-text-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-white mb-2">No projects found</h3>
+             <p className="text-vish-text-300 max-w-sm mb-6">Create a new project to start designing, or import an existing floor plan.</p>
+             <Button className="bg-vish-blue-600 hover:bg-vish-blue-500 text-white" asChild>
+                <Link to="/editor">Create New Project</Link>
+             </Button>
+          </VishCard>
         )}
+      </section>
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
-        <AlertDialogContent className="vish-dialog-chrome">
+        <AlertDialogContent className="bg-vish-navy-900 border border-vish-navy-700 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete project?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-vish-text-300">
               {pendingDelete
                 ? `"${pendingDelete.name}" will be permanently removed. This cannot be undone.`
                 : 'This action cannot be undone.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-vish-navy-800 border-vish-navy-600 text-white hover:bg-vish-navy-700 hover:text-white">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => void handleDeleteConfirmed()}
+              className="bg-rose-600 text-white hover:bg-rose-500"
+              onClick={(e) => { e.stopPropagation(); void handleDeleteConfirmed(); }}
             >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 }

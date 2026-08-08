@@ -32,31 +32,31 @@ export default function WinnerHeroPanel({
 
   return (
     <div
-      className="space-y-4 rounded-2xl border border-primary/30 bg-primary/5 p-4"
+      className="space-y-4 rounded-2xl border border-vish-navy-600/50 bg-vish-navy-900/40 p-4 shadow-xl backdrop-blur-xl"
       data-testid="winner-hero-panel"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="font-technical text-xs font-bold uppercase tracking-widest text-vish-gold/90">
             Recommended Winner
           </p>
-          <h3 className="text-xl font-bold">{report.winnerLabel}</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-xl font-bold text-white">{report.winnerLabel}</h3>
+          <p className="text-sm text-slate-400">
             Runner-up: {report.runnerUpLabel} · Confidence {confidence}%
           </p>
         </div>
         <div className="flex gap-4 text-right">
           {councilAssessment && (
             <div data-testid="winner-approval-score">
-              <p className="text-3xl font-bold text-primary">{councilAssessment.approvalScore}%</p>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              <p className="text-3xl font-bold text-white">{councilAssessment.approvalScore}%</p>
+              <p className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Approval Likelihood
               </p>
             </div>
           )}
           <div>
-            <p className="text-3xl font-bold text-primary">{winner.overallScore}</p>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Overall Score</p>
+            <p className="text-3xl font-bold text-vish-gold">{winner.overallScore}</p>
+            <p className="font-technical text-[10px] font-bold uppercase tracking-widest text-slate-400">Overall Score</p>
           </div>
         </div>
       </div>

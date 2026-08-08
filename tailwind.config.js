@@ -123,6 +123,32 @@ export default {
                     100: '#efeadf', // light properties background
                     50: '#fbf9f6'   // lightest panel background
                 },
+                vish: {
+                    navy: {
+                        900: '#030B14',
+                        800: '#061221',
+                        700: '#081827',
+                        600: '#0B1E31'
+                    },
+                    blue: {
+                        600: '#0B6FB8',
+                        500: '#138ED8',
+                        400: '#2AA7FF',
+                        300: '#64C8FF'
+                    },
+                    gold: {
+                        600: '#C98A2E',
+                        500: '#E3A13A',
+                        400: '#F1B95B',
+                        300: '#FFD17B'
+                    },
+                    text: {
+                        100: '#F4F7FA',
+                        200: '#D7E0E8',
+                        300: '#99A9B7',
+                        400: '#6F8190'
+                    }
+                },
                 sidebar: {
                     DEFAULT: 'hsl(var(--sidebar-background))',
                     background: 'hsl(var(--sidebar-background))',

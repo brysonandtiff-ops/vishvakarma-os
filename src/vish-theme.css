@@ -1,42 +1,44 @@
 :root {
-  --background: 240 17% 2%;
-  --foreground: 0 0% 90%;
-  --card: 240 17% 3%;
-  --card-foreground: 0 0% 90%;
-  --primary: 43 65% 52%;
-  --primary-foreground: 36 24% 10%;
-  --secondary: 240 10% 12%;
-  --secondary-foreground: 0 0% 90%;
-  --muted: 240 10% 8%;
-  --muted-foreground: 0 0% 65%;
-  --accent: 43 65% 52%;
-  --accent-foreground: 36 24% 10%;
-  --border: 240 10% 15%;
-  --input: 240 10% 15%;
-  --ring: 39 52% 47%;
+  /* Deep architectural navy palette */
+  --background: 212 74% 5%; /* #030B14 */
+  --foreground: 211 41% 88%; /* #F4F7FA */
+  --card: 213 69% 8%; /* #061221 */
+  --card-foreground: 211 41% 88%; /* #F4F7FA */
+  --primary: 43 65% 52%; /* Vish gold #C98A2E */
+  --primary-foreground: 212 74% 5%;
+  --secondary: 209 66% 9%; /* #081827 */
+  --secondary-foreground: 211 41% 88%;
+  --muted: 210 63% 12%; /* #0B1E31 */
+  --muted-foreground: 209 13% 50%; /* #6F8190 */
+  --accent: 205 100% 38%; /* Vish blue #0B6FB8 */
+  --accent-foreground: 211 41% 88%;
+  --border: 210 63% 12%; /* #0B1E31 */
+  --input: 210 63% 12%;
+  --ring: 204 100% 50%; /* #2AA7FF */
 
-  --vish-ink: 240 17% 2%;
-  --vish-paper: 240 17% 4%;
+  --vish-ink: 212 74% 5%;
+  --vish-paper: 213 69% 8%;
   --vish-gold: 43 65% 52%;
+  --vish-blue: 204 100% 50%; /* #2AA7FF */
   --vish-shadow: 0 0% 0% / 0.8;
 
-  --ws-canvas: 240 17% 2%;
-  --ws-toolbar: 240 17% 3%;
-  --ws-sidebar: 240 17% 2%;
-  --ws-menubar: 240 17% 2%;
-  --ws-statusbar: 240 17% 3%;
-  --ws-border: 240 10% 15%;
-  --ws-border-subtle: 240 10% 10%;
-  --ws-text: 0 0% 90%;
-  --ws-text-dim: 0 0% 65%;
-  --ws-text-faint: 0 0% 54%;
-  --ws-hover: 240 17% 6%;
-  --ws-active: 39 61% 58%;
-  --ws-active-bg: 39 49% 19%;
-  --ws-active-ring: 39 61% 58% / 0.3;
-  --ws-grid-line: 240 10% 15%;
-  --ws-grid-major: 240 10% 20%;
-  --ws-snap: 39 61% 52%;
+  --ws-canvas: 212 74% 5%;
+  --ws-toolbar: 213 69% 8%;
+  --ws-sidebar: 212 74% 5%;
+  --ws-menubar: 212 74% 5%;
+  --ws-statusbar: 213 69% 8%;
+  --ws-border: 210 63% 12%;
+  --ws-border-subtle: 209 66% 9%;
+  --ws-text: 211 41% 88%; /* #F4F7FA */
+  --ws-text-dim: 210 18% 66%; /* #99A9B7 */
+  --ws-text-faint: 209 13% 50%; /* #6F8190 */
+  --ws-hover: 209 66% 9%;
+  --ws-active: 204 100% 50%; /* #2AA7FF */
+  --ws-active-bg: 205 100% 38%; /* #0B6FB8 */
+  --ws-active-ring: 204 100% 50% / 0.3;
+  --ws-grid-line: 210 63% 12%;
+  --ws-grid-major: 209 66% 9%;
+  --ws-snap: 43 65% 52%;
 }
 
 body {

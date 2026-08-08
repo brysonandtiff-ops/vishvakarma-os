@@ -119,10 +119,10 @@ function IconButton({
       title={label}
       data-tutorial={dataTutorial}
       data-state={active ? 'active' : 'inactive'}
-      className={`vish-editor-icon-btn touch-target touch-manipulation flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border transition-colors prana-glow ${
+      className={`touch-target touch-manipulation flex h-9 w-9 items-center justify-center rounded-[8px] transition-all duration-200 ${
         active
-          ? 'border-primary/60 bg-primary/15 text-primary'
-          : 'border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text'
+          ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
+          : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
       } ${disabled ? 'cursor-not-allowed opacity-40' : ''}`}
     >
       {children}
@@ -157,9 +157,11 @@ function QuickActionButton({
       title={label}
       data-testid={dataTestId}
       data-tutorial={dataTutorial}
-      data-state={active ? 'active' : 'inactive'}
-      {...pressHandlers}
-      className={`vish-editor-quick-pill touch-target touch-manipulation ${active ? 'active' : ''}`}
+      className={`touch-target touch-manipulation flex items-center gap-1.5 h-9 px-3 rounded-[8px] transition-all duration-200 text-xs font-semibold uppercase tracking-wider ${
+        active
+          ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
+          : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
+      }`}
     >
       {children}
       <span>{shortLabel}</span>
@@ -175,14 +177,18 @@ function ModeTabs({
   onWorkspaceModeChange: (mode: WorkspaceMode) => void;
 }) {
   return (
-    <div className="vish-mode-tab-group max-w-full overflow-x-auto" role="tablist" aria-label="Editor modes">
+    <div className="flex bg-vish-navy-900/50 p-1 rounded-[10px] border border-vish-navy-700/50" role="tablist" aria-label="Editor modes">
       {MODES.map((mode) => (
         <button
           key={mode.id}
           type="button"
           role="tab"
           aria-selected={workspaceMode === mode.id}
-          className={`vish-mode-tab shrink-0 prana-glow ${workspaceMode === mode.id ? 'active' : ''}`}
+          className={`flex items-center gap-1.5 px-3 h-8 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
+            workspaceMode === mode.id
+              ? 'bg-vish-navy-700 text-white shadow-sm'
+              : 'text-vish-text-400 hover:text-vish-text-200 hover:bg-vish-navy-800'
+          }`}
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(30);
             playStudioSound('buttonPress');
@@ -237,8 +243,8 @@ export default function EditorTopBar({
   const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
 
   return (
-    <header className="vish-editor-topbar vish-editor-topbar-chrome glass-panel-obsidian laser-etched-border shrink-0 z-10" data-testid="editor-top-bar">
-      <div className="vish-editor-topbar-grid">
+    <header className="flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
+      <div className="flex w-full items-center justify-between">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (
             <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>

@@ -1,0 +1,52 @@
+{
+  "UpdatedAt": "2026-08-05T16:22:30.2194204+08:00",
+  "Phase": "Run self-healing Cloudflare autopilot",
+  "Detail": "FAIL - Autopilot result is BLOCKED: Supabase callback/session proof failed after automatic repair: Stripe Checkout opens from the Studio plan: No Stripe-hosted page opened; application URL is https://vishvakarma-os.pages.dev/pricing",
+  "ProcessId": 13692,
+  "Repository": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\vishvakarma-os-cloudflare-cutover",
+  "Target": "https://vishvakarma-os.pages.dev",
+  "Steps": [
+    {
+      "Name": "Verify PowerShell, Git, Node and npx",
+      "Status": "PASS",
+      "Detail": "Completed successfully",
+      "DurationSeconds": 0.16,
+      "RecordedAt": "2026-08-05T15:55:47.8350018+08:00"
+    },
+    {
+      "Name": "Verify repository, branch safety and scripts",
+      "Status": "PASS",
+      "Detail": "Completed successfully",
+      "DurationSeconds": 0.67,
+      "RecordedAt": "2026-08-05T15:55:48.5435120+08:00"
+    },
+    {
+      "Name": "Verify free disk space",
+      "Status": "PASS",
+      "Detail": "Completed successfully",
+      "DurationSeconds": 0.31,
+      "RecordedAt": "2026-08-05T15:55:48.8799477+08:00"
+    },
+    {
+      "Name": "Verify public network endpoints",
+      "Status": "PASS",
+      "Detail": "Completed successfully",
+      "DurationSeconds": 0.69,
+      "RecordedAt": "2026-08-05T15:55:49.5801269+08:00"
+    },
+    {
+      "Name": "Snapshot current Cloudflare production deployment",
+      "Status": "PASS",
+      "Detail": "Completed successfully",
+      "DurationSeconds": 19.48,
+      "RecordedAt": "2026-08-05T15:56:09.0698787+08:00"
+    },
+    {
+      "Name": "Run self-healing Cloudflare autopilot",
+      "Status": "FAIL",
+      "Detail": "Autopilot result is BLOCKED: Supabase callback/session proof failed after automatic repair: Stripe Checkout opens from the Studio plan: No Stripe-hosted page opened; application URL is https://vishvakarma-os.pages.dev/pricing",
+      "DurationSeconds": 1581.1,
+      "RecordedAt": "2026-08-05T16:22:30.2185373+08:00"
+    }
+  ]
+}

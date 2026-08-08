@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-08-05T08:06:38.505Z",
+  "commit": "526d14bde95b2b7c2b713392c7bfcfacc362009c",
+  "uniqueEntries": 157,
+  "declaredEntries": 157,
+  "totalBytes": 11585519,
+  "totalMb": 11.05,
+  "maxBytes": 25165824,
+  "maxEntries": 160,
+  "forbiddenPrefixes": [
+    "textures/",
+    "models/",
+    "hdri/",
+    "audio/",
+    "splash/"
+  ],
+  "duplicates": [],
+  "forbidden": [],
+  "missingFiles": [],
+  "passed": true,
+  "failures": []
+}
