@@ -132,7 +132,7 @@ export default async function handler(req: WebhookRequest, res: SecureApiRespons
     }
 
     const rawBody = await readRawBody(req);
-    const event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    const event = await stripe.webhooks.constructEventAsync(rawBody, sig, webhookSecret);
 
     switch (event.type) {
       case 'checkout.session.completed': {
