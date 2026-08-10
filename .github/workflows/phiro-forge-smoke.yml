@@ -1,0 +1,31 @@
+name: PHIRO Forge Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/phiro/**'
+      - '.github/workflows/phiro-forge-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, Windows, X64, phiro-forge]
+    timeout-minutes: 5
+    steps:
+      - name: PHIRO Forge identity
+        shell: pwsh
+        run: |
+          Write-Host "PHIRO_FORGE_RUNNER_OK=true"
+          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
+          Write-Host "RUNNER_OS=$env:RUNNER_OS"
+          Write-Host "RUNNER_ARCH=$env:RUNNER_ARCH"
+
+      - name: Verify PowerShell
+        shell: pwsh
+        run: |
+          $PSVersionTable.PSVersion.ToString()
+          if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7+ is required.' }
