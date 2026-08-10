@@ -1,0 +1,17 @@
+name: Actions Control Plane Smoke
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Runner allocated
+        run: echo "GITHUB_ACTIONS_CONTROL_PLANE_OK"
