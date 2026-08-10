@@ -8,6 +8,7 @@ import '@fontsource/noto-sans-devanagari/500.css';
 import '@fontsource/noto-sans-devanagari/600.css';
 import '@fontsource/noto-sans-devanagari/700.css';
 import "./index.css";
+import "./ipad-workspace.css";
 import "./styles/vish-tokens.css";
 
 // Stale-chunk recovery: after a fresh deploy, an open session can request an old
