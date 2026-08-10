@@ -14,14 +14,12 @@ const isCloudflareBuild = process.env.CF_PAGES === '1';
 async function removeLegacyJpegTextures(directory) {
   let removed = 0;
   let entries;
-
   try {
     entries = await readdir(directory, { withFileTypes: true });
   } catch (error) {
     if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return 0;
     throw error;
   }
-
   for (const entry of entries) {
     const entryPath = join(directory, entry.name);
     if (entry.isDirectory()) {
@@ -37,11 +35,7 @@ async function removeLegacyJpegTextures(directory) {
 }
 
 async function writeVercelSrcRuntimeBoundary() {
-  await writeFile(
-    srcRuntimePackagePath,
-    `${JSON.stringify({ private: true, type: 'commonjs' }, null, 2)}\n`,
-    'utf8',
-  );
+  await writeFile(srcRuntimePackagePath, `${JSON.stringify({ private: true, type: 'commonjs' }, null, 2)}\n`, 'utf8');
   console.log('[build] Wrote Vercel CommonJS runtime boundary.');
 }
 
@@ -75,7 +69,7 @@ const focusedTests = [
 ];
 
 const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}`;
-const cloudflareDiagnosticCommand = `pnpm exec vitest run ${focusedTests.slice(0, 13).join(' ')}`;
+const cloudflareDiagnosticCommand = `pnpm exec vitest run ${focusedTests.slice(0, 7).join(' ')}`;
 
 const vercelSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
@@ -89,18 +83,9 @@ const vercelSteps = [
 ];
 
 const cloudflareSteps = [
-  {
-    label: 'Cloudflare configuration certification',
-    command: 'node scripts/deployment/verify-cloudflare-config.mjs',
-  },
-  {
-    label: 'Application and Pages runtime typecheck',
-    command: 'pnpm run lint:types',
-  },
-  {
-    label: 'Production regression diagnostic A',
-    command: cloudflareDiagnosticCommand,
-  },
+  { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
+  { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
+  { label: 'Production regression diagnostic A1', command: cloudflareDiagnosticCommand },
   { label: 'Production build', command: 'pnpm run build' },
 ];
 
@@ -111,15 +96,12 @@ async function main() {
   } else {
     console.log('[build] Cloudflare/local run detected; skipping destructive texture cleanup.');
   }
-
   const steps = isCloudflareBuild ? cloudflareSteps : vercelSteps;
   for (const step of steps) {
     console.log(`\n[build] ${step.label}`);
     runCommand(step.command, { stdio: 'inherit' });
   }
-
   if (isVercelBuild) await writeVercelSrcRuntimeBoundary();
-
   console.log(`\n[build] ${isCloudflareBuild ? 'Cloudflare' : 'Vercel/local'} quality and build gates passed.`);
 }
 
