@@ -22,6 +22,7 @@ fi
 proot-distro login ubuntu --shared-tmp -- bash -lc "
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
+export RUNNER_ALLOW_RUNASROOT=1
 apt-get update
 apt-get install -y curl ca-certificates tar git jq libicu-dev libssl-dev
 mkdir -p /root/actions-runner
@@ -37,10 +38,10 @@ if [ ! -f .runner ]; then
     echo '[PHIRO PRISM] Registration token cannot be empty.'
     exit 2
   fi
-  ./config.sh --unattended --url '${REPO_URL}' --token \"\$RUNNER_TOKEN\" --name '${RUNNER_NAME}' --labels '${RUNNER_LABELS}' --work '_work' --replace
+  RUNNER_ALLOW_RUNASROOT=1 ./config.sh --unattended --url '${REPO_URL}' --token \"\$RUNNER_TOKEN\" --name '${RUNNER_NAME}' --labels '${RUNNER_LABELS}' --work '_work' --replace
   unset RUNNER_TOKEN
 fi
 printf 'PHIRO_TERMUX_RUNNER_CONFIGURED=true\\n'
 printf 'Starting runner. Keep Termux alive while jobs execute.\\n'
-exec ./run.sh
+exec env RUNNER_ALLOW_RUNASROOT=1 ./run.sh
 "
