@@ -5,12 +5,7 @@ function Assert-Administrator {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
   $principal = New-Object Security.Principal.WindowsPrincipal($identity)
   if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host '[PHIRO PRISM] Elevation required. Re-launching PowerShell as Administrator...'
-    $self = $MyInvocation.MyCommand.Path
-    Start-Process powershell.exe -Verb RunAs -ArgumentList @(
-      '-NoLogo','-NoProfile','-ExecutionPolicy','Bypass','-File',('"' + $self + '"')
-    ) -Wait
-    exit $LASTEXITCODE
+    throw 'The Windows SSH account must be an Administrator. GUI UAC elevation is intentionally disabled for remote safety.'
   }
 }
 
