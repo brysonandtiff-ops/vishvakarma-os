@@ -14,7 +14,7 @@ printf '[PHIRO] Android/Termux control mode — no GitHub runner runtime.\n'
 printf '[PHIRO] Target branch: %s\n\n' "$BRANCH"
 
 pkg update -y
-pkg install -y git nodejs-lts jq curl
+pkg install -y git nodejs-lts jq curl python
 
 if ! command -v corepack >/dev/null 2>&1; then
   npm install -g corepack
@@ -33,19 +33,26 @@ fi
 
 cd "$WORK"
 printf '[PHIRO] Exact HEAD: %s\n' "$(git rev-parse HEAD)"
-printf '[PHIRO] Installing dependencies...\n'
-pnpm install --frozen-lockfile
+printf '[PHIRO] Installing dependencies in Android-safe mode...\n'
+
+# Native postinstall tools such as @ast-grep/cli do not provide a reliable Android/Termux
+# binary. We only need JS/TS dependencies for the Android-safe gates below, so lifecycle
+# scripts are intentionally disabled here. This is a control/verification environment,
+# not a production build host.
+rm -rf node_modules
+pnpm install --frozen-lockfile --ignore-scripts
 
 mkdir -p .phiro/termux-evidence
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 LOG=".phiro/termux-evidence/verify-$STAMP.log"
 
-# Android-safe gates only. Browser/device/Windows-specific certification remains on a real runner host.
+# Android-safe gates only. Browser/device/Windows/native-binary certification remains on a real runner host.
 {
   echo "PHIRO_TERMUX_CONTROL=true"
   echo "HEAD=$(git rev-parse HEAD)"
   echo "NODE=$(node --version)"
   echo "PNPM=$(pnpm --version)"
+  echo "INSTALL_MODE=pnpm --ignore-scripts"
   echo "--- lint types ---"
   pnpm run lint:types
   echo "--- contract gates ---"
