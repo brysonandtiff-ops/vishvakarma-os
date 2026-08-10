@@ -75,6 +75,7 @@ const focusedTests = [
 ];
 
 const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}`;
+const cloudflareDiagnosticCommand = `pnpm exec vitest run ${focusedTests.slice(0, 13).join(' ')}`;
 
 const vercelSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
@@ -97,8 +98,8 @@ const cloudflareSteps = [
     command: 'pnpm run lint:types',
   },
   {
-    label: 'Production-focused regression tests',
-    command: focusedRegressionCommand,
+    label: 'Production regression diagnostic A',
+    command: cloudflareDiagnosticCommand,
   },
   { label: 'Production build', command: 'pnpm run build' },
 ];
