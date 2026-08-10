@@ -31,8 +31,13 @@ else
   git -C "$WORK" reset --hard "origin/$BRANCH"
 fi
 
+[ -d "$WORK/.git" ] || fail "Repository checkout missing at $WORK"
+[ -f "$WORK/package.json" ] || fail "package.json missing at $WORK/package.json"
+
 cd "$WORK"
+printf '[PHIRO] Working directory: %s\n' "$PWD"
 printf '[PHIRO] Exact HEAD: %s\n' "$(git rev-parse HEAD)"
+printf '[PHIRO] package.json: OK\n'
 printf '[PHIRO] Installing dependencies in Android-safe mode...\n'
 
 # Native postinstall tools such as @ast-grep/cli do not provide a reliable Android/Termux
