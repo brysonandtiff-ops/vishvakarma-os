@@ -74,11 +74,13 @@ const focusedTests = [
   'api/stripe/webhook.test.ts',
 ];
 
+const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}`;
+
 const vercelSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
   { label: 'Lint', command: 'pnpm run lint' },
   { label: 'Production hardening', command: 'pnpm run hardening:gates' },
-  { label: 'Focused regression tests', command: `pnpm exec vitest run ${focusedTests.join(' ')}` },
+  { label: 'Focused regression tests', command: focusedRegressionCommand },
   { label: 'Full unit suite', command: 'pnpm run test' },
   { label: 'Production build', command: 'pnpm run build' },
   { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
@@ -94,7 +96,10 @@ const cloudflareSteps = [
     label: 'Application and Pages runtime typecheck',
     command: 'pnpm run lint:types',
   },
-  { label: 'Full unit suite', command: 'pnpm run test' },
+  {
+    label: 'Production-focused regression tests',
+    command: focusedRegressionCommand,
+  },
   { label: 'Production build', command: 'pnpm run build' },
 ];
 
