@@ -5,22 +5,25 @@ REPO="brysonandtiff-ops/vishvakarma-os"
 BRANCH="feat/phiro-forge-self-hosted-runner"
 REMOTE_SCRIPT_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/tools/phiro/Start-PHIROForgeRemote.ps1"
 
-usage() {
-  echo "Usage: $0 <windows-user> <windows-host-or-ip>"
-  echo "Example: $0 bryso 192.168.1.42"
-}
-
-if [[ $# -ne 2 ]]; then
-  usage
-  exit 2
-fi
-
-WINDOWS_USER="$1"
-WINDOWS_HOST="$2"
-
 if ! command -v ssh >/dev/null 2>&1; then
   echo "[PHIRO PRISM] Installing OpenSSH client in Termux..."
   pkg install -y openssh
+fi
+
+WINDOWS_USER="${1:-}"
+WINDOWS_HOST="${2:-}"
+
+if [[ -z "$WINDOWS_USER" ]]; then
+  read -r -p "Windows username: " WINDOWS_USER
+fi
+
+if [[ -z "$WINDOWS_HOST" ]]; then
+  read -r -p "Windows PC IP/hostname: " WINDOWS_HOST
+fi
+
+if [[ -z "$WINDOWS_USER" || -z "$WINDOWS_HOST" ]]; then
+  echo "[PHIRO PRISM] Windows username and host are required."
+  exit 2
 fi
 
 printf '\n[PHIRO PRISM] Phone -> Windows control bridge\n'
