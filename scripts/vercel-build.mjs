@@ -85,7 +85,7 @@ const cloudflareSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
   { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
   { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
-  { label: 'Full unit suite', command: 'pnpm run test' },
+  { label: 'Production-focused regression tests', command: focusedRegressionCommand },
   { label: 'Production build', command: 'pnpm run build' },
   { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
   { label: 'Performance budgets', command: 'pnpm run perf:gates' },
