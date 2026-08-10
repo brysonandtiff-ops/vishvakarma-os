@@ -69,7 +69,6 @@ const focusedTests = [
 ];
 
 const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}`;
-const cloudflareDiagnosticCommand = `pnpm exec vitest run ${focusedTests.slice(0, 4).join(' ')}`;
 
 const vercelSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
@@ -83,10 +82,13 @@ const vercelSteps = [
 ];
 
 const cloudflareSteps = [
+  { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
   { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
   { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
-  { label: 'Production regression diagnostic A11', command: cloudflareDiagnosticCommand },
+  { label: 'Full unit suite', command: 'pnpm run test' },
   { label: 'Production build', command: 'pnpm run build' },
+  { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
+  { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
 async function main() {
