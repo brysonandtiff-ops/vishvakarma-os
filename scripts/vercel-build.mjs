@@ -85,9 +85,15 @@ const vercelSteps = [
   { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
-// Temporary diagnostic isolation for Cloudflare Pages. The full Cloudflare
-// certification ladder is restored immediately after this stage is proven.
 const cloudflareSteps = [
+  {
+    label: 'Cloudflare configuration certification',
+    command: 'node scripts/deployment/verify-cloudflare-config.mjs',
+  },
+  {
+    label: 'Application and Pages runtime typecheck',
+    command: 'pnpm run lint:types',
+  },
   { label: 'Production build', command: 'pnpm run build' },
 ];
 
