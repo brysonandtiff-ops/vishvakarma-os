@@ -1,0 +1,56 @@
+name: Cloudflare Production Certification
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-cert-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Cloudflare configuration
+        run: node scripts/deployment/verify-cloudflare-config.mjs
+
+      - name: Typecheck application and Pages runtime
+        run: pnpm run lint:types
+
+      - name: Unit and integration tests
+        run: pnpm run test
+
+      - name: Production build
+        run: pnpm run build
+
+      - name: Verify Pages output
+        run: |
+          test -f dist/index.html
+          test -f dist/_headers
+          test -f dist/_routes.json
+          echo "Cloudflare production artifact certified"
