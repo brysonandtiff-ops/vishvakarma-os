@@ -94,6 +94,7 @@ const cloudflareSteps = [
     label: 'Application and Pages runtime typecheck',
     command: 'pnpm run lint:types',
   },
+  { label: 'Full unit suite', command: 'pnpm run test' },
   { label: 'Production build', command: 'pnpm run build' },
 ];
 
