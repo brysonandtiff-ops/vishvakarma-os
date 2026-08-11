@@ -88,6 +88,7 @@ const cloudflareSteps = [
   { label: 'Production-focused regression tests', command: focusedRegressionCommand },
   { label: 'Production build', command: 'pnpm run build' },
   { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
+  { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
 async function main() {
