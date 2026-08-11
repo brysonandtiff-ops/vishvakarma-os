@@ -34,7 +34,7 @@ describe('Supabase Auth hardening configuration', () => {
     const migration = readRepoFile(
       'supabase',
       'migrations',
-      '20260712012000_enforce_opt_in_totp_mfa.sql',
+      '20260712095528_enforce_opt_in_totp_mfa.sql',
     );
 
     expect(migration).toContain('from auth.mfa_factors factor');
