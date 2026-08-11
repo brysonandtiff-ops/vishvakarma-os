@@ -18,11 +18,13 @@ export type BillingRecord = {
 
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
-    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for billing.');
+  const serverSecret = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serverSecret) {
+    throw new Error(
+      'SUPABASE_URL plus SUPABASE_SECRET_KEY (or legacy SUPABASE_SERVICE_ROLE_KEY) are required for billing.',
+    );
   }
-  return createClient(url, serviceKey, {
+  return createClient(url, serverSecret, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
