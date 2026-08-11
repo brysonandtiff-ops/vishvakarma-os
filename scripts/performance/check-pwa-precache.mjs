@@ -12,8 +12,11 @@ const root = process.cwd();
 const distDir = resolve(root, 'dist');
 const serviceWorkerPath = join(distDir, 'sw.js');
 const budgetPath = join(root, 'scripts', 'performance', 'bundle-budget.json');
-const reportPath = join(root, 'docs', 'release', 'evidence', 'pwa-precache-report.json');
+const repoReportPath = join(root, 'docs', 'release', 'evidence', 'pwa-precache-report.json');
+const deployReportPath = join(distDir, 'release-evidence', 'pwa-precache-report.json');
 const forbiddenPrefixes = ['textures/', 'models/', 'hdri/', 'audio/', 'splash/'];
+const writeRepoEvidence =
+  process.argv.includes('--write-repo-evidence') || process.env.WRITE_REPO_RELEASE_EVIDENCE === '1';
 
 function extractPrecacheLiteral(source) {
   const callIndex = source.indexOf('precacheAndRoute(');
@@ -172,9 +175,16 @@ async function main() {
     failures,
   };
 
-  await mkdir(join(root, 'docs', 'release', 'evidence'), { recursive: true });
-  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  console.log(`Wrote ${reportPath}`);
+  const json = `${JSON.stringify(report, null, 2)}\n`;
+  await mkdir(join(distDir, 'release-evidence'), { recursive: true });
+  await writeFile(deployReportPath, json, 'utf8');
+  console.log(`Wrote ${deployReportPath}`);
+
+  if (writeRepoEvidence) {
+    await mkdir(join(root, 'docs', 'release', 'evidence'), { recursive: true });
+    await writeFile(repoReportPath, json, 'utf8');
+    console.log(`Wrote ${repoReportPath}`);
+  }
 
   if (failures.length > 0) {
     fail('pwa-precache', `${failures.length} violation(s)`);
