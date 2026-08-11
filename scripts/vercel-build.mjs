@@ -88,7 +88,7 @@ const cloudflareSteps = [
   { label: 'Production-focused regression tests', command: focusedRegressionCommand },
   { label: 'Production build', command: 'pnpm run build' },
   { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
-  { label: 'Bundle budget evidence', command: 'node scripts/performance/check-bundle-budget.mjs --report-only' },
+  { label: 'Total bundle ceiling', command: 'node scripts/performance/check-bundle-budget.mjs --total-only' },
 ];
 
 async function main() {
