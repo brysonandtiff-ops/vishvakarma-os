@@ -3,7 +3,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseArgs, exitWithFailures, pass, fail } from '../lib/cli.mjs';
+import { exitWithFailures, fail, pass } from '../lib/cli.mjs';
 import { parseDistAssets, formatBytes } from '../lib/parse-dist-assets.mjs';
 import { getCommitSha } from '../lib/run-command.mjs';
 
@@ -11,6 +11,8 @@ const root = process.cwd();
 const distDir = join(root, 'dist');
 const budgetPath = join(root, 'scripts', 'performance', 'bundle-budget.json');
 const reportPath = join(root, 'docs', 'release', 'evidence', 'bundle-budget-report.json');
+const deployReportPath = join(distDir, 'release-evidence', 'bundle-budget-report.json');
+const reportOnly = process.argv.includes('--report-only') || process.env.BUNDLE_BUDGET_REPORT_ONLY === '1';
 
 async function main() {
   const failures = [];
@@ -47,11 +49,16 @@ async function main() {
     chunks: assets.chunks,
     passed: failures.length === 0,
     failures,
+    reportOnly,
   };
 
+  const json = `${JSON.stringify(report, null, 2)}\n`;
   await mkdir(join(root, 'docs', 'release', 'evidence'), { recursive: true });
-  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  await writeFile(reportPath, json, 'utf8');
+  await mkdir(join(distDir, 'release-evidence'), { recursive: true });
+  await writeFile(deployReportPath, json, 'utf8');
   console.log(`Wrote ${reportPath}`);
+  console.log(`Wrote ${deployReportPath}`);
 
   for (const [chunkKey, chunk] of Object.entries(assets.chunks)) {
     const maxBytes = budget.chunks[chunkKey];
@@ -60,6 +67,11 @@ async function main() {
   }
 
   if (failures.length > 0) {
+    if (reportOnly) {
+      console.warn(`REPORT-ONLY bundle-budget: ${failures.length} violation(s)`);
+      for (const failure of failures) console.warn(` - ${failure}`);
+      return;
+    }
     fail('bundle-budget', `${failures.length} violation(s)`);
     exitWithFailures(failures);
   }
