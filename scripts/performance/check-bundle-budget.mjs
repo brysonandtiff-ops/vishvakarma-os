@@ -10,10 +10,12 @@ import { getCommitSha } from '../lib/run-command.mjs';
 const root = process.cwd();
 const distDir = join(root, 'dist');
 const budgetPath = join(root, 'scripts', 'performance', 'bundle-budget.json');
-const reportPath = join(root, 'docs', 'release', 'evidence', 'bundle-budget-report.json');
+const repoReportPath = join(root, 'docs', 'release', 'evidence', 'bundle-budget-report.json');
 const deployReportPath = join(distDir, 'release-evidence', 'bundle-budget-report.json');
 const reportOnly = process.argv.includes('--report-only') || process.env.BUNDLE_BUDGET_REPORT_ONLY === '1';
 const totalOnly = process.argv.includes('--total-only');
+const writeRepoEvidence =
+  process.argv.includes('--write-repo-evidence') || process.env.WRITE_REPO_RELEASE_EVIDENCE === '1';
 
 async function main() {
   const failures = [];
@@ -57,12 +59,15 @@ async function main() {
   };
 
   const json = `${JSON.stringify(report, null, 2)}\n`;
-  await mkdir(join(root, 'docs', 'release', 'evidence'), { recursive: true });
-  await writeFile(reportPath, json, 'utf8');
   await mkdir(join(distDir, 'release-evidence'), { recursive: true });
   await writeFile(deployReportPath, json, 'utf8');
-  console.log(`Wrote ${reportPath}`);
   console.log(`Wrote ${deployReportPath}`);
+
+  if (writeRepoEvidence) {
+    await mkdir(join(root, 'docs', 'release', 'evidence'), { recursive: true });
+    await writeFile(repoReportPath, json, 'utf8');
+    console.log(`Wrote ${repoReportPath}`);
+  }
 
   for (const [chunkKey, chunk] of Object.entries(assets.chunks)) {
     const maxBytes = budget.chunks[chunkKey];
