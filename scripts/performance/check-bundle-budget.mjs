@@ -13,6 +13,7 @@ const budgetPath = join(root, 'scripts', 'performance', 'bundle-budget.json');
 const reportPath = join(root, 'docs', 'release', 'evidence', 'bundle-budget-report.json');
 const deployReportPath = join(distDir, 'release-evidence', 'bundle-budget-report.json');
 const reportOnly = process.argv.includes('--report-only') || process.env.BUNDLE_BUDGET_REPORT_ONLY === '1';
+const totalOnly = process.argv.includes('--total-only');
 
 async function main() {
   const failures = [];
@@ -30,13 +31,15 @@ async function main() {
     failures.push(`dist total ${assets.totalMb} MB exceeds budget ${budget.totalDistMb} MB`);
   }
 
-  for (const [chunkKey, maxBytes] of Object.entries(budget.chunks)) {
-    const chunk = assets.chunks[chunkKey];
-    if (!chunk) continue;
-    if (chunk.bytes > maxBytes) {
-      failures.push(
-        `${chunkKey} ${formatBytes(chunk.bytes)} exceeds budget ${formatBytes(maxBytes)} (${chunk.files.join(', ')})`,
-      );
+  if (!totalOnly) {
+    for (const [chunkKey, maxBytes] of Object.entries(budget.chunks)) {
+      const chunk = assets.chunks[chunkKey];
+      if (!chunk) continue;
+      if (chunk.bytes > maxBytes) {
+        failures.push(
+          `${chunkKey} ${formatBytes(chunk.bytes)} exceeds budget ${formatBytes(maxBytes)} (${chunk.files.join(', ')})`,
+        );
+      }
     }
   }
 
@@ -50,6 +53,7 @@ async function main() {
     passed: failures.length === 0,
     failures,
     reportOnly,
+    totalOnly,
   };
 
   const json = `${JSON.stringify(report, null, 2)}\n`;
@@ -76,7 +80,7 @@ async function main() {
     exitWithFailures(failures);
   }
 
-  pass('bundle-budget', `dist ${assets.totalMb} MB within budget`);
+  pass('bundle-budget', totalOnly ? `dist ${assets.totalMb} MB within total budget` : `dist ${assets.totalMb} MB within budget`);
 }
 
 main().catch((error) => {
