@@ -22,10 +22,10 @@ export default function handler(req: SecureApiRequest, res: SecureApiResponse) {
   const supabaseUrlConfigured = isConfigured(
     process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL,
   );
-  const serviceRoleConfigured = isConfigured(
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  const serverSecretConfigured = isConfigured(
+    process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
-  const ok = supabaseUrlConfigured && serviceRoleConfigured;
+  const ok = supabaseUrlConfigured && serverSecretConfigured;
 
   return res.status(ok ? 200 : 503).json({
     ok,
