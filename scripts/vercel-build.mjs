@@ -9,43 +9,34 @@ const textureRoot = join(root, 'public', 'textures');
 const srcRuntimePackagePath = join(root, 'src', 'package.json');
 const removableTextureExtensions = new Set(['.jpg', '.jpeg']);
 const isVercelBuild = process.env.VERCEL === '1';
+const isCloudflareBuild = process.env.CF_PAGES === '1';
 
 async function removeLegacyJpegTextures(directory) {
   let removed = 0;
   let entries;
-
   try {
     entries = await readdir(directory, { withFileTypes: true });
   } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
-      return 0;
-    }
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return 0;
     throw error;
   }
-
   for (const entry of entries) {
     const entryPath = join(directory, entry.name);
     if (entry.isDirectory()) {
       removed += await removeLegacyJpegTextures(entryPath);
       continue;
     }
-
     if (entry.isFile() && removableTextureExtensions.has(extname(entry.name).toLowerCase())) {
       await rm(entryPath, { force: true });
       removed += 1;
     }
   }
-
   return removed;
 }
 
 async function writeVercelSrcRuntimeBoundary() {
-  await writeFile(
-    srcRuntimePackagePath,
-    `${JSON.stringify({ private: true, type: 'commonjs' }, null, 2)}\n`,
-    'utf8',
-  );
-  console.log('[vercel-build] Wrote src/package.json CommonJS runtime boundary.');
+  await writeFile(srcRuntimePackagePath, `${JSON.stringify({ private: true, type: 'commonjs' }, null, 2)}\n`, 'utf8');
+  console.log('[build] Wrote Vercel CommonJS runtime boundary.');
 }
 
 const focusedTests = [
@@ -77,51 +68,46 @@ const focusedTests = [
   'api/stripe/webhook.test.ts',
 ];
 
-const steps = [
-  {
-    label: 'Repository secret guard',
-    command: 'node scripts/security/check-repository-secrets.mjs',
-  },
+const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}`;
+
+const vercelSteps = [
+  { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
   { label: 'Lint', command: 'pnpm run lint' },
-  // hardening:gates includes the recursive API endpoint inventory.
   { label: 'Production hardening', command: 'pnpm run hardening:gates' },
-  {
-    label: 'Focused regression tests',
-    command: `pnpm exec vitest run ${focusedTests.join(' ')}`,
-  },
+  { label: 'Focused regression tests', command: focusedRegressionCommand },
   { label: 'Full unit suite', command: 'pnpm run test' },
   { label: 'Production build', command: 'pnpm run build' },
-  {
-    label: 'Artifact security',
-    command: 'node scripts/security/check-dist-security.mjs',
-  },
+  { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
+  { label: 'Performance budgets', command: 'pnpm run perf:gates' },
+];
+
+const cloudflareSteps = [
+  { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
+  { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
+  { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
+  { label: 'Production-focused regression tests', command: focusedRegressionCommand },
+  { label: 'Production build', command: 'pnpm run build' },
+  { label: 'Artifact security', command: 'node scripts/security/check-dist-security.mjs' },
   { label: 'Performance budgets', command: 'pnpm run perf:gates' },
 ];
 
 async function main() {
   if (isVercelBuild) {
     const removedTextures = await removeLegacyJpegTextures(textureRoot);
-    console.log(`[vercel-build] Removed ${removedTextures} legacy JPEG texture file(s).`);
+    console.log(`[build] Removed ${removedTextures} legacy JPEG texture file(s).`);
   } else {
-    console.log('[vercel-build] Local run detected; skipping destructive texture cleanup.');
+    console.log('[build] Cloudflare/local run detected; skipping destructive texture cleanup.');
   }
-
+  const steps = isCloudflareBuild ? cloudflareSteps : vercelSteps;
   for (const step of steps) {
-    console.log(`\n[vercel-build] ${step.label}`);
+    console.log(`\n[build] ${step.label}`);
     runCommand(step.command, { stdio: 'inherit' });
   }
-
-  if (isVercelBuild) {
-    await writeVercelSrcRuntimeBoundary();
-  }
-
-  console.log('\n[vercel-build] All quality and build gates passed.');
+  if (isVercelBuild) await writeVercelSrcRuntimeBoundary();
+  console.log(`\n[build] ${isCloudflareBuild ? 'Cloudflare' : 'Vercel/local'} quality and build gates passed.`);
 }
 
 main().catch((error) => {
-  console.error(
-    '[vercel-build] Failed:',
-    error instanceof Error ? error.message : String(error),
-  );
+  console.error('[build] Failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

@@ -2,6 +2,7 @@ import type { IncomingMessage } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import {
   CANONICAL_ORIGIN,
+  CLOUDFLARE_PAGES_ORIGIN,
   VERCEL_FALLBACK_ORIGIN,
 } from '../../src/config/canonicalOrigin';
 import {
@@ -23,6 +24,7 @@ describe('trusted app origin policy', () => {
     const env = { APP_URL: undefined, VERCEL: '1' };
 
     expect(isTrustedAppOrigin(CANONICAL_ORIGIN, env)).toBe(true);
+    expect(isTrustedAppOrigin(CLOUDFLARE_PAGES_ORIGIN, env)).toBe(true);
     expect(isTrustedAppOrigin(VERCEL_FALLBACK_ORIGIN, env)).toBe(true);
   });
 
@@ -45,12 +47,41 @@ describe('trusted app origin policy', () => {
     expect(isTrustedAppOrigin('https://vishvakarma-os.attacker.vercel.app', env)).toBe(false);
   });
 
-  it('allows local development origins only outside Vercel', () => {
+  it('accepts only the Vishvakarma Cloudflare Pages project and its previews', () => {
+    const env = { APP_URL: undefined, CF_PAGES: '1' };
+
+    expect(isTrustedAppOrigin(CLOUDFLARE_PAGES_ORIGIN, env)).toBe(true);
+    expect(
+      isTrustedAppOrigin('https://7f31a2b4.vishvakarma-os.pages.dev', env),
+    ).toBe(true);
+    expect(isTrustedAppOrigin('https://attacker.pages.dev', env)).toBe(false);
+    expect(
+      isTrustedAppOrigin('https://vishvakarma-os.pages.dev.attacker.example', env),
+    ).toBe(false);
+  });
+
+  it('accepts an exact Cloudflare Pages URL supplied by the platform', () => {
+    const env = {
+      APP_URL: undefined,
+      CF_PAGES: '1',
+      CF_PAGES_URL: 'https://feature-branch.example-project.pages.dev',
+    };
+
+    expect(
+      isTrustedAppOrigin('https://feature-branch.example-project.pages.dev', env),
+    ).toBe(true);
+    expect(isTrustedAppOrigin('https://other.example-project.pages.dev', env)).toBe(false);
+  });
+
+  it('allows local development origins only outside hosted production', () => {
     expect(
       isTrustedAppOrigin('http://127.0.0.1:5173', { APP_URL: undefined, VERCEL: undefined }),
     ).toBe(true);
     expect(
       isTrustedAppOrigin('http://localhost:4173', { APP_URL: undefined, VERCEL: '1' }),
+    ).toBe(false);
+    expect(
+      isTrustedAppOrigin('http://localhost:4173', { APP_URL: undefined, CF_PAGES: '1' }),
     ).toBe(false);
   });
 

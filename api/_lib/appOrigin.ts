@@ -1,6 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import {
   CANONICAL_ORIGIN,
+  CLOUDFLARE_PAGES_ORIGIN,
   VERCEL_FALLBACK_ORIGIN,
 } from '../../src/config/canonicalOrigin';
 
@@ -10,16 +11,21 @@ type RequestWithHeaders = IncomingMessage & {
 
 type OriginEnvironment = {
   APP_URL?: string;
+  CF_PAGES?: string;
+  CF_PAGES_URL?: string;
   VERCEL?: string;
 };
 
 const VERCEL_TEAM_SUFFIX = '-tyrasic-creations.vercel.app';
 const PROJECT_PREVIEW_PREFIXES = ['vishvakarma-', 'vishvakarma-os-'];
+const CLOUDFLARE_PAGES_HOST = new URL(CLOUDFLARE_PAGES_ORIGIN).hostname;
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
 function currentOriginEnvironment(): OriginEnvironment {
   return {
     APP_URL: process.env.APP_URL,
+    CF_PAGES: process.env.CF_PAGES,
+    CF_PAGES_URL: process.env.CF_PAGES_URL,
     VERCEL: process.env.VERCEL,
   };
 }
@@ -56,6 +62,13 @@ function isProjectPreviewHost(hostname: string) {
   );
 }
 
+function isCloudflarePagesHost(hostname: string) {
+  return (
+    hostname === CLOUDFLARE_PAGES_HOST ||
+    hostname.endsWith(`.${CLOUDFLARE_PAGES_HOST}`)
+  );
+}
+
 export function isTrustedAppOrigin(
   value: string | null | undefined,
   env: OriginEnvironment = currentOriginEnvironment(),
@@ -64,19 +77,29 @@ export function isTrustedAppOrigin(
   if (!url) return false;
 
   const configuredAppUrl = parseOrigin(env.APP_URL);
+  const configuredPagesUrl = parseOrigin(env.CF_PAGES_URL);
   const trustedOrigins = new Set([
     CANONICAL_ORIGIN,
+    CLOUDFLARE_PAGES_ORIGIN,
     VERCEL_FALLBACK_ORIGIN,
     configuredAppUrl?.origin,
+    configuredPagesUrl?.origin,
   ].filter((origin): origin is string => Boolean(origin)));
 
   if (trustedOrigins.has(url.origin)) return true;
 
-  if (url.protocol === 'https:' && isProjectPreviewHost(url.hostname)) {
+  if (
+    url.protocol === 'https:' &&
+    (isProjectPreviewHost(url.hostname) || isCloudflarePagesHost(url.hostname))
+  ) {
     return true;
   }
 
-  return env.VERCEL !== '1' && LOCAL_HOSTS.has(url.hostname);
+  return (
+    env.VERCEL !== '1' &&
+    env.CF_PAGES !== '1' &&
+    LOCAL_HOSTS.has(url.hostname)
+  );
 }
 
 function requireTrustedOrigin(

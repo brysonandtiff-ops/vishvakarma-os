@@ -1,24 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { APP_VERSION_RAW } from '../src/config/appVersion';
 import {
   applyApiSecurityHeaders,
   enforceApiMethod,
   type SecureApiRequest,
   type SecureApiResponse,
 } from './_lib/httpSecurity';
-
-function readPackageVersion(): string {
-  try {
-    const packageJson = JSON.parse(
-      readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
-    ) as { version?: unknown };
-    return typeof packageJson.version === 'string'
-      ? packageJson.version
-      : 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
 
 function isConfigured(value: string | undefined): boolean {
   if (!value) return false;
@@ -43,7 +29,7 @@ export default function handler(req: SecureApiRequest, res: SecureApiResponse) {
 
   return res.status(ok ? 200 : 503).json({
     ok,
-    version: readPackageVersion(),
+    version: APP_VERSION_RAW,
     service: 'vishvakarma-os',
     timestamp: new Date().toISOString(),
   });

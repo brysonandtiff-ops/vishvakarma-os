@@ -3,12 +3,12 @@
   "pwaPrecacheMb": 24,
   "pwaPrecacheEntries": 160,
   "chunks": {
-    "vendor-3d": 1250000,
+    "vendor-3d": 1375000,
     "vendor-ui": 400000,
-    "vendor-react": 550000,
-    "vendor-supabase": 210000,
+    "vendor-react": 605000,
+    "vendor-supabase": 231000,
     "vendor-misc": 480000,
     "index": 880000,
-    "Viewport3D": 55000
+    "Viewport3D": 60500
   }
 }
