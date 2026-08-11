@@ -1,7 +1,5 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  // Production source of truth. Cloudflare builds execute the fail-closed
-  // certification ladder in scripts/vercel-build.mjs before publishing.
   "name": "vishvakarma-os",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-08-10",
