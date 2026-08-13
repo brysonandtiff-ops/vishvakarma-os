@@ -36,6 +36,7 @@ import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
 import { VishCard, VishCardContent, VishCardHeader, VishCardTitle, VishMetric, VishStatusBadge } from '@/components/common/vish-primitives';
 import { useAuth } from '@/contexts/AuthContext';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 
 function isProjectArchived(project: Project): boolean {
   if (project.manifest.metadata.archived) return true;
@@ -201,44 +202,61 @@ export default function ProjectsPage() {
     toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
-  // Mock system stats for the redesign
-  const systemStats = {
-    activeProjects: projects.length,
-    totalArea: 14500, // sqm
-    rooms: 112,
-    outstandingChanges: 3,
-    complianceWarnings: 1,
-    estCost: '48.7M'
+  const systemStats = useMemo(
+    () => ({
+      activeProjects: projects.filter((project) => !isProjectArchived(project)).length,
+      walls: projects.reduce((total, project) => total + project.manifest.walls.length, 0),
+      rooms: projects.reduce((total, project) => total + (project.manifest.rooms?.length ?? 0), 0),
+      openings: projects.reduce((total, project) => total + project.manifest.openings.length, 0),
+    }),
+    [projects],
+  );
+
+  const openDashboardAction = (action: 'new' | 'import' | 'copilot') => {
+    navigate('/editor', { state: { dashboardAction: action } });
   };
 
   return (
     <div className="p-6 tablet:p-10 max-w-7xl mx-auto flex flex-col gap-8 pb-32">
-      <PageMeta title="Home Dashboard" description="Vishvakarma.OS Command Centre" />
+      <PageMeta title="Projects" description="Vishvakarma.OS project command centre" />
+      <WorkspacePageHeader
+        title={`Welcome back, ${accountName}`}
+        description="Open a saved design, begin a new governed project, import a floor-plan file, or start from a verified sample."
+        eyebrow="Project command centre"
+        zone="document"
+        actions={
+          <>
+            <Button type="button" className="min-h-[44px]" onClick={() => openDashboardAction('new')}>
+              <Plus className="mr-2 h-4 w-4" /> New project
+            </Button>
+            <Button type="button" variant="outline" className="min-h-[44px]" onClick={() => openDashboardAction('import')}>
+              <FolderDown className="mr-2 h-4 w-4" /> Import
+            </Button>
+          </>
+        }
+      />
 
-      {/* Hero Area */}
-      <section className="flex flex-col gap-6">
+      <section className="flex flex-col gap-6" aria-labelledby="project-actions-heading">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome back, {accountName}</h1>
-          <p className="text-vish-text-300">What would you like to design today?</p>
+          <h2 id="project-actions-heading" className="text-lg font-semibold tracking-tight text-white mb-2">Start a project</h2>
+          <p className="text-vish-text-300">Choose a real workflow entry point; each option opens the relevant editor action.</p>
         </div>
 
         {/* Primary Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" asChild>
-            <Link to="/editor">
-              <Plus className="w-5 h-5 text-vish-blue-400" />
-              <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
-            </Link>
+          <Button type="button" variant="outline" className="h-16 min-h-[44px] flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" onClick={() => openDashboardAction('new')}>
+            <Plus className="w-5 h-5 text-vish-blue-400" />
+            <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button type="button" variant="outline" className="h-16 min-h-[44px] flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" disabled={loading || filteredProjects.length === 0} onClick={() => filteredProjects[0] && openProject(filteredProjects[0])}>
              <FolderOpen className="w-5 h-5 text-vish-blue-400" />
-             <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
+             <span className="font-semibold uppercase tracking-wider text-xs">Open Recent</span>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button type="button" variant="outline" className="h-16 min-h-[44px] flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" onClick={() => openDashboardAction('import')}>
              <FolderDown className="w-5 h-5 text-vish-blue-400" />
              <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
           </Button>
-          <Button className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
+          <Button type="button" className="h-16 min-h-[44px] flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]" onClick={() => openDashboardAction('copilot')}>
              <Bot className="w-5 h-5" />
              <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
           </Button>
@@ -247,34 +265,44 @@ export default function ProjectsPage() {
 
       {/* System Overview */}
       <section>
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-          <VishCard className="p-4">
-             <VishMetric label="Active Projects" value={systemStats.activeProjects} />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Total Area" value={systemStats.totalArea.toLocaleString()} subValue="m²" />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Total Rooms" value={systemStats.rooms} />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Change Requests" value={systemStats.outstandingChanges} trend="down" trendValue="-2 this week" />
-          </VishCard>
-          <VishCard className="p-4">
-             <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold tracking-[0.08em] uppercase text-vish-text-400">Compliance</span>
-                <div className="mt-1">
-                  {systemStats.complianceWarnings > 0 ? (
-                    <VishStatusBadge status="warning">{systemStats.complianceWarnings} Warnings</VishStatusBadge>
-                  ) : (
-                    <VishStatusBadge status="success">All Clear</VishStatusBadge>
-                  )}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <VishCard className="p-4"><VishMetric label="Active Projects" value={systemStats.activeProjects} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Walls" value={systemStats.walls} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Rooms" value={systemStats.rooms} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Doors + Windows" value={systemStats.openings} /></VishCard>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4" aria-labelledby="sample-projects-heading">
+        <div className="flex flex-col gap-1 tablet:flex-row tablet:items-end tablet:justify-between">
+          <div>
+            <h2 id="sample-projects-heading" className="text-sm font-semibold tracking-widest text-vish-text-400 uppercase">Verified sample projects</h2>
+            <p className="text-sm text-vish-text-300">Demo fixtures are generated in-browser and open as editable local drafts.</p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
+            <VishCard key={sample.id} interactive className="flex min-h-[14rem] flex-col p-5" data-testid={`projects-demo-${sample.id}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-vish-blue-300">{eyebrow}</p>
+                  <h3 className="mt-2 text-base font-semibold text-white">{sample.name}</h3>
                 </div>
-             </div>
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Est. Portfolio Cost" value={`₹${systemStats.estCost}`} />
-          </VishCard>
+                <Sparkles className="h-5 w-5 shrink-0 text-vish-gold-400" aria-hidden="true" />
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-vish-text-300">{sample.description}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-vish-navy-600 bg-vish-navy-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-vish-text-300">{stats.walls} walls</span>
+                <span className="rounded-full border border-vish-navy-600 bg-vish-navy-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-vish-text-300">{stats.openings} openings</span>
+                {badges.map((badge) => (
+                  <span key={badge} className="rounded-full border border-vish-blue-500/30 bg-vish-blue-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-vish-blue-200">{badge}</span>
+                ))}
+              </div>
+              <Button type="button" className="mt-auto min-h-[44px]" onClick={() => openDemoSample(sample.id)}>
+                <PenTool className="mr-2 h-4 w-4" /> Open editable sample
+              </Button>
+            </VishCard>
+          ))}
         </div>
       </section>
 

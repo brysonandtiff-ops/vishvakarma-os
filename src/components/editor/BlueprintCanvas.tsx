@@ -381,6 +381,9 @@ export default function BlueprintCanvas({
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point2D | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point2D | null>(null);
+  // Refs keep two-tap wall placement stable when pointer events are batched before React commits state.
+  const wallDrawingRef = useRef(false);
+  const wallStartPointRef = useRef<Point2D | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<Point2D | null>(null);
   const [hoveredWall, setHoveredWall] = useState<string | null>(null);
   const [hoveredOpening, setHoveredOpening] = useState<string | null>(null);
@@ -436,6 +439,8 @@ export default function BlueprintCanvas({
     setIsDrawing(false);
     setStartPoint(null);
     setCurrentPoint(null);
+    wallDrawingRef.current = false;
+    wallStartPointRef.current = null;
     setDraggingOpeningId(null);
     setDragOpeningPosition(null);
     setDraggingFurnitureId(null);
@@ -929,10 +934,12 @@ export default function BlueprintCanvas({
     const point = getCanvasPoint(event);
 
     if (currentTool === 'wall') {
-      if (isDrawing && startPoint) {
-        setCurrentPoint(point);
+      if (wallDrawingRef.current && wallStartPointRef.current) {
+        setCurrentPoint(getWallDrawPoint(event, wallStartPointRef.current));
         return;
       }
+      wallDrawingRef.current = true;
+      wallStartPointRef.current = point;
       setStartPoint(point);
       setCurrentPoint(point);
       setIsDrawing(true);
@@ -1323,25 +1330,27 @@ export default function BlueprintCanvas({
   };
 
   const finishWallDrawing = (event: CanvasPointerEvent) => {
-    if (!isDrawing || !startPoint || currentTool !== 'wall') return;
+    const origin = wallStartPointRef.current;
+    if (!wallDrawingRef.current || !origin || currentTool !== 'wall') return;
 
-    const end = getWallDrawPoint(event, startPoint);
-    if (Math.hypot(end.x - startPoint.x, end.y - startPoint.y) <= MIN_WALL_LENGTH_PX) {
+    const end = getWallDrawPoint(event, origin);
+    if (Math.hypot(end.x - origin.x, end.y - origin.y) <= MIN_WALL_LENGTH_PX) {
       setCurrentPoint(end);
       return;
     }
 
     onWallAdd({
       id: `wall-${Date.now()}`,
-      start: startPoint,
+      start: origin,
       end,
       thickness: 10,
       height: 240,
       material: 'material-paint',
     });
-    
-    sonicBridge.playSnap();
 
+    sonicBridge.playSnap();
+    wallDrawingRef.current = false;
+    wallStartPointRef.current = null;
     setIsDrawing(false);
     setStartPoint(null);
     setCurrentPoint(null);

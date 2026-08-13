@@ -44,6 +44,14 @@ async function tapCanvas(
   pointerId: number,
   pointerType: 'touch' | 'pen' = 'touch',
 ) {
+  if (pointerType === 'touch') {
+    const box = await canvas.boundingBox();
+    if (!box) throw new Error('Canvas not visible');
+    await canvas.page().touchscreen.tap(box.x + point.x, box.y + point.y);
+    await canvas.page().waitForTimeout(120);
+    return;
+  }
+
   await dispatchCanvasPointer(canvas, 'pointerdown', point, { pointerType, pointerId });
   await canvas.page().waitForTimeout(70);
   await dispatchCanvasPointer(canvas, 'pointerup', point, {
@@ -94,6 +102,7 @@ test.describe('iPad editor workflow', () => {
     const from = { x: box.width * 0.32, y: centerY };
     const to = { x: box.width * 0.72, y: centerY };
     const midpoint = { x: (from.x + to.x) / 2, y: centerY };
+    const wallSelectionPoint = { x: from.x + (to.x - from.x) * 0.2, y: centerY };
 
     await activatePersistentTool(page, 'Wall');
     await drawTouchWall(canvas, from, to);
@@ -104,7 +113,7 @@ test.describe('iPad editor workflow', () => {
     await expect.poll(() => readEditorMetricCount(page, 'Openings'), { timeout: 20_000 }).toBe(initialOpenings + 1);
 
     await activatePersistentTool(page, 'Select');
-    await page.mouse.click(box.x + midpoint.x, box.y + midpoint.y);
+    await page.mouse.click(box.x + wallSelectionPoint.x, box.y + wallSelectionPoint.y);
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('wall-openings-count')).toHaveText('1');

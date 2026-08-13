@@ -109,7 +109,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedFixture && onFixtureUpdate) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
         <VishInspectorHeader>Lighting Fixture</VishInspectorHeader>
         <VishInspectorSection className="flex-1 overflow-y-auto">
           <VishInspectorContent className="pt-4">
@@ -162,7 +162,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
         <VishInspectorHeader>Label Properties</VishInspectorHeader>
         <VishInspectorSection className="flex-1 overflow-y-auto">
           <VishInspectorContent className="pt-4">
@@ -255,7 +255,8 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
+        <VishInspectorHeader>Properties</VishInspectorHeader>
         <VishInspectorSection className="flex-1 overflow-y-auto">
           {currentTool === 'room' && onPendingRoomTypeChange && (
             <div className="border-b border-vish-navy-600/50 px-4 py-3">
@@ -298,8 +299,14 @@ export default function PropertiesPanel({
   }
 
   return (
-    <VishInspector>
-      <VishInspectorHeader>Wall Properties · {selectedWall.id.slice(0, 8)}</VishInspectorHeader>
+      <VishInspector className="vish-sidebar-panel">
+      <VishInspectorHeader className="flex items-center justify-between gap-3">
+        <span>Wall Properties</span>
+        <span className="flex items-center gap-1 font-mono text-[9px] normal-case tracking-normal text-vish-text-500">
+          <span>ID</span>
+          <span>{selectedWall.id.slice(0, 12)}...</span>
+        </span>
+      </VishInspectorHeader>
       <VishInspectorSection className="flex-1 overflow-y-auto">
         <VishInspectorContent className="pt-4">
           <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-vish-text-500">Dimensions</p>

@@ -3,6 +3,7 @@ import { readLocalDraft, hasMeaningfulDraftContent } from '@/editor/localDraft';
 import { createLocalProject } from '@/editor/localProject';
 
 export const LOCAL_PROJECTS_KEY = 'vishvakarma.os.localProjects.v1';
+export const LOCAL_ACTIVE_PROJECT_KEY = 'vishvakarma.os.activeLocalProject.v1';
 
 function hasStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -42,7 +43,24 @@ export function deleteLocalProject(id: string) {
 
   const projects = getLocalProjects().filter((entry) => entry.id !== id);
   window.localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(projects));
+  if (window.localStorage.getItem(LOCAL_ACTIVE_PROJECT_KEY) === id) {
+    window.localStorage.removeItem(LOCAL_ACTIVE_PROJECT_KEY);
+  }
   return true;
+}
+
+export function setActiveLocalProject(project: Project) {
+  if (!hasStorage()) return false;
+  upsertLocalProject(project);
+  window.localStorage.setItem(LOCAL_ACTIVE_PROJECT_KEY, project.id);
+  return true;
+}
+
+export function getActiveLocalProject(): Project | null {
+  if (!hasStorage()) return null;
+  const activeId = window.localStorage.getItem(LOCAL_ACTIVE_PROJECT_KEY);
+  if (!activeId) return null;
+  return getLocalProjects().find((project) => project.id === activeId) ?? null;
 }
 
 /** Merge saved local projects with the current browser draft (if any). */
