@@ -17,7 +17,7 @@ The workflow binds results to the exact commit SHA and performs:
 - strict release and launch-evidence gates;
 - evidence artifact upload.
 
-Vercel remains the deployment/build provider. A green Vercel build and a green Production Certification run are both required for a fully production-verified claim.
+Cloudflare Pages is the deployment/build provider. A green exact-SHA Pages deployment and a green Production Certification run are both required for a fully production-verified claim.
 
 ## Required release ladder
 
@@ -68,7 +68,7 @@ Do not copy a prior PASS verdict onto a newer SHA.
 
 ## Deployment
 
-Production deploys use Vercel. `pnpm run deploy:vercel` runs the local verification path and requires a clean worktree. See [operations/DEPLOYMENT_RUNBOOK.md](../operations/DEPLOYMENT_RUNBOOK.md).
+Production deploys use Cloudflare Pages. `pnpm run certify:cloudflare -- <preview-url>` verifies the local build and live preview. See [operations/DEPLOYMENT_RUNBOOK.md](../operations/DEPLOYMENT_RUNBOOK.md).
 
 ## Key scripts
 

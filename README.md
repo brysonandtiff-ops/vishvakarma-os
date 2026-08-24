@@ -9,7 +9,7 @@ All application code, documentation, migrations, and development commands live a
 - **Documentation hub:** [docs/README.md](docs/README.md)
 - **Valuation / due diligence:** [docs/handoff/HANDOFF.md](docs/handoff/HANDOFF.md)
 - **Production:** https://vishvakarma-os.app
-- **Vercel fallback:** https://vishvakarma-os.vercel.app
+- **Cloudflare Pages:** https://vishvakarma-os.pages.dev
 
 ## Local development
 
@@ -21,7 +21,7 @@ pnpm run dev
 
 ## Verification policy
 
-The allow-listed `.github/workflows/production-certification.yml` workflow certifies every `main` SHA with hosted Auth hardening, Chromium/Firefox/WebKit E2E, accessibility, editor performance, production-auth verification, and strict release evidence gates. Vercel separately verifies the production build.
+The allow-listed `.github/workflows/production-certification.yml` workflow certifies every `main` SHA with hosted Auth hardening, Chromium/Firefox/WebKit E2E, accessibility, editor performance, production-auth verification, and strict release evidence gates. Cloudflare Pages separately builds and deploys the exact Git commit.
 
 ```bash
 pnpm run verify:ci

@@ -6,7 +6,6 @@ node_modules/
 dist/
 build/
 .out/
-.vercel/
 .netlify/
 
 # Test and coverage output
@@ -51,6 +50,7 @@ Thumbs.db
 /pilot-evidence/
 /device-e2e-last-run.txt
 /final-test-run.txt
+docs/handoff/OPERATOR_ANNEX.md
 
 # Generated app assets that should be rebuilt, not committed
 public/splash/generated/

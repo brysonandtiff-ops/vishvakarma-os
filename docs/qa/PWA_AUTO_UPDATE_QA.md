@@ -1,6 +1,6 @@
 # PWA Auto-Update QA
 
-Purpose: make installed iPad and desktop PWA users receive the newest Vercel deployment without manually deleting the app or clearing Safari cache.
+Purpose: make installed iPad and desktop PWA users receive the newest Cloudflare Pages deployment without manually deleting the app or clearing Safari cache.
 
 ## Expected behavior
 
@@ -13,7 +13,7 @@ Purpose: make installed iPad and desktop PWA users receive the newest Vercel dep
 
 1. Install Vishvakarma.OS to the iPad Home Screen.
 2. Open the installed app and confirm the current build loads.
-3. Deploy a new Vercel preview or production build.
+3. Deploy a new Cloudflare Pages preview or production build.
 4. Return to the installed app and wait up to 60 seconds, or background and reopen it.
 5. Confirm the app refreshes to the new build without uninstalling.
 6. Open `/editor` and confirm the newest UI is visible.
@@ -31,4 +31,4 @@ Purpose: make installed iPad and desktop PWA users receive the newest Vercel dep
 
 ## Notes
 
-The app intentionally reloads once after a new service worker takes control. This is required so installed PWA users do not keep stale JavaScript/CSS from an older Vercel deployment.
+The app intentionally reloads once after a new service worker takes control. This is required so installed PWA users do not keep stale JavaScript/CSS from an older Cloudflare Pages deployment.

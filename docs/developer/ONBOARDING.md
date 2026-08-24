@@ -69,7 +69,7 @@ Full command matrix: [release/VERIFY_COMMANDS.md](../release/VERIFY_COMMANDS.md)
 | `src/components/editor/` | 2D canvas, 3D viewport, tool rail |
 | `src/db/api.ts` | **Persistence facade** — always use this, not raw Supabase |
 | `src/backend/supabase/` | Supabase gateway implementations |
-| `api/` | Vercel serverless (Stripe, Gemini AI) |
+| `api/` | Cloudflare Pages Functions (Stripe, Gemini AI) |
 | `src/governance/` | Release gates, audit, world records |
 | `supabase/migrations/` | Postgres schema |
 

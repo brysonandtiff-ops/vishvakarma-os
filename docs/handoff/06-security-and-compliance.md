@@ -35,13 +35,13 @@ Migration: [`supabase/migrations/20260212000003_rls_policies.sql`](../../supabas
 
 ## Transport and headers
 
-[`vercel.json`](../../vercel.json) — production security headers:
+[`wrangler.jsonc`](../../wrangler.jsonc) and [`public/_headers`](../../public/_headers) define the production runtime and security headers:
 
 - Content-Security-Policy (CSP)
 - Strict-Transport-Security (HSTS)
 - X-Content-Type-Options, X-Frame-Options, Referrer-Policy, COOP
 
-Verified by: [`scripts/quality/check-vercel-security.mjs`](../../scripts/quality/check-vercel-security.mjs)  
+Verified by: [`scripts/quality/check-cloudflare-security.mjs`](../../scripts/quality/check-cloudflare-security.mjs)
 Evidence: [`docs/release/evidence/security-headers.md`](../release/evidence/security-headers.md)
 
 ## Client-side secrets policy
@@ -81,5 +81,5 @@ Modules with **prototype disclaimers** — do not claim certified compliance or 
 1. Apply Supabase migrations before production auth
 2. Restrict Supabase/Google OAuth authorized domains
 3. Rotate service role key on operator transfer
-4. Enable Vercel deployment protection for preview URLs if needed
-5. Review [`docs/release/VERCEL_ENV.md`](../release/VERCEL_ENV.md) before each deploy
+4. Enable Cloudflare Pages deployment protection for preview URLs if needed
+5. Review [`docs/release/CLOUDFLARE_ENV.md`](../release/CLOUDFLARE_ENV.md) before each deploy

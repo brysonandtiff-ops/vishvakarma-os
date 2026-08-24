@@ -116,21 +116,9 @@ requirePhrase(indexHtml, '<meta name="apple-mobile-web-app-capable" content="yes
 requirePhrase(indexHtml, '<meta name="apple-mobile-web-app-title" content="Vishvakarma.OS" />', 'index.html');
 requirePhrase(indexHtml, '<link rel="apple-touch-icon" sizes="180x180" href="/brand/vishvakarma-apple-touch-icon.png" />', 'index.html');
 
-// Startup splash + iOS launch images.
-requirePhrase(indexHtml, 'id="boot-splash"', 'index.html startup splash');
-requirePhrase(indexHtml, 'rel="apple-touch-startup-image"', 'index.html iOS launch images');
-const startupImages = [
-  { path: 'public/splash/apple-splash-750-1334.png', width: 750, height: 1334 },
-  { path: 'public/splash/apple-splash-1290-2796.png', width: 1290, height: 2796 },
-  { path: 'public/splash/apple-splash-2048-2732.png', width: 2048, height: 2732 },
-  { path: 'public/splash/apple-splash-2732-2048.png', width: 2732, height: 2048 },
-];
-for (const image of startupImages) {
-  const size = readPngSize(image.path);
-  if (size && (size.width !== image.width || size.height !== image.height)) {
-    fail(`${image.path} must be ${image.width}x${image.height}; found ${size.width}x${size.height}.`);
-  }
-}
+// Blocking startup overlays and legacy iOS launch-image markup stay retired.
+forbidPhrase(indexHtml, 'id="boot-splash"', 'index.html');
+forbidPhrase(indexHtml, 'rel="apple-touch-startup-image"', 'index.html');
 
 const iconSvg = readRequired('public/icons/icon.svg');
 requirePhrase(iconSvg, 'Vishvakarma.OS official swan V logo', 'public/icons/icon.svg');
@@ -155,7 +143,7 @@ forbidPhrase(viteConfig, 'includeAssets:', 'vite.config.ts');
 requirePhrase(viteConfig, "globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,webmanifest}']", 'vite.config.ts');
 requirePhrase(viteConfig, "navigateFallback: '/index.html'", 'vite.config.ts');
 requirePhrase(viteConfig, 'navigateFallbackDenylist: [/^\\/api\\//]', 'vite.config.ts');
-// iOS launch images are served on-demand, never precached (keeps the install lean).
+// Legacy splash assets are excluded from the precache to keep the install lean.
 requirePhrase(viteConfig, "globIgnores: ['**/splash/**']", 'vite.config.ts');
 
 if (failures.length > 0) {
@@ -165,4 +153,4 @@ if (failures.length > 0) {
 }
 
 console.log('Vishvakarma.OS PWA install asset check passed.');
-console.log('Manifest, install icon paths, Apple touch icon, service worker config, and official logo artwork are guarded.');
+console.log('Manifest, install icon paths, no-blocking-startup policy, service worker config, and official logo artwork are guarded.');

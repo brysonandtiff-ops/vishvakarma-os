@@ -88,7 +88,7 @@ Revert in reverse phase order:
 
 > Superseded by Supabase production cutover. Current next steps: [`OPERATOR_CHECKLIST.md`](../OPERATOR_CHECKLIST.md) and [`VERIFY_COMMANDS.md`](../VERIFY_COMMANDS.md).
 
-1. Configure Supabase production env on Vercel (see [`VERCEL_ENV.md`](../VERCEL_ENV.md))
+1. Configure Supabase production variables on Cloudflare Pages (see [`CLOUDFLARE_ENV.md`](../CLOUDFLARE_ENV.md))
 2. Manual demo loop: create project → draw walls/door/window → 3D Standard → save → export JSON → reload from `/projects`
 3. Capture screenshot pack: `pnpm run test:screenshots` + manual items in [SCREENSHOT_PACK.md](./SCREENSHOT_PACK.md)
 4. Run Playwright E2E on deployed preview

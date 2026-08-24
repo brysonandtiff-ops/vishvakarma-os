@@ -5,7 +5,7 @@
 **Generated:** 2026-06-15  
 **Git SHA:** `6cca332b31aa7fe5199c8bf809703ea03dccdd5d`  
 **Canonical production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
 **Repository root:** `vishvakarma-os-live/` (all application code lives here; parent workspace folder is a thin wrapper)
 
@@ -37,7 +37,7 @@ Target users: architects, interior designers, builders, students, and project ma
 
 ### What Vishvakarma.OS is NOT
 
-- **Not Next.js** — routing is client-side React Router 7; API routes are Vercel serverless functions in `api/`, not Next.js App Router
+- **Not Next.js** — routing is client-side React Router 7; API routes are Cloudflare Pages Functions in `api/`, not Next.js App Router
 - **Not certified for council lodgement** — compliance and council modules are simulated decision-support stubs
 - **Not production-grade cost quotes** — cost intelligence uses simulated regional figures
 - **Not enterprise SSO/SAML/API yet** — listed on Enterprise tier but not implemented
@@ -52,7 +52,7 @@ Target users: architects, interior designers, builders, students, and project ma
 |------|-------|
 | Product version | 1.5.0 |
 | Canonical production URL | https://vishvakarma-os.app |
-| Vercel fallback URL | https://vishvakarma-os.vercel.app |
+| Cloudflare Pages fallback URL | https://vishvakarma-os.pages.dev |
 | Supabase project ref | `jyocvwipthswfcmvqgqe` |
 | Runtime backend | Supabase Auth + Postgres (RLS) + Storage |
 | Billing | Stripe Checkout + Customer Portal + webhooks |
@@ -151,7 +151,7 @@ flowchart TB
     DBApi --> Gateways
   end
 
-  subgraph vercel [Vercel]
+  subgraph cloudflare [Cloudflare Pages]
     Static[dist/ static SPA]
     API[api/ serverless]
   end
@@ -185,7 +185,7 @@ Enforced by `contract:gates`, ast-grep forbidden-edge rules, and regression anch
 ```
 Pages/Components → db/api.ts (facade) → backend/supabase/* gateways → Supabase
                                       ↘ local storage fallback when unconfigured
-Browser → Vercel API routes → Stripe / Gemini / Supabase (service role)
+Browser → Cloudflare Pages API routes → Stripe / Gemini / Supabase (service role)
 ```
 
 **Gateway pattern:** `src/backend/supabase/createSupabaseBackend.ts` assembles typed gateways: auth, projects, governance, billing, storage, optimization, profile.
@@ -208,7 +208,7 @@ Browser → Vercel API routes → Stripe / Gemini / Supabase (service role)
 | Billing | Stripe Checkout, Customer Portal, webhooks |
 | AI | Google Gemini via `@google/generative-ai` |
 | Realtime (preview) | Yjs + y-websocket + optional Node collab server (`server/collab/`) |
-| Hosting | Vercel (static `dist/` + serverless API routes) |
+| Hosting | Cloudflare Pages (static `dist/` + serverless API routes) |
 | Testing | Vitest (119 test files), Playwright (22 E2E specs) |
 | Quality | Biome, tsgo, ast-grep, custom release/contract gates |
 | Runtime | Node 20.x, pnpm 9.15.0 |
@@ -344,7 +344,7 @@ Single source of truth: changes to 2D canvas update manifest; 3D viewport reads 
 
 ---
 
-## 9. API endpoints (Vercel serverless)
+## 9. API endpoints (Cloudflare Pages Functions)
 
 | HTTP | Handler | Purpose |
 |------|---------|---------|
@@ -380,7 +380,7 @@ vishvakarma-os-live/
 │   ├── rules/                 NBC India, NCC, zoning, accessibility, fire, energy
 │   ├── config/                billingPlans, appVersion, coOwners, marketingFeatures
 │   └── routes.tsx             All 16 client routes
-├── api/                       Vercel serverless (Stripe, Gemini)
+├── api/                       Cloudflare Pages Functions (Stripe, Gemini)
 ├── server/collab/             Optional Yjs WebSocket server (port 1234)
 ├── supabase/migrations/       5 Postgres migrations
 ├── scripts/
@@ -537,7 +537,7 @@ These repo files contain extended detail if a human operator needs them:
 - `docs/PRODUCT_CAPABILITIES.md` — audited feature brief
 - `docs/handoff/05-collaboration-preview.md` — collaboration preview limitations
 - `docs/release/VERIFY_COMMANDS.md` — full verification command matrix
-- `docs/release/VERCEL_ENV.md` — complete env var matrix
+- `docs/release/CLOUDFLARE_ENV.md` — complete env var matrix
 - `CHANGELOG.md` — version history v1.0 through v1.5.0
 
 ---
@@ -547,7 +547,7 @@ These repo files contain extended detail if a human operator needs them:
 **End of handoff.** You now have accurate v1.5.0 context for Vishvakarma.OS.
 
 - Product: iPad-first browser architectural workstation with 2D/3D editor, AI copilot, optimization, compliance decision-support, Governance OS, and Stripe billing
-- Stack: React 18 + Vite + React Router 7 + Three.js + Supabase + Stripe + Gemini on Vercel
+- Stack: React 18 + Vite + React Router 7 + Three.js + Supabase + Stripe + Gemini on Cloudflare Pages
 - Production: editor, 3D, auth, billing, governance, exports
 - Prototype: AI, optimization, compliance, cost, council (disclaimers required)
 - Preview/planned: collaboration, Enterprise SSO/API, full DXF pipeline

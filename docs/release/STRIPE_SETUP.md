@@ -15,7 +15,7 @@ Subscription state is stored in Firestore `billing/{uid}` (server-written via we
 - Stripe account (test mode for development)
 - Firebase project with Firestore enabled
 - Firebase service account JSON (for webhook → Firestore writes)
-- Vercel deployment (or `vercel dev` for local API routes)
+- Cloudflare Pages deployment (or `wrangler pages dev dist` for local API routes)
 
 ## 1. Create product and price
 
@@ -26,11 +26,11 @@ pnpm run setup:stripe
 
 Copy the printed `STRIPE_PRICE_STUDIO_MONTHLY` and `STRIPE_PRICE_ENTERPRISE_MONTHLY` values.
 
-**Live production:** run with `sk_live_...`, update Vercel env vars, then **archive** any old $99 / $249 price IDs in Stripe Dashboard so new checkouts use the updated amounts.
+**Live production:** run with `sk_live_...`, update Cloudflare Pages env vars, then **archive** any old $99 / $249 price IDs in Stripe Dashboard so new checkouts use the updated amounts.
 
 ## 2. Environment variables
 
-### Vercel (Production / Preview)
+### Cloudflare Pages (Production / Preview)
 
 | Variable | Notes |
 |----------|-------|
@@ -40,10 +40,10 @@ Copy the printed `STRIPE_PRICE_STUDIO_MONTHLY` and `STRIPE_PRICE_ENTERPRISE_MONT
 | `STRIPE_PRICE_STUDIO_MONTHLY` | From `setup:stripe` ($499/mo) |
 | `STRIPE_PRICE_ENTERPRISE_MONTHLY` | From `setup:stripe` ($1,000/mo) |
 | `FIREBASE_PROJECT_ID` | Same as `VITE_FIREBASE_PROJECT_ID` |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Full JSON string (single line in Vercel) |
-| `APP_URL` | e.g. `https://vishvakarma-os.vercel.app` |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Full JSON string (single line in Cloudflare Pages) |
+| `APP_URL` | e.g. `https://vishvakarma-os.pages.dev` |
 
-See also [VERCEL_ENV.md](./VERCEL_ENV.md).
+See also [CLOUDFLARE_ENV.md](./CLOUDFLARE_ENV.md).
 
 ### Local (`.env.local`)
 
@@ -85,13 +85,13 @@ firebase deploy --only firestore:rules
 
 ## 5. Local webhook testing
 
-API routes require a Vercel runtime. Use either:
+API routes require a Cloudflare Pages runtime. Use either:
 
-**Option A — Stripe CLI + Vercel dev**
+**Option A — Stripe CLI + Cloudflare Pages dev**
 
 ```bash
 # Terminal 1
-vercel dev
+wrangler pages dev dist
 
 # Terminal 2
 stripe listen --forward-to http://localhost:3000/api/stripe/webhook
@@ -102,7 +102,7 @@ Use the `whsec_...` secret from `stripe listen` as `STRIPE_WEBHOOK_SECRET` local
 **Option B — Forward to preview deploy**
 
 ```bash
-stripe listen --forward-to https://your-preview-url.vercel.app/api/stripe/webhook
+stripe listen --forward-to https://your-preview-url.pages.dev/api/stripe/webhook
 ```
 
 ## 6. Smoke test
@@ -132,5 +132,5 @@ Enable the Customer Portal in Stripe Dashboard → Settings → Billing → Cust
 
 ## Related
 
-- [VERCEL_ENV.md](./VERCEL_ENV.md)
+- [CLOUDFLARE_ENV.md](./CLOUDFLARE_ENV.md)
 - [VERIFY_COMMANDS.md](./VERIFY_COMMANDS.md)

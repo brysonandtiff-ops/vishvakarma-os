@@ -5,8 +5,8 @@ import { spawnSync } from 'node:child_process';
 const liveUrl = process.argv[2]?.trim();
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
-  'src/test/vercelBuildGate.test.ts',
-  'src/test/vercelApiRuntimeModule.test.ts',
+  'src/test/cloudflareBuildGate.test.ts',
+  'src/test/cloudflareApiRuntimeModule.test.ts',
   'src/test/serverRuntimeAliasBoundary.test.ts',
   'src/test/emailMagicLinkFallback.test.ts',
   'src/test/productionAuthVerifier.test.ts',
@@ -40,6 +40,7 @@ function run(command, args) {
 
 run('node', ['scripts/security/check-repository-secrets.mjs']);
 run('node', ['scripts/deployment/verify-cloudflare-config.mjs']);
+run('node', ['scripts/quality/check-cloudflare-security.mjs']);
 run('pnpm', ['run', 'lint:types']);
 run('pnpm', ['exec', 'vitest', 'run', ...focusedTests]);
 run('pnpm', ['run', 'build']);

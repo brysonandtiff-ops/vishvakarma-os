@@ -24,7 +24,7 @@ Severity definitions, common incident playbooks, and escalation templates.
 **Symptoms:** `/auth` errors, OAuth redirect loops, 401 on all private routes
 
 1. Check Supabase Dashboard → Authentication → Logs
-2. Verify `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_ORIGIN` on Vercel Production
+2. Verify `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_ORIGIN` on Cloudflare Pages Production
 3. Confirm authorized redirect URLs include `https://vishvakarma-os.app`
 4. Run `pnpm run verify:production-auth-flow`
 5. If bad deploy: [ROLLBACK.md](./ROLLBACK.md)
@@ -36,7 +36,7 @@ Severity definitions, common incident playbooks, and escalation templates.
 **Symptoms:** Checkout succeeds but plan not upgraded; portal 500 errors
 
 1. Stripe Dashboard → Webhooks → check delivery failures
-2. Verify `STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY` on Vercel
+2. Verify `STRIPE_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY` on Cloudflare Pages
 3. Resend failed webhook events after fix
 4. Inspect Supabase `billing` table for affected `user_id`
 5. See [release/STRIPE_SETUP.md](../release/STRIPE_SETUP.md)
@@ -47,7 +47,7 @@ Severity definitions, common incident playbooks, and escalation templates.
 
 **Symptoms:** Copilot returns errors; `source: fallback` only
 
-1. Verify `GEMINI_API_KEY` on Vercel (server-only)
+1. Verify `GEMINI_API_KEY` on Cloudflare Pages (server-only)
 2. Check Google AI quota and API status
 3. **Impact:** Local parsers still work — SEV-3 unless AI is contractually guaranteed
 

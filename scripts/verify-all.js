@@ -182,15 +182,15 @@ async function checkSampleGate() {
   }
 }
 
-async function checkVercelSecurityGate() {
+async function checkCloudflareSecurityGate() {
   const name = 'Gate 5: Production security headers configured';
-  const vercelPath = join(process.cwd(), 'vercel.json');
+  const headersPath = join(process.cwd(), 'public', '_headers');
 
-  if (!(await fileExists(vercelPath))) {
-    return fail(name, 'vercel.json is missing.', [vercelPath]);
+  if (!(await fileExists(headersPath))) {
+    return fail(name, 'Cloudflare Pages public/_headers is missing.', [headersPath]);
   }
 
-  const vercel = await readText(vercelPath);
+  const headers = await readText(headersPath);
   const requiredHeaders = [
     'Content-Security-Policy',
     'Strict-Transport-Security',
@@ -199,13 +199,13 @@ async function checkVercelSecurityGate() {
     'Referrer-Policy',
     'Permissions-Policy',
   ];
-  const missing = requiredHeaders.filter((header) => !vercel.includes(header));
+  const missing = requiredHeaders.filter((header) => !headers.includes(header));
 
   if (missing.length > 0) {
     return fail(name, 'Production security headers are incomplete.', missing);
   }
 
-  return pass(name, 'Production security headers are configured.');
+  return pass(name, 'Cloudflare Pages production security headers are configured.');
 }
 
 async function checkEnvTemplateGate() {
@@ -300,7 +300,7 @@ async function runAllGates() {
   gates.push(await checkRegistryGate());
   gates.push(await checkRoutesGate());
   gates.push(await checkSampleGate());
-  gates.push(await checkVercelSecurityGate());
+  gates.push(await checkCloudflareSecurityGate());
   gates.push(await checkEnvTemplateGate());
   gates.push(await checkAutomatedCommandGate('Gate 7: Unit tests green', 'pnpm run test'));
   gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'node scripts/run-e2e-gates.mjs'));

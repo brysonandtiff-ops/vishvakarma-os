@@ -7,7 +7,7 @@
 Environment-specific notes for local, preview, and production.
 
 **Authoritative env inventory:** [handoff/appendices/B-environment-variables.md](../handoff/appendices/B-environment-variables.md)  
-**Vercel matrix:** [release/VERCEL_ENV.md](../release/VERCEL_ENV.md)
+**Cloudflare Pages matrix:** [release/CLOUDFLARE_ENV.md](../release/CLOUDFLARE_ENV.md)
 
 ---
 
@@ -28,14 +28,14 @@ pnpm run dev
 
 ---
 
-## Vercel preview
+## Cloudflare Pages preview
 
 | Setting | Notes |
 |---------|-------|
-| URL | `*.vercel.app` per branch |
+| URL | `*.pages.dev` per branch |
 | Auth redirects | Add preview URL to Supabase authorized redirects if testing OAuth |
 | Stripe | Test mode keys recommended |
-| Protection | Enable Vercel Deployment Protection for sensitive previews |
+| Protection | Enable Cloudflare Pages Deployment Protection for sensitive previews |
 
 Do **not** use preview URLs in operator or valuation documentation as canonical production.
 
@@ -46,7 +46,7 @@ Do **not** use preview URLs in operator or valuation documentation as canonical 
 | Setting | Value |
 |---------|-------|
 | Canonical URL | https://vishvakarma-os.app |
-| Fallback | https://vishvakarma-os.vercel.app |
+| Fallback | https://vishvakarma-os.pages.dev |
 | `VITE_AUTH_REDIRECT_ORIGIN` | `https://vishvakarma-os.app` |
 | `APP_URL` | `https://vishvakarma-os.app` |
 | Stripe | Live keys; live webhook endpoint |

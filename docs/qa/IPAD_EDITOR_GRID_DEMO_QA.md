@@ -5,7 +5,7 @@ Purpose: verify first-time iPad testers can immediately see the grid and load a 
 ## Scope
 
 - `/editor` on iPad landscape and portrait.
-- Installed PWA and Safari tab after a fresh Vercel deployment.
+- Installed PWA and Safari tab after a fresh Cloudflare Pages deployment.
 - Top editor toolbar, canvas grid visibility, and sample/demo access.
 
 ## Acceptance checks

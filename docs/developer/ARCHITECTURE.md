@@ -16,14 +16,14 @@ Vishvakarma.OS is a **Vite + React 18 SPA** (not Next.js) with:
 
 - Client-side routing (React Router 7)
 - Supabase for auth, Postgres/RLS, and storage
-- Vercel serverless functions for Stripe billing and Gemini AI
+- Cloudflare Pages Functions for Stripe billing and Gemini AI
 - Three.js / React Three Fiber for live 3D
 
 ```mermaid
 flowchart LR
   Browser --> SPA[Vite SPA]
   SPA --> Supabase[(Supabase)]
-  SPA --> API[Vercel api/]
+  SPA --> API[Cloudflare Pages api/]
   API --> Supabase
   API --> Stripe[Stripe]
   API --> Gemini[Gemini]

@@ -39,9 +39,9 @@
       "id": "gate-5",
       "number": 5,
       "name": "Production security headers configured",
-      "description": "vercel.json contains required CSP, HSTS, and security headers",
+      "description": "public/_headers contains required Cloudflare Pages CSP, HSTS, and security headers",
       "category": "automated",
-      "evidencePath": "vercel.json"
+      "evidencePath": "public/_headers"
     },
     {
       "id": "gate-6",

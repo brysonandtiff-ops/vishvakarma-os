@@ -6,15 +6,12 @@ import { spawnSync } from 'node:child_process';
 
 const MAX_TEXT_FILE_BYTES = 2 * 1024 * 1024;
 const SELF_PATH = 'scripts/security/check-repository-secrets.mjs';
-const BUILD_PRUNED_PREFIXES = ['public/textures/'];
 const ALLOWED_TRACKED_ENV_PATHS = new Set([
   '.env.e2e',
   '.env.e2e-local',
-  '.env.vercel.production',
   'config/e2e-env/.env',
 ]);
 const SENSITIVE_ENV_KEYS = new Set([
-  'VERCEL_OIDC_TOKEN',
   'SUPABASE_SERVICE_ROLE_KEY',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
@@ -76,10 +73,6 @@ function isForbiddenEnvFile(path) {
   return isEnvLikePath(path);
 }
 
-function isExpectedBuildPrunedFile(path) {
-  return BUILD_PRUNED_PREFIXES.some((prefix) => path.startsWith(prefix));
-}
-
 function looksBinary(buffer) {
   const sample = buffer.subarray(0, Math.min(buffer.length, 8 * 1024));
   return sample.includes(0);
@@ -131,9 +124,10 @@ async function scanFile(path) {
       error &&
       typeof error === 'object' &&
       'code' in error &&
-      error.code === 'ENOENT' &&
-      isExpectedBuildPrunedFile(path)
+      error.code === 'ENOENT'
     ) {
+      // `git ls-files` includes tracked paths deleted in the working tree until
+      // the deletion is committed. There is no remaining content to scan.
       return [];
     }
     throw error;

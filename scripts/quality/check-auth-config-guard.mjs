@@ -50,14 +50,8 @@ function checkGatewayCanonicalFallbacks() {
   const supabaseClientPath = join(root, 'src/backend/supabase/supabaseClient.ts');
   const supabaseClient = readRequiredFile(supabaseClientPath, 'src/backend/supabase/supabaseClient.ts');
 
-  if (oauth.includes("'https://vishvakarma-os.vercel.app'")) {
-    failures.push('supabaseOAuthGateway.ts must not hardcode Vercel as primary auth origin');
-  }
-  if (auth.includes("'https://vishvakarma-os.vercel.app/auth'")) {
-    failures.push('supabaseAuthGateway.ts must not hardcode Vercel as primary auth URL');
-  }
-  if (!oauth.includes('CANONICAL_ORIGIN') || !auth.includes('CANONICAL_AUTH_URL')) {
-    failures.push('Supabase auth gateways must import canonical origin constants');
+  if (!oauth.includes('CANONICAL_ORIGIN') || !oauth.includes('CLOUDFLARE_PAGES_ORIGIN')) {
+    failures.push('Supabase OAuth gateway must import canonical and Cloudflare Pages origin constants');
   }
   if (!canonical.includes(CANONICAL_ORIGIN)) {
     failures.push('src/config/canonicalOrigin.ts missing canonical origin constant');

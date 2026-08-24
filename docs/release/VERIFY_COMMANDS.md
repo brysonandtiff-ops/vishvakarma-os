@@ -37,7 +37,7 @@ pnpm run setup:stripe    # requires STRIPE_SECRET_KEY — creates $499 Studio + 
 pnpm run verify:stripe-billing --strict
 ```
 
-**Live production rollout:** run `setup:stripe` with `sk_live_...`, copy new `STRIPE_PRICE_*` IDs to Vercel, archive old prices in Stripe Dashboard, redeploy, then smoke-test both checkout tiers.
+**Live production rollout:** run `setup:stripe` with `sk_live_...`, copy new `STRIPE_PRICE_*` IDs to Cloudflare Pages, archive old prices in Stripe Dashboard, redeploy, then smoke-test both checkout tiers.
 
 Follow [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and checkout smoke test.
 
