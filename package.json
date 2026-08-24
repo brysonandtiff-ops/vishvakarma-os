@@ -233,7 +233,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/coverage-v8": "^4.1.9",
     "@vitest/ui": "^4.1.9",
-    "autoprefixer": "^10.4.21",
+    "autoprefixer": "^10.5.4",
     "jsdom": "^28.1.0",
     "lighthouse": "^12.6.0",
     "postcss": "^8.5.26",
