@@ -32,6 +32,10 @@ function isUnitTestEnvironment(env: EnvSource) {
   return envString(env, 'MODE').toLowerCase() === 'test' || envString(env, 'VITEST') === 'true';
 }
 
+function isControlledLocalE2EEnvironment(env: EnvSource) {
+  return envString(env, 'VITE_E2E_ALLOW_LOCAL_ACCESS').toLowerCase() === 'true';
+}
+
 export function getMissingSupabaseKeys(env: EnvSource) {
   return SUPABASE_KEYS.filter((key) => {
     const value = envString(env, key);
@@ -62,7 +66,8 @@ export function resolveSupabaseConfig(env: EnvSource = import.meta.env) {
 export function getBackendStatus(env: EnvSource = import.meta.env) {
   const { missingKeys } = resolveSupabaseConfig(env);
   const unitTestEnvironment = isUnitTestEnvironment(env);
-  const isConfigured = !unitTestEnvironment && missingKeys.length === 0;
+  const controlledLocalE2EEnvironment = isControlledLocalE2EEnvironment(env);
+  const isConfigured = !unitTestEnvironment && !controlledLocalE2EEnvironment && missingKeys.length === 0;
 
   return {
     provider: 'supabase' as const,
@@ -71,9 +76,11 @@ export function getBackendStatus(env: EnvSource = import.meta.env) {
     missingKeys: [...missingKeys],
     configurationError: unitTestEnvironment
       ? 'Supabase backend is disabled during unit tests. Use a dedicated live-integration command for remote verification.'
-      : isConfigured
-        ? null
-        : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
+      : controlledLocalE2EEnvironment
+        ? 'Supabase backend is disabled for the controlled local E2E build so project workflows use browser-local storage.'
+        : isConfigured
+          ? null
+          : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
   };
 }
 

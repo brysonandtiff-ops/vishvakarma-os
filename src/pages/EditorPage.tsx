@@ -73,7 +73,12 @@ import {
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
-import { upsertLocalProject } from '@/editor/localProjects';
+import {
+  getActiveLocalProject,
+  getLocalWorkspaceProjects,
+  setActiveLocalProject,
+  upsertLocalProject,
+} from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -357,6 +362,11 @@ function EditorWorkspace() {
   );
 
   const loadProjects = useCallback(async () => {
+    if (!backendStatus.isConfigured) {
+      setProjects(getLocalWorkspaceProjects());
+      return;
+    }
+
     try {
       const data = await getProjects();
       setProjects(data);
@@ -639,7 +649,7 @@ function EditorWorkspace() {
         updated_at: new Date().toISOString(),
       };
       setCurrentProject(updatedProject);
-      upsertLocalProject(updatedProject);
+      setActiveLocalProject(updatedProject);
       clearLocalDraft();
       setSaveState('local-draft');
       setLastDraftSavedAt(null);
@@ -676,6 +686,9 @@ function EditorWorkspace() {
     setLoadingProject(true);
     toast.message('Loading project…', { description: project.name });
     clearLocalDraft();
+    if (isLocalProjectId(project.id)) {
+      setActiveLocalProject(project);
+    }
     setCurrentProject(project);
     setDemoProjectName(null);
     applyManifest(project.manifest);
@@ -686,6 +699,23 @@ function EditorWorkspace() {
     setLoadingProject(false);
     toast.success(`Loaded: ${project.name}`);
   }, [applyManifest]);
+
+  useEffect(() => {
+    const pendingDraft = readLocalDraft();
+    if (
+      backendStatus.isConfigured ||
+      currentProject ||
+      recoveryDraft ||
+      (pendingDraft && hasMeaningfulDraftContent(pendingDraft))
+    ) {
+      return;
+    }
+
+    const activeProject = getActiveLocalProject();
+    if (activeProject) {
+      handleLoadProject(activeProject);
+    }
+  }, [currentProject, handleLoadProject, recoveryDraft]);
 
   const handleProjectCreated = (project: Project) => {
     void loadProjects();
@@ -733,8 +763,14 @@ function EditorWorkspace() {
       loadManifest?: ProjectManifest;
       projectName?: string;
       manifestSource?: 'sample' | 'ai';
+      dashboardAction?: 'new' | 'import' | 'copilot';
     } | null;
-    if (state?.loadProject) {
+    if (state?.dashboardAction) {
+      if (state.dashboardAction === 'new') setNewProjectOpen(true);
+      if (state.dashboardAction === 'import') setImportDialogOpen(true);
+      if (state.dashboardAction === 'copilot') setAiDesignerOpen(true);
+      window.history.replaceState({}, document.title);
+    } else if (state?.loadProject) {
       handleLoadProject(state.loadProject);
       window.history.replaceState({}, document.title);
     } else if (state?.loadManifest) {

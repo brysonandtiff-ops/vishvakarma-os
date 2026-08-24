@@ -66,4 +66,20 @@ describe('backendConfig', () => {
     });
     expect(status.configurationError).toContain('disabled during unit tests');
   });
+
+  it('forces controlled local E2E builds onto browser-local storage', () => {
+    const status = getBackendStatus({
+      VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+      VITE_SUPABASE_URL: 'https://jyocvwipthswfcmvqgqe.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'sb_publishable_test',
+    });
+
+    expect(status).toMatchObject({
+      provider: 'supabase',
+      isConfigured: false,
+      mode: 'local-only',
+      missingKeys: [],
+    });
+    expect(status.configurationError).toContain('controlled local E2E build');
+  });
 });
