@@ -20,6 +20,8 @@ The tracked Stripe CLIXML file stores its credential value as Windows DPAPI-prot
 - After revocation, the matching session count is zero.
 - After revocation, the matching refresh-token count is zero.
 - Existing MFA enforcement policies were audited and confirmed to be `RESTRICTIVE`; no RLS bypass migration was required.
+- Supabase `ai_usage` has RLS enabled and no authenticated/anon table privileges; the advisor item is informational, not an exposure.
+- GraphQL advisor warnings on other tables are backed by RLS policies. No broad privilege revocation was applied because that could break intended authenticated application access.
 
 ## Remaining work
 
