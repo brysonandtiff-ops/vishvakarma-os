@@ -30,6 +30,12 @@ pnpm-debug.log*
 !.env.example
 !.env.*.example
 
+# Security-sensitive local state — never commit
+/.local/
+/.wrangler/
+*.clixml
+*storage-state*.json
+
 # OS / editor noise
 .DS_Store
 Thumbs.db
