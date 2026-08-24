@@ -1,9 +1,0 @@
-{
-  "GeneratedAt": "2026-08-05T19:03:38.3081191+08:00",
-  "Result": "BLOCKED",
-  "Detail": "At C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\vishvakarma-os-cloudflare-cutover\\RUN_VISH_ZERO_TOUCH_CUTOVER.ps1:76 char:17\r\n+     Write-Host \"$Status: $Name - $Detail\" -ForegroundColor $Color\r\n+                 ~~~~~~~~\r\nVariable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit the name.\r\n\r\nAt C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\vishvakarma-os-cloudflare-cutover\\RUN_VISH_ZERO_TOUCH_CUTOVER.ps1:572 char:75\r\n+ … f \"origin/$MigrationBranch\" -m \"Merge PR #$PullRequestNumber: Cloudfl …\r\n+                                             ~~~~~~~~~~~~~~~~~~~\r\nVariable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit the name.",
-  "Repository": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\vishvakarma-os-cloudflare-cutover",
-  "Branch": "agent/cloudflare-pages-workers-migration",
-  "Head": "8103ff0b646f61c10f439a2cc576d7da6845444d",
-  "GeneratedArchive": "C:\\Users\\bryso\\dev\\FUTURE PROJECTS\\vishvakarma-os-cloudflare-cutover\\.local\\cloudflare-proof\\one-click-generated-archive\\20260805-190328"
-}
