@@ -14,6 +14,13 @@ The tracked Stripe CLIXML file stores its credential value as Windows DPAPI-prot
 - Added deny rules for `.local/`, `.wrangler/`, `.vercel/`, CLIXML, storage-state files, build output, and known local test logs.
 - Hardened Cursor auto-ship exclusions so these paths cannot be automatically committed again.
 
+## Production verification
+
+- The exposed Supabase session ID was confirmed present before revocation.
+- After revocation, the matching session count is zero.
+- After revocation, the matching refresh-token count is zero.
+- Existing MFA enforcement policies were audited and confirmed to be `RESTRICTIVE`; no RLS bypass migration was required.
+
 ## Remaining work
 
 - Historical copies remain in Git history until a dedicated history rewrite is performed.
