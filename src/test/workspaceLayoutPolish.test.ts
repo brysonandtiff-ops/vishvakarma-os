@@ -73,9 +73,18 @@ describe('Workspace layout polish', () => {
     expect(appLayout).toContain('<main');
   });
 
-  it('aligns workspace sidebar breakpoint to tablet', () => {
+  it('keeps the workspace nav responsive and the brand lockup unclipped', () => {
     const appLayout = read('src/components/layouts/AppLayout.tsx');
-    expect(appLayout).toContain('tablet:block');
-    expect(appLayout).toContain('tablet:hidden');
+
+    // Inline route nav on wide viewports, drawer below — the top command bar
+    // replaced the old tablet-breakpoint sidebar.
+    expect(appLayout).toContain('hidden lg:flex');
+    expect(appLayout).toContain('lg:hidden');
+
+    // Regression: the brand block was `flex flex-col hidden sm:flex` with no
+    // shrink guard, so the wordmark was clipped at every width below ~2200px
+    // (-39px at 1440, -56px at iPad landscape). It must never be shrinkable.
+    expect(appLayout).toContain('hidden shrink-0 sm:flex sm:flex-col');
+    expect(appLayout).not.toContain('flex flex-col hidden sm:flex');
   });
 });

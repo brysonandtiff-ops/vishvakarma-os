@@ -40,7 +40,7 @@ describe('Vishvakarma.OS official logo brand surfaces', () => {
     expect(authHeader).toContain('OFFICIAL_LOGO_SRC');
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(authHeader).toContain('official user-supplied swan V logo');
-    expect(appLayout).toContain('official user-supplied logo');
+    expect(appLayout).toContain('src={OFFICIAL_LOGO_SRC}');
   });
 
   it('derives self-contained PWA icon SVGs from the official logo artwork', () => {

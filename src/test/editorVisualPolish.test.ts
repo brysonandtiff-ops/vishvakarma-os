@@ -101,7 +101,7 @@ describe('Blueprint editor visual polish', () => {
     expect(welcome).toContain('variant="gold"');
     expect(welcome).toContain('vish-editor-overlay-backdrop');
     expect(tutorial).toContain('data-testid="tutorial-overlay"');
-    expect(topBar).toContain('vish-editor-topbar-chrome');
+    expect(topBar).toContain('data-testid="editor-top-bar"');
     expect(topBar).toContain('TutorialHelpButton');
     expect(proofPanel).toContain('data-tutorial="project-proof"');
     expect(proofPanel).toContain('Project Proof');
@@ -116,7 +116,7 @@ describe('Blueprint editor visual polish', () => {
 
     expect(shell).toContain('vish-workspace-page');
     expect(header).toContain('vish-workspace-header');
-    expect(properties).toContain('vish-sidebar-panel');
+    expect(properties).toContain('VishInspector');
     expect(layoutTokens).toContain('--vish-touch-min:');
   });
 });
