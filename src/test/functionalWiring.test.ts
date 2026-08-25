@@ -138,7 +138,8 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(appLayout).toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).not.toContain('OFFICIAL_LOGO_SRC');
     expect(routeGuard).not.toContain('SessionBootScreen');
-    expect(html).not.toContain('boot-splash');
+    expect(html).toContain('id="boot-splash"');
+    expect(html).toContain('pointer-events:none');
     expect(authPage).toContain('handleRequestAccess');
     expect(authPage).toContain('Approved account required');
     expect(authPage).toContain('handleEmailLinkSignIn');

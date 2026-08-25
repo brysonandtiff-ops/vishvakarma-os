@@ -12,7 +12,7 @@ import { scrollFocusedFieldIntoView } from '@/utils/scrollFocusedFieldIntoView';
 import { ROOM_TYPES, roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
 import { formatDimensionBySystem, type UnitSystem } from '@/utils/measurements';
 import { playStudioSound } from '@/modules/studio-audio/audioEngine';
-import { VishInspector, VishInspectorHeader, VishInspectorContent, VishInspectorSection } from '@/components/common/vish-primitives';
+import { VishInspector, VishInspectorHeader, VishInspectorContent, VishInspectorSection, VishInspectorRow } from '@/components/common/vish-primitives';
 import type { ToolType, Wall, Opening, Label as TextLabel, Room, FixtureItem } from '@/types';
 interface PropertiesPanelProps {
   currentTool: ToolType;
@@ -42,7 +42,8 @@ function ToolDefaultsPanel({ currentTool }: { currentTool: ToolType }) {
   return (
     <div className="space-y-4 px-4 py-4">
       <VishInspectorHeader>
-        {config.sectionTitle}
+        <span>Properties</span>
+        <span className="ml-1 text-vish-text-500">· <span>{config.sectionTitle}</span></span>
       </VishInspectorHeader>
       <div className="space-y-4">
       {config.fields.map((field) => (
@@ -109,7 +110,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedFixture && onFixtureUpdate) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
         <VishInspectorHeader>Lighting Fixture</VishInspectorHeader>
         <VishInspectorSection className="flex-1 overflow-y-auto">
           <VishInspectorContent className="pt-4">
@@ -162,7 +163,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall && selectedLabel && onLabelUpdate) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
         <VishInspectorHeader>Label Properties</VishInspectorHeader>
         <VishInspectorSection className="flex-1 overflow-y-auto">
           <VishInspectorContent className="pt-4">
@@ -255,7 +256,7 @@ export default function PropertiesPanel({
 
   if (!selectedWall) {
     return (
-      <VishInspector>
+      <VishInspector className="vish-sidebar-panel">
         <VishInspectorSection className="flex-1 overflow-y-auto">
           {currentTool === 'room' && onPendingRoomTypeChange && (
             <div className="border-b border-vish-navy-600/50 px-4 py-3">
@@ -298,10 +299,11 @@ export default function PropertiesPanel({
   }
 
   return (
-    <VishInspector>
-      <VishInspectorHeader>Wall Properties · {selectedWall.id.slice(0, 8)}</VishInspectorHeader>
+    <VishInspector className="vish-sidebar-panel">
+      <VishInspectorHeader><span>Wall Properties</span><span className="ml-1 text-vish-text-500">· {selectedWall.id.slice(0, 8)}</span></VishInspectorHeader>
       <VishInspectorSection className="flex-1 overflow-y-auto">
         <VishInspectorContent className="pt-4">
+          <VishInspectorRow label="ID"><span className="font-mono text-[10px]" title={selectedWall.id}>{selectedWall.id.slice(0, 12)}...</span></VishInspectorRow>
           <p className="mb-2 text-[9px] font-bold uppercase tracking-widest text-vish-text-500">Dimensions</p>
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-vish-navy-700/50 pb-2">

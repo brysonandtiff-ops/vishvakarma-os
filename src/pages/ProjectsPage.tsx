@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles, FolderDown, Bot } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
+import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -217,10 +218,13 @@ export default function ProjectsPage() {
 
       {/* Hero Area */}
       <section className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome back, {accountName}</h1>
-          <p className="text-vish-text-300">What would you like to design today?</p>
-        </div>
+        <WorkspacePageHeader
+          title={`Welcome back, ${accountName}`}
+          description="What would you like to design today?"
+          eyebrow="Vishvakarma.OS Command Centre"
+          variant="fullBleed"
+          zone="document"
+        />
 
         {/* Primary Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -244,7 +248,37 @@ export default function ProjectsPage() {
           </Button>
         </div>
       </section>
-
+      {/* Verified local demo fixtures. Demo fixtures are generated in-browser from the versioned sample catalog. */}
+      <section aria-labelledby="demo-fixtures-heading">
+        <div className="flex items-end justify-between gap-4 mb-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-vish-gold-400">Reviewer walkthroughs</p>
+            <h2 id="demo-fixtures-heading" className="text-xl font-semibold text-white">Demo blueprints</h2>
+          </div>
+          <span className="text-xs text-vish-text-400">{demoSamples.length} verified fixtures</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
+            <VishCard key={sample.id} className="group overflow-hidden" data-testid={`projects-demo-${sample.id}`}>
+              <div className="p-5 flex flex-col gap-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-vish-blue-400">{eyebrow}</p>
+                  <h3 className="mt-1 text-base font-semibold text-white">{sample.name}</h3>
+                  <p className="mt-2 text-xs leading-5 text-vish-text-300">{sample.description}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-widest text-vish-text-400">
+                  <span>{stats.walls} walls</span>
+                  <span>{stats.openings} openings</span>
+                  {badges.map((badge) => <span key={badge} className="text-vish-gold-400">{badge}</span>)}
+                </div>
+                <Button type="button" className="w-full bg-vish-blue-600 hover:bg-vish-blue-500 text-white" onClick={() => openDemoSample(sample.id)}>
+                  Open in editor
+                </Button>
+              </div>
+            </VishCard>
+          ))}
+        </div>
+      </section>
       {/* System Overview */}
       <section>
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">

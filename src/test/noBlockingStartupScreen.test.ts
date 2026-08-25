@@ -8,15 +8,16 @@ function readRepoFile(...parts: string[]) {
   return readFileSync(path.join(repoRoot, ...parts), 'utf8');
 }
 
-describe('blocking startup screen removal', () => {
-  it('does not ship startup, impatience, or secure-session wait overlays', () => {
+describe('non-blocking startup experience', () => {
+  it('ships only a pointer-transparent splash that removes itself after load', () => {
     const html = readRepoFile('index.html');
     const main = readRepoFile('src', 'main.tsx');
     const routeGuard = readRepoFile('src', 'components', 'common', 'RouteGuard.tsx');
     const authLayout = readRepoFile('src', 'components', 'layouts', 'AuthLayout.tsx');
 
-    expect(html).not.toContain('boot-splash');
-    expect(html).not.toContain('apple-touch-startup-image');
+    expect(html).toContain('id="boot-splash"');
+    expect(html).toContain('pointer-events:none');
+    expect(html).toContain('rel="apple-touch-startup-image"');
     expect(html).not.toContain('Loading Vishvakarma.OS');
     expect(main).not.toContain('dismissBootSplash');
     expect(routeGuard).not.toContain('SessionBootScreen');

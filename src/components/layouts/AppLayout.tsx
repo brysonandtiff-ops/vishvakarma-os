@@ -1,4 +1,6 @@
-// Main application layout with top command bar — professional workstation style
+// Main application layout with top command bar — professional workstation style.
+// The Vishvakarma.OS shell owns navigation; WorkspacePageHeader remains the shared page-level header for routed workspace pages.
+// VISHVAKARMA.OS is the canonical product wordmark.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,7 +17,9 @@ import { PrototypeDisclaimerBadge } from '@/components/common/PrototypeDisclaime
 import { Badge } from '@/components/ui/badge';
 import { WORKSPACE_NAV, type RouteNavItem } from '@/config/RouteNavConfig';
 import { useBilling } from '@/hooks/useBilling';
-import { EditorSidebarProvider } from '@/components/editor/EditorSidebarContext';
+import { EditorSidebarProvider, useEditorSidebarConfig } from '@/components/editor/EditorSidebarContext';
+import EditorSidebarSections from '@/components/editor/EditorSidebarSections';
+import { FoundersAcknowledgment } from '@/components/brand/FoundersAcknowledgment';
 import '@/styles/vish-workspace-shell.css';
 import { VishToolbar } from '@/components/common/vish-primitives';
 
@@ -43,7 +47,7 @@ function accountInitials(label: string): string {
 function TopNavItem({ item, isActive, onClick }: { item: RouteNavItem; isActive: boolean; onClick?: () => void }) {
   const Icon = item.icon;
   return (
-    <Link to={item.path} onClick={onClick} aria-label={item.name} className="relative group flex items-center gap-2 h-full px-4 transition-colors">
+    <Link to={item.path} onClick={onClick} aria-label={item.name} className={`relative group flex items-center gap-2 h-full px-4 transition-colors ${isActive ? 'vish-shell-nav-active' : ''}`}>
       <div className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-vish-text-300 group-hover:text-vish-text-100'}`}>
         <Icon className={`w-3.5 h-3.5 ${isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`} />
         <span>{item.name}</span>
@@ -55,7 +59,7 @@ function TopNavItem({ item, isActive, onClick }: { item: RouteNavItem; isActive:
   );
 }
 
-function TopCommandBar({ onNavigate }: { onNavigate?: () => void }) {
+function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavigate?: () => void; mobileOpen: boolean; onMobileOpenChange: (open: boolean) => void }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, mode, signOut } = useAuth();
@@ -69,11 +73,12 @@ function TopCommandBar({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <VishToolbar className="h-14 w-full rounded-none border-x-0 border-t-0 px-4 shrink-0 flex items-center justify-between z-50 rounded-b-none">
+    <VishToolbar variant="workstation" className="vish-editor-topbar-chrome h-14 w-full rounded-none border-x-0 border-t-0 px-4 shrink-0 flex items-center justify-between z-50 rounded-b-none">
       <div className="flex items-center gap-6 h-full">
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div className="vish-shell-brand flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg overflow-hidden border border-vish-gold-500/30 shadow-[0_0_10px_rgba(201,138,46,0.2)]">
+            {/* official user-supplied logo */}
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col hidden sm:flex">
@@ -83,7 +88,7 @@ function TopCommandBar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
 
         {/* Primary Navigation */}
-        <div className="hidden lg:flex items-center h-full">
+        <div className="vish-workspace-sidebar hidden tablet:flex lg:flex items-center h-full">
           {WORKSPACE_NAV.map((item) => (
             <TopNavItem key={item.path} item={item} isActive={location.pathname === item.path} onClick={onNavigate} />
           ))}
@@ -127,9 +132,9 @@ function TopCommandBar({ onNavigate }: { onNavigate?: () => void }) {
         </TooltipProvider>
 
         {/* Mobile menu trigger */}
-        <Sheet>
+        <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden text-vish-text-100">
+            <Button variant="ghost" size="icon" className="tablet:hidden lg:hidden text-vish-text-100">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
@@ -149,10 +154,21 @@ function TopCommandBar({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+function WorkspaceSidebar({ onAfterAction }: { onAfterAction: () => void }) {
+  const config = useEditorSidebarConfig();
+  const showDesktopSidebar = Boolean(config);
+  if (!showDesktopSidebar || !config) return null;
+  return (
+    <aside className="vish-workspace-sidebar tablet:block hidden w-64 shrink-0 overflow-y-auto border-r border-ws-border bg-ws-toolbar px-3 py-3" aria-label="Editor actions">
+      <EditorSidebarSections config={config} onAfterAction={onAfterAction} />
+      <FoundersAcknowledgment variant="sidebar" className="mt-4" />
+    </aside>
+  );
+}
+
 export default function AppLayout({ children, immersive = false }: AppLayoutProps) {
   const [prefs, setPrefs] = useState(() => loadWorkspacePrefs());
-  const [mobileOpen, setMobileOpen] = useState(false);
-
+    const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     saveWorkspacePrefs(prefs);
   }, [prefs]);
@@ -167,10 +183,13 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
         <div className="vish-workspace-shell flex flex-col h-[100dvh] w-full bg-background overflow-hidden" data-density={prefs.density} data-immersive={immersive ? 'true' : undefined}>
           <WorkspaceCommandPalette />
           
-          <TopCommandBar onNavigate={() => setMobileOpen(false)} />
+          <TopCommandBar onNavigate={() => setMobileOpen(false)} mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen} />
 
           <main className="flex min-h-0 flex-1 flex-col overflow-hidden relative">
             <WorkspaceNotifications />
+            <div className="flex min-h-0 flex-1 overflow-hidden">
+              <WorkspaceSidebar onAfterAction={() => setMobileOpen(false)} />
+              <div className="min-h-0 flex-1 overflow-hidden">
             <div
               className={
                 immersive
@@ -179,6 +198,8 @@ export default function AppLayout({ children, immersive = false }: AppLayoutProp
               }
             >
               {children}
+            </div>
+              </div>
             </div>
           </main>
           <PrototypeDisclaimerBadge />
