@@ -61,3 +61,6 @@ dist/
 coverage/
 playwright-report/
 test-results/
+
+# Vercel is not used; local Vercel metadata must never be tracked
+.vercel/
