@@ -1,6 +1,7 @@
 import type { Session, User, UserIdentity } from '@supabase/supabase-js';
 import { backendStatus } from '@/backend/backendConfig';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
+import { CANONICAL_AUTH_URL } from '@/config/canonicalOrigin';
 
 const SUPABASE_PENDING_EMAIL_KEY = 'vishvakarma.os.supabase.pendingEmail.v1';
 const LEGACY_SUPABASE_SESSION_KEY = 'vishvakarma.os.supabase.session.v1';
@@ -239,7 +240,10 @@ export async function requestSupabasePasswordReset(_email: string, _redirectTo: 
   };
 }
 
-export async function requestSupabaseAccessLink(email: string, redirectTo: string) {
+export async function requestSupabaseAccessLink(
+  email: string,
+  redirectTo = CANONICAL_AUTH_URL,
+) {
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail || !normalizedEmail.includes('@')) {
     return { error: new Error('Enter a valid email address.') };
