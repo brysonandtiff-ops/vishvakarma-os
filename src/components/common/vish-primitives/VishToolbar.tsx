@@ -8,10 +8,11 @@ function cn(...inputs: ClassValue[]) {
 
 export interface VishToolbarProps extends React.HTMLAttributes<HTMLDivElement> {
     orientation?: 'horizontal' | 'vertical';
+    variant?: 'default' | 'workstation';
     children: React.ReactNode;
 }
 
-export function VishToolbar({ orientation = 'horizontal', children, className, ...props }: VishToolbarProps) {
+export function VishToolbar({ orientation = 'horizontal', variant = 'default', children, className, ...props }: VishToolbarProps) {
     return (
         <div
             className={cn(
@@ -19,6 +20,7 @@ export function VishToolbar({ orientation = 'horizontal', children, className, .
                 'bg-[rgba(6,18,33,0.8)] backdrop-blur-xl',
                 'border border-vish-navy-600/50 shadow-md',
                 orientation === 'vertical' ? 'flex-col' : 'flex-row',
+                variant === 'workstation' && 'vish-toolbar-workstation',
                 className
             )}
             {...props}

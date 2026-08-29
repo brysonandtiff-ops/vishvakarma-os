@@ -243,7 +243,7 @@ export default function EditorTopBar({
   const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
 
   return (
-    <header className="flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
+    <header className="vish-editor-topbar-chrome flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
       <div className="flex w-full items-center justify-between">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (

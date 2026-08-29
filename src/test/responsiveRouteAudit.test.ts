@@ -56,8 +56,9 @@ describe('cross-route responsive visual audit', () => {
 
     expect(guard).not.toContain('SessionBootScreen');
     expect(guard).not.toContain('vish-boot-');
-    expect(html).not.toContain('boot-splash');
-    expect(html).not.toContain('apple-touch-startup-image');
+    expect(html).toContain('id="boot-splash"');
+    expect(html).toContain('pointer-events:none');
+    expect(html).toContain('rel="apple-touch-startup-image"');
     expect(authLayout).not.toContain('variant="boot"');
   });
 

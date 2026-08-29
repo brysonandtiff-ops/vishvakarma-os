@@ -1,169 +1,67 @@
-# Vishvakarma.OS Final Production Closure Report
+# Vishvakarma.OS Current Certification Status
 
-Date: 2026-06-24
-Branch: docs/mark-production-auth-ready
-Final status: READY
+Date: 2026-08-24
+Status: **CERTIFICATION BLOCKED — remediation in progress**
 
-## Summary
+> This document supersedes the June 2026 `READY` closure statement. Historical completion reports remain useful as point-in-time records, but they are not evidence of the current repository state.
 
-This report closes the final-production-readiness workflow by recording the current verified state of Vishvakarma.OS after the recent QA, CI, warning-cleanup, auth artwork, and Supabase backend configuration passes.
+## Proven current facts
 
-The codebase has received the following recent hardening work:
+- Production Supabase project `jyocvwipthswfcmvqgqe` is active and healthy.
+- The publicly committed Playwright storage state contained a real Supabase authenticated session.
+- The exact exposed Supabase session and its associated refresh tokens were revoked and rechecked: zero matching sessions and zero matching refresh tokens remain.
+- Current `main` no longer tracks `.local/`, `.vercel/`, `.wrangler/`, `dist/`, the exposed credential exports, or the identified terminal/test output dumps.
+- `.gitignore` and Cursor auto-ship exclusions were hardened to block local credential/tool-state paths.
+- Repository secret guarding was tightened so retired tracked env paths cannot silently return.
+- Supabase MFA enforcement policies were inspected directly and are `RESTRICTIVE`; no RLS-bypass migration was required.
+- Daily Dependabot updates are enabled for pnpm/npm, including a focused React Router/PostCSS security-update group.
 
-- QA panel smoke coverage was added.
-- QA panel smoke coverage was wired into CI.
-- Vite public asset import warnings were cleaned.
-- The Tailwind ambiguous duration warning was cleaned.
-- The auth deity artwork was replaced with the new clean-shaven `public/deity-hero.png` artwork.
-- Supabase backend configuration fallback was added so public auth does not drop into local-only mode when Vercel public env vars are missing or placeholders.
+## Current blockers
 
-Production auth is now considered ready for the documented launch path because the latest browser smoke recording showed the auth screen without configuration warnings, Google SSO reaching the account chooser, and the app landing inside the editor/workspace after sign-in.
+### P0 — historical credential containment
+Tracked by #153.
 
-## What was checked
+- Change the affected account password because the captured auth state reported it as weak/known compromised.
+- Rotate the Stripe live secret if the DPAPI-protected local export corresponds to an active live key.
+- Create a mirror/offline backup before Git history surgery.
+- Run a full-history secret scan.
+- Rewrite Git history to purge historical `.local/`, `.vercel/`, `.wrangler/`, `dist/`, CLIXML/storage-state, and known local log artifacts.
+- Post-rewrite scan must pass before rewritten refs are force-pushed.
+- Re-clone working copies after the rewrite.
 
-### Auth screen
+### P0 — authoritative CI unavailable
+Tracked by #155.
 
-Checked scope:
+The Production Certification workflow currently creates its Linux jobs but the observed runs fail before executing checkout/setup step output, including after one retry. Until a fresh run actually starts and completes, GitHub Actions cannot be used as proof that the current application test suite is green or red.
 
-- `/auth` route.
-- New clean-shaven deity artwork at `public/deity-hero.png`.
-- Existing auth layout and styling path through `src/components/auth/AuthLoginHero.tsx`.
-- Official swan/V logo preservation.
-- Desktop visual fit from the provided screenshot.
-- Supabase public client configuration after the backend fallback fix.
-- Google SSO click-through path from the auth screen.
+Required final CI evidence:
 
-Result:
+- Supabase Auth platform hardening job completes.
+- Cross-browser Chromium/Firefox/WebKit E2E completes.
+- Accessibility and editor-performance audits complete.
+- Strict release/evidence gates complete.
+- The exact tested SHA is preserved.
 
-- The auth screen is using the new clean-shaven deity image.
-- The auth layout was not intentionally redesigned.
-- The sign-in form remains visible and reachable.
-- The official logo path remains separate from the deity artwork.
-- The previous `Service configuration required` banner is gone.
-- The previous `Backend not configured` warning is gone.
-- Google SSO reaches the account chooser.
-- After sign-in, the app reaches the editor/workspace and shows the onboarding prompt.
+### Dependency remediation
 
-### Editor and QA proof surface
+Known vulnerable runtime/build dependencies identified in the 2026-08-24 inspection include React Router 7.17.0 and PostCSS 8.5.15. Dependabot is now configured to generate package-manager-authored updates so `pnpm-lock.yaml` is regenerated correctly rather than manually edited.
 
-Checked scope:
+### Functional completion proof
 
-- QA evidence/device validation proof coverage.
-- Device validation QA smoke workflow.
-- Editor user reachability goals from recent QA smoke coverage.
-- Post-auth editor/workspace landing from the browser smoke recording.
+The previously reported full-suite result of `17 failed | 1021 passed` cannot be replaced with a green claim until the entire current suite is rerun successfully. Final certification additionally requires real-user proof for:
 
-Result:
+- 2D create/edit workflow
+- 3D scene manipulation
+- save → reload persistence
+- authenticated session lifecycle
+- tenant/RLS isolation
+- production URL behavior
+- responsive/iPad and accessibility behavior
 
-- QA panel smoke coverage exists.
-- The CI workflow includes a focused `qa-panel-smoke` job.
-- The QA smoke job builds the app and runs `pnpm exec playwright test --config=playwright.qa.config.ts`.
-- Authenticated navigation now reaches the editor/workspace instead of stopping at a backend configuration warning.
+## Certification rule
 
-### Device coverage
+Vishvakarma.OS must not be described as `READY`, `100% passing`, `production certified`, or `PHIRO certified` until all P0 issues are closed and the exact final SHA passes the complete authoritative gates.
 
-Covered by focused smoke intent:
+## Historical note
 
-- Desktop.
-- iPad 10 landscape.
-- iPad 10 portrait.
-- Mobile portrait.
-
-The QA suite is reachability-focused rather than full visual-regression coverage. It checks that important UI remains reachable and that the QA panel path can run.
-
-### CI workflow
-
-Checked file:
-
-- `.github/workflows/e2e.yml`
-
-Result:
-
-- Workflow name: `E2E Proofs`.
-- Runs on `workflow_dispatch`, `push` to `main`, and pull requests targeting `main`.
-- Contains `auth-gate`.
-- Contains `qa-panel-smoke`.
-- `qa-panel-smoke` installs Chromium, builds the app, and runs the focused QA Playwright config.
-
-### Supabase production project
-
-Checked scope:
-
-- Project `Vishvakarma.OS`.
-- Project ref `jyocvwipthswfcmvqgqe`.
-- Project URL `https://jyocvwipthswfcmvqgqe.supabase.co`.
-- Publishable browser key availability.
-- Public table presence.
-- RLS enabled state.
-- Auth logs.
-
-Result:
-
-- Supabase project is active and healthy.
-- Public database tables exist.
-- RLS is enabled on public tables.
-- Public browser Supabase config is now resolvable even if Vercel build-time public env vars are missing or placeholders.
-
-## Validation commands
-
-Commands requested for this closure pass:
-
-```bash
-pnpm run build
-npm run lint
-pnpm exec playwright test --config=playwright.qa.config.ts
-pnpm run release:gates
-```
-
-Antigravity transcript evidence indicated these task phases were run or awaited:
-
-- Build task finished.
-- Playwright QA tests finished.
-- Release gates task finished.
-- Unit test/release-gate waits were monitored through scheduler checks.
-
-Additional browser smoke evidence after the Supabase fallback fix:
-
-- `/auth` loaded without the service/backend configuration warning.
-- Google SSO opened the account chooser.
-- The signed-in app reached the editor/workspace.
-
-## Known blockers
-
-No current blocker remains for the documented auth/backend closure path.
-
-Recommended non-blocking follow-ups:
-
-- Keep explicit `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` configured in Vercel for best production hygiene even though the public fallback now prevents local-only mode.
-- Continue Supabase security hardening separately, including MFA options, leaked-password protection, and advisor warnings.
-- Keep QA smoke and release-gate evidence updated after future feature changes.
-
-## What was fixed in the recent closure sequence
-
-- Added QA panel smoke coverage.
-- Wired QA smoke into CI.
-- Replaced auth deity artwork with the new clean-shaven image.
-- Cleaned noisy Vite public asset imports.
-- Cleaned the ambiguous Tailwind duration warning.
-- Fixed Supabase backend configuration fallback.
-- Verified browser auth smoke through Google SSO into the editor/workspace.
-
-## What remains unchanged by this report
-
-- No app feature redesign.
-- No auth layout redesign.
-- No service-role secret hardcoding.
-- No official swan/V logo replacement.
-- No product direction change.
-
-## Final status
-
-`READY`
-
-Meaning:
-
-- The repo has a stronger QA/CI closure layer than before.
-- The auth deity artwork replacement is complete.
-- The Supabase backend configuration warning is resolved.
-- Browser auth smoke reaches Google SSO and lands inside the app.
-- The documented code/auth/backend closure path is ready.
+The previous June 2026 report documented a valid point-in-time auth/backend closure effort, but its statement that no blockers remained is superseded by the 2026-08-24 security and repository inspection.

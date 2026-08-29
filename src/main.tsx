@@ -33,6 +33,7 @@ window.addEventListener('vite:preloadError', (event) => {
   }
 });
 import "./styles/vish-layout-tokens.css";
+import "./ipad-workspace.css";
 import "./vish-theme.css";
 import "./styles/vish-sacred-tokens.css";
 import "./styles/vish-realism.css";

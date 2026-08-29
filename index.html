@@ -40,12 +40,24 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/vishvakarma-apple-touch-icon.png" />
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px)" href="/splash/apple-splash-1125-2436.png" />
     <!-- Fonts are self-hosted via @fontsource packages in src/main.tsx. -->
   
 </head>
   <body>
-
+    <div id="boot-splash" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#17120c;color:#f6e7c1;transition:opacity .2s ease;pointer-events:none">
+      <span style="font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase">Vishvakarma.OS</span>
+    </div>
     <div id="root"></div>
+    <script>
+      window.addEventListener('load', () => {
+        const splash = document.getElementById('boot-splash');
+        if (splash) {
+          splash.style.opacity = '0';
+          window.setTimeout(() => splash.remove(), 220);
+        }
+      }, { once: true });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

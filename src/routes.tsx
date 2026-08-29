@@ -6,6 +6,7 @@ const LiteEditorPage = lazy(() => import('./pages/LiteEditorPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const WorkInProgressPage = lazy(() => import('./pages/WorkInProgressPage'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
@@ -38,7 +39,7 @@ function lazyRoute(element: ReactNode) {
 }
 
 const ROUTE_ELEMENTS: Record<string, ReactNode> = {
-  '/': lazyRoute(<LandingPage />),
+  '/': lazyRoute(<WorkInProgressPage />),
   '/features': lazyRoute(<FeaturesPage />),
   '/pricing': lazyRoute(<PricingPage />),
   '/auth': lazyRoute(<AuthPage />),

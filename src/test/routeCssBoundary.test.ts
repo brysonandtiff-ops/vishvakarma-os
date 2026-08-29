@@ -11,7 +11,6 @@ const routeSpecificImports = [
   'vish-auth-gate.css',
   'vish-workspace-shell.css',
   'vish-editor-chrome.css',
-  'ipad-workspace.css',
   'vish-editor-3d-polish.css',
 ];
 

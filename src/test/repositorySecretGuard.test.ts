@@ -21,7 +21,8 @@ describe('repository secret guard', () => {
   it('restricts tracked env files to explicit fixtures and templates', () => {
     expect(guard).toContain("'.env.e2e'");
     expect(guard).toContain("'.env.e2e-local'");
-    expect(guard).toContain("'config/e2e-env/.env'");
+    expect(guard).not.toContain("'.env.vercel.production'");
+    expect(guard).not.toContain("'config/e2e-env/.env'");
     expect(guard).toContain("new Set(['.env.example'])");
     expect(guard).toContain('/^\\.env\\..+\\.example$/');
   });
