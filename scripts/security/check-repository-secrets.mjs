@@ -9,7 +9,6 @@ const SELF_PATH = 'scripts/security/check-repository-secrets.mjs';
 const ALLOWED_TRACKED_ENV_PATHS = new Set([
   '.env.e2e',
   '.env.e2e-local',
-  'config/e2e-env/.env',
 ]);
 const SENSITIVE_ENV_KEYS = new Set([
   'SUPABASE_SERVICE_ROLE_KEY',
