@@ -4,7 +4,7 @@
 **Last verified:** 2026-06-15  
 **Audience:** developer  
 
-Vishvakarma.OS uses a **Supabase-backed persistence facade** on the client and **Vercel serverless functions** for billing and AI. UI and editor code should call `src/db/api.ts` for persistence — not Supabase clients directly.
+Vishvakarma.OS uses a **Supabase-backed persistence facade** on the client and **Cloudflare Pages Functions** for billing and AI. UI and editor code should call `src/db/api.ts` for persistence — not Supabase clients directly.
 
 Live route inventory: [handoff/appendices/A-routes-and-api.md](../handoff/appendices/A-routes-and-api.md)
 

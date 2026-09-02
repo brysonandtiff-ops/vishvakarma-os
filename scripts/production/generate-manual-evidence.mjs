@@ -6,7 +6,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '../lib/canonical-origin.mjs';
+import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from '../lib/canonical-origin.mjs';
 
 function run(command) {
   return execSync(command, { encoding: 'utf-8' }).trim();
@@ -26,7 +26,7 @@ async function main() {
 
 Generated from commit: \`${sha}\`
 Deployment URL: ${CANONICAL_ORIGIN}
-Vercel fallback URL: ${VERCEL_FALLBACK_ORIGIN}
+Cloudflare Pages URL: ${CLOUDFLARE_PAGES_ORIGIN}
 Generated at: ${generatedAt}
 Operator: automated local verify
 Result: PASS — sample project counts verified from source JSON
@@ -105,7 +105,7 @@ Result: PARTIAL — auth page renders at iPad portrait/landscape in Playwright
 Generated from commit: \`${sha}\`
 Generated at: ${generatedAt}
 Operator: automated local verify
-Result: PASS — vercel.json contains required production headers
+Result: PASS — public/_headers contains required Cloudflare Pages headers
 
 ## Required Headers Present
 
@@ -121,7 +121,7 @@ Result: PASS — vercel.json contains required production headers
 Run against production URL after deploy:
 
 \`\`\`bash
-node scripts/quality/check-vercel-security.mjs
+node scripts/quality/check-cloudflare-security.mjs
 \`\`\`
 `;
 
@@ -129,7 +129,7 @@ node scripts/quality/check-vercel-security.mjs
 
 Generated from commit: \`${sha}\`
 Deployment URL: ${CANONICAL_ORIGIN}
-Vercel fallback URL: ${VERCEL_FALLBACK_ORIGIN}
+Cloudflare Pages URL: ${CLOUDFLARE_PAGES_ORIGIN}
 Generated at: ${generatedAt}
 Operator: automated local verify
 Result: \`PARTIAL\`

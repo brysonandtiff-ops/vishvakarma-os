@@ -61,7 +61,24 @@ describe('Governance visual polish', () => {
     const shell = read('src/components/layouts/WorkspacePageShell.tsx');
     const appRoutes = read('src/AppRoutes.tsx');
 
-    expect(projects).toContain('WorkspacePageHeader');
+    // Every governance/workspace page shares the header primitive. ProjectsPage
+    // is the deliberate exception: it is the home dashboard ("Home Dashboard"
+    // PageMeta) with its own hero, not a governance list page.
+    for (const page of [
+      'AuditLogPage',
+      'ChangeRequestsPage',
+      'OptimizationPage',
+      'ProfilePage',
+      'RegistryPage',
+      'ReleasesPage',
+      'SpecCenterPage',
+      'WorldRecordsPage',
+    ]) {
+      const source = read(`src/pages/${page}.tsx`);
+      expect(source, `${page} must use WorkspacePageHeader`).toContain('WorkspacePageHeader');
+      expect(source, `${page} must not nest its own AppLayout`).not.toContain('<AppLayout');
+    }
+    expect(projects).toContain('Home Dashboard');
     expect(projects).not.toContain('<AppLayout');
     expect(profile).toContain('WorkspacePageHeader');
     expect(profile).not.toContain('<AppLayout');

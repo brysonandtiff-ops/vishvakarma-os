@@ -109,13 +109,16 @@ describe('Sanskrit auth gate design', () => {
 
     expect(appLayout).toContain("@/styles/vish-workspace-shell.css");
     expect(appLayout).toContain('vish-workspace-shell');
-    expect(appLayout).toContain('vish-workspace-sidebar');
-    expect(appLayout).toContain('vish-shell-brand');
-    expect(appLayout).toContain('vish-shell-nav-active');
+    // The signed-in shell is the top command bar: official brand lockup, the
+    // workspace route set, and a controlled navigation drawer. The former
+    // persistent sidebar (vish-shell-brand / vish-shell-nav-active /
+    // variant="workstation") was retired with the vish-primitives refactor.
+    expect(appLayout).toContain('src={OFFICIAL_LOGO_SRC}');
+    expect(appLayout).toContain('Vishvakarma.OS');
+    expect(appLayout).toContain('WORKSPACE_NAV');
+    expect(appLayout).toContain('data-testid="workspace-nav-drawer"');
+    // Founder attribution must stay on signed-in surfaces, not just auth/marketing.
     expect(appLayout).toContain('FoundersAcknowledgment');
-    expect(appLayout).toContain('variant="workstation"');
-    expect(styles).toContain('.vish-workspace-sidebar');
-    expect(styles).toContain('.vish-shell-nav-active');
-    expect(styles).toContain('.vish-shell-account');
+    expect(styles).toContain('.vish-workspace-shell');
   });
 });

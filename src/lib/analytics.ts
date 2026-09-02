@@ -1,10 +1,11 @@
 const CONSENT_KEY = 'vishvakarma-analytics-consent';
 export const ANALYTICS_CONSENT_EVENT = 'vish:analytics-consent-change';
+export const ANALYTICS_EVENT = 'vish:analytics-event';
 
 /**
  * Product-activation funnel milestones. Keep this list small and meaningful so the
- * funnel stays legible in the Vercel Analytics dashboard. Add a member here before
- * emitting a new event so call sites stay type-checked.
+ * funnel stays legible for any consent-aware analytics collector. Add a member
+ * here before emitting a new event so call sites stay type-checked.
  */
 export type AnalyticsEvent = 'sign_in_succeeded' | 'project_created' | 'project_exported';
 
@@ -40,8 +41,9 @@ export function setAnalyticsConsent(granted: boolean) {
 }
 
 /**
- * Records a funnel event. No-op without analytics consent. The analytics module is
- * imported only after consent so it cannot inject telemetry code before opt-in.
+ * Publishes a provider-neutral browser event after consent. Cloudflare Web
+ * Analytics is configured at the Pages project level, so application code must
+ * not depend on a hosting-provider SDK.
  */
 export function trackEvent(
   name: AnalyticsEvent | (string & {}),
@@ -50,12 +52,9 @@ export function trackEvent(
   if (!hasAnalyticsConsent()) return;
   if (import.meta.env.DEV) {
     console.info('[analytics]', name, properties);
-    return;
   }
 
-  void import('@vercel/analytics')
-    .then(({ track }) => track(name, properties))
-    .catch(() => {
-      // Analytics is best-effort and must never break the product.
-    });
+  window.dispatchEvent(
+    new CustomEvent(ANALYTICS_EVENT, { detail: { name, properties } }),
+  );
 }

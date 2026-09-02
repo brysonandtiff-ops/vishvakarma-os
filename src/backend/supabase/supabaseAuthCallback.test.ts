@@ -203,20 +203,20 @@ describe('getAuthPageUrl', () => {
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
-    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.vercel.app');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.pages.dev');
 
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
 
-  it('keeps OAuth callback on the Vercel fallback origin the user opened', () => {
+  it('keeps OAuth callback on the Cloudflare Pages preview origin the user opened', () => {
     vi.stubGlobal('window', {
-      location: { origin: 'https://vishvakarma-os.vercel.app' },
+      location: { origin: 'https://97e560db.vishvakarma-os.pages.dev' },
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
     vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.app');
 
-    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.vercel.app/auth');
+    expect(getAuthPageUrl()).toBe('https://97e560db.vishvakarma-os.pages.dev/auth');
   });
 });
 

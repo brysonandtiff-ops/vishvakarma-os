@@ -70,4 +70,4 @@ End every completed build task with:
 - What shipped (1–2 sentences)
 - Checks run and their result
 - Commit SHA and push confirmation (required — or explicit blocker reason if ship failed)
-- Manual follow-up only when truly unavoidable (e.g. Vercel env vars, Stripe dashboard)
+- Manual follow-up only when truly unavoidable (e.g. Cloudflare Pages secrets, Stripe dashboard)

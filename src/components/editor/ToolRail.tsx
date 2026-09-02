@@ -50,7 +50,7 @@ function ToolButton({
   return (
     <button
       type="button"
-      className={`touch-target touch-manipulation flex flex-col items-center justify-center gap-1 min-h-[52px] min-w-[52px] rounded-[10px] transition-all duration-200 ${isActive ? 'active ' : ''}${
+      className={`architect-tool-button${isActive ? ' active' : ''} touch-target touch-manipulation flex flex-col items-center justify-center gap-1 min-h-[52px] min-w-[52px] rounded-[10px] transition-all duration-200 ${
         isActive
           ? 'bg-vish-blue-500 text-white shadow-[0_0_15px_rgba(42,167,255,0.4)] relative before:absolute before:inset-0 before:rounded-[10px] before:border before:border-vish-gold-500/50 before:pointer-events-none'
           : 'text-vish-text-400 hover:text-white hover:bg-vish-navy-700/50'
@@ -80,9 +80,13 @@ export default memo(function ToolRail({ currentTool, workspaceMode = 'draft', on
     [currentTool, onToolChange],
   );
 
+  // `vish-tool-rail` is the styling contract consumed by ipad-workspace.css,
+  // vish-editor-chrome.css (--vish-tool-rail-width), vish-ios-performance-
+  // hardening.css and vish-ipad-desktop-polish.css. Width is intentionally left
+  // to --vish-tool-rail-width rather than a hardcoded utility.
   return (
     <div
-      className="vish-tool-rail flex flex-col items-center gap-2 p-2 rounded-[12px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-lg h-full overflow-y-auto shrink-0 z-10 mx-1.5 my-1.5 w-[68px]"
+      className="vish-tool-rail flex flex-col items-center gap-2 p-2 rounded-[12px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-lg h-full overflow-y-auto shrink-0 z-10 mx-1.5 my-1.5"
       data-testid="tool-rail"
       data-tutorial="tool-rail"
     >

@@ -168,7 +168,12 @@ describe('AppLayout editor sidebar integration', () => {
   });
 
   it('shows project actions on editor route when config is registered', async () => {
+    const user = userEvent.setup();
     renderAppLayoutAt('/editor', makeConfig());
+
+    // The top command bar shell surfaces the registered editor actions inside
+    // the workspace navigation drawer rather than a persistent sidebar.
+    await user.click(screen.getByRole('button', { name: 'Open workspace navigation' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('editor-sidebar-project-actions')).toBeInTheDocument();
@@ -209,7 +214,8 @@ describe('AppLayout editor sidebar integration', () => {
       </MemoryRouter>,
     );
 
-    await user.click(screen.getByTestId('editor-sidebar-ai-copilot'));
+    await user.click(screen.getByRole('button', { name: 'Open workspace navigation' }));
+    await user.click(await screen.findByTestId('editor-sidebar-ai-copilot'));
     await waitFor(() => {
       expect(screen.getByTestId('ai-dialog-open')).toBeInTheDocument();
     });
@@ -226,7 +232,10 @@ describe('Editor sidebar wiring', () => {
     expect(editor).toContain('useRegisterEditorSidebar');
     expect(editor).toContain('onOpenEditorMenu={openNav}');
     expect(appLayout).toContain('EditorSidebarSections');
-    expect(appLayout).toContain('showDesktopSidebar');
+    // The shell must actually consume the registered config and host it in the
+    // controlled navigation drawer — otherwise the registration is a no-op.
+    expect(appLayout).toContain('useEditorSidebarConfig');
+    expect(appLayout).toContain('<Sheet open={navOpen} onOpenChange={onNavOpenChange}>');
   });
 
   it('updates editor hamburger label to open workspace navigation', () => {

@@ -733,7 +733,17 @@ function EditorWorkspace() {
       loadManifest?: ProjectManifest;
       projectName?: string;
       manifestSource?: 'sample' | 'ai';
+      openIntent?: 'openProject' | 'import' | 'aiDesigner';
     } | null;
+    if (state?.openIntent) {
+      // Dashboard shortcuts (/projects) hand the editor an intent to open the
+      // matching dialog once it has mounted.
+      if (state.openIntent === 'openProject') setLoadDialogOpen(true);
+      else if (state.openIntent === 'import') setImportDialogOpen(true);
+      else if (state.openIntent === 'aiDesigner') setAiDesignerOpen(true);
+      window.history.replaceState({}, document.title);
+      return;
+    }
     if (state?.loadProject) {
       handleLoadProject(state.loadProject);
       window.history.replaceState({}, document.title);

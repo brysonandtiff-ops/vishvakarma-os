@@ -48,14 +48,14 @@ Runners: [`scripts/run-e2e-gates.mjs`](../../scripts/run-e2e-gates.mjs), [`scrip
 
 ## CI pipeline
 
-[`.github/workflows/verify.yml`](../../.github/workflows/verify.yml):
+[`.github/workflows/production-certification.yml`](../../.github/workflows/production-certification.yml):
 
-1. **verify** — lint, Vercel security, auth gates, Supabase schema/login, launch evidence, contract gates, anchors, unit tests, route smoke, build
+1. **verify** — lint, Cloudflare Pages security, auth gates, Supabase schema/login, launch evidence, contract gates, anchors, unit tests, route smoke, build
 2. **e2e-production-auth** — production Google OAuth (Chromium/Firefox/WebKit)
 3. **e2e** — Playwright matrix
 4. **release-gates** — full `pnpm run release:gates`
 
-Also: [`.github/workflows/e2e.yml`](../../.github/workflows/e2e.yml)
+Cross-browser E2E runs inside the same allow-listed production certification workflow.
 
 PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEMPLATE.md)
 
@@ -63,7 +63,7 @@ PR template: [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEM
 
 [`scripts/verify-all.js`](../../scripts/verify-all.js) — `pnpm run release:gates`
 
-Includes: SPEC.md, REGISTRY.md, routes, sample JSON, vercel security, `.env.example`, unit tests, E2E gates, evidence files, world-record JSON.
+Includes: SPEC.md, REGISTRY.md, routes, sample JSON, Cloudflare Pages security, `.env.example`, unit tests, E2E gates, evidence files, and world-record JSON.
 
 Exit code `2` = manual evidence outstanding (not a broken build).
 

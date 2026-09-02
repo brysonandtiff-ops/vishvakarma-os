@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Creates LIVE mode Vishvakarma products/prices/webhook using Stripe CLI auth.
- * Usage: node scripts/setup-stripe-live-cli.mjs [--write-env] [--push-vercel]
+ * Usage: node scripts/setup-stripe-live-cli.mjs [--write-env]
  */
 
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
@@ -14,7 +14,6 @@ const ENV_PATH = join(process.cwd(), '.env.stripe.local');
 const APP_URL = (process.env.APP_URL ?? CANONICAL_ORIGIN).replace(/\/$/, '');
 const WEBHOOK_URL = `${APP_URL}/api/stripe/webhook`;
 const writeEnv = process.argv.includes('--write-env') || true;
-const pushVercel = process.argv.includes('--push-vercel');
 
 const WEBHOOK_EVENTS = [
   'checkout.session.completed',
@@ -222,14 +221,7 @@ async function main() {
   upsertEnv(envUpdates);
   console.log(`[OK] Updated ${ENV_PATH}`);
 
-  if (pushVercel) {
-    const push = spawnSync(process.execPath, ['scripts/push-stripe-env-vercel.mjs'], {
-      cwd: process.cwd(),
-      encoding: 'utf8',
-      stdio: 'inherit',
-    });
-    if (push.status !== 0) process.exit(push.status ?? 1);
-  }
+  console.log('[NEXT] Configure the generated server secrets in Cloudflare Pages, then redeploy the release commit.');
 }
 
 main().catch((error) => {

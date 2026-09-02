@@ -2,7 +2,7 @@
 
 **Status date:** 2026-06-13  
 **Canonical production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 **Purpose:** Current-state addendum for README, software inventory, valuation, and technical due-diligence reviews.
 
 ---
@@ -41,7 +41,7 @@ Use `https://vishvakarma-os.app` for:
 - Stripe checkout success/cancel return URLs
 - launch evidence and auth proof after retesting
 
-Use `https://vishvakarma-os.vercel.app` only as a Vercel fallback/debug alias or preview-compatible redirect origin.
+Use `https://vishvakarma-os.pages.dev` only as a Cloudflare Pages fallback/debug alias or preview-compatible redirect origin.
 
 ---
 
@@ -65,7 +65,7 @@ Supabase setup / cutover helpers:
 ```bash
 pnpm run setup:supabase-auth
 pnpm run setup:supabase-auth:full
-pnpm run push:supabase-env-vercel
+pnpm run setup:supabase-auth
 node scripts/migration/export-supabase.mjs
 pnpm run migration:import-supabase -- --in=migration/your-legacy-export.json
 ```
@@ -86,7 +86,7 @@ pnpm run verify:stripe-billing
 Use this wording for current production status:
 
 ```text
-Current v1.5.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support. The canonical production origin is https://vishvakarma-os.app; the Vercel subdomain is a fallback/debug alias.
+Current v1.5.x production architecture is consolidated around Supabase for auth, Postgres persistence, storage, billing entitlement state, and collaboration metadata. Firebase migration utilities remain in the repository as historical portability and data-migration support. The canonical production origin is https://vishvakarma-os.app; the Cloudflare Pages subdomain is a fallback/debug alias.
 ```
 
 Avoid this wording for current production status:
@@ -96,7 +96,7 @@ runtime-selectable dual backend
 current Firebase production backend
 Firebase-only production
 Firebase/Supabase dual cloud is the live architecture
-vishvakarma-os.vercel.app is the canonical production origin
+vishvakarma-os.pages.dev is the canonical production origin
 ```
 
 It is still fair to mention the historical engineering effort:
@@ -117,7 +117,7 @@ Positive signals:
 - Simpler operator environment matrix.
 - Supabase Auth, Postgres, Storage, and RLS become the primary production control plane.
 - Firebase migration scripts remain as portability evidence.
-- Stripe, Vercel, React, Three.js, Gemini, and Yjs remain unchanged as external integration surfaces.
+- Stripe, Cloudflare Pages, React, Three.js, Gemini, and Yjs remain unchanged as external integration surfaces.
 
 Caution for valuation documents:
 
@@ -151,7 +151,7 @@ After backend/auth changes, manually verify:
 | Billing | `api/stripe/`, `api/_lib/billingSupabase.ts`, `scripts/verify-stripe-billing.mjs` |
 | Migration | `scripts/migration/export-supabase.mjs`, `scripts/migration/import-supabase.mjs`, `scripts/migration/validate-migration.mjs` |
 | Production hardening | `scripts/quality/check-production-hardening.mjs` |
-| Vercel | `vercel.json`, `docs/release/VERCEL_ENV.md` |
+| Cloudflare Pages | `wrangler.jsonc`, `public/_headers`, `docs/release/CLOUDFLARE_ENV.md` |
 
 ---
 

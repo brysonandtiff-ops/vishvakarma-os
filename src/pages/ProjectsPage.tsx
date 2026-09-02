@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles, FolderDown, Bot } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
-import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -218,13 +217,10 @@ export default function ProjectsPage() {
 
       {/* Hero Area */}
       <section className="flex flex-col gap-6">
-        <WorkspacePageHeader
-          title={`Welcome back, ${accountName}`}
-          description="What would you like to design today?"
-          eyebrow="Vishvakarma.OS Command Centre"
-          variant="fullBleed"
-          zone="document"
-        />
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome back, {accountName}</h1>
+          <p className="text-vish-text-300">What would you like to design today?</p>
+        </div>
 
         {/* Primary Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -234,51 +230,78 @@ export default function ProjectsPage() {
               <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
             </Link>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button
+            variant="outline"
+            data-testid="dashboard-open-project"
+            onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })}
+            className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors"
+          >
              <FolderOpen className="w-5 h-5 text-vish-blue-400" />
              <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button
+            variant="outline"
+            data-testid="dashboard-import-files"
+            onClick={() => navigate('/editor', { state: { openIntent: 'import' } })}
+            className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors"
+          >
              <FolderDown className="w-5 h-5 text-vish-blue-400" />
              <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
           </Button>
-          <Button className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
+          <Button
+            data-testid="dashboard-ai-copilot"
+            onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })}
+            className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]"
+          >
              <Bot className="w-5 h-5" />
              <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
           </Button>
         </div>
       </section>
-      {/* Verified local demo fixtures. Demo fixtures are generated in-browser from the versioned sample catalog. */}
-      <section aria-labelledby="demo-fixtures-heading">
-        <div className="flex items-end justify-between gap-4 mb-4">
+
+      {/* Demo samples — reviewer walkthrough fixtures, opened straight in the editor */}
+      {demoSamples.length > 0 && (
+        <section className="flex flex-col gap-4">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-vish-gold-400">Reviewer walkthroughs</p>
-            <h2 id="demo-fixtures-heading" className="text-xl font-semibold text-white">Demo blueprints</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-white">Start from a sample</h2>
+            <p className="text-sm text-vish-text-300">
+              Demo fixtures are generated in-browser — open one to explore the editor instantly.
+            </p>
           </div>
-          <span className="text-xs text-vish-text-400">{demoSamples.length} verified fixtures</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
-            <VishCard key={sample.id} className="group overflow-hidden" data-testid={`projects-demo-${sample.id}`}>
-              <div className="p-5 flex flex-col gap-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-vish-blue-400">{eyebrow}</p>
-                  <h3 className="mt-1 text-base font-semibold text-white">{sample.name}</h3>
-                  <p className="mt-2 text-xs leading-5 text-vish-text-300">{sample.description}</p>
-                </div>
-                <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-widest text-vish-text-400">
-                  <span>{stats.walls} walls</span>
-                  <span>{stats.openings} openings</span>
-                  {badges.map((badge) => <span key={badge} className="text-vish-gold-400">{badge}</span>)}
-                </div>
-                <Button type="button" className="w-full bg-vish-blue-600 hover:bg-vish-blue-500 text-white" onClick={() => openDemoSample(sample.id)}>
-                  Open in editor
-                </Button>
-              </div>
-            </VishCard>
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
+              <button
+                key={sample.id}
+                type="button"
+                data-testid={`projects-demo-${sample.id}`}
+                onClick={() => openDemoSample(sample.id)}
+                className="flex flex-col items-start gap-2 rounded-lg border border-vish-navy-600 bg-vish-navy-800 p-4 text-left transition-colors hover:border-vish-blue-500 hover:bg-vish-navy-700"
+              >
+                <span className="text-[10px] font-bold uppercase tracking-widest text-vish-blue-400">
+                  {eyebrow}
+                </span>
+                <span className="font-semibold text-white">{sample.name}</span>
+                <span className="text-xs text-vish-text-300">
+                  {stats.walls} walls · {stats.openings} openings
+                </span>
+                {badges.length > 0 && (
+                  <span className="flex flex-wrap gap-1 pt-1">
+                    {badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className="rounded border border-vish-navy-600 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-vish-text-400"
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* System Overview */}
       <section>
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">

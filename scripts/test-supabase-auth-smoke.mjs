@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
   CANONICAL_ORIGIN,
-  VERCEL_FALLBACK_ORIGIN,
+  CLOUDFLARE_PAGES_ORIGIN,
 } from './lib/canonical-origin.mjs';
 
 const configOnly = process.argv.includes('--config-only');
@@ -56,11 +56,11 @@ function buildManifest({
     testedAt: new Date().toISOString(),
     commitSha: getCommitSha(),
     deploymentUrl: DEPLOYMENT_URL,
-    fallbackDeploymentUrl: VERCEL_FALLBACK_ORIGIN,
+    pagesDeploymentUrl: CLOUDFLARE_PAGES_ORIGIN,
     provider: 'supabase',
     domainStatus: {
       canonicalOrigin: CANONICAL_ORIGIN,
-      vercelFallbackOrigin: VERCEL_FALLBACK_ORIGIN,
+      cloudflarePagesOrigin: CLOUDFLARE_PAGES_ORIGIN,
       customDomainAuthRetest,
       ...(domainNote ? { note: domainNote } : {}),
     },

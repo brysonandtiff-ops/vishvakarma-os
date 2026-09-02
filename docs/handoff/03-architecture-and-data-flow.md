@@ -17,7 +17,7 @@ flowchart TB
     DBApi --> Gateways
   end
 
-  subgraph vercel [Vercel]
+  subgraph cloudflare [Cloudflare Pages]
     Static[dist/ static SPA]
     API[api/ serverless]
   end
@@ -116,7 +116,7 @@ Locked specs: [`docs/specs/`](../specs/)
 
 ## Optional collaboration server
 
-Separate Node process — not part of default Vercel deploy:
+Separate Node process — not part of default Cloudflare Pages deploy:
 
 - [`server/collab/presenceServer.ts`](../../server/collab/presenceServer.ts)
 - `pnpm run collab:server:dev`

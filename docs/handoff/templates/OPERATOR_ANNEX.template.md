@@ -13,7 +13,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Product | Vishvakarma.OS |
 | Version | 1.5.0 |
 | Production URL | https://vishvakarma-os.app |
-| Vercel fallback URL | https://vishvakarma-os.vercel.app |
+| Cloudflare Pages fallback URL | https://vishvakarma-os.pages.dev |
 | Completed by | |
 | Date | |
 | Recipient | |
@@ -32,7 +32,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | 2FA status | |
 | Billing account | |
 
-### Vercel
+### Cloudflare Pages
 
 | Field | Value |
 |-------|-------|
@@ -51,8 +51,8 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Project ref | jyocvwipthswfcmvqgqe |
 | Region | |
 | Admin contact email | |
-| Service role key location | Vercel env: `SUPABASE_SERVICE_ROLE_KEY` |
-| Anon key location | Vercel env: `VITE_SUPABASE_ANON_KEY` |
+| Service role key location | Cloudflare Pages env: `SUPABASE_SERVICE_ROLE_KEY` |
+| Anon key location | Cloudflare Pages env: `VITE_SUPABASE_ANON_KEY` |
 
 ### Stripe
 
@@ -62,9 +62,9 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Mode | Test / Live |
 | Admin contact email | |
 | Webhook endpoint | https://vishvakarma-os.app/api/stripe/webhook |
-| Webhook secret location | Vercel env: `STRIPE_WEBHOOK_SECRET` |
-| Studio price ID location | Vercel env: `STRIPE_PRICE_STUDIO_MONTHLY` |
-| Enterprise price ID location | Vercel env: `STRIPE_PRICE_ENTERPRISE_MONTHLY` |
+| Webhook secret location | Cloudflare Pages env: `STRIPE_WEBHOOK_SECRET` |
+| Studio price ID location | Cloudflare Pages env: `STRIPE_PRICE_STUDIO_MONTHLY` |
+| Enterprise price ID location | Cloudflare Pages env: `STRIPE_PRICE_ENTERPRISE_MONTHLY` |
 
 ### Google Cloud (OAuth + Gemini)
 
@@ -72,7 +72,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 |-------|-------|
 | GCP project ID | |
 | OAuth client ID location | Supabase Auth dashboard / `SUPABASE_AUTH_GOOGLE_CLIENT_ID` |
-| Gemini API key location | Vercel env: `GEMINI_API_KEY` |
+| Gemini API key location | Cloudflare Pages env: `GEMINI_API_KEY` |
 | Admin contact email | |
 
 ### Domain / DNS (if applicable)
@@ -82,7 +82,7 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 | Registrar | |
 | DNS provider | |
 | Custom domain | |
-| SSL provider | Vercel (default) |
+| SSL provider | Cloudflare Pages (default) |
 
 ### Firebase (legacy — if still accessible)
 
@@ -106,9 +106,9 @@ Copy this file to `docs/handoff/OPERATOR_ANNEX.md` (gitignored), complete all fi
 
 ## Key rotation procedure (post-transfer)
 
-1. Rotate `SUPABASE_SERVICE_ROLE_KEY` in Supabase dashboard → update Vercel
-2. Rotate Stripe webhook secret → update Stripe dashboard + Vercel
-3. Rotate `GEMINI_API_KEY` in Google Cloud → update Vercel
+1. Rotate `SUPABASE_SERVICE_ROLE_KEY` in Supabase dashboard → update Cloudflare Pages
+2. Rotate Stripe webhook secret → update Stripe dashboard + Cloudflare Pages
+3. Rotate `GEMINI_API_KEY` in Google Cloud → update Cloudflare Pages
 4. Review Google OAuth authorized redirect URIs in Supabase Auth
 5. Update co-owner allowlist in `src/config/coOwners.ts` if needed → deploy
 6. Run verification:

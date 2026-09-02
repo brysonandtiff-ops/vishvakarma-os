@@ -1,43 +1,39 @@
 # Deployment Guide
 
-## Vercel (production)
+## Cloudflare Pages production
 
-1. Connect GitHub repo to Vercel (`brysonandtiff-ops/vishvakarma-os`).
-2. Set Supabase and Stripe env vars per [VERCEL_ENV.md](VERCEL_ENV.md).
-3. Set canonical production origin env values:
-   - `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-   - `APP_URL=https://vishvakarma-os.app`
-4. Build command: `pnpm run build` (configured in `vercel.json`).
-5. Output directory: `dist/`.
-6. Apply Supabase migrations: `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push`.
+1. Keep the GitHub repository connected to the Cloudflare Pages project `vishvakarma-os`.
+2. Configure Supabase, Stripe, and optional AI variables per [CLOUDFLARE_ENV.md](CLOUDFLARE_ENV.md).
+3. Keep `VITE_AUTH_REDIRECT_ORIGIN` and `APP_URL` set to `https://vishvakarma-os.app`.
+4. Use `pnpm install --frozen-lockfile` and `pnpm run build`; publish `dist/`.
+5. Keep `wrangler.jsonc`, `public/_headers`, and `public/_routes.json` as the deployment contract.
+6. Apply Supabase migrations before promotion.
 
-The Vercel subdomain `https://vishvakarma-os.vercel.app` is a fallback/debug alias only. Use `https://vishvakarma-os.app` for launch, auth, Stripe return URLs, and valuation/operator docs.
+Cloudflare Pages builds pull requests as previews and `main` as production. The canonical custom domain remains `https://vishvakarma-os.app`.
 
 ## Required production environment
 
-**Client (VITE_*):**
+Client variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_ORIGIN`, and enabled feature flags.
 
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-- `VITE_PRICING_PAGE_ENABLED` (optional: `VITE_STRIPE_BILLING_ENABLED`)
+Server-only variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, Stripe secrets and price IDs, `APP_URL`, and optional `GEMINI_API_KEY`.
 
-**Server-only:**
+Never expose server-only values with a `VITE_` prefix. Remove deprecated Firebase variables.
 
-- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STUDIO_MONTHLY`, `STRIPE_PRICE_ENTERPRISE_MONTHLY`
-- `APP_URL=https://vishvakarma-os.app`, optional `GEMINI_API_KEY`
-
-Remove deprecated Firebase vars: `VITE_FIREBASE_*`, `VITE_BACKEND_PROVIDER`, `BACKEND_PROVIDER`.
-
-## Deploy script
+## Certification
 
 ```bash
-pnpm run deploy:vercel
+pnpm run verify:ci
+pnpm run certify:cloudflare -- https://<preview>.vishvakarma-os.pages.dev
 ```
 
-Runs `verify:ci` and requires a clean git tree before `npx vercel --prod`.
+After merge, rerun live verification against both the production Pages URL and custom domain:
 
-See also [docs/handoff/08-operations-and-deployment.md](../handoff/08-operations-and-deployment.md).
+```bash
+node scripts/deployment/verify-cloudflare-live.mjs https://vishvakarma-os.pages.dev
+node scripts/deployment/verify-cloudflare-live.mjs https://vishvakarma-os.app
+```
+
+The certified SHA must match the Cloudflare deployment commit.
 
 ## Post-deploy verification
 
@@ -49,21 +45,4 @@ PLAYWRIGHT_BASE_URL=https://vishvakarma-os.app pnpm run test:e2e:auth
 pnpm run release:gates
 ```
 
-Manual checks:
-
-1. `https://vishvakarma-os.app` loads the app.
-2. `/auth` starts Google OAuth through Supabase.
-3. Supabase Auth logs show `.app` as the referer after OAuth.
-4. Stripe checkout success/cancel URLs return to `.app`.
-5. `public/auth-capabilities.json` is regenerated after the live auth check.
-
-## Monitoring
-
-- Set `VITE_SENTRY_DSN` for error reporting scaffold (see `src/lib/monitoring.ts`)
-- Analytics opt-in via `src/lib/analytics.ts`
-
-## Support
-
-- User FAQ: `docs/user/FAQ.md`
-- Security: `SECURITY.md`
-- Valuation handoff: `docs/handoff/HANDOFF.md`
+Manually confirm OAuth, 2D/3D editing, persistence, Stripe return URLs, and Cloudflare security headers.

@@ -2,7 +2,7 @@
 
 # Appendix E — Verification and Quality Gates
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
 ## npm verify / gates scripts
 
@@ -10,7 +10,7 @@ Generated: 2026-06-26T11:12:49.851Z
 |--------|--------|
 | `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
 | `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
-| `hardening:gates` | `node scripts/quality/check-production-hardening.mjs` |
+| `hardening:gates` | `node scripts/quality/check-production-hardening.mjs && node scripts/security/check-api-endpoints.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
 | `project-roles:gates` | `node scripts/quality/check-project-roles.mjs` |
 | `auth:gates` | `node scripts/quality/check-auth-config-guard.mjs` |
@@ -33,13 +33,14 @@ Generated: 2026-06-26T11:12:49.851Z
 | `production:manual-evidence` | `node scripts/production/generate-manual-evidence.mjs` |
 | `production:functional-proof` | `node scripts/production/generate-functional-proof.mjs` |
 | `production:functional-proof:quick` | `node scripts/production/generate-functional-proof.mjs --skip-e2e` |
-| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs` |
+| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs && node scripts/performance/check-pwa-precache.mjs` |
 | `stability:gates` | `node scripts/stability/check-monitoring.mjs && node scripts/quality/check-editor-export-canonical.mjs && node scripts/verify-supabase-schema.mjs` |
 
 ## `scripts/quality/*`
 
 - `scripts/quality/check-auth-config-guard.mjs`
 - `scripts/quality/check-build-gate.mjs`
+- `scripts/quality/check-cloudflare-security.mjs`
 - `scripts/quality/check-device-hardening.mjs`
 - `scripts/quality/check-editor-export-canonical.mjs`
 - `scripts/quality/check-flawless-use-gates.mjs`
@@ -48,8 +49,8 @@ Generated: 2026-06-26T11:12:49.851Z
 - `scripts/quality/check-production-hardening.mjs`
 - `scripts/quality/check-project-roles.mjs`
 - `scripts/quality/check-pwa-install-assets.mjs`
+- `scripts/quality/check-qemaster-worktree.mjs`
 - `scripts/quality/check-system-contract.mjs`
-- `scripts/quality/check-vercel-security.mjs`
 
 ## Release gates
 

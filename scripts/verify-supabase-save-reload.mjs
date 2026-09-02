@@ -367,7 +367,7 @@ function writeEvidenceFiles(mode, pass) {
 
 Generated from commit: \`${sha}\`
 Deployment URL: ${deploymentUrl}
-Vercel fallback URL: https://vishvakarma-os.vercel.app
+Cloudflare Pages URL: https://vishvakarma-os.pages.dev
 Generated at: ${generatedAt}
 Operator: ${operator}
 Result: \`PASS\`

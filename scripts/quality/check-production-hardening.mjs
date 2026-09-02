@@ -30,17 +30,19 @@ const checkoutApi = readRequiredFile(join(root, 'api/stripe/create-checkout-sess
 const portalApi = readRequiredFile(join(root, 'api/stripe/create-portal-session.ts'), 'api/stripe/create-portal-session.ts');
 const webhookApi = readRequiredFile(join(root, 'api/stripe/webhook.ts'), 'api/stripe/webhook.ts');
 const collabMigration = readRequiredFile(join(root, 'supabase/migrations/20260213000005_collab_and_storage.sql'), 'supabase/migrations/20260213000005_collab_and_storage.sql');
-const securityMigration = readRequiredFile(join(root, 'supabase/migrations/20260711194500_production_security_hardening.sql'), 'supabase/migrations/20260711194500_production_security_hardening.sql');
+const internalSecurityMigration = readRequiredFile(join(root, 'supabase/migrations/20260711194914_harden_internal_functions_storage_and_indexes.sql'), 'supabase/migrations/20260711194914_harden_internal_functions_storage_and_indexes.sql');
+const auditActorMigration = readRequiredFile(join(root, 'supabase/migrations/20260711195543_bind_audit_log_inserts_to_authenticated_actor.sql'), 'supabase/migrations/20260711195543_bind_audit_log_inserts_to_authenticated_actor.sql');
+const privateAdminMigration = readRequiredFile(join(root, 'supabase/migrations/20260711195753_move_admin_check_out_of_exposed_schema.sql'), 'supabase/migrations/20260711195753_move_admin_check_out_of_exposed_schema.sql');
 const collabServer = readRequiredFile(join(root, 'server/collab/presenceServer.ts'), 'server/collab/presenceServer.ts');
 const packageText = readRequiredFile(join(root, 'package.json'), 'package.json');
 const app = readRequiredFile(join(root, 'src/App.tsx'), 'src/App.tsx');
 const main = readRequiredFile(join(root, 'src/main.tsx'), 'src/main.tsx');
 const analytics = readRequiredFile(join(root, 'src/lib/analytics.ts'), 'src/lib/analytics.ts');
-const consentAnalytics = readRequiredFile(join(root, 'src/components/common/ConsentAnalytics.tsx'), 'src/components/common/ConsentAnalytics.tsx');
 const monitoring = readRequiredFile(join(root, 'src/lib/monitoring.ts'), 'src/lib/monitoring.ts');
 const viteConfig = readRequiredFile(join(root, 'vite.config.ts'), 'vite.config.ts');
-const vercelConfig = readRequiredFile(join(root, 'vercel.json'), 'vercel.json');
-const vercelBuild = readRequiredFile(join(root, 'scripts/vercel-build.mjs'), 'scripts/vercel-build.mjs');
+const cloudflareConfig = readRequiredFile(join(root, 'wrangler.jsonc'), 'wrangler.jsonc');
+const cloudflareHeaders = readRequiredFile(join(root, 'public/_headers'), 'public/_headers');
+const cloudflareCertifier = readRequiredFile(join(root, 'scripts/deployment/certify-cloudflare-release.mjs'), 'scripts/deployment/certify-cloudflare-release.mjs');
 const artifactSecurity = readRequiredFile(join(root, 'scripts/security/check-dist-security.mjs'), 'scripts/security/check-dist-security.mjs');
 
 requirePhrase(projectGateway, 'collaborators: [userId]', 'Supabase project gateway');
@@ -52,10 +54,10 @@ requirePhrase(collabMigration, 'collaborators uuid[]', 'Supabase collab migratio
 requirePhrase(collabMigration, 'projects_select_member', 'Supabase collab migration');
 requirePhrase(collabMigration, "bucket_id = 'materials'", 'Supabase storage migration');
 
-requirePhrase(securityMigration, 'add column if not exists actor_id uuid', 'Security migration');
-requirePhrase(securityMigration, 'actor_id = (select auth.uid())', 'Security migration');
-requirePhrase(securityMigration, 'revoke all privileges on table public.ai_usage', 'Security migration');
-requirePhrase(securityMigration, 'alter function public.is_admin() set schema app_private', 'Security migration');
+requirePhrase(auditActorMigration, 'add column if not exists actor_id uuid', 'Audit actor security migration');
+requirePhrase(auditActorMigration, 'actor_id = (select auth.uid())', 'Audit actor security migration');
+requirePhrase(internalSecurityMigration, 'revoke all privileges on table public.ai_usage', 'Internal security migration');
+requirePhrase(privateAdminMigration, 'alter function public.is_admin() set schema app_private', 'Private admin migration');
 
 requirePhrase(collabServer, 'function normalizeOrigin', 'Collaboration presence server');
 requirePhrase(collabServer, 'ALLOWED_ORIGINS.includes(normalized)', 'Collaboration presence server');
@@ -94,8 +96,8 @@ requirePhrase(apiTokenVerifier, 'MAX_BEARER_TOKEN_LENGTH', 'Supabase API token v
 
 requirePhrase(appOrigin, 'resolveTrustedAppOrigin', 'Trusted app origin policy');
 requirePhrase(appOrigin, 'UntrustedAppOriginError', 'Trusted app origin policy');
-requirePhrase(appOrigin, 'VERCEL_TEAM_SUFFIX', 'Trusted app origin policy');
-requirePhrase(appOrigin, "env.VERCEL !== '1'", 'Trusted app origin policy');
+requirePhrase(appOrigin, 'CLOUDFLARE_PAGES_HOST', 'Trusted app origin policy');
+requirePhrase(appOrigin, "env.CF_PAGES !== '1'", 'Trusted app origin policy');
 
 for (const [content, label] of [[checkoutApi, 'Stripe checkout API'], [portalApi, 'Stripe portal API']]) {
   requirePhrase(content, 'resolveTrustedAppOrigin', label);
@@ -112,16 +114,12 @@ forbidPhrase(webhookApi, 'error instanceof Error ? error.message', 'Stripe webho
 
 requirePhrase(app, 'QA_TOOLS_ENABLED', 'App QA boundary');
 requirePhrase(app, "lazy(() => import('@/components/qa/QaTools'))", 'App QA boundary');
-requirePhrase(app, '<ConsentAnalytics />', 'App analytics boundary');
-forbidPhrase(app, "import { Analytics } from '@vercel/analytics/react'", 'App analytics boundary');
 forbidPhrase(main, 'DeviceValidationPanel', 'Production entrypoint');
 forbidPhrase(main, 'vish-device-validation.css', 'Production entrypoint');
 
 requirePhrase(analytics, 'ANALYTICS_CONSENT_EVENT', 'Analytics consent policy');
-requirePhrase(analytics, "import('@vercel/analytics')", 'Analytics consent policy');
-forbidPhrase(analytics, "import { track } from '@vercel/analytics'", 'Analytics consent policy');
-requirePhrase(consentAnalytics, 'hasAnalyticsConsent', 'Consent analytics component');
-requirePhrase(consentAnalytics, "import('@vercel/analytics/react')", 'Consent analytics component');
+requirePhrase(analytics, 'ANALYTICS_EVENT', 'Analytics consent policy');
+requirePhrase(analytics, 'hasAnalyticsConsent()', 'Analytics consent policy');
 requirePhrase(monitoring, "import('@sentry/react')", 'Monitoring privacy policy');
 requirePhrase(monitoring, 'sendDefaultPii: false', 'Monitoring privacy policy');
 requirePhrase(monitoring, 'redactMonitoringUrl', 'Monitoring privacy policy');
@@ -130,26 +128,28 @@ forbidPhrase(monitoring, "import * as Sentry from '@sentry/react'", 'Monitoring 
 
 requirePhrase(viteConfig, 'filterEntryModulePreloads', 'Vite build configuration');
 requirePhrase(viteConfig, 'VISH_BUILD_SOURCEMAPS', 'Vite build configuration');
-requirePhrase(viteConfig, "process.env.VERCEL !== '1'", 'Vite build configuration');
+requirePhrase(viteConfig, "process.env.CF_PAGES !== '1'", 'Vite build configuration');
 requirePhrase(viteConfig, "sourcemap: buildSourceMaps ? 'hidden' : false", 'Vite build configuration');
 
-requirePhrase(vercelConfig, 'private, no-store, max-age=0', 'Vercel headers');
-requirePhrase(vercelConfig, 'public, max-age=0, must-revalidate', 'Vercel headers');
-requirePhrase(vercelConfig, 'X-Permitted-Cross-Domain-Policies', 'Vercel headers');
+requirePhrase(cloudflareConfig, '"pages_build_output_dir": "./dist"', 'Cloudflare Pages configuration');
+requirePhrase(cloudflareConfig, '"nodejs_compat"', 'Cloudflare Pages configuration');
+requirePhrase(cloudflareHeaders, 'no-store, max-age=0, must-revalidate', 'Cloudflare Pages headers');
+requirePhrase(cloudflareHeaders, 'public, max-age=0, must-revalidate', 'Cloudflare Pages headers');
+requirePhrase(cloudflareHeaders, 'X-Permitted-Cross-Domain-Policies', 'Cloudflare Pages headers');
 
-requirePhrase(vercelBuild, "process.env.VERCEL === '1'", 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'scripts/security/check-dist-security.mjs', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/stripe/webhook.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/analyticsConsent.test.tsx', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/monitoringPrivacy.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'pnpm run perf:gates', 'Vercel build orchestrator');
+requirePhrase(cloudflareCertifier, 'scripts/deployment/verify-cloudflare-config.mjs', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'scripts/quality/check-cloudflare-security.mjs', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'scripts/security/check-dist-security.mjs', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'api/_lib/verifySupabaseToken.test.ts', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'api/stripe/webhook.test.ts', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'src/test/analyticsConsent.test.tsx', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'src/test/monitoringPrivacy.test.ts', 'Cloudflare release certifier');
+requirePhrase(cloudflareCertifier, 'pnpm', 'Cloudflare release certifier');
 
 requirePhrase(artifactSecurity, 'service_role', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'productionQaMarkers', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'source maps are present', 'Artifact security scanner');
-requirePhrase(artifactSecurity, "process.env.VERCEL === '1'", 'Artifact security scanner');
+requirePhrase(artifactSecurity, "process.env.CF_PAGES === '1'", 'Artifact security scanner');
 
 if (existsSync(join(root, 'firestore.rules'))) failures.push('firestore.rules still exists — Firebase config should be removed.');
 

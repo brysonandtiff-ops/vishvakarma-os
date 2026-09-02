@@ -97,7 +97,11 @@ function collectEnvVars() {
       .split('\n')
       .filter((f) => f && /\.(ts|tsx|mjs|js|sh)$/.test(f));
     for (const file of files) {
-      const content = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const absolute = path.join(ROOT, file);
+      // A generator can run before a deletion is staged; ignore paths that are
+      // still in the index but no longer exist in the working tree.
+      if (!fs.existsSync(absolute)) continue;
+      const content = fs.readFileSync(absolute, 'utf8');
       let m;
       while ((m = reVite.exec(content)) !== null) vite.add(m[1]);
       while ((m = reProc.exec(content)) !== null) proc.add(m[1]);
@@ -159,7 +163,7 @@ function globTests() {
   const out = { unit: [], e2e: [], anchors: [] };
   const unitFiles = execSync('git ls-files "src/**/*.test.*" "src/**/*.spec.*"', { cwd: ROOT, encoding: 'utf8' })
     .split('\n')
-    .filter(Boolean);
+    .filter((file) => file && fs.existsSync(path.join(ROOT, file)));
   out.unit = unitFiles.sort();
   if (fs.existsSync(path.join(ROOT, 'e2e'))) {
     out.e2e = fs.readdirSync(path.join(ROOT, 'e2e')).filter((f) => f.endsWith('.spec.ts')).sort();
