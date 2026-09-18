@@ -22,29 +22,43 @@ async function prepareEditor(page: Page) {
 
 async function openSimulationPanels(page: Page) {
   const panel = page.getByTestId('akasha-cast-panel');
-  if (await panel.isVisible({ timeout: 1_000 }).catch(() => false)) return true;
+  if (await panel.isVisible().catch(() => false)) return true;
 
   const trigger = page.getByRole('button', { name: /Simulation & proof panels/i }).first();
-  if (!(await trigger.isVisible({ timeout: 2_000 }).catch(() => false))) return false;
+  const triggerReady = await trigger.waitFor({ state: 'visible', timeout: 10_000 }).then(() => true).catch(() => false);
+  if (!triggerReady) return false;
 
   await clickBounded(trigger);
-  return panel.isVisible({ timeout: 5_000 }).catch(() => false);
+  let opened = await panel.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
+
+  if (!opened) {
+    await trigger.focus();
+    await trigger.press('Enter').catch(() => {});
+    opened = await panel.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
+  }
+
+  if (!opened) {
+    await trigger.evaluate((element) => (element as HTMLElement).click());
+    opened = await panel.waitFor({ state: 'visible', timeout: 10_000 }).then(() => true).catch(() => false);
+  }
+
+  return opened;
 }
 
 test.describe('Akasha Cast', () => {
-  test('shows the Studio panel or the correct Starter-tier state', async ({ page }) => {
+  test('shows the Akasha panel and the correct current-tier state', async ({ page }) => {
     await prepareEditor(page);
     const panelAvailable = await openSimulationPanels(page);
     const panel = page.getByTestId('akasha-cast-panel');
 
-    if (panelAvailable) {
-      await expect(panel).toBeVisible();
-      await expect(panel).toContainText(/Akasha Cast/i);
-      return;
-    }
+    expect(panelAvailable, 'Simulation & proof panels should expose Akasha Cast').toBe(true);
+    await expect(panel).toBeVisible();
+    await expect(panel).toContainText(/Akasha Cast/i);
 
-    await expect(panel).toHaveCount(0);
-    await expect(page.getByText('starter', { exact: true }).first()).toBeVisible();
+    const startButton = page.getByTestId('akasha-cast-start');
+    if (!(await startButton.isVisible().catch(() => false))) {
+      await expect(panel).toContainText(/Studio plan required/i);
+    }
   });
 
   test('local cast start exposes viewer link and viewer page shell', async ({ browser }) => {

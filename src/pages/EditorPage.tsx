@@ -90,6 +90,7 @@ import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosphericMask';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
+const AkashaCastPanel = lazy(() => import('@/components/editor/panels/AkashaCastPanel'));
 
 export default function EditorPage() {
   return <EditorWorkspace />;
@@ -989,6 +990,17 @@ function EditorWorkspace() {
         <VayuJalaPanel manifest={geometryManifest} />
         <AgniThermalPanel manifest={geometryManifest} />
         <PanchatattvaPanel manifest={geometryManifest} />
+        <AkashaCastPanel
+          projectId={currentProject?.id}
+          userId={user?.id}
+          userName={user?.email?.split('@')[0] ?? 'Architect'}
+          manifest={geometryManifest}
+          onCastStart={() => engine.setPresentationLock(true)}
+          onCastStop={() => engine.setPresentationLock(false)}
+          onManifestChange={(nextManifest, isRemote) => {
+            if (isRemote) engine.applyRemoteManifest(nextManifest);
+          }}
+        />
       </div>
       <ProjectProofPanel
         projectName={projectName}

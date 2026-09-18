@@ -225,6 +225,7 @@
     "@types/node": "^24.2.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/three": "0.182.0",
     "@types/video-react": "^0.15.8",
     "@typescript/native-preview": "7.0.0-dev.20251103.1",
     "@vitejs/plugin-react": "^5.1.2",

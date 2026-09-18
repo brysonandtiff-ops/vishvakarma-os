@@ -10,7 +10,7 @@ import {
 
 async function settleProjects(page: Page) {
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('projects-loading-skeleton')).toBeHidden({ timeout: 30_000 });
 }
 

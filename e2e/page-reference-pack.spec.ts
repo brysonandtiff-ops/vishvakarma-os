@@ -275,12 +275,12 @@ test.describe('page reference pack', () => {
     // ── Workspace ──────────────────────────────────────────────────────────
     await clearAppStorage(page);
     await page.goto('/projects');
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
     await shot(page, 'workspace', '20-projects-empty.png');
 
     await prepareEditorWithSample(page);
     await page.goto('/projects');
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 15_000 });
     const populatedStats = page.getByText(/walls\s*[·•]\s*.*openings/i).first();
     if (!(await populatedStats.isVisible({ timeout: 5_000 }).catch(() => false))) {
       await expect(page.getByTestId('projects-empty-demo-samples')).toBeVisible({ timeout: 15_000 });

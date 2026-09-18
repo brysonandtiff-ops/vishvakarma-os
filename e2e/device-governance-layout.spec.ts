@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 const GOVERNANCE_ROUTES = [
-  { path: '/projects', heading: /your projects/i },
+  { path: '/projects', heading: /welcome back/i },
   { path: '/change-requests', heading: 'Change Requests' },
   { path: '/optimization', heading: 'Design Battle' },
   { path: '/profile', heading: 'Profile' },
@@ -73,7 +73,7 @@ test.describe('Device governance layout', () => {
     await page.setViewportSize(androidTabletLandscape);
     await emulateCoarsePointer(page);
     await page.goto('/projects');
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 30_000 });
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
   });

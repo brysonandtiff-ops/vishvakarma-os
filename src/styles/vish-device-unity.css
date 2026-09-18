@@ -390,3 +390,25 @@ iframe {
     scroll-behavior: auto !important;
   }
 }
+
+/* PHIRO responsive authority: preserve real touch geometry after the global min-width reset. */
+.bg-ws-canvas .vish-editor-topbar-chrome button,
+.vish-workspace-shell .vish-editor-topbar-chrome button,
+.bg-ws-canvas .touch-target,
+.vish-workspace-shell .touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 760px) {
+  .bg-ws-canvas .vish-editor-topbar-chrome > .flex.w-full,
+  .vish-workspace-shell .vish-editor-topbar-chrome > .flex.w-full,
+  .bg-ws-canvas .vish-editor-topbar-center,
+  .vish-workspace-shell .vish-editor-topbar-center {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+}

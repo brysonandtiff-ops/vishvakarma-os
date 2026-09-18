@@ -132,11 +132,35 @@ export async function openProjectActionsMenu(page: Page) {
   await dismissTutorialIfPresent(page).catch(() => {});
   const button = await findProjectActionsButton(page);
   await pressMenuButton(button);
-  const firstMenuItem = page.getByRole('menuitem').first();
-  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_500 }).then(() => true).catch(() => false))) {
-    await button.click({ force: true, timeout: 5_000 }).catch(async () => pressMenuButton(button));
-    await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
+
+  const menu = page.getByRole('menu').last();
+  const opened = await menu
+    .waitFor({ state: 'visible', timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!opened) {
+    await page.keyboard.press('Escape').catch(() => {});
+    await button.focus();
+    await button.press('Enter').catch(() => {});
+    const openedByKeyboard = await menu
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (!openedByKeyboard) {
+      await page.keyboard.press('Escape').catch(() => {});
+      await button.dispatchEvent('pointerdown', {
+        button: 0,
+        buttons: 1,
+        pointerType: 'mouse',
+        isPrimary: true,
+      });
+      await menu.waitFor({ state: 'visible', timeout: 15_000 });
+    }
   }
+
+  await page.getByRole('menuitem').first().waitFor({ state: 'visible', timeout: 15_000 });
 }
 
 async function activateProjectMenuItem(page: Page, name: RegExp) {
