@@ -35,7 +35,7 @@
       "description": "GitHub Actions verify job parity",
       "steps": [
         "pnpm run lint",
-        "node scripts/quality/check-vercel-security.mjs",
+        "node scripts/quality/check-cloudflare-security.mjs",
         "pnpm run auth:gates",
         "pnpm run flawless:gates",
         "pnpm run test:supabase-auth",
@@ -59,7 +59,7 @@
       ]
     },
     "post-deploy": {
-      "description": "Production smoke after Vercel deploy",
+      "description": "Production smoke after Cloudflare Pages deploy",
       "steps": [
         "pnpm run stability:post-deploy"
       ]
@@ -99,7 +99,7 @@
       "description": "RepairBot maximum — CI parity, release gates, world-record evidence",
       "extends": "repairbot:full",
       "steps": [
-        "node scripts/quality/check-vercel-security.mjs",
+        "node scripts/quality/check-cloudflare-security.mjs",
         "pnpm run test:supabase-auth",
         "pnpm run verify:supabase-login-data",
         "pnpm run verify:supabase-schema",

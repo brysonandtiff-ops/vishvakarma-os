@@ -12,7 +12,6 @@ import { TutorialProvider } from '@/tutorial/TutorialProvider';
 import { StudioAudioProvider } from '@/modules/studio-audio/StudioAudioProvider';
 import { initMonitoring } from '@/lib/monitoring';
 import AnalyticsConsentBanner from '@/components/common/AnalyticsConsentBanner';
-import ConsentAnalytics from '@/components/common/ConsentAnalytics';
 import VisualThemeController from '@/components/common/VisualThemeController';
 import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
@@ -90,7 +89,6 @@ const App: React.FC = () => {
                 <EmptyCanvasGuidedStart />
                 <VisualThemeController />
                 <AnalyticsConsentBanner />
-                <ConsentAnalytics />
                 <MantraPlayerWidget />
                 <VoiceGuidedTour />
                 <PwaUpdateBanner />

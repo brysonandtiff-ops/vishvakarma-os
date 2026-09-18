@@ -25,9 +25,10 @@ additional_redirect_urls = [
   "https://vishvakarma-os.app/auth",
   "https://vishvakarma-os.app/editor",
   "https://vishvakarma-os.app/**",
-  "https://vishvakarma-os.vercel.app/auth",
-  "https://vishvakarma-os.vercel.app/**",
-  "https://*.vercel.app/auth",
+  "https://vishvakarma-os.pages.dev/auth",
+  "https://vishvakarma-os.pages.dev/**",
+  "https://*.vishvakarma-os.pages.dev/auth",
+  "https://*.vishvakarma-os.pages.dev/**",
   "http://127.0.0.1:5173/auth",
   "http://127.0.0.1:5173/**",
 ]

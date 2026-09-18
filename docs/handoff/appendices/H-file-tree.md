@@ -2,10 +2,12 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
 ```
 src/
+App.tsx
+AppRoutes.tsx
 ai/
   building-designer/
     buildingDesigner.test.ts
@@ -28,8 +30,6 @@ ai/
     validators/
       buildingRequestValidator.ts
       generatedBuildingValidator.ts
-App.tsx
-AppRoutes.tsx
 auth-capabilities.json
 backend/
   authCapabilities.test.ts
@@ -41,13 +41,17 @@ backend/
   fetchWithRetry.ts
   supabase/
     createSupabaseBackend.ts
+    mappers.test.ts
     mappers.ts
     supabaseAccessToken.ts
     supabaseAuthCallback.test.ts
     supabaseAuthGateway.ts
+    supabaseAuthPolicy.test.ts
     supabaseBillingGateway.ts
     supabaseClient.ts
     supabaseGovernanceGateway.ts
+    supabaseMfaGateway.test.ts
+    supabaseMfaGateway.ts
     supabaseOAuthGateway.ts
     supabaseOptimizationGateway.ts
     supabaseProfileGateway.ts
@@ -57,16 +61,16 @@ brand/
   founders.ts
   officialLogo.ts
 cast/
-  castApi.ts
   CastEvidenceExporter.ts
   CastIntentRelay.test.ts
   CastIntentRelay.ts
   CastLensState.test.ts
   CastLensState.ts
   CastSessionManager.ts
+  LocalCastBus.ts
+  castApi.ts
   castTier.test.ts
   castTier.ts
-  LocalCastBus.ts
   types.ts
   useCastSession.ts
 collaboration/
@@ -100,10 +104,13 @@ components/
     AuthStatusBanner.tsx
     AuthTrustPillar.test.tsx
     AuthTrustPillar.tsx
+    MfaChallengeGate.test.tsx
+    MfaChallengeGate.tsx
+    MfaSettingsCard.tsx
   billing/
     BillingBanner.tsx
-    billingBannerMessage.ts
     BillingPlanCard.tsx
+    billingBannerMessage.ts
   brand/
     CopilotSwanMark.test.tsx
     CopilotSwanMark.tsx
@@ -115,6 +122,7 @@ components/
   common/
     AnalyticsConsentBanner.tsx
     AppErrorBoundary.tsx
+    EditorPwaReloadBlocker.tsx
     FeatureCard.tsx
     IntersectObserver.tsx
     MantraPlayerWidget.tsx
@@ -127,6 +135,7 @@ components/
     PageToolbar.tsx
     PrototypeDisclaimer.test.tsx
     PrototypeDisclaimer.tsx
+    PwaUpdateBanner.tsx
     ResponsiveDataView.tsx
     RouteGuard.tsx
     SacredIndianMandala.tsx
@@ -137,34 +146,20 @@ components/
     WorkspaceEmptyState.tsx
     WorkspacePageHeader.tsx
     WorkspacePanel.tsx
+    vish-primitives/
+      VishCard.tsx
+      VishEmptyState.tsx
+      VishInspector.tsx
+      VishMetric.tsx
+      VishPanel.tsx
+      VishStatusBadge.tsx
+      VishToolbar.tsx
+      index.ts
   editor/
     AdaptiveFrameGovernor.tsx
-    ai-designer/
-      AIDesignerDialog.tsx
-      AIDesignerResultsPanel.tsx
-      ArchitectureMapView.tsx
-      ComplianceReportPanel.tsx
-      CopilotReviewStep.tsx
-      CopilotUploadStep.tsx
-      PlanExplanationPanel.tsx
-      PlanningShortlistPanel.tsx
-      SitePlanPreview.tsx
-    blueprint/
-      canvasLayers.ts
-      canvasRenderLoop.ts
-      drawRooms.ts
-      drawSymbols.ts
-      drawWalls.ts
-      inputHandlers.ts
-      openingSymbols.ts
     BlueprintCanvas.tsx
-    blueprintCanvasDrawing.ts
     CanvasMinimap.tsx
     CinematicBloom.tsx
-    collaboration/
-      CollaboratorAvatars.tsx
-      FollowViewportToggle.tsx
-      RemoteCursorsOverlay.tsx
     CustomMaterialDialog.tsx
     DraftRecoveryDialog.tsx
     EditorCollaborationBar.tsx
@@ -187,13 +182,6 @@ components/
     NewProjectDialog.tsx
     OnboardingPanel.tsx
     OpenProjectDialog.tsx
-    panels/
-      AkashaCastPanel.tsx
-      ComplianceBanner.tsx
-      CompliancePanel.tsx
-      PerformanceProfilePanel.tsx
-      SimulationPanels.tsx
-      VastuPanel.tsx
     ProjectProofPanel.tsx
     PropertiesPanel.tsx
     RadialToolMenu.tsx
@@ -201,22 +189,51 @@ components/
     SamplePickerDialog.tsx
     SaveModeBadge.tsx
     SaveStateBadge.tsx
-    sceneGltfModels.tsx
-    sceneMaterials.tsx
-    sceneMeshes.tsx
     ScenePostProcessing.tsx
-    sceneRoomBatch.tsx
-    sceneRoomMeshes.tsx
-    sceneTerrainMeshes.tsx
-    sceneWallBatch.tsx
-    ShunyaOverlay.tsx
     SolarTimeline.tsx
     StatusBar.tsx
-    toolDefaults.ts
     ToolRail.tsx
     Viewport3D.tsx
     Viewport3DLoading.tsx
     WelcomeOverlay.tsx
+    ai-designer/
+      AIDesignerDialog.tsx
+      AIDesignerResultsPanel.tsx
+      ArchitectureMapView.tsx
+      ComplianceReportPanel.tsx
+      CopilotReviewStep.tsx
+      CopilotUploadStep.tsx
+      PlanExplanationPanel.tsx
+      PlanningShortlistPanel.tsx
+      SitePlanPreview.tsx
+    blueprint/
+      canvasLayers.ts
+      canvasRenderLoop.ts
+      drawRooms.ts
+      drawSymbols.ts
+      drawWalls.ts
+      inputHandlers.ts
+      openingSymbols.ts
+    blueprintCanvasDrawing.ts
+    collaboration/
+      CollaboratorAvatars.tsx
+      FollowViewportToggle.tsx
+      RemoteCursorsOverlay.tsx
+    panels/
+      AkashaCastPanel.tsx
+      ComplianceBanner.tsx
+      CompliancePanel.tsx
+      PerformanceProfilePanel.tsx
+      SimulationPanels.tsx
+      VastuPanel.tsx
+    sceneGltfModels.tsx
+    sceneMaterials.tsx
+    sceneMeshes.tsx
+    sceneRoomBatch.tsx
+    sceneRoomMeshes.tsx
+    sceneTerrainMeshes.tsx
+    sceneWallBatch.tsx
+    toolDefaults.ts
   governance/
     GovernanceBackendBanner.tsx
     GovernanceStatPill.tsx
@@ -260,15 +277,16 @@ components/
     StudioAudioSettings.tsx
   qa/
     DeviceValidationPanel.tsx
+    QaTools.tsx
   system-intelligence/
     ComputeOverlay.tsx
     ConstraintEditor.tsx
     CouncilApprovalPanel.tsx
     DecisionExplainerPanel.test.tsx
     DecisionExplainerPanel.tsx
+    SystemFlowHUD.tsx
     pipelineStageLabels.test.ts
     pipelineStageLabels.ts
-    SystemFlowHUD.tsx
   ui/
     accordion.tsx
     alert-dialog.tsx
@@ -301,7 +319,6 @@ components/
     pagination.tsx
     popover.tsx
     progress.tsx
-    qrcodedataurl.tsx
     radio-group.tsx
     resizable.tsx
     scroll-area.tsx
@@ -319,13 +336,13 @@ components/
     toggle-group.tsx
     toggle.tsx
     tooltip.tsx
-    video.tsx
   workspace/
     WorkspaceCommandPalette.tsx
-    workspaceMemory.ts
     WorkspaceNotifications.tsx
     WorkspaceStatusHub.tsx
+    workspaceMemory.ts
 config/
+  RouteNavConfig.ts
   aiUsage.test.ts
   aiUsage.ts
   appVersion.ts
@@ -333,16 +350,17 @@ config/
   billingPlans.ts
   canonicalOrigin.ts
   coOwners.ts
+  exportFormats.ts
   marketingFeatures.ts
+  qaTools.ts
   routeManifest.ts
-  RouteNavConfig.ts
   visualThemes.ts
 constants/
   prototypeDisclaimer.ts
 contexts/
   AuthContext.tsx
-  authContextTypes.ts
   SupabaseAuthProvider.tsx
+  authContextTypes.ts
 core/
   exporters/
     dxfExport.test.ts
@@ -469,6 +487,7 @@ empty-canvas/
   EmptyCanvasGuidedStart.tsx
 global.d.ts
 governance/
+  README.md
   core/
     enforcer.ts
     specHash.ts
@@ -477,7 +496,6 @@ governance/
     gate-manifest.json
     gate-ui-status.json
     releaseGateManifest.ts
-  README.md
   records/
     worldRecordRegistry.ts
   snapshots/
@@ -495,7 +513,9 @@ hooks/
   useFloorPlanEngine.ts
   useFloorPlanSession.ts
   useGeometryRevision.ts
+  useKeyboardAccelerators.ts
   usePlanTier.ts
+  usePwaReloadBlocker.ts
   useReliablePress.ts
   useVisualViewportInset.ts
 index.css
@@ -506,6 +526,7 @@ lib/
   logger.ts
   marketingCta.ts
   monitoring.ts
+  sonic-bridge.ts
   studioToast.ts
   utils.ts
 main.tsx
@@ -550,6 +571,7 @@ modules/
     sheetSetPdfExport.test.ts
     sheetSetPdfExport.ts
   studio-audio/
+    StudioAudioProvider.tsx
     ambientLoop.ts
     atmosphericMask.ts
     audioEngine.test.ts
@@ -558,10 +580,7 @@ modules/
     mantraPlayer.ts
     mantraPrefs.ts
     soundCatalog.ts
-    StudioAudioProvider.tsx
     useStudioAudio.ts
-  telemetry/
-    frustrationDetector.ts
   themeManager.ts
   versionControlHooks.ts
 pages/
@@ -573,31 +592,35 @@ pages/
   EditorPage.tsx
   FeaturesPage.tsx
   LandingPage.tsx
+  LiteEditorPage.tsx
   NotFound.tsx
   OptimizationPage.tsx
   PricingPage.tsx
+  PrivacyPage.tsx
   ProfilePage.tsx
   ProjectsPage.tsx
   RegistryPage.tsx
   ReleasesPage.tsx
   ResetPasswordPage.tsx
   SpecCenterPage.tsx
+  TermsPage.tsx
   ThreeDRoomPage.tsx
   WorldRecordsPage.tsx
 planning/
   candidateGenerator.test.ts
   candidateGenerator.ts
   index.ts
+  planScoringEngine.test.ts
+  planScoringEngine.ts
+  planSelector.ts
   planning.worker.ts
   planningPipeline.test.ts
   planningPipeline.ts
   planningWorkerClient.ts
-  planScoringEngine.test.ts
-  planScoringEngine.ts
-  planSelector.ts
   scoringWeights.ts
   types.ts
 pwaAutoUpdate.ts
+pwaUpdateSafety.ts
 qa-evidence/
   QaEvidencePanel.tsx
 routes.production.test.tsx
@@ -654,6 +677,7 @@ services/
     scanIssues.ts
     types.ts
   billing/
+    stripeCheckout.test.ts
     stripeCheckout.ts
   compliance/
     complianceAggregator.test.ts
@@ -723,24 +747,38 @@ services/
     resolveZoning.ts
     zoningRules.ts
 styles/
+  entries/
+    auth.ts
+    editor.ts
+    marketing.ts
+    themes.ts
+    workspace-base.ts
+    workspace.ts
+  vish-auth-email-fallback.css
   vish-auth-exact-reference.css
   vish-auth-gate.css
   vish-auth-ipad-polish.css
+  vish-auth-layout-tidy.css
   vish-auth-mockup-page.css
   vish-auth-reference-breakpoint-fix.css
   vish-auth-reference-match.css
   vish-auth-reference-screen.css
   vish-copilot-swan.css
+  vish-device-unity.css
   vish-device-validation.css
   vish-divine-architect-theme.css
+  vish-editor-3d-polish.css
   vish-editor-chrome.css
   vish-editor-mantra.css
   vish-editor-polish.css
   vish-empty-guided-start.css
   vish-governance-polish.css
   vish-indian-sacred.css
+  vish-ios-performance-hardening.css
+  vish-ipad-desktop-polish.css
   vish-ipad-editor-usability.css
   vish-ipad-king-polish.css
+  vish-landing-showcase-fix.css
   vish-layout-tokens.css
   vish-login-page.css
   vish-mantra-widget.css
@@ -749,10 +787,12 @@ styles/
   vish-mockup-system.css
   vish-motion-system.css
   vish-no-drift-tooling-polish.css
+  vish-overlay-safety.css
   vish-qa-evidence.css
   vish-realism.css
   vish-release-dialog-guard.css
   vish-release-focus-ring.css
+  vish-responsive-route-audit.css
   vish-sacred-auth.css
   vish-sacred-editor.css
   vish-sacred-governance.css
@@ -764,6 +804,7 @@ styles/
   vish-tokens.css
   vish-touch-audit-hud.css
   vish-tutorial.css
+  vish-ui-display-fixes.css
   vish-ui-polish.css
   vish-vibhuti-obsidian.css
   vish-voice-tour.css
@@ -771,9 +812,16 @@ styles/
   vish-workspace-shell.css
 svg.d.ts
 test/
+  AppErrorBoundary.test.tsx
+  FollowViewportToggle.test.tsx
+  KeyboardShortcuts.test.tsx
+  PropertiesPanel.test.tsx
+  RadialToolMenu.test.tsx
+  ToolRail.test.tsx
+  VisualThemeController.runtime.test.tsx
   accessibilityLayer.test.ts
   adaptiveFrameGovernor.test.ts
-  AppErrorBoundary.test.tsx
+  analyticsConsent.test.tsx
   atmosphereMode.test.ts
   automatedTestSuite.test.ts
   billingBanner.test.ts
@@ -785,10 +833,12 @@ test/
   canvasSelection.test.ts
   canvasTouchGestures.test.ts
   canvasViewportZoom.test.ts
+  cloudflareApiRuntimeModule.test.ts
+  cloudflareBuildGate.test.ts
+  coOwners.test.ts
   collaborationEngine.test.ts
   collaborationPresence.test.ts
   commandPaletteShortcut.test.ts
-  coOwners.test.ts
   copilotProofFlow.test.ts
   copilotSwanMotion.test.ts
   copilotUploadIpad.test.ts
@@ -802,11 +852,11 @@ test/
   editorVisualPolish.test.ts
   editorWorkflow.test.ts
   elementLock.test.ts
+  emailMagicLinkFallback.test.ts
   export.test.ts
   fixtures/
     dxf-layer-filter-sample.dxf
     dxf-lwpolyline-sample.dxf
-  FollowViewportToggle.test.tsx
   formatValidator.test.ts
   functionalWiring.test.ts
   generateColumnGlb.test.ts
@@ -817,7 +867,6 @@ test/
   inputHandlers.test.ts
   investorScreenshotPack.test.ts
   keyboardShortcuts.test.ts
-  KeyboardShortcuts.test.tsx
   lightingPresets.test.ts
   localDraft.test.ts
   loginDataSetup.test.ts
@@ -825,20 +874,34 @@ test/
   manifestGeometry.test.ts
   marketingCta.test.ts
   marketingRoutes.test.tsx
+  mocks/
+    cmdk.tsx
+    dialog.tsx
+    popover.tsx
+    radix-dialog.tsx
+    radix-popover.tsx
+  monitoringPrivacy.test.ts
   motionSystem.test.ts
   multiUserGovernance.test.ts
   multiUserRolesCiGate.test.ts
+  noBlockingStartupScreen.test.ts
+  noImpatienceInterruptionGuard.test.ts
   officialLogoBrand.test.ts
   parity2d3d.test.ts
   pilotDocs.test.ts
+  productionAuthVerifier.test.ts
   projectRoles.test.ts
   projectsDemoSamples.test.ts
-  PropertiesPanel.test.tsx
-  RadialToolMenu.test.tsx
+  pwaUpdateSafety.test.ts
+  qaToolsGate.test.ts
   redTeam.test.ts
   regressionAnchors.test.ts
+  releaseGateHardening.test.ts
   repairbotTiers.test.ts
+  repositorySecretGuard.test.ts
+  responsiveRouteAudit.test.ts
   roomCalculations.test.ts
+  routeCssBoundary.test.ts
   sacredMarketing.test.ts
   sampleCatalog.test.ts
   sanskritAuthGate.test.ts
@@ -849,20 +912,23 @@ test/
   sceneTerrainCatalog.test.ts
   sceneTextureCatalog.test.ts
   sceneVisualCatalog.test.ts
+  serverRuntimeAliasBoundary.test.ts
   setup.ts
   spatialIndex.test.ts
   stressTest.test.ts
   stripeInvoice.test.ts
+  supabaseApiVisibility.test.ts
+  supabaseAuthHardeningConfig.test.ts
   supabaseAuthRestore.test.ts
   texturePatterns.test.ts
   themeManager.test.ts
-  ToolRail.test.tsx
   verificationWiring.test.ts
   versionControlHooks.test.ts
   viewport3dFpsWiring.test.ts
   visualThemeController.test.ts
   workspaceCommandPalette.test.ts
   workspaceLayoutPolish.test.ts
+  workspaceNavDrawer.test.tsx
   worldRecordMeasure.test.ts
   worldRecordRegistry.test.ts
 theme/
@@ -871,16 +937,16 @@ three.d.ts
 touch-audit/
   IpadTouchAuditHud.tsx
 tutorial/
-  tutorialCatalog.test.ts
-  tutorialCatalog.ts
   TutorialEngine.tsx
-  tutorialGuards.test.ts
-  tutorialGuards.ts
   TutorialHelpButton.tsx
   TutorialHub.tsx
+  TutorialProvider.tsx
+  tutorialCatalog.test.ts
+  tutorialCatalog.ts
+  tutorialGuards.test.ts
+  tutorialGuards.ts
   tutorialMemory.test.ts
   tutorialMemory.ts
-  TutorialProvider.tsx
   types.ts
 types/
   billing.ts
@@ -918,6 +984,21 @@ voice-tour/
   voiceTourContent.ts
 
 api/
+_lib/
+  aiUsage.ts
+  appOrigin.test.ts
+  appOrigin.ts
+  billingBackend.ts
+  billingSupabase.ts
+  castBackend.ts
+  httpSecurity.test.ts
+  httpSecurity.ts
+  stripeClient.ts
+  stripeInvoice.ts
+  stripeShapes.ts
+  verifyAuthToken.ts
+  verifySupabaseToken.test.ts
+  verifySupabaseToken.ts
 ai/
   extract-requirements.ts
   parse-site-documents.ts
@@ -925,20 +1006,16 @@ cast/
   evidence.ts
   join.ts
   sessions.ts
+endpoint-policy.json
+endpointHandlers.test.ts
 health.ts
+package.json
 stripe/
+  create-checkout-session.test.ts
   create-checkout-session.ts
   create-portal-session.ts
+  webhook.test.ts
   webhook.ts
-_lib/
-  aiUsage.ts
-  billingBackend.ts
-  billingSupabase.ts
-  castBackend.ts
-  stripeClient.ts
-  stripeInvoice.ts
-  verifyAuthToken.ts
-  verifySupabaseToken.ts
 
 server/
 collab/
@@ -947,6 +1024,7 @@ collab/
   presenceServer.ts
 
 supabase/
+README.md
 config.toml
 migrations/
   20260212000001_create_core_tables.sql
@@ -956,7 +1034,15 @@ migrations/
   20260213000005_collab_and_storage.sql
   20260615000001_cast_sessions.sql
   20260618000001_ai_usage.sql
-README.md
+  20260624173426_harden_project_role_function_search_path.sql
+  20260711194914_harden_internal_functions_storage_and_indexes.sql
+  20260711195543_bind_audit_log_inserts_to_authenticated_actor.sql
+  20260711195753_move_admin_check_out_of_exposed_schema.sql
+  20260711195911_optimize_rls_auth_uid_initplans.sql
+  20260711200108_remove_anonymous_access_from_authenticated_tables.sql
+  20260712095528_enforce_opt_in_totp_mfa.sql
+  20260718124701_temporary_auth_email_smoke_http.sql
+  20260810142840_restrict_audit_log_visibility.sql
 
 scripts/
 auto-ship/
@@ -968,7 +1054,13 @@ auto-ship/
 build-e2e-local.mjs
 demo/
   verify-demo-assets.mjs
-deploy-vercel.sh
+deployment/
+  certify-cloudflare-release.mjs
+  verify-cloudflare-config.mjs
+  verify-cloudflare-live.mjs
+device-truth/
+  report.mjs
+  run.mjs
 docs/
   verify-documentation.mjs
 dx/
@@ -982,6 +1074,8 @@ generate-column-glb.mjs
 generate-ios-startup-images.mjs
 generate-pwa-png-icons.mjs
 generate-sample-json.mjs
+git-hooks/
+  pre-commit
 handoff/
   generate-handoff-appendices.mjs
   verify-handoff-completeness.mjs
@@ -1002,9 +1096,12 @@ migration/
   import-supabase.mjs
   validate-migration.mjs
 open-external-url.mjs
+ops/
+  disable-github-actions-all-repos.mjs
 performance/
   bundle-budget.json
   check-bundle-budget.mjs
+  check-pwa-precache.mjs
   lighthouse-budget.json
   record-editor-perf-proof.mjs
   report-bundle.mjs
@@ -1016,11 +1113,10 @@ production/
   setup-admin.mjs
   setup-co-owner.mjs
   verify-env.mjs
-push-stripe-env-vercel.mjs
-push-supabase-env-vercel.mjs
 quality/
   check-auth-config-guard.mjs
   check-build-gate.mjs
+  check-cloudflare-security.mjs
   check-device-hardening.mjs
   check-editor-export-canonical.mjs
   check-flawless-use-gates.mjs
@@ -1029,8 +1125,8 @@ quality/
   check-production-hardening.mjs
   check-project-roles.mjs
   check-pwa-install-assets.mjs
+  check-qemaster-worktree.mjs
   check-system-contract.mjs
-  check-vercel-security.mjs
 refactor.cjs
 repair-workspace-root-package.py
 repair-workspace-root-package.sh
@@ -1050,13 +1146,19 @@ run-local-preview-playwright.mjs
 run-page-reference-pack.mjs
 run-pipeline.mjs
 run-screenshot-pack.mjs
+security/
+  check-api-endpoints.mjs
+  check-dist-security.mjs
+  check-repository-secrets.mjs
 set-stripe-secret-env.mjs
 setup-scene-models.mjs
 setup-scene-textures.mjs
 setup-stripe-live-cli.mjs
 setup-stripe-live.mjs
 setup-stripe-products.mjs
+setup-supabase-auth-hardening.mjs
 setup-supabase-auth-providers.mjs
+setup-supabase-platform-hardening.mjs
 stability/
   check-monitoring.mjs
   post-deploy-smoke.mjs
@@ -1094,31 +1196,59 @@ device-desktop-layout.spec.ts
 device-governance-layout.spec.ts
 device-marketing-layout.spec.ts
 device-phone-editor.spec.ts
+device-truth.spec.ts
 device-validation-proof-panel.spec.ts
 deviceTouchTargets.ts
 editor-draw-workflow-proof.spec.ts
 editor-features.spec.ts
 editor-performance.spec.ts
 editor-tool-clickthrough-proof.spec.ts
+full-customer-audit.spec.ts
 governance-smoke.spec.ts
 helpers.ts
+ipad-editor-current-contract.spec.ts
 ipad-editor-layout.spec.ts
 ipad-editor-workflow.spec.ts
 ipad-production-readiness.spec.ts
+ipad10-production-proof.spec.ts
 long-session-soak-proof.spec.ts
 marketing-asset-pack.spec.ts
 marketing-pages.spec.ts
+menu-overlap.spec.ts
 optimization.spec.ts
+overlay-exclusivity.spec.ts
 page-reference-pack-remainder.spec.ts
 page-reference-pack.spec.ts
 project-demo-load-proof.spec.ts
 projects-profile.spec.ts
+qe-production-route-smoke.spec.ts
+qeGlobalSetup.ts
 release-screenshot-pack.spec.ts
 route-health-smoke.spec.ts
 tutorial-essentials.spec.ts
 workspace-navigation.spec.ts
 
 docs/
+BRAND_LOCK.md
+CURRENT_PRODUCTION_ARCHITECTURE.md
+DOCUMENTATION_STANDARDS.md
+FINAL_BUILD_REPORT.md
+FLAWLESS_USE_IMPLEMENTATION_GATES.md
+FLAWLESS_USE_VALUE_PLAN.md
+GOVERNANCE_IMPLEMENTATION.md
+GOVERNANCE_QUICKSTART.md
+IMPLEMENTATION_SUMMARY.md
+LAUNCH_READINESS.md
+PRODUCT_CAPABILITIES.md
+PRODUCT_READINESS_GATE.md
+PROPRIETARY_NOTICE.md
+README.md
+REGISTRY.md
+RELEASE.md
+RELEASE_v1.0.0.md
+RULE.md
+SOFTWARE_INVENTORY.md
+SPEC.md
 adr/
   001-supabase-production-backend.md
   002-vite-spa-react-router.md
@@ -1127,6 +1257,7 @@ adr/
   005-stripe-entitlement-model.md
   README.md
 archive/
+  README.md
   build-history/
     COMPLETE_SUMMARY.md
     FINAL_VERIFICATION_REPORT.md
@@ -1154,17 +1285,16 @@ archive/
     STEP_VERIFICATION_COMPLETE.md
     STEP_VERIFICATION_SUMMARY.md
     VERIFICATION_REPORT.md
-  README.md
-BRAND_LOCK.md
 ci/
   VISHVAKARMA_CI_STARTUP_REPAIR.md
 compliance/
   DATA_PROCESSING.md
   PRIVACY.md
   SUPPORT_MATRIX.md
-CURRENT_PRODUCTION_ARCHITECTURE.md
 demo/
   README.md
+  VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md
+  VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md
   screenshots/
     01-landing.png
     02-projects-demo-cards.png
@@ -1172,10 +1302,15 @@ demo/
     04-editor-3d-preview.png
     05-ai-copilot-proof-flow.png
     06-export-preview.png
-  VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md
-  VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md
 design/
+  PAGE_ROOM_GUIDE.md
+  README.md
+  VISHVAKARMA_OS_Complete_Overview_v2.pdf
+  Vishvakarma (1).pdf
+  Vishvakarma.pdf
   page-references/
+    PAGE_REFERENCE.md
+    POST_HARDENING_REFRESH_NOTE.md
     editor/
       08-welcome-overlay.png
       09-empty-2d.png
@@ -1207,12 +1342,10 @@ design/
       05-auth-reset-notice.png
       06-not-found.png
       07-pricing.png
-    PAGE_REFERENCE.md
     workspace/
       20-projects-empty.png
       21-projects-populated.png
       22-profile.png
-  PAGE_ROOM_GUIDE.md
   png-pack/
     00_contact_sheet.png
     01_auth_access.png
@@ -1223,15 +1356,11 @@ design/
     06_release_center.png
     07_audit_log.png
     DOCUMENTATION.md
-  README.md
-  Vishvakarma (1).pdf
   vishvakarma-os-all-pages Copy OCR.pdf
   vishvakarma-os-all-pages Copy.pdf
   vishvakarma-os-all-pages-1.pdf
   vishvakarma-os-all-pages.pdf
   vishvakarma-os-summary.pdf
-  Vishvakarma.pdf
-  VISHVAKARMA_OS_Complete_Overview_v2.pdf
 developer/
   API.md
   ARCHITECTURE.md
@@ -1239,14 +1368,8 @@ developer/
   CONTRIBUTING_EXTENDED.md
   DATA_MODEL.md
   ONBOARDING.md
-  openapi.yaml
   TESTING.md
-DOCUMENTATION_STANDARDS.md
-FINAL_BUILD_REPORT.md
-FLAWLESS_USE_IMPLEMENTATION_GATES.md
-FLAWLESS_USE_VALUE_PLAN.md
-GOVERNANCE_IMPLEMENTATION.md
-GOVERNANCE_QUICKSTART.md
+  openapi.yaml
 handoff/
   01-product-and-business.md
   02-repository-topology.md
@@ -1259,6 +1382,10 @@ handoff/
   08-operations-and-deployment.md
   09-testing-quality-and-release.md
   10-ip-risks-roadmap-and-gaps.md
+  CHATGPT_HANDOFF.md
+  END_TO_END_HANDOFF.md
+  HANDOFF.md
+  HANDOFF_METRICS_SUMMARY.md
   appendices/
     A-routes-and-api.md
     B-environment-variables.md
@@ -1269,14 +1396,8 @@ handoff/
     G-dependencies.md
     H-file-tree.md
     MANIFEST.json
-  CHATGPT_HANDOFF.md
-  END_TO_END_HANDOFF.md
-  HANDOFF.md
-  HANDOFF_METRICS_SUMMARY.md
   templates/
     OPERATOR_ANNEX.template.md
-IMPLEMENTATION_SUMMARY.md
-LAUNCH_READINESS.md
 operations/
   ACCOUNT_TRANSFER.md
   AUTO_SHIP_HOOKS.md
@@ -1293,9 +1414,10 @@ pilots/
   PILOT_FEEDBACK_TEMPLATE.md
   VISHVAKARMA_OS_PILOT_PLAN.md
 prd.md
-PRODUCT_CAPABILITIES.md
+product/
+  VIP_ZIP_AUDIT_2026-07-03.md
+  VISHVAKARMA_MASTER_NOTES.md
 project-manifest-schema.md
-PROPRIETARY_NOTICE.md
 qa/
   AUTH_IPAD10_SMOKE_CHECKLIST.md
   DEVICE_VALIDATION_PROOF_MODE_QA.md
@@ -1310,55 +1432,13 @@ qa/
   RELEASE_POLISH_SIGNOFF.md
   UI_FEATURE_HARDENING_CHECKLIST.md
   VOICE_GUIDED_TOUR_QA.md
-README.md
-REGISTRY.md
+quality/
+  MULTI_DEVICE_HUMAN_TRUTH_VALIDATION.md
 release/
+  CLOUDFLARE_ENV.md
+  CLOUDFLARE_PRODUCTION_CERTIFICATION.md
   DEPLOYMENT.md
   DEVICE_HARDENING_RUNBOOK.md
-  evidence/
-    2d-3d-parity-proof.md
-    auth-sign-in-proof.md
-    build-output.txt
-    bundle-budget-report.json
-    collaboration-preview-hardening.md
-    device-hardening-audit.md
-    editor-performance-overhaul-proof.json
-    editor-performance-overhaul-proof.md
-    EVIDENCE_MANIFEST.md
-    FINAL_CLEANUP_EVIDENCE.md
-    functional-workflow-proof.md
-    ipad-3d-panel.png
-    ipad-auth-landscape.png
-    ipad-auth-portrait.png
-    ipad-editor-landscape.png
-    ipad-proof-checklist.md
-    ipad-recordings/
-    ipad-touch-audit.md
-    IPAD_10_REAL_DEVICE_PROOF.md
-    latest-ci-run.md
-    long-session-soak-proof.md
-    performance-notes.md
-    playwright-report-summary.md
-    POST_READY_DEEP_PROOF_MATRIX.md
-    POST_READY_NEXT_3_PROOF_PACK.md
-    README.md
-    route-smoke-output.txt
-    save-load-proof-run.json
-    save-load-proof.md
-    screenshots/
-      01-landing-hero.png
-      02-auth-email-link.png
-      03-editor-2d-sample.png
-      04-editor-3d-premium.png
-      05-export-package-dialog.png
-      06-projects-empty.png
-      07-features-ready-badges.png
-      README.md
-    SCREENSHOT_PACK.md
-    security-headers.md
-    security-headers.txt
-    UI_AUDIT_REPORT_2026-06-08.md
-    UI_FUNCTIONALITY_PASS_2026-05-22.md
   IPAD_PRODUCTION_READINESS.md
   IPAD_TEST_CHECK_SHEET.md
   MOBILE_GIT_REVIEW.md
@@ -1368,10 +1448,64 @@ release/
   STRIPE_SETUP.md
   SUPABASE_AUTH_SETUP.md
   TOMORROW_HANDOFF_2026-05-22.md
-  VERCEL_ENV.md
+  VERCEL_REDEPLOY_2026-07-25.md
   VERIFY_COMMANDS.md
-RELEASE.md
-RELEASE_v1.0.0.md
+  evidence/
+    2d-3d-parity-proof.md
+    EVIDENCE_MANIFEST.md
+    FINAL_CLEANUP_EVIDENCE.md
+    IPAD_10_REAL_DEVICE_PROOF.md
+    POST_READY_DEEP_PROOF_MATRIX.md
+    POST_READY_NEXT_3_PROOF_PACK.md
+    README.md
+    SCREENSHOT_PACK.md
+    SESSION_BOOT_SCREEN_REMOVAL.md
+    UI_AUDIT_REPORT_2026-06-08.md
+    UI_FUNCTIONALITY_PASS_2026-05-22.md
+    auth-platform-decision-2026-07-16.md
+    auth-sign-in-proof.md
+    build-output.txt
+    bundle-budget-report.json
+    collaboration-preview-hardening.md
+    device-hardening-audit.md
+    editor-performance-overhaul-proof.json
+    editor-performance-overhaul-proof.md
+    functional-workflow-proof.md
+    ipad-3d-panel.png
+    ipad-auth-landscape.png
+    ipad-auth-portrait.png
+    ipad-editor-landscape.png
+    ipad-proof-checklist.md
+    ipad-recordings/
+    ipad-touch-audit.md
+    latest-ci-run.md
+    long-session-soak-proof.md
+    performance-notes.md
+    playwright-report-summary.md
+    production-closeout-2026-07-16.md
+    route-smoke-output.txt
+    save-load-proof-run.json
+    save-load-proof.md
+    screenshots/
+      01-landing-hero.png
+      02-auth-email-link.png
+      02-auth-google-sso.png
+      03-editor-2d-sample.png
+      04-editor-3d-premium.png
+      05-export-package-dialog.png
+      06-editor-lite-recovery.png
+      06-projects-empty.png
+      07-features-ready-badges.png
+      07-projects-empty.png
+      08-features-truth-badges.png
+      09-pricing-tiers.png
+      10-optimization-empty.png
+      11-releases.png
+      12-world-records.png
+      13-audit.png
+      README.md
+    security-headers.md
+    security-headers.txt
 rfc/
   001-curved-walls.md
   002-dxf-import.md
@@ -1384,8 +1518,8 @@ rfc/
 roadmap/
   WORLD_CLASS_PLAN.md
 route-manifest-schema.md
-SOFTWARE_INVENTORY.md
-SPEC.md
+security/
+  google-sso-only-supabase.md
 specs/
   AKASHA_CAST_v1.md
   ARCHITECTURE_COPILOT_v2.md
@@ -1421,11 +1555,13 @@ world-record/
   COMPETITOR_BASELINE.md
   EVIDENCE_BUNDLE.md
   GUINNESS_APPLICATION.md
-  latest-measurement.json
   WITNESS_ATTESTATION.md
   WORLD_RECORD_CLAIM.md
+  latest-measurement.json
 
 public/
+_headers
+_routes.json
 audio/
   mantras/
     ganesh-invocation.mp3
@@ -1470,10 +1606,12 @@ images/
 logo.webp
 manifest.webmanifest
 marketing/
-  product-2d.png
-  product-3d.png
+  product-2d.webp
+  product-3d.webp
   product-export.png
+  product-export.webp
 models/
+  README.md
   furniture/
     bed.glb
     chair.glb
@@ -1490,7 +1628,8 @@ models/
     rock.glb
     shrub.glb
     tree.glb
-  README.md
+og-card.png
+robots.txt
 samples/
   compliance-setback-fail.json
   full-feature-showcase.json
@@ -1499,6 +1638,7 @@ samples/
   mep-lighting-showcase.json
   sample-house-01.json
   terrain-garden.json
+sitemap.xml
 splash/
   apple-splash-1125-2436.png
   apple-splash-1170-2532.png
@@ -1515,6 +1655,7 @@ splash/
   apple-splash-750-1334.png
   apple-splash-828-1792.png
 textures/
+  README.md
   bark/
     color.jpg
     color.webp
@@ -1571,7 +1712,6 @@ textures/
     normal.webp
     roughness.jpg
     roughness.webp
-  README.md
   stone/
     color.jpg
     color.webp
@@ -1599,11 +1739,7 @@ world-record/
 .github/
 PULL_REQUEST_TEMPLATE.md
 workflows/
-  ci-health.yml
-  ci.yml
-  e2e.yml
-  lighthouse.yml
-  repairbot.yml
-  verify.yml
+  README.md
+  production-certification.yml
 
 ```

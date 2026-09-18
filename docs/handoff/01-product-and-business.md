@@ -14,7 +14,7 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** co
 | Version | `1.5.0` — [`src/config/appVersion.ts`](../../src/config/appVersion.ts), [`package.json`](../../package.json) |
 
 **Canonical production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 
 ## Target users
 

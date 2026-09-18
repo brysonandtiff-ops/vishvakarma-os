@@ -13,8 +13,8 @@ Project ref: `jyocvwipthswfcmvqgqe` (or your linked project).
    - Redirect URLs:
      - `https://vishvakarma-os.app/auth`
      - `https://vishvakarma-os.app/editor`
-     - `https://vishvakarma-os.vercel.app/auth` (fallback/debug alias)
-     - `https://*.vercel.app/auth` (preview)
+     - `https://vishvakarma-os.pages.dev/auth` (fallback/debug alias)
+     - `https://*.vishvakarma-os.pages.dev/auth` (preview)
      - `http://127.0.0.1:5173/auth`
 4. Apply migrations and enable providers:
 
@@ -29,14 +29,14 @@ pnpm run verify:supabase-schema:live
 5. **Google Cloud Console** — add this authorized redirect URI to the Google OAuth client used by Supabase:
    `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback`
 
-6. Push env to Vercel (after copying keys to `.env.supabase.local`):
+6. Push env to Cloudflare Pages (after copying keys to `.env.supabase.local`):
 
 ```bash
-pnpm run push:supabase-env-vercel
-vercel --prod
+pnpm run setup:supabase-auth
+git push origin main
 ```
 
-## Vercel environment (Production)
+## Cloudflare Pages environment (Production)
 
 | Variable | Purpose |
 |----------|---------|
@@ -57,4 +57,4 @@ pnpm run verify:supabase-login-data
 pnpm run verify:production-auth-flow
 ```
 
-After redeploying, test Google OAuth from `https://vishvakarma-os.app/auth` and confirm the `.app` referer appears in Supabase Auth logs. See [VERCEL_ENV.md](./VERCEL_ENV.md) and [MIGRATION.md](../../MIGRATION.md) for the full env matrix.
+After redeploying, test Google OAuth from `https://vishvakarma-os.app/auth` and confirm the `.app` referer appears in Supabase Auth logs. See [CLOUDFLARE_ENV.md](./CLOUDFLARE_ENV.md) and [MIGRATION.md](../../MIGRATION.md) for the full env matrix.

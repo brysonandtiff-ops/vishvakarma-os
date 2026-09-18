@@ -8,9 +8,9 @@ How to revert a bad production deploy without data loss.
 
 ---
 
-## Vercel instant rollback (preferred)
+## Cloudflare Pages instant rollback (preferred)
 
-1. Open Vercel Dashboard → Project → Deployments
+1. Open Cloudflare Pages Dashboard → Project → Deployments
 2. Find the last known-good production deployment
 3. Click **⋯** → **Promote to Production**
 
@@ -27,7 +27,7 @@ git revert <bad-commit-sha>
 git push origin main
 ```
 
-Vercel redeploys from the reverted commit. Run full `verify:ci` locally before push when possible.
+Cloudflare Pages redeploys from the reverted commit. Run full `verify:ci` locally before push when possible.
 
 ---
 
@@ -56,7 +56,7 @@ If billing entitlements desynced during an incident:
 
 ## AI routes
 
-Gemini routes (`/api/ai/*`) are stateless. Rollback Vercel deployment; no data migration needed. Users fall back to local parsers when `GEMINI_API_KEY` is missing.
+Gemini routes (`/api/ai/*`) are stateless. Rollback Cloudflare Pages deployment; no data migration needed. Users fall back to local parsers when `GEMINI_API_KEY` is missing.
 
 ---
 

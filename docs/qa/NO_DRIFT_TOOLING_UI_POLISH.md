@@ -9,7 +9,7 @@ Purpose: improve how Vishvakarma.OS feels without drifting product identity, aut
 | Official logo stays intact | No replacement of `OFFICIAL_LOGO_SRC` or swan mark | TBD |
 | Auth contract stays safe | Google SSO accessible label remains test-safe | TBD |
 | iPad editor stays usable | Demo and Grid quick actions remain visible | TBD |
-| PWA update stays enabled | Installed iPad PWA receives new Vercel deployments | TBD |
+| PWA update stays enabled | Installed iPad PWA receives new Cloudflare Pages deployments | TBD |
 | No backend/schema drift | No Supabase directory or data model changes | TBD |
 | No route drift | Existing route names and navigation remain stable | TBD |
 

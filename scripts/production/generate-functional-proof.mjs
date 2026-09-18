@@ -7,7 +7,7 @@
 import { execSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '../lib/canonical-origin.mjs';
+import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from '../lib/canonical-origin.mjs';
 
 const skipE2e = process.argv.includes('--skip-e2e');
 
@@ -203,7 +203,7 @@ async function main() {
 
 Generated from commit: \`${sha}\`
 Deployment URL: ${CANONICAL_ORIGIN}
-Vercel fallback URL: ${VERCEL_FALLBACK_ORIGIN}
+Cloudflare Pages URL: ${CLOUDFLARE_PAGES_ORIGIN}
 Generated at: ${generatedAt}
 Operator: automated local verify (issue #7)
 Result: \`${overallResult}\`

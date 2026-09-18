@@ -64,7 +64,7 @@ for (const endpoint of [
   requireTruth(router.includes(endpoint), `Pages API router missing ${endpoint}`);
 }
 
-const adapter = read('cloudflare/vercelHandlerAdapter.ts');
+const adapter = read('cloudflare/nodeHandlerAdapter.ts');
 requireTruth(adapter.includes('request.arrayBuffer()'), 'API adapter must preserve raw request bytes');
 requireTruth(adapter.includes("statusCode = 500"), 'API adapter must fail closed on unhandled errors');
 

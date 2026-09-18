@@ -78,7 +78,7 @@ test.describe('release screenshot pack', () => {
 
     await page.goto('/projects');
     await dismissConsentIfPresent(page);
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await shot(page, '07-projects-empty.png');
 

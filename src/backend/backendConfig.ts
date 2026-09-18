@@ -6,7 +6,7 @@ const SUPABASE_KEYS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] as const;
  * Public client-side Supabase configuration for the production Vishvakarma.OS project.
  *
  * These values are publishable browser client values, not service-role secrets. They keep
- * the public app connected when Vercel preview/production env vars are missing or still
+ * the public app connected when Cloudflare preview/production variables are missing or still
  * set to placeholders. Explicit env vars always win when real values are provided.
  */
 export const PUBLIC_SUPABASE_URL = 'https://jyocvwipthswfcmvqgqe.supabase.co';

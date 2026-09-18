@@ -52,7 +52,7 @@ const EVIDENCE_ITEMS: EvidenceItem[] = [
   {
     id: 'ipad-pwa-refresh',
     title: 'iPad PWA refresh',
-    description: 'Confirm the installed iPad app updates to the newest Vercel build.',
+    description: 'Confirm the installed iPad app updates to the newest Cloudflare Pages build.',
     icon: Tablet,
     route: '/editor',
     actionLabel: 'Open editor',

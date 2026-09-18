@@ -119,20 +119,16 @@ for (const name of recommendedClientVars) {
   }
 }
 
-const vercelPath = join(process.cwd(), 'vercel.json');
-if (existsSync(vercelPath)) {
-  const config = JSON.parse(readFileSync(vercelPath, 'utf8'));
-  const csp = (config.headers ?? [])
-    .flatMap((entry) => entry.headers ?? [])
-    .find((header) => header.key === 'Content-Security-Policy')?.value;
-
+const cloudflareHeadersPath = join(process.cwd(), 'public', '_headers');
+if (existsSync(cloudflareHeadersPath)) {
+  const csp = readFileSync(cloudflareHeadersPath, 'utf8');
   for (const token of ['https://js.stripe.com', 'https://checkout.stripe.com', 'https://api.stripe.com']) {
-    if (!csp?.includes(token)) {
-      failures.push(`vercel.json CSP missing Stripe allowlist: ${token}`);
+    if (!csp.includes(token)) {
+      failures.push(`public/_headers CSP missing Stripe allowlist: ${token}`);
     }
   }
 } else {
-  failures.push('Missing vercel.json');
+  failures.push('Missing Cloudflare Pages public/_headers');
 }
 
 const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
@@ -159,6 +155,6 @@ if (failures.length > 0) {
 console.log('Stripe billing env, CSP, and live Stripe API checks passed.');
 console.log('Operator next steps:');
 console.log('- Stripe Dashboard (live): Studio $499/mo + Enterprise $1,000/mo prices + webhook to /api/stripe/webhook');
-console.log('- Archive old $99 / $249 price IDs in Stripe Dashboard after updating Vercel env vars');
-console.log('- Vercel Production: set all STRIPE_* and backend vars, redeploy');
+console.log('- Archive old $99 / $249 price IDs in Stripe Dashboard after updating Cloudflare Pages variables');
+console.log('- Cloudflare Pages: set all STRIPE_* and backend variables, then redeploy');
 console.log('- Run one live Studio checkout and confirm billing/{uid}.plan=studio in Supabase');

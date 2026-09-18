@@ -16,6 +16,7 @@ execSync('pnpm exec vitest run src/test/editorPerformanceOverhaul.test.ts', {
   stdio: 'inherit',
   cwd: root,
   shell: true,
+  env: { ...process.env, VISH_WRITE_PERF_PROOF: '1' },
 });
 
 const proof = JSON.parse(readFileSync(proofPath, 'utf8'));

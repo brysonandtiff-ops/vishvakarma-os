@@ -30,5 +30,5 @@ Purpose: verify the full software voice tour works on desktop, iPad Safari, and 
 
 1. Desktop `/editor`: voice panel open with Editor chapter.
 2. iPad `/editor`: play browser voice, then switch chapters.
-3. iPad PWA after Vercel deploy: confirm voice button appears after refresh.
+3. iPad PWA after Cloudflare Pages deploy: confirm voice button appears after refresh.
 4. MP3 mode: confirm missing file fallback message appears until audio files are added.

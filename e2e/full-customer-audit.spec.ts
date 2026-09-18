@@ -21,14 +21,14 @@ const deviceMatrix = [
   ['phone-landscape', iPhoneLandscape],
 ] as const;
 
-async function expectGoogleOnlyAuth(page: Page) {
+async function expectProductionAuth(page: Page) {
   await expect(page.getByTestId('auth-page')).toBeVisible({ timeout: 30_000 });
   const googleSso = page.getByTestId('google-sso-button');
   await expect(googleSso).toBeVisible({ timeout: 15_000 });
   await expect(googleSso).toHaveText(/continue with google sso/i);
-  await expect(page.getByText(/magic link/i)).toHaveCount(0);
+  await expect(page.getByTestId('email-magic-link-input')).toBeVisible();
+  await expect(page.getByTestId('email-magic-link-button')).toBeVisible();
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
-  await expect(page.locator('input[type="email"]')).toHaveCount(0);
   await expect(page.getByText(/enter local workspace/i)).toHaveCount(0);
 }
 
@@ -36,10 +36,10 @@ test.describe('full real-customer device audit', () => {
   test.setTimeout(120_000);
 
   for (const [deviceName, viewport] of deviceMatrix) {
-    test(`auth is Google-only and layout-safe on ${deviceName}`, async ({ page }) => {
+    test(`auth supports Google SSO and secure email and is layout-safe on ${deviceName}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto('/auth', { waitUntil: 'domcontentloaded' });
-      await expectGoogleOnlyAuth(page);
+      await expectProductionAuth(page);
       await assertNoHorizontalOverflow(page);
       await assertTouchTargets(page, ['button', 'a.touch-target'], viewport.width < 700 ? 42 : 44);
     });

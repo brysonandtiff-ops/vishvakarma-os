@@ -2,15 +2,15 @@
 
 [← Handoff index](./HANDOFF.md)
 
-**No secrets in this document.** Live credentials live in Vercel environment variables and operator secure storage. See [Operator Annex template](./templates/OPERATOR_ANNEX.template.md).
+**No secrets in this document.** Live credentials live in Cloudflare Pages environment variables and operator secure storage. See [Operator Annex template](./templates/OPERATOR_ANNEX.template.md).
 
-**Env var matrix:** [Appendix B](./appendices/B-environment-variables.md), [`.env.example`](../../.env.example), [`docs/release/VERCEL_ENV.md`](../release/VERCEL_ENV.md)
+**Env var matrix:** [Appendix B](./appendices/B-environment-variables.md), [`.env.example`](../../.env.example), [`docs/release/CLOUDFLARE_ENV.md`](../release/CLOUDFLARE_ENV.md)
 
 ## Third-party service registry
 
 | Service | Role | Identifiers / URLs |
 |---------|------|-------------------|
-| **Vercel** | Hosting, serverless API, security headers | Canonical: https://vishvakarma-os.app (fallback: https://vishvakarma-os.vercel.app) |
+| **Cloudflare Pages** | Hosting, serverless API, security headers | Canonical: https://vishvakarma-os.app (fallback: https://vishvakarma-os.pages.dev) |
 | **Supabase** | Auth, Postgres, RLS, Storage | Project ref: `jyocvwipthswfcmvqgqe`; URL: `https://jyocvwipthswfcmvqgqe.supabase.co` |
 | **Stripe** | Checkout, Customer Portal, webhooks | Products: Studio $499/mo, Enterprise $1,000/mo |
 | **GitHub** | Source control, CI | https://github.com/brysonandtiff-ops/vishvakarma-os |
@@ -26,7 +26,7 @@
 | Client gateways | [`src/backend/supabase/`](../../src/backend/supabase/) |
 | Server billing writes | [`api/_lib/billingSupabase.ts`](../../api/_lib/billingSupabase.ts) |
 | Setup script | [`scripts/setup-supabase-auth-providers.mjs`](../../scripts/setup-supabase-auth-providers.mjs) |
-| Push env to Vercel | [`scripts/push-supabase-env-vercel.mjs`](../../scripts/push-supabase-env-vercel.mjs) |
+| Configure Cloudflare Pages variables | [`docs/release/CLOUDFLARE_ENV.md`](../release/CLOUDFLARE_ENV.md) |
 
 ### Stripe
 
@@ -75,7 +75,7 @@ Env: `GEMINI_API_KEY`, optional `GEMINI_MODEL`.
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STUDIO_MONTHLY`, `STRIPE_PRICE_ENTERPRISE_MONTHLY`
 - `APP_URL`, `GEMINI_API_KEY`
 
-**Deprecated — remove from Vercel if present:**
+**Deprecated — remove from Cloudflare Pages if present:**
 
 - All `VITE_FIREBASE_*`, `VITE_BACKEND_PROVIDER`, `BACKEND_PROVIDER`, `FIREBASE_*`
 
@@ -84,14 +84,14 @@ Env: `GEMINI_API_KEY`, optional `GEMINI_MODEL`.
 Use when transferring ownership for valuation/acquisition:
 
 1. **GitHub** — transfer repo or add acquirer as admin; confirm CI secrets if any
-2. **Vercel** — transfer project or add team; export env var names (not values) from dashboard
+2. **Cloudflare Pages** — transfer project or add team; export env var names (not values) from dashboard
 3. **Supabase** — transfer organization/project; rotate `SUPABASE_SERVICE_ROLE_KEY` and anon key after handover
 4. **Stripe** — transfer account or create new products/prices; update webhook endpoint to production URL `/api/stripe/webhook`
 5. **Google Cloud** — transfer OAuth client or reconfigure in Supabase Auth providers
-6. **Domain/DNS** — if custom domain used, update registrar and Vercel domain settings
+6. **Domain/DNS** — if custom domain used, update registrar and Cloudflare Pages domain settings
 7. **Gemini** — rotate `GEMINI_API_KEY`; confirm billing on Google Cloud project
 8. **Operator annex** — complete [`templates/OPERATOR_ANNEX.template.md`](./templates/OPERATOR_ANNEX.template.md); deliver via secure channel (not git)
 9. **Co-owner emails** — update [`src/config/coOwners.ts`](../../src/config/coOwners.ts) if allowlist changes
 10. **Verify** — run `pnpm run production:verify-env --strict`, `verify:supabase-schema:live`, `verify:stripe-billing`, `verify:production-auth-flow`
 
-Promote admin/co-owner: [`docs/release/VERCEL_ENV.md`](../release/VERCEL_ENV.md) § Promote a co-owner
+Promote admin/co-owner: [`docs/release/CLOUDFLARE_ENV.md`](../release/CLOUDFLARE_ENV.md) § Promote a co-owner

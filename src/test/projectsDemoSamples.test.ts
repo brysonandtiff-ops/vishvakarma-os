@@ -24,4 +24,26 @@ describe('Projects demo samples', () => {
       expect(sampleCatalogSource).toContain("'projects-demo'");
     }
   });
+
+  // Regression: the dashboard's primary actions were rendered without handlers,
+  // so "Open Project", "Import Files" and "AI Copilot" were dead controls.
+  it('wires every dashboard primary action to an editor intent', () => {
+    for (const testId of ['dashboard-open-project', 'dashboard-import-files', 'dashboard-ai-copilot']) {
+      expect(projectsPageSource).toContain(`data-testid="${testId}"`);
+    }
+    for (const intent of ['openIntent: \'openProject\'', 'openIntent: \'import\'', 'openIntent: \'aiDesigner\'']) {
+      expect(projectsPageSource).toContain(intent);
+    }
+    // The editor must honour every intent the dashboard can send.
+    const editorSource = read('src/pages/EditorPage.tsx');
+    expect(editorSource).toContain("state.openIntent === 'openProject'");
+    expect(editorSource).toContain("state.openIntent === 'import'");
+    expect(editorSource).toContain("state.openIntent === 'aiDesigner'");
+  });
+
+  // Regression: demoSamples/openDemoSample were computed but never rendered.
+  it('renders the demo sample fixtures it computes', () => {
+    expect(projectsPageSource).toContain('demoSamples.map');
+    expect(projectsPageSource).toContain('openDemoSample(sample.id)');
+  });
 });

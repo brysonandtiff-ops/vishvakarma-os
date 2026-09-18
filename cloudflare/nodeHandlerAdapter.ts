@@ -6,12 +6,12 @@ import type {
 
 type StreamListener = (...args: unknown[]) => void;
 
-export type VercelStyleRequest = SecureApiRequest & {
+export type NodeStyleRequest = SecureApiRequest & {
   on?: (event: string, listener: StreamListener) => void;
 };
 
-export type VercelStyleHandler = (
-  req: VercelStyleRequest,
+export type NodeStyleHandler = (
+  req: NodeStyleRequest,
   res: SecureApiResponse,
 ) => unknown | Promise<unknown>;
 
@@ -30,13 +30,13 @@ async function requestBody(request: Request): Promise<Buffer | undefined> {
 }
 
 /**
- * Runs the existing hardened Node/Vercel-style API handlers inside a
- * Cloudflare Pages Function while preserving raw request bytes for signed
- * webhooks and the existing bounded-body guards.
+ * Runs the existing hardened Node-style API handlers inside a Cloudflare Pages
+ * Function while preserving raw request bytes for signed webhooks and bounded
+ * request-body guards.
  */
-export async function runVercelHandler(
+export async function runNodeHandler(
   request: Request,
-  handler: VercelStyleHandler,
+  handler: NodeStyleHandler,
 ): Promise<Response> {
   const responseHeaders = new Headers({
     'Cache-Control': 'private, no-store, max-age=0',
@@ -67,7 +67,7 @@ export async function runVercelHandler(
     url: request.url,
     headers: requestHeaders(request),
     body: await requestBody(request),
-  } as VercelStyleRequest;
+  } as NodeStyleRequest;
 
   try {
     await handler(req, response);
@@ -79,13 +79,8 @@ export async function runVercelHandler(
     responseSent = true;
   }
 
-  if (!responseSent) {
-    statusCode = statusCode === 200 ? 204 : statusCode;
-  }
-
-  if (request.method.toUpperCase() === 'HEAD' || statusCode === 204) {
-    responseBody = null;
-  }
+  if (!responseSent) statusCode = statusCode === 200 ? 204 : statusCode;
+  if (request.method.toUpperCase() === 'HEAD' || statusCode === 204) responseBody = null;
 
   return new Response(responseBody, {
     status: statusCode,

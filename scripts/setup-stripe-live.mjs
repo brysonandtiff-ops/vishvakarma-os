@@ -4,7 +4,6 @@
  *
  * Usage:
  *   STRIPE_SECRET_KEY=sk_live_... node scripts/setup-stripe-live.mjs
- *   STRIPE_SECRET_KEY=sk_live_... node scripts/setup-stripe-live.mjs --push-vercel
  */
 
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
@@ -19,7 +18,6 @@ loadEnvFile(ENV_PATH);
 const APP_URL = (process.env.APP_URL ?? CANONICAL_ORIGIN).replace(/\/$/, '');
 const WEBHOOK_PATH = '/api/stripe/webhook';
 const WEBHOOK_URL = `${APP_URL}${WEBHOOK_PATH}`;
-const pushVercel = process.argv.includes('--push-vercel');
 
 const WEBHOOK_EVENTS = [
   'checkout.session.completed',
@@ -216,24 +214,6 @@ async function checkAccount(secretKey) {
   }
 }
 
-function pushEnvToVercel(entries) {
-  for (const [name, value] of Object.entries(entries)) {
-    if (!value) continue;
-    console.log(`[INFO] vercel env add ${name} production`);
-    const result = spawnSync('vercel', ['env', 'add', name, 'production', '--force'], {
-      input: value,
-      encoding: 'utf8',
-      shell: true,
-    });
-    if (result.status !== 0) {
-      console.warn(`[WARN] vercel env add ${name} failed — set manually in Vercel Dashboard`);
-      console.warn(result.stderr ?? result.stdout ?? '');
-    } else {
-      console.log(`[OK] Set ${name} on Vercel production`);
-    }
-  }
-}
-
 async function loadOptionalFirebaseEnv() {
   const envPath = join(process.cwd(), '.env.stripe.local');
   if (!existsSync(envPath)) return {};
@@ -274,26 +254,12 @@ async function main() {
   });
 
   console.log('');
-  console.log('=== Vercel Production env (server + client) ===');
+  console.log('=== Cloudflare Pages production variables (server + client) ===');
   console.log(`STRIPE_PRICE_STUDIO_MONTHLY=${studioPriceId}`);
   console.log(`STRIPE_PRICE_ENTERPRISE_MONTHLY=${enterprisePriceId}`);
   console.log('STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET saved to .env.stripe.local');
   console.log('');
-  console.log('Redeploy production after pushing env vars.');
-
-  if (pushVercel) {
-    pushEnvToVercel({
-      STRIPE_SECRET_KEY: secretKey,
-      STRIPE_WEBHOOK_SECRET: webhookSecret,
-      STRIPE_PRICE_STUDIO_MONTHLY: studioPriceId,
-      STRIPE_PRICE_ENTERPRISE_MONTHLY: enterprisePriceId,
-      FIREBASE_PROJECT_ID: firebaseEnv.FIREBASE_PROJECT_ID ?? 'gen-lang-client-0690161780',
-      FIREBASE_SERVICE_ACCOUNT_JSON: firebaseEnv.FIREBASE_SERVICE_ACCOUNT_JSON,
-      APP_URL,
-      VITE_STRIPE_BILLING_ENABLED: 'true',
-      VITE_PRICING_PAGE_ENABLED: 'true',
-    });
-  }
+  console.log('Set these values in Cloudflare Pages, then redeploy production.');
 }
 
 main().catch((error) => {

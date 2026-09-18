@@ -14,7 +14,7 @@ Third-party services that process data on behalf of Vishvakarma.OS.
 |--------|---------|----------------|----------|---------|
 | **Supabase** | Auth, Postgres, Storage | Account, projects, manifests, files | Configurable (project region) | Primary backend |
 | **Stripe** | Payments | Email, billing metadata, payment methods | US/EU (Stripe) | Subscriptions |
-| **Vercel** | Hosting, serverless | HTTP logs, function payloads in transit | Global edge | App delivery, API routes |
+| **Cloudflare Pages** | Hosting, serverless | HTTP logs, function payloads in transit | Global edge | App delivery, API routes |
 | **Google (Gemini)** | Generative AI | Prompts, parsed documents (when AI enabled) | Google cloud | Copilot parsing |
 | **Sentry** (optional) | Error monitoring | Error events, stripped breadcrumbs | Sentry region | Reliability |
 | **GitHub** | Source control | Code (no end-user PII in repo) | US | Development |
@@ -25,9 +25,9 @@ Third-party services that process data on behalf of Vishvakarma.OS.
 
 ```mermaid
 flowchart LR
-  User[User browser] --> Vercel[Vercel SPA]
-  User --> API[Vercel api/]
-  Vercel --> Supabase[(Supabase)]
+  User[User browser] --> Cloudflare Pages[Cloudflare Pages SPA]
+  User --> API[Cloudflare Pages api/]
+  Cloudflare Pages --> Supabase[(Supabase)]
   API --> Supabase
   API --> Stripe[Stripe]
   API --> Gemini[Gemini]
@@ -39,7 +39,7 @@ flowchart LR
 
 1. Execute Data Processing Agreements with vendors where required
 2. Document Supabase project region in operator annex
-3. Restrict service role keys to server-side Vercel functions only
+3. Restrict service role keys to server-side Cloudflare Pages functions only
 4. Rotate keys on operator transfer — [operations/ACCOUNT_TRANSFER.md](../operations/ACCOUNT_TRANSFER.md)
 
 ---

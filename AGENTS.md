@@ -57,7 +57,7 @@ Unified runner: `node scripts/run-pipeline.mjs --tier=<name>` (alias: `pnpm run 
 | `verify:ci` | `pnpm run verify:ci` | Pre-deploy — adds `test:routes` |
 | `ci` | `pnpm run ci` | Full GitHub Actions parity (needs live Supabase env for some steps) |
 | `release` | `pnpm run release:gates` | 13-gate release manifest |
-| `post-deploy` | `pnpm run stability:post-deploy` | Production smoke after Vercel deploy |
+| `post-deploy` | `pnpm run stability:post-deploy` | Production smoke after Cloudflare Pages deploy |
 | `repairbot:fast` | `pnpm run repairbot:fast` | After routine edits |
 | `repairbot:medium` | `pnpm run repairbot:medium` | Before declaring a feature done |
 | `repairbot:full` | `pnpm run repairbot:full` | Push-level verification (verify + env preflight) |
@@ -97,10 +97,10 @@ Production auth is **Supabase-only**. Common agent mistakes:
 | Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarma-os.app` prod; `http://127.0.0.1:5173` local) |
 | Google OAuth redirect | Google Cloud client needs `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback` |
 | Supabase redirect URLs | Dashboard → Auth → URL config must list `/auth` and `/editor` for each origin |
-| `VITE_*` not updating after env change | Vite inlines at **build time** — redeploy Vercel after env edits |
-| Legacy Firebase vars | Remove `VITE_FIREBASE_*` / `VITE_BACKEND_PROVIDER` from Vercel if present |
+| `VITE_*` not updating after env change | Vite inlines at **build time** — redeploy Cloudflare Pages after env edits |
+| Legacy Firebase vars | Remove `VITE_FIREBASE_*` / `VITE_BACKEND_PROVIDER` from Cloudflare Pages if present |
 
-Template: [`.env.example`](./.env.example). Operator setup: [docs/release/SUPABASE_AUTH_SETUP.md](./docs/release/SUPABASE_AUTH_SETUP.md), [docs/release/VERCEL_ENV.md](./docs/release/VERCEL_ENV.md).
+Template: [`.env.example`](./.env.example). Operator setup: [docs/release/SUPABASE_AUTH_SETUP.md](./docs/release/SUPABASE_AUTH_SETUP.md), [docs/release/CLOUDFLARE_ENV.md](./docs/release/CLOUDFLARE_ENV.md).
 
 Verify auth changes:
 

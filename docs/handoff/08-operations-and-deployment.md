@@ -24,22 +24,22 @@ Verify env: `pnpm run production:verify-env` (add `--strict` for live values)
 | `pnpm run preview` | Preview on port 4173 |
 | `pnpm run preview:e2e` | E2E build + preview |
 
-## Vercel deployment (primary production)
+## Cloudflare Pages deployment (primary production)
 
 | Item | Detail |
 |------|--------|
-| Config | [`vercel.json`](../../vercel.json) — SPA rewrite to `/index.html`, API routes excluded |
+| Config | [`wrangler.jsonc`](../../wrangler.jsonc), [`public/_headers`](../../public/_headers), and [`public/_routes.json`](../../public/_routes.json) |
 | Build | `pnpm install --frozen-lockfile` → `pnpm run build` |
 | Output | `dist/` |
-| Deploy script | [`scripts/deploy-vercel.sh`](../../scripts/deploy-vercel.sh) — runs `verify:ci`, requires clean git, `npx vercel --prod` |
+| Certification script | [`scripts/deployment/certify-cloudflare-release.mjs`](../../scripts/deployment/certify-cloudflare-release.mjs) — verifies config, types, tests, build, artifact security, budgets, and optional live Pages URL |
 
 Guide: [`docs/release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)
 
-Push env to Vercel:
+Push env to Cloudflare Pages:
 
 ```bash
-pnpm run push:supabase-env-vercel
-# Stripe: scripts/push-stripe-env-vercel.mjs (operator)
+pnpm run setup:supabase-auth
+# Stripe: scripts/setup-stripe-live-cli.mjs (operator)
 ```
 
 ## Supabase operations
@@ -75,7 +75,7 @@ Evidence directory: [`docs/release/evidence/`](../release/evidence/)
 
 ## Collaboration server (optional)
 
-Not deployed to Vercel by default:
+Not deployed to Cloudflare Pages by default:
 
 ```bash
 pnpm run collab:server:dev

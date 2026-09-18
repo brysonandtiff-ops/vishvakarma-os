@@ -19,14 +19,13 @@ describe('production authentication certification', () => {
     expect(verifier).not.toContain("name === 'firefox' && postAlert === null");
   });
 
-  it('runs the repository credential guard before Vercel quality gates', () => {
-    const build = readRepositoryFile('scripts/vercel-build.mjs');
+  it('runs the repository credential guard before Cloudflare quality gates', () => {
+    const build = readRepositoryFile('scripts/deployment/certify-cloudflare-release.mjs');
     const guard = readRepositoryFile('scripts/security/check-repository-secrets.mjs');
 
-    expect(build).toContain("label: 'Repository secret guard'");
     expect(build).toContain('check-repository-secrets.mjs');
-    expect(build.indexOf("label: 'Repository secret guard'")).toBeLessThan(
-      build.indexOf("label: 'Lint'"),
+    expect(build.indexOf('check-repository-secrets.mjs')).toBeLessThan(
+      build.indexOf('verify-cloudflare-config.mjs'),
     );
 
     expect(guard).toContain("git', ['ls-files', '-z']");

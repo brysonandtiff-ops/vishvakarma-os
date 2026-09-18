@@ -29,7 +29,7 @@ Deep dive: [handoff/03-architecture-and-data-flow.md](./handoff/03-architecture-
 2. [operations/DEPLOYMENT_RUNBOOK.md](./operations/DEPLOYMENT_RUNBOOK.md) — production deploy
 3. [operations/INCIDENT_RESPONSE.md](./operations/INCIDENT_RESPONSE.md) — severity and escalation
 4. [release/OPERATOR_CHECKLIST.md](./release/OPERATOR_CHECKLIST.md) — launch gates
-5. [release/VERCEL_ENV.md](./release/VERCEL_ENV.md) — environment matrix
+5. [release/CLOUDFLARE_ENV.md](./release/CLOUDFLARE_ENV.md) — environment matrix
 
 ### End user
 

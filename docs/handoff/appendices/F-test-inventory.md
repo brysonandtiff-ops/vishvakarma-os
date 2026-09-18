@@ -2,14 +2,17 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
-## Vitest unit/integration (164 files)
+## Vitest unit/integration (186 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
 - `src/backend/backendConfig.test.ts`
+- `src/backend/supabase/mappers.test.ts`
 - `src/backend/supabase/supabaseAuthCallback.test.ts`
+- `src/backend/supabase/supabaseAuthPolicy.test.ts`
+- `src/backend/supabase/supabaseMfaGateway.test.ts`
 - `src/cast/CastIntentRelay.test.ts`
 - `src/cast/CastLensState.test.ts`
 - `src/cast/castTier.test.ts`
@@ -17,6 +20,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/components/architecture-bot/ArchitectureBotWidget.test.tsx`
 - `src/components/auth/AuthStatusBanner.test.tsx`
 - `src/components/auth/AuthTrustPillar.test.tsx`
+- `src/components/auth/MfaChallengeGate.test.tsx`
 - `src/components/brand/CopilotSwanMark.test.tsx`
 - `src/components/brand/FoundersAcknowledgment.test.tsx`
 - `src/components/common/PrototypeDisclaimer.test.tsx`
@@ -59,6 +63,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/rules/zoning/setbackRule.test.ts`
 - `src/services/architecture-bot/repairActions.test.ts`
 - `src/services/architecture-bot/scanIssues.test.ts`
+- `src/services/billing/stripeCheckout.test.ts`
 - `src/services/compliance/complianceAggregator.test.ts`
 - `src/services/copilot/ingestion/documentParsers.test.ts`
 - `src/services/copilot/ingestion/dxfBoundaryParser.test.ts`
@@ -81,8 +86,10 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/PropertiesPanel.test.tsx`
 - `src/test/RadialToolMenu.test.tsx`
 - `src/test/ToolRail.test.tsx`
+- `src/test/VisualThemeController.runtime.test.tsx`
 - `src/test/accessibilityLayer.test.ts`
 - `src/test/adaptiveFrameGovernor.test.ts`
+- `src/test/analyticsConsent.test.tsx`
 - `src/test/atmosphereMode.test.ts`
 - `src/test/automatedTestSuite.test.ts`
 - `src/test/billingBanner.test.ts`
@@ -110,6 +117,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/editorVisualPolish.test.ts`
 - `src/test/editorWorkflow.test.ts`
 - `src/test/elementLock.test.ts`
+- `src/test/emailMagicLinkFallback.test.ts`
 - `src/test/export.test.ts`
 - `src/test/formatValidator.test.ts`
 - `src/test/functionalWiring.test.ts`
@@ -128,18 +136,28 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/manifestGeometry.test.ts`
 - `src/test/marketingCta.test.ts`
 - `src/test/marketingRoutes.test.tsx`
+- `src/test/monitoringPrivacy.test.ts`
 - `src/test/motionSystem.test.ts`
 - `src/test/multiUserGovernance.test.ts`
 - `src/test/multiUserRolesCiGate.test.ts`
+- `src/test/noBlockingStartupScreen.test.ts`
+- `src/test/noImpatienceInterruptionGuard.test.ts`
 - `src/test/officialLogoBrand.test.ts`
 - `src/test/parity2d3d.test.ts`
 - `src/test/pilotDocs.test.ts`
+- `src/test/productionAuthVerifier.test.ts`
 - `src/test/projectRoles.test.ts`
 - `src/test/projectsDemoSamples.test.ts`
+- `src/test/pwaUpdateSafety.test.ts`
+- `src/test/qaToolsGate.test.ts`
 - `src/test/redTeam.test.ts`
 - `src/test/regressionAnchors.test.ts`
+- `src/test/releaseGateHardening.test.ts`
 - `src/test/repairbotTiers.test.ts`
+- `src/test/repositorySecretGuard.test.ts`
+- `src/test/responsiveRouteAudit.test.ts`
 - `src/test/roomCalculations.test.ts`
+- `src/test/routeCssBoundary.test.ts`
 - `src/test/sacredMarketing.test.ts`
 - `src/test/sampleCatalog.test.ts`
 - `src/test/sanskritAuthGate.test.ts`
@@ -150,9 +168,12 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/sceneTerrainCatalog.test.ts`
 - `src/test/sceneTextureCatalog.test.ts`
 - `src/test/sceneVisualCatalog.test.ts`
+- `src/test/serverRuntimeAliasBoundary.test.ts`
 - `src/test/spatialIndex.test.ts`
 - `src/test/stressTest.test.ts`
 - `src/test/stripeInvoice.test.ts`
+- `src/test/supabaseApiVisibility.test.ts`
+- `src/test/supabaseAuthHardeningConfig.test.ts`
 - `src/test/supabaseAuthRestore.test.ts`
 - `src/test/texturePatterns.test.ts`
 - `src/test/themeManager.test.ts`
@@ -162,6 +183,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/test/visualThemeController.test.ts`
 - `src/test/workspaceCommandPalette.test.ts`
 - `src/test/workspaceLayoutPolish.test.ts`
+- `src/test/workspaceNavDrawer.test.tsx`
 - `src/test/worldRecordMeasure.test.ts`
 - `src/test/worldRecordRegistry.test.ts`
 - `src/tutorial/tutorialCatalog.test.ts`
@@ -171,7 +193,7 @@ Generated: 2026-06-26T11:12:49.851Z
 - `src/utils/floorHelpers.test.ts`
 - `src/utils/wallDrawConstraints.test.ts`
 
-## Playwright E2E (38 specs)
+## Playwright E2E (45 specs)
 
 - `e2e/accessibility-audit.spec.ts`
 - `e2e/ai-designer.spec.ts`
@@ -190,23 +212,30 @@ Generated: 2026-06-26T11:12:49.851Z
 - `e2e/device-governance-layout.spec.ts`
 - `e2e/device-marketing-layout.spec.ts`
 - `e2e/device-phone-editor.spec.ts`
+- `e2e/device-truth.spec.ts`
 - `e2e/device-validation-proof-panel.spec.ts`
 - `e2e/editor-draw-workflow-proof.spec.ts`
 - `e2e/editor-features.spec.ts`
 - `e2e/editor-performance.spec.ts`
 - `e2e/editor-tool-clickthrough-proof.spec.ts`
+- `e2e/full-customer-audit.spec.ts`
 - `e2e/governance-smoke.spec.ts`
+- `e2e/ipad-editor-current-contract.spec.ts`
 - `e2e/ipad-editor-layout.spec.ts`
 - `e2e/ipad-editor-workflow.spec.ts`
 - `e2e/ipad-production-readiness.spec.ts`
+- `e2e/ipad10-production-proof.spec.ts`
 - `e2e/long-session-soak-proof.spec.ts`
 - `e2e/marketing-asset-pack.spec.ts`
 - `e2e/marketing-pages.spec.ts`
+- `e2e/menu-overlap.spec.ts`
 - `e2e/optimization.spec.ts`
+- `e2e/overlay-exclusivity.spec.ts`
 - `e2e/page-reference-pack-remainder.spec.ts`
 - `e2e/page-reference-pack.spec.ts`
 - `e2e/project-demo-load-proof.spec.ts`
 - `e2e/projects-profile.spec.ts`
+- `e2e/qe-production-route-smoke.spec.ts`
 - `e2e/release-screenshot-pack.spec.ts`
 - `e2e/route-health-smoke.spec.ts`
 - `e2e/tutorial-essentials.spec.ts`

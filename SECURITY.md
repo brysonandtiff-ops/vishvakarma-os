@@ -46,7 +46,7 @@ We aim to acknowledge reports within 5 business days.
 
 ### Transport and headers
 
-Production deploys via Vercel with security headers defined in [vercel.json](vercel.json):
+Production deploys via Cloudflare Pages with security headers defined in [public/_headers](public/_headers):
 
 - Content-Security-Policy (CSP)
 - Strict-Transport-Security (HSTS)
@@ -71,9 +71,9 @@ Evidence: [docs/release/evidence/security-headers.md](docs/release/evidence/secu
 
 1. Apply Supabase migrations before enabling production auth (`npx supabase db push`)
 2. Restrict Supabase/Google OAuth authorized domains to production URL
-3. Remove legacy Firebase env vars from Vercel if still present (`VITE_FIREBASE_*`, `BACKEND_PROVIDER`)
-4. Enable Vercel deployment protection for preview URLs if handling sensitive data
-5. Review [docs/release/VERCEL_ENV.md](docs/release/VERCEL_ENV.md) before each production deploy
+3. Remove legacy Firebase env vars from Cloudflare Pages if still present (`VITE_FIREBASE_*`, `BACKEND_PROVIDER`)
+4. Protect or disable sensitive Cloudflare preview URLs
+5. Review [docs/release/CLOUDFLARE_ENV.md](docs/release/CLOUDFLARE_ENV.md) before each production deploy
 6. Rotate `SUPABASE_SERVICE_ROLE_KEY` on operator transfer
 
 ## Privacy

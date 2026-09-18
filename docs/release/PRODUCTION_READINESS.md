@@ -1,6 +1,6 @@
 # Vishvakarma.OS — Production Readiness Evidence
 
-**Status:** v1.2.0 release hardening complete locally. Supabase-only runtime on Vercel. Final public launch requires green GitHub Actions on the release commit.
+**Status:** v1.2.0 release hardening complete locally. Supabase-only runtime on Cloudflare Pages. Final public launch requires green GitHub Actions on the release commit.
 
 **Last updated:** 2026-06-09
 
@@ -27,9 +27,9 @@
 | Export format limits | `docs/user/EXPORT_LIMITATIONS.md` | PASS |
 | Stub tool roadmap | `docs/user/STUB_TOOLS.md` | PASS |
 | Release screenshot pack | Page references + Playwright captures | PASS |
-| Vercel production env | `docs/release/VERCEL_ENV.md` | PASS |
-| Vercel SPA routing | Deep links rewrite to `index.html` | PASS |
-| Security headers | `vercel.json` + live CSP/HSTS | PASS |
+| Cloudflare Pages production env | `docs/release/CLOUDFLARE_ENV.md` | PASS |
+| Cloudflare Pages SPA routing | Deep links rewrite to `index.html` | PASS |
+| Security headers | `public/_headers` + live CSP/HSTS | PASS |
 
 ---
 
@@ -41,14 +41,14 @@ Do **not** mark a release as production ready unless all of these are true:
 2. The `dist/` artifact is present in the verify workflow run.
 3. The Playwright report is attached or inspected for the E2E workflow run.
 4. A deployed preview opens every production route (31 routes per `PAGE_REFERENCE.md`).
-5. Supabase production environment variables are configured in Vercel:
+5. Supabase production environment variables are configured in Cloudflare Pages:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `VITE_AUTH_REDIRECT_ORIGIN`
 6. Supabase Auth is configured:
    - Google OAuth provider enabled
-   - production site URL allowlisted (`vishvakarma-os.vercel.app`)
+   - production site URL allowlisted (`vishvakarma-os.pages.dev`)
 7. Manual smoke test confirms:
    - `/auth` loads while signed out
    - signed-out users cannot access private app routes in production
@@ -126,7 +126,7 @@ The release must be blocked if any of these occur:
 ## Evidence Checklist
 
 - [x] Local `pnpm run verify:ci` green (2026-06-09)
-- [x] Vercel deployment URL attached — https://vishvakarma-os.vercel.app
+- [x] Cloudflare Pages deployment URL attached — https://vishvakarma-os.pages.dev
 - [x] Live security headers captured — `security-headers.txt`
 - [x] Auth sign-in proof — `auth-sign-in-proof.md`
 - [x] Save/load proof — `save-load-proof.md`

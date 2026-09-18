@@ -70,6 +70,11 @@ export function finalizeProofReport(): void {
   proofReport.commitSha = resolveCommitSha();
   proofReport.summary = { pass, fail, warn, total: proofReport.checks.length };
 
+  // The ordinary unit suite must be read-only so "tests pass" and "tree
+  // clean" can describe the same SHA. Evidence is written only by the
+  // explicit `pnpm run record:perf-overhaul` command.
+  if (process.env.VISH_WRITE_PERF_PROOF !== '1') return;
+
   mkdirSync(evidenceDir, { recursive: true });
 
   const jsonPath = join(evidenceDir, 'editor-performance-overhaul-proof.json');

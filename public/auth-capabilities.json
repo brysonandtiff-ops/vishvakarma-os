@@ -2,11 +2,11 @@
   "testedAt": "2026-06-15T06:07:32.567Z",
   "commitSha": "6b781c49827aade1f3070ab1b9a4f2fae662132e",
   "deploymentUrl": "https://vishvakarma-os.app",
-  "fallbackDeploymentUrl": "https://vishvakarma-os.vercel.app",
+  "pagesDeploymentUrl": "https://vishvakarma-os.pages.dev",
   "provider": "supabase",
   "domainStatus": {
     "canonicalOrigin": "https://vishvakarma-os.app",
-    "vercelFallbackOrigin": "https://vishvakarma-os.vercel.app",
+    "cloudflarePagesOrigin": "https://vishvakarma-os.pages.dev",
     "customDomainAuthRetest": "passed",
     "note": "Live auth smoke run completed against canonical .app origin."
   },

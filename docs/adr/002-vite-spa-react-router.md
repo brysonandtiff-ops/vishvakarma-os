@@ -9,11 +9,11 @@ The product requires an iPad-first, browser-native workstation with heavy client
 
 ## Decision
 
-Use **Vite + React 18 SPA** with **React Router 7** for client-side routing. Server logic runs as **Vercel serverless functions** in `api/`, not as Next.js API routes or SSR pages.
+Use **Vite + React 18 SPA** with **React Router 7** for client-side routing. Server logic runs as **Cloudflare Pages Functions** in `api/`, not as Next.js API routes or SSR pages.
 
 ## Consequences
 
-- Positive: Fast HMR, rolldown-vite build, static `dist/` deploy on Vercel
+- Positive: Fast HMR, rolldown-vite build, static `dist/` deploy on Cloudflare Pages
 - Positive: Clear separation between SPA and serverless billing/AI
 - Negative: No built-in SSR/SEO for app routes (marketing pages are client-rendered)
 - Neutral: Documentation must explicitly state "not Next.js" for due diligence reviewers

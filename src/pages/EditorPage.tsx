@@ -90,6 +90,7 @@ import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosphericMask';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
+const AkashaCastPanel = lazy(() => import('@/components/editor/panels/AkashaCastPanel'));
 
 export default function EditorPage() {
   return <EditorWorkspace />;
@@ -733,7 +734,17 @@ function EditorWorkspace() {
       loadManifest?: ProjectManifest;
       projectName?: string;
       manifestSource?: 'sample' | 'ai';
+      openIntent?: 'openProject' | 'import' | 'aiDesigner';
     } | null;
+    if (state?.openIntent) {
+      // Dashboard shortcuts (/projects) hand the editor an intent to open the
+      // matching dialog once it has mounted.
+      if (state.openIntent === 'openProject') setLoadDialogOpen(true);
+      else if (state.openIntent === 'import') setImportDialogOpen(true);
+      else if (state.openIntent === 'aiDesigner') setAiDesignerOpen(true);
+      window.history.replaceState({}, document.title);
+      return;
+    }
     if (state?.loadProject) {
       handleLoadProject(state.loadProject);
       window.history.replaceState({}, document.title);
@@ -979,6 +990,17 @@ function EditorWorkspace() {
         <VayuJalaPanel manifest={geometryManifest} />
         <AgniThermalPanel manifest={geometryManifest} />
         <PanchatattvaPanel manifest={geometryManifest} />
+        <AkashaCastPanel
+          projectId={currentProject?.id}
+          userId={user?.id}
+          userName={user?.email?.split('@')[0] ?? 'Architect'}
+          manifest={geometryManifest}
+          onCastStart={() => engine.setPresentationLock(true)}
+          onCastStop={() => engine.setPresentationLock(false)}
+          onManifestChange={(nextManifest, isRemote) => {
+            if (isRemote) engine.applyRemoteManifest(nextManifest);
+          }}
+        />
       </div>
       <ProjectProofPanel
         projectName={projectName}

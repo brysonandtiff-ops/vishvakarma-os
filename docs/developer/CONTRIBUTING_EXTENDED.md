@@ -72,7 +72,7 @@ Pre-implementation proposals: [docs/rfc/](../rfc/README.md)
 
 ## Deployment references
 
-- [release/VERCEL_ENV.md](../release/VERCEL_ENV.md)
+- [release/CLOUDFLARE_ENV.md](../release/CLOUDFLARE_ENV.md)
 - [supabase/README.md](../../supabase/README.md)
 - [MIGRATION.md](../../MIGRATION.md)
 

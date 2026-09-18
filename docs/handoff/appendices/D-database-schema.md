@@ -2,7 +2,7 @@
 
 # Appendix D — Database Schema (from migrations)
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
 ## Migration files
 
@@ -13,6 +13,15 @@ Generated: 2026-06-26T11:12:49.851Z
 - `supabase/migrations/20260213000005_collab_and_storage.sql`
 - `supabase/migrations/20260615000001_cast_sessions.sql`
 - `supabase/migrations/20260618000001_ai_usage.sql`
+- `supabase/migrations/20260624173426_harden_project_role_function_search_path.sql`
+- `supabase/migrations/20260711194914_harden_internal_functions_storage_and_indexes.sql`
+- `supabase/migrations/20260711195543_bind_audit_log_inserts_to_authenticated_actor.sql`
+- `supabase/migrations/20260711195753_move_admin_check_out_of_exposed_schema.sql`
+- `supabase/migrations/20260711195911_optimize_rls_auth_uid_initplans.sql`
+- `supabase/migrations/20260711200108_remove_anonymous_access_from_authenticated_tables.sql`
+- `supabase/migrations/20260712095528_enforce_opt_in_totp_mfa.sql`
+- `supabase/migrations/20260718124701_temporary_auth_email_smoke_http.sql`
+- `supabase/migrations/20260810142840_restrict_audit_log_visibility.sql`
 
 ## Tables (`public` schema)
 
@@ -38,6 +47,8 @@ Generated: 2026-06-26T11:12:49.851Z
 - `public.is_project_member` (20260213000005_collab_and_storage.sql)
 - `public.is_project_owner` (20260213000005_collab_and_storage.sql)
 - `public.increment_ai_usage` (20260618000001_ai_usage.sql)
+- `public.is_project_member` (20260624173426_harden_project_role_function_search_path.sql)
+- `public.is_project_owner` (20260624173426_harden_project_role_function_search_path.sql)
 
 ## Policies
 
@@ -91,6 +102,7 @@ Generated: 2026-06-26T11:12:49.851Z
 | cast_sessions_update_host | cast_sessions | 20260615000001_cast_sessions.sql |
 | cast_invites_select_host | cast_invites | 20260615000001_cast_sessions.sql |
 | cast_events_select_member | cast_events | 20260615000001_cast_sessions.sql |
+| mfa_opt_in_enforcement | public | 20260712095528_enforce_opt_in_totp_mfa.sql |
 
 ## Storage
 

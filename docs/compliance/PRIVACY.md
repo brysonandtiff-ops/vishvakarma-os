@@ -25,7 +25,7 @@ High-level privacy practices for Vishvakarma.OS. This is an internal product doc
 - **Supabase** — auth identity, Postgres project rows, storage uploads
 - **Stripe** — payment method metadata, subscription state (not full card numbers)
 - **Browser localStorage** — local draft recovery when cloud unavailable
-- **Vercel** — static assets and serverless logs (no project manifest persistence)
+- **Cloudflare Pages** — static assets and serverless logs (no project manifest persistence)
 
 Subprocessors: [DATA_PROCESSING.md](./DATA_PROCESSING.md)
 
@@ -54,7 +54,7 @@ Product analytics require explicit opt-in via the in-app consent banner. See `sr
 - Project data retained until user deletes project or account (operator policy)
 - Audit logs retained for governance compliance
 - Stripe records per Stripe retention policy
-- Serverless logs per Vercel retention settings
+- Serverless logs per Cloudflare Pages retention settings
 
 ---
 

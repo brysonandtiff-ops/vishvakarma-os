@@ -300,7 +300,7 @@ export default function PropertiesPanel({
 
   return (
     <VishInspector className="vish-sidebar-panel">
-      <VishInspectorHeader><span>Wall Properties</span><span className="ml-1 text-vish-text-500">· {selectedWall.id.slice(0, 8)}</span></VishInspectorHeader>
+      <VishInspectorHeader>{`Wall Properties · ${selectedWall.id.slice(0, 8)}`}</VishInspectorHeader>
       <VishInspectorSection className="flex-1 overflow-y-auto">
         <VishInspectorContent className="pt-4">
           <VishInspectorRow label="ID"><span className="font-mono text-[10px]" title={selectedWall.id}>{selectedWall.id.slice(0, 12)}...</span></VishInspectorRow>

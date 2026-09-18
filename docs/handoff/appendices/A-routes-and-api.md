@@ -2,7 +2,7 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
 ## Client routes (`src/routes.tsx`)
 
@@ -22,18 +22,27 @@ Pricing route conditional in source: `PRICING_PAGE_ENABLED` = false.
 | `POST /api/cast/evidence` | `api/cast/evidence.ts` |
 | `POST /api/cast/join` | `api/cast/join.ts` |
 | `POST /api/cast/sessions` | `api/cast/sessions.ts` |
+| `POST /api/endpointHandlers.test` | `api/endpointHandlers.test.ts` |
 | `POST /api/health` | `api/health.ts` |
 | `POST /api/stripe/create-checkout-session` | `api/stripe/create-checkout-session.ts` |
+| `POST /api/stripe/create-checkout-session.test` | `api/stripe/create-checkout-session.test.ts` |
 | `POST /api/stripe/create-portal-session` | `api/stripe/create-portal-session.ts` |
 | `POST /api/stripe/webhook` | `api/stripe/webhook.ts` |
+| `POST /api/stripe/webhook.test` | `api/stripe/webhook.test.ts` |
 
 ## Shared API libraries
 
 - `api/_lib/aiUsage.ts`
+- `api/_lib/appOrigin.test.ts`
+- `api/_lib/appOrigin.ts`
 - `api/_lib/billingBackend.ts`
 - `api/_lib/billingSupabase.ts`
 - `api/_lib/castBackend.ts`
+- `api/_lib/httpSecurity.test.ts`
+- `api/_lib/httpSecurity.ts`
 - `api/_lib/stripeClient.ts`
 - `api/_lib/stripeInvoice.ts`
+- `api/_lib/stripeShapes.ts`
 - `api/_lib/verifyAuthToken.ts`
+- `api/_lib/verifySupabaseToken.test.ts`
 - `api/_lib/verifySupabaseToken.ts`

@@ -20,7 +20,7 @@ Common issues and fixes for Vishvakarma.OS users.
 ### OAuth redirect loop or error
 
 - Clear site cookies for `vishvakarma-os.app`
-- Ensure you use the canonical URL (not an old `.vercel.app` bookmark)
+- Ensure you use the canonical URL (not an old `.pages.dev` bookmark)
 - Try a private/incognito window
 
 ### "Backend is not configured"

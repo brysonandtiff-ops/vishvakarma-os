@@ -15,7 +15,7 @@ Purpose: keep Vishvakarma.OS usable for non-technical testers across the full pr
 | 3D Room | Premium samples load, stats/header visible, back to editor works | TBD |
 | Optimization | Page opens without route crash and primary CTA is visible | TBD |
 | Governance | Spec center, registry, change requests, releases, audit log route correctly | TBD |
-| PWA | Installed iPad app refreshes after new Vercel deploy | TBD |
+| PWA | Installed iPad app refreshes after new Cloudflare Pages deploy | TBD |
 
 ## iPad-first rules
 
@@ -30,4 +30,4 @@ Purpose: keep Vishvakarma.OS usable for non-technical testers across the full pr
 1. iPad landscape recording of auth → editor → demo load → grid toggle → 3D toggle.
 2. iPad portrait screenshot of auth and editor toolbar.
 3. Desktop screenshot of editor toolbar and sample picker.
-4. PWA installed-app refresh check after a Vercel deployment.
+4. PWA installed-app refresh check after a Cloudflare Pages deployment.

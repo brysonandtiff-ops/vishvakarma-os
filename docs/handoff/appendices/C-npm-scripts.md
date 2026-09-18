@@ -2,9 +2,9 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
-Total: 119 scripts
+Total: 125 scripts
 
 | Script | Command |
 |--------|--------|
@@ -19,11 +19,11 @@ Total: 119 scripts
 | `build` | `vite build` |
 | `build:gate` | `node --import tsx scripts/enforce-build.js` |
 | `capture:page-references` | `node scripts/run-page-reference-pack.mjs` |
+| `certify:cloudflare` | `node scripts/deployment/certify-cloudflare-release.mjs` |
 | `ci` | `node scripts/run-pipeline.mjs --tier=ci` |
 | `collab:server` | `node --import tsx server/collab/presenceServer.ts` |
 | `collab:server:dev` | `node --import tsx --watch server/collab/presenceServer.ts` |
 | `contract:gates` | `node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs` |
-| `deploy:vercel` | `bash scripts/deploy-vercel.sh` |
 | `dev` | `vite --host 127.0.0.1` |
 | `device-hardening:gates` | `node scripts/quality/check-device-hardening.mjs` |
 | `docs:verify` | `node scripts/docs/verify-documentation.mjs` |
@@ -34,30 +34,30 @@ Total: 119 scripts
 | `flawless:gates` | `node scripts/quality/check-flawless-use-gates.mjs` |
 | `handoff:generate` | `node scripts/handoff/generate-handoff-appendices.mjs` |
 | `handoff:verify` | `node scripts/handoff/verify-handoff-completeness.mjs` |
-| `hardening:gates` | `node scripts/quality/check-production-hardening.mjs` |
+| `hardening:gates` | `node scripts/quality/check-production-hardening.mjs && node scripts/security/check-api-endpoints.mjs` |
 | `import:stripe-live-key` | `node scripts/import-stripe-live-key-from-clipboard.mjs` |
 | `install:workspace-root` | `node scripts/install-workspace-root-package.mjs` |
 | `launch:evidence` | `node scripts/quality/check-launch-evidence.mjs` |
 | `launch:evidence:strict` | `node scripts/quality/check-launch-evidence.mjs --strict` |
 | `lint` | `pnpm run lint:types && pnpm run lint:deps && pnpm run lint:structure` |
-| `lint:deps` | `biome lint --only=correctness/noUndeclaredDependencies` |
-| `lint:structure` | `ast-grep scan` |
-| `lint:types` | `tsgo -p tsconfig.check.json && tsgo -p tsconfig.api-check.json` |
+| `lint:deps` | `if [ -n "$ANDROID_ROOT" ] \|\| uname -a \| grep -qi android; then echo 'Biome skipped: Termux Android environment'; else biome lint --only=correctness/noUndeclaredDependencies; fi` |
+| `lint:structure` | `if [ -n "$ANDROID_ROOT" ] \|\| uname -a \| grep -qi android; then echo 'ast-grep skipped: Termux Android environment'; else ast-grep scan; fi` |
+| `lint:types` | `tsc -p tsconfig.check.json && tsc -p tsconfig.api-check.json` |
 | `marketing:assets` | `node scripts/run-local-preview-playwright.mjs --project=screenshot-pack marketing-asset-pack.spec.ts` |
 | `migration:import-supabase` | `node scripts/migration/import-supabase.mjs` |
 | `ops:admin:setup` | `node scripts/production/setup-admin.mjs` |
 | `ops:coowner:setup` | `node scripts/production/setup-co-owner.mjs` |
 | `ops:migration:export` | `node scripts/migration/export-supabase.mjs` |
 | `ops:migration:validate` | `node scripts/migration/validate-migration.mjs` |
-| `ops:stripe:push-env` | `node scripts/push-stripe-env-vercel.mjs` |
 | `ops:stripe:rollout` | `node scripts/run-live-billing-rollout.mjs` |
-| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs` |
+| `perf:gates` | `node scripts/performance/check-bundle-budget.mjs && node scripts/performance/check-pwa-precache.mjs` |
 | `perf:lighthouse` | `node scripts/performance/run-lighthouse.mjs` |
 | `perf:lighthouse:prod` | `node scripts/performance/run-lighthouse.mjs --url=https://vishvakarma-os.app` |
 | `perf:report` | `node scripts/performance/report-bundle.mjs` |
 | `perf:report:baseline` | `node scripts/performance/report-bundle.mjs --update-baseline` |
 | `pipeline` | `node scripts/run-pipeline.mjs` |
 | `prebuild` | `node --import tsx scripts/enforce-build.js` |
+| `prepare` | `git config core.hooksPath scripts/git-hooks \|\| true` |
 | `preview` | `vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e` | `vite build --mode e2e && vite preview --host 127.0.0.1 --port 4173` |
 | `preview:e2e:local` | `node scripts/build-e2e-local.mjs && vite preview --host 127.0.0.1 --port 4173` |
@@ -67,8 +67,10 @@ Total: 119 scripts
 | `production:manual-evidence` | `node scripts/production/generate-manual-evidence.mjs` |
 | `production:verify-env` | `node scripts/production/verify-env.mjs` |
 | `project-roles:gates` | `node scripts/quality/check-project-roles.mjs` |
-| `push:supabase-env-vercel` | `node scripts/push-supabase-env-vercel.mjs` |
 | `pwa:gates` | `node scripts/quality/check-pwa-install-assets.mjs` |
+| `qe:master` | `pnpm run qe:routes && pnpm run test:screenshots && pnpm run capture:page-references` |
+| `qe:routes` | `pnpm exec playwright test --config=playwright.qe-smoke.config.ts` |
+| `qemaster` | `pnpm run qe:master` |
 | `record:measure` | `node scripts/world-record/measure-record.mjs` |
 | `record:perf-overhaul` | `node scripts/performance/record-editor-perf-proof.mjs` |
 | `release:gates` | `node scripts/verify-all.js` |
@@ -84,13 +86,16 @@ Total: 119 scripts
 | `repairbot:status` | `node scripts/repairbot/status.mjs` |
 | `repairbot:watch` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:fast --watch --interval=120000` |
 | `repairbot:world` | `node scripts/repairbot/repairbot.mjs --tier=repairbot:world` |
+| `security:api` | `node scripts/security/check-api-endpoints.mjs` |
 | `setup:scene-models` | `node scripts/setup-scene-models.mjs` |
 | `setup:scene-textures` | `node scripts/setup-scene-textures.mjs` |
 | `setup:stripe` | `node scripts/setup-stripe-products.mjs` |
 | `setup:stripe-live` | `node scripts/setup-stripe-live.mjs` |
-| `setup:stripe-live:cli` | `node scripts/setup-stripe-live-cli.mjs --push-vercel` |
+| `setup:stripe-live:cli` | `node scripts/setup-stripe-live-cli.mjs` |
 | `setup:supabase-auth` | `node scripts/setup-supabase-auth-providers.mjs` |
 | `setup:supabase-auth:full` | `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push && node scripts/setup-supabase-auth-providers.mjs` |
+| `setup:supabase-auth:hardening` | `node scripts/setup-supabase-platform-hardening.mjs` |
+| `setup:supabase-auth:hardening:dry` | `node scripts/setup-supabase-platform-hardening.mjs --dry-run` |
 | `stability:gates` | `node scripts/stability/check-monitoring.mjs && node scripts/quality/check-editor-export-canonical.mjs && node scripts/verify-supabase-schema.mjs` |
 | `stability:health` | `node scripts/stability/probe-health.mjs` |
 | `stability:health:prod` | `node scripts/stability/probe-health.mjs --prod` |
@@ -109,6 +114,7 @@ Total: 119 scripts
 | `test:e2e:governance` | `node scripts/build-e2e-local.mjs && pnpm exec playwright test --config=playwright.governance.config.ts` |
 | `test:e2e:install` | `pnpm exec playwright install --with-deps chromium firefox webkit` |
 | `test:e2e:perf` | `node scripts/run-local-preview-playwright.mjs --project=editor-performance` |
+| `test:e2e:qe-routes` | `pnpm run qe:routes` |
 | `test:e2e:soak` | `pnpm exec playwright test --config=playwright.soak.config.ts` |
 | `test:perf-overhaul` | `vitest run src/test/editorPerformanceOverhaul.test.ts` |
 | `test:routes` | `vitest run src/routes.production.test.tsx` |

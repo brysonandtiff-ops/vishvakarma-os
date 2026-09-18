@@ -27,20 +27,20 @@ pnpm run dev
 | Styling | Tailwind CSS, custom workstation tokens |
 | 3D | Three.js, React Three Fiber, drei |
 | Backend | Supabase Auth, Postgres/RLS, Storage |
-| Billing | Stripe (Vercel serverless `api/stripe/*`) |
+| Billing | Stripe (Cloudflare Pages Functions `api/stripe/*`) |
 | AI | Google Gemini (`api/ai/*`) |
-| Hosting | Vercel (static `dist/` + API routes) |
+| Hosting | Cloudflare Pages (static `dist/` + API routes) |
 | Node | 20.x (`.nvmrc`) |
 | Package manager | pnpm 9.15.0 |
 
-**Not Next.js** — client-side SPA with Vercel serverless functions.
+**Not Next.js** — client-side SPA with Cloudflare Pages Functions.
 
 ## Top-level directories (`vishvakarma-os-live/`)
 
 | Directory | Purpose |
 |-----------|---------|
 | `src/` | React application (pages, components, backend gateways, core engine) |
-| `api/` | Vercel serverless routes (Stripe, Gemini) |
+| `api/` | Cloudflare Pages Functions routes (Stripe, Gemini) |
 | `server/collab/` | Optional Yjs WebSocket presence server |
 | `supabase/` | Postgres migrations, CLI config |
 | `scripts/` | Verify, quality gates, migration, Stripe/Supabase setup |
@@ -85,7 +85,7 @@ Full curated tree: [Appendix H](./appendices/H-file-tree.md).
 | Verify/CI | `verify`, `verify:ci`, `ci`, `handoff:generate`, `handoff:verify` |
 | Supabase | `setup:supabase-auth`, `verify:supabase-schema`, `test:supabase-auth` |
 | Stripe | `setup:stripe`, `verify:stripe-billing` |
-| Deploy | `deploy:vercel`, `collab:server` |
+| Deploy | `certify:cloudflare`, `collab:server` |
 
 ## Documentation index
 

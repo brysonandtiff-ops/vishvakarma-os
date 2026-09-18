@@ -81,7 +81,7 @@ const GATE_UI_DETAILS: Record<string, { message: string; evidence: string[]; lin
     evidence: ['Sample JSON object shape validated by release:gates'],
   },
   'gate-5': {
-    message: 'vercel.json security headers configured',
+    message: 'Cloudflare Pages security headers configured',
     evidence: ['CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy'],
   },
   'gate-6': {

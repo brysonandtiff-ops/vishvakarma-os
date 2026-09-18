@@ -35,14 +35,14 @@ SUPABASE_SERVICE_ROLE_KEY=
 APP_URL=https://vishvakarma-os.app
 ```
 
-`https://vishvakarma-os.vercel.app` may remain as a fallback/debug redirect origin, but it is not the canonical production origin.
+`https://vishvakarma-os.pages.dev` may remain as a fallback/debug redirect origin, but it is not the canonical production origin.
 
 Setup and verification:
 
 ```bash
 pnpm run setup:supabase-auth
 pnpm run setup:supabase-auth:full
-pnpm run push:supabase-env-vercel
+pnpm run setup:supabase-auth
 pnpm run verify:supabase-schema
 pnpm run verify:supabase-schema:live
 pnpm run test:supabase-auth
@@ -116,7 +116,7 @@ Production admin role is stored on the `profiles` table. After a user signs in o
 1. Open Supabase Dashboard → Table Editor → `profiles`
 2. Set `role` to `admin` for their row
 
-Co-owner billing and export entitlements are also configured via profile/billing columns and `src/config/coOwners.ts`. See [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md).
+Co-owner billing and export entitlements are also configured via profile/billing columns and `src/config/coOwners.ts`. See [`docs/release/CLOUDFLARE_ENV.md`](docs/release/CLOUDFLARE_ENV.md).
 
 Legacy Firebase promotion scripts (`scripts/production/setup-admin.mjs`) require Firebase service account credentials and are not used on the Supabase production path.
 
@@ -128,6 +128,6 @@ Legacy Firebase promotion scripts (`scripts/production/setup-admin.mjs`) require
 |----------|---------|
 | [`README.md`](README.md) | Primary project entry |
 | [`docs/SOFTWARE_INVENTORY.md`](docs/SOFTWARE_INVENTORY.md) | Technical inventory |
-| [`docs/release/VERCEL_ENV.md`](docs/release/VERCEL_ENV.md) | Production env matrix |
+| [`docs/release/CLOUDFLARE_ENV.md`](docs/release/CLOUDFLARE_ENV.md) | Production env matrix |
 | [`docs/release/DEPLOYMENT.md`](docs/release/DEPLOYMENT.md) | Deployment guide |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contributor workflow |

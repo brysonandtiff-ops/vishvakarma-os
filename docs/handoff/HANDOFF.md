@@ -4,7 +4,7 @@
 **Product version:** v1.5.0  
 **Audit date:** 2026-06-15  
 **Canonical production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
 
 **Repository location:** All application code lives in `vishvakarma-os-live/` (git root). The parent workspace folder is a thin wrapper only.
@@ -40,9 +40,9 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** de
 6. **Governance OS** — specs, registry, change requests, 13-gate releases, audit, world records
 7. **Stripe monetization** — Starter (free), Studio ($499/mo), Enterprise ($1,000/mo)
 
-**Current production backend:** Supabase-only (Auth, Postgres/RLS, Storage, billing entitlements). Stripe handles payments. Vercel hosts the SPA and serverless API routes. Firebase artifacts remain as **legacy migration tooling only** — not the runtime path.
+**Current production backend:** Supabase-only (Auth, Postgres/RLS, Storage, billing entitlements). Stripe handles payments. Cloudflare Pages hosts the SPA and serverless API routes. Firebase artifacts remain as **legacy migration tooling only** — not the runtime path.
 
-**Framework note:** This is **not Next.js**. Routing is client-side (React Router 7). API routes are Vercel serverless functions in `api/`.
+**Framework note:** This is **not Next.js**. Routing is client-side (React Router 7). API routes are Cloudflare Pages Functions in `api/`.
 
 ---
 
@@ -52,7 +52,7 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** de
 |------|-------|
 | Product version | 1.5.0 |
 | Canonical production URL | https://vishvakarma-os.app |
-| Vercel fallback URL | https://vishvakarma-os.vercel.app |
+| Cloudflare Pages fallback URL | https://vishvakarma-os.pages.dev |
 | Supabase project ref | `jyocvwipthswfcmvqgqe` |
 | Runtime backend | Supabase Auth + Postgres + Storage |
 | Billing | Stripe Checkout + Portal + webhooks |
@@ -85,7 +85,7 @@ When documents conflict, use this precedence:
 | 05 | [Data model and migrations](./05-data-model-and-migrations.md) | Postgres schema, portability |
 | 06 | [Security and compliance](./06-security-and-compliance.md) | RLS, headers, claims limits |
 | 07 | [Integrations and accounts](./07-integrations-and-accounts.md) | Third-party registry, transfer checklist |
-| 08 | [Operations and deployment](./08-operations-and-deployment.md) | Local dev, Vercel, Supabase, Stripe ops |
+| 08 | [Operations and deployment](./08-operations-and-deployment.md) | Local dev, Cloudflare Pages, Supabase, Stripe ops |
 | 09 | [Testing, quality, release](./09-testing-quality-and-release.md) | Vitest, Playwright, CI, 13 gates |
 | 10 | [IP, risks, roadmap, gaps](./10-ip-risks-roadmap-and-gaps.md) | Brand, RFCs, stale docs, risks |
 
@@ -128,7 +128,7 @@ Verify completeness: `pnpm run handoff:verify`
 | [SOFTWARE_INVENTORY.md](../SOFTWARE_INVENTORY.md) | Deep technical inventory |
 | [MIGRATION.md](../../MIGRATION.md) | Data portability and backend migration |
 | [OPERATOR_CHECKLIST.md](../release/OPERATOR_CHECKLIST.md) | Launch gates 9–12 |
-| [VERCEL_ENV.md](../release/VERCEL_ENV.md) | Complete env var matrix |
+| [CLOUDFLARE_ENV.md](../release/CLOUDFLARE_ENV.md) | Complete env var matrix |
 | [docs/specs/](../specs/) | Locked governing specifications |
 | [CHANGELOG.md](../../CHANGELOG.md) | Version history |
 
@@ -145,7 +145,7 @@ Verify completeness: `pnpm run handoff:verify`
 | ChatGPT handoff doc | **PASS** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) at v1.5.0 |
 | Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `10f4dfbbd03f6fce420ef12e9ca4920c3b56fdb4` |
 
-**Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
+**Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Cloudflare Pages Production env matches, then attach green CI run URL.
 
 **Sign-off command block:**
 

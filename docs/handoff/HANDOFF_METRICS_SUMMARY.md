@@ -39,7 +39,7 @@ These are the important corrections from the generated appendices and operator t
 | Area | Correct current statement |
 |---|---|
 | Route count | 17 client routes, including public `/cast/:token`. |
-| API count | 9 Vercel serverless API handlers: AI, Cast, Health, and Stripe. |
+| API count | 9 Cloudflare Pages Functions API handlers: AI, Cast, Health, and Stripe. |
 | Test inventory | 150 Vitest files and 28 Playwright E2E specs. |
 | Script inventory | 112 npm scripts. |
 | Database scope | 13 public tables, including Akasha Cast tables. |

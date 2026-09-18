@@ -23,7 +23,7 @@ pnpm run release:gates
 
 ## Supabase Production
 
-- [x] `VITE_SUPABASE_*` and `SUPABASE_SERVICE_ROLE_KEY` set in Vercel production environment
+- [x] `VITE_SUPABASE_*` and `SUPABASE_SERVICE_ROLE_KEY` set in Cloudflare Pages production environment
 - [x] Supabase migrations applied (`pnpm run setup:supabase-auth:full` or `npx supabase db push`)
 - [x] Google OAuth redirect URLs configured in Supabase dashboard
 - [x] Authorized domain includes production URL
@@ -103,7 +103,7 @@ Manual supplement (optional):
 ## Post-Launch (First 48 Hours)
 
 - [ ] Monitor Sentry/error logs if DSN configured
-- [ ] Check Vercel analytics for 5xx rate
+- [ ] Check Cloudflare Pages analytics for 5xx rate
 - [ ] Collect one real-user feedback note
 - [ ] Update `CHANGELOG.md` if hotfixes shipped
 

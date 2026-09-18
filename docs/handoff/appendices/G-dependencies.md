@@ -2,11 +2,11 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-08-24T13:12:41.904Z
 
 Package: `vishvakarma-os` v1.5.0
 
-## Production (72)
+## Production (71)
 
 | Package | Version |
 |---------|--------|
@@ -47,7 +47,6 @@ Package: `vishvakarma-os` v1.5.0
 | @react-three/fiber | catalog: |
 | @sentry/react | ^9.22.0 |
 | @supabase/supabase-js | ^2.108.2 |
-| @vercel/analytics | ^2.0.1 |
 | class-variance-authority | ^0.7.1 |
 | clsx | ^2.1.1 |
 | cmdk | ^1.1.1 |

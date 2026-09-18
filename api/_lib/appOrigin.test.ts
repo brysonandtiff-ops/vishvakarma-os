@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   CANONICAL_ORIGIN,
   CLOUDFLARE_PAGES_ORIGIN,
-  VERCEL_FALLBACK_ORIGIN,
 } from '../../src/config/canonicalOrigin';
 import {
   isTrustedAppOrigin,
@@ -20,31 +19,11 @@ function request(headers: RequestWithHeaders['headers'] = {}) {
 }
 
 describe('trusted app origin policy', () => {
-  it('accepts canonical and fallback production origins', () => {
-    const env = { APP_URL: undefined, VERCEL: '1' };
+  it('accepts canonical and Cloudflare Pages production origins', () => {
+    const env = { APP_URL: undefined, CF_PAGES: '1' };
 
     expect(isTrustedAppOrigin(CANONICAL_ORIGIN, env)).toBe(true);
     expect(isTrustedAppOrigin(CLOUDFLARE_PAGES_ORIGIN, env)).toBe(true);
-    expect(isTrustedAppOrigin(VERCEL_FALLBACK_ORIGIN, env)).toBe(true);
-  });
-
-  it('accepts only Vishvakarma preview hosts in the connected Vercel team', () => {
-    const env = { APP_URL: undefined, VERCEL: '1' };
-
-    expect(
-      isTrustedAppOrigin(
-        'https://vishvakarma-os-git-feature-abc-tyrasic-creations.vercel.app',
-        env,
-      ),
-    ).toBe(true);
-    expect(
-      isTrustedAppOrigin(
-        'https://vishvakarma-a1b2c3-tyrasic-creations.vercel.app',
-        env,
-      ),
-    ).toBe(true);
-    expect(isTrustedAppOrigin('https://attacker-tyrasic-creations.vercel.app', env)).toBe(false);
-    expect(isTrustedAppOrigin('https://vishvakarma-os.attacker.vercel.app', env)).toBe(false);
   });
 
   it('accepts only the Vishvakarma Cloudflare Pages project and its previews', () => {
@@ -75,18 +54,15 @@ describe('trusted app origin policy', () => {
 
   it('allows local development origins only outside hosted production', () => {
     expect(
-      isTrustedAppOrigin('http://127.0.0.1:5173', { APP_URL: undefined, VERCEL: undefined }),
+      isTrustedAppOrigin('http://127.0.0.1:5173', { APP_URL: undefined, CF_PAGES: undefined }),
     ).toBe(true);
-    expect(
-      isTrustedAppOrigin('http://localhost:4173', { APP_URL: undefined, VERCEL: '1' }),
-    ).toBe(false);
     expect(
       isTrustedAppOrigin('http://localhost:4173', { APP_URL: undefined, CF_PAGES: '1' }),
     ).toBe(false);
   });
 
   it('rejects lookalike, credential-bearing, and non-http origins', () => {
-    const env = { APP_URL: undefined, VERCEL: '1' };
+    const env = { APP_URL: undefined, CF_PAGES: '1' };
 
     expect(isTrustedAppOrigin('https://vishvakarma-os.app.attacker.example', env)).toBe(false);
     expect(isTrustedAppOrigin('https://user:pass@vishvakarma-os.app', env)).toBe(false);
@@ -97,7 +73,7 @@ describe('trusted app origin policy', () => {
     const origin = resolveTrustedAppOrigin(
       request({ origin: CANONICAL_ORIGIN }),
       { origin: 'https://attacker.example' },
-      { APP_URL: undefined, VERCEL: '1' },
+      { APP_URL: undefined, CF_PAGES: '1' },
     );
 
     expect(origin).toBe(CANONICAL_ORIGIN);
@@ -108,7 +84,7 @@ describe('trusted app origin policy', () => {
       resolveTrustedAppOrigin(
         request({ origin: 'https://attacker.example' }),
         { origin: CANONICAL_ORIGIN },
-        { APP_URL: undefined, VERCEL: '1' },
+        { APP_URL: undefined, CF_PAGES: '1' },
       ),
     ).toThrow(UntrustedAppOriginError);
   });
@@ -120,7 +96,7 @@ describe('trusted app origin policy', () => {
         resolveTrustedAppOrigin(
           request({ origin }),
           {},
-          { APP_URL: undefined, VERCEL: '1' },
+          { APP_URL: undefined, CF_PAGES: '1' },
         ),
       ).toThrow(UntrustedAppOriginError);
     },
@@ -131,7 +107,7 @@ describe('trusted app origin policy', () => {
       resolveTrustedAppOrigin(
         request(),
         {},
-        { APP_URL: 'not a URL', VERCEL: '1' },
+        { APP_URL: 'not a URL', CF_PAGES: '1' },
       ),
     ).toBe(CANONICAL_ORIGIN);
   });
@@ -141,7 +117,7 @@ describe('trusted app origin policy', () => {
       resolveTrustedAppOrigin(
         request(),
         {},
-        { APP_URL: undefined, VERCEL: '1' },
+        { APP_URL: undefined, CF_PAGES: '1' },
       ),
     ).toBe(CANONICAL_ORIGIN);
   });

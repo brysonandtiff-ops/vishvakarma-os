@@ -312,7 +312,7 @@ Filter or scroll the log to investigate who changed what and when. Use during re
 
 **Route:** `/optimization`
 
-![Design Battle — optimization engine](./page-references/governance/32-optimization.png)
+Reference capture pending for the Design Battle optimization engine.
 
 **What it does**  
 AI-driven **Design Battle** — generates five strategy-driven floor-plan candidates, scores them across cost/light/compliance dimensions, and helps you pick a winner to promote into the editor.

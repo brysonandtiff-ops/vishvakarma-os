@@ -42,4 +42,4 @@ The verifier requires:
 
 ## Promotion rule
 
-Do not merge the certification PR until both GitHub CI and the Cloudflare preview deployment are green. After merge, rerun the live verifier against the production Pages URL and the canonical custom domain before retiring the Vercel rollback origin.
+Do not merge the certification PR until both GitHub CI and the Cloudflare preview deployment are green. After merge, rerun the live verifier against the production Pages URL and the canonical custom domain.

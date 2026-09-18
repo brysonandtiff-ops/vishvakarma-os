@@ -58,9 +58,9 @@ async function main() {
   if (readSecretKey().startsWith('sk_live_')) {
     console.log('[OK] sk_live_ ready in .env.stripe.local');
     runStep('Live Stripe setup', 'pnpm', ['run', 'setup:stripe-live:cli'], WORKSPACE_ROOT);
-    runStep('Production redeploy', 'vercel', ['--prod', '--yes'], LIVE_ROOT);
     runStep('Strict billing verify', 'pnpm', ['run', 'verify:stripe-billing', '--', '--strict'], LIVE_ROOT);
-    console.log('[OK] Live billing rollout complete');
+    console.log('[OK] Live billing resources verified');
+    console.log('[NEXT] Set the generated secrets in Cloudflare Pages and redeploy the release commit.');
     return;
   }
 
@@ -84,9 +84,9 @@ async function main() {
 
   console.log('[OK] sk_live_ ready in .env.stripe.local');
   runStep('Live Stripe setup', 'pnpm', ['run', 'setup:stripe-live:cli'], WORKSPACE_ROOT);
-  runStep('Production redeploy', 'vercel', ['--prod', '--yes'], LIVE_ROOT);
   runStep('Strict billing verify', 'pnpm', ['run', 'verify:stripe-billing', '--', '--strict'], LIVE_ROOT);
-  console.log('[OK] Live billing rollout complete');
+  console.log('[OK] Live billing resources verified');
+  console.log('[NEXT] Set the generated secrets in Cloudflare Pages and redeploy the release commit.');
 }
 
 main();

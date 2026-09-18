@@ -2,7 +2,6 @@ import type { IncomingMessage } from 'node:http';
 import {
   CANONICAL_ORIGIN,
   CLOUDFLARE_PAGES_ORIGIN,
-  VERCEL_FALLBACK_ORIGIN,
 } from '../../src/config/canonicalOrigin';
 
 type RequestWithHeaders = IncomingMessage & {
@@ -13,11 +12,8 @@ type OriginEnvironment = {
   APP_URL?: string;
   CF_PAGES?: string;
   CF_PAGES_URL?: string;
-  VERCEL?: string;
 };
 
-const VERCEL_TEAM_SUFFIX = '-tyrasic-creations.vercel.app';
-const PROJECT_PREVIEW_PREFIXES = ['vishvakarma-', 'vishvakarma-os-'];
 const CLOUDFLARE_PAGES_HOST = new URL(CLOUDFLARE_PAGES_ORIGIN).hostname;
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
@@ -26,7 +22,6 @@ function currentOriginEnvironment(): OriginEnvironment {
     APP_URL: process.env.APP_URL,
     CF_PAGES: process.env.CF_PAGES,
     CF_PAGES_URL: process.env.CF_PAGES_URL,
-    VERCEL: process.env.VERCEL,
   };
 }
 
@@ -55,13 +50,6 @@ function parseOrigin(value: string | null | undefined): URL | null {
   }
 }
 
-function isProjectPreviewHost(hostname: string) {
-  return (
-    hostname.endsWith(VERCEL_TEAM_SUFFIX) &&
-    PROJECT_PREVIEW_PREFIXES.some((prefix) => hostname.startsWith(prefix))
-  );
-}
-
 function isCloudflarePagesHost(hostname: string) {
   return (
     hostname === CLOUDFLARE_PAGES_HOST ||
@@ -81,7 +69,6 @@ export function isTrustedAppOrigin(
   const trustedOrigins = new Set([
     CANONICAL_ORIGIN,
     CLOUDFLARE_PAGES_ORIGIN,
-    VERCEL_FALLBACK_ORIGIN,
     configuredAppUrl?.origin,
     configuredPagesUrl?.origin,
   ].filter((origin): origin is string => Boolean(origin)));
@@ -90,13 +77,12 @@ export function isTrustedAppOrigin(
 
   if (
     url.protocol === 'https:' &&
-    (isProjectPreviewHost(url.hostname) || isCloudflarePagesHost(url.hostname))
+    isCloudflarePagesHost(url.hostname)
   ) {
     return true;
   }
 
   return (
-    env.VERCEL !== '1' &&
     env.CF_PAGES !== '1' &&
     LOCAL_HOSTS.has(url.hostname)
   );

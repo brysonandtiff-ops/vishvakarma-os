@@ -7,7 +7,7 @@ import {
 
 const sidebarLinks = [
   { name: 'Blueprint Editor', path: '/editor', testId: 'editor-top-bar' },
-  { name: 'Projects', path: '/projects', heading: /your projects/i },
+  { name: 'Projects', path: '/projects', heading: /welcome back/i },
   { name: 'Profile', path: '/profile', heading: /^profile$/i },
   { name: 'Spec Center', path: '/spec-center', heading: /spec center/i },
   { name: 'Registry', path: '/registry', heading: /registry center/i },
@@ -19,7 +19,7 @@ const sidebarLinks = [
 
 async function openWorkspaceShell(page: Page) {
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 30_000 });
   await expandSidebarIfCollapsed(page);
 }
 
@@ -79,7 +79,7 @@ test.describe('workspace navigation (e2e local access)', () => {
   test('mobile sheet drawer navigates to spec center', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 30_000 });
 
     const declineAnalytics = page.getByRole('button', { name: /decline/i });
     if (await declineAnalytics.isVisible().catch(() => false)) {

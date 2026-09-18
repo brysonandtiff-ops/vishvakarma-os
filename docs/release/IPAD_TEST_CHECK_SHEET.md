@@ -27,9 +27,9 @@ Fill in before testing:
 
 | Field | Value |
 |-------|-------|
-| **Build / deploy** | e.g. production `2026-06-20`, Vercel preview URL |
+| **Build / deploy** | e.g. production `2026-06-20`, Cloudflare Pages preview URL |
 | **Primary URL** | `https://vishvakarma-os.app` |
-| **Fallback URL** | `https://vishvakarma-os.vercel.app` |
+| **Fallback URL** | `https://vishvakarma-os.pages.dev` |
 | **Local URL (optional)** | `http://127.0.0.1:5173` — only if testing a dev build on same network |
 | **Test Google account** | `___________________________` |
 | **Test email (magic link)** | `___________________________` |

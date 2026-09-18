@@ -4,7 +4,7 @@
 **Product version:** v1.5.0
 **Last updated:** 2026-06-16
 **Canonical production URL:** https://vishvakarma-os.app
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git
 **Repository root:** `vishvakarma-os-live/` (the parent workspace folder is a thin wrapper)
 
@@ -27,7 +27,7 @@
 11. [Collaboration (preview)](#11-collaboration-preview)
 12. [Governance OS](#12-governance-os)
 13. [Backend: Supabase](#13-backend-supabase)
-14. [Serverless API (Vercel functions)](#14-serverless-api-vercel-functions)
+14. [Serverless API (Cloudflare Pages Functions)](#14-serverless-api-cloudflare-pages-functions)
 15. [Collaboration presence server](#15-collaboration-presence-server)
 16. [Billing: Stripe](#16-billing-stripe)
 17. [Data model & persistence](#17-data-model--persistence)
@@ -59,11 +59,11 @@ It integrates seven capability pillars:
 6. **Governance OS** — specs, registry, change requests, gated releases, audit trail, world records.
 7. **Akasha Cast** — semantic "lens" broadcasting of a live design session to invited viewers.
 
-**Runtime backend is Supabase-only** (Auth, Postgres + Row-Level Security, Storage, billing entitlement state). **Stripe** handles payments. **Vercel** hosts the SPA and serverless API routes. A standalone Node **Yjs WebSocket presence server** backs the collaboration preview. Firebase artifacts exist only as **legacy migration tooling**, not the runtime path.
+**Runtime backend is Supabase-only** (Auth, Postgres + Row-Level Security, Storage, billing entitlement state). **Stripe** handles payments. **Cloudflare Pages** hosts the SPA and serverless API routes. A standalone Node **Yjs WebSocket presence server** backs the collaboration preview. Firebase artifacts exist only as **legacy migration tooling**, not the runtime path.
 
 **Important framing facts:**
 
-- This is **not Next.js**. Routing is client-side via **React Router 7**; API routes are **Vercel serverless functions** in `api/`.
+- This is **not Next.js**. Routing is client-side via **React Router 7**; API routes are **Cloudflare Pages Functions** in `api/`.
 - Monetization tiers: **Starter (free)**, **Studio ($499/mo, 14-day trial)**, **Enterprise ($1,000/mo)**.
 - Release discipline is enforced by **19 numbered gates** (gates 1–12 are the primary "world-record" metric; gate 13 is a machine-readable measurement artifact; gates 14–18 are advanced "world-class" gates; gate 19 is a multi-device audit).
 
@@ -76,7 +76,7 @@ It integrates seven capability pillars:
 | Runtime backend | Supabase Auth + Postgres (RLS) + Storage |
 | Payments | Stripe Checkout + Portal + webhooks |
 | AI | Google Gemini via `api/ai/*` (`GEMINI_API_KEY`) |
-| Hosting | Vercel (SPA + serverless `api/`) |
+| Hosting | Cloudflare Pages (SPA + serverless `api/`) |
 
 ---
 
@@ -139,7 +139,7 @@ Roles are enforced both in the UI and through Supabase RLS on the `projects.coll
 │  src/db/api.ts  ·  backend/supabase gateways  ·  src/cast / collab │
 └──────────────┬───────────────────────┬───────────────┬────────────┘
                │                        │               │
-        Supabase JS SDK         Vercel serverless     Yjs WebSocket
+        Supabase JS SDK         Cloudflare Pages Functions     Yjs WebSocket
                │                  functions (api/)    presence server
                ▼                        ▼               ▼
    ┌────────────────────┐   ┌─────────────────────┐  ┌──────────────┐
@@ -168,7 +168,7 @@ Roles are enforced both in the UI and through Supabase RLS on the `projects.coll
 - **State & contexts:** React context providers in `src/contexts/` (auth/session, theme, studio audio, editor sidebar, etc.).
 - **Styling:** Tailwind CSS v3 + CSS custom properties; Radix UI / shadcn-style primitives in `src/components/ui/`. Visual language is the **"gold workstation"** theme (`src/theme/`, `src/vish-theme.css`, `src/ipad-workspace.css`).
 - **PWA:** `vite-plugin-pwa` service worker, installable shell, generated icon set (`pnpm run assets:pwa-icons`), iPad safe-area/keyboard hardening.
-- **Monitoring:** Sentry (`@sentry/react`) and Vercel Analytics.
+- **Monitoring:** Sentry (`@sentry/react`) and Cloudflare Web Analytics.
 
 ---
 
@@ -388,9 +388,9 @@ Schema drift and integrity are checked by `pnpm run verify:supabase-schema[:live
 
 ---
 
-## 14. Serverless API (Vercel functions)
+## 14. Serverless API (Cloudflare Pages functions)
 
-TypeScript handlers in `api/`, deployed as Vercel serverless functions. Shared helpers live in `api/_lib/`.
+TypeScript handlers in `api/`, deployed as Cloudflare Pages Functions. Shared helpers live in `api/_lib/`.
 
 | Handler | Purpose |
 |---------|---------|
@@ -422,7 +422,7 @@ A standalone Node process (`server/collab/`, its own `package.json`):
 
 - **Client:** `src/services/billing/stripeCheckout.ts` initiates checkout/portal via the serverless routes.
 - **Server:** `api/stripe/*` + `api/_lib/billing*`. The webhook is the source of truth that writes entitlement state into Supabase `billing`.
-- **Setup scripts:** `setup:stripe` (test products), `setup:stripe-live`, `setup:stripe-live:cli` (creates live products and pushes env to Vercel), `verify:stripe-billing`, `ops:stripe:push-env`, `ops:stripe:rollout`.
+- **Setup scripts:** `setup:stripe` (test products), `setup:stripe-live`, `setup:stripe-live:cli` (creates live products and pushes env to Cloudflare Pages), `verify:stripe-billing`, `ops:stripe:push-env`, `ops:stripe:rollout`.
 - **Server-only env:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STUDIO_MONTHLY`, `STRIPE_PRICE_ENTERPRISE_MONTHLY`.
 
 ---
@@ -441,7 +441,7 @@ A standalone Node process (`server/collab/`, its own `package.json`):
 
 - **Secrets isolation:** no service-role/secret keys in client bundles; privileged work is serverless-only. Server JWT verification in `api/_lib/verify*Token.ts`.
 - **Row-Level Security:** every Postgres table enforces RLS; ownership/role policies as in §13.
-- **HTTP headers (`vercel.json`, gate 5):** CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy.
+- **HTTP headers (`public/_headers`, gate 5):** CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy.
 - **Production hardening gates:** `pnpm run hardening:gates`, `device-hardening:gates`, `auth:gates` (auth config guard), and the `contract:gates` bundle (system contract, forbidden edges, build gate, PWA install assets, project roles).
 - **Policy docs:** [SECURITY.md](../../SECURITY.md), [PROPRIETARY_NOTICE.md](../PROPRIETARY_NOTICE.md), [BRAND_LOCK.md](../BRAND_LOCK.md).
 - **Compliance caveat:** rule-engine output is decision-support, **not certified** regulatory approval (enforced disclaimer, gate 18).
@@ -456,7 +456,7 @@ A standalone Node process (`server/collab/`, its own `package.json`):
 - **Custom gate scripts (`scripts/quality/`):** system contract, forbidden edges, build gate, production hardening, PWA install assets, device hardening, project roles, auth config guard, flawless-use gates, launch evidence.
 - **Release verification:** `pnpm run release:gates` (`scripts/verify-all.js`) and `release:gates:strict`; world-class gates via `verify:world-class-gates`.
 - **Performance:** bundle budgets (`perf:gates`), bundle report + baseline (`perf:report`), Lighthouse (`perf:lighthouse[:prod]`).
-- **Config files:** `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `tailwind.config.js`, `biome.json`, `components.json`, `tsconfig.*`, `Dockerfile`, `vercel.json`.
+- **Config files:** `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `tailwind.config.js`, `biome.json`, `components.json`, `tsconfig.*`, `Dockerfile`, `wrangler.jsonc`, and `public/_headers`.
 
 ---
 
@@ -516,7 +516,7 @@ pnpm run release:gates
 ```bash
 pnpm install --frozen-lockfile
 pnpm run release:gates
-vercel deploy --prod --yes     # or: pnpm run deploy:vercel
+git push origin main     # or: pnpm run certify:cloudflare
 ```
 
 ### Post-deploy manual verification
@@ -536,7 +536,7 @@ The collaboration presence server (`server/collab/`) deploys as a separate long-
 
 ## 23. Environment variables
 
-Full matrix in [docs/release/VERCEL_ENV.md](../release/VERCEL_ENV.md) and auto-generated [Appendix B](./appendices/B-environment-variables.md). Key variables:
+Full matrix in [docs/release/CLOUDFLARE_ENV.md](../release/CLOUDFLARE_ENV.md) and auto-generated [Appendix B](./appendices/B-environment-variables.md). Key variables:
 
 **Client (`VITE_*`, safe to expose):**
 
@@ -559,7 +559,7 @@ STRIPE_PRICE_STUDIO_MONTHLY=
 STRIPE_PRICE_ENTERPRISE_MONTHLY=
 ```
 
-Verify configured env with `pnpm run production:verify-env`; push Supabase/Stripe env to Vercel with `push:supabase-env-vercel` / `ops:stripe:push-env`.
+Verify configured env with `pnpm run production:verify-env`; push Supabase/Stripe env to Cloudflare Pages with `setup:supabase-auth` / `ops:stripe:push-env`.
 
 ---
 
@@ -567,7 +567,7 @@ Verify configured env with `pnpm run production:verify-env`; push Supabase/Strip
 
 ```text
 vishvakarma-os-live/
-├─ api/                      Vercel serverless functions
+├─ api/                      Cloudflare Pages Functions
 │  ├─ _lib/                  stripe, billing, cast, auth-token helpers
 │  ├─ ai/                    Gemini requirement/site extraction
 │  ├─ cast/                  Akasha Cast sessions/join/evidence
@@ -600,7 +600,7 @@ vishvakarma-os-live/
 ├─ docs/                     specs, release, handoff, architecture, ADR/RFC
 ├─ e2e/ · tests/             Playwright specs
 ├─ public/                   static assets, PWA icons, sample manifests
-└─ config files             vite/vitest/playwright/tailwind/biome/tsconfig/vercel/Dockerfile
+└─ config files             vite/vitest/playwright/tailwind/biome/tsconfig/wrangler/Dockerfile
 ```
 
 ---
@@ -621,10 +621,10 @@ vishvakarma-os-live/
 | Realtime | Yjs + y-websocket (preview) |
 | Forms / validation | react-hook-form + zod |
 | Charts | recharts |
-| Monitoring | Sentry, Vercel Analytics |
+| Monitoring | Sentry, Cloudflare Web Analytics |
 | Testing | Vitest + Playwright + axe-core |
 | Quality | Biome + tsgo + ast-grep + custom gate scripts |
-| Hosting | Vercel (SPA + serverless), separate Node collab server |
+| Hosting | Cloudflare Pages (SPA + serverless), separate Node collab server |
 
 ---
 
@@ -640,8 +640,8 @@ vishvakarma-os-live/
 
 ## 27. Operator handoff checklist
 
-1. **Accounts to transfer (secrets off-repo):** Vercel project, Supabase project (`jyocvwipthswfcmvqgqe`), Stripe account, Google Cloud (Gemini key + OAuth client), domain registrar for `vishvakarma-os.app`, GitHub repo. Use [`templates/OPERATOR_ANNEX.template.md`](./templates/OPERATOR_ANNEX.template.md) (gitignored) for filled credentials — deliver via secure channel.
-2. **Confirm env parity:** `pnpm run production:verify-env`; ensure Vercel Production env matches §23 and Supabase `site_url` = `https://vishvakarma-os.app`.
+1. **Accounts to transfer (secrets off-repo):** Cloudflare Pages project, Supabase project (`jyocvwipthswfcmvqgqe`), Stripe account, Google Cloud (Gemini key + OAuth client), domain registrar for `vishvakarma-os.app`, GitHub repo. Use [`templates/OPERATOR_ANNEX.template.md`](./templates/OPERATOR_ANNEX.template.md) (gitignored) for filled credentials — deliver via secure channel.
+2. **Confirm env parity:** `pnpm run production:verify-env`; ensure Cloudflare Pages Production env matches §23 and Supabase `site_url` = `https://vishvakarma-os.app`.
 3. **Run the green path:**
    ```bash
    pnpm install --frozen-lockfile

@@ -47,15 +47,18 @@ describe('PropertiesPanel', () => {
     it('should render tool defaults when no wall is selected', () => {
       render(<PropertiesPanel {...defaultProps} currentTool="door" />);
       
-      expect(screen.getByText('Properties')).toBeInTheDocument();
+      // The inspector header is the tool-defaults section title itself; there is
+      // no separate generic "Properties" heading in the vish-primitives shell.
       expect(screen.getByText('Door defaults')).toBeInTheDocument();
+      expect(screen.getByLabelText('Width')).toBeInTheDocument();
+      expect(screen.getByLabelText('Swing')).toBeInTheDocument();
       expect(screen.getByText('Pre-flight defaults – adjust before placing.')).toBeInTheDocument();
     });
 
     it('should not render wall properties in empty state', () => {
       render(<PropertiesPanel {...defaultProps} />);
       
-      expect(screen.queryByText('Wall Properties')).not.toBeInTheDocument();
+      expect(screen.queryByText(/^Wall Properties · /)).not.toBeInTheDocument();
     });
   });
 
@@ -63,7 +66,7 @@ describe('PropertiesPanel', () => {
     it('should render wall properties when wall is selected', () => {
       render(<PropertiesPanel {...defaultProps} selectedWall={mockWall} />);
       
-      expect(screen.getByText('Wall Properties')).toBeInTheDocument();
+      expect(screen.getByText(/^Wall Properties · /)).toBeInTheDocument();
       expect(screen.getByText('Thickness')).toBeInTheDocument();
       expect(screen.getByText('Height')).toBeInTheDocument();
     });
@@ -78,8 +81,10 @@ describe('PropertiesPanel', () => {
     it('should display wall ID (truncated)', () => {
       render(<PropertiesPanel {...defaultProps} selectedWall={mockWall} />);
       
-      expect(screen.getByText('ID')).toBeInTheDocument();
-      expect(screen.getByText('wall-1234567...')).toBeInTheDocument();
+      // The wall id is surfaced in the inspector header, truncated to 8 chars.
+      expect(screen.getByText(`Wall Properties · ${mockWall.id.slice(0, 8)}`)).toBeInTheDocument();
+      // The untruncated id must never be rendered.
+      expect(screen.queryByText(new RegExp(mockWall.id))).not.toBeInTheDocument();
     });
 
     it('should display wall thickness value', () => {
@@ -379,11 +384,11 @@ describe('PropertiesPanel', () => {
         <PropertiesPanel {...defaultProps} selectedWall={mockWall} />
       );
       
-      expect(screen.getByText('Wall Properties')).toBeInTheDocument();
+      expect(screen.getByText(/^Wall Properties · /)).toBeInTheDocument();
       
       rerender(<PropertiesPanel {...defaultProps} currentTool="select" />);
       
-      expect(screen.queryByText('Wall Properties')).not.toBeInTheDocument();
+      expect(screen.queryByText(/^Wall Properties · /)).not.toBeInTheDocument();
       expect(screen.getByText('Select a wall or opening to edit properties.')).toBeInTheDocument();
     });
   });

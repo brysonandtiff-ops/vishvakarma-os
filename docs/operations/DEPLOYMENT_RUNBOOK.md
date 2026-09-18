@@ -1,88 +1,33 @@
 # Deployment Runbook
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** operator  
+## Pre-deploy
 
-Condensed production deploy flow. Full guide: [release/DEPLOYMENT.md](../release/DEPLOYMENT.md)
-
----
-
-## Pre-deploy checklist
-
-- [ ] Migrations applied: `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push`
-- [ ] Vercel env vars match [VERCEL_ENV.md](../release/VERCEL_ENV.md)
-- [ ] `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-- [ ] `APP_URL=https://vishvakarma-os.app`
-- [ ] Stripe webhook endpoint registered for production URL
-- [ ] No legacy `VITE_FIREBASE_*` or `BACKEND_PROVIDER` in production env
-- [ ] Local verification green:
-
-```bash
-pnpm run verify:ci
-pnpm run release:gates
-pnpm run handoff:verify
-pnpm run docs:verify
-```
-
----
+- Apply Supabase migrations.
+- Confirm Cloudflare Pages variables match [CLOUDFLARE_ENV.md](../release/CLOUDFLARE_ENV.md).
+- Confirm `VITE_AUTH_REDIRECT_ORIGIN` and `APP_URL` equal `https://vishvakarma-os.app`.
+- Remove legacy Firebase variables.
+- Run `pnpm run verify:ci` and `pnpm run release:gates`.
 
 ## Deploy
 
-### Option A — Git push (recommended)
+Push the approved commit to the PR branch for a Cloudflare preview. Push the reviewed merge commit to `main` for production. Cloudflare builds with `pnpm run build` and publishes `dist/` according to `wrangler.jsonc`.
 
-Push to `main`. Vercel auto-deploys from GitHub integration.
-
-### Option B — CLI
+## Certify
 
 ```bash
-pnpm run deploy:vercel
+pnpm run certify:cloudflare -- https://<preview>.vishvakarma-os.pages.dev
+node scripts/deployment/verify-cloudflare-live.mjs https://vishvakarma-os.pages.dev
+node scripts/deployment/verify-cloudflare-live.mjs https://vishvakarma-os.app
 ```
 
-Requires clean git tree; runs `verify:ci` first.
+Confirm the deployed commit equals the certified SHA before promotion.
 
-Build: `pnpm run build` → output `dist/` per `vercel.json`.
+## Manual smoke
 
----
+1. Production and deep routes load.
+2. Google OAuth completes to `/editor`.
+3. Project list, 2D editor, 3D view, save/reload, export, and Stripe portal work.
+4. `/api/health` succeeds and unknown `/api/*` routes fail closed.
+5. CSP, HSTS, service-worker cache policy, and API no-store policy are present.
 
-## Post-deploy verification
-
-```bash
-pnpm run production:verify-env --strict
-pnpm run verify:supabase-schema:live
-pnpm run verify:production-auth-flow
-PLAYWRIGHT_BASE_URL=https://vishvakarma-os.app pnpm run test:e2e:auth
-```
-
-### Manual smoke (5 minutes)
-
-1. https://vishvakarma-os.app loads
-2. `/auth` — Google OAuth completes → `/editor`
-3. `/projects` — list loads for signed-in user
-4. `/editor` — 2D + 3D surfaces render
-5. `/profile` — billing section loads; Stripe portal link works (Studio user)
-6. Security headers present (see [evidence/security-headers.md](../release/evidence/security-headers.md))
-
----
-
-## Canonical URLs
-
-| Purpose | URL |
-|---------|-----|
-| Production | https://vishvakarma-os.app |
-| Vercel fallback | https://vishvakarma-os.vercel.app |
-
-Use `.app` for auth redirects, Stripe return URLs, and operator documentation.
-
----
-
-## Rollback
-
-If deploy fails smoke tests: [ROLLBACK.md](./ROLLBACK.md)
-
----
-
-## Related
-
-- [ENVIRONMENT_MATRIX.md](./ENVIRONMENT_MATRIX.md)
-- [handoff/08-operations-and-deployment.md](../handoff/08-operations-and-deployment.md)
+If verification fails, follow [ROLLBACK.md](./ROLLBACK.md).

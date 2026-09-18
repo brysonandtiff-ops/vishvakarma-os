@@ -25,7 +25,7 @@ const authDeviceMatrix = [
 ] as const;
 
 const protectedRouteSmoke = [
-  { path: '/projects', label: 'Projects', heading: /your projects/i },
+  { path: '/projects', label: 'Projects', heading: /welcome back/i },
   { path: '/releases', label: 'Releases', heading: /^Release Center$/i },
   { path: '/audit', label: 'Audit', heading: /^Audit Log$/i },
   { path: '/optimization', label: 'Optimization', heading: /^Design Battle$/i },

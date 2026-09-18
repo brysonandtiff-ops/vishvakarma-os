@@ -99,7 +99,7 @@ async function main() {
   const secretKey = requireStripeKey();
 
   console.log('');
-  console.log('Add these values to Vercel Production env and .env.stripe.local:');
+  console.log('Add these values to Cloudflare Pages production variables and .env.stripe.local:');
   await ensurePlan(
     secretKey,
     STUDIO_PLAN,

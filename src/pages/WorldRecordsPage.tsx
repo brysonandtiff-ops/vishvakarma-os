@@ -193,7 +193,15 @@ export default function WorldRecordsPage() {
                     <div className="rounded-lg border border-border bg-muted/30 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Evidence SHA-256</p>
-                        <Button type="button" size="sm" variant="ghost" className="touch-target px-3" onClick={() => copyHash(record.evidenceHash)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          aria-label="Copy evidence SHA-256 hash"
+                          title="Copy evidence SHA-256 hash"
+                          className="touch-target px-3"
+                          onClick={() => copyHash(record.evidenceHash)}
+                        >
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
                       </div>

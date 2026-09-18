@@ -1136,7 +1136,7 @@ export default function Viewport3D({
                   minDistance={2}
                   maxDistance={24}
                   target={[sceneOrigin.cx / 100, 1.6, sceneOrigin.cy / 100]}
-                  touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY }}
+                  touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
                 />
                 <TouchWalkRig moveRef={touchMoveRef} />
               </>

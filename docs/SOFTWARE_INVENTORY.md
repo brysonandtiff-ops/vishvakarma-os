@@ -4,7 +4,7 @@
 **Product version:** v1.5.0  
 **Codebase audit date:** 2026-06-13  
 **Production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Cloudflare Pages fallback URL:** https://vishvakarma-os.pages.dev
 **Current production backend:** Supabase-only runtime path for Auth, Postgres/RLS, Storage, billing entitlements, and collaboration metadata
 
 This document is the authoritative current-state record of what has been built in Vishvakarma.OS. It is intended for investors, acquirers, technical due diligence, valuation discussions, and internal roadmap planning.
@@ -37,7 +37,7 @@ The current production architecture has been consolidated around Supabase for au
 | Metric | Current value / note |
 |--------|----------------------|
 | Product version | v1.5.0 |
-| Production hosting | Vercel SPA + serverless API routes |
+| Production hosting | Cloudflare Pages SPA + serverless API routes |
 | Current backend | Supabase-only production path |
 | Local fallback | `localStorage` drafts/projects when backend is unconfigured |
 | Application routes | Public marketing/auth + authenticated editor/governance/billing routes |
@@ -222,7 +222,7 @@ Enterprise collaboration remains a high-value next milestone.
 | Billing | Stripe SDK/API/webhooks |
 | AI | Google Gemini via serverless API routes |
 | Realtime preview | Yjs, y-websocket, y-indexeddb |
-| Hosting | Vercel |
+| Hosting | Cloudflare Pages |
 | Node | 20.x pinned |
 
 ### Supabase-only production architecture
@@ -283,7 +283,7 @@ Stripe integration includes Checkout, Customer Portal, webhooks, tier-based expo
 
 ### CI/CD and gates
 
-Primary verification includes lint, Vercel security checks, auth gates, Supabase smoke/schema checks, launch evidence, contract gates, hardening gates, regression anchors, coverage, route smoke, build, and world-record evidence.
+Primary verification includes lint, Cloudflare Pages security checks, auth gates, Supabase smoke/schema checks, launch evidence, contract gates, hardening gates, regression anchors, coverage, route smoke, build, and world-record evidence.
 
 Quality/ops scripts cover:
 
@@ -291,7 +291,7 @@ Quality/ops scripts cover:
 - Forbidden module edges.
 - Build gate schema.
 - Auth config guards.
-- Vercel security headers.
+- Cloudflare Pages security headers.
 - Production hardening checks.
 - Launch evidence.
 - Flawless-use gates.
@@ -377,7 +377,7 @@ Earlier v1.2.x work implemented Firebase/Supabase migration paths and provider a
 | Supabase | Auth, Postgres/RLS, Storage, service-role server operations | Current production backend |
 | Stripe | Checkout, portal, webhooks, tier gating | Monetization |
 | Google Gemini | Requirements extraction and document parsing | AI/copilot server routes |
-| Vercel | Hosting, serverless API routes, security headers | Deployment |
+| Cloudflare Pages | Hosting, serverless API routes, security headers | Deployment |
 | Three.js/R3F | 3D rendering | Client runtime |
 | Yjs | CRDT collaboration scaffold | Preview collaboration |
 | Firebase | Legacy migration/auth artifacts only | Historical portability, not current runtime backend |
