@@ -8,8 +8,8 @@ All application code, documentation, migrations, and development commands live a
 
 - **Documentation hub:** [docs/README.md](docs/README.md)
 - **Valuation / due diligence:** [docs/handoff/HANDOFF.md](docs/handoff/HANDOFF.md)
-- **Production:** https://vishvakarma-os.app
-- **Vercel fallback:** https://vishvakarma-os.vercel.app
+- **Canonical production target:** https://vishvakarma-os.app
+- **Deployment truth:** verify the current Cloudflare deployment and exact source SHA before describing the current build as live or certified.
 
 ## Local development
 
@@ -21,7 +21,7 @@ pnpm run dev
 
 ## Verification policy
 
-The allow-listed `.github/workflows/production-certification.yml` workflow certifies every `main` SHA with hosted Auth hardening, Chromium/Firefox/WebKit E2E, accessibility, editor performance, production-auth verification, and strict release evidence gates. Vercel separately verifies the production build.
+Repository workflows can run automated verification gates, but they are not the release authority. Current certification requires S.I.R.E. evidence tied to the exact candidate SHA, including the relevant build, browser, accessibility, security, runtime, deployment, provenance, and independent-verification gates. Historical green workflow results remain historical after the repository advances.
 
 ```bash
 pnpm run verify:ci
