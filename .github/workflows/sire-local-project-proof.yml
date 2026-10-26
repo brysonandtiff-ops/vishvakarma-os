@@ -10,6 +10,7 @@ on:
       - src/backend/backendConfig.test.ts
       - src/editor/localProjects.ts
       - src/pages/EditorPage.tsx
+      - e2e/ipad-editor-workflow.spec.ts
 
 permissions:
   contents: read
