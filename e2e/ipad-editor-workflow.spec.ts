@@ -104,7 +104,10 @@ test.describe('iPad editor workflow', () => {
     await expect.poll(() => readEditorMetricCount(page, 'Openings'), { timeout: 20_000 }).toBe(initialOpenings + 1);
 
     await activatePersistentTool(page, 'Select');
-    await page.mouse.click(box.x + midpoint.x, box.y + midpoint.y);
+    // The newly added door occupies the wall midpoint and takes selection priority.
+    // Select the clear wall span instead, then verify it contains the door opening.
+    const bareWall = { x: from.x + (to.x - from.x) * 0.2, y: centerY };
+    await page.mouse.click(box.x + bareWall.x, box.y + bareWall.y);
     await expect(page.getByText(/wall properties/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('wall-property-length')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('wall-openings-count')).toHaveText('1');
