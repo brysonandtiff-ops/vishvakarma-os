@@ -157,9 +157,25 @@ test.describe('iPad editor workflow', () => {
     await saveProject(page);
     await expect(page.getByText(/project saved locally/i)).toBeVisible({ timeout: 15_000 });
 
+    // Verify the actual persisted manifest and explicit selected project ID.
+    const persisted = await page.evaluate(() => {
+      const raw = window.localStorage.getItem('vishvakarma.os.localProjects.v1');
+      const projects = raw ? JSON.parse(raw) as Array<{
+        id: string;
+        name: string;
+        manifest: { walls: unknown[] };
+      }> : [];
+      const activeId = window.localStorage.getItem('vishvakarma.os.localProjects.activeId.v1');
+      const project = projects.find((entry) => entry.id === activeId);
+      return { activeId, name: project?.name ?? null, wallCount: project?.manifest.walls.length ?? 0 };
+    });
+    expect(persisted.activeId).toMatch(/^local-/);
+    expect(persisted).toMatchObject({ name: 'E2E iPad Draft', wallCount: 4 });
+
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText(/E2E iPad Draft/i).first()).toBeVisible({ timeout: 30_000 });
+    const toolbar = page.getByTestId('editor-top-bar');
+    await expect(toolbar).toBeVisible({ timeout: 60_000 });
+    await expect(toolbar.getByText('E2E iPad Draft', { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 30_000 });
   });
 
