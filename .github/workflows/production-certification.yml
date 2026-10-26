@@ -73,7 +73,8 @@ jobs:
 
   browser-certification:
     name: Cross-browser and strict release certification
-    runs-on: ubuntu-latest
+    # Pin Playwright 1.60 to a supported LTS runner instead of ubuntu-latest (26.04).
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       PLAYWRIGHT_BROWSERS: all
