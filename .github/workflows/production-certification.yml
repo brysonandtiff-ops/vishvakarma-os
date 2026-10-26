@@ -73,7 +73,9 @@ jobs:
 
   browser-certification:
     name: Cross-browser and strict release certification
-    runs-on: ubuntu-latest
+    # Playwright 1.60 rejects Ubuntu 26.04; pin the known-supported LTS image.
+    # Preserve all browser, accessibility, performance and strict release gates.
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       PLAYWRIGHT_BROWSERS: all
