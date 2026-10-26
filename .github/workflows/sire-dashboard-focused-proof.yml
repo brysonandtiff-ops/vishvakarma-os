@@ -1,0 +1,50 @@
+name: SIRE Focused Dashboard Browser Evidence
+
+on:
+  push:
+    branches:
+      - sire/vish-dashboard-focused-proof-20261026
+    paths:
+      - .github/workflows/sire-dashboard-focused-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  dashboard-shortcut-acceptance:
+    name: Three editor shortcut dialogs - real Chromium
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout exact evidence commit
+        uses: actions/checkout@v4
+      - name: Confirm tested source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up pnpm 9.15.0
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Prove all three dashboard shortcuts in rendered editor
+        run: pnpm exec playwright test e2e/dashboard-shortcuts.spec.ts --project=app-smoke-chromium
+      - name: Archive visual test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-proof-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            playwright-report/
+            test-results/
