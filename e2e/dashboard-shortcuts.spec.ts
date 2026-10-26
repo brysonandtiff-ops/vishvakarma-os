@@ -15,7 +15,13 @@ test.describe('dashboard shortcuts open real editor dialogs (local test project)
       await expect(shortcut).toBeVisible({ timeout: 30_000 });
       await shortcut.click();
 
-      await expect(page).toHaveURL(/\\/editor$/, { timeout: 30_000 });
+      await expect(page).toHaveURL(new RegExp('/editor
+      await expect(page.getByRole('dialog', { name: dialogName, exact: true }))
+        .toBeVisible({ timeout: 60_000 });
+    });
+  }
+});
+), { timeout: 30_000 });
       await expect(page.getByRole('dialog', { name: dialogName, exact: true }))
         .toBeVisible({ timeout: 60_000 });
     });
