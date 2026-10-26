@@ -6,6 +6,7 @@ on:
       - sire/vish-canvas-pointer-diagnosis-20261027
     paths:
       - .github/workflows/sire-canvas-input-proof.yml
+      - src/components/editor/BlueprintCanvas.tsx
 
 permissions:
   contents: read
