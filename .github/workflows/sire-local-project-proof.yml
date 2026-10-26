@@ -1,0 +1,95 @@
+name: SIRE Local Project Reload Acceptance
+
+on:
+  push:
+    branches:
+      - sire/vish-local-project-reload-20261027
+    paths:
+      - .github/workflows/sire-local-project-proof.yml
+      - src/backend/backendConfig.ts
+      - src/backend/backendConfig.test.ts
+      - src/editor/localProjects.ts
+      - src/pages/EditorPage.tsx
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: Isolated backend-mode and TypeScript checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Production security and isolated E2E mode regressions
+        run: pnpm exec vitest run src/backend/backendConfig.test.ts
+      - name: TypeScript application and API static verification
+        run: pnpm run lint:types
+
+  browser:
+    name: Real Chromium create save reload and project list
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build browser-only offline E2E preview
+        run: node scripts/build-e2e-local.mjs
+      - name: Perform local project save and reload in real browser
+        shell: bash
+        env:
+          PLAYWRIGHT_REUSE_SERVER: '1'
+        run: |
+          set -euo pipefail
+          pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/vish-persistence-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --max-time 2 http://127.0.0.1:4173/editor >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then
+            echo '::error::Isolated preview unavailable'
+            cat /tmp/vish-persistence-preview.log
+            exit 1
+          fi
+          pnpm exec playwright test e2e/ipad-editor-workflow.spec.ts --project=app-smoke-chromium --grep 'named local project persists after reload'
+          pnpm exec playwright test e2e/projects-profile.spec.ts --project=app-smoke-chromium
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-project-proof-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            playwright-report/
+            test-results/
