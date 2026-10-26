@@ -858,6 +858,15 @@ export default function BlueprintCanvas({
     ],
   );
 
+  /** Native pointers can be captured; synthetic pen/touch events have no active UA pointer.
+   * Do not abort drawing if pointer capture reports NotFoundError in that case. */
+  const capturePointerIfAvailable = (event: CanvasPointerEvent) => {
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'NotFoundError')) throw error;
+    }
+  };
   const handlePointerDown = (event: CanvasPointerEvent) => {
     if (pointerTrackerRef.current.shouldRejectIncoming(event.pointerType)) {
       return;
@@ -891,7 +900,7 @@ export default function BlueprintCanvas({
       setInputMode(mode);
       eraserStrokeRef.current = new Set();
       isErasingRef.current = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
+      capturePointerIfAvailable(event);
       eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
       return;
     }
@@ -905,7 +914,7 @@ export default function BlueprintCanvas({
         panY: canvasViewport.panY,
       };
       setIsPanning(true);
-      event.currentTarget.setPointerCapture(event.pointerId);
+      capturePointerIfAvailable(event);
       return;
     }
 
@@ -918,14 +927,14 @@ export default function BlueprintCanvas({
         panY: canvasViewport.panY,
       };
       setIsPanning(true);
-      event.currentTarget.setPointerCapture(event.pointerId);
+      capturePointerIfAvailable(event);
       return;
     }
 
     event.preventDefault();
     const mode = getInputMode(event);
     setInputMode(mode);
-    event.currentTarget.setPointerCapture(event.pointerId);
+    capturePointerIfAvailable(event);
     const point = getCanvasPoint(event);
 
     if (currentTool === 'wall') {
