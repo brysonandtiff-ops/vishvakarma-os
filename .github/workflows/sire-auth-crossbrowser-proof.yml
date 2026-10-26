@@ -1,0 +1,80 @@
+name: SIRE Signed-out Authentication Cross-browser Evidence
+
+on:
+  push:
+    branches:
+      - sire/vish-auth-crossbrowser-proof-20261026
+    paths:
+      - .github/workflows/sire-auth-crossbrowser-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  auth-private-route-acceptance:
+    name: Real Chromium Firefox WebKit signed-out route acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout exact evidence commit
+        uses: actions/checkout@v4
+      - name: Confirm tested source
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up pnpm 9.15.0
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install three real browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Build isolated E2E authentication preview
+        shell: bash
+        env:
+          VITE_E2E_ALLOW_LOCAL_ACCESS: ''
+          VITE_ALLOW_LOCAL_DEMO: ''
+          VITE_SUPABASE_URL: 'https://restore-test.supabase.co'
+          VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.restore-test-anon-key'
+        run: pnpm exec vite build --mode e2e
+      - name: Start local preview, verify HTTP readiness, and test signed-out protection
+        shell: bash
+        env:
+          PLAYWRIGHT_REUSE_SERVER: '1'
+        run: |
+          set -euo pipefail
+          pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/vish-auth-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error --max-time 2 http://127.0.0.1:4173/auth >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then
+            echo '::error::Isolated auth preview failed HTTP readiness'
+            cat /tmp/vish-auth-preview.log
+            exit 1
+          fi
+          echo 'Isolated signed-out auth preview HTTP readiness: PASS'
+          pnpm exec playwright test e2e/auth-private-routes.spec.ts --project=auth-gate-chromium --project=auth-gate-firefox --project=auth-gate-webkit
+      - name: Archive cross-browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-crossbrowser-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            test-results/
+            playwright-report/
