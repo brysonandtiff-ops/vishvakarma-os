@@ -119,7 +119,7 @@ function IconButton({
       title={label}
       data-tutorial={dataTutorial}
       data-state={active ? 'active' : 'inactive'}
-      className={`touch-target touch-manipulation flex h-9 w-9 items-center justify-center rounded-[8px] transition-all duration-200 ${
+      className={`touch-target touch-manipulation flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[8px] transition-all duration-200 ${
         active
           ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
           : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
@@ -157,7 +157,7 @@ function QuickActionButton({
       title={label}
       data-testid={dataTestId}
       data-tutorial={dataTutorial}
-      className={`touch-target touch-manipulation flex items-center gap-1.5 h-9 px-3 rounded-[8px] transition-all duration-200 text-xs font-semibold uppercase tracking-wider ${
+      className={`touch-target touch-manipulation flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap px-3 rounded-[8px] transition-all duration-200 text-xs font-semibold uppercase tracking-wider ${
         active
           ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
           : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
@@ -177,14 +177,14 @@ function ModeTabs({
   onWorkspaceModeChange: (mode: WorkspaceMode) => void;
 }) {
   return (
-    <div className="flex bg-vish-navy-900/50 p-1 rounded-[10px] border border-vish-navy-700/50" role="tablist" aria-label="Editor modes">
+    <div className="flex min-w-0 max-w-full gap-1 overflow-x-auto bg-vish-navy-900/50 p-1 rounded-[10px] border border-vish-navy-700/50" role="tablist" aria-label="Editor modes">
       {MODES.map((mode) => (
         <button
           key={mode.id}
           type="button"
           role="tab"
           aria-selected={workspaceMode === mode.id}
-          className={`flex items-center gap-1.5 px-3 h-8 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
+          className={`flex min-h-[44px] min-w-[44px] shrink-0 items-center gap-1.5 px-3 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
             workspaceMode === mode.id
               ? 'bg-vish-navy-700 text-white shadow-sm'
               : 'text-vish-text-400 hover:text-vish-text-200 hover:bg-vish-navy-800'
@@ -243,8 +243,8 @@ export default function EditorTopBar({
   const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
 
   return (
-    <header className="vish-editor-topbar-chrome flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
-      <div className="flex w-full items-center justify-between">
+    <header className="vish-editor-topbar-chrome flex min-w-0 max-w-full items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
+      <div className="flex min-w-0 w-full items-center justify-between gap-1">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           {onOpenEditorMenu && (
             <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>
@@ -289,11 +289,11 @@ export default function EditorTopBar({
           )}
         </div>
 
-        <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
+        <div className="vish-editor-topbar-center min-w-0 flex-shrink overflow-x-auto justify-self-center px-1">
           <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
         </div>
 
-        <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
+        <div className="vish-editor-action-row flex min-w-0 flex-shrink items-center justify-start gap-1 overflow-x-auto justify-self-end">
           {onStartDemoSession && (
             <QuickActionButton
               label="Start guided demo session"
@@ -339,7 +339,7 @@ export default function EditorTopBar({
                 type="button"
                 aria-label="Project actions"
                 data-tutorial="project-actions"
-                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
+                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
               >
                 <FolderOpen className="h-4 w-4" />
               </button>
@@ -449,7 +449,7 @@ export default function EditorTopBar({
               <button
                 type="button"
                 aria-label="More editor actions"
-                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
+                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </button>
