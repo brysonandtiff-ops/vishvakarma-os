@@ -19,6 +19,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Confirm exact evidence revision
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Verify pristine PR175 source tree without this temporary runner file
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm -f -- .github/workflows/sire-static-quality-proof.yml
+          actual_tree="$(git write-tree)"
+          expected_tree='c9bd426866ad9197b5ecb6a14f34357bf2f01b61'
+          test "$actual_tree" = "$expected_tree"
+          echo "Verified exact PR175 source tree: $actual_tree"
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
@@ -39,6 +48,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Confirm exact evidence revision
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Verify pristine PR175 source tree without this temporary runner file
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm -f -- .github/workflows/sire-static-quality-proof.yml
+          actual_tree="$(git write-tree)"
+          expected_tree='c9bd426866ad9197b5ecb6a14f34357bf2f01b61'
+          test "$actual_tree" = "$expected_tree"
+          echo "Verified exact PR175 source tree: $actual_tree"
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
@@ -59,6 +77,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Confirm exact evidence revision
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Verify pristine PR175 source tree without this temporary runner file
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm -f -- .github/workflows/sire-static-quality-proof.yml
+          actual_tree="$(git write-tree)"
+          expected_tree='c9bd426866ad9197b5ecb6a14f34357bf2f01b61'
+          test "$actual_tree" = "$expected_tree"
+          echo "Verified exact PR175 source tree: $actual_tree"
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
