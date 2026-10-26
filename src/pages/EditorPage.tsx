@@ -73,7 +73,7 @@ import {
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
-import { upsertLocalProject } from '@/editor/localProjects';
+import { getActiveLocalProject, getLocalWorkspaceProjects, setActiveLocalProjectId, upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -358,7 +358,7 @@ function EditorWorkspace() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const data = await getProjects();
+      const data = backendStatus.isConfigured ? await getProjects() : getLocalWorkspaceProjects();
       setProjects(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
@@ -377,6 +377,22 @@ function EditorWorkspace() {
       delete (window as Window & { __vishFloorPlanEngine?: typeof engine }).__vishFloorPlanEngine;
     };
   }, [engine]);
+
+  const initialLocalProjectCheckedRef = useRef(false);
+
+  useEffect(() => {
+    if (initialLocalProjectCheckedRef.current) return;
+    initialLocalProjectCheckedRef.current = true;
+    if (backendStatus.isConfigured || location.state) return;
+    const project = getActiveLocalProject();
+    if (!project) return;
+    setCurrentProject(project);
+    setDemoProjectName(null);
+    applyManifest(project.manifest);
+    setSaveState('local-draft');
+    setLastDraftSavedAt(null);
+    setHasUnsavedChanges(false);
+  }, [applyManifest, location.state]);
 
   useEffect(() => {
     const draft = readLocalDraft();
@@ -547,6 +563,7 @@ function EditorWorkspace() {
       const displayName = sampleManifest.name || 'Demo Blueprint';
 
       if (options.mode === 'fresh') {
+        setActiveLocalProjectId(null);
         setCurrentProject(null);
         setDemoProjectName(displayName);
       } else if (!currentProject) {
@@ -640,6 +657,8 @@ function EditorWorkspace() {
       };
       setCurrentProject(updatedProject);
       upsertLocalProject(updatedProject);
+      setActiveLocalProjectId(updatedProject.id);
+      void loadProjects();
       clearLocalDraft();
       setSaveState('local-draft');
       setLastDraftSavedAt(null);
@@ -677,6 +696,7 @@ function EditorWorkspace() {
     toast.message('Loading project…', { description: project.name });
     clearLocalDraft();
     setCurrentProject(project);
+    setActiveLocalProjectId(isLocalProjectId(project.id) ? project.id : null);
     setDemoProjectName(null);
     applyManifest(project.manifest);
     setLoadDialogOpen(false);
@@ -694,6 +714,7 @@ function EditorWorkspace() {
 
   const handleImportedManifest = (manifest: ProjectManifest) => {
     clearLocalDraft();
+    setActiveLocalProjectId(null);
     setCurrentProject(null);
     setDemoProjectName(manifest.name);
     applyManifest(manifest);
