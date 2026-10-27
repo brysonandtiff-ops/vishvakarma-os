@@ -1,0 +1,68 @@
+name: SIRE Stacked Projects Exact-Tree Static Proof
+
+on:
+  push:
+    branches:
+      - sire/vish-projects-dashboard-contract-20261027
+    paths:
+      - .github/workflows/sire-stacked-projects-cert.yml
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Full Vitest on exact saved-project dashboard source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm exact commit and remove only temporary evidence workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f .github/workflows/sire-stacked-projects-cert.yml
+          test "$(git write-tree)" = "cae6f9fa690f967b10410877ab8aea41e5742b01"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: All project unit tests
+        run: pnpm run test
+
+  typed-and-security:
+    name: TypeScript production hardening and authorization guards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm exact commit and remove only temporary evidence workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f .github/workflows/sire-stacked-projects-cert.yml
+          test "$(git write-tree)" = "cae6f9fa690f967b10410877ab8aea41e5742b01"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: TypeScript app and API
+        run: pnpm run lint:types
+      - name: Production and API security
+        run: pnpm run hardening:gates
+      - name: Governance contracts and PWA security
+        run: pnpm run contract:gates
+      - name: Auth configuration security
+        run: pnpm run auth:gates
