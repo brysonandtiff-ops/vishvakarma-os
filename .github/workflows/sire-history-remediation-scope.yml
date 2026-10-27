@@ -1,0 +1,134 @@
+name: SIRE Read-only Historic Purge Scope and Current Snapshot Scan
+
+on:
+  push:
+    branches:
+      - sire/vish-history-remediation-scope-20261027
+    paths:
+      - .github/workflows/sire-history-remediation-scope.yml
+
+permissions:
+  contents: read
+
+jobs:
+  classify-without-secrets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prove exact source tree and fetch reachable refs read only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-history-remediation-scope.yml
+          test "$(git write-tree)" = "9e97a3782fb81b0e081cf2ff690e367b34bb594a"
+          git fetch --quiet --force --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          git rev-parse --verify refs/remotes/origin/main > /dev/null
+      - name: Install signature-verified scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sire-bin"
+          cd "$RUNNER_TEMP/sire-bin"
+          curl -fsSL --retry 3 --connect-timeout 15 --max-time 180 -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          curl -fsSL --retry 3 --connect-timeout 15 --max-time 180 -o checksums.txt https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt
+          grep -F 'gitleaks_8.30.1_linux_x64.tar.gz' checksums.txt | sed 's/gitleaks_8.30.1_linux_x64.tar.gz/gitleaks.tar.gz/' > verify.sha256
+          test "$(wc -l < verify.sha256 | tr -d ' ')" = 1
+          sha256sum -c verify.sha256
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+      - name: Scan clean current tree only, without Git history contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sire-current"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/sire-current"
+          : > "$RUNNER_TEMP/sire-empty-ignore"
+          set +e
+          "$RUNNER_TEMP/sire-bin/gitleaks" dir "$RUNNER_TEMP/sire-current" --no-banner --no-color --log-level error --redact=100 --gitleaks-ignore-path "$RUNNER_TEMP/sire-empty-ignore" --ignore-gitleaks-allow --report-format=json --report-path="$RUNNER_TEMP/current-findings.json" --exit-code=77 >/dev/null 2>/dev/null
+          result=$?
+          set -e
+          if [ "$result" != 0 ] && [ "$result" != 77 ]; then
+            echo '::error::Current-tree scan unavailable or invalid; no release certification'
+            exit 2
+          fi
+          echo "SIRE_CURRENT_SCAN_STATUS=$result" >> "$GITHUB_ENV"
+      - name: Classify historic forbidden paths with zero raw paths disclosed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess, pathlib, collections, re
+          from datetime import datetime, timezone
+          root=pathlib.Path(os.environ['GITHUB_WORKSPACE'])
+          runtime=pathlib.Path(os.environ['RUNNER_TEMP'])
+          def git(*args):
+              return subprocess.check_output(['git',*args], cwd=root, stderr=subprocess.DEVNULL)
+          def splitnul(blob):
+              return [x.decode('utf-8','surrogateescape').strip('\n') for x in blob.split(b'\0') if x.strip(b'\n')]
+          def classify(path):
+              parts=path.lower().replace('\\','/').split('/')
+              if '.local' in parts: return 'machine_local_state'
+              if '.wrangler' in parts or '.vercel' in parts: return 'deployment_state'
+              if 'dist' in parts: return 'generated_distribution'
+              name=parts[-1]
+              if name.endswith('.clixml'): return 'credential_clixml'
+              if re.match(r'^storage[-_]state(?:\.|$)',name): return 'browser_session_state'
+              if ('playwright' in parts and ('.auth' in parts or name=='auth.json')): return 'playwright_auth_state'
+              return None
+          current=set(splitnul(git('ls-tree','-r','-z','--name-only','refs/remotes/origin/main')))
+          candidate=set(splitnul(git('ls-files','-z')))
+          historical=set(splitnul(git('log','--all','--name-only','--format=','-z','--diff-filter=AM')))
+          groups=lambda paths: dict(sorted(collections.Counter(category for p in paths if (category:=classify(p))).items()))
+          cur=groups(current)
+          now=groups(candidate)
+          hist=groups(historical)
+          found=runtime/'current-findings.json'
+          raw=json.loads(found.read_text('utf-8')) if found.exists() else []
+          if not isinstance(raw,list): raise SystemExit('Invalid current scanner output')
+          if not found.exists() and os.environ.get('SIRE_CURRENT_SCAN_STATUS')!='0':
+              raise SystemExit('Missing report for nonzero current scan status')
+          current_rules=dict(sorted(collections.Counter(str(i.get('RuleID','unknown'))[:80] for i in raw).items()))
+          result={
+            'state':'BLOCKED' if bool(cur or now or hist or raw) else 'NO_DETECTED_FINDINGS',
+            'scope':'all fetched origin branches/tags for path history; current origin/main and proof branch; Gitleaks v8.30.1 current-tree source snapshot',
+            'source_tree':'9e97a3782fb81b0e081cf2ff690e367b34bb594a',
+            'fetched_ref_count':len(splitnul(git('for-each-ref','--format=%(refname)%00','refs/remotes/origin','refs/tags'))),
+            'reachable_commits':int(git('rev-list','--all','--count').strip()),
+            'historic_forbidden_unique_paths_by_class':hist,
+            'current_main_forbidden_paths_by_class':cur,
+            'current_candidate_forbidden_paths_by_class':now,
+            'current_candidate_gitleaks_match_count':len(raw),
+            'current_candidate_gitleaks_rule_counts':current_rules,
+            'next':'Private provider key triage and rotations, owner-authorised encrypted offline backup and history rewrite, then repeat all scans',
+            'coverage_limits':'Does not inspect remote forks, deleted/unreachable refs, GitHub caches or active key status',
+            'secret_values_or_file_paths_included':False,
+          }
+          location=root/'sire-history-remediation-scope-summary.json'
+          location.write_text(json.dumps(result,indent=2)+'\n','utf-8')
+          print('Sanitized history-remediation scope (no secret values, filenames or commits):')
+          print(json.dumps(result,indent=2))
+          PY
+      - name: Archive only sanitized counts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-remediation-scope-${{ github.run_id }}
+          path: sire-history-remediation-scope-summary.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Fail closed until historical cleanup is done
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          with open('sire-history-remediation-scope-summary.json',encoding='utf-8') as f:
+              report=json.load(f)
+          if report['state']!='NO_DETECTED_FINDINGS':
+              raise SystemExit('Historical secret-state inventory or current-tree findings remain. Release BLOCKED.')
+          PY
