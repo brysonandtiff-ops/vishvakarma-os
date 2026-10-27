@@ -94,7 +94,7 @@ describe('private recipient-encrypted Git backup — synthetic repository only',
       })).toThrow(/absolute/i);
       expect(() => validateEncryptedBackupDestination({
         repository: f.repository, destination: join(f.repository, 'secret.age'), recipient: f.recipient,
-      })).toThrow(/outside/i);
+      })).toThrow(/inside the Git repository/i);
       expect(() => validateEncryptedBackupDestination({
         repository: f.repository, destination: join(f.unsafe, 'secret.age'), recipient: f.recipient,
       })).toThrow(/private/i);
