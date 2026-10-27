@@ -57,6 +57,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-backup-roundtrip-proof.yml
+          test "$(git write-tree)" = "3f8bc1f4e74ce22bf8947783b29c77a5b7b219fd"
       - name: Fetch all visible branch/tag and pull-request references without writes
         shell: bash
         run: |
