@@ -1,0 +1,70 @@
+name: SIRE Service Role Test Isolation and Cleanup Proof
+
+on:
+  push:
+    branches:
+      - sire/vish-api-roundtrip-safe-cleanup-20261027
+    paths:
+      - .github/workflows/sire-api-diagnostic-cleanup-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup-tests:
+    name: Verify forced cleanup and diagnostic proof separation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact application source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-api-diagnostic-cleanup-proof.yml
+          test "$(git write-tree)" = "c6b8309aebc168bf3d851a9aa7e296b1b21a847d"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate runtime scripts
+        run: node --check scripts/lib/supabase-api-diagnostic.mjs && node --check scripts/verify-supabase-save-reload.mjs
+      - name: Prove all seven failure-safe diagnostic lifecycle scenarios
+        run: pnpm exec vitest run scripts/lib/supabase-api-diagnostic.test.mjs
+      - name: Revalidate false-positive cloud release guard
+        run: pnpm exec vitest run scripts/lib/save-reload-evidence.test.mjs
+
+  full-regression:
+    name: Full Vitest TypeScript security and auth policy regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact application source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-api-diagnostic-cleanup-proof.yml
+          test "$(git write-tree)" = "c6b8309aebc168bf3d851a9aa7e296b1b21a847d"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Entire unit suite
+        run: pnpm run test
+      - name: TypeScript app and API
+        run: pnpm run lint:types
+      - name: Security and governance
+        run: pnpm run hardening:gates && pnpm run contract:gates && pnpm run auth:gates
