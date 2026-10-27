@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -123,6 +123,24 @@ describe('private recipient-encrypted Git backup — synthetic repository only',
         repository: f.repository, destination: f.destination, recipient: f.recipient,
         ageBinary: 'not-a-real-age-binary',
       })).rejects.toThrow();
+      expect(existsSync(f.destination)).toBe(false);
+    } finally {
+      rmSync(f.root, { recursive: true, force: true });
+    }
+  });
+
+  it('removes only its own partial ciphertext after an encryption subprocess failure', async () => {
+    const f = fixture();
+    try {
+      const broken = join(f.safe, 'synthetic-age-failure.sh');
+      writeFileSync(broken, '#!/bin/sh\\nif [ "$1" = "--version" ]; then exit 0; fi\\nexit 11\\n');
+      chmodSync(broken, 0o700);
+      await expect(createEncryptedHistoryBackup({
+        repository: f.repository,
+        destination: f.destination,
+        recipient: f.recipient,
+        ageBinary: broken,
+      })).rejects.toThrow(/creation failed/);
       expect(existsSync(f.destination)).toBe(false);
     } finally {
       rmSync(f.root, { recursive: true, force: true });
