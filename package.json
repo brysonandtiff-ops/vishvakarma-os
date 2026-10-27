@@ -53,7 +53,7 @@
     "lint:structure": "node scripts/run-platform-tool.mjs ast-grep scan",
     "contract:gates": "node scripts/quality/check-system-contract.mjs && node scripts/quality/check-forbidden-edges.mjs && node scripts/quality/check-build-gate.mjs && node scripts/quality/check-production-hardening.mjs && node scripts/quality/check-pwa-install-assets.mjs && node scripts/quality/check-device-hardening.mjs && node scripts/quality/check-project-roles.mjs",
     "device-hardening:gates": "node scripts/quality/check-device-hardening.mjs",
-    "hardening:gates": "node scripts/quality/check-production-hardening.mjs && node scripts/security/check-api-endpoints.mjs",
+    "hardening:gates": "node scripts/quality/check-production-hardening.mjs && node scripts/security/check-api-endpoints.mjs && node scripts/security/check-repository-secrets.mjs",
     "security:api": "node scripts/security/check-api-endpoints.mjs",
     "pwa:gates": "node scripts/quality/check-pwa-install-assets.mjs",
     "project-roles:gates": "node scripts/quality/check-project-roles.mjs",
