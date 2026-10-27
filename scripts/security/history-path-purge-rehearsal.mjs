@@ -24,9 +24,9 @@ export const HISTORICAL_FORBIDDEN_PATH_REGEXES = Object.freeze([
 
 export function isHistoricalPurgePath(path) {
   if (typeof path !== 'string' || !path) return false;
-  const canonical = path.replaceAll('\\\\', '/');
+  const canonical = path.replaceAll('\\', '/');
   return HISTORICAL_FORBIDDEN_PATH_REGEXES.some((pattern) =>
-    new RegExp(pattern.replace(/^\\(\\?i\\)/, ''), 'i').test(canonical),
+    new RegExp(pattern.replace(/^\(\?i\)/, ''), 'i').test(canonical),
   );
 }
 
@@ -74,29 +74,29 @@ export function runSyntheticHistoryPurgeRehearsal(filterRepoExecutable) {
       mkdirSync(join(dest, '..'), { recursive: true });
       writeFileSync(dest, content);
     }
-    stage(kept, 'export const mode = "synthetic-only";\\n');
+    stage(kept, 'export const mode = "synthetic-only";\n');
     for (const path of banned) {
-      stage(path, 'FICTIONAL TEST FIXTURE - NO REAL SECRET\\n');
+      stage(path, 'FICTIONAL TEST FIXTURE - NO REAL SECRET\n');
     }
     command(root, 'git', ['add', '-A']);
     command(root, 'git', ['commit', '--quiet', '-m', 'synthetic branch with fake forbidden paths']);
     command(root, 'git', ['tag', 'synthetic-before']);
     command(root, 'git', ['branch', 'synthetic-backup-branch']);
-    stage(kept, 'export const mode = "synthetic-revised";\\n');
+    stage(kept, 'export const mode = "synthetic-revised";\n');
     command(root, 'git', ['add', '-A']);
     command(root, 'git', ['commit', '--quiet', '-m', 'synthetic clean feature commit']);
     const priorRefCount = command(root, 'git', ['for-each-ref','--format=%(refname)'])
-      .split('\\n').filter(Boolean).length;
+      .split('\n').filter(Boolean).length;
 
     command(root, filterRepoExecutable, getSyntheticHistoryFilterArgs());
     command(root, 'git', ['fsck', '--full', '--no-progress']);
     const remainingPaths = command(root, 'git', [
       'log', '--all', '--pretty=format:', '--name-only', '-z',
-    ]).split('\\0').filter(Boolean).map((path) => path.trim()).filter(Boolean);
+    ]).split('\0').filter(Boolean).map((path) => path.trim()).filter(Boolean);
     const stillForbidden = remainingPaths.filter(isHistoricalPurgePath);
     const keptSource = command(root, 'git', ['show', 'HEAD:' + kept]);
     const currentRefs = command(root, 'git', ['for-each-ref','--format=%(refname)'])
-      .split('\\n').filter(Boolean);
+      .split('\n').filter(Boolean);
 
     if (stillForbidden.length !== 0 ||
         !remainingPaths.includes(kept) ||
