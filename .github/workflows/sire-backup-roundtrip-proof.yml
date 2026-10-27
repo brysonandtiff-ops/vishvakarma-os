@@ -1,0 +1,79 @@
+name: SIRE Ephemeral History Recovery Dry-run (No Archive Upload)
+
+on:
+  push:
+    branches:
+      - sire/vish-history-backup-preflight-20261027
+    paths:
+      - .github/workflows/sire-backup-roundtrip-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  source-acceptance:
+    name: New recovery preflight tests, full unit and mandatory security gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact application source tree without the one-time proof workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-backup-roundtrip-proof.yml
+          test "$(git write-tree)" = "3f8bc1f4e74ce22bf8947783b29c77a5b7b219fd"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Synthetic Git bundle test and negative validation
+        run: pnpm exec vitest run scripts/security/history-backup-preflight.test.mjs
+      - name: Full unit suite on exact source
+        run: pnpm run test
+      - name: TypeScript and required hardening
+        run: pnpm run lint:types && pnpm run hardening:gates && pnpm run contract:gates && pnpm run auth:gates
+
+  full-git-dryrun:
+    name: Restore full reachable history into an ephemeral mirror without uploading credentials
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact application source tree without the one-time proof workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+      - name: Fetch all visible branch/tag and pull-request references without writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --quiet --force --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          git fetch --quiet --force origin '+refs/pull/*/head:refs/remotes/origin/pull/*'
+          echo "Fetched $(git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags | wc -l | tr -d ' ') refs for ephemeral roundtrip"
+      - name: Build disposable full bundle, mirror-restore and fsck in isolated runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIRE_BACKUP_SOURCE="$GITHUB_WORKSPACE" SIRE_BACKUP_REPORT="$RUNNER_TEMP/sire-history-recovery-safe-summary.json" node scripts/security/history-backup-preflight.mjs
+      - name: Upload sanitized counters only — never bundle, mirror, raw matches or refs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sire-history-recovery-counters-${{ github.run_id }}
+          path: ${{ runner.temp }}/sire-history-recovery-safe-summary.json
+          if-no-files-found: warn
+          retention-days: 7
