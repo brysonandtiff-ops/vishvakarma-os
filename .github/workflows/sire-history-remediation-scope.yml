@@ -57,6 +57,21 @@ jobs:
             exit 2
           fi
           echo "SIRE_CURRENT_SCAN_STATUS=$result" >> "$GITHUB_ENV"
+      - name: Scan actual main branch current source snapshot separately
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sire-current-main"
+          git archive refs/remotes/origin/main | tar -x -C "$RUNNER_TEMP/sire-current-main"
+          set +e
+          "$RUNNER_TEMP/sire-bin/gitleaks" dir "$RUNNER_TEMP/sire-current-main" --no-banner --no-color --log-level error --redact=100 --gitleaks-ignore-path "$RUNNER_TEMP/sire-empty-ignore" --ignore-gitleaks-allow --report-format=json --report-path="$RUNNER_TEMP/main-findings.json" --exit-code=77 >/dev/null 2>/dev/null
+          result=$?
+          set -e
+          if [ "$result" != 0 ] && [ "$result" != 77 ]; then
+            echo '::error::Main snapshot source scan could not complete; do not infer no exposure'
+            exit 2
+          fi
+          echo "SIRE_MAIN_SCAN_STATUS=$result" >> "$GITHUB_ENV"
       - name: Classify historic forbidden paths with zero raw paths disclosed
         shell: bash
         run: |
@@ -93,6 +108,22 @@ jobs:
           if not found.exists() and os.environ.get('SIRE_CURRENT_SCAN_STATUS')!='0':
               raise SystemExit('Missing report for nonzero current scan status')
           current_rules=dict(sorted(collections.Counter(str(i.get('RuleID','unknown'))[:80] for i in raw).items()))
+          main_report=runtime/'main-findings.json'
+          main_raw=json.loads(main_report.read_text('utf-8')) if main_report.exists() else []
+          if not isinstance(main_raw,list): raise SystemExit('Invalid main source scanner report')
+          if not main_report.exists() and os.environ.get('SIRE_MAIN_SCAN_STATUS')!='0':
+              raise SystemExit('Missing main report for nonzero scanner result')
+          def coarse(item):
+              name=str(item.get('File','')).replace('\\','/').lower()
+              segments=name.split('/')
+              if any(x in segments for x in ('__tests__','test','tests','fixtures','e2e')) or name.endswith(('.test.ts','.test.tsx','.spec.ts','.test.mjs')): return 'tests_or_fixtures'
+              if any(x in segments for x in ('docs','documentation')) or name.endswith(('.md','.mdx')): return 'documentation'
+              if 'scripts' in segments: return 'build_and_maintenance_scripts'
+              if 'src' in segments: return 'application_source'
+              if 'public' in segments: return 'public_assets'
+              return 'other_tracked_source'
+          def meta(items):
+              return dict(sorted(collections.Counter(coarse(x) for x in items).items()))
           result={
             'state':'BLOCKED' if bool(cur or now or hist or raw) else 'NO_DETECTED_FINDINGS',
             'scope':'all fetched origin branches/tags for path history; current origin/main and proof branch; Gitleaks v8.30.1 current-tree source snapshot',
@@ -102,6 +133,9 @@ jobs:
             'historic_forbidden_unique_paths_by_class':hist,
             'current_main_forbidden_paths_by_class':cur,
             'current_candidate_forbidden_paths_by_class':now,
+            'current_main_gitleaks_match_count':len(main_raw),
+            'current_main_gitleaks_coarse_categories':meta(main_raw),
+            'current_candidate_gitleaks_coarse_categories':meta(raw),
             'current_candidate_gitleaks_match_count':len(raw),
             'current_candidate_gitleaks_rule_counts':current_rules,
             'next':'Private provider key triage and rotations, owner-authorised encrypted offline backup and history rewrite, then repeat all scans',
