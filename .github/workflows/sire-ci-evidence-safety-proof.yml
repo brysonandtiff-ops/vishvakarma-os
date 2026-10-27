@@ -1,0 +1,91 @@
+name: SIRE Public CI Artifact Data-Minimization Verification
+
+on:
+  push:
+    branches:
+      - sire/vish-ci-evidence-data-minimization-20261027
+    paths:
+      - .github/workflows/sire-ci-evidence-safety-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  confidentiality:
+    name: Ensure no private browser state can be uploaded as public artifact
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact source tree excluding one-off proof workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-ci-evidence-safety-proof.yml
+          test "$(git write-tree)" = "13ba9debf2e40f8ab4dd2ecdef6001bdaf54e11b"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Test secret-content, malicious path, symlink and exclusive-output handling
+        run: pnpm exec vitest run scripts/security/summarize-ci-evidence.test.mjs
+      - name: Generate only a metadata summary on the real checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/security/summarize-ci-evidence.mjs
+          test -s sire-sanitized-evidence/ci-evidence-counts.json
+          node -e "const d=require('./sire-sanitized-evidence/ci-evidence-counts.json'); if(d.qualifies_as_release_browser_acceptance || d.screenshots_traces_videos_uploaded || d.raw_file_names_paths_and_contents_included || d.kind!=='METADATA_ONLY_NOT_BROWSER_PROOF')process.exit(1)"
+      - name: Validate only the sanctioned file path is uploaded by the canonical workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const src=readFileSync('.github/workflows/production-certification.yml','utf8');
+          const tail=src.slice(src.indexOf('      - name: Upload safe metadata counters only'));
+          if (!tail.includes('path: sire-sanitized-evidence/ci-evidence-counts.json') || !tail.includes('retention-days: 7') || tail.includes('test-results/') || tail.includes('playwright-report/') || tail.includes('docs/release/evidence/')) throw Error('Unsafe public evidence upload policy');
+          NODE
+      - name: Upload only counts JSON as proof of public artifact contract
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sire-artifact-data-minimization-${{ github.run_id }}
+          path: sire-sanitized-evidence/ci-evidence-counts.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  regression:
+    name: Full unit TypeScript and production security checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact source tree excluding one-off proof workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-ci-evidence-safety-proof.yml
+          test "$(git write-tree)" = "13ba9debf2e40f8ab4dd2ecdef6001bdaf54e11b"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run full unit suite
+        run: pnpm run test
+      - name: Verify all TypeScript and required safety gates
+        run: pnpm run lint:types && pnpm run hardening:gates && pnpm run contract:gates && pnpm run auth:gates
