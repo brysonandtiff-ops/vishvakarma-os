@@ -141,6 +141,18 @@ test.describe('editor core features (e2e local access)', () => {
   test('sample picker loads furniture showcase template', async ({ page }) => {
     await loadSampleProject(page, 'Furniture Showcase');
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Furniture Showcase/i).first()).toBeVisible({ timeout: 15_000 });
+    // A compact iPad/desktop toolbar can contain a hidden copy of the sample name.
+    // Prove the actual loaded engine model (4 walls and 8 furniture objects) instead.
+    await expect.poll(async () => page.evaluate(() => {
+      const engine = (window as Window & {
+        __vishFloorPlanEngine?: { getManifest: () => { name: string; walls: unknown[]; furniture?: unknown[] } };
+      }).__vishFloorPlanEngine;
+      const manifest = engine?.getManifest();
+      return {
+        name: manifest?.name ?? null,
+        walls: manifest?.walls.length ?? -1,
+        furniture: manifest?.furniture?.length ?? -1,
+      };
+    }), { timeout: 15_000 }).toEqual({ name: 'Furniture Showcase', walls: 4, furniture: 8 });
   });
 });

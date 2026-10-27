@@ -248,6 +248,16 @@ export default function ProjectsPage() {
           </Button>
         </div>
       </section>
+      {!backendStatus.isConfigured && (
+        <section
+          role="status"
+          data-testid="local-project-storage-notice"
+          className="rounded-xl border border-vish-blue-500/30 bg-vish-navy-800 px-4 py-3 text-sm text-vish-text-200"
+        >
+          <p className="font-semibold text-white">Local draft mode</p>
+          <p>Projects are saved in this browser only. Export a copy before clearing browser data or changing devices.</p>
+        </section>
+      )}
       {/* Verified local demo fixtures. Demo fixtures are generated in-browser from the versioned sample catalog. */}
       <section aria-labelledby="demo-fixtures-heading">
         <div className="flex items-end justify-between gap-4 mb-4">
