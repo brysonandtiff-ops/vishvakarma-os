@@ -1,0 +1,153 @@
+name: SIRE Read-Only Remote Isolated History Rewrite Rehearsal
+
+on:
+  push:
+    branches:
+      - sire/vish-isolated-history-rewrite-rehearsal-20261027
+    paths:
+      - .github/workflows/sire-history-local-rewrite-rehearsal.yml
+
+permissions:
+  contents: read
+
+jobs:
+  isolate:
+    name: Rewrite only a disposable mirror and compare redacted historical exposure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact source tree and retrieve visible refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-history-local-rewrite-rehearsal.yml
+          test "$(git write-tree)" = "3f8bc1f4e74ce22bf8947783b29c77a5b7b219fd"
+          git fetch --quiet --force --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          git fetch --quiet --force origin '+refs/pull/*/head:refs/remotes/origin/pull/*'
+          echo "Read-only fetched refs: $(git for-each-ref --format='%(refname)' refs/heads refs/remotes/origin refs/tags | wc -l | tr -d ' ')"
+      - name: Install pinned checksum-verified filter-repo without privileged machine changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/sire-filterrepo-venv"
+          mkdir -p "$RUNNER_TEMP/sire-filterrepo-wheel"
+          "$RUNNER_TEMP/sire-filterrepo-venv/bin/python" -m pip download --quiet --disable-pip-version-check --no-deps --only-binary=:all: --dest "$RUNNER_TEMP/sire-filterrepo-wheel" git-filter-repo==2.47.0
+          printf '%s  %s\n' '2cd04929b9024e83e65db571cbe36aec65ead0cb5f9ec5abe42158654af5ad83' "$RUNNER_TEMP/sire-filterrepo-wheel/git_filter_repo-2.47.0-py3-none-any.whl" | sha256sum -c -
+          "$RUNNER_TEMP/sire-filterrepo-venv/bin/python" -m pip install --quiet --disable-pip-version-check --no-deps "$RUNNER_TEMP/sire-filterrepo-wheel/git_filter_repo-2.47.0-py3-none-any.whl"
+          "$RUNNER_TEMP/sire-filterrepo-venv/bin/git-filter-repo" --version
+      - name: Install pinned checksum-verified Gitleaks scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sire-secret-scanner"
+          cd "$RUNNER_TEMP/sire-secret-scanner"
+          curl -fsSL --retry 3 --connect-timeout 15 --max-time 180 -o scanner.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          curl -fsSL --retry 3 --connect-timeout 15 --max-time 180 -o checksums.txt https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt
+          grep -F 'gitleaks_8.30.1_linux_x64.tar.gz' checksums.txt | sed 's/gitleaks_8.30.1_linux_x64.tar.gz/scanner.tar.gz/' > verify.sha256
+          test "$(wc -l < verify.sha256 | tr -d ' ')" = 1
+          sha256sum -c verify.sha256
+          tar -xzf scanner.tar.gz gitleaks
+          chmod +x gitleaks
+      - name: Rehearse path removal in isolated mirror with zero remote writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          export SIRE_REWRITE_WORKSPACE="$RUNNER_TEMP/sire-rewrite-private"
+          mkdir -p "$SIRE_REWRITE_WORKSPACE"
+          trap 'rm -rf -- "$SIRE_REWRITE_WORKSPACE"' EXIT
+          python3 - <<'PY'
+          from pathlib import Path
+          from collections import Counter
+          import json, os, re, subprocess, shutil
+          root=Path(os.environ['GITHUB_WORKSPACE'])
+          tmp=Path(os.environ['SIRE_REWRITE_WORKSPACE'])
+          mirror=tmp/'mirror.git'
+          gitleaks=Path(os.environ['RUNNER_TEMP'])/'sire-secret-scanner/gitleaks'
+          filter_tool=Path(os.environ['RUNNER_TEMP'])/'sire-filterrepo-venv/bin/git-filter-repo'
+          report=Path(os.environ['GITHUB_WORKSPACE'])/'sire-isolated-rewrite-aggregate.json'
+          pattern=r'(^|/)(?:\.local|\.wrangler|\.vercel|dist)(?:/|$)|(^|/)(?:storage[-_]state[^/]*|[^/]+\.clixml)$|(^|/)playwright/(?:\.auth(?:/|$)|auth\.json$)'
+          def execute(args,cwd,timeout=2700):
+              return subprocess.run(args,cwd=cwd,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=timeout,check=False)
+          def git(cwd,*args):
+              return subprocess.check_output(['git',*args],cwd=cwd,stderr=subprocess.DEVNULL).decode('utf-8','replace').strip()
+          def scan(cwd,key):
+              private_file=tmp/(key+'-private-findings.json')
+              result=execute([str(gitleaks),'git',str(cwd),'--no-banner','--no-color','--log-level','error','--redact=100','--ignore-gitleaks-allow','--log-opts=--all','--report-format=json','--report-path='+str(private_file),'--exit-code=77'],root)
+              if result.returncode not in (0,77): raise RuntimeError('secret scan failed to complete')
+              if result.returncode==77 and not private_file.exists(): raise RuntimeError('scanner flagged exposure without private report')
+              raw=json.loads(private_file.read_text()) if private_file.exists() else []
+              if not isinstance(raw,list): raise RuntimeError('malformed scanner output')
+              return len(raw),dict(sorted(Counter(str(x.get('RuleID','unknown'))[:70] for x in raw).items()))
+          def get_refs(cwd):
+              value=git(cwd,'for-each-ref','--format=%(refname)')
+              return value.splitlines() if value else []
+          def history_paths(cwd):
+              raw=subprocess.check_output(['git','log','--all','--format=','--name-only','-z','--diff-filter=AM'],cwd=cwd,stderr=subprocess.DEVNULL,timeout=1200)
+              return {x.decode('utf-8','surrogateescape').strip('\n') for x in raw.split(b'\0') if x.strip(b'\n')}
+          before_paths=history_paths(root)
+          before_forbidden=sum(bool(re.search(pattern,p)) for p in before_paths)
+          before_tree=git(root,'rev-parse','refs/remotes/origin/main^{tree}')
+          before_count=int(git(root,'rev-list','--all','--count'))
+          before_refs=len(get_refs(root))
+          baseline_total,baseline_rules=scan(root,'before')
+          cloning=execute(['git','clone','--mirror','--no-local','--quiet',str(root),str(mirror)],root)
+          if cloning.returncode: raise RuntimeError('private mirror clone failed')
+          isolated_ref_count=len(get_refs(mirror))
+          if isolated_ref_count!=before_refs: raise RuntimeError('mirror clone missed refs; unsafe rehearsal')
+          rewritten=execute([str(filter_tool),'--force','--quiet','--invert-paths','--path-regex',pattern],mirror,timeout=2700)
+          if rewritten.returncode: raise RuntimeError('isolated history rewrite failed')
+          after_refs=get_refs(mirror)
+          after_count=int(git(mirror,'rev-list','--all','--count'))
+          after_paths=history_paths(mirror)
+          after_forbidden=sum(bool(re.search(pattern,p)) for p in after_paths)
+          if after_forbidden: raise RuntimeError('rewrite left forbidden history paths')
+          after_main=None
+          for ref in ('refs/heads/main','refs/remotes/origin/main'):
+              if execute(['git','rev-parse','--verify',ref+'^{tree}'],mirror).returncode==0:
+                  after_main=git(mirror,'rev-parse',ref+'^{tree}')
+                  break
+          tree_equal=bool(after_main and before_tree==after_main)
+          if not tree_equal: raise RuntimeError('current production main source tree unexpectedly changed')
+          if execute(['git','fsck','--full','--no-reflogs','--no-progress'],mirror,timeout=1200).returncode!=0:
+              raise RuntimeError('rewritten isolated mirror failed Git object integrity verification')
+          after_total,after_rules=scan(mirror,'after')
+          report_data={
+            'status':'REHEARSAL_VERIFIED_RELEASE_STILL_BLOCKED',
+            'source_git_tree':'3f8bc1f4e74ce22bf8947783b29c77a5b7b219fd',
+            'tool_versions':'git-filter-repo==2.47.0 (pinned wheel checksum), gitleaks v8.30.1 (pinned release checksum)',
+            'original_reachable_commits':before_count,
+            'rewritten_reachable_commits':after_count,
+            'origin_reference_count':before_refs,
+            'mirror_initial_reference_count':isolated_ref_count,
+            'mirror_surviving_reference_count':len(after_refs),
+            'historical_unique_forbidden_paths_before':before_forbidden,
+            'historical_unique_forbidden_paths_after':after_forbidden,
+            'main_tree_unchanged':tree_equal,
+            'mirror_object_integrity_verified':True,
+            'gitleaks_detection_count_before':baseline_total,
+            'gitleaks_detection_count_after':after_total,
+            'gitleaks_rule_groups_before':baseline_rules,
+            'gitleaks_rule_groups_after':after_rules,
+            'only_local_disposable_mirror_rewritten':True,
+            'remote_refs_updated':False,
+            'history_backup_retained':False,
+            'credential_validity_checked':False,
+            'note':'Filtering paths alone does not prove all token values removed, provider key revocation, external clone/cache cleanup or release safety. Scan includes all refs currently fetched by this runner only.',
+          }
+          report.write_text(json.dumps(report_data,indent=2)+'\n')
+          print('SANITIZED REHEARSAL COUNTS (NO VALUES, HASHES OR FILENAMES):')
+          print(json.dumps(report_data,indent=2))
+          PY
+      - name: Upload only sanitized aggregate receipt, never rewrite mirror or secret matches
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rewrite-rehearsal-aggregate-${{ github.run_id }}
+          path: sire-isolated-rewrite-aggregate.json
+          if-no-files-found: warn
+          retention-days: 7
