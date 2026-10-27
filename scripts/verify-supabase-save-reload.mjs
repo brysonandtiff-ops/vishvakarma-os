@@ -19,6 +19,7 @@ import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
 import { REQUIRED_CLOUD_BROWSER_CHECKS, validateCloudSaveEvidence } from './lib/save-reload-evidence.mjs';
+import { runServiceRoleProjectDiagnostic } from './lib/supabase-api-diagnostic.mjs';
 
 const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const EDITOR_URL = `${BASE}/editor`;
@@ -127,106 +128,17 @@ async function runApiRoundtrip(env) {
     record('api: service role env', false, 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
     return false;
   }
-
+  const designatedUserId = env.SUPABASE_E2E_TEST_USER_ID ?? '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(designatedUserId)) {
+    record('api: dedicated diagnostic user required', false,
+      'Set SUPABASE_E2E_TEST_USER_ID; refusing to select an arbitrary real user');
+    return false;
+  }
   const client = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-
-  const sample = JSON.parse(
-    readFileSync(join(process.cwd(), 'public', 'samples', 'sample-house-01.json'), 'utf8'),
-  );
-  const before = manifestFingerprint(sample);
-
-  const designatedUserId = env.SUPABASE_E2E_TEST_USER_ID ?? '';
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(designatedUserId)) {
-    record('api: dedicated diagnostic user required', false, 'Set SUPABASE_E2E_TEST_USER_ID; refusing to select an arbitrary real user');
-    return false;
-  }
-  const { data: profiles, error: profileError } = await client
-    .from('profiles')
-    .select('id')
-    .eq('id', designatedUserId)
-    .limit(1);
-  if (profileError || !profiles?.length) {
-    record('api: resolve test user', false, profileError?.message ?? 'No profiles found');
-    return false;
-  }
-
-  const userId = profiles[0].id;
-  const projectName = `SaveReload API ${new Date().toISOString()}`;
-  const { data: inserted, error: insertError } = await client
-    .from('projects')
-    .insert({
-      user_id: userId,
-      name: projectName,
-      description: 'Automated save/reload proof',
-      manifest: sample,
-    })
-    .select('*')
-    .single();
-
-  if (insertError || !inserted) {
-    record('api: insert project', false, insertError?.message ?? 'insert failed');
-    return false;
-  }
-  record('api: insert project', true, inserted.id);
-
-  const { data: fetched, error: fetchError } = await client
-    .from('projects')
-    .select('*')
-    .eq('id', inserted.id)
-    .single();
-  if (fetchError || !fetched) {
-    record('api: fetch after insert', false, fetchError?.message ?? 'fetch failed');
-    return false;
-  }
-
-  const afterInsert = manifestFingerprint(fetched.manifest);
-  const insertMatch =
-    afterInsert.walls === before.walls && afterInsert.openings === before.openings;
-  record(
-    'api: manifest counts after insert',
-    insertMatch,
-    `walls ${afterInsert.walls}/${before.walls}, openings ${afterInsert.openings}/${before.openings}`,
-  );
-
-  const updatedManifest = {
-    ...sample,
-    name: `${sample.name} (updated)`,
-    metadata: { ...(sample.metadata ?? {}), saveReloadProof: new Date().toISOString() },
-  };
-  const { error: updateError } = await client
-    .from('projects')
-    .update({ manifest: updatedManifest, updated_at: new Date().toISOString() })
-    .eq('id', inserted.id);
-  if (updateError) {
-    record('api: update manifest', false, updateError.message);
-    return false;
-  }
-  record('api: update manifest', true, afterInsert.hash);
-
-  const { data: refetched, error: refetchError } = await client
-    .from('projects')
-    .select('*')
-    .eq('id', inserted.id)
-    .single();
-  if (refetchError || !refetched) {
-    record('api: fetch after update', false, refetchError?.message ?? 'refetch failed');
-    return false;
-  }
-
-  const afterUpdate = manifestFingerprint(refetched.manifest);
-  const updateMatch = afterUpdate.walls === before.walls && afterUpdate.openings === before.openings;
-  record(
-    'api: manifest counts after update (reload simulation)',
-    updateMatch,
-    `walls ${afterUpdate.walls}, hash ${afterUpdate.hash}`,
-  );
-
-  const { error: deleteError } = await client.from('projects').delete().eq('id', inserted.id);
-  record('api: cleanup test project', !deleteError, deleteError?.message ?? inserted.id);
-
-  return insertMatch && updateMatch && !deleteError;
+  const sample = JSON.parse(readFileSync(join(process.cwd(), 'public', 'samples', 'sample-house-01.json'), 'utf8'));
+  return runServiceRoleProjectDiagnostic({ client, sample, userId: designatedUserId, record });
 }
 
 async function runInteractiveBrowser() {
@@ -361,11 +273,16 @@ function writeEvidenceFiles(mode, pass) {
     scope: diagnosticOnly ? 'diagnostic-only: RLS/auth/browser not proven' : 'authenticated-browser save-refresh-reopen-export',
     checks: results,
   };
-  writeFileSync(runArtifactPath, `${JSON.stringify(runArtifact, null, 2)}\n`);
+  // Never overwrite a genuine authenticated-browser receipt with an elevated
+  // API diagnostic. Keep diagnostic evidence in a separate, nonrelease file.
+  const artifactPath = diagnosticOnly
+    ? join(evidenceDir, 'save-load-api-diagnostic-run.json')
+    : runArtifactPath;
+  writeFileSync(artifactPath, `${JSON.stringify(runArtifact, null, 2)}\n`);
 
   const failures = validateCloudSaveEvidence(runArtifact, sha);
   if (failures.length > 0) {
-    console.log(`[INFO] Saved ${runArtifactPath} (diagnostic receipt only; production proof unchanged)`);
+    console.log(`[INFO] Saved ${artifactPath} (diagnostic receipt only; production proof unchanged)`);
     for (const failure of failures) console.log(`[HOLD] ${failure}`);
     return;
   }
