@@ -1,0 +1,48 @@
+name: SIRE Encrypted Git Backup Full Synthetic and Security Evidence
+
+on:
+  push:
+    branches:
+      - sire/vish-encrypted-backup-command-20261027
+    paths:
+      - .github/workflows/sire-encrypted-backup-synthetic-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  exact-tree-acceptance:
+    name: Synthetic age encrypt/decrypt/restore plus full unit and hardening
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact application Git tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-encrypted-backup-synthetic-proof.yml
+          test "$(git write-tree)" = "365573d2e0212dde771aeea94233002e57af4d7a"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install age for synthetic-only tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          age --version
+      - name: Verify crypto backup command syntax
+        run: node --check scripts/security/create-encrypted-history-backup.mjs
+      - name: Full unit suite including strict age encrypt/decrypt and restore tests
+        run: pnpm run test
+      - name: Mandatory tracked-secret hardening
+        run: pnpm run hardening:gates
+      - name: TypeScript, system contract and authorization guards
+        run: pnpm run lint:types && pnpm run contract:gates && pnpm run auth:gates
