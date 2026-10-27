@@ -115,7 +115,7 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
     }).trim();
     const summary = writeCiEvidenceSummary({
       repository: process.cwd(),
-      destination: '.sire-sanitized-evidence',
+      destination: 'sire-sanitized-evidence',
       exactSha: sha,
       runId: process.env.GITHUB_RUN_ID,
     });
