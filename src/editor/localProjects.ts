@@ -1,8 +1,9 @@
 import type { Project } from '@/types';
 import { readLocalDraft, hasMeaningfulDraftContent } from '@/editor/localDraft';
-import { createLocalProject } from '@/editor/localProject';
+import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
 
 export const LOCAL_PROJECTS_KEY = 'vishvakarma.os.localProjects.v1';
+export const ACTIVE_LOCAL_PROJECT_KEY = 'vishvakarma.os.localProjects.activeId.v1';
 
 function hasStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -37,11 +38,32 @@ export function upsertLocalProject(project: Project) {
   return true;
 }
 
+/** Restore only the locally selected project; never auto-open an arbitrary saved project. */
+export function getActiveLocalProject(): Project | null {
+  if (!hasStorage()) return null;
+  const id = window.localStorage.getItem(ACTIVE_LOCAL_PROJECT_KEY);
+  if (!id || !isLocalProjectId(id)) return null;
+  return getLocalProjects().find((project) => project.id === id) ?? null;
+}
+
+/** Persist the last explicitly opened local project for reload recovery. */
+export function setActiveLocalProjectId(id: string | null) {
+  if (!hasStorage()) return;
+  if (!id || !isLocalProjectId(id) || !getLocalProjects().some((project) => project.id === id)) {
+    window.localStorage.removeItem(ACTIVE_LOCAL_PROJECT_KEY);
+    return;
+  }
+  window.localStorage.setItem(ACTIVE_LOCAL_PROJECT_KEY, id);
+}
+
 export function deleteLocalProject(id: string) {
   if (!hasStorage()) return false;
 
   const projects = getLocalProjects().filter((entry) => entry.id !== id);
   window.localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(projects));
+  if (window.localStorage.getItem(ACTIVE_LOCAL_PROJECT_KEY) === id) {
+    window.localStorage.removeItem(ACTIVE_LOCAL_PROJECT_KEY);
+  }
   return true;
 }
 

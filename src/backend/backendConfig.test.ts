@@ -66,4 +66,49 @@ describe('backendConfig', () => {
     });
     expect(status.configurationError).toContain('disabled during unit tests');
   });
+
+  it('uses browser-local projects only with explicit isolated e2e-local mode', () => {
+    const status = getBackendStatus({
+      MODE: 'e2e-local',
+      VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    });
+
+    expect(status).toMatchObject({
+      provider: 'supabase',
+      isConfigured: false,
+      mode: 'local-only',
+      missingKeys: [],
+    });
+    expect(status.configurationError).toContain('isolated E2E-local');
+  });
+
+  it('cannot disable a production backend with the E2E access flag alone', () => {
+    const status = getBackendStatus({
+      MODE: 'production',
+      VITE_E2E_ALLOW_LOCAL_ACCESS: 'true',
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    });
+
+    expect(status).toMatchObject({
+      provider: 'supabase',
+      isConfigured: true,
+      mode: 'connected',
+      configurationError: null,
+    });
+  });
+
+  it('requires both isolated build mode and the explicit local access flag', () => {
+    const status = getBackendStatus({
+      MODE: 'e2e-local',
+      VITE_E2E_ALLOW_LOCAL_ACCESS: 'false',
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    });
+
+    expect(status.isConfigured).toBe(true);
+    expect(status.mode).toBe('connected');
+  });
 });

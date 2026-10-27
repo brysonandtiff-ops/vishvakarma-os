@@ -62,7 +62,12 @@ export function resolveSupabaseConfig(env: EnvSource = import.meta.env) {
 export function getBackendStatus(env: EnvSource = import.meta.env) {
   const { missingKeys } = resolveSupabaseConfig(env);
   const unitTestEnvironment = isUnitTestEnvironment(env);
-  const isConfigured = !unitTestEnvironment && missingKeys.length === 0;
+  // Opt in to browser-only local project persistence only in the isolated E2E build.
+  // A production build must not be switched offline by setting the public E2E flag.
+  const isolatedLocalE2E =
+    envString(env, 'MODE') === 'e2e-local' &&
+    envString(env, 'VITE_E2E_ALLOW_LOCAL_ACCESS') === 'true';
+  const isConfigured = !unitTestEnvironment && !isolatedLocalE2E && missingKeys.length === 0;
 
   return {
     provider: 'supabase' as const,
@@ -71,7 +76,9 @@ export function getBackendStatus(env: EnvSource = import.meta.env) {
     missingKeys: [...missingKeys],
     configurationError: unitTestEnvironment
       ? 'Supabase backend is disabled during unit tests. Use a dedicated live-integration command for remote verification.'
-      : isConfigured
+      : isolatedLocalE2E
+        ? 'Supabase backend is disabled only in the isolated E2E-local browser build.'
+        : isConfigured
         ? null
         : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
   };
