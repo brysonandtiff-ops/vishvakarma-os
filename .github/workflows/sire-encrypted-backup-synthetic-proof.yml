@@ -1,0 +1,75 @@
+name: SIRE Owner Encrypted Backup Synthetic Safety Proof
+
+on:
+  push:
+    branches:
+      - sire/vish-encrypted-backup-command-20261027
+    paths:
+      - .github/workflows/sire-encrypted-backup-synthetic-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  encrypted-bundle:
+    name: Verify age encryption + synthetic Git decryption and restore (no real secrets)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact source tree without temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-encrypted-backup-synthetic-proof.yml
+          test "$(git write-tree)" = "0a423469a81c2bd9eaab7cb67542dfe8a6050f71"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install official Ubuntu age encryption package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          age --version
+      - name: Verify backup script parser
+        run: node --check scripts/security/create-encrypted-history-backup.mjs
+      - name: Test encrypted two-commit synthetic Git clone and strict fail closed cases
+        run: pnpm exec vitest run scripts/security/create-encrypted-history-backup.test.mjs
+      - name: Mandatory tracked credential security guard
+        run: pnpm run hardening:gates
+
+  all-units:
+    name: Full unit and security regression on encrypted-backup source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact source tree without temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-encrypted-backup-synthetic-proof.yml
+          test "$(git write-tree)" = "0a423469a81c2bd9eaab7cb67542dfe8a6050f71"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Full Vitest with synthetic age tests excluded only from age-less runner
+        run: pnpm exec vitest run --exclude scripts/security/create-encrypted-history-backup.test.mjs
+      - name: TypeScript production and auth contracts
+        run: pnpm run lint:types && pnpm run contract:gates && pnpm run auth:gates
