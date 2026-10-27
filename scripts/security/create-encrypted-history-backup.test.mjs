@@ -133,7 +133,7 @@ describe('private recipient-encrypted Git backup — synthetic repository only',
     const f = fixture();
     try {
       const broken = join(f.safe, 'synthetic-age-failure.sh');
-      writeFileSync(broken, '#!/bin/sh\\nif [ "$1" = "--version" ]; then exit 0; fi\\nexit 11\\n');
+      writeFileSync(broken, '#!/bin/sh\nif [ "$1" = "--version" ]; then exit 0; fi\nexit 11\n');
       chmodSync(broken, 0o700);
       await expect(createEncryptedHistoryBackup({
         repository: f.repository,
