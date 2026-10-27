@@ -3,6 +3,7 @@
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { forbiddenTrackedPathReason } from './forbidden-tracked-paths.mjs';
 
 const MAX_TEXT_FILE_BYTES = 2 * 1024 * 1024;
 const SELF_PATH = 'scripts/security/check-repository-secrets.mjs';
@@ -153,6 +154,11 @@ async function main() {
   const findings = [];
 
   for (const path of files) {
+    const forbidden = forbiddenTrackedPathReason(path);
+    if (forbidden) {
+      findings.push({ path, name: forbidden });
+      continue;
+    }
     if (isForbiddenEnvFile(path)) {
       findings.push({ path, name: 'tracked local environment file' });
       continue;
