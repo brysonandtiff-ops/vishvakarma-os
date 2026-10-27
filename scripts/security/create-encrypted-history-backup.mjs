@@ -11,7 +11,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
-  closeSync, createReadStream, existsSync, fsyncSync, openSync, realpathSync,
+  closeSync, createReadStream, existsSync, fstatSync, fsyncSync, lstatSync, openSync, realpathSync,
   statSync, unlinkSync,
 } from 'node:fs';
 import { isAbsolute, resolve, sep } from 'node:path';
@@ -74,10 +74,13 @@ export async function createEncryptedHistoryBackup({
   command(repo, ageBinary, '--version');
 
   let fd;
+  let createdFileIdentity = null;
   let sourceProcess;
   let encryptionProcess;
   try {
     fd = openSync(output, 'wx', 0o600);
+    const fileStat = fstatSync(fd);
+    createdFileIdentity = { dev: fileStat.dev, ino: fileStat.ino };
     sourceProcess = spawn('git', ['bundle', 'create', '-', '--all'], {
       cwd: repo, stdio: ['ignore', 'pipe', 'ignore'],
     });
@@ -120,8 +123,17 @@ export async function createEncryptedHistoryBackup({
     if (fd !== undefined) {
       try { closeSync(fd); } catch { /* already closed */ }
     }
-    // Never retain a partial encrypted archive after a failure.
-    try { unlinkSync(output); } catch { /* no output created */ }
+    // Remove only the inode that this process exclusively created. Never
+    // unlink a pre-existing or concurrently replaced owner backup.
+    if (createdFileIdentity) {
+      try {
+        const current = lstatSync(output);
+        if (current.isFile() && current.dev === createdFileIdentity.dev &&
+            current.ino === createdFileIdentity.ino) {
+          unlinkSync(output);
+        }
+      } catch { /* no owned output remains */ }
+    }
     throw new Error('Encrypted backup creation failed; partial output removed');
   }
 }
