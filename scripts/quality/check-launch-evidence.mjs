@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { validateCloudSaveEvidence } from '../lib/save-reload-evidence.mjs';
 import { join } from 'node:path';
 
 const root = process.cwd();
@@ -58,6 +60,26 @@ for (const file of requiredFiles) {
   }
 }
 
+if (strict) {
+  const receiptPath = join(root, 'docs/release/evidence/save-load-proof-run.json');
+  if (!existsSync(receiptPath)) {
+    strictFailures.push('Missing authenticated cloud save/reload receipt JSON');
+  } else {
+    try {
+      const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+      const exactSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+      for (const failure of validateCloudSaveEvidence(receipt, exactSha)) {
+        strictFailures.push(`Cloud save/reload: ${failure}`);
+      }
+      const proofText = readFileSync(join(root, 'docs/release/evidence/save-load-proof.md'), 'utf8');
+      if (!proofText.includes('Result: `PASS`')) {
+        strictFailures.push('Cloud save/reload report is not independently marked PASS');
+      }
+    } catch (error) {
+      strictFailures.push(`Cannot verify authenticated cloud save/reload evidence: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+}
 if (hardFailures.length > 0 || strictFailures.length > 0) {
   console.error('Vishvakarma.OS launch evidence check failed.');
   for (const failure of hardFailures) console.error(`- ${failure}`);
