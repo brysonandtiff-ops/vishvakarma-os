@@ -1,37 +1,21 @@
 # Save / Load Determinism Proof
 
-Generated from commit: `0659de80c2f4dd6f9a140583052b3301cdc5cfcb`
-Deployment URL: https://vishvakarma-os.app
-Vercel fallback URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-20T05:15:11.614Z
-Operator: automated api roundtrip
-Result: `PASS`
+Result: `BLOCKED` — production authenticated save/reload has **not** been demonstrated.
 
-## Purpose
+## Historical diagnostic preserved (20 June 2026)
 
-Prove Vishvakarma.OS can preserve a project through save, reload, export, and import without changing the project model.
+The accompanying `save-load-proof-run.json` records a database **service-role API roundtrip** at commit `0659de80c2f4dd6f9a140583052b3301cdc5cfcb`. That diagnostic reported four walls and three openings after an insert/update/select cycle. It did not exercise a real signed-in person's session or the project's row-level-security policies.
 
-## Test Steps
+The previous markdown report incorrectly labelled this API-only run as proof of production Google sign-in, hard-refresh restore, JSON export and import. **Those browser actions were not performed in that diagnostic.** The original JSON receipt remains intact to preserve the audit trail; it must not be promoted to production certification.
 
-| Step | Action | Expected Result | Actual Result | Status |
-|---|---|---|---|---|
-| 1 | Open `/editor` | Editor loads without crash | Production editor reachable after auth | PASS |
-| 2 | Load sample project | Walls/openings/materials render | Sample House 01 loaded (4 walls, 3 openings) | PASS |
-| 3 | Save project | Save action completes with success state | Cloud save toast on production (api-roundtrip) | PASS |
-| 4 | Hard refresh page | Project remains recoverable | Project reloaded from Supabase with intact counts | PASS |
-| 5 | Export project JSON | JSON downloads and parses | Export JSON wall/opening counts match saved state | PASS |
-| 6 | Import exported JSON | Imported project matches saved state | Import module unit tests pass | PASS |
-| 7 | Compare wall/opening counts | Counts match before and after import | Sample counts 4/3 stable | PASS |
+## Compare wall/opening counts
 
-## Console Errors
+- Historical service-role database check: four walls and three openings were reported in API data; no end-user authorization or browser roundtrip was proven.
+- Local-only Chromium editor and saved-project tests on draft PRs #182–#183 independently passed, but used isolated browser storage, not live Supabase.
+- Real authenticated Google SSO or approved-account email sign-in, cloud save, hard refresh, project reopen, RLS tenant isolation, export and physical-device acceptance remain **unverified**.
 
-```txt
-<none>
-```
+## Release gate
 
-## Verdict
+Before this document can be upgraded to `PASS`, a newly executed authenticated browser run must produce a successful `save-load-proof-run.json` with `mode: interactive`, `certified: true`, the exact current approved Git commit SHA and every required browser check passing. The strict launch-evidence script now rejects service-role API diagnostics.
 
-```txt
-PASS — Supabase-backed save, hard-refresh reload, and JSON export verified on https://vishvakarma-os.app (api-roundtrip).
-Artifact: docs/release/evidence/save-load-proof-run.json
-```
+Supabase Vishvakarma.OS remains inactive. Provider-credential rotation and incident #153, recovery issue #137, and branch protection #177 remain unresolved. **Do not restore, merge or deploy based on the historical API-only result.**

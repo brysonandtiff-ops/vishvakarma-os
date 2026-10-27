@@ -4,8 +4,8 @@
  *
  * Modes:
  *   default / --interactive   Headed browser — operator completes Google sign-in
- *   --api-only                Postgres roundtrip via service role (no browser)
- *   --skip-interactive        Print runbook and exit 0 (CI without credentials)
+ *   --api-only                DIAGNOSTIC ONLY: service-role Postgres roundtrip (no user auth/RLS proof)
+ *   --skip-interactive        Print runbook and exit 0 (NEVER a release proof)
  *   --write-evidence          Update save-load-proof.md + JSON artifact on success
  *
  * Run: pnpm run verify:supabase-save-reload
@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
+import { REQUIRED_CLOUD_BROWSER_CHECKS, validateCloudSaveEvidence } from './lib/save-reload-evidence.mjs';
 
 const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const EDITOR_URL = `${BASE}/editor`;
@@ -136,9 +137,15 @@ async function runApiRoundtrip(env) {
   );
   const before = manifestFingerprint(sample);
 
+  const designatedUserId = env.SUPABASE_E2E_TEST_USER_ID ?? '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(designatedUserId)) {
+    record('api: dedicated diagnostic user required', false, 'Set SUPABASE_E2E_TEST_USER_ID; refusing to select an arbitrary real user');
+    return false;
+  }
   const { data: profiles, error: profileError } = await client
     .from('profiles')
     .select('id')
+    .eq('id', designatedUserId)
     .limit(1);
   if (profileError || !profiles?.length) {
     record('api: resolve test user', false, profileError?.message ?? 'No profiles found');
@@ -216,10 +223,10 @@ async function runApiRoundtrip(env) {
     `walls ${afterUpdate.walls}, hash ${afterUpdate.hash}`,
   );
 
-  await client.from('projects').delete().eq('id', inserted.id);
-  record('api: cleanup test project', true, inserted.id);
+  const { error: deleteError } = await client.from('projects').delete().eq('id', inserted.id);
+  record('api: cleanup test project', !deleteError, deleteError?.message ?? inserted.id);
 
-  return insertMatch && updateMatch;
+  return insertMatch && updateMatch && !deleteError;
 }
 
 async function runInteractiveBrowser() {
@@ -338,78 +345,73 @@ API-only (Postgres roundtrip, no browser):
 function writeEvidenceFiles(mode, pass) {
   const sha = getCommitSha();
   const generatedAt = new Date().toISOString();
-  const deploymentUrl = BASE;
-  const operator = mode === 'interactive' ? 'interactive browser proof' : 'automated api roundtrip';
-
+  const diagnosticOnly = mode !== 'interactive';
+  const completeBrowserProof = !diagnosticOnly && pass &&
+    REQUIRED_CLOUD_BROWSER_CHECKS.every((name) =>
+      results.filter((check) => check.name === name && check.pass === true).length === 1,
+    );
   const runArtifact = {
     generatedAt,
     commitSha: sha,
-    deploymentUrl,
+    deploymentUrl: BASE,
     mode,
-    operator,
+    operator: diagnosticOnly ? 'service-role API diagnostic (not user auth evidence)' : 'interactive authenticated browser proof',
     result: pass ? 'PASS' : 'FAIL',
+    certified: completeBrowserProof,
+    scope: diagnosticOnly ? 'diagnostic-only: RLS/auth/browser not proven' : 'authenticated-browser save-refresh-reopen-export',
     checks: results,
   };
   writeFileSync(runArtifactPath, `${JSON.stringify(runArtifact, null, 2)}\n`);
 
-  if (!pass) {
-    console.log(`[INFO] Wrote ${runArtifactPath} (FAIL — evidence markdown not upgraded)`);
+  const failures = validateCloudSaveEvidence(runArtifact, sha);
+  if (failures.length > 0) {
+    console.log(`[INFO] Saved ${runArtifactPath} (diagnostic receipt only; production proof unchanged)`);
+    for (const failure of failures) console.log(`[HOLD] ${failure}`);
     return;
   }
 
-  const sample = JSON.parse(
-    readFileSync(join(process.cwd(), 'public', 'samples', 'sample-house-01.json'), 'utf8'),
-  );
-  const wallCount = sample.walls?.length ?? 4;
-  const openingCount = sample.openings?.length ?? 3;
-
-  const saveLoadDoc = `# Save / Load Determinism Proof
-
-Generated from commit: \`${sha}\`
-Deployment URL: ${deploymentUrl}
-Vercel fallback URL: https://vishvakarma-os.vercel.app
-Generated at: ${generatedAt}
-Operator: ${operator}
-Result: \`PASS\`
-
-## Purpose
-
-Prove Vishvakarma.OS can preserve a project through save, reload, export, and import without changing the project model.
-
-## Test Steps
-
-| Step | Action | Expected Result | Actual Result | Status |
-|---|---|---|---|---|
-| 1 | Open \`/editor\` | Editor loads without crash | Production editor reachable after auth | PASS |
-| 2 | Load sample project | Walls/openings/materials render | Sample House 01 loaded (${wallCount} walls, ${openingCount} openings) | PASS |
-| 3 | Save project | Save action completes with success state | Cloud save toast on production (${mode}) | PASS |
-| 4 | Hard refresh page | Project remains recoverable | Project reloaded from Supabase with intact counts | PASS |
-| 5 | Export project JSON | JSON downloads and parses | Export JSON wall/opening counts match saved state | PASS |
-| 6 | Import exported JSON | Imported project matches saved state | Import module unit tests pass | PASS |
-| 7 | Compare wall/opening counts | Counts match before and after import | Sample counts ${wallCount}/${openingCount} stable | PASS |
-
-## Console Errors
-
-\`\`\`txt
-<none>
-\`\`\`
-
-## Verdict
-
-\`\`\`txt
-PASS — Supabase-backed save, hard-refresh reload, and JSON export verified on ${deploymentUrl} (${mode}).
-Artifact: docs/release/evidence/save-load-proof-run.json
-\`\`\`
-`;
-
-  writeFileSync(join(evidenceDir, 'save-load-proof.md'), saveLoadDoc);
-  console.log('[OK] Updated docs/release/evidence/save-load-proof.md');
+  // Only observed, authenticated browser operations are asserted below.
+  // Do not claim import, console auditing, or physical device checks that were not run.
+  const steps = [
+    '| 1 | Google sign-in | Browser returned to /editor after login | PASS |',
+    '| 2 | Load sample | Real browser observed nonzero walls | PASS |',
+    '| 3 | Save to cloud | Cloud save toast appeared; local save toast absent | PASS |',
+    '| 4 | Refresh and reopen | Saved project reopened with unchanged wall and opening counts | PASS |',
+    '| 5 | Export JSON | Exported JSON wall/opening counts matched before refresh | PASS |',
+  ];
+  const document = [
+    '# Save / Load Determinism Proof',
+    '',
+    `Generated from commit: \`${sha}\``,
+    `Deployment URL: ${BASE}`,
+    `Generated at: ${generatedAt}`,
+    'Operator: interactive authenticated browser proof',
+    'Result: `PASS`',
+    '',
+    '## Observed authenticated browser steps',
+    '| Step | Action | Observed result | Status |',
+    '|---|---|---|---|',
+    ...steps,
+    '',
+    '## Compare wall/opening counts',
+    'The before/after and exported model wall/opening counts were compared by the live browser test.',
+    'No import cycle, console-error audit, RLS tenant-isolation proof, or mobile-device execution is claimed here.',
+    '',
+    `Artifact: docs/release/evidence/save-load-proof-run.json`,
+    '',
+  ].join('\n');
+  writeFileSync(join(evidenceDir, 'save-load-proof.md'), document);
+  console.log('[OK] Wrote verified interactive-browser-only save/reload documentation');
   console.log(`[OK] Wrote ${runArtifactPath}`);
 }
 
 async function main() {
   if (skipInteractive && !apiOnly) {
     printRunbook();
+    if (writeEvidence) {
+      console.error('[FAIL] Runbook-only mode cannot generate a cloud save/reload release receipt.');
+      process.exit(1);
+    }
     process.exit(0);
   }
 
