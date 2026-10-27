@@ -175,7 +175,16 @@ test.describe('iPad editor workflow', () => {
     await page.reload({ waitUntil: 'domcontentloaded' });
     const toolbar = page.getByTestId('editor-top-bar');
     await expect(toolbar).toBeVisible({ timeout: 60_000 });
-    await expect(toolbar.getByText('E2E iPad Draft', { exact: true })).toBeVisible({ timeout: 30_000 });
+    // At iPad size the toolbar may compact its visible project-title span.
+    // Still require the restored name in both the browser title and editor state.
+    await expect(page).toHaveTitle(/E2E iPad Draft/, { timeout: 30_000 });
+    await expect(toolbar.getByText('E2E iPad Draft', { exact: true })).toHaveText('E2E iPad Draft');
+    const restored = await page.evaluate(() => {
+      const engine = (window as Window & { __vishFloorPlanEngine?: { getManifest: () => { walls: unknown[]; name: string } } }).__vishFloorPlanEngine;
+      const manifest = engine?.getManifest();
+      return { name: manifest?.name ?? null, wallCount: manifest?.walls.length ?? -1 };
+    });
+    expect(restored).toMatchObject({ name: 'E2E iPad Draft', wallCount: 4 });
     await expect(page.getByText(/Walls:\s*4/i)).toBeVisible({ timeout: 30_000 });
   });
 
