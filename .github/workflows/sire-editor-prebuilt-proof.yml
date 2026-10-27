@@ -25,6 +25,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git rm -f -- .github/workflows/sire-editor-prebuilt-proof.yml
           test "$(git write-tree)" = "5220e59f0fc533748002032732c5bbfef4ddc08c"
