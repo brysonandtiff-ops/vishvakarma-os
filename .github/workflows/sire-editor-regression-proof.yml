@@ -1,0 +1,75 @@
+name: SIRE Broader Editor Integration Browser Evidence
+
+on:
+  push:
+    branches:
+      - sire/vish-projects-dashboard-contract-20261027
+    paths:
+      - .github/workflows/sire-editor-regression-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  editor-integrated:
+    name: iPad touch pencil wall undo save panels and navigation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      CI: 'true'
+      PLAYWRIGHT_REUSE_SERVER: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify complete tested application source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-editor-regression-proof.yml
+          test "$(git write-tree)" = "cae6f9fa690f967b10410877ab8aea41e5742b01"
+          echo "Exact PR183 source tree validated: cae6f9fa690f967b10410877ab8aea41e5742b01"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Build local-only integrated editor runtime
+        run: node scripts/build-e2e-local.mjs
+      - name: Execute unmodified broader editor integration cases in real Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/vish-editor-suite.log 2>&1 &
+          web_pid=$!
+          trap 'kill "$web_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl -fsS --max-time 2 http://127.0.0.1:4173/editor >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then
+            echo '::error::Isolated editor failed HTTP readiness'
+            cat /tmp/vish-editor-suite.log
+            exit 1
+          fi
+          pnpm exec playwright test e2e/ipad-editor-layout.spec.ts e2e/ipad-editor-workflow.spec.ts e2e/ipad-editor-current-contract.spec.ts e2e/device-phone-editor.spec.ts e2e/editor-features.spec.ts --project=app-smoke-chromium
+      - name: Archive screenshots traces and browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editor-integrated-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            playwright-report/
+            test-results/
