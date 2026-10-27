@@ -1,0 +1,69 @@
+name: SIRE RAM-only Independent Encrypted Backup Restore Evidence
+
+on:
+  push:
+    branches:
+      - sire/vish-encrypted-restore-verifier-20261027
+    paths:
+      - .github/workflows/sire-owner-restore-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-backup-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact repository application source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rm -f -- .github/workflows/sire-owner-restore-proof.yml
+          test "$(git write-tree)" = "818e7fa8c6e548f102b65cc4b7711e39b01a42a3"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install repository locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install local age utility using trusted OS package
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          age --version
+          age-keygen --version
+          test "$(stat -f -c %T /dev/shm)" = tmpfs
+      - name: Real age encrypt/decrypt and Git restore on synthetic history only
+        run: pnpm exec vitest run scripts/security/verify-encrypted-history-backup.test.mjs
+      - name: Refuse owner private identity invocation in CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          result=$(node scripts/security/verify-encrypted-history-backup.mjs 2>&1)
+          exit_code=$?
+          set -e
+          if [ "$exit_code" -eq 0 ]; then
+            echo '::error::Verifier allowed owner-key command in CI'
+            exit 1
+          fi
+          if ! grep -Fq 'prohibited in CI' <<< "$result"; then
+            echo '::error::Verifier failed without expected owner-key guard'
+            exit 1
+          fi
+          echo 'PASS: no real owner private identities can be consumed by CI command'
+      - name: Full regression suite
+        run: pnpm run test
+      - name: TypeScript and security and governance guards
+        run: pnpm run lint:types && pnpm run hardening:gates && pnpm run contract:gates && pnpm run auth:gates
