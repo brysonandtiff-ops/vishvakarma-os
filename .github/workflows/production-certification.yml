@@ -137,14 +137,19 @@ jobs:
       - name: Strict launch evidence gates
         run: pnpm run launch:evidence:strict
 
-      - name: Upload browser evidence
+      # A public repo must not automatically distribute Playwright auth/network
+      # traces, page captures, user sessions or arbitrary release evidence.
+      # A separate protected/encrypted evidence channel is required for sealing.
+      - name: Create metadata-only browser evidence receipt
+        if: always()
+        shell: bash
+        run: node scripts/security/summarize-ci-evidence.mjs
+
+      - name: Upload safe metadata counters only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: production-certification-${{ github.run_id }}
-          if-no-files-found: warn
-          retention-days: 30
-          path: |
-            playwright-report/
-            test-results/
-            docs/release/evidence/
+          name: production-certification-safe-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 7
+          path: sire-sanitized-evidence/ci-evidence-counts.json
