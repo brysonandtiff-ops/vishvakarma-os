@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 const buildSourceMaps =
-  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.VERCEL !== '1';
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.CF_PAGES !== '1';
 
 const optionalEntryPreloadFragments = [
   'EditorPage-',
