@@ -2,63 +2,45 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-type HeaderRule = {
-  source: string;
-  headers: Array<{ key: string; value: string }>;
-};
-
-type VercelConfig = {
-  installCommand?: string;
-  buildCommand?: string;
-  outputDirectory?: string;
-  headers?: HeaderRule[];
-};
-
-function headerMap(config: VercelConfig, source: string) {
-  const rule = config.headers?.find((candidate) => candidate.source === source);
-  return new Map(rule?.headers.map(({ key, value }) => [key, value]) ?? []);
+function readText(...parts: string[]) {
+  return readFileSync(path.join(process.cwd(), ...parts), 'utf8');
 }
 
-describe('Vercel build gate', () => {
-  it('uses a short config command and runs focused quality gates in order', () => {
-    const root = process.cwd();
-    const config = JSON.parse(
-      readFileSync(path.join(root, 'vercel.json'), 'utf8'),
-    ) as VercelConfig;
-    const orchestrator = readFileSync(
-      path.join(root, 'scripts', 'vercel-build.mjs'),
-      'utf8',
-    );
+describe('Cloudflare Pages build gate', () => {
+  it('runs the native Cloudflare quality gates in order', () => {
+    const wrangler = JSON.parse(readText('wrangler.jsonc')) as {
+      name?: string;
+      pages_build_output_dir?: string;
+      compatibility_flags?: string[];
+    };
+    const orchestrator = readText('scripts', 'cloudflare-build.mjs');
 
-    expect(config.installCommand).toContain('pnpm install --frozen-lockfile');
-    expect(config.buildCommand).toBe('node scripts/vercel-build.mjs');
-    expect(config.outputDirectory).toBe('dist');
+    expect(wrangler.name).toBe('vishvakarma-os');
+    expect(wrangler.pages_build_output_dir).toBe('./dist');
+    expect(wrangler.compatibility_flags).toContain('nodejs_compat');
 
-    expect(orchestrator).toContain("process.env.VERCEL === '1'");
-    expect(orchestrator).toContain('skipping destructive texture cleanup');
-    expect(orchestrator).toContain('pnpm run lint');
-    expect(orchestrator).toContain('pnpm run hardening:gates');
-    expect(orchestrator).toContain('src/test/releaseGateHardening.test.ts');
-    expect(orchestrator).toContain('src/test/vercelBuildGate.test.ts');
-    expect(orchestrator).toContain('src/test/qaToolsGate.test.ts');
-    expect(orchestrator).toContain('src/backend/supabase/supabaseAuthCallback.test.ts');
-    expect(orchestrator).toContain('src/backend/supabase/mappers.test.ts');
-    expect(orchestrator).toContain('src/services/billing/stripeCheckout.test.ts');
-    expect(orchestrator).toContain('api/_lib/appOrigin.test.ts');
-    expect(orchestrator).toContain('api/_lib/verifySupabaseToken.test.ts');
-    expect(orchestrator).toContain('api/stripe/create-checkout-session.test.ts');
-    expect(orchestrator).toContain('api/stripe/webhook.test.ts');
-    expect(orchestrator).toContain('pnpm run build');
-    expect(orchestrator).toContain('scripts/security/check-dist-security.mjs');
-    expect(orchestrator).toContain('pnpm run perf:gates');
+    for (const fragment of [
+      "label: 'Repository secret guard'",
+      "label: 'Cloudflare configuration certification'",
+      "label: 'Application and Pages runtime typecheck'",
+      "label: 'Production-focused regression tests'",
+      "label: 'Production build'",
+      "label: 'Artifact security'",
+      "label: 'Performance budgets'",
+    ]) {
+      expect(orchestrator).toContain(fragment);
+    }
 
-    expect(orchestrator.indexOf("label: 'Lint'")).toBeLessThan(
-      orchestrator.indexOf("label: 'Production hardening'"),
+    expect(orchestrator.indexOf("label: 'Repository secret guard'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Cloudflare configuration certification'"),
     );
-    expect(orchestrator.indexOf("label: 'Production hardening'")).toBeLessThan(
-      orchestrator.indexOf("label: 'Focused regression tests'"),
+    expect(orchestrator.indexOf("label: 'Cloudflare configuration certification'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Application and Pages runtime typecheck'"),
     );
-    expect(orchestrator.indexOf("label: 'Focused regression tests'")).toBeLessThan(
+    expect(orchestrator.indexOf("label: 'Application and Pages runtime typecheck'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Production-focused regression tests'"),
+    );
+    expect(orchestrator.indexOf("label: 'Production-focused regression tests'")).toBeLessThan(
       orchestrator.indexOf("label: 'Production build'"),
     );
     expect(orchestrator.indexOf("label: 'Production build'")).toBeLessThan(
@@ -67,42 +49,33 @@ describe('Vercel build gate', () => {
     expect(orchestrator.indexOf("label: 'Artifact security'")).toBeLessThan(
       orchestrator.indexOf("label: 'Performance budgets'"),
     );
+
+    expect(orchestrator).not.toContain('process.env.VERCEL');
+    expect(orchestrator).not.toContain('vercel-build');
   });
 
-  it('keeps serverless functions on a CommonJS boundary under the ESM root', () => {
-    const apiPackage = JSON.parse(
-      readFileSync(path.join(process.cwd(), 'api', 'package.json'), 'utf8'),
-    ) as { type?: string };
+  it('routes Pages Functions only through the API path', () => {
+    const routes = JSON.parse(readText('public', '_routes.json')) as {
+      version?: number;
+      include?: string[];
+    };
 
-    expect(apiPackage.type).toBe('commonjs');
+    expect(routes.version).toBe(1);
+    expect(routes.include).toContain('/api/*');
   });
 
-  it('prevents caching of APIs and forces service-worker revalidation', () => {
-    const config = JSON.parse(
-      readFileSync(path.join(process.cwd(), 'vercel.json'), 'utf8'),
-    ) as VercelConfig;
+  it('forces service-worker revalidation and keeps baseline security headers', () => {
+    const headers = readText('public', '_headers');
 
-    const apiHeaders = headerMap(config, '/api/(.*)');
-    expect(apiHeaders.get('Cache-Control')).toContain('no-store');
-    expect(apiHeaders.get('Pragma')).toBe('no-cache');
-    expect(apiHeaders.get('X-Content-Type-Options')).toBe('nosniff');
-
-    const serviceWorkerHeaders = headerMap(config, '/sw.js');
-    expect(serviceWorkerHeaders.get('Cache-Control')).toContain('must-revalidate');
-    expect(serviceWorkerHeaders.get('Service-Worker-Allowed')).toBe('/');
-  });
-
-  it('keeps baseline browser isolation and content security headers enabled', () => {
-    const config = JSON.parse(
-      readFileSync(path.join(process.cwd(), 'vercel.json'), 'utf8'),
-    ) as VercelConfig;
-    const headers = headerMap(config, '/(.*)');
-
-    expect(headers.get('Content-Security-Policy')).toContain("object-src 'none'");
-    expect(headers.get('Content-Security-Policy')).toContain("frame-ancestors 'none'");
-    expect(headers.get('Strict-Transport-Security')).toContain('includeSubDomains');
-    expect(headers.get('Cross-Origin-Resource-Policy')).toBe('same-origin');
-    expect(headers.get('X-Frame-Options')).toBe('DENY');
-    expect(headers.get('X-Permitted-Cross-Domain-Policies')).toBe('none');
+    expect(headers).toContain('/sw.js');
+    expect(headers).toContain('Cache-Control: public, max-age=0, must-revalidate');
+    expect(headers).toContain('Service-Worker-Allowed: /');
+    expect(headers).toContain("Content-Security-Policy:");
+    expect(headers).toContain("object-src 'none'");
+    expect(headers).toContain("frame-ancestors 'none'");
+    expect(headers).toContain('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
+    expect(headers).toContain('Cross-Origin-Resource-Policy: same-origin');
+    expect(headers).toContain('X-Frame-Options: DENY');
+    expect(headers).toContain('X-Permitted-Cross-Domain-Policies: none');
   });
 });
