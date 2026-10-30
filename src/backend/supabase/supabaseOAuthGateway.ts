@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN } from '@/config/canonicalOrigin';
+import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -25,7 +25,21 @@ const LEGACY_OAUTH_PENDING_SESSION_KEY = 'vish-oauth-redirect-pending';
 export const POST_AUTH_DESTINATION = '/editor';
 const DEFAULT_AUTH_RETURN_PATH = POST_AUTH_DESTINATION;
 const PRODUCTION_AUTH_ORIGIN = CANONICAL_ORIGIN;
-const ALLOWED_AUTH_ORIGINS = new Set([CANONICAL_ORIGIN, VERCEL_FALLBACK_ORIGIN]);
+const CLOUDFLARE_PAGES_HOST = new URL(CLOUDFLARE_PAGES_ORIGIN).hostname;
+
+function isAllowedAuthOrigin(origin: string) {
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== 'https:' || url.username || url.password) return false;
+    return (
+      url.origin === CANONICAL_ORIGIN ||
+      url.hostname === CLOUDFLARE_PAGES_HOST ||
+      url.hostname.endsWith(`.${CLOUDFLARE_PAGES_HOST}`)
+    );
+  } catch {
+    return false;
+  }
+}
 
 function readOAuthPendingStartedAt(): number | null {
   try {
@@ -244,12 +258,16 @@ export function getAuthPageUrl() {
     return `${origin}/auth`;
   }
 
-  // Keep PKCE verifier + callback on the same approved origin the user opened.
-  if (ALLOWED_AUTH_ORIGINS.has(origin)) {
+  // Keep PKCE verifier + callback on the same approved Cloudflare/canonical origin the user opened.
+  if (isAllowedAuthOrigin(origin)) {
     return `${origin}/auth`;
   }
 
-  return `${import.meta.env.VITE_AUTH_REDIRECT_ORIGIN ?? PRODUCTION_AUTH_ORIGIN}/auth`;
+  const configuredRedirect = import.meta.env.VITE_AUTH_REDIRECT_ORIGIN ?? PRODUCTION_AUTH_ORIGIN;
+  const safeRedirect = isAllowedAuthOrigin(configuredRedirect)
+    ? configuredRedirect
+    : PRODUCTION_AUTH_ORIGIN;
+  return `${safeRedirect}/auth`;
 }
 
 export async function signInWithGoogleSupabase(): Promise<OAuthSignInResult> {
