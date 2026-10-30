@@ -4,6 +4,7 @@ import { runCommand } from './lib/run-command.mjs';
 
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
+  'src/test/vercelBuildGate.test.ts',
   'src/test/emailMagicLinkFallback.test.ts',
   'src/test/productionAuthVerifier.test.ts',
   'src/test/repositorySecretGuard.test.ts',
