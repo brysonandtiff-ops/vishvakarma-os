@@ -39,8 +39,8 @@ const analytics = readRequiredFile(join(root, 'src/lib/analytics.ts'), 'src/lib/
 const consentAnalytics = readRequiredFile(join(root, 'src/components/common/ConsentAnalytics.tsx'), 'src/components/common/ConsentAnalytics.tsx');
 const monitoring = readRequiredFile(join(root, 'src/lib/monitoring.ts'), 'src/lib/monitoring.ts');
 const viteConfig = readRequiredFile(join(root, 'vite.config.ts'), 'vite.config.ts');
-const vercelConfig = readRequiredFile(join(root, 'vercel.json'), 'vercel.json');
-const vercelBuild = readRequiredFile(join(root, 'scripts/vercel-build.mjs'), 'scripts/vercel-build.mjs');
+const cloudflareHeaders = readRequiredFile(join(root, 'public/_headers'), 'public/_headers');
+const cloudflareBuild = readRequiredFile(join(root, 'scripts/cloudflare-build.mjs'), 'scripts/cloudflare-build.mjs');
 const artifactSecurity = readRequiredFile(join(root, 'scripts/security/check-dist-security.mjs'), 'scripts/security/check-dist-security.mjs');
 
 requirePhrase(projectGateway, 'collaborators: [userId]', 'Supabase project gateway');
@@ -134,26 +134,30 @@ forbidPhrase(monitoring, "import * as Sentry from '@sentry/react'", 'Monitoring 
 
 requirePhrase(viteConfig, 'filterEntryModulePreloads', 'Vite build configuration');
 requirePhrase(viteConfig, 'VISH_BUILD_SOURCEMAPS', 'Vite build configuration');
+requirePhrase(viteConfig, "process.env.CF_PAGES !== '1'", 'Vite build configuration');
 requirePhrase(viteConfig, "sourcemap: buildSourceMaps ? 'hidden' : false", 'Vite build configuration');
+forbidPhrase(viteConfig, 'process.env.VERCEL', 'Vite build configuration');
 forbidPhrase(viteConfig, '@vercel/analytics', 'Vite build configuration');
 
-requirePhrase(vercelConfig, 'private, no-store, max-age=0', 'Vercel headers');
-requirePhrase(vercelConfig, 'public, max-age=0, must-revalidate', 'Vercel headers');
-requirePhrase(vercelConfig, 'X-Permitted-Cross-Domain-Policies', 'Vercel headers');
+requirePhrase(cloudflareHeaders, 'Cache-Control: no-store, max-age=0, must-revalidate', 'Cloudflare headers');
+requirePhrase(cloudflareHeaders, 'Cache-Control: public, max-age=0, must-revalidate', 'Cloudflare headers');
+requirePhrase(cloudflareHeaders, 'X-Permitted-Cross-Domain-Policies: none', 'Cloudflare headers');
 
-requirePhrase(vercelBuild, "process.env.VERCEL === '1'", 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'scripts/security/check-dist-security.mjs', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/stripe/webhook.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/analyticsConsent.test.tsx', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/monitoringPrivacy.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'pnpm run perf:gates', 'Vercel build orchestrator');
+requirePhrase(cloudflareBuild, 'scripts/security/check-dist-security.mjs', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'api/stripe/webhook.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/analyticsConsent.test.tsx', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/monitoringPrivacy.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'pnpm run perf:gates', 'Cloudflare build orchestrator');
+forbidPhrase(cloudflareBuild, 'process.env.VERCEL', 'Cloudflare build orchestrator');
+forbidPhrase(cloudflareBuild, 'vercel-build', 'Cloudflare build orchestrator');
 
 requirePhrase(artifactSecurity, 'service_role', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'productionQaMarkers', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'source maps are present', 'Artifact security scanner');
-requirePhrase(artifactSecurity, "process.env.VERCEL === '1'", 'Artifact security scanner');
+requirePhrase(artifactSecurity, "process.env.CF_PAGES === '1'", 'Artifact security scanner');
+forbidPhrase(artifactSecurity, 'process.env.VERCEL', 'Artifact security scanner');
 
 if (existsSync(join(root, 'firestore.rules'))) failures.push('firestore.rules still exists — Firebase config should be removed.');
 
