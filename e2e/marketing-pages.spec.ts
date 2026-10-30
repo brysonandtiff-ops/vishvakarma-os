@@ -56,9 +56,15 @@ test.describe('marketing pages', () => {
     await expectNotFound(page, /route not found/i);
   });
 
-  test('/pricing is not registered while flag is off', async ({ page }) => {
+  test('pricing and public legal documents are reachable', async ({ page }) => {
     await page.goto('/pricing', { waitUntil: 'domcontentloaded' });
-    await expectNotFound(page, /route not found/i);
+    await expect(page.getByRole('heading', { name: /professional-grade tools.*fair, predictable pricing/i })).toBeVisible({ timeout: 20_000 });
+
+    await page.goto('/terms', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /terms of service/i })).toBeVisible({ timeout: 20_000 });
+
+    await page.goto('/privacy', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /privacy policy/i })).toBeVisible({ timeout: 20_000 });
   });
 
   test('/reset-password redirects to auth with notice', async ({ page }) => {
