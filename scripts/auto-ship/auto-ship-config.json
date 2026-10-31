@@ -5,7 +5,6 @@
     "^\\.env",
     "^\\.local/",
     "^\\.wrangler/",
-    "^\\.vercel/",
     "\\.clixml$",
     "storage-state.*\\.json$",
     "^migration/export-.*\\.json$",
