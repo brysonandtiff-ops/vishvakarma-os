@@ -11,6 +11,8 @@ const focusedTests = [
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
+  'src/test/akashaCastRecovery.test.tsx',
+  'src/test/recoveryUiContracts.test.ts',
   'src/test/monitoringPrivacy.test.ts',
   'src/test/pwaUpdateSafety.test.ts',
   'src/test/routeCssBoundary.test.ts',
