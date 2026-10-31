@@ -23,6 +23,7 @@ describe('Cloudflare Pages build gate', () => {
 
     for (const fragment of [
       "label: 'Repository secret guard'",
+      "label: 'Cloudflare-only authority guard'",
       "label: 'Cloudflare configuration certification'",
       "label: 'Application and Pages runtime typecheck'",
       "label: 'Production-focused regression tests'",
@@ -34,6 +35,9 @@ describe('Cloudflare Pages build gate', () => {
     }
 
     expect(orchestrator.indexOf("label: 'Repository secret guard'")).toBeLessThan(
+      orchestrator.indexOf("label: 'Cloudflare-only authority guard'"),
+    );
+    expect(orchestrator.indexOf("label: 'Cloudflare-only authority guard'")).toBeLessThan(
       orchestrator.indexOf("label: 'Cloudflare configuration certification'"),
     );
     expect(orchestrator.indexOf("label: 'Cloudflare configuration certification'")).toBeLessThan(
