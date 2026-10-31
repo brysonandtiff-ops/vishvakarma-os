@@ -78,6 +78,22 @@ test.describe('Device governance layout', () => {
     await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
   });
 
+  test('workspace header controls are 44px-safe and mobile navigation opens on phone', async ({ page }) => {
+    await page.setViewportSize(iPhonePortrait);
+    await emulateCoarsePointer(page);
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+
+    await assertNoHorizontalOverflow(page);
+    await assertTouchTargets(page, ['.vish-editor-topbar-chrome button']);
+
+    const mobileMenu = page.getByTestId('workspace-mobile-menu');
+    await expect(mobileMenu).toBeVisible();
+    await mobileMenu.click();
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10_000 });
+    await assertNoHorizontalOverflow(page);
+  });
+
   test('/3d-room fits iPad landscape without overflow', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await assertRoomPage(page);
