@@ -473,3 +473,30 @@ iframe {
     transform-origin: top right;
   }
 }
+
+
+/* Phone pricing trust row: keep plan choices in the first scroll, not below three tall metric cards. */
+@media (max-width: 640px) {
+  .vish-marketing-page .vish-pricing-trust-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill {
+    min-width: 0;
+    padding: 0.8rem 0.35rem;
+    border-radius: 0.8rem;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill p:first-child {
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill p:last-child {
+    margin-top: 0.35rem;
+    font-size: 0.54rem;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+  }
+}
