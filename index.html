@@ -50,13 +50,30 @@
     </div>
     <div id="root"></div>
     <script>
-      window.addEventListener('load', () => {
-        const splash = document.getElementById('boot-splash');
-        if (splash) {
+      (() => {
+        let dismissed = false;
+        const dismissBootSplash = () => {
+          if (dismissed) return;
+          const splash = document.getElementById('boot-splash');
+          if (!splash) return;
+          dismissed = true;
           splash.style.opacity = '0';
           window.setTimeout(() => splash.remove(), 220);
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener(
+            'DOMContentLoaded',
+            () => window.requestAnimationFrame(dismissBootSplash),
+            { once: true },
+          );
+        } else {
+          window.requestAnimationFrame(dismissBootSplash);
         }
-      }, { once: true });
+
+        // Never let a slow font/image/network request leave the app visually covered.
+        window.setTimeout(dismissBootSplash, 1500);
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
