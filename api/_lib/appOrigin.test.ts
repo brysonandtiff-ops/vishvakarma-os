@@ -26,21 +26,15 @@ describe('trusted app origin policy', () => {
     expect(isTrustedAppOrigin(CLOUDFLARE_PAGES_ORIGIN, env)).toBe(true);
   });
 
-  it('rejects legacy Vercel production and preview origins', () => {
+  it('rejects untrusted production and preview-style origins', () => {
     const env = { APP_URL: undefined, CF_PAGES: '1' };
 
-    expect(isTrustedAppOrigin('https://vishvakarma-os.vercel.app', env)).toBe(false);
+    expect(isTrustedAppOrigin('https://legacy-host.example', env)).toBe(false);
     expect(
-      isTrustedAppOrigin(
-        'https://vishvakarma-os-git-feature-abc-tyrasic-creations.vercel.app',
-        env,
-      ),
+      isTrustedAppOrigin('https://feature.legacy-host.example', env),
     ).toBe(false);
     expect(
-      isTrustedAppOrigin(
-        'https://vishvakarma-a1b2c3-tyrasic-creations.vercel.app',
-        env,
-      ),
+      isTrustedAppOrigin('https://preview.attacker.example', env),
     ).toBe(false);
   });
 
