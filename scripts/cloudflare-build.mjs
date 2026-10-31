@@ -34,6 +34,7 @@ const focusedRegressionCommand = `pnpm exec vitest run ${focusedTests.join(' ')}
 
 const cloudflareSteps = [
   { label: 'Repository secret guard', command: 'node scripts/security/check-repository-secrets.mjs' },
+  { label: 'Cloudflare-only authority guard', command: 'node scripts/quality/check-cloudflare-only.mjs' },
   { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
   { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
   { label: 'Production-focused regression tests', command: focusedRegressionCommand },
