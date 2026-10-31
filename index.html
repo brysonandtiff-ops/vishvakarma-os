@@ -49,32 +49,7 @@
       <span style="font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase">Vishvakarma.OS</span>
     </div>
     <div id="root"></div>
-    <script>
-      (() => {
-        let dismissed = false;
-        const dismissBootSplash = () => {
-          if (dismissed) return;
-          const splash = document.getElementById('boot-splash');
-          if (!splash) return;
-          dismissed = true;
-          splash.style.opacity = '0';
-          window.setTimeout(() => splash.remove(), 220);
-        };
-
-        if (document.readyState === 'loading') {
-          document.addEventListener(
-            'DOMContentLoaded',
-            () => window.requestAnimationFrame(dismissBootSplash),
-            { once: true },
-          );
-        } else {
-          window.requestAnimationFrame(dismissBootSplash);
-        }
-
-        // Never let a slow font/image/network request leave the app visually covered.
-        window.setTimeout(dismissBootSplash, 1500);
-      })();
-    </script>
+    <script src="/boot-splash.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
