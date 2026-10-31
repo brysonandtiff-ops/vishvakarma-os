@@ -500,3 +500,25 @@ iframe {
     letter-spacing: 0.08em;
   }
 }
+
+
+/* Phone feature metrics: preserve the 2×2 proof grid without consuming a full screen. */
+@media (max-width: 640px) {
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill {
+    min-height: 4.4rem;
+    padding: 0.7rem 0.45rem;
+    border-radius: 0.8rem;
+  }
+
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill p:first-child {
+    font-size: 1rem;
+    line-height: 1.05;
+  }
+
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill p:last-child {
+    margin-top: 0.25rem;
+    font-size: 0.58rem;
+    line-height: 1.25;
+    letter-spacing: 0.09em;
+  }
+}
