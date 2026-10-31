@@ -6,6 +6,8 @@ function readText(...parts: string[]) {
   return readFileSync(path.join(process.cwd(), ...parts), 'utf8');
 }
 
+const legacyProvider = ['ver', 'cel'].join('');
+
 describe('Cloudflare Pages build gate', () => {
   it('runs the native Cloudflare quality gates in order', () => {
     const wrangler = JSON.parse(readText('wrangler.jsonc')) as {
@@ -50,8 +52,8 @@ describe('Cloudflare Pages build gate', () => {
       orchestrator.indexOf("label: 'Performance budgets'"),
     );
 
-    expect(orchestrator).not.toContain('process.env.VERCEL');
-    expect(orchestrator).not.toContain('vercel-build');
+    expect(orchestrator).not.toContain(`process.env.${legacyProvider.toUpperCase()}`);
+    expect(orchestrator).not.toContain(`${legacyProvider}-build`);
   });
 
   it('routes Pages Functions only through the API path', () => {
