@@ -392,12 +392,15 @@ iframe {
 }
 
 
-/* Phone marketing utility dock: compact global helpers so they do not cover hero proof content. */
+/* Phone marketing utilities: keep optional helpers in the empty hero strip under the nav.
+   They scroll with the marketing page instead of permanently covering content. */
 @media (max-width: 760px) {
   body[data-vish-surface='marketing'] .vish-voice-tour-launch {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
     left: max(0.75rem, env(safe-area-inset-left));
     right: auto;
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    bottom: auto;
     width: 46px;
     min-width: 46px;
     max-width: 46px;
@@ -417,9 +420,12 @@ iframe {
   }
 
   body[data-vish-surface='marketing'] .vish-theme-controller {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
     right: max(4.35rem, calc(4.35rem + env(safe-area-inset-right)));
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    bottom: auto;
     max-width: none;
+    flex-direction: column-reverse;
   }
 
   body[data-vish-surface='marketing'] .vish-theme-controller__toggle {
@@ -443,14 +449,21 @@ iframe {
   }
 
   body[data-vish-surface='marketing'] .mantra-widget {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
     right: max(0.75rem, env(safe-area-inset-right));
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    bottom: auto;
     width: 46px;
     height: 46px;
+    flex-direction: column-reverse;
   }
 
   body[data-vish-surface='marketing'] .mantra-fab {
     width: 46px;
     height: 46px;
+  }
+
+  body[data-vish-surface='marketing'] .mantra-panel {
+    transform-origin: top right;
   }
 }
