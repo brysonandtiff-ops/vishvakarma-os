@@ -203,7 +203,7 @@ describe('getAuthPageUrl', () => {
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
-    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.vercel.app');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
 
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
@@ -219,13 +219,13 @@ describe('getAuthPageUrl', () => {
     expect(getAuthPageUrl()).toBe('https://abc123.vishvakarma-os.pages.dev/auth');
   });
 
-  it('rejects a legacy Vercel origin and ignores a Vercel redirect override', () => {
+  it('rejects a legacy untrusted origin and ignores an untrusted redirect override', () => {
     vi.stubGlobal('window', {
-      location: { origin: 'https://vishvakarma-os.vercel.app' },
+      location: { origin: 'https://legacy-host.example' },
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
-    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.vercel.app');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
 
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
