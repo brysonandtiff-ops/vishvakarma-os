@@ -22,6 +22,10 @@ describe('marketing phone floating controls', () => {
     expect(css).toContain('width: 46px');
     expect(css).toContain('height: 46px');
     expect(css).toContain('font-size: 0');
+    expect(css).toContain('position: absolute');
+    expect(css).toContain("top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top))");
+    expect(css).toContain('bottom: auto');
+    expect(css).toContain('flex-direction: column-reverse');
     expect(css).toContain('.vish-theme-controller__toggle-text');
     expect(css).toContain('display: none');
   });
