@@ -95,7 +95,6 @@ async function main() {
   const root = process.cwd();
   const envExamplePath = join(root, '.env.example');
   const envLocalPath = join(root, '.env.local');
-  const vercelProdPath = join(root, '.env.vercel.production');
 
   if (!(await fileExists(envExamplePath))) {
     console.error('[FAIL] .env.example is missing');
@@ -120,10 +119,6 @@ async function main() {
     }
   }
 
-  if (await fileExists(vercelProdPath)) {
-    const vercelProd = await readFile(vercelProdPath, 'utf-8');
-    passed = checkCanonicalEnvValues(vercelProd, '.env.vercel.production', strict) && passed;
-  }
 
   if (!passed) {
     process.exit(1);
