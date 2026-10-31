@@ -52,6 +52,7 @@ import StatusBar from '@/components/editor/StatusBar';
 import EditorCompassCost from '@/components/editor/EditorCompassCost';
 import EditorPerfHud from '@/components/editor/EditorPerfHud';
 import PerformanceProfilePanel from '@/components/editor/panels/PerformanceProfilePanel';
+import AkashaCastPanel from '@/components/editor/panels/AkashaCastPanel';
 import EditorCollaborationBar, { useCollaborationCursorBroadcast } from '@/components/editor/EditorCollaborationBar';
 import { useGeometryRevision } from '@/hooks/useGeometryRevision';
 import { useVisualViewportInset } from '@/hooks/useVisualViewportInset';
@@ -966,6 +967,20 @@ function EditorWorkspace() {
     </>
   );
 
+  const castPanelProps = {
+    projectId: currentProject?.id,
+    userId: user?.id,
+    userName: user?.email?.split('@')[0] ?? 'Architect',
+    manifest: geometryManifest,
+    onCastStart: () => engine.setPresentationLock(true),
+    onCastStop: () => engine.setPresentationLock(false),
+    onManifestChange: (nextManifest: ProjectManifest, isRemote: boolean) => {
+      if (isRemote) {
+        engine.applyRemoteManifest(nextManifest);
+      }
+    },
+  };
+
   const morePanel = (
     <div className="space-y-3 px-0 py-2">
       <div className="px-4">
@@ -988,6 +1003,8 @@ function EditorWorkspace() {
         <AgniThermalPanel manifest={geometryManifest} />
         <PanchatattvaPanel manifest={geometryManifest} />
       </div>
+      <AkashaCastPanel {...castPanelProps} />
+      <div className="mx-4 h-px bg-border" />
       <ProjectProofPanel
         projectName={projectName}
         wallCount={walls.length}
@@ -1133,6 +1150,9 @@ function EditorWorkspace() {
           pranaActive={pranaActive}
           onTogglePrana={handleTogglePrana}
         />
+        {presentationLock && (
+          <AkashaCastPanel {...castPanelProps} presentationControlsOnly />
+        )}
         <ComplianceBanner report={complianceReport} />
 
         <div className="flex flex-1 overflow-hidden">
