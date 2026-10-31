@@ -27,6 +27,7 @@ describe('marketing phone floating controls', () => {
     expect(css).toContain('bottom: auto');
     expect(css).toContain('flex-direction: column-reverse');
     expect(css).toContain('.vish-theme-controller__toggle-text');
+    expect(css).toContain('.vish-theme-controller__compact-icon');
     expect(css).toContain('display: none');
   });
 });
