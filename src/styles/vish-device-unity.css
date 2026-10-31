@@ -444,8 +444,14 @@ iframe {
   }
 
   body[data-vish-surface='marketing'] .vish-theme-controller__toggle > .vish-theme-controller__swatch {
-    width: 1rem;
-    height: 1rem;
+    display: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__compact-icon {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: hsl(43 82% 63% / 0.96);
   }
 
   body[data-vish-surface='marketing'] .mantra-widget {
