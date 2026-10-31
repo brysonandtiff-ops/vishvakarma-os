@@ -11,6 +11,7 @@ function readRepoFile(...parts: string[]) {
 describe('non-blocking startup experience', () => {
   it('ships a pointer-transparent splash with DOM-ready and timeout removal', () => {
     const html = readRepoFile('index.html');
+    const bootSplash = readRepoFile('public', 'boot-splash.js');
     const main = readRepoFile('src', 'main.tsx');
     const routeGuard = readRepoFile('src', 'components', 'common', 'RouteGuard.tsx');
     const authLayout = readRepoFile('src', 'components', 'layouts', 'AuthLayout.tsx');
@@ -18,10 +19,12 @@ describe('non-blocking startup experience', () => {
     expect(html).toContain('id="boot-splash"');
     expect(html).toContain('pointer-events:none');
     expect(html).toContain('rel="apple-touch-startup-image"');
-    expect(html).toContain("'DOMContentLoaded'");
-    expect(html).toContain('requestAnimationFrame(dismissBootSplash)');
-    expect(html).toContain('window.setTimeout(dismissBootSplash, 1500)');
-    expect(html).not.toContain("window.addEventListener('load'");
+    expect(html).toContain('<script src="/boot-splash.js"></script>');
+    expect(html).not.toContain('dismissBootSplash');
+    expect(bootSplash).toContain("'DOMContentLoaded'");
+    expect(bootSplash).toContain('requestAnimationFrame(dismissBootSplash)');
+    expect(bootSplash).toContain('window.setTimeout(dismissBootSplash, 1500)');
+    expect(bootSplash).not.toContain("window.addEventListener('load'");
     expect(html).not.toContain('Loading Vishvakarma.OS');
     expect(main).not.toContain('dismissBootSplash');
     expect(routeGuard).not.toContain('SessionBootScreen');
