@@ -390,3 +390,67 @@ iframe {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Phone marketing utility dock: compact global helpers so they do not cover hero proof content. */
+@media (max-width: 760px) {
+  body[data-vish-surface='marketing'] .vish-voice-tour-launch {
+    left: max(0.75rem, env(safe-area-inset-left));
+    right: auto;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    width: 46px;
+    min-width: 46px;
+    max-width: 46px;
+    height: 46px;
+    min-height: 46px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  body[data-vish-surface='marketing'] .vish-voice-tour-launch svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller {
+    right: max(4.35rem, calc(4.35rem + env(safe-area-inset-right)));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    max-width: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    min-height: 46px;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle-text,
+  body[data-vish-surface='marketing'] .vish-theme-controller__chevron {
+    display: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle > .vish-theme-controller__swatch {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  body[data-vish-surface='marketing'] .mantra-widget {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    width: 46px;
+    height: 46px;
+  }
+
+  body[data-vish-surface='marketing'] .mantra-fab {
+    width: 46px;
+    height: 46px;
+  }
+}
