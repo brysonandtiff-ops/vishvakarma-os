@@ -5,6 +5,7 @@ import { join } from 'node:path';
 
 const root = process.cwd();
 const failures = [];
+const legacyProvider = ['ver', 'cel'].join('');
 
 function readRequiredFile(path, label) {
   if (!existsSync(path)) {
@@ -39,8 +40,8 @@ const analytics = readRequiredFile(join(root, 'src/lib/analytics.ts'), 'src/lib/
 const consentAnalytics = readRequiredFile(join(root, 'src/components/common/ConsentAnalytics.tsx'), 'src/components/common/ConsentAnalytics.tsx');
 const monitoring = readRequiredFile(join(root, 'src/lib/monitoring.ts'), 'src/lib/monitoring.ts');
 const viteConfig = readRequiredFile(join(root, 'vite.config.ts'), 'vite.config.ts');
-const vercelConfig = readRequiredFile(join(root, 'vercel.json'), 'vercel.json');
-const vercelBuild = readRequiredFile(join(root, 'scripts/vercel-build.mjs'), 'scripts/vercel-build.mjs');
+const cloudflareHeaders = readRequiredFile(join(root, 'public/_headers'), 'public/_headers');
+const cloudflareBuild = readRequiredFile(join(root, 'scripts/cloudflare-build.mjs'), 'scripts/cloudflare-build.mjs');
 const artifactSecurity = readRequiredFile(join(root, 'scripts/security/check-dist-security.mjs'), 'scripts/security/check-dist-security.mjs');
 
 requirePhrase(projectGateway, 'collaborators: [userId]', 'Supabase project gateway');
@@ -72,6 +73,7 @@ try {
 if (packageJson.engines?.node !== '>=20 <25') failures.push('package.json must keep the supported Node engine range at >=20 <25');
 if (!String(packageJson.scripts?.['perf:gates'] ?? '').includes('check-pwa-precache.mjs')) failures.push('package.json perf:gates must include the PWA precache budget');
 forbidPhrase(packageText, '"firebase"', 'package.json');
+forbidPhrase(packageText, `"@${legacyProvider}/analytics"`, 'package.json');
 
 requirePhrase(authGateway, 'LEGACY_SUPABASE_SESSION_KEY', 'Supabase auth gateway');
 requirePhrase(authGateway, 'clearLegacyTokenSnapshot', 'Supabase auth gateway');
@@ -94,8 +96,11 @@ requirePhrase(apiTokenVerifier, 'MAX_BEARER_TOKEN_LENGTH', 'Supabase API token v
 
 requirePhrase(appOrigin, 'resolveTrustedAppOrigin', 'Trusted app origin policy');
 requirePhrase(appOrigin, 'UntrustedAppOriginError', 'Trusted app origin policy');
-requirePhrase(appOrigin, 'VERCEL_TEAM_SUFFIX', 'Trusted app origin policy');
-requirePhrase(appOrigin, "env.VERCEL !== '1'", 'Trusted app origin policy');
+requirePhrase(appOrigin, 'CLOUDFLARE_PAGES_HOST', 'Trusted app origin policy');
+requirePhrase(appOrigin, 'isCloudflarePagesHost', 'Trusted app origin policy');
+forbidPhrase(appOrigin, `${legacyProvider.toUpperCase()}_TEAM_SUFFIX`, 'Trusted app origin policy');
+forbidPhrase(appOrigin, `${legacyProvider.toUpperCase()}_FALLBACK_ORIGIN`, 'Trusted app origin policy');
+forbidPhrase(appOrigin, `env.${legacyProvider.toUpperCase()}`, 'Trusted app origin policy');
 
 for (const [content, label] of [[checkoutApi, 'Stripe checkout API'], [portalApi, 'Stripe portal API']]) {
   requirePhrase(content, 'resolveTrustedAppOrigin', label);
@@ -112,16 +117,16 @@ forbidPhrase(webhookApi, 'error instanceof Error ? error.message', 'Stripe webho
 
 requirePhrase(app, 'QA_TOOLS_ENABLED', 'App QA boundary');
 requirePhrase(app, "lazy(() => import('@/components/qa/QaTools'))", 'App QA boundary');
-requirePhrase(app, '<ConsentAnalytics />', 'App analytics boundary');
-forbidPhrase(app, "import { Analytics } from '@vercel/analytics/react'", 'App analytics boundary');
+forbidPhrase(app, '<ConsentAnalytics />', 'App analytics boundary');
+forbidPhrase(app, '<AnalyticsConsentBanner />', 'App analytics boundary');
+forbidPhrase(app, `@${legacyProvider}/analytics`, 'App analytics boundary');
 forbidPhrase(main, 'DeviceValidationPanel', 'Production entrypoint');
 forbidPhrase(main, 'vish-device-validation.css', 'Production entrypoint');
 
 requirePhrase(analytics, 'ANALYTICS_CONSENT_EVENT', 'Analytics consent policy');
-requirePhrase(analytics, "import('@vercel/analytics')", 'Analytics consent policy');
-forbidPhrase(analytics, "import { track } from '@vercel/analytics'", 'Analytics consent policy');
-requirePhrase(consentAnalytics, 'hasAnalyticsConsent', 'Consent analytics component');
-requirePhrase(consentAnalytics, "import('@vercel/analytics/react')", 'Consent analytics component');
+forbidPhrase(analytics, `@${legacyProvider}/analytics`, 'Analytics consent policy');
+requirePhrase(consentAnalytics, 'return null', 'Consent analytics component');
+forbidPhrase(consentAnalytics, `@${legacyProvider}/analytics`, 'Consent analytics component');
 requirePhrase(monitoring, "import('@sentry/react')", 'Monitoring privacy policy');
 requirePhrase(monitoring, 'sendDefaultPii: false', 'Monitoring privacy policy');
 requirePhrase(monitoring, 'redactMonitoringUrl', 'Monitoring privacy policy');
@@ -130,26 +135,30 @@ forbidPhrase(monitoring, "import * as Sentry from '@sentry/react'", 'Monitoring 
 
 requirePhrase(viteConfig, 'filterEntryModulePreloads', 'Vite build configuration');
 requirePhrase(viteConfig, 'VISH_BUILD_SOURCEMAPS', 'Vite build configuration');
-requirePhrase(viteConfig, "process.env.VERCEL !== '1'", 'Vite build configuration');
+requirePhrase(viteConfig, "process.env.CF_PAGES !== '1'", 'Vite build configuration');
 requirePhrase(viteConfig, "sourcemap: buildSourceMaps ? 'hidden' : false", 'Vite build configuration');
+forbidPhrase(viteConfig, `process.env.${legacyProvider.toUpperCase()}`, 'Vite build configuration');
+forbidPhrase(viteConfig, `@${legacyProvider}/analytics`, 'Vite build configuration');
 
-requirePhrase(vercelConfig, 'private, no-store, max-age=0', 'Vercel headers');
-requirePhrase(vercelConfig, 'public, max-age=0, must-revalidate', 'Vercel headers');
-requirePhrase(vercelConfig, 'X-Permitted-Cross-Domain-Policies', 'Vercel headers');
+requirePhrase(cloudflareHeaders, 'Cache-Control: no-store, max-age=0, must-revalidate', 'Cloudflare headers');
+requirePhrase(cloudflareHeaders, 'Cache-Control: public, max-age=0, must-revalidate', 'Cloudflare headers');
+requirePhrase(cloudflareHeaders, 'X-Permitted-Cross-Domain-Policies: none', 'Cloudflare headers');
 
-requirePhrase(vercelBuild, "process.env.VERCEL === '1'", 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'scripts/security/check-dist-security.mjs', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'api/stripe/webhook.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/analyticsConsent.test.tsx', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'src/test/monitoringPrivacy.test.ts', 'Vercel build orchestrator');
-requirePhrase(vercelBuild, 'pnpm run perf:gates', 'Vercel build orchestrator');
+requirePhrase(cloudflareBuild, 'scripts/security/check-dist-security.mjs', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'api/_lib/verifySupabaseToken.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'api/stripe/webhook.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/emailMagicLinkFallback.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/analyticsConsent.test.tsx', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'src/test/monitoringPrivacy.test.ts', 'Cloudflare build orchestrator');
+requirePhrase(cloudflareBuild, 'pnpm run perf:gates', 'Cloudflare build orchestrator');
+forbidPhrase(cloudflareBuild, `process.env.${legacyProvider.toUpperCase()}`, 'Cloudflare build orchestrator');
+forbidPhrase(cloudflareBuild, `${legacyProvider}-build`, 'Cloudflare build orchestrator');
 
 requirePhrase(artifactSecurity, 'service_role', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'productionQaMarkers', 'Artifact security scanner');
 requirePhrase(artifactSecurity, 'source maps are present', 'Artifact security scanner');
-requirePhrase(artifactSecurity, "process.env.VERCEL === '1'", 'Artifact security scanner');
+requirePhrase(artifactSecurity, "process.env.CF_PAGES === '1'", 'Artifact security scanner');
+forbidPhrase(artifactSecurity, `process.env.${legacyProvider.toUpperCase()}`, 'Artifact security scanner');
 
 if (existsSync(join(root, 'firestore.rules'))) failures.push('firestore.rules still exists — Firebase config should be removed.');
 

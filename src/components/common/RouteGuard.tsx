@@ -110,7 +110,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
           role="status"
           className="border-b border-warning/40 bg-warning/10 px-4 py-2 text-center text-xs text-warning"
         >
-          Service configuration required — set Vercel environment variables (see docs/release/VERCEL_ENV.md).
+          Service configuration required — set Cloudflare Pages environment variables (see docs/release/CLOUDFLARE_PRODUCTION_CERTIFICATION.md).
         </div>
       )}
       {children}

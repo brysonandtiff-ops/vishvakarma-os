@@ -7,9 +7,9 @@ import { exitWithFailures, fail, pass } from '../lib/cli.mjs';
 
 const root = process.cwd();
 const distDir = join(root, 'dist');
-const isVercelBuild = process.env.VERCEL === '1';
+const isCloudflareBuild = process.env.CF_PAGES === '1';
 const allowSourceMaps =
-  process.env.VISH_BUILD_SOURCEMAPS === 'true' && !isVercelBuild;
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && !isCloudflareBuild;
 const qaToolsEnabled = process.env.VITE_ENABLE_QA_TOOLS === 'true';
 const textExtensions = new Set([
   '.js',

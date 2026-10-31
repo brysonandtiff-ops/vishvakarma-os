@@ -75,6 +75,23 @@ describe('Sacred marketing visuals', () => {
     expect(landingPage).not.toContain('ArrowRight');
   });
 
+  it('stops continuous canvas animation for touch/reduced-motion and hidden layouts', () => {
+    const cosmic = read('src/components/marketing/SacredCosmicLayer.tsx');
+    const rain = read('src/components/common/SanskritRainBackground.tsx');
+
+    for (const source of [cosmic, rain]) {
+      expect(source).toContain("window.matchMedia('(pointer: coarse)')");
+      expect(source).toContain('motionQuery.matches || touchQuery.matches');
+      expect(source).toContain('Math.min(canvas.clientWidth, window.innerWidth)');
+      expect(source).toContain('Math.min(canvas.clientHeight, window.innerHeight)');
+      expect(source).toContain('const cancelLoop = () =>');
+      expect(source).toContain('const scheduleLoop = () =>');
+      expect(source).toContain('if (reducedMotionRef.current || !visibleRef.current');
+      expect(source).toContain('cancelLoop();');
+      expect(source).toContain("document.addEventListener('visibilitychange', onVisibilityChange)");
+    }
+  });
+
   it('bumps marketing Sanskrit rain preset visibility', () => {
     const rainBackground = read('src/components/common/SanskritRainBackground.tsx');
     const marketingStyles = read('src/styles/vish-marketing.css');

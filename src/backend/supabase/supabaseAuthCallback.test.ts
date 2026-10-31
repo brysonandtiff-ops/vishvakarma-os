@@ -203,20 +203,31 @@ describe('getAuthPageUrl', () => {
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
-    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.vercel.app');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
 
     expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
 
-  it('keeps OAuth callback on the Vercel fallback origin the user opened', () => {
+  it('keeps OAuth callback on a Vishvakarma Cloudflare Pages preview origin', () => {
     vi.stubGlobal('window', {
-      location: { origin: 'https://vishvakarma-os.vercel.app' },
+      location: { origin: 'https://abc123.vishvakarma-os.pages.dev' },
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
     vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.app');
 
-    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.vercel.app/auth');
+    expect(getAuthPageUrl()).toBe('https://abc123.vishvakarma-os.pages.dev/auth');
+  });
+
+  it('rejects a legacy untrusted origin and ignores an untrusted redirect override', () => {
+    vi.stubGlobal('window', {
+      location: { origin: 'https://legacy-host.example' },
+    });
+    vi.stubEnv('DEV', false);
+    vi.stubEnv('MODE', 'production');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
+
+    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
   });
 });
 

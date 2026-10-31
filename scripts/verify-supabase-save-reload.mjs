@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
-import { CANONICAL_ORIGIN } from './lib/canonical-origin.mjs';
+import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from './lib/canonical-origin.mjs';
 
 const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const EDITOR_URL = `${BASE}/editor`;
@@ -367,7 +367,7 @@ function writeEvidenceFiles(mode, pass) {
 
 Generated from commit: \`${sha}\`
 Deployment URL: ${deploymentUrl}
-Vercel fallback URL: https://vishvakarma-os.vercel.app
+Cloudflare Pages URL: ${CLOUDFLARE_PAGES_ORIGIN}
 Generated at: ${generatedAt}
 Operator: ${operator}
 Result: \`PASS\`

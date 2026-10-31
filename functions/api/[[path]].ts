@@ -8,9 +8,9 @@ import createCheckoutSession from '../../api/stripe/create-checkout-session';
 import createPortalSession from '../../api/stripe/create-portal-session';
 import stripeWebhook from '../../api/stripe/webhook';
 import {
-  runVercelHandler,
-  type VercelStyleHandler,
-} from '../../cloudflare/vercelHandlerAdapter';
+  runNodeHandler,
+  type NodeStyleHandler,
+} from '../../cloudflare/nodeHandlerAdapter';
 
 type PagesFunctionContext = {
   request: Request;
@@ -18,16 +18,16 @@ type PagesFunctionContext = {
   params: Record<string, string | string[]>;
 };
 
-const handlers: Record<string, VercelStyleHandler> = {
-  'ai/extract-requirements': extractRequirements as VercelStyleHandler,
-  'ai/parse-site-documents': parseSiteDocuments as VercelStyleHandler,
-  'cast/evidence': castEvidence as VercelStyleHandler,
-  'cast/join': castJoin as VercelStyleHandler,
-  'cast/sessions': castSessions as VercelStyleHandler,
-  health: health as VercelStyleHandler,
-  'stripe/create-checkout-session': createCheckoutSession as VercelStyleHandler,
-  'stripe/create-portal-session': createPortalSession as VercelStyleHandler,
-  'stripe/webhook': stripeWebhook as VercelStyleHandler,
+const handlers: Record<string, NodeStyleHandler> = {
+  'ai/extract-requirements': extractRequirements as NodeStyleHandler,
+  'ai/parse-site-documents': parseSiteDocuments as NodeStyleHandler,
+  'cast/evidence': castEvidence as NodeStyleHandler,
+  'cast/join': castJoin as NodeStyleHandler,
+  'cast/sessions': castSessions as NodeStyleHandler,
+  health: health as NodeStyleHandler,
+  'stripe/create-checkout-session': createCheckoutSession as NodeStyleHandler,
+  'stripe/create-portal-session': createPortalSession as NodeStyleHandler,
+  'stripe/webhook': stripeWebhook as NodeStyleHandler,
 };
 
 function routePath(context: PagesFunctionContext): string {
@@ -61,5 +61,5 @@ export async function onRequest(context: PagesFunctionContext): Promise<Response
     );
   }
 
-  return runVercelHandler(context.request, handler);
+  return runNodeHandler(context.request, handler);
 }
