@@ -1,38 +1,26 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-
-type TypeScriptConfig = {
-  compilerOptions?: {
-    module?: string;
-    moduleResolution?: string;
-  };
-};
 
 function readText(path: string) {
   return readFileSync(join(process.cwd(), path), 'utf8');
 }
 
-function readConfig(path: string) {
-  return JSON.parse(readText(path)) as TypeScriptConfig;
-}
+describe('Cloudflare Pages API runtime boundary', () => {
+  it('routes hardened Node-style API handlers through the Pages adapter', () => {
+    const router = readText('functions/api/[[path]].ts');
+    const adapter = readText('cloudflare/nodeHandlerAdapter.ts');
 
-describe('Vercel API runtime module boundary', () => {
-  it('emits API functions as CommonJS and creates the src boundary after quality gates', () => {
-    const rootConfig = readConfig('tsconfig.json');
-    const apiPackage = JSON.parse(readText('api/package.json')) as { type?: string };
-    const buildScript = readText('scripts/vercel-build.mjs');
+    expect(router).toContain("from '../../cloudflare/nodeHandlerAdapter'");
+    expect(router).toContain('runNodeHandler');
+    expect(router).toContain('NodeStyleHandler');
+    expect(router).not.toContain('Vercel');
 
-    expect(rootConfig.compilerOptions?.module).toBe('CommonJS');
-    expect(rootConfig.compilerOptions?.moduleResolution).toBe('Node');
-    expect(apiPackage.type).toBe('commonjs');
-    expect(existsSync(join(process.cwd(), 'src', 'package.json'))).toBe(false);
-
-    expect(buildScript).toContain('writeVercelSrcRuntimeBoundary');
-    expect(buildScript).toContain("type: 'commonjs'");
-    expect(buildScript.indexOf('for (const step of steps)')).toBeLessThan(
-      buildScript.lastIndexOf('await writeVercelSrcRuntimeBoundary()'),
-    );
+    expect(adapter).toContain('request.arrayBuffer()');
+    expect(adapter).toContain('statusCode = 500');
+    expect(adapter).toContain("'Cache-Control': 'private, no-store, max-age=0'");
+    expect(adapter).toContain("'X-Content-Type-Options': 'nosniff'");
+    expect(adapter).not.toContain('Vercel');
   });
 
   it('keeps source-level API checks and the browser toolchain on ES modules', () => {
@@ -47,7 +35,7 @@ describe('Vercel API runtime module boundary', () => {
     }
   });
 
-  it('avoids Stripe namespace types that break CommonJS function compilation', () => {
+  it('avoids Stripe namespace types that break cross-runtime compilation', () => {
     expect(readText('api/_lib/stripeClient.ts')).toContain("import Stripe from 'stripe';");
     expect(readText('api/_lib/stripeClient.ts')).toContain('ReturnType<typeof createStripeClient>');
 
