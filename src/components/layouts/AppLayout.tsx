@@ -110,7 +110,7 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
         </TooltipProvider>
 
         {/* Search */}
-        <button onClick={openCommandPalette} className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-vish-navy-700/50 text-vish-text-300 transition-colors">
+        <button onClick={openCommandPalette} aria-label="Open command palette" data-testid="workspace-command-search" className="touch-target flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-md hover:bg-vish-navy-700/50 text-vish-text-300 transition-colors">
           <Search className="w-4 h-4" />
         </button>
 
@@ -120,7 +120,9 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
             <TooltipTrigger asChild>
               <button
                 onClick={handleSignOut}
-                className="flex items-center justify-center w-8 h-8 rounded-md bg-vish-navy-800 border border-vish-navy-600 text-xs font-bold text-vish-text-100 hover:border-vish-blue-500 hover:shadow-[0_0_10px_rgba(42,167,255,0.2)] transition-all"
+                aria-label={`Sign out ${accountLabel}`}
+                data-testid="workspace-account-control"
+                className="touch-target flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-md bg-vish-navy-800 border border-vish-navy-600 text-xs font-bold text-vish-text-100 hover:border-vish-blue-500 hover:shadow-[0_0_10px_rgba(42,167,255,0.2)] transition-all"
               >
                 {accountInitials(accountLabel)}
               </button>
@@ -134,7 +136,7 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
         {/* Mobile menu trigger */}
         <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="tablet:hidden lg:hidden text-vish-text-100">
+            <Button variant="ghost" size="icon" aria-label="Open workspace navigation" data-testid="workspace-mobile-menu" className="touch-target h-11 min-h-11 w-11 min-w-11 tablet:hidden lg:hidden text-vish-text-100">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
