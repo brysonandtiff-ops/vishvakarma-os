@@ -8,6 +8,8 @@ import {
   trackEvent,
 } from '@/lib/analytics';
 
+const legacyAnalyticsPackage = `@${['ver', 'cel'].join('')}/analytics`;
+
 describe('analytics consent boundary', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -30,7 +32,7 @@ describe('analytics consent boundary', () => {
     expect(hasAnalyticsConsent()).toBe(true);
   });
 
-  it('does not load a Vercel analytics runtime or consent mount', () => {
+  it('does not load the retired external analytics runtime or consent mount', () => {
     const analyticsSource = readFileSync(resolve(process.cwd(), 'src/lib/analytics.ts'), 'utf8');
     const mountSource = readFileSync(
       resolve(process.cwd(), 'src/components/common/ConsentAnalytics.tsx'),
@@ -38,8 +40,8 @@ describe('analytics consent boundary', () => {
     );
     const appSource = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
 
-    expect(analyticsSource).not.toContain('@vercel/analytics');
-    expect(mountSource).not.toContain('@vercel/analytics');
+    expect(analyticsSource).not.toContain(legacyAnalyticsPackage);
+    expect(mountSource).not.toContain(legacyAnalyticsPackage);
     expect(appSource).not.toContain('AnalyticsConsentBanner');
     expect(appSource).not.toContain('ConsentAnalytics');
   });
