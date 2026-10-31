@@ -12,6 +12,7 @@ const focusedTests = [
   'src/test/qaToolsGate.test.ts',
   'src/test/noBlockingStartupScreen.test.ts',
   'src/test/marketingFloatingControls.test.ts',
+  'src/test/pricingPhoneDensity.test.ts',
   'src/test/authPhoneFloatingControls.test.ts',
   'src/test/analyticsConsent.test.tsx',
   'src/test/monitoringPrivacy.test.ts',
