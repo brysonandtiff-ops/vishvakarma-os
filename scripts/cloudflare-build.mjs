@@ -13,6 +13,7 @@ const focusedTests = [
   'src/test/analyticsConsent.test.tsx',
   'src/test/akashaCastRecovery.test.tsx',
   'src/test/recoveryUiContracts.test.ts',
+  'src/core/projectExport.test.ts',
   'src/test/monitoringPrivacy.test.ts',
   'src/test/pwaUpdateSafety.test.ts',
   'src/test/routeCssBoundary.test.ts',
