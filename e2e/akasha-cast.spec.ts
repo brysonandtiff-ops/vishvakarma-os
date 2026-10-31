@@ -37,14 +37,9 @@ test.describe('Akasha Cast', () => {
     const panelAvailable = await openSimulationPanels(page);
     const panel = page.getByTestId('akasha-cast-panel');
 
-    if (panelAvailable) {
-      await expect(panel).toBeVisible();
-      await expect(panel).toContainText(/Akasha Cast/i);
-      return;
-    }
-
-    await expect(panel).toHaveCount(0);
-    await expect(page.getByText('starter', { exact: true }).first()).toBeVisible();
+    expect(panelAvailable, 'Akasha Cast must stay mounted in the editor recovery build').toBe(true);
+    await expect(panel).toBeVisible();
+    await expect(panel).toContainText(/Akasha Cast/i);
   });
 
   test('local cast start exposes viewer link and viewer page shell', async ({ browser }) => {
