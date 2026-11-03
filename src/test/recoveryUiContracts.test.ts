@@ -28,6 +28,16 @@ describe('Vishvakarma recovery UI contracts', () => {
     expect(layout.match(/min-w-11/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
   });
 
+  it('keeps the shared floating controls at least 44px tall on phones', () => {
+    const css = read('src/styles/vish-device-unity.css');
+    const mobileRule = css.split('/* Shared floating controls:')[1]?.split('@media (max-width: 980px)')[0] ?? '';
+
+    expect(mobileRule).toContain('.vish-qa-evidence-launch');
+    expect(mobileRule).toContain('.vish-voice-tour-launch');
+    expect(mobileRule).toContain('min-height: 44px;');
+    expect(mobileRule).not.toContain('min-height: 36px;');
+  });
+
   it('preserves onboarding and consent overlay exclusivity instead of rebuilding it', () => {
     const app = read('src/App.tsx');
     const safety = read('src/styles/vish-overlay-safety.css');

@@ -212,12 +212,12 @@ iframe {
   max-width: 100%;
 }
 
-/* Shared floating controls: keep them useful, not dominant, on small screens. */
+/* Shared floating controls: keep 44px touch targets on small screens. */
 @media (max-width: 760px) {
   body:not(:has([data-testid='auth-page'])) .vish-qa-evidence-launch,
   body:not(:has([data-testid='auth-page'])) .vish-voice-tour-launch {
     max-width: calc(50vw - 1rem);
-    min-height: 36px;
+    min-height: 44px;
     padding-inline: 0.7rem;
     font-size: 0.62rem;
     letter-spacing: 0.08em;
