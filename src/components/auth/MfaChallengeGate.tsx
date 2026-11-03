@@ -20,20 +20,26 @@ type GateState =
   | { status: 'error'; message: string };
 
 export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
-  const { user, signOut, isConfigured, mode } = useAuth();
+  const { user, isConfigured, mode } = useAuth();
+
+  // Public screens never need to wait for a signed-in user's MFA check.
+  // Protected routes are still enforced by RouteGuard.
+  if (!user || !isConfigured || mode === 'local-only') {
+    return <>{children}</>;
+  }
+
+  // Remount the signed-in gate when the account changes: never reuse MFA proof.
+  return <AuthenticatedMfaChallengeGate key={user.id}>{children}</AuthenticatedMfaChallengeGate>;
+}
+
+function AuthenticatedMfaChallengeGate({ children }: MfaChallengeGateProps) {
+  const { signOut } = useAuth();
   const [gate, setGate] = useState<GateState>({ status: 'checking' });
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const inspect = useCallback(async () => {
-    // Local demo and E2E access do not own a Supabase Auth session and must not
-    // become dependent on hosted MFA configuration.
-    if (!user || !isConfigured || mode === 'local-only') {
-      setGate({ status: 'clear' });
-      return;
-    }
-
     setGate({ status: 'checking' });
     try {
       const status = await getMfaStatus();
@@ -47,7 +53,7 @@ export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
         message: cause instanceof Error ? cause.message : 'Unable to verify MFA status.',
       });
     }
-  }, [isConfigured, mode, user]);
+  }, []);
 
   useEffect(() => {
     void inspect();

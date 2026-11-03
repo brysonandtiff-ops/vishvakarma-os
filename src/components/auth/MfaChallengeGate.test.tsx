@@ -4,7 +4,7 @@ import MfaChallengeGate from '@/components/auth/MfaChallengeGate';
 
 const mocks = vi.hoisted(() => ({
   auth: {
-    user: { uid: 'user-1', email: 'architect@firm.com' },
+    user: { id: 'user-1', email: 'architect@firm.com' } as { id: string; email: string } | null,
     signOut: vi.fn(),
     isConfigured: true,
     mode: 'connected' as 'connected' | 'local-only',
@@ -24,12 +24,65 @@ vi.mock('@/backend/supabase/supabaseMfaGateway', () => ({
 
 describe('MfaChallengeGate', () => {
   beforeEach(() => {
-    mocks.auth.user = { uid: 'user-1', email: 'architect@firm.com' };
+    mocks.auth.user = { id: 'user-1', email: 'architect@firm.com' };
     mocks.auth.isConfigured = true;
     mocks.auth.mode = 'connected';
     mocks.auth.signOut.mockReset();
     mocks.getMfaStatus.mockReset();
     mocks.verifyTotpFactor.mockReset();
+  });
+
+  it('shows signed-out public content immediately without MFA waiting', () => {
+    mocks.auth.user = null;
+
+    render(
+      <MfaChallengeGate>
+        <h1>Public home</h1>
+      </MfaChallengeGate>,
+    );
+
+    expect(screen.getByRole('heading', { name: 'Public home' })).toBeInTheDocument();
+    expect(screen.queryByText('Checking account security…')).not.toBeInTheDocument();
+    expect(mocks.getMfaStatus).not.toHaveBeenCalled();
+  });
+
+  it('keeps a signed-in workspace hidden while the MFA check is pending', () => {
+    mocks.getMfaStatus.mockImplementation(() => new Promise(() => {}));
+
+    render(
+      <MfaChallengeGate>
+        <div>Protected workspace</div>
+      </MfaChallengeGate>,
+    );
+
+    expect(screen.getByText('Checking account security…')).toBeInTheDocument();
+    expect(screen.queryByText('Protected workspace')).not.toBeInTheDocument();
+  });
+
+  it('rechecks MFA when the signed-in account changes', async () => {
+    mocks.getMfaStatus.mockResolvedValueOnce({
+      currentLevel: 'aal1',
+      nextLevel: 'aal1',
+      verifiedTotpFactors: [],
+    });
+
+    const { rerender } = render(
+      <MfaChallengeGate>
+        <div>Private project</div>
+      </MfaChallengeGate>,
+    );
+    expect(await screen.findByText('Private project')).toBeInTheDocument();
+
+    mocks.auth.user = { id: 'user-2', email: 'other@firm.com' };
+    mocks.getMfaStatus.mockImplementation(() => new Promise(() => {}));
+    rerender(
+      <MfaChallengeGate>
+        <div>Private project</div>
+      </MfaChallengeGate>,
+    );
+
+    expect(screen.getByText('Checking account security…')).toBeInTheDocument();
+    expect(screen.queryByText('Private project')).not.toBeInTheDocument();
   });
 
   it('bypasses hosted MFA checks for local sessions', async () => {
