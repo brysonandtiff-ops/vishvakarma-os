@@ -17,6 +17,9 @@ describe('non-blocking startup experience', () => {
 
     expect(html).toContain('id="boot-splash"');
     expect(html).toContain('pointer-events:none');
+    expect(html).toContain('new MutationObserver(checkAppRendered)');
+    expect(html).toContain('root.childElementCount > 0');
+    expect(html).toContain('observer.observe(root, { childList: true })');
     expect(html).toContain('rel="apple-touch-startup-image"');
     expect(html).not.toContain('Loading Vishvakarma.OS');
     expect(main).not.toContain('dismissBootSplash');
