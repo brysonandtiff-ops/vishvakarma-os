@@ -8,6 +8,7 @@ const focusedTests = [
   'src/test/cloudflareApiRuntimeModule.test.ts',
   'src/test/emailMagicLinkFallback.test.ts',
   'src/test/productionAuthVerifier.test.ts',
+  'src/test/noBlockingStartupScreen.test.ts',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
