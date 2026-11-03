@@ -50,13 +50,30 @@
     </div>
     <div id="root"></div>
     <script>
-      window.addEventListener('load', () => {
+      (() => {
         const splash = document.getElementById('boot-splash');
-        if (splash) {
+        const root = document.getElementById('root');
+        if (!splash || !root) return;
+
+        let dismissed = false;
+        let observer;
+        const dismissSplash = () => {
+          if (dismissed) return;
+          dismissed = true;
+          observer?.disconnect();
           splash.style.opacity = '0';
           window.setTimeout(() => splash.remove(), 220);
-        }
-      }, { once: true });
+        };
+        const checkAppRendered = () => {
+          if (root.childElementCount > 0) dismissSplash();
+        };
+
+        // The app may render before external resources complete window.load.
+        observer = new MutationObserver(checkAppRendered);
+        observer.observe(root, { childList: true });
+        checkAppRendered();
+        window.addEventListener('load', checkAppRendered, { once: true });
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
