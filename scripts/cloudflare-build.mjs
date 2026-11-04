@@ -9,6 +9,7 @@ const focusedTests = [
   'src/test/emailMagicLinkFallback.test.ts',
   'src/test/productionAuthVerifier.test.ts',
   'scripts/lib/save-load-proof-verdict.test.mjs',
+  'scripts/lib/api-proof-guard.test.mjs',
   'src/test/noBlockingStartupScreen.test.ts',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',

@@ -9,7 +9,7 @@
  *   --write-evidence          Write JSON diagnostics; update Markdown ONLY after complete real browser proof.
  *
  * Run: pnpm run verify:supabase-save-reload
- *      pnpm run verify:supabase-save-reload -- --api-only --write-evidence
+ *      SUPABASE_PROOF_USER_ID=<dedicated-test-uuid> pnpm run verify:supabase-save-reload -- --api-only --allow-live-test-data-write --write-evidence
  */
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
@@ -19,6 +19,7 @@ import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from './lib/canonical-origin.mjs';
 import { isVerifiedBrowserSaveLoadProof, REQUIRED_BROWSER_SAVE_LOAD_CHECKS } from './lib/save-load-proof-verdict.mjs';
+import { validateApiProofTarget } from './lib/api-proof-guard.mjs';
 
 const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const EDITOR_URL = `${BASE}/editor`;
@@ -121,6 +122,12 @@ async function readStatusCounts(page) {
 }
 
 async function runApiRoundtrip(env) {
+  const target = validateApiProofTarget(process.argv, env);
+  if (!target.ok) {
+    record('api: dedicated test-account write guard', false, target.reason);
+    return false;
+  }
+
   const url = (env.SUPABASE_URL ?? env.VITE_SUPABASE_URL ?? '').replace(/\/$/, '');
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY ?? '';
   if (!url || !serviceKey) {
@@ -131,96 +138,105 @@ async function runApiRoundtrip(env) {
   const client = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const { data: profile, error: profileError } = await client
+    .from('profiles')
+    .select('id')
+    .eq('id', target.userId)
+    .maybeSingle();
+  if (profileError || !profile?.id) {
+    record('api: dedicated test profile exists', false, 'Dedicated test profile is not accessible.');
+    return false;
+  }
 
   const sample = JSON.parse(
     readFileSync(join(process.cwd(), 'public', 'samples', 'sample-house-01.json'), 'utf8'),
   );
   const before = manifestFingerprint(sample);
+  const projectName = `S.I.R.E. API diagnostic ${new Date().toISOString()}`;
+  let insertedId = null;
+  let passed = false;
+  let cleanupVerified = false;
 
-  const { data: profiles, error: profileError } = await client
-    .from('profiles')
-    .select('id')
-    .limit(1);
-  if (profileError || !profiles?.length) {
-    record('api: resolve test user', false, profileError?.message ?? 'No profiles found');
-    return false;
+  try {
+    const { data: inserted, error: insertError } = await client
+      .from('projects')
+      .insert({
+        user_id: target.userId,
+        name: projectName,
+        description: 'Explicitly approved isolated API diagnostic; not browser proof',
+        manifest: sample,
+      })
+      .select('id')
+      .single();
+    if (insertError || !inserted?.id) throw new Error('Test-row insertion failed.');
+    insertedId = inserted.id;
+    record('api: insert isolated project', true, 'Test row created.');
+
+    const { data: fetched, error: fetchError } = await client
+      .from('projects')
+      .select('manifest')
+      .eq('id', insertedId)
+      .eq('user_id', target.userId)
+      .single();
+    if (fetchError || !fetched) throw new Error('Test-row read failed.');
+    const afterInsert = manifestFingerprint(fetched.manifest);
+    const insertMatch = afterInsert.walls === before.walls && afterInsert.openings === before.openings;
+    record('api: counts after insert', insertMatch, `walls ${afterInsert.walls}, openings ${afterInsert.openings}`);
+    if (!insertMatch) throw new Error('Inserted test geometry counts changed.');
+
+    const updatedManifest = {
+      ...sample,
+      name: `${sample.name} (updated)`,
+      metadata: { ...(sample.metadata ?? {}), saveReloadProof: new Date().toISOString() },
+    };
+    const { error: updateError } = await client
+      .from('projects')
+      .update({ manifest: updatedManifest, updated_at: new Date().toISOString() })
+      .eq('id', insertedId)
+      .eq('user_id', target.userId);
+    if (updateError) throw new Error('Test-row update failed.');
+
+    const { data: refetched, error: refetchError } = await client
+      .from('projects')
+      .select('manifest')
+      .eq('id', insertedId)
+      .eq('user_id', target.userId)
+      .single();
+    if (refetchError || !refetched) throw new Error('Updated test-row reload failed.');
+    const afterUpdate = manifestFingerprint(refetched.manifest);
+    const updateMatch = afterUpdate.walls === before.walls && afterUpdate.openings === before.openings;
+    record('api: counts after update', updateMatch, `walls ${afterUpdate.walls}, openings ${afterUpdate.openings}`);
+    if (!updateMatch) throw new Error('Updated test geometry counts changed.');
+    passed = true;
+  } catch (error) {
+    record('api: isolated roundtrip', false, error instanceof Error ? error.message : 'Unknown diagnostic failure.');
+  } finally {
+    // Delete only the row this invocation created. A failed delete or
+    // unverifiable cleanup must fail the entire diagnostic.
+    if (insertedId) {
+      try {
+        const { error: deleteError } = await client
+          .from('projects')
+          .delete()
+          .eq('id', insertedId)
+          .eq('user_id', target.userId);
+        if (deleteError) throw new Error('Test-row deletion failed.');
+        const { data: leftover, error: verifyError } = await client
+          .from('projects')
+          .select('id')
+          .eq('id', insertedId)
+          .eq('user_id', target.userId)
+          .maybeSingle();
+        cleanupVerified = !verifyError && !leftover;
+        record('api: cleanup isolated test row', cleanupVerified,
+          cleanupVerified ? 'Confirmed deleted.' : 'Could not verify cleanup; manual recovery required.');
+      } catch {
+        cleanupVerified = false;
+        record('api: cleanup isolated test row', false, 'Could not verify cleanup; manual recovery required.');
+      }
+    }
   }
-
-  const userId = profiles[0].id;
-  const projectName = `SaveReload API ${new Date().toISOString()}`;
-  const { data: inserted, error: insertError } = await client
-    .from('projects')
-    .insert({
-      user_id: userId,
-      name: projectName,
-      description: 'Automated save/reload proof',
-      manifest: sample,
-    })
-    .select('*')
-    .single();
-
-  if (insertError || !inserted) {
-    record('api: insert project', false, insertError?.message ?? 'insert failed');
-    return false;
-  }
-  record('api: insert project', true, inserted.id);
-
-  const { data: fetched, error: fetchError } = await client
-    .from('projects')
-    .select('*')
-    .eq('id', inserted.id)
-    .single();
-  if (fetchError || !fetched) {
-    record('api: fetch after insert', false, fetchError?.message ?? 'fetch failed');
-    return false;
-  }
-
-  const afterInsert = manifestFingerprint(fetched.manifest);
-  const insertMatch =
-    afterInsert.walls === before.walls && afterInsert.openings === before.openings;
-  record(
-    'api: manifest counts after insert',
-    insertMatch,
-    `walls ${afterInsert.walls}/${before.walls}, openings ${afterInsert.openings}/${before.openings}`,
-  );
-
-  const updatedManifest = {
-    ...sample,
-    name: `${sample.name} (updated)`,
-    metadata: { ...(sample.metadata ?? {}), saveReloadProof: new Date().toISOString() },
-  };
-  const { error: updateError } = await client
-    .from('projects')
-    .update({ manifest: updatedManifest, updated_at: new Date().toISOString() })
-    .eq('id', inserted.id);
-  if (updateError) {
-    record('api: update manifest', false, updateError.message);
-    return false;
-  }
-  record('api: update manifest', true, afterInsert.hash);
-
-  const { data: refetched, error: refetchError } = await client
-    .from('projects')
-    .select('*')
-    .eq('id', inserted.id)
-    .single();
-  if (refetchError || !refetched) {
-    record('api: fetch after update', false, refetchError?.message ?? 'refetch failed');
-    return false;
-  }
-
-  const afterUpdate = manifestFingerprint(refetched.manifest);
-  const updateMatch = afterUpdate.walls === before.walls && afterUpdate.openings === before.openings;
-  record(
-    'api: manifest counts after update (reload simulation)',
-    updateMatch,
-    `walls ${afterUpdate.walls}, hash ${afterUpdate.hash}`,
-  );
-
-  await client.from('projects').delete().eq('id', inserted.id);
-  record('api: cleanup test project', true, inserted.id);
-
-  return insertMatch && updateMatch;
+  return passed && cleanupVerified;
 }
 
 async function runInteractiveBrowser() {
@@ -354,7 +370,7 @@ Supabase save/reload proof runbook
 5. Re-run with --write-evidence after a green run to update launch evidence.
 
 API-only diagnostic (does NOT count as browser release proof):
-  pnpm run verify:supabase-save-reload -- --api-only --write-evidence
+  SUPABASE_PROOF_USER_ID=<dedicated-test-uuid> pnpm run verify:supabase-save-reload -- --api-only --allow-live-test-data-write --write-evidence
 `);
 }
 
