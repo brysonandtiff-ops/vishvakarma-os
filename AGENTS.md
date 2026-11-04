@@ -151,7 +151,7 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 
 **Resolved (was a gap):** Blueprint editor draw wall/opening/properties — PASS via `e2e/editor-draw-workflow-proof.spec.ts` + deep proof CI job.
 
-**Resolved (was a gap):** Save/load/export/import — PASS in [save-load-proof.md](./docs/release/evidence/save-load-proof.md).
+**PARTIAL (release hold):** Save/load/export/import — historical [save-load-proof.md](./docs/release/evidence/save-load-proof.md) is an API-only receipt; actual signed-in browser import/export and save/reopen evidence remain required.
 
 **Resolved (was a gap):** Release Center and Audit Log empty/loading states — PASS via `e2e/governance-smoke.spec.ts`.
 

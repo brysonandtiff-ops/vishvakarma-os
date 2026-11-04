@@ -4,9 +4,9 @@
  *
  * Modes:
  *   default / --interactive   Headed browser — operator completes Google sign-in
- *   --api-only                Postgres roundtrip via service role (no browser)
+ *   --api-only                Database API-only diagnostic. NEVER browser/release proof.
  *   --skip-interactive        Print runbook and exit 0 (CI without credentials)
- *   --write-evidence          Update save-load-proof.md + JSON artifact on success
+ *   --write-evidence          Write JSON diagnostics; update Markdown ONLY after complete real browser proof.
  *
  * Run: pnpm run verify:supabase-save-reload
  *      pnpm run verify:supabase-save-reload -- --api-only --write-evidence
@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from './lib/canonical-origin.mjs';
+import { isVerifiedBrowserSaveLoadProof, REQUIRED_BROWSER_SAVE_LOAD_CHECKS } from './lib/save-load-proof-verdict.mjs';
 
 const BASE = process.env.PRODUCTION_URL ?? CANONICAL_ORIGIN;
 const EDITOR_URL = `${BASE}/editor`;
@@ -307,7 +308,29 @@ async function runInteractiveBrowser() {
       `walls ${exportCounts.walls}, openings ${exportCounts.openings}`,
     );
 
-    return savedCloud && countsMatch && exportMatch;
+    // Import must be exercised in the actual signed-in editor, not inferred
+    // from a separate parser unit test or a service-role database roundtrip.
+    await page.keyboard.press('Escape');
+    await openProjectActionsMenu(page);
+    await page.getByRole('menuitem', { name: /import/i }).click();
+    const importDialog = page.getByRole('dialog', { name: /import floor plan/i });
+    await importDialog.waitFor({ state: 'visible', timeout: 10_000 });
+    await importDialog.locator('input[type="file"]').setInputFiles({
+      name: 'sire-roundtrip.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(exportText, 'utf8'),
+    });
+    await importDialog.getByRole('button', { name: /apply import/i }).click();
+    const importCounts = await readStatusCounts(page);
+    const importMatch =
+      importCounts.walls === before.walls && importCounts.openings === before.openings;
+    record(
+      'browser: import exported JSON counts',
+      importMatch,
+      `before ${before.walls}/${before.openings} → imported ${importCounts.walls}/${importCounts.openings}`,
+    );
+
+    return before.walls > 0 && savedCloud && countsMatch && exportMatch && importMatch;
   } catch (error) {
     record(
       'browser: save/reload flow',
@@ -330,7 +353,7 @@ Supabase save/reload proof runbook
 4. Wait for automation to finish (save → refresh → reload → export).
 5. Re-run with --write-evidence after a green run to update launch evidence.
 
-API-only (Postgres roundtrip, no browser):
+API-only diagnostic (does NOT count as browser release proof):
   pnpm run verify:supabase-save-reload -- --api-only --write-evidence
 `);
 }
@@ -340,6 +363,10 @@ function writeEvidenceFiles(mode, pass) {
   const generatedAt = new Date().toISOString();
   const deploymentUrl = BASE;
   const operator = mode === 'interactive' ? 'interactive browser proof' : 'automated api roundtrip';
+  const completeBrowserChecks = mode === 'interactive' && pass &&
+    REQUIRED_BROWSER_SAVE_LOAD_CHECKS.every((name) =>
+      results.some((result) => result.name === name && result.pass === true)
+    );
 
   const runArtifact = {
     generatedAt,
@@ -348,12 +375,16 @@ function writeEvidenceFiles(mode, pass) {
     mode,
     operator,
     result: pass ? 'PASS' : 'FAIL',
+    qualifies_as_release_browser_acceptance: completeBrowserChecks,
+    release_authorized: false,
     checks: results,
   };
+  const browserProofVerified = isVerifiedBrowserSaveLoadProof(runArtifact);
+  runArtifact.qualifies_as_release_browser_acceptance = browserProofVerified;
   writeFileSync(runArtifactPath, `${JSON.stringify(runArtifact, null, 2)}\n`);
 
-  if (!pass) {
-    console.log(`[INFO] Wrote ${runArtifactPath} (FAIL — evidence markdown not upgraded)`);
+  if (!browserProofVerified) {
+    console.log('[HOLD] API-only, failed or incomplete browser evidence cannot upgrade the release document.');
     return;
   }
 
@@ -371,35 +402,30 @@ Cloudflare Pages URL: ${CLOUDFLARE_PAGES_ORIGIN}
 Generated at: ${generatedAt}
 Operator: ${operator}
 Result: \`PASS\`
-
-## Purpose
-
-Prove Vishvakarma.OS can preserve a project through save, reload, export, and import without changing the project model.
+Scope: signed-in browser save, reload, export and import **wall/opening counts** only.
+Release authorized: **NO** — other security, device and exact-SHA gates remain required.
 
 ## Test Steps
 
-| Step | Action | Expected Result | Actual Result | Status |
-|---|---|---|---|---|
-| 1 | Open \`/editor\` | Editor loads without crash | Production editor reachable after auth | PASS |
-| 2 | Load sample project | Walls/openings/materials render | Sample House 01 loaded (${wallCount} walls, ${openingCount} openings) | PASS |
-| 3 | Save project | Save action completes with success state | Cloud save toast on production (${mode}) | PASS |
-| 4 | Hard refresh page | Project remains recoverable | Project reloaded from Supabase with intact counts | PASS |
-| 5 | Export project JSON | JSON downloads and parses | Export JSON wall/opening counts match saved state | PASS |
-| 6 | Import exported JSON | Imported project matches saved state | Import module unit tests pass | PASS |
-| 7 | Compare wall/opening counts | Counts match before and after import | Sample counts ${wallCount}/${openingCount} stable | PASS |
+| Step | Action | Measured evidence | Status |
+|---|---|---|---|
+| 1 | Sign in and open editor | Browser Google sign-in reached editor | PASS |
+| 2 | Load sample | Browser status showed nonzero walls (${wallCount} in sample) | PASS |
+| 3 | Save project | Actual cloud-save success toast, not local-only | PASS |
+| 4 | Hard refresh and reopen | Browser reopened project; wall/opening counts matched | PASS |
+| 5 | Export JSON | Actual download parsed; wall/opening counts matched | PASS |
+| 6 | Import downloaded JSON | Actual file uploaded and applied; wall/opening counts matched | PASS |
 
-## Console Errors
+## Compare wall/opening counts
 
-\`\`\`txt
-<none>
-\`\`\`
+The counts matched in the authenticated browser workflow. This does **not**
+independently prove identical materials, metadata or full manifest hashing.
 
 ## Verdict
 
-\`\`\`txt
-PASS — Supabase-backed save, hard-refresh reload, and JSON export verified on ${deploymentUrl} (${mode}).
-Artifact: docs/release/evidence/save-load-proof-run.json
-\`\`\`
+Browser workflow checks passed at ${deploymentUrl}; see the exact check records in
+`docs/release/evidence/save-load-proof-run.json`.
+This is **not** a release seal, physical-device test or cross-account RLS proof.
 `;
 
   writeFileSync(join(evidenceDir, 'save-load-proof.md'), saveLoadDoc);

@@ -6,6 +6,7 @@ import { readFile, access, writeFile } from 'fs/promises';
 import { constants } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { isVerifiedBrowserSaveLoadProof } from './lib/save-load-proof-verdict.mjs';
 
 const strict = process.argv.includes('--strict');
 const gates = [];
@@ -256,6 +257,36 @@ async function checkEvidenceGate(name, evidencePath, passPhrases = ['Result: PAS
   return pass(name, `Evidence attached at ${evidencePath}.`);
 }
 
+async function checkBrowserSaveLoadEvidenceGate() {
+  const name = 'Gate 9: Save/load determinism';
+  const documentPath = join(process.cwd(), 'docs/release/evidence/save-load-proof.md');
+  const receiptPath = join(process.cwd(), 'docs/release/evidence/save-load-proof-run.json');
+
+  if (!(await fileExists(documentPath)) || !(await fileExists(receiptPath))) {
+    return checkManualGate(name, 'Signed-in browser receipt and evidence document are required.');
+  }
+
+  try {
+    const document = await readText(documentPath);
+    const receipt = JSON.parse(await readText(receiptPath));
+    if (!document.includes('Result: `PASS`') || !isVerifiedBrowserSaveLoadProof(receipt)) {
+      return checkManualGate(name, 'API-only, failed, stale or incomplete browser evidence is not a release PASS.');
+    }
+    if (!document.includes(`Generated from commit: \`${receipt.commitSha}\``)) {
+      return checkManualGate(name, 'Browser receipt and document source SHA differ.');
+    }
+    if (strict) {
+      const headSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+      if (headSha !== receipt.commitSha) {
+        return checkManualGate(name, 'Strict release requires browser evidence at the exact current SHA.');
+      }
+    }
+    return pass(name, 'Signed-in browser save/reload/export/import counts have a validated receipt.');
+  } catch {
+    return checkManualGate(name, 'Browser save/load receipt cannot be parsed or validated.');
+  }
+}
+
 async function checkAutomatedCommandGate(name, command) {
   try {
     runCommand(command);
@@ -304,9 +335,9 @@ async function runAllGates() {
   gates.push(await checkEnvTemplateGate());
   gates.push(await checkAutomatedCommandGate('Gate 7: Unit tests green', 'pnpm run test'));
   gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'node scripts/run-e2e-gates.mjs'));
-  gates.push(await checkEvidenceGate('Gate 9: Save/load determinism', 'docs/release/evidence/save-load-proof.md', ['Result: PASS', 'Result: `PASS`', 'Result: `PARTIAL`']));
+  gates.push(await checkBrowserSaveLoadEvidenceGate());
   gates.push(await checkEvidenceGate('Gate 10: 2D/3D parity', 'docs/release/evidence/2d-3d-parity-proof.md'));
-  gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));
+  gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`']));
   gates.push(await checkEvidenceGate('Gate 12: Performance acceptable', 'docs/release/evidence/performance-notes.md'));
   gates.push(await checkWorldRecordGate());
   gates.push(await checkAutomatedCommandGate('Gate 14: Compliance rule pack integrity', 'node scripts/verify-gates-14-18.mjs --gate=14'));
