@@ -29,6 +29,8 @@ async function fixture() {
   run(repository, 'git', 'tag', 'sample-tag');
   writeFileSync(join(repository, 'only-fictional.txt'), 'second synthetic revision\n');
   run(repository, 'git', 'commit', '-qam', 'second synthetic fixture');
+  run(repository, 'git', 'update-ref', 'refs/pull/42/head', 'HEAD');
+  run(repository, 'git', 'update-ref', 'refs/notes/sire-proof', 'HEAD');
   const identityFile = join(privateDir, 'age-test-identity.txt');
   run(root, 'age-keygen', '-o', identityFile);
   chmodSync(identityFile, 0o600);
@@ -56,7 +58,7 @@ describe('owner-side encrypted history restore — synthetic keys/data only', ()
       expect(result).toMatchObject({
         result: 'OWNER_BACKUP_RESTORE_VERIFIED_FOR_UNCHANGED_SOURCE',
         exact_source_sha: f.receipt.source_sha,
-        ref_count: 3,
+        ref_count: 5,
         reachable_commit_count: 2,
         encrypted_sha256_verified: true,
         private_key_decryption_verified: true,
@@ -72,6 +74,20 @@ describe('owner-side encrypted history restore — synthetic keys/data only', ()
     } finally {
       rmSync(f.root, { recursive: true, force: true });
     }
+  });
+
+  it('rejects mutated PR refs with unchanged HEAD and ref count', async () => {
+    const f = await fixture();
+    const before = privateTempFolders();
+    try {
+      const firstCommit = run(f.repository, 'git', 'rev-list', '--max-parents=0', 'HEAD');
+      run(f.repository, 'git', 'update-ref', 'refs/pull/42/head', firstCommit);
+      await expect(verifyEncryptedHistoryBackup({
+        repository: f.repository, encryptedArchive: f.encryptedArchive,
+        identityFile: f.identityFile, receipt: f.receipt,
+      })).rejects.toThrow(/ref\/OID list does not exactly match/);
+      expect(privateTempFolders()).toEqual(before);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
   it('refuses a forged checksum before any decrypted RAM archive is created', async () => {

@@ -29,6 +29,8 @@ function fixture() {
   run(repository, 'git', 'branch', 'safe-feature');
   writeFileSync(join(repository, 'only-fixture.txt'), 'second synthetic revision\n');
   run(repository, 'git', 'commit', '-qam', 'second synthetic commit');
+  run(repository, 'git', 'update-ref', 'refs/pull/42/head', 'HEAD');
+  run(repository, 'git', 'update-ref', 'refs/notes/sire-proof', 'HEAD');
 
   const identity = join(safe, 'test-only-age-identity.txt');
   run(root, 'age-keygen', '-o', identity);
@@ -51,7 +53,7 @@ describe('private recipient-encrypted Git backup — synthetic repository only',
       });
       expect(receipt).toMatchObject({
         result: 'ENCRYPTED_COPY_CREATED_UNVERIFIED',
-        git_ref_count: 3,
+        git_ref_count: 5,
         plaintext_bundle_written_to_disk: false,
         encrypted_backup_retained: true,
         independent_decryption_and_restore_verified: false,
@@ -71,10 +73,12 @@ describe('private recipient-encrypted Git backup — synthetic repository only',
       const restored = join(f.safe, 'restored.git');
       run(f.safe, 'git', 'clone', '--mirror', '--quiet', decrypted, restored);
       run(restored, 'git', 'fsck', '--full', '--no-reflogs', '--no-progress');
-      const originals = run(f.repository, 'git', 'for-each-ref', '--format=%(refname) %(objectname)',
-        'refs/heads', 'refs/tags').split('\n').sort();
-      const copies = run(restored, 'git', 'for-each-ref', '--format=%(refname) %(objectname)',
-        'refs/heads', 'refs/tags').split('\n').sort();
+      const originals = run(f.repository, 'git', 'for-each-ref', '--format=%(refname) %(objectname)')
+        .split('\n').sort();
+      const copies = run(restored, 'git', 'for-each-ref', '--format=%(refname) %(objectname)')
+        .split('\n').sort();
+      expect(originals.some((item) => item.startsWith('refs/pull/42/head '))).toBe(true);
+      expect(originals.some((item) => item.startsWith('refs/notes/sire-proof '))).toBe(true);
       expect(copies).toEqual(originals);
       expect(run(restored, 'git', 'rev-list', '--all', '--count')).toBe('2');
       expect(run(f.repository, 'git', 'status', '--porcelain')).toBe('');
