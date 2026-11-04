@@ -337,7 +337,7 @@ async function runAllGates() {
   gates.push(await checkAutomatedCommandGate('Gate 8: E2E route smoke green', 'node scripts/run-e2e-gates.mjs'));
   gates.push(await checkBrowserSaveLoadEvidenceGate());
   gates.push(await checkEvidenceGate('Gate 10: 2D/3D parity', 'docs/release/evidence/2d-3d-parity-proof.md'));
-  gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`', 'Result: PARTIAL', 'Result: `PARTIAL`']));
+  gates.push(await checkEvidenceGate('Gate 11: iPad touch target audit', 'docs/release/evidence/ipad-touch-audit.md', ['Result: PASS', 'Result: `PASS`']));
   gates.push(await checkEvidenceGate('Gate 12: Performance acceptable', 'docs/release/evidence/performance-notes.md'));
   gates.push(await checkWorldRecordGate());
   gates.push(await checkAutomatedCommandGate('Gate 14: Compliance rule pack integrity', 'node scripts/verify-gates-14-18.mjs --gate=14'));
