@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
+import { requireReleaseSecurityPreflight } from './release-security-preflight.mjs';
 
 const liveUrl = process.argv[2]?.trim();
+try {
+  await requireReleaseSecurityPreflight(liveUrl);
+} catch (error) {
+  console.error('[release] BLOCKED:', error instanceof Error ? error.message : String(error));
+  process.exit(2);
+}
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/cloudflareBuildGate.test.ts',
@@ -46,10 +53,10 @@ run('pnpm', ['run', 'build']);
 run('node', ['scripts/security/check-dist-security.mjs']);
 run('pnpm', ['run', 'perf:gates']);
 
-if (liveUrl) {
-  run('node', ['scripts/deployment/verify-cloudflare-live.mjs', liveUrl]);
-} else {
-  console.log('\n[release] Local certification passed. Provide a Pages URL to include live HTTP proof.');
-}
+// These checks test a release candidate; they do not approve deployment.
+// Signed-in runtime, physical-device and independent review remain separate.
+run('pnpm', ['run', 'release:gates:strict']);
+run('pnpm', ['run', 'launch:evidence:strict']);
+run('node', ['scripts/deployment/verify-cloudflare-live.mjs', liveUrl]);
 
-console.log('\n[release] VISHVAKARMA Cloudflare release certification PASSED');
+console.log('\n[release] Release-candidate automated checks passed; independent production approval is still required.');
