@@ -67,8 +67,9 @@ export async function createEncryptedHistoryBackup({
   // Validate both tools and source *before* opening a backup path.
   const sourceSha = command(repo, 'git', 'rev-parse', 'HEAD');
   if (!/^[0-9a-f]{40}$/.test(sourceSha)) throw new Error('Git HEAD is not an exact 40-character SHA');
+  // Git bundle --all contains every locally stored Git ref, not just branches/tags.
   const referenceCount = command(repo, 'git', 'for-each-ref',
-    '--format=%(refname)', 'refs/heads', 'refs/remotes', 'refs/tags')
+    '--format=%(refname)')
     .split('\n').filter(Boolean).length;
   if (referenceCount === 0) throw new Error('No Git references to preserve');
   command(repo, ageBinary, '--version');

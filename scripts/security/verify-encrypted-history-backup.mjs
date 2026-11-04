@@ -27,8 +27,9 @@ function git(cwd, ...args) {
   }).trim();
 }
 function refs(cwd) {
-  return git(cwd, 'for-each-ref', '--format=%(refname) %(objectname)',
-    'refs/heads', 'refs/remotes', 'refs/tags').split('\n').filter(Boolean).sort();
+  // Include refs/pull, refs/notes and every custom namespace in equality proof.
+  return git(cwd, 'for-each-ref', '--format=%(refname) %(objectname)')
+    .split('\n').filter(Boolean).sort();
 }
 function assertPrivateRegularFile(path) {
   if (!isAbsolute(path ?? '')) throw new Error('Expected absolute owner-controlled file path');
