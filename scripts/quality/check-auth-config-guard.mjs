@@ -37,10 +37,22 @@ function checkSupabaseConfig() {
     );
   }
 
-  for (const required of [CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL]) {
+  const requiredRedirects = [
+    CANONICAL_AUTH_URL,
+    CANONICAL_EDITOR_URL,
+    'https://vishvakarma-os.pages.dev/auth',
+    'https://vishvakarma-os.pages.dev/**',
+    'https://*.vishvakarma-os.pages.dev/**',
+  ];
+
+  for (const required of requiredRedirects) {
     if (!config.includes(required)) {
       failures.push(`supabase/config.toml missing redirect URL: ${required}`);
     }
+  }
+
+  if (config.toLowerCase().includes(legacyProvider)) {
+    failures.push('supabase/config.toml must not allow redirects to the retired hosting provider');
   }
 }
 
