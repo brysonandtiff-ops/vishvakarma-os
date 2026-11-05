@@ -166,7 +166,7 @@ export default function FeaturesPage() {
             <Link to={heroSecondary.to}>{heroSecondary.label}</Link>
           </Button>
         </div>
-        <div className="mt-16 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:mt-20">
+        <div className="vish-features-metrics mt-10 grid grid-cols-2 gap-2 sm:mt-16 sm:gap-6 lg:grid-cols-4 lg:mt-20">
           <MetricPill
             value={String(FEATURE_MODULES.filter((m) => m.ready).length)}
             label="ready now"

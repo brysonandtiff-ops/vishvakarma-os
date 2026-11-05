@@ -234,15 +234,15 @@ export default function ProjectsPage() {
               <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
             </Link>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button data-testid="dashboard-open-project" onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })} variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
              <FolderOpen className="w-5 h-5 text-vish-blue-400" />
              <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
           </Button>
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
+          <Button data-testid="dashboard-import-files" onClick={() => navigate('/editor', { state: { openIntent: 'import' } })} variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
              <FolderDown className="w-5 h-5 text-vish-blue-400" />
              <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
           </Button>
-          <Button className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
+          <Button data-testid="dashboard-ai-copilot" onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })} className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
              <Bot className="w-5 h-5" />
              <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
           </Button>

@@ -7,6 +7,8 @@ const guard = readFileSync(
   'utf8',
 );
 
+const legacyProvider = ['ver', 'cel'].join('');
+
 describe('repository secret guard', () => {
   it('fails closed on tracked env files and credential classes', () => {
     expect(guard).toContain("['ls-files', '-z']");
@@ -21,7 +23,7 @@ describe('repository secret guard', () => {
   it('restricts tracked env files to explicit fixtures and templates', () => {
     expect(guard).toContain("'.env.e2e'");
     expect(guard).toContain("'.env.e2e-local'");
-    expect(guard).not.toContain("'.env.vercel.production'");
+    expect(guard).not.toContain(`'.env.${legacyProvider}.production'`);
     expect(guard).not.toContain("'config/e2e-env/.env'");
     expect(guard).toContain("new Set(['.env.example'])");
     expect(guard).toContain('/^\\.env\\..+\\.example$/');

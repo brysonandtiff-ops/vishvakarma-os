@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SacredBackground } from '@/components/marketing/SacredBackground';
 import { MarketingNav } from '@/components/marketing/MarketingNav';
@@ -10,6 +10,15 @@ interface MarketingLayoutProps {
 }
 
 export function MarketingLayout({ children, enableRain = true }: MarketingLayoutProps) {
+  useEffect(() => {
+    document.body.dataset.vishSurface = 'marketing';
+    return () => {
+      if (document.body.dataset.vishSurface === 'marketing') {
+        delete document.body.dataset.vishSurface;
+      }
+    };
+  }, []);
+
   return (
     <SacredBackground
       className="vish-marketing-page flex min-h-[100dvh] flex-col"

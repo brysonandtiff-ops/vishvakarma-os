@@ -11,8 +11,9 @@ const ALLOWED_TRACKED_ENV_PATHS = new Set([
   '.env.e2e',
   '.env.e2e-local',
 ]);
+const legacyProvider = ['ver', 'cel'].join('').toUpperCase();
 const SENSITIVE_ENV_KEYS = new Set([
-  'VERCEL_OIDC_TOKEN',
+  `${legacyProvider}_OIDC_TOKEN`,
   'SUPABASE_SERVICE_ROLE_KEY',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',

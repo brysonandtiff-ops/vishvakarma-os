@@ -25,17 +25,17 @@ additional_redirect_urls = [
   "https://vishvakarma-os.app/auth",
   "https://vishvakarma-os.app/editor",
   "https://vishvakarma-os.app/**",
-  "https://vishvakarma-os.vercel.app/auth",
-  "https://vishvakarma-os.vercel.app/**",
-  "https://*.vercel.app/auth",
+  "https://vishvakarma-os.pages.dev/auth",
+  "https://vishvakarma-os.pages.dev/**",
+  "https://*.vishvakarma-os.pages.dev/**",
   "http://127.0.0.1:5173/auth",
   "http://127.0.0.1:5173/**",
 ]
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 
-# Vishvakarma.OS is Google SSO-only. Password, magic-link, phone, and anonymous
-# entry points stay disabled locally to match application and API enforcement.
+# Vishvakarma.OS is Google-first. Password signup, phone signup, and anonymous
+# entry points stay disabled; existing approved accounts may use secure email links.
 [auth.email]
 enable_signup = false
 enable_confirmations = true

@@ -261,10 +261,7 @@ body:has([data-testid='auth-page']) .mantra-widget {
   }
 
   body:has([data-testid='auth-page']) .mantra-widget {
-    width: 3.15rem;
-    height: 3.15rem;
-    right: max(0.85rem, env(safe-area-inset-right));
-    bottom: max(4.35rem, calc(1rem + env(safe-area-inset-bottom)));
+    display: none;
   }
 }
 

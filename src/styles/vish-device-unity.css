@@ -390,3 +390,135 @@ iframe {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Phone marketing utilities: keep optional helpers in the empty hero strip under the nav.
+   They scroll with the marketing page instead of permanently covering content. */
+@media (max-width: 760px) {
+  body[data-vish-surface='marketing'] .vish-voice-tour-launch {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
+    left: max(0.75rem, env(safe-area-inset-left));
+    right: auto;
+    bottom: auto;
+    width: 46px;
+    min-width: 46px;
+    max-width: 46px;
+    height: 46px;
+    min-height: 46px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  body[data-vish-surface='marketing'] .vish-voice-tour-launch svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
+    right: max(4.35rem, calc(4.35rem + env(safe-area-inset-right)));
+    bottom: auto;
+    max-width: none;
+    flex-direction: column-reverse;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    min-height: 46px;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle-text,
+  body[data-vish-surface='marketing'] .vish-theme-controller__chevron {
+    display: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__toggle > .vish-theme-controller__swatch {
+    display: none;
+  }
+
+  body[data-vish-surface='marketing'] .vish-theme-controller__compact-icon {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: hsl(43 82% 63% / 0.96);
+  }
+
+  body[data-vish-surface='marketing'] .mantra-widget {
+    position: absolute;
+    top: calc(var(--vish-nav-row-height) + 1rem + env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: auto;
+    width: 46px;
+    height: 46px;
+    flex-direction: column-reverse;
+  }
+
+  body[data-vish-surface='marketing'] .mantra-fab {
+    width: 46px;
+    height: 46px;
+  }
+
+  body[data-vish-surface='marketing'] .mantra-panel {
+    transform-origin: top right;
+  }
+}
+
+
+/* Phone pricing trust row: keep plan choices in the first scroll, not below three tall metric cards. */
+@media (max-width: 640px) {
+  .vish-marketing-page .vish-pricing-trust-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill {
+    min-width: 0;
+    padding: 0.8rem 0.35rem;
+    border-radius: 0.8rem;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill p:first-child {
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill p:last-child {
+    margin-top: 0.35rem;
+    font-size: 0.54rem;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+  }
+}
+
+
+/* Phone feature metrics: preserve the 2×2 proof grid without consuming a full screen. */
+@media (max-width: 640px) {
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill {
+    min-height: 4.4rem;
+    padding: 0.7rem 0.45rem;
+    border-radius: 0.8rem;
+  }
+
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill p:first-child {
+    font-size: 1rem;
+    line-height: 1.05;
+  }
+
+  .vish-marketing-page .vish-features-metrics .vish-stat-pill p:last-child {
+    margin-top: 0.25rem;
+    font-size: 0.58rem;
+    line-height: 1.25;
+    letter-spacing: 0.09em;
+  }
+}

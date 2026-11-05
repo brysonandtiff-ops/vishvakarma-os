@@ -238,9 +238,10 @@ export default function SanskritRainBackground({
 
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const mobileQuery = window.matchMedia('(max-width: 900px)');
+    const touchQuery = window.matchMedia('(pointer: coarse)');
 
     const setReducedMotion = () => {
-      reducedMotionRef.current = motionQuery.matches;
+      reducedMotionRef.current = motionQuery.matches || touchQuery.matches;
     };
     setReducedMotion();
 
@@ -331,8 +332,8 @@ export default function SanskritRainBackground({
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
-      displayWidth = canvas.clientWidth;
-      displayHeight = canvas.clientHeight;
+      displayWidth = Math.max(1, Math.min(canvas.clientWidth, window.innerWidth));
+      displayHeight = Math.max(1, Math.min(canvas.clientHeight, window.innerHeight));
 
       canvas.width = Math.floor(displayWidth * dpr);
       canvas.height = Math.floor(displayHeight * dpr);
@@ -514,46 +515,64 @@ export default function SanskritRainBackground({
       }
     };
 
-    const loop = (now: number) => {
-      if (!visibleRef.current) {
-        rafRef.current = requestAnimationFrame(loop);
-        return;
+    const cancelLoop = () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
+    };
+
+    const scheduleLoop = () => {
+      if (reducedMotionRef.current || !visibleRef.current || rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    const loop = (now: number) => {
+      rafRef.current = null;
+      if (!visibleRef.current || reducedMotionRef.current) return;
 
       time = now;
-      if (!reducedMotionRef.current) {
-        update();
-      }
+      update();
       draw();
-      rafRef.current = requestAnimationFrame(loop);
+      scheduleLoop();
     };
 
     const onMotionChange = () => {
       setReducedMotion();
+      cancelLoop();
       resize();
+      draw();
+      scheduleLoop();
     };
 
     const onVisibilityChange = () => {
       visibleRef.current = !document.hidden;
+      if (!visibleRef.current) {
+        cancelLoop();
+        return;
+      }
+      draw();
+      scheduleLoop();
     };
 
     visibleRef.current = !document.hidden;
     resize();
-    rafRef.current = requestAnimationFrame(loop);
+    draw();
+    scheduleLoop();
 
     window.addEventListener('resize', resize);
     motionQuery.addEventListener('change', onMotionChange);
+    touchQuery.addEventListener('change', onMotionChange);
     mobileQuery.addEventListener('change', resize);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       window.removeEventListener('resize', resize);
       motionQuery.removeEventListener('change', onMotionChange);
+      touchQuery.removeEventListener('change', onMotionChange);
       mobileQuery.removeEventListener('change', resize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-      }
+      cancelLoop();
     };
   }, [
     density,

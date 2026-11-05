@@ -1,36 +1,10 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
-import {
-  ANALYTICS_CONSENT_EVENT,
-  hasAnalyticsConsent,
-} from '@/lib/analytics';
-
-const VercelAnalytics = lazy(() =>
-  import('@vercel/analytics/react').then(({ Analytics }) => ({ default: Analytics })),
-);
-
+/**
+ * External browser analytics is intentionally disabled.
+ *
+ * Keep this component as a stable mount point so existing layout imports do not
+ * churn while the product remains Cloudflare-only. Consent is still stored by
+ * the banner, but granting it does not load a third-party telemetry runtime.
+ */
 export default function ConsentAnalytics() {
-  const [enabled, setEnabled] = useState(hasAnalyticsConsent);
-
-  useEffect(() => {
-    const syncConsent = () => setEnabled(hasAnalyticsConsent());
-    const handleConsent = (event: Event) => {
-      const granted = (event as CustomEvent<{ granted?: unknown }>).detail?.granted;
-      setEnabled(granted === true);
-    };
-
-    window.addEventListener(ANALYTICS_CONSENT_EVENT, handleConsent);
-    window.addEventListener('storage', syncConsent);
-    return () => {
-      window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsent);
-      window.removeEventListener('storage', syncConsent);
-    };
-  }, []);
-
-  if (!enabled) return null;
-
-  return (
-    <Suspense fallback={null}>
-      <VercelAnalytics />
-    </Suspense>
-  );
+  return null;
 }

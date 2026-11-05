@@ -41,6 +41,8 @@ const ProfilePage = lazyStyledPage(() => import('@/pages/ProfilePage'), loadWork
 const LandingPage = lazyStyledPage(() => import('@/pages/LandingPage'), loadMarketingStyles);
 const FeaturesPage = lazyStyledPage(() => import('@/pages/FeaturesPage'), loadMarketingStyles);
 const PricingPage = lazyStyledPage(() => import('@/pages/PricingPage'), loadMarketingStyles);
+const TermsPage = lazyStyledPage(() => import('@/pages/TermsPage'), loadMarketingStyles);
+const PrivacyPage = lazyStyledPage(() => import('@/pages/PrivacyPage'), loadMarketingStyles);
 const ResetPasswordPage = lazyStyledPage(() => import('@/pages/ResetPasswordPage'), loadAuthStyles);
 const SpecCenterPage = lazyStyledPage(() => import('@/pages/SpecCenterPage'), loadWorkspaceStyles);
 const RegistryPage = lazyStyledPage(() => import('@/pages/RegistryPage'), loadWorkspaceStyles);
@@ -82,6 +84,8 @@ export function AppRoutes() {
         {PRICING_PAGE_ENABLED && (
           <Route path="/pricing" element={withBoundary(<PricingPage />, 'Pricing screen', 'marketing')} />
         )}
+        <Route path="/terms" element={withBoundary(<TermsPage />, 'Terms of Service', 'marketing')} />
+        <Route path="/privacy" element={withBoundary(<PrivacyPage />, 'Privacy Policy', 'marketing')} />
         <Route path="/404" element={withBoundary(<NotFoundPage />, 'Not found screen', 'marketing')} />
       </Route>
 
