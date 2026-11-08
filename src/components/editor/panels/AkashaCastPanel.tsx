@@ -28,6 +28,7 @@ interface AkashaCastPanelProps {
   onCastStart?: () => void;
   onCastStop?: () => void;
   onManifestChange?: (manifest: ProjectManifest, isRemote: boolean) => void;
+  presentationControlsOnly?: boolean;
 }
 
 export default function AkashaCastPanel({
@@ -38,6 +39,7 @@ export default function AkashaCastPanel({
   onCastStart,
   onCastStop,
   onManifestChange,
+  presentationControlsOnly = false,
 }: AkashaCastPanelProps) {
   const planTier = usePlanTier();
   const {
@@ -104,6 +106,35 @@ export default function AkashaCastPanel({
       toast.error('Could not copy link');
     }
   };
+
+  if (presentationControlsOnly) {
+    if (!canCast || !live) return null;
+
+    return (
+      <div
+        className="vish-cast-presentation-controls fixed right-[max(0.75rem,env(safe-area-inset-right))] top-[calc(4.5rem+env(safe-area-inset-top))] z-[70] flex max-w-[calc(100vw-1.5rem)] items-center gap-2 rounded-xl border border-success/30 bg-vish-navy-900/95 px-2 py-2 text-xs text-ws-text shadow-xl backdrop-blur"
+        data-testid="akasha-cast-presentation-controls"
+        aria-live="polite"
+      >
+        <span className="whitespace-nowrap font-bold uppercase tracking-[0.12em] text-success">Cast live</span>
+        <span className="whitespace-nowrap text-[10px] text-ws-text-dim" data-testid="akasha-cast-presentation-viewer-count">
+          {viewerCount}/{maxViewers === 999 ? '∞' : maxViewers}
+        </span>
+        <Button
+          type="button"
+          size="sm"
+          variant="destructive"
+          className="touch-target min-h-[44px] min-w-[44px] whitespace-nowrap px-3"
+          disabled={busy}
+          onClick={() => void handleStop()}
+          data-testid="akasha-cast-presentation-stop"
+        >
+          <Square className="mr-2 h-4 w-4" />
+          End cast
+        </Button>
+      </div>
+    );
+  }
 
   if (!canCast) {
     return (
