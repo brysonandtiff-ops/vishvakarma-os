@@ -35,6 +35,7 @@ pnpm-debug.log*
 /.wrangler/
 *.clixml
 *storage-state*.json
+/docs/handoff/OPERATOR_ANNEX.md
 
 # OS / editor noise
 .DS_Store

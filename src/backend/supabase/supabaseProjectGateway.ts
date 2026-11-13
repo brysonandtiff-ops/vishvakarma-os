@@ -1,11 +1,7 @@
 import type { CollabSnapshot, Project, ProjectManifest } from '@/types';
 import { mapProjectRow } from '@/backend/supabase/mappers';
-import { readSupabaseSessionSnapshot } from '@/backend/supabase/supabaseAuthGateway';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
-
-function getCurrentUserId() {
-  return readSupabaseSessionSnapshot()?.uid ?? null;
-}
+import { getCurrentSupabaseUserId } from '@/backend/supabase/supabaseUserIdentity';
 
 function mapCollabSnapshot(value: unknown): CollabSnapshot | undefined {
   if (!value || typeof value !== 'object') return undefined;
@@ -35,8 +31,8 @@ function serializeCollabSnapshot(snapshot: CollabSnapshot) {
 
 export async function getSupabaseProjects(): Promise<Project[]> {
   const client = getSupabaseClient();
-  const userId = getCurrentUserId();
-  if (!client) return [];
+  const userId = await getCurrentSupabaseUserId(client);
+  if (!client || !userId) return [];
 
   const { data, error } = await client
     .from('projects')
@@ -49,7 +45,6 @@ export async function getSupabaseProjects(): Promise<Project[]> {
     .map((row) => mapProjectRow(row as Record<string, unknown>))
     .filter(
       (project) =>
-        !userId ||
         project.ownerId === userId ||
         (project.collaborators ?? []).includes(userId)
     );
@@ -71,7 +66,7 @@ export async function createSupabaseProject(
   manifest: ProjectManifest
 ): Promise<Project> {
   const client = getSupabaseClient();
-  const userId = getCurrentUserId();
+  const userId = await getCurrentSupabaseUserId(client);
   if (!client || !userId) throw new Error('Supabase session is not available.');
 
   const now = new Date().toISOString();

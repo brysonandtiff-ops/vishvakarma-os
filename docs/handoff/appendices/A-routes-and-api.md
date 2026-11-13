@@ -2,38 +2,62 @@
 
 # Appendix A — Routes and API
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-11-13T14:03:47.658Z
 
-## Client routes (`src/routes.tsx`)
+## Client routes (`src/config/routeManifest.ts` + `src/routes.tsx`)
 
 | Name | Path | Component | Access | Notes |
 |------|------|-----------|--------|-------|
+| Landing | `/` | WorkInProgressPage | public |  |
+| Features | `/features` | FeaturesPage | public |  |
+| Account Access | `/auth` | AuthPage | public |  |
+| Reset Password | `/reset-password` | ResetPasswordPage | public |  |
+| Akasha Cast Viewer | `/cast/:token` | CastViewerPage | public |  |
+| Not Found | `/404` | NotFoundPage | public |  |
+| Terms of Service | `/terms` | TermsPage | public |  |
+| Privacy Policy | `/privacy` | PrivacyPage | public |  |
+| Blueprint Editor | `/editor` | EditorPage | private |  |
+| Lite Editor | `/editor-lite` | LiteEditorPage | private |  |
+| 3D Room | `/3d-room` | ThreeDRoomPage | private |  |
+| Projects | `/projects` | ProjectsPage | private |  |
+| Design Optimization | `/optimization` | OptimizationPage | private |  |
+| Profile | `/profile` | ProfilePage | private |  |
+| Spec Center | `/spec-center` | SpecCenterPage | private |  |
+| Registry Center | `/registry` | RegistryPage | private |  |
+| Change Requests | `/change-requests` | ChangeRequestsPage | private |  |
+| Release Center | `/releases` | ReleasesPage | private |  |
+| World Records | `/world-records` | WorldRecordsPage | private |  |
+| Audit Log | `/audit` | AuditLogPage | private |  |
+| Pricing | `/pricing` | PricingPage | public | Flag: `VITE_PRICING_PAGE_ENABLED` |
 
 Catch-all `*` → `NotFound` (see `src/App.tsx`).
 
-Pricing route conditional in source: `PRICING_PAGE_ENABLED` = false.
+Pricing route conditional in source: true; activation is controlled by `VITE_PRICING_PAGE_ENABLED`.
 
 ## Serverless API (`api/`)
 
 | HTTP path | Handler file |
 |-----------|-------------|
-| `POST /api/ai/extract-requirements` | `api/ai/extract-requirements.ts` |
-| `POST /api/ai/parse-site-documents` | `api/ai/parse-site-documents.ts` |
-| `POST /api/cast/evidence` | `api/cast/evidence.ts` |
-| `POST /api/cast/join` | `api/cast/join.ts` |
-| `POST /api/cast/sessions` | `api/cast/sessions.ts` |
-| `POST /api/health` | `api/health.ts` |
-| `POST /api/stripe/create-checkout-session` | `api/stripe/create-checkout-session.ts` |
-| `POST /api/stripe/create-portal-session` | `api/stripe/create-portal-session.ts` |
-| `POST /api/stripe/webhook` | `api/stripe/webhook.ts` |
+| `/api/ai/extract-requirements` | `api/ai/extract-requirements.ts` |
+| `/api/ai/parse-site-documents` | `api/ai/parse-site-documents.ts` |
+| `/api/cast/evidence` | `api/cast/evidence.ts` |
+| `/api/cast/join` | `api/cast/join.ts` |
+| `/api/cast/sessions` | `api/cast/sessions.ts` |
+| `/api/health` | `api/health.ts` |
+| `/api/stripe/create-checkout-session` | `api/stripe/create-checkout-session.ts` |
+| `/api/stripe/create-portal-session` | `api/stripe/create-portal-session.ts` |
+| `/api/stripe/webhook` | `api/stripe/webhook.ts` |
 
 ## Shared API libraries
 
 - `api/_lib/aiUsage.ts`
+- `api/_lib/appOrigin.ts`
 - `api/_lib/billingBackend.ts`
 - `api/_lib/billingSupabase.ts`
 - `api/_lib/castBackend.ts`
+- `api/_lib/httpSecurity.ts`
 - `api/_lib/stripeClient.ts`
 - `api/_lib/stripeInvoice.ts`
+- `api/_lib/stripeShapes.ts`
 - `api/_lib/verifyAuthToken.ts`
 - `api/_lib/verifySupabaseToken.ts`

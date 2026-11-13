@@ -7,6 +7,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isApiHandlerFile, parseRouteInventory } from './inventory-parsers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
@@ -33,7 +34,7 @@ function walkDir(dir, opts = {}) {
   const { exclude = new Set(), maxDepth = 6, depth = 0 } = opts;
   if (depth > maxDepth || !fs.existsSync(dir)) return [];
   const entries = [];
-  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
     const name = ent.name;
     if (exclude.has(name)) continue;
     if (name === 'node_modules' || name === 'dist' || name === 'coverage' || name === '.git') continue;
@@ -51,16 +52,7 @@ function walkDir(dir, opts = {}) {
 }
 
 function parseRoutes() {
-  const src = read('src/routes.tsx');
-  const routes = [];
-  const blockRe =
-    /name:\s*'([^']+)',\s*path:\s*'([^']+)',\s*element:\s*(?:lazyRoute\(<(\w+)\s*\/>\)|<(\w+)\s*\/>),[\s\S]*?access:\s*'(\w+)'(?:\s+as\s+const)?/g;
-  let m;
-  while ((m = blockRe.exec(src)) !== null) {
-    routes.push({ name: m[1], path: m[2], component: m[3] || m[4], access: m[5] });
-  }
-  const pricingFlag = src.includes('PRICING_PAGE_ENABLED');
-  return { routes, pricingFlag };
+  return parseRouteInventory(read('src/routes.tsx'), read('src/config/routeManifest.ts'));
 }
 
 function parseApiRoutes() {
@@ -71,7 +63,7 @@ function parseApiRoutes() {
       const full = path.join(dir, ent.name);
       if (ent.isDirectory() && ent.name !== '_lib') {
         scan(full, `${prefix}/${ent.name}`);
-      } else if (ent.name.endsWith('.ts') && !ent.name.startsWith('_')) {
+      } else if (isApiHandlerFile(ent.name)) {
         const rel = path.relative(ROOT, full).replace(/\\/g, '/');
         const route = `/api${prefix}/${ent.name.replace(/\.ts$/, '')}`;
         handlers.push({ route, file: rel });
@@ -198,20 +190,20 @@ const sha = gitSha();
 const generatedAt = new Date().toISOString();
 
 // A — routes
-let a = `# Appendix A — Routes and API\n\nGenerated: ${generatedAt}\n\n## Client routes (\`src/routes.tsx\`)\n\n`;
+let a = `# Appendix A — Routes and API\n\nGenerated: ${generatedAt}\n\n## Client routes (\`src/config/routeManifest.ts\` + \`src/routes.tsx\`)\n\n`;
 a += `| Name | Path | Component | Access | Notes |\n|------|------|-----------|--------|-------|\n`;
 for (const r of routes) {
   const notes = r.path === '/pricing' ? 'Flag: `VITE_PRICING_PAGE_ENABLED`' : '';
   a += `| ${r.name} | \`${r.path}\` | ${r.component} | ${r.access} | ${notes} |\n`;
 }
 a += `\nCatch-all \`*\` → \`NotFound\` (see \`src/App.tsx\`).\n\n`;
-a += `Pricing route conditional in source: \`PRICING_PAGE_ENABLED\` = ${pricingFlag}.\n\n`;
+a += `Pricing route conditional in source: ${pricingFlag}; activation is controlled by \`VITE_PRICING_PAGE_ENABLED\`.\n\n`;
 a += `## Serverless API (\`api/\`)\n\n| HTTP path | Handler file |\n|-----------|-------------|\n`;
 for (const h of apiRoutes) {
-  a += `| \`POST ${h.route}\` | \`${h.file}\` |\n`;
+  a += `| \`${h.route}\` | \`${h.file}\` |\n`;
 }
 a += `\n## Shared API libraries\n\n`;
-for (const f of fs.readdirSync(path.join(ROOT, 'api/_lib')).filter((x) => x.endsWith('.ts')).sort()) {
+for (const f of fs.readdirSync(path.join(ROOT, 'api/_lib')).filter(isApiHandlerFile).sort()) {
   a += `- \`api/_lib/${f}\`\n`;
 }
 write('A-routes-and-api.md', a);
@@ -265,7 +257,7 @@ for (const [name, cmd] of verify.verify) {
 }
 e += `\n## \`scripts/quality/*\`\n\n`;
 for (const f of verify.quality) e += `- \`scripts/quality/${f}\`\n`;
-e += `\n## Release gates\n\n13 gates enforced by \`scripts/verify-all.js\` — see [09-testing-quality-and-release.md](../09-testing-quality-and-release.md).\n`;
+e += `\n## Release gates\n\nRelease gates enforced by \`scripts/verify-all.js\` — see [09-testing-quality-and-release.md](../09-testing-quality-and-release.md).\n`;
 write('E-verify-scripts.md', e);
 
 // F — tests

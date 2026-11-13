@@ -37,18 +37,13 @@ test.describe('Akasha Cast', () => {
     const panelAvailable = await openSimulationPanels(page);
     const panel = page.getByTestId('akasha-cast-panel');
 
-    if (panelAvailable) {
-      await expect(panel).toBeVisible();
-      await expect(panel).toContainText(/Akasha Cast/i);
-      return;
-    }
-
-    await expect(panel).toHaveCount(0);
-    await expect(page.getByText('starter', { exact: true }).first()).toBeVisible();
+    expect(panelAvailable, 'Akasha Cast must stay mounted in the editor recovery build').toBe(true);
+    await expect(panel).toBeVisible();
+    await expect(panel).toContainText(/Akasha Cast/i);
   });
 
-  test('local cast start exposes viewer link and viewer page shell', async ({ browser }) => {
-    const presenterContext = await browser.newContext();
+  test('eligible cast start exposes viewer link and viewer page shell', async ({ browser, browserName, storageState }) => {
+    const presenterContext = await browser.newContext({ storageState });
     const viewerContext = await browser.newContext();
 
     try {
@@ -65,17 +60,23 @@ test.describe('Akasha Cast', () => {
       if (!(await startButton.isVisible({ timeout: 2_000 }).catch(() => false))) {
         test.skip(true, 'Akasha Cast start requires Studio tier in configured backend builds');
       }
+      if (await startButton.isDisabled()) {
+        test.skip(true, 'Akasha Cast requires a saved project and a signed-in presenter session; local preview does not provide an authenticated cast fixture');
+      }
+      test.skip(browserName === 'firefox', 'Playwright Firefox cannot grant native clipboard-read permission');
+
+      await presenterContext.grantPermissions(['clipboard-read'], {
+        origin: new URL(presenter.url()).origin,
+      });
 
       await clickBounded(startButton);
-      await expect(presenter.getByTestId('akasha-cast-stop')).toBeVisible({ timeout: 15_000 });
-      await expect(presenter.getByTestId('akasha-cast-copy-link')).toBeVisible();
+      await expect(presenter.getByTestId('akasha-cast-presentation-stop')).toBeVisible({ timeout: 15_000 });
+      const copyLink = presenter.getByRole('button', { name: 'Copy viewer link' });
+      await expect(copyLink).toBeVisible();
 
-      const shareUrl = await presenter.evaluate(async () => {
-        const panel = document.querySelector('[data-testid="akasha-cast-panel"]');
-        if (!panel) return null;
-        const { getCastSessionManager } = await import('/src/cast/CastSessionManager.ts');
-        return getCastSessionManager().getShareUrl();
-      });
+      await presenter.bringToFront();
+      await copyLink.click();
+      const shareUrl = await presenter.evaluate(() => navigator.clipboard.readText());
 
       expect(shareUrl).toMatch(/\/cast\//);
 

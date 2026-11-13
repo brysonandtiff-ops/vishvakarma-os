@@ -46,7 +46,7 @@ We aim to acknowledge reports within 5 business days.
 
 ### Transport and headers
 
-Production deploys via Vercel with security headers defined in [vercel.json](vercel.json):
+Cloudflare Pages static security headers are defined in [public/_headers](public/_headers), with runtime configuration in [wrangler.jsonc](wrangler.jsonc):
 
 - Content-Security-Policy (CSP)
 - Strict-Transport-Security (HSTS)
@@ -55,6 +55,8 @@ Production deploys via Vercel with security headers defined in [vercel.json](ver
 - Referrer-Policy
 
 Evidence: [docs/release/evidence/security-headers.md](docs/release/evidence/security-headers.md)
+
+Historical evidence does not certify a new deployment. Run the [Cloudflare configuration check](scripts/deployment/verify-cloudflare-config.mjs) and [live HTTP verifier](scripts/deployment/verify-cloudflare-live.mjs) for the exact release deployment. The [release security preflight](scripts/deployment/release-security-preflight.mjs) blocks certification while incident #153 is open or unverified.
 
 ### Client-side data
 
@@ -71,14 +73,14 @@ Evidence: [docs/release/evidence/security-headers.md](docs/release/evidence/secu
 
 1. Apply Supabase migrations before enabling production auth (`npx supabase db push`)
 2. Restrict Supabase/Google OAuth authorized domains to production URL
-3. Remove legacy Firebase env vars from Vercel if still present (`VITE_FIREBASE_*`, `BACKEND_PROVIDER`)
-4. Enable Vercel deployment protection for preview URLs if handling sensitive data
-5. Review [docs/release/VERCEL_ENV.md](docs/release/VERCEL_ENV.md) before each production deploy
+3. Remove legacy Firebase env vars from active Cloudflare environments if still present (`VITE_FIREBASE_*`, `BACKEND_PROVIDER`)
+4. Review Cloudflare Access and preview visibility before handling private data
+5. Review [Pages build gates](scripts/cloudflare-build.mjs), environment bindings and [release checks](scripts/deployment/certify-cloudflare-release.mjs) before each production deploy
 6. Rotate `SUPABASE_SERVICE_ROLE_KEY` on operator transfer
 
 ## Privacy
 
-- Analytics (when enabled) requires explicit user opt-in via the consent banner
+- External analytics is disabled in the current runtime; existing consent-aware event calls emit no third-party production telemetry
 - Error monitoring (Sentry, when configured) strips PII from breadcrumbs
 - Project data is stored in Supabase (Auth, Postgres, Storage) and Stripe for billing metadata only
 
