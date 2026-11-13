@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-26T11:12:49.851Z",
-  "gitSha": "66f6b86e968c1365ff2c6197c3532a226d033cd9",
+  "generatedAt": "2026-11-13T14:03:47.658Z",
+  "gitSha": "0a1d3266b6c9729611665db9f012412a8a90a64f",
   "productVersion": "1.5.0",
   "appendices": [
     "A-routes-and-api.md",
@@ -13,13 +13,13 @@
     "H-file-tree.md"
   ],
   "counts": {
-    "routes": 0,
+    "routes": 21,
     "apiHandlers": 9,
-    "npmScripts": 119,
+    "npmScripts": 125,
     "tables": 14,
-    "unitTests": 164,
-    "e2eSpecs": 38,
-    "prodDependencies": 72,
+    "unitTests": 198,
+    "e2eSpecs": 46,
+    "prodDependencies": 70,
     "devDependencies": 27
   }
 }

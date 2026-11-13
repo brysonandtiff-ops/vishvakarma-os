@@ -20,20 +20,37 @@ type GateState =
   | { status: 'error'; message: string };
 
 export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
-  const { user, signOut, isConfigured, mode } = useAuth();
+  const { user, session, isConfigured, mode } = useAuth();
+  const [sessionRevision, setSessionRevision] = useState({ session, revision: 0 });
+
+  // Auth events replace this token-free snapshot even for the same account.
+  // Reset before rendering children so old checks cannot clear a new session.
+  if (sessionRevision.session !== session) {
+    setSessionRevision({ session, revision: sessionRevision.revision + 1 });
+  }
+
+  // Public screens never need to wait for a signed-in user's MFA check.
+  // Protected routes are still enforced by RouteGuard.
+  if (!user || !isConfigured || mode === 'local-only') {
+    return <>{children}</>;
+  }
+
+  // Keep credentials out of keys; only the opaque revision binds session proof.
+  return (
+    <AuthenticatedMfaChallengeGate key={`${user.id}:${sessionRevision.revision}`}>
+      {children}
+    </AuthenticatedMfaChallengeGate>
+  );
+}
+
+function AuthenticatedMfaChallengeGate({ children }: MfaChallengeGateProps) {
+  const { signOut } = useAuth();
   const [gate, setGate] = useState<GateState>({ status: 'checking' });
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const inspect = useCallback(async () => {
-    // Local demo and E2E access do not own a Supabase Auth session and must not
-    // become dependent on hosted MFA configuration.
-    if (!user || !isConfigured || mode === 'local-only') {
-      setGate({ status: 'clear' });
-      return;
-    }
-
     setGate({ status: 'checking' });
     try {
       const status = await getMfaStatus();
@@ -47,7 +64,7 @@ export default function MfaChallengeGate({ children }: MfaChallengeGateProps) {
         message: cause instanceof Error ? cause.message : 'Unable to verify MFA status.',
       });
     }
-  }, [isConfigured, mode, user]);
+  }, []);
 
   useEffect(() => {
     void inspect();

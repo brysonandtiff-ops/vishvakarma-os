@@ -212,12 +212,69 @@ iframe {
   max-width: 100%;
 }
 
-/* Shared floating controls: keep them useful, not dominant, on small screens. */
+/* The current editor chrome has a flex row instead of the legacy topbar grid.
+   Give modes their own scroll lane and keep actions at their full touch size. */
+@media (max-width: 1320px) {
+  .bg-ws-canvas > .vish-editor-topbar-chrome {
+    height: auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    padding-inline: 0;
+  }
+
+  .bg-ws-canvas > .vish-editor-topbar-chrome > div:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    grid-template-areas:
+      'brand actions'
+      'modes modes';
+    gap: 0.35rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .bg-ws-canvas > .vish-editor-topbar-chrome > div:first-child > div:first-child {
+    grid-area: brand;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-chrome .vish-editor-topbar-center {
+    grid-area: modes;
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-inline: 0;
+    overscroll-behavior-inline: contain;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-chrome [role='tablist'] {
+    flex: 0 0 auto;
+  }
+
+  .bg-ws-canvas .vish-editor-topbar-chrome .vish-editor-action-row {
+    grid-area: actions;
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* This must beat the device-wide descendant min-width reset above. */
+  .bg-ws-canvas .vish-editor-topbar-chrome button {
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+/* Shared floating controls: keep 44px touch targets on small screens. */
 @media (max-width: 760px) {
   body:not(:has([data-testid='auth-page'])) .vish-qa-evidence-launch,
   body:not(:has([data-testid='auth-page'])) .vish-voice-tour-launch {
     max-width: calc(50vw - 1rem);
-    min-height: 36px;
+    min-height: 44px;
     padding-inline: 0.7rem;
     font-size: 0.62rem;
     letter-spacing: 0.08em;

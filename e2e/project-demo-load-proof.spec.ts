@@ -35,13 +35,17 @@ test.describe("project load proof", () => {
     await page.goto("/projects", { waitUntil: "domcontentloaded" });
     await expect(page.locator("body")).not.toContainText(BLOCKED_COPY);
 
-    const demoButton = page.getByTestId(/^projects-open-demo-/).first();
+    const demoButton = page
+      .getByRole('region', { name: 'Demo blueprints' })
+      .getByRole('button', { name: 'Open in editor' })
+      .first();
     await expect(demoButton).toBeVisible();
     await demoButton.click();
 
     await expect(page).toHaveURL(/\/editor/);
     await expect(page.getByTestId("editor-top-bar")).toBeVisible();
     await expect(page.getByTestId("tool-rail")).toBeVisible();
+    await expect(page.locator('.ws-status-bar')).toContainText(/Walls:\s*[1-9]\d*/i);
     await expect(page.locator("body")).not.toContainText(BLOCKED_COPY);
   });
 });

@@ -2,11 +2,11 @@
 
 # Appendix G — Dependencies
 
-Generated: 2026-06-26T11:12:49.851Z
+Generated: 2026-11-13T14:03:47.658Z
 
 Package: `vishvakarma-os` v1.5.0
 
-## Production (72)
+## Production (70)
 
 | Package | Version |
 |---------|--------|
@@ -47,7 +47,6 @@ Package: `vishvakarma-os` v1.5.0
 | @react-three/fiber | catalog: |
 | @sentry/react | ^9.22.0 |
 | @supabase/supabase-js | ^2.108.2 |
-| @vercel/analytics | ^2.0.1 |
 | class-variance-authority | ^0.7.1 |
 | clsx | ^2.1.1 |
 | cmdk | ^1.1.1 |
@@ -67,8 +66,7 @@ Package: `vishvakarma-os` v1.5.0
 | react-helmet-async | ^2.0.5 |
 | react-hook-form | ^7.66.0 |
 | react-resizable-panels | ^2.1.8 |
-| react-router | ^7.17.0 |
-| react-router-dom | ^7.17.0 |
+| react-router-dom | ^7.18.2 |
 | recharts | 2.15.4 |
 | sonner | ^2.0.7 |
 | stripe | ^22.2.1 |
@@ -106,7 +104,7 @@ Package: `vishvakarma-os` v1.5.0
 | autoprefixer | ^10.4.21 |
 | jsdom | ^28.1.0 |
 | lighthouse | ^12.6.0 |
-| postcss | ^8.5.15 |
+| postcss | ^8.5.26 |
 | tailwindcss | ^3.4.11 |
 | tsx | ^4.22.4 |
 | typescript | ~5.9.3 |

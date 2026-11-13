@@ -62,7 +62,11 @@ export function resolveSupabaseConfig(env: EnvSource = import.meta.env) {
 export function getBackendStatus(env: EnvSource = import.meta.env) {
   const { missingKeys } = resolveSupabaseConfig(env);
   const unitTestEnvironment = isUnitTestEnvironment(env);
-  const isConfigured = !unitTestEnvironment && missingKeys.length === 0;
+  // The explicit offline E2E build must never fall back to the production service.
+  // A feature flag by itself cannot disable the production/auth-gate backend.
+  const localE2eEnvironment = envString(env, 'MODE') === 'e2e-local' &&
+    envString(env, 'VITE_E2E_ALLOW_LOCAL_ACCESS') === 'true';
+  const isConfigured = !unitTestEnvironment && !localE2eEnvironment && missingKeys.length === 0;
 
   return {
     provider: 'supabase' as const,
@@ -71,9 +75,11 @@ export function getBackendStatus(env: EnvSource = import.meta.env) {
     missingKeys: [...missingKeys],
     configurationError: unitTestEnvironment
       ? 'Supabase backend is disabled during unit tests. Use a dedicated live-integration command for remote verification.'
-      : isConfigured
-        ? null
-        : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
+      : localE2eEnvironment
+        ? 'Supabase backend is disabled for the isolated local E2E build.'
+        : isConfigured
+          ? null
+          : `Supabase backend is not configured. Missing real values for: ${missingKeys.join(', ')}. Set ${SUPABASE_KEYS.join(', ')}.`,
   };
 }
 

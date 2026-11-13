@@ -1,13 +1,13 @@
 import type { OptimizationBatch, OptimizationBatchRecord } from '@/domain/optimization/types';
 import { buildOptimizationBatchRecord } from '@/domain/optimization/buildOptimizationBatchRecord';
-import { readSupabaseSessionSnapshot } from '@/backend/supabase/supabaseAuthGateway';
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
+import { getCurrentSupabaseUserId } from '@/backend/supabase/supabaseUserIdentity';
 
 export async function createSupabaseOptimizationBatch(
   batch: OptimizationBatch
 ): Promise<OptimizationBatchRecord> {
   const client = getSupabaseClient();
-  const userId = readSupabaseSessionSnapshot()?.uid;
+  const userId = await getCurrentSupabaseUserId(client);
   if (!client || !userId) throw new Error('Supabase session is not available.');
 
   const record = buildOptimizationBatchRecord(batch, userId);

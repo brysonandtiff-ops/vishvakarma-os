@@ -28,7 +28,7 @@ pnpm run release:gates
 - [x] Google OAuth redirect URLs configured in Supabase dashboard
 - [x] Authorized domain includes production URL
 - [x] Email-link and Google OAuth tested on production URL
-- [x] Save → reload → geometry intact (attach proof to `docs/release/evidence/save-load-proof.md`)
+- [ ] Save → reload → geometry intact in a signed-in browser (historic API-only receipt is insufficient)
 
 Commands:
 
@@ -46,10 +46,10 @@ See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [MIGRATION.md](../../
 
 ## Gate 9 — Save/Load Determinism
 
-- [x] Create project on production, add 4 walls + 1 door + 1 window
-- [x] Save, hard-refresh browser, reload project
-- [x] Export JSON, import into fresh session — counts match
-- [x] Attach screenshots + manifest hash to `save-load-proof.md`
+- [ ] Create project on production, add 4 walls + 1 door + 1 window
+- [ ] Save, hard-refresh browser, reload project
+- [ ] Export JSON, import into fresh session — counts match
+- [ ] Attach screenshots + manifest hash to `save-load-proof.md`
 
 ---
 

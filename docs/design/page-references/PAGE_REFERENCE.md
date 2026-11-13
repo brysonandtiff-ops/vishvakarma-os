@@ -72,7 +72,7 @@ Build uses `VITE_E2E_ALLOW_LOCAL_ACCESS=true` and `VITE_PRICING_PAGE_ENABLED=tru
 | [29-releases.png](./governance/29-releases.png) | `/releases` | `src/pages/ReleasesPage.tsx` | |
 | [30-world-records.png](./governance/30-world-records.png) | `/world-records` | `src/pages/WorldRecordsPage.tsx` | |
 | [31-audit.png](./governance/31-audit.png) | `/audit` | `src/pages/AuditLogPage.tsx` | |
-| [32-optimization.png](./governance/32-optimization.png) | `/optimization` | `src/pages/OptimizationPage.tsx` | Design Battle empty state |
+| Unavailable — planned `32-optimization.png` | `/optimization` | `src/pages/OptimizationPage.tsx` | Capture absent; older release-pack image shows only the boot splash and does not prove this UI |
 
 ## Manual captures (Supabase / production)
 

@@ -9,7 +9,7 @@ function readRepoFile(...parts: string[]) {
 }
 
 describe('non-blocking startup experience', () => {
-  it('ships a pointer-transparent splash with DOM-ready and timeout removal', () => {
+  it('ships a pointer-transparent CSP-compatible splash with DOM-ready and timeout removal', () => {
     const html = readRepoFile('index.html');
     const bootSplash = readRepoFile('public', 'boot-splash.js');
     const main = readRepoFile('src', 'main.tsx');
@@ -18,8 +18,9 @@ describe('non-blocking startup experience', () => {
 
     expect(html).toContain('id="boot-splash"');
     expect(html).toContain('pointer-events:none');
-    expect(html).toContain('rel="apple-touch-startup-image"');
     expect(html).toContain('<script src="/boot-splash.js"></script>');
+    expect(html).not.toContain('new MutationObserver(checkAppRendered)');
+    expect(html).toContain('rel="apple-touch-startup-image"');
     expect(html).not.toContain('dismissBootSplash');
     expect(bootSplash).toContain("'DOMContentLoaded'");
     expect(bootSplash).toContain('requestAnimationFrame(dismissBootSplash)');
