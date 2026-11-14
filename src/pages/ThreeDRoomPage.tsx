@@ -76,7 +76,7 @@ export default function ThreeDRoomPage() {
     <AppLayout immersive>
       <PageMeta title="3D Room — Vishvakarma.OS" description="Walk your design in the immersive Sacred 3D room." />
       <div
-        className="flex h-[100dvh] min-h-0 flex-col bg-background text-ws-text"
+        className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background text-ws-text"
         data-testid="three-d-room-page"
       >
         <header className="flex shrink-0 flex-col items-stretch gap-3 border-b border-vish-navy-700/50 bg-vish-navy-950/80 px-4 py-3 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
