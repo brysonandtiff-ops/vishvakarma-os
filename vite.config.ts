@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import { resolveWorkboxBuildMode } from './config/workboxBuildMode';
 
 const buildSourceMaps =
   process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.CF_PAGES !== '1';
@@ -64,6 +65,12 @@ export default defineConfig(({ command, mode }) => ({
       injectRegister: false,
       manifest: false,
       workbox: {
+        // Workbox 7 uses a Rollup Terser worker that fails to resolve on Android
+        // (Termux). Use its non-minified but fully functional SW only on the
+        // owner's phone; Cloudflare/Linux production still uses minified SW.
+        // Never promote phone-only output as source-SHA release certification.
+        mode: resolveWorkboxBuildMode(process.platform),
+        disableDevLogs: true,
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
