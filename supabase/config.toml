@@ -20,11 +20,14 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "https://vishvakarma-os.app"
+site_url = "https://vishvakarmaos.app"
 additional_redirect_urls = [
-  "https://vishvakarma-os.app/auth",
-  "https://vishvakarma-os.app/editor",
-  "https://vishvakarma-os.app/**",
+  "https://vishvakarmaos.app/auth",
+  "https://vishvakarmaos.app/editor",
+  "https://vishvakarmaos.app/**",
+  "https://www.vishvakarmaos.app/auth",
+  "https://www.vishvakarmaos.app/editor",
+  "https://www.vishvakarmaos.app/**",
   "https://vishvakarma-os.pages.dev/auth",
   "https://vishvakarma-os.pages.dev/**",
   "https://*.vishvakarma-os.pages.dev/**",

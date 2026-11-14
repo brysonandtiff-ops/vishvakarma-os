@@ -218,6 +218,21 @@ export class SupabaseRealtimeProvider {
     }
   }
 
+  overrideCastRole(castRole: Presence['castRole']): () => void {
+    const previousRole = this.options.castRole;
+    const previousFollow = this.localPresenceState.followPresenter;
+    this.options.castRole = castRole;
+    this.updatePresence({ castRole, followPresenter: castRole === 'viewer' });
+
+    let restored = false;
+    return () => {
+      if (restored) return;
+      restored = true;
+      this.options.castRole = previousRole;
+      this.updatePresence({ castRole: previousRole, followPresenter: previousFollow });
+    };
+  }
+
   getPresences(): Presence[] {
     return this.presences;
   }

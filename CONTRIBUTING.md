@@ -71,4 +71,4 @@ pnpm run docs:verify       # when documentation changed
 
 ## Deployment
 
-See [docs/release/VERCEL_ENV.md](docs/release/VERCEL_ENV.md), [supabase/README.md](supabase/README.md), and [MIGRATION.md](MIGRATION.md).
+See [docs/release/DEPLOYMENT.md](docs/release/DEPLOYMENT.md), [supabase/README.md](supabase/README.md), and [MIGRATION.md](MIGRATION.md).

@@ -70,6 +70,8 @@ export class CastSessionManager {
   private busUnsub: (() => void) | null = null;
   private castUnsub: (() => void) | null = null;
   private presenceUnsub: (() => void) | null = null;
+  private releaseCollab: (() => void) | null = null;
+  private ownsCollab = false;
   private broadcastStateCallbacks = new Set<(state: CastBroadcastState | null) => void>();
   private intentCallbacks = new Set<(events: CastIntentEvent[]) => void>();
   private viewerCountCallbacks = new Set<(count: number) => void>();
@@ -157,6 +159,17 @@ export class CastSessionManager {
       throw new Error('Cast session already live');
     }
 
+    const collab = CollabSession.getInstance();
+    if (collab.getRoomId() !== null) {
+      if (collab.getRoomId() !== options.projectId || collab.getCurrentUserId() !== options.userId) {
+        throw new Error('Collaboration session belongs to another project or user');
+      }
+      if (!collab.isConnected()) {
+        throw new Error('Collaboration is still connecting. Retry starting the cast when it is ready.');
+      }
+    }
+    const startingBridge = collab.getBridge();
+
     this.role = 'presenter';
     this.presenterGetIdToken = options.getIdToken;
     this.lastDiffSnapshot = snapshotManifestForDiff(options.manifest);
@@ -198,21 +211,29 @@ export class CastSessionManager {
       this.intentRelayEnabled = created.session.intentRelayEnabled;
     }
 
-    await this.connectCollab({
-      projectId: options.projectId,
-      userId: options.userId,
-      userName: options.userName,
-      getIdToken: options.getIdToken,
-      initialManifest: options.manifest,
-      onManifestChange: (manifest, isRemote) => {
-        if (!isRemote && this.role === 'presenter') {
-          this.handlePresenterManifestChange(manifest);
-        }
-        options.onManifestChange?.(manifest, isRemote);
-      },
-      authMode: 'supabase',
-      castRole: 'presenter',
-    });
+    try {
+      if (startingBridge && collab.getBridge() !== startingBridge) {
+        throw new Error('Editor collaboration changed while starting the cast. Retry from the current project.');
+      }
+      await this.connectCollab({
+        projectId: options.projectId,
+        userId: options.userId,
+        userName: options.userName,
+        getIdToken: options.getIdToken,
+        initialManifest: options.manifest,
+        onManifestChange: (manifest, isRemote) => {
+          if (!isRemote && this.role === 'presenter') {
+            this.handlePresenterManifestChange(manifest);
+          }
+          options.onManifestChange?.(manifest, isRemote);
+        },
+        authMode: 'supabase',
+        castRole: 'presenter',
+      });
+    } catch (error) {
+      await this.stop();
+      throw error;
+    }
 
     this.bindLocalBus();
     this.bindCastAwareness(options.userId);
@@ -326,7 +347,12 @@ export class CastSessionManager {
     this.castUnsub = null;
     this.presenceUnsub = null;
 
-    await CollabSession.getInstance().disconnect();
+    this.releaseCollab?.();
+    this.releaseCollab = null;
+    if (this.ownsCollab) {
+      this.ownsCollab = false;
+      await CollabSession.getInstance().disconnect();
+    }
 
     this.role = null;
     this.session = null;
@@ -416,6 +442,22 @@ export class CastSessionManager {
     castRole?: 'presenter' | 'viewer';
   }): Promise<void> {
     const collab = CollabSession.getInstance();
+    if (collab.isConnected()) {
+      if (options.castRole !== 'presenter') {
+        throw new Error('Cannot join a cast while another collaboration session is connected');
+      }
+      this.releaseCollab = collab.attachPresenter({
+        projectId: options.projectId,
+        userId: options.userId,
+        onManifestChange: options.onManifestChange,
+        onDisconnect: () => { void this.stop(); },
+      });
+      return;
+    }
+    if (collab.getRoomId() !== null) {
+      throw new Error('Collaboration is still connecting. Retry when it is ready.');
+    }
+    this.ownsCollab = true;
     await collab.connect({
       wsUrl: import.meta.env.VITE_COLLAB_WS_URL ?? '',
       projectId: options.projectId,

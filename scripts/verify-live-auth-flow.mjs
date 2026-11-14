@@ -1,5 +1,5 @@
 /**
- * Live auth flow verification for https://vishvakarma-os.app
+ * Live auth flow verification for https://vishvakarmaos.app
  * - Automated: auth gate, deny/back path
  * - Interactive (headed): accept path — operator completes Google sign-in in the browser window
  *

@@ -1,6 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import {
   CANONICAL_ORIGIN,
+  CANONICAL_WWW_ORIGIN,
   CLOUDFLARE_PAGES_ORIGIN,
 } from '../../src/config/canonicalOrigin';
 
@@ -68,6 +69,7 @@ export function isTrustedAppOrigin(
   const configuredPagesUrl = parseOrigin(env.CF_PAGES_URL);
   const trustedOrigins = new Set([
     CANONICAL_ORIGIN,
+    CANONICAL_WWW_ORIGIN,
     CLOUDFLARE_PAGES_ORIGIN,
     configuredAppUrl?.origin,
     configuredPagesUrl?.origin,

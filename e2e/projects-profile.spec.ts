@@ -10,7 +10,7 @@ import {
 
 async function settleProjects(page: Page) {
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('projects-loading-skeleton')).toBeHidden({ timeout: 30_000 });
 }
 
@@ -33,15 +33,19 @@ test.describe('projects and profile (e2e local access)', () => {
     await resetWorkspacePrefs(page);
   });
 
-  test('/projects shows local mode guidance when cloud is unconfigured', async ({ page }) => {
+  test('/projects shows empty-state guidance and editor entry points in local access', async ({ page }) => {
     await settleProjects(page);
-    await expect(page.getByText(/local draft mode/i).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /new in editor|open editor/i }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'No projects found', exact: true })).toBeVisible();
+    await expect(page.getByText('Create a new project to start designing, or import an existing floor plan.', { exact: true })).toBeVisible();
+    const newProject = page.getByRole('link', { name: 'New Project', exact: true });
+    await expect(newProject).toBeVisible();
+    await expect(newProject).toHaveAttribute('href', '/editor');
+    await expect(page.getByRole('link', { name: 'Create New Project', exact: true })).toBeVisible();
   });
 
-  test('new in editor CTA navigates to editor', async ({ page }) => {
+  test('New Project CTA navigates to editor', async ({ page }) => {
     await settleProjects(page);
-    await page.getByRole('link', { name: /new in editor/i }).filter({ visible: true }).first().click();
+    await page.getByRole('link', { name: 'New Project', exact: true }).click();
     await expect(page).toHaveURL(/\/editor$/);
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
   });
@@ -50,7 +54,7 @@ test.describe('projects and profile (e2e local access)', () => {
     await page.goto('/profile', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /^profile$/i })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/supabase.*local draft.*session/i).first()).toBeVisible();
-    await page.getByRole('button', { name: /sign out/i }).click({ force: true });
+    await page.getByRole('button', { name: 'Sign out', exact: true }).click();
     await expect(page).toHaveURL(/\/auth$/, { timeout: 30_000 });
     await expect(page.getByTestId('auth-page')).toBeVisible({ timeout: 30_000 });
   });
@@ -64,7 +68,8 @@ test.describe('projects and profile (e2e local access)', () => {
     await expect(page.getByText(/project saved locally/i)).toBeVisible({ timeout: 20_000 });
 
     await settleProjects(page);
-    await expect(page.getByRole('heading', { name: 'E2E Draft', exact: true })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(/4 walls/i).first()).toBeVisible({ timeout: 20_000 });
+    const savedProjectHeading = page.getByRole('heading', { name: 'E2E Draft', exact: true });
+    await expect(savedProjectHeading).toBeVisible({ timeout: 20_000 });
+    await expect(savedProjectHeading.locator('..')).toContainText(/4 walls/i, { timeout: 20_000 });
   });
 });

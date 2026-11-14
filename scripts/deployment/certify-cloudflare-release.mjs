@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
+import { requireReleaseSecurityPreflight } from './release-security-preflight.mjs';
 
-const liveUrl = process.argv[2]?.trim();
+let liveUrl = process.argv[2]?.trim();
+try {
+  liveUrl = await requireReleaseSecurityPreflight(liveUrl);
+} catch (error) {
+  console.error('[release] BLOCKED:', error instanceof Error ? error.message : String(error));
+  process.exit(2);
+}
 const focusedTests = [
   'src/test/releaseGateHardening.test.ts',
   'src/test/cloudflareBuildGate.test.ts',
@@ -10,9 +17,16 @@ const focusedTests = [
   'src/test/serverRuntimeAliasBoundary.test.ts',
   'src/test/emailMagicLinkFallback.test.ts',
   'src/test/productionAuthVerifier.test.ts',
+  'scripts/deployment/release-security-preflight.test.mjs',
+  'scripts/lib/cloudflare-deployment-proof.test.mjs',
+  'scripts/lib/save-load-proof-verdict.test.mjs',
+  'scripts/lib/api-proof-guard.test.mjs',
+  'scripts/handoff/inventory-parsers.test.mjs',
   'src/test/repositorySecretGuard.test.ts',
   'src/test/qaToolsGate.test.ts',
   'src/test/analyticsConsent.test.tsx',
+  'src/test/akashaCastRecovery.test.tsx',
+  'src/test/castCollaborationLifecycle.test.ts',
   'src/test/monitoringPrivacy.test.ts',
   'src/test/pwaUpdateSafety.test.ts',
   'src/test/routeCssBoundary.test.ts',
@@ -20,6 +34,9 @@ const focusedTests = [
   'src/test/supabaseAuthHardeningConfig.test.ts',
   'src/backend/supabase/supabaseAuthCallback.test.ts',
   'src/backend/supabase/supabaseAuthPolicy.test.ts',
+  'src/backend/supabase/supabaseGatewayIdentity.test.ts',
+  'src/backend/backendConfig.test.ts',
+  'src/components/common/RouteGuard.test.tsx',
   'src/backend/supabase/supabaseMfaGateway.test.ts',
   'src/backend/supabase/mappers.test.ts',
   'src/components/auth/MfaChallengeGate.test.tsx',
@@ -34,7 +51,11 @@ const focusedTests = [
 
 function run(command, args) {
   console.log(`\n[release] ${command} ${args.join(' ')}`);
-  const result = spawnSync(command, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+  const result = spawnSync(command, args, {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+    env: { ...process.env, PRODUCTION_URL: liveUrl },
+  });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
@@ -46,10 +67,10 @@ run('pnpm', ['run', 'build']);
 run('node', ['scripts/security/check-dist-security.mjs']);
 run('pnpm', ['run', 'perf:gates']);
 
-if (liveUrl) {
-  run('node', ['scripts/deployment/verify-cloudflare-live.mjs', liveUrl]);
-} else {
-  console.log('\n[release] Local certification passed. Provide a Pages URL to include live HTTP proof.');
-}
+// These checks test a release candidate; they do not approve deployment.
+// Signed-in runtime, physical-device and independent review remain separate.
+run('pnpm', ['run', 'release:gates:strict']);
+run('pnpm', ['run', 'launch:evidence:strict']);
+run('node', ['scripts/deployment/verify-cloudflare-live.mjs', liveUrl]);
 
-console.log('\n[release] VISHVAKARMA Cloudflare release certification PASSED');
+console.log('\n[release] Release-candidate automated checks passed; independent production approval is still required.');

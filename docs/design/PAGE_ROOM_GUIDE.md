@@ -312,7 +312,7 @@ Filter or scroll the log to investigate who changed what and when. Use during re
 
 **Route:** `/optimization`
 
-![Design Battle — optimization engine](./page-references/governance/32-optimization.png)
+**Screenshot unavailable:** the planned `page-references/governance/32-optimization.png` capture is absent. The older release-pack image shows the boot splash, so it is not a visual reference for this page. Capture the rendered Optimization UI before using it as design or release evidence.
 
 **What it does**  
 AI-driven **Design Battle** — generates five strategy-driven floor-plan candidates, scores them across cost/light/compliance dimensions, and helps you pick a winner to promote into the editor.

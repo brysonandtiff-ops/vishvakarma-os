@@ -57,7 +57,7 @@ Unified runner: `node scripts/run-pipeline.mjs --tier=<name>` (alias: `pnpm run 
 | `verify:ci` | `pnpm run verify:ci` | Pre-deploy — adds `test:routes` |
 | `ci` | `pnpm run ci` | Full GitHub Actions parity (needs live Supabase env for some steps) |
 | `release` | `pnpm run release:gates` | 13-gate release manifest |
-| `post-deploy` | `pnpm run stability:post-deploy` | Production smoke after Vercel deploy |
+| `post-deploy` | `pnpm run stability:post-deploy` | Post-deploy smoke only after an approved Cloudflare Pages deployment |
 | `repairbot:fast` | `pnpm run repairbot:fast` | After routine edits |
 | `repairbot:medium` | `pnpm run repairbot:medium` | Before declaring a feature done |
 | `repairbot:full` | `pnpm run repairbot:full` | Push-level verification (verify + env preflight) |
@@ -97,10 +97,10 @@ Production auth is **Supabase-only**. Common agent mistakes:
 | Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarma-os.app` prod; `http://127.0.0.1:5173` local) |
 | Google OAuth redirect | Google Cloud client needs `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback` |
 | Supabase redirect URLs | Dashboard → Auth → URL config must list `/auth` and `/editor` for each origin |
-| `VITE_*` not updating after env change | Vite inlines at **build time** — redeploy Vercel after env edits |
-| Legacy Firebase vars | Remove `VITE_FIREBASE_*` / `VITE_BACKEND_PROVIDER` from Vercel if present |
+| `VITE_*` not updating after env change | Vite inlines at **build time** — rebuild through the authorised Cloudflare Pages flow after env changes |
+| Legacy Firebase vars | Remove `VITE_FIREBASE_*` / `VITE_BACKEND_PROVIDER` from Cloudflare Pages environment bindings if present |
 
-Template: [`.env.example`](./.env.example). Operator setup: [docs/release/SUPABASE_AUTH_SETUP.md](./docs/release/SUPABASE_AUTH_SETUP.md), [docs/release/VERCEL_ENV.md](./docs/release/VERCEL_ENV.md).
+Template: [`.env.example`](./.env.example). Operator setup: [docs/release/SUPABASE_AUTH_SETUP.md](./docs/release/SUPABASE_AUTH_SETUP.md), [docs/release/DEPLOYMENT.md](./docs/release/DEPLOYMENT.md).
 
 Verify auth changes:
 
@@ -151,7 +151,7 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 
 **Resolved (was a gap):** Blueprint editor draw wall/opening/properties — PASS via `e2e/editor-draw-workflow-proof.spec.ts` + deep proof CI job.
 
-**Resolved (was a gap):** Save/load/export/import — PASS in [save-load-proof.md](./docs/release/evidence/save-load-proof.md).
+**PARTIAL (release hold):** Save/load/export/import — historical [save-load-proof.md](./docs/release/evidence/save-load-proof.md) is an API-only receipt; actual signed-in browser import/export and save/reopen evidence remain required.
 
 **Resolved (was a gap):** Release Center and Audit Log empty/loading states — PASS via `e2e/governance-smoke.spec.ts`.
 

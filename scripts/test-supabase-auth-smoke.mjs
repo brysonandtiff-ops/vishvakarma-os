@@ -205,8 +205,8 @@ async function main() {
       customDomainAuthRetest === 'passed'
         ? 'Live auth smoke run completed against canonical .app origin.'
         : isCanonicalDeployment
-          ? 'Run test:supabase-auth:full against https://vishvakarma-os.app to complete retest.'
-          : 'Set PRODUCTION_URL=https://vishvakarma-os.app for canonical-domain auth proof.',
+          ? 'Run test:supabase-auth:full against https://vishvakarmaos.app to complete retest.'
+          : 'Set PRODUCTION_URL=https://vishvakarmaos.app for canonical-domain auth proof.',
   });
 
   if (writeCapabilities) {

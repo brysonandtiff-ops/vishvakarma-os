@@ -30,6 +30,8 @@ export class CollabSession {
   private currentUserId: string | null = null;
   private messageCallbacks = new Set<(message: CollaborationMessage) => void>();
   private presenceCallbacks = new Set<(presences: Presence[]) => void>();
+  private manifestObservers = new Set<NonNullable<CollabSessionOptions['onManifestChange']>>();
+  private disconnectObservers = new Set<() => void>();
   private options: CollabSessionOptions | null = null;
   private readOnly = false;
 
@@ -64,6 +66,36 @@ export class CollabSession {
     return this.currentUserId;
   }
 
+  attachPresenter(options: {
+    projectId: string;
+    userId: string;
+    onManifestChange?: CollabSessionOptions['onManifestChange'];
+    onDisconnect: () => void;
+  }): () => void {
+    if (!this.connected || this.roomId !== options.projectId || this.currentUserId !== options.userId) {
+      throw new Error('Collaboration session belongs to another project or user, or is not connected');
+    }
+
+    const restoreRole = this.yjsProvider?.overrideCastRole('presenter');
+    const listener = options.onManifestChange;
+    if (listener) this.manifestObservers.add(listener);
+
+    let attached = true;
+    const release = () => {
+      if (!attached) return;
+      attached = false;
+      if (listener) this.manifestObservers.delete(listener);
+      this.disconnectObservers.delete(invalidate);
+      restoreRole?.();
+    };
+    const invalidate = () => {
+      release();
+      options.onDisconnect();
+    };
+    this.disconnectObservers.add(invalidate);
+    return release;
+  }
+
   async connect(options: CollabSessionOptions): Promise<void> {
     if (this.connected) return;
 
@@ -76,6 +108,9 @@ export class CollabSession {
     this.bridge.setActive(true);
     this.bridge.setRemoteListener((manifest, isRemote) => {
       options.onManifestChange?.(manifest, isRemote);
+      for (const observer of this.manifestObservers) {
+        observer(manifest, isRemote);
+      }
       if (!isRemote) {
         this.snapshotProvider.scheduleSnapshot();
       }
@@ -128,6 +163,12 @@ export class CollabSession {
   }
 
   async disconnect(): Promise<void> {
+    for (const invalidate of [...this.disconnectObservers]) {
+      invalidate();
+    }
+    this.disconnectObservers.clear();
+    this.manifestObservers.clear();
+
     if (this.bridge) {
       try {
         await this.snapshotProvider.flushSnapshot();

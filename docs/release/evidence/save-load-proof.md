@@ -1,37 +1,36 @@
-# Save / Load Determinism Proof
+# Save / Load Determinism Proof — historical API-only record
 
 Generated from commit: `0659de80c2f4dd6f9a140583052b3301cdc5cfcb`
-Deployment URL: https://vishvakarma-os.app
-Vercel fallback URL: https://vishvakarma-os.vercel.app
-Generated at: 2026-06-20T05:15:11.614Z
-Operator: automated api roundtrip
-Result: `PASS`
+Original test recorded at: 2026-06-20T05:15:11.614Z
+Original operator: automated api roundtrip
+Result: `PARTIAL`
 
-## Purpose
+## Evidence correction
 
-Prove Vishvakarma.OS can preserve a project through save, reload, export, and import without changing the project model.
+The original machine-readable receipt at
+`docs/release/evidence/save-load-proof-run.json` records `mode: "api-roundtrip"`.
+It contains database service-role insert/read/update/delete checks; it does **not**
+record a real user signing in to the website, saving and reopening a project, or
+downloading and importing JSON in a browser.
 
-## Test Steps
+**Do not interpret the historical database PASS as browser, RLS, physical-device,
+or production release certification.** The originally claimed browser steps and
+console-error clearance were not demonstrated by this receipt. The original
+record remains recoverable in Git history; it has not been rewritten.
 
-| Step | Action | Expected Result | Actual Result | Status |
-|---|---|---|---|---|
-| 1 | Open `/editor` | Editor loads without crash | Production editor reachable after auth | PASS |
-| 2 | Load sample project | Walls/openings/materials render | Sample House 01 loaded (4 walls, 3 openings) | PASS |
-| 3 | Save project | Save action completes with success state | Cloud save toast on production (api-roundtrip) | PASS |
-| 4 | Hard refresh page | Project remains recoverable | Project reloaded from Supabase with intact counts | PASS |
-| 5 | Export project JSON | JSON downloads and parses | Export JSON wall/opening counts match saved state | PASS |
-| 6 | Import exported JSON | Imported project matches saved state | Import module unit tests pass | PASS |
-| 7 | Compare wall/opening counts | Counts match before and after import | Sample counts 4/3 stable | PASS |
+## Compare wall/opening counts
 
-## Console Errors
+Historical sample: 4 walls and 3 openings. Counts were checked in an API
+roundtrip, not an authenticated browser. Full canonical manifest equality and
+real user-facing import/export acceptance remain unverified.
 
-```txt
-<none>
-```
+## Required next evidence
 
-## Verdict
+- An approved user's genuine browser session, on a deployed exact SHA.
+- Create → load sample → save to cloud → reload → reopen → export → import.
+- Successful cloud-save state, original and imported geometry counts, actual
+  browser download and zero unaddressed runtime errors.
+- Separate user-isolation, physical-device, credential remediation, recovery,
+  independent approval and production deployment equality checks.
 
-```txt
-PASS — Supabase-backed save, hard-refresh reload, and JSON export verified on https://vishvakarma-os.app (api-roundtrip).
-Artifact: docs/release/evidence/save-load-proof-run.json
-```
+**Current gate 9: MANUAL / NOT CERTIFIED.**

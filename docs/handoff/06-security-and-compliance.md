@@ -35,14 +35,13 @@ Migration: [`supabase/migrations/20260212000003_rls_policies.sql`](../../supabas
 
 ## Transport and headers
 
-[`vercel.json`](../../vercel.json) — production security headers:
+[`public/_headers`](../../public/_headers) — Cloudflare Pages static security headers:
 
 - Content-Security-Policy (CSP)
 - Strict-Transport-Security (HSTS)
 - X-Content-Type-Options, X-Frame-Options, Referrer-Policy, COOP
 
-Verified by: [`scripts/quality/check-vercel-security.mjs`](../../scripts/quality/check-vercel-security.mjs)  
-Evidence: [`docs/release/evidence/security-headers.md`](../release/evidence/security-headers.md)
+Configuration check: [`scripts/deployment/verify-cloudflare-config.mjs`](../../scripts/deployment/verify-cloudflare-config.mjs). Live HTTP check: [`scripts/deployment/verify-cloudflare-live.mjs`](../../scripts/deployment/verify-cloudflare-live.mjs). These checks must be rerun for the release candidate; the historical [security-header evidence](../release/evidence/security-headers.md) does not certify a new deployment.
 
 ## Client-side secrets policy
 
@@ -72,7 +71,7 @@ Modules with **prototype disclaimers** — do not claim certified compliance or 
 
 ## Privacy
 
-- Analytics: opt-in via consent banner ([`src/lib/analytics.ts`](../../src/lib/analytics.ts))
+- External analytics runtime disabled; existing consent-aware event calls do not emit third-party production telemetry ([`src/lib/analytics.ts`](../../src/lib/analytics.ts))
 - Monitoring: Sentry scaffold only when `VITE_SENTRY_DSN` set ([`src/lib/monitoring.ts`](../../src/lib/monitoring.ts))
 - Email: Supabase Auth OTP only — no separate email provider
 
@@ -81,5 +80,5 @@ Modules with **prototype disclaimers** — do not claim certified compliance or 
 1. Apply Supabase migrations before production auth
 2. Restrict Supabase/Google OAuth authorized domains
 3. Rotate service role key on operator transfer
-4. Enable Vercel deployment protection for preview URLs if needed
-5. Review [`docs/release/VERCEL_ENV.md`](../release/VERCEL_ENV.md) before each deploy
+4. Review Cloudflare Access and preview visibility before handling private data
+5. Review the Cloudflare [runtime configuration](../../wrangler.jsonc), [build gates](../../scripts/cloudflare-build.mjs), and [release preflight](../../scripts/deployment/release-security-preflight.mjs) before each deploy; unresolved security incident #153 blocks certification

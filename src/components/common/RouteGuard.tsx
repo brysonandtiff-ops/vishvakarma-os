@@ -18,10 +18,10 @@ const PROTECTED_ROUTES = routes
   .map((route) => route.path);
 
 const allowLocalDemoMode = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_DEMO === 'true';
-const isE2eAuthGateBuild =
-  import.meta.env.MODE === 'e2e' &&
-  import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS !== 'true';
-const isE2eLocalAccess = import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS === 'true';
+const isE2eAuthGateBuild = import.meta.env.MODE === 'e2e';
+const isE2eLocalAccess =
+  import.meta.env.MODE === 'e2e-local' &&
+  import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS === 'true';
 /** Dev / e2e-local preview bypass when backend env is missing or explicit local demo is enabled. */
 const allowLocalAccess = isE2eAuthGateBuild
   ? false

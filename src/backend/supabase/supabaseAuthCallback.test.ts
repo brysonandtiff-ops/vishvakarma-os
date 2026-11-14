@@ -109,7 +109,7 @@ describe('resolveSupabaseOAuthRedirectSession', () => {
     vi.stubGlobal('window', {
       location: {
         search: '?code=pkce-code',
-        origin: 'https://vishvakarma-os.app',
+        origin: 'https://vishvakarmaos.app',
         pathname: '/auth',
       },
       history: {
@@ -165,13 +165,13 @@ describe('post-auth redirect helpers', () => {
     vi.stubGlobal('window', {
       location: {
         pathname: '/auth',
-        origin: 'https://vishvakarma-os.app',
+        origin: 'https://vishvakarmaos.app',
         replace,
       },
     });
 
     expect(completePostAuthRedirect()).toBe(true);
-    expect(replace).toHaveBeenCalledWith('https://vishvakarma-os.app/editor');
+    expect(replace).toHaveBeenCalledWith('https://vishvakarmaos.app/editor');
 
     vi.unstubAllGlobals();
   });
@@ -199,13 +199,13 @@ describe('getAuthPageUrl', () => {
 
   it('keeps OAuth callback on the canonical .app origin the user opened', () => {
     vi.stubGlobal('window', {
-      location: { origin: 'https://vishvakarma-os.app' },
+      location: { origin: 'https://vishvakarmaos.app' },
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
     vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
 
-    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
+    expect(getAuthPageUrl()).toBe('https://vishvakarmaos.app/auth');
   });
 
   it('keeps OAuth callback on a Vishvakarma Cloudflare Pages preview origin', () => {
@@ -214,7 +214,7 @@ describe('getAuthPageUrl', () => {
     });
     vi.stubEnv('DEV', false);
     vi.stubEnv('MODE', 'production');
-    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarma-os.app');
+    vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://vishvakarmaos.app');
 
     expect(getAuthPageUrl()).toBe('https://abc123.vishvakarma-os.pages.dev/auth');
   });
@@ -227,7 +227,7 @@ describe('getAuthPageUrl', () => {
     vi.stubEnv('MODE', 'production');
     vi.stubEnv('VITE_AUTH_REDIRECT_ORIGIN', 'https://legacy-host.example');
 
-    expect(getAuthPageUrl()).toBe('https://vishvakarma-os.app/auth');
+    expect(getAuthPageUrl()).toBe('https://vishvakarmaos.app/auth');
   });
 });
 

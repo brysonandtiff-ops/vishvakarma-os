@@ -24,23 +24,28 @@ Verify env: `pnpm run production:verify-env` (add `--strict` for live values)
 | `pnpm run preview` | Preview on port 4173 |
 | `pnpm run preview:e2e` | E2E build + preview |
 
-## Vercel deployment (primary production)
+## Cloudflare Pages deployment
 
 | Item | Detail |
 |------|--------|
-| Config | [`vercel.json`](../../vercel.json) — SPA rewrite to `/index.html`, API routes excluded |
-| Build | `pnpm install --frozen-lockfile` → `pnpm run build` |
+| Runtime config | [`wrangler.jsonc`](../../wrangler.jsonc) — Pages output and Node compatibility |
+| Build | `pnpm install --frozen-lockfile` → [`node scripts/cloudflare-build.mjs`](../../scripts/cloudflare-build.mjs) |
 | Output | `dist/` |
-| Deploy script | [`scripts/deploy-vercel.sh`](../../scripts/deploy-vercel.sh) — runs `verify:ci`, requires clean git, `npx vercel --prod` |
+| Static routing and headers | [`public/_routes.json`](../../public/_routes.json), [`public/_headers`](../../public/_headers) |
+| API routing | [Pages Functions API router](../../functions/api/[[path]].ts) |
+| Release checks | [`scripts/deployment/certify-cloudflare-release.mjs`](../../scripts/deployment/certify-cloudflare-release.mjs) — explicit deployment origin, live incident preflight and strict evidence gates |
 
-Guide: [`docs/release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)
+The Pages project's production branch and environment bindings are configured in Cloudflare, not inferred from `main` or `wrangler.jsonc`. Verify the actual release pathway, independent approval, source SHA, deployment SHA and rollback before promotion.
 
-Push env to Vercel:
+Set public build values and server-only secrets privately in the appropriate Pages production or preview environment. Use [`.env.example`](../../.env.example) and [Appendix B](./appendices/B-environment-variables.md) for names; never put secret values in handoff files.
+
+Run the candidate checks against a specific deployment:
 
 ```bash
-pnpm run push:supabase-env-vercel
-# Stripe: scripts/push-stripe-env-vercel.mjs (operator)
+node scripts/deployment/certify-cloudflare-release.mjs https://<deployment>.vishvakarma-os.pages.dev
 ```
+
+These checks do not authorize production promotion. Incident #153, authenticated browser workflows, recovery proof and physical-device acceptance remain required.
 
 ## Supabase operations
 
@@ -75,7 +80,7 @@ Evidence directory: [`docs/release/evidence/`](../release/evidence/)
 
 ## Collaboration server (optional)
 
-Not deployed to Vercel by default:
+The standalone development WebSocket process is separate from the Pages Functions build:
 
 ```bash
 pnpm run collab:server:dev
@@ -92,7 +97,8 @@ Requires `SUPABASE_SERVICE_ROLE_KEY`, `COLLAB_WS_PORT`, `ALLOWED_ORIGINS`.
 ```bash
 pnpm run verify:ci
 pnpm run test:e2e
-pnpm run release:gates
+pnpm run release:gates:strict
+pnpm run launch:evidence:strict
 pnpm run handoff:generate
 pnpm run handoff:verify
 ```

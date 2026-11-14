@@ -36,8 +36,8 @@
       "message": "node scripts/run-e2e-gates.mjs completed successfully."
     },
     "gate-9": {
-      "status": "pass",
-      "message": "Evidence attached at docs/release/evidence/save-load-proof.md."
+      "status": "warning",
+      "message": "Historical API-only record cannot prove authenticated browser save/reload/export/import. Manual release proof required."
     },
     "gate-10": {
       "status": "pass",

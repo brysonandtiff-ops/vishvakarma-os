@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 const GOVERNANCE_ROUTES = [
-  { path: '/projects', heading: /your projects/i },
+  { path: '/projects', heading: /welcome back, architect/i },
   { path: '/change-requests', heading: 'Change Requests' },
   { path: '/optimization', heading: 'Design Battle' },
   { path: '/profile', heading: 'Profile' },
@@ -22,8 +22,8 @@ const GOVERNANCE_ROUTES = [
 ] as const;
 
 const GOVERNANCE_TOUCH_SELECTORS = [
-  '.vish-governance-page button',
-  '.vish-governance-page [role="tab"]',
+  '.vish-workspace-page button',
+  '.vish-workspace-page [role="tab"]',
 ];
 
 async function assertGovernancePage(
@@ -73,9 +73,25 @@ test.describe('Device governance layout', () => {
     await page.setViewportSize(androidTabletLandscape);
     await emulateCoarsePointer(page);
     await page.goto('/projects');
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
+  });
+
+  test('workspace header controls are 44px-safe and mobile navigation opens on phone', async ({ page }) => {
+    await page.setViewportSize(iPhonePortrait);
+    await emulateCoarsePointer(page);
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
+
+    await assertNoHorizontalOverflow(page);
+    await assertTouchTargets(page, ['.vish-editor-topbar-chrome button']);
+
+    const mobileMenu = page.getByTestId('workspace-mobile-menu');
+    await expect(mobileMenu).toBeVisible();
+    await mobileMenu.click();
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10_000 });
+    await assertNoHorizontalOverflow(page);
   });
 
   test('/3d-room fits iPad landscape without overflow', async ({ page }) => {

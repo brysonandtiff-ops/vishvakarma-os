@@ -90,7 +90,7 @@ describe('Supabase production auth policy', () => {
     const password = await signInWithPasswordSupabase('user@example.com', 'password');
     const reset = await requestSupabasePasswordReset(
       'user@example.com',
-      'https://vishvakarma-os.app/reset-password',
+      'https://vishvakarmaos.app/reset-password',
     );
 
     expect(password.session).toBeNull();
@@ -101,14 +101,14 @@ describe('Supabase production auth policy', () => {
   it('requests an existing-account-only email magic link', async () => {
     const result = await requestSupabaseAccessLink(
       ' Architect@Firm.com ',
-      'https://vishvakarma-os.app/auth',
+      'https://vishvakarmaos.app/auth',
     );
 
     expect(result.error).toBeNull();
     expect(signInWithOtp).toHaveBeenCalledWith({
       email: 'architect@firm.com',
       options: {
-        emailRedirectTo: 'https://vishvakarma-os.app/auth',
+        emailRedirectTo: 'https://vishvakarmaos.app/auth',
         shouldCreateUser: false,
       },
     });

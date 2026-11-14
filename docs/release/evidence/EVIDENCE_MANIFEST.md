@@ -29,7 +29,7 @@ This file is the production release evidence ledger. It must be updated whenever
 
 | Gate | Required proof | Status | Link / artifact |
 |---|---|---|---|
-| Cloud save/load | Save project → reload → identical manifest | PASS | [`save-load-proof.md`](save-load-proof.md) — unit + E2E determinism tests |
+| Cloud save/load | Real signed-in browser save → reload → export → import | PARTIAL | [`save-load-proof.md`](save-load-proof.md) is a historical API-only receipt; browser and full manifest proof still required |
 
 ## Manual Device Evidence
 

@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseRouteInventory } from './inventory-parsers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
@@ -68,9 +69,9 @@ for (const f of appendixFiles) {
   }
 }
 
-// Routes in routes.tsx must appear in appendix A
-const routesSrc = read('src/routes.tsx');
-const routePaths = [...routesSrc.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
+// Use the same manifest/element seam as generation, not obsolete inline route literals.
+const { routes } = parseRouteInventory(read('src/routes.tsx'), read('src/config/routeManifest.ts'));
+const routePaths = routes.map((route) => route.path);
 const appendixA = fs.existsSync(path.join(APPENDICES, 'A-routes-and-api.md'))
   ? read('docs/handoff/appendices/A-routes-and-api.md')
   : '';

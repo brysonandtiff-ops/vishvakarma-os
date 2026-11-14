@@ -1,7 +1,7 @@
 import { HelmetProvider, Helmet } from "react-helmet-async";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const OG_IMAGE = 'https://vishvakarma-os.app/og-card.png';
+const OG_IMAGE = 'https://vishvakarmaos.app/og-card.png';
 
 const PageMeta = ({
   title,

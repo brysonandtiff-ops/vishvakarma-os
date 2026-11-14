@@ -1,13 +1,12 @@
 import { getSupabaseClient } from '@/backend/supabase/supabaseClient';
-import { readSupabaseSessionSnapshot } from '@/backend/supabase/supabaseAuthGateway';
+import { getCurrentSupabaseUserId } from '@/backend/supabase/supabaseUserIdentity';
 
 const MAX_TEXTURE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']);
 const MATERIALS_BUCKET = 'materials';
 
 export function isStorageConfigured(): boolean {
-  const client = getSupabaseClient();
-  return Boolean(client && readSupabaseSessionSnapshot()?.uid);
+  return Boolean(getSupabaseClient());
 }
 
 export async function uploadMaterialTexture(file: File, userId: string): Promise<string> {
@@ -22,8 +21,13 @@ export async function uploadMaterialTexture(file: File, userId: string): Promise
     throw new Error('Texture must be 2 MB or smaller');
   }
 
+  const currentUserId = await getCurrentSupabaseUserId(client);
+  if (!currentUserId || currentUserId !== userId) {
+    throw new Error('Supabase session is not available for this upload.');
+  }
+
   const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg';
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const path = `${currentUserId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await client.storage.from(MATERIALS_BUCKET).upload(path, file, {
     cacheControl: '3600',
     upsert: false,
