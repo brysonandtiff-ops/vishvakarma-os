@@ -1,69 +1,51 @@
-# Deployment Guide
+# Vishvakarma.OS — Cloudflare Pages Deployment Guide
 
-## Vercel (production)
+**Updated:** 15 November 2026. **Release state: HOLD.** This document does not authorize an automatic publish.
 
-1. Connect GitHub repo to Vercel (`brysonandtiff-ops/vishvakarma-os`).
-2. Set Supabase and Stripe env vars per [VERCEL_ENV.md](VERCEL_ENV.md).
-3. Set canonical production origin env values:
-   - `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-   - `APP_URL=https://vishvakarma-os.app`
-4. Build command: `pnpm run build` (configured in `vercel.json`).
-5. Output directory: `dist/`.
-6. Apply Supabase migrations: `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push`.
+## Established Cloudflare deployment
 
-The Vercel subdomain `https://vishvakarma-os.vercel.app` is a fallback/debug alias only. Use `https://vishvakarma-os.app` for launch, auth, Stripe return URLs, and valuation/operator docs.
+- **Production domain:** https://vishvakarmaos.app — resolves through Cloudflare Pages.
+- **WWW:** https://www.vishvakarmaos.app.
+- **Project:** `vishvakarma-os`; default origin https://vishvakarma-os.pages.dev.
+- **Current Pages production branch:** `agent/cloudflare-pages-workers-migration`.
+- **Verified build configuration:** `node scripts/cloudflare-build.mjs`, output `dist`. `wrangler.jsonc` is the project-local Cloudflare configuration.
+- **Current custom-domain source:** the August 2026 deployment SHA `5a1305928ca9435e577ea2e021935452f9289a02`, not the newer source.
+- **Latest successful preview as reviewed:** https://2a32718a.vishvakarma-os.pages.dev from `5c66a6604706282e0668c2b07d7a395e2d8570b7` (13 November 2026).
+- Old domain/config references in earlier records are historical; no retired provider is an authorized deploy origin.
 
-## Required production environment
+## Preconditions for any future deployment
 
-**Client (VITE_*):**
+1. Confirm exact source HEAD, active worktree, dirty changes, existing PR ownership and active S.I.R.E. authorization. Do not create a competing branch/PR or rewrite history.
+2. Review source provenance, check costs and make sure no paid feature or build quota is being enabled without explicit approval.
+3. Resolve or independently clear **security incident #153** and **recovery/backup #188** before production promotion.
+4. Verify Supabase provider URL configuration, service bindings, Google OAuth return destinations, tenant-isolation/RLS, billing return URLs and recovery. Do **not** echo or commit secrets.
+5. Run applicable source/type, test, security, PWA, signed-in browser, cross-device and exact-source-evidence checks. A local PWA-disabled diagnostic build is **not** production build proof.
+6. Perform any permitted preview update only through the existing protected Cloudflare/GitHub route. Independently inspect the immutable preview URL and actual deployed SHA, then obtain the owner's visual sign-off. No manual production cutover by default.
 
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-- `VITE_PRICING_PAGE_ENABLED` (optional: `VITE_STRIPE_BILLING_ENABLED`)
+## Environment templates (not proof of live settings)
 
-**Server-only:**
+**Client:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarmaos.app`.
 
-- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STUDIO_MONTHLY`, `STRIPE_PRICE_ENTERPRISE_MONTHLY`
-- `APP_URL=https://vishvakarma-os.app`, optional `GEMINI_API_KEY`
+**Server-only:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, Stripe credentials where actually required, `APP_URL=https://vishvakarmaos.app`.
 
-Remove deprecated Firebase vars: `VITE_FIREBASE_*`, `VITE_BACKEND_PROVIDER`, `BACKEND_PROVIDER`.
+Set Cloudflare Pages environment bindings using the approved secure controls, not source files. The local `.env.example` is a non-secret template. Do not broaden authentication permissions to make tests pass.
 
-## Deploy script
-
-```bash
-pnpm run deploy:vercel
-```
-
-Runs `verify:ci` and requires a clean git tree before `npx vercel --prod`.
-
-See also [docs/handoff/08-operations-and-deployment.md](../handoff/08-operations-and-deployment.md).
-
-## Post-deploy verification
+## Current read-only checks
 
 ```bash
-pnpm run production:verify-env --strict
-pnpm run verify:supabase-schema:live
-pnpm run verify:production-auth-flow
-PLAYWRIGHT_BASE_URL=https://vishvakarma-os.app pnpm run test:e2e:auth
-pnpm run release:gates
+pnpm run cloudflare-only:gates
+pnpm run auth:gates
+pnpm run test:routes
+pnpm run lint:types
+pnpm run docs:verify
 ```
 
-Manual checks:
+Existing release-verification scripts are documented in [Cloudflare production certification](CLOUDFLARE_PRODUCTION_CERTIFICATION.md). They remain fail-closed for the open security incident and missing device/cloud evidence.
 
-1. `https://vishvakarma-os.app` loads the app.
-2. `/auth` starts Google OAuth through Supabase.
-3. Supabase Auth logs show `.app` as the referer after OAuth.
-4. Stripe checkout success/cancel URLs return to `.app`.
-5. `public/auth-capabilities.json` is regenerated after the live auth check.
+## Manual acceptance after authorization (not yet performed)
 
-## Monitoring
+Check `/`, `/auth`, `/projects`, `/editor`, `/3d-room`, Google sign-in/sign-out, project save/reopen, tenant isolation, Stripe return URLs, mobile controls, genuine screenshot/video and PWA install/restart. Attach actual SHA-bound evidence before owner sign-off.
 
-- Set `VITE_SENTRY_DSN` for error reporting scaffold (see `src/lib/monitoring.ts`)
-- Analytics opt-in via `src/lib/analytics.ts`
+**Rollback:** Preserve current Cloudflare production deployment and the existing draft PR. Use the audited [rollback guidance](../operations/ROLLBACK.md) only through an authorized deployment owner after the exact target is confirmed.
 
-## Support
-
-- User FAQ: `docs/user/FAQ.md`
-- Security: `SECURITY.md`
-- Valuation handoff: `docs/handoff/HANDOFF.md`
+Do not infer a production release from DNS, CDN response 200, a passing unit test or a preview deployment.

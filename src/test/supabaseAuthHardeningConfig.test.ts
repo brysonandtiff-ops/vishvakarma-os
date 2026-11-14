@@ -11,7 +11,7 @@ describe('Supabase Auth hardening configuration', () => {
     const config = readRepoFile('supabase', 'config.toml');
     const legacyProvider = ['ver', 'cel'].join('');
 
-    expect(config).toContain('site_url = "https://vishvakarma-os.app"');
+    expect(config).toContain('site_url = "https://vishvakarmaos.app"');
     expect(config).toContain('"https://vishvakarma-os.pages.dev/auth"');
     expect(config).toContain('"https://vishvakarma-os.pages.dev/**"');
     expect(config).toContain('"https://*.vishvakarma-os.pages.dev/**"');

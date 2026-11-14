@@ -7,7 +7,7 @@ import {
   requireReleaseSecurityPreflight,
 } from './release-security-preflight.mjs';
 
-const canonical = 'https://vishvakarma-os.app';
+const canonical = 'https://vishvakarmaos.app';
 const preview = 'https://abc12345.vishvakarma-os.pages.dev';
 const closedIssue = {
   number: 153,
@@ -20,17 +20,18 @@ describe('S.I.R.E. Cloudflare release security preflight', () => {
     expect(() => validateReleaseUrl('')).toThrow(/required/);
     expect(validateReleaseUrl(canonical)).toBe(canonical);
     expect(validateReleaseUrl(preview+'/')).toBe(preview);
-    expect(validateReleaseUrl('https://www.vishvakarma-os.app')).toBe('https://www.vishvakarma-os.app');
+    expect(validateReleaseUrl('https://www.vishvakarmaos.app')).toBe('https://www.vishvakarmaos.app');
   });
 
   it('rejects http, lookalike hosts, secrets in URLs and non-root targets', () => {
     for (const value of [
-      'http://vishvakarma-os.app',
-      'https://vishvakarma-os.app.attacker.invalid',
+      'http://vishvakarmaos.app',
+      'https://vishvakarma-os.app',
+      'https://vishvakarmaos.app.attacker.invalid',
       'https://evilvishvakarma-os.pages.dev',
-      'https://user:pass@vishvakarma-os.app',
-      'https://vishvakarma-os.app/?token=value',
-      'https://vishvakarma-os.app/editor',
+      'https://user:pass@vishvakarmaos.app',
+      'https://vishvakarmaos.app/?token=value',
+      'https://vishvakarmaos.app/editor',
     ]) {
       expect(() => validateReleaseUrl(value)).toThrow();
     }

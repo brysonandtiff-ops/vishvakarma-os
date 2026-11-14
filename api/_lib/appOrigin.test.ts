@@ -23,6 +23,8 @@ describe('trusted app origin policy', () => {
     const env = { APP_URL: undefined, CF_PAGES: '1' };
 
     expect(isTrustedAppOrigin(CANONICAL_ORIGIN, env)).toBe(true);
+    expect(isTrustedAppOrigin('https://www.vishvakarmaos.app', env)).toBe(true);
+    expect(isTrustedAppOrigin('https://vishvakarma-os.app', env)).toBe(false);
     expect(isTrustedAppOrigin(CLOUDFLARE_PAGES_ORIGIN, env)).toBe(true);
   });
 

@@ -19,7 +19,7 @@ export function validateReleaseUrl(rawUrl) {
   }
 
   const host = parsed.hostname.toLowerCase();
-  const isCanonical = host === 'vishvakarma-os.app' || host === 'www.vishvakarma-os.app';
+  const isCanonical = host === 'vishvakarmaos.app' || host === 'www.vishvakarmaos.app';
   const isPages = host === 'vishvakarma-os.pages.dev' ||
     /^[a-z0-9-]+\.vishvakarma-os\.pages\.dev$/.test(host);
 

@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { CANONICAL_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from '@/config/canonicalOrigin';
+import { CANONICAL_ORIGIN, CANONICAL_WWW_ORIGIN, CLOUDFLARE_PAGES_ORIGIN } from '@/config/canonicalOrigin';
 import { backendStatus } from '@/backend/backendConfig';
 import {
   buildSupabaseSessionFromAuthSession,
@@ -33,6 +33,7 @@ function isAllowedAuthOrigin(origin: string) {
     if (url.protocol !== 'https:' || url.username || url.password) return false;
     return (
       url.origin === CANONICAL_ORIGIN ||
+      url.origin === CANONICAL_WWW_ORIGIN ||
       url.hostname === CLOUDFLARE_PAGES_HOST ||
       url.hostname.endsWith(`.${CLOUDFLARE_PAGES_HOST}`)
     );

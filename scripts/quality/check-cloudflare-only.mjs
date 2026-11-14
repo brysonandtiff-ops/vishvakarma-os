@@ -10,6 +10,7 @@ const marker = legacyProvider.toLowerCase();
 const operationalPrefixes = [
   'src/',
   'api/',
+  'server/',
   'functions/',
   'cloudflare/',
   'scripts/',
@@ -17,6 +18,19 @@ const operationalPrefixes = [
 ];
 
 const operationalRootFiles = new Set([
+  '.env.example',
+  '.env.stripe.local.example',
+  '.vscode/settings.json',
+  '.cursor/rules/auto-finish.mdc',
+  '.github/workflows/README.md',
+  'AGENTS.md',
+  'CONTRIBUTING.md',
+  'docs/README.md',
+  'docs/PRODUCT_CAPABILITIES.md',
+  'docs/CURRENT_PRODUCTION_ARCHITECTURE.md',
+  'docs/release/DEPLOYMENT.md',
+  'docs/release/SUPABASE_AUTH_SETUP.md',
+  'docs/operations/DEPLOYMENT_RUNBOOK.md',
   'package.json',
   'pnpm-lock.yaml',
   'vite.config.ts',

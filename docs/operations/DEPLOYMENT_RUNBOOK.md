@@ -1,88 +1,33 @@
-# Deployment Runbook
+# Vishvakarma.OS — Cloudflare-Only Operations Runbook
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** operator  
+**Checked:** 15 November 2026. **Current action: HOLD production.**
 
-Condensed production deploy flow. Full guide: [release/DEPLOYMENT.md](../release/DEPLOYMENT.md)
+The canonical Cloudflare Pages domain is https://vishvakarmaos.app; `www.vishvakarmaos.app` is active. Project `vishvakarma-os` uses the configured Pages production branch `agent/cloudflare-pages-workers-migration`. Do not equate the currently serving August commit with the newer November draft preview.
 
----
+## Operator checks (read-only first)
 
-## Pre-deploy checklist
-
-- [ ] Migrations applied: `npx supabase link --project-ref jyocvwipthswfcmvqgqe && npx supabase db push`
-- [ ] Vercel env vars match [VERCEL_ENV.md](../release/VERCEL_ENV.md)
-- [ ] `VITE_AUTH_REDIRECT_ORIGIN=https://vishvakarma-os.app`
-- [ ] `APP_URL=https://vishvakarma-os.app`
-- [ ] Stripe webhook endpoint registered for production URL
-- [ ] No legacy `VITE_FIREBASE_*` or `BACKEND_PROVIDER` in production env
-- [ ] Local verification green:
+- [ ] Confirm exact Git SHA, existing worktree/branch and owner of any active PR.
+- [ ] Confirm Cloudflare's actual project, domain validation, and latest **production** and **preview** deployment SHAs separately.
+- [ ] Confirm security issue #153 and backup issue #188 are closed and independently proven (both were open as reviewed).
+- [ ] Confirm authorised zero-cost runner and cloud quotas; never enable paid GitHub Actions or compute implicitly.
+- [ ] Check `APP_URL`, `VITE_AUTH_REDIRECT_ORIGIN`, approved Google/Supabase callback URLs and Stripe return URLs without logging secrets.
+- [ ] Run exact-source tests, auth/RLS checks, PWA production build, accessibility/mobile checks and independently collected visual proofs.
+- [ ] Obtain explicit owner acceptance for each real UI screen.
 
 ```bash
+pnpm run cloudflare-only:gates
+pnpm run auth:gates
+pnpm run lint:types
+pnpm run test:routes
 pnpm run verify:ci
-pnpm run release:gates
-pnpm run handoff:verify
-pnpm run docs:verify
 ```
 
----
+**Important:** These commands use existing local scripts and may require environment prerequisites. Never report a check as passed if it could not run, timed out or checked a different SHA.
 
-## Deploy
+## Deployment and rollback
 
-### Option A — Git push (recommended)
+No deployment or DNS mutation is authorized by this runbook. After required gates and approval, use only the existing Cloudflare project, its source-bound build route and S.I.R.E. Cloudflare Steward. Independent read-back must compare the served artifact to the exact source SHA. Preserve all prior proof, recovery files and related PR ownership.
 
-Push to `main`. Vercel auto-deploys from GitHub integration.
+For a failed future release, use [rollback instructions](ROLLBACK.md) under independent authorization. Do not force-push, mass-delete deployment history or move production to an unverified branch.
 
-### Option B — CLI
-
-```bash
-pnpm run deploy:vercel
-```
-
-Requires clean git tree; runs `verify:ci` first.
-
-Build: `pnpm run build` → output `dist/` per `vercel.json`.
-
----
-
-## Post-deploy verification
-
-```bash
-pnpm run production:verify-env --strict
-pnpm run verify:supabase-schema:live
-pnpm run verify:production-auth-flow
-PLAYWRIGHT_BASE_URL=https://vishvakarma-os.app pnpm run test:e2e:auth
-```
-
-### Manual smoke (5 minutes)
-
-1. https://vishvakarma-os.app loads
-2. `/auth` — Google OAuth completes → `/editor`
-3. `/projects` — list loads for signed-in user
-4. `/editor` — 2D + 3D surfaces render
-5. `/profile` — billing section loads; Stripe portal link works (Studio user)
-6. Security headers present (see [evidence/security-headers.md](../release/evidence/security-headers.md))
-
----
-
-## Canonical URLs
-
-| Purpose | URL |
-|---------|-----|
-| Production | https://vishvakarma-os.app |
-| Vercel fallback | https://vishvakarma-os.vercel.app |
-
-Use `.app` for auth redirects, Stripe return URLs, and operator documentation.
-
----
-
-## Rollback
-
-If deploy fails smoke tests: [ROLLBACK.md](./ROLLBACK.md)
-
----
-
-## Related
-
-- [ENVIRONMENT_MATRIX.md](./ENVIRONMENT_MATRIX.md)
-- [handoff/08-operations-and-deployment.md](../handoff/08-operations-and-deployment.md)
+See [current architecture](../CURRENT_PRODUCTION_ARCHITECTURE.md) and [release deployment guide](../release/DEPLOYMENT.md).
