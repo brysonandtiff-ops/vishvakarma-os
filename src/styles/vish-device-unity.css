@@ -552,9 +552,9 @@ iframe {
 
   .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill p:last-child {
     margin-top: 0.35rem;
-    font-size: 0.54rem;
-    line-height: 1.25;
-    letter-spacing: 0.08em;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: 0.015em;
   }
 }
 
@@ -574,8 +574,73 @@ iframe {
 
   .vish-marketing-page .vish-features-metrics .vish-stat-pill p:last-child {
     margin-top: 0.25rem;
-    font-size: 0.58rem;
-    line-height: 1.25;
-    letter-spacing: 0.09em;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: 0.015em;
+  }
+}
+/* Keep the three pricing trust facts legible on narrow folded phones.
+   Two columns plus a full-width final item avoids 8px copy and clipping. */
+@media (max-width: 390px) {
+  .vish-marketing-page .vish-pricing-trust-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vish-marketing-page .vish-pricing-trust-row .vish-stat-pill:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* iPhone/iPad touch input: 16px minimum prevents Safari auto-zoom when focusing.
+   Desktop typography is untouched. */
+@media (pointer: coarse) and (max-width: 1194px) {
+  .vish-login-page :is(input, select, textarea),
+  .vish-workspace-shell :is(input, select, textarea) {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Real keyboard focus remains visible on mouse/keyboard desktops.
+   Does not add an outline during ordinary taps. */
+@media (hover: hover) and (pointer: fine) {
+  .vish-marketing-page :is(a, button, [role='button'], [role='tab']):focus-visible,
+  .vish-workspace-shell :is(a, button, [role='button'], [role='tab']):focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+  }
+}
+
+/* Compact phone landscape: reclaim height for the real 3D canvas while
+   keeping Walk, Reload and Back controls horizontally reachable. */
+@media (orientation: landscape) and (max-height: 560px) {
+  [data-testid='three-d-room-page'] > header {
+    gap: 0.5rem;
+    padding-block: 0.375rem;
+  }
+
+  [data-testid='three-d-room-page'] > header > div:first-child > p:last-child {
+    display: none;
+  }
+
+  [data-testid='three-d-room-page'] > header > div:last-child {
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  [data-testid='three-d-room-page'] > section {
+    padding-block: 0.25rem;
+  }
+}
+
+/* Notched phones and landscape tablets: don't tuck marketing content under
+   hardware cutouts. Respect existing gutter, whichever is larger. */
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 560px) {
+  .vish-marketing-hero,
+  .vish-page-section,
+  .vish-marketing-section {
+    padding-inline-start: max(var(--vish-device-gutter), env(safe-area-inset-left));
+    padding-inline-end: max(var(--vish-device-gutter), env(safe-area-inset-right));
   }
 }
