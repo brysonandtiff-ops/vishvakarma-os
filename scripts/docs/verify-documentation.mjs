@@ -6,10 +6,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
+const git = promisify(execFile);
 
 const errors = [];
 const warnings = [];
@@ -232,23 +234,36 @@ const manifestPath = 'docs/handoff/appendices/MANIFEST.json';
 if (exists(manifestPath)) {
   const manifest = JSON.parse(read(manifestPath));
   let currentSha = 'unknown';
+  let inventoryOutdated = false;
   try {
-    currentSha = execSync('git rev-parse HEAD', { cwd: ROOT, encoding: 'utf8' }).trim();
+    const { stdout } = await git('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' });
+    currentSha = stdout.trim();
   } catch {
     warn('Not a git repo — skipping SHA freshness check');
   }
 
   if (manifest.gitSha && currentSha !== 'unknown' && manifest.gitSha !== currentSha) {
-    warn(
-      `Appendix MANIFEST gitSha (${manifest.gitSha.slice(0, 8)}) differs from HEAD (${currentSha.slice(0, 8)}) — run pnpm run handoff:generate`,
-    );
+    try {
+      if (!/^[a-f0-9]{40}$/.test(manifest.gitSha)) throw new Error('Invalid source SHA');
+      const { stdout } = await git('git', [
+        'diff', '--name-only', manifest.gitSha, currentSha, '--',
+        'src/', 'api/', 'server/', 'supabase/', 'scripts/', 'e2e/', 'tests/anchors/',
+        'public/', '.github/', 'package.json', 'pnpm-lock.yaml', '.env.example',
+      ], { cwd: ROOT, encoding: 'utf8' });
+      inventoryOutdated = Boolean(stdout.trim());
+    } catch {
+      inventoryOutdated = true;
+    }
+    if (inventoryOutdated) {
+      warn(`Appendix inventory sources have changed since ${manifest.gitSha.slice(0, 8)} — run pnpm run handoff:generate`);
+    }
   }
 
   const appendixA = 'docs/handoff/appendices/A-routes-and-api.md';
   if (exists(appendixA)) {
     const stat = fs.statSync(path.join(ROOT, appendixA));
     const ageDays = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60 * 24);
-    if (ageDays > 30 && manifest.gitSha !== currentSha) {
+    if (ageDays > 30 && inventoryOutdated) {
       warn(`Appendix A is ${Math.floor(ageDays)} days old and git SHA is stale`);
     }
   }

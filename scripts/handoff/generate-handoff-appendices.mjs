@@ -3,15 +3,17 @@
  * Regenerate docs/handoff/appendices/* from live repo sources.
  * Run: pnpm run handoff:generate
  */
-import { execSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { isApiHandlerFile, parseRouteInventory } from './inventory-parsers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
 const OUT = path.join(ROOT, 'docs/handoff/appendices');
+const git = promisify(execFile);
 
 function read(file) {
   return fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -22,9 +24,10 @@ function write(name, body) {
   fs.writeFileSync(path.join(OUT, name), header + body.trim() + '\n');
 }
 
-function gitSha() {
+async function gitSha() {
   try {
-    return execSync('git rev-parse HEAD', { cwd: ROOT, encoding: 'utf8' }).trim();
+    const { stdout } = await git('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' });
+    return stdout.trim();
   } catch {
     return 'unknown';
   }
@@ -74,7 +77,7 @@ function parseApiRoutes() {
   return handlers.sort((a, b) => a.route.localeCompare(b.route));
 }
 
-function collectEnvVars() {
+async function collectEnvVars() {
   const dirs = ['src', 'api', 'scripts', 'server'];
   const vite = new Set();
   const proc = new Set();
@@ -85,7 +88,8 @@ function collectEnvVars() {
   for (const dir of dirs) {
     const base = path.join(ROOT, dir);
     if (!fs.existsSync(base)) continue;
-    const files = execSync(`git ls-files "${dir}"`, { cwd: ROOT, encoding: 'utf8' })
+    const { stdout } = await git('git', ['ls-files', '--', dir], { cwd: ROOT, encoding: 'utf8' });
+    const files = stdout
       .split('\n')
       .filter((f) => f && /\.(ts|tsx|mjs|js|sh)$/.test(f));
     for (const file of files) {
@@ -147,9 +151,10 @@ function parseDeps() {
   return { prod, dev, version: pkg.version, name: pkg.name };
 }
 
-function globTests() {
+async function globTests() {
   const out = { unit: [], e2e: [], anchors: [] };
-  const unitFiles = execSync('git ls-files "src/**/*.test.*" "src/**/*.spec.*"', { cwd: ROOT, encoding: 'utf8' })
+  const { stdout } = await git('git', ['ls-files', '--', 'src/**/*.test.*', 'src/**/*.spec.*'], { cwd: ROOT, encoding: 'utf8' });
+  const unitFiles = stdout
     .split('\n')
     .filter(Boolean);
   out.unit = unitFiles.sort();
@@ -180,13 +185,13 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const { routes, pricingFlag } = parseRoutes();
 const apiRoutes = parseApiRoutes();
-const env = collectEnvVars();
+const env = await collectEnvVars();
 const migrations = parseMigrations();
 const scripts = parseScripts();
 const deps = parseDeps();
-const tests = globTests();
+const tests = await globTests();
 const verify = parseVerifyScripts();
-const sha = gitSha();
+const sha = await gitSha();
 const generatedAt = new Date().toISOString();
 
 // A — routes
