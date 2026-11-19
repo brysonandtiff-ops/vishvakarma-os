@@ -2,6 +2,7 @@ import {
   Columns3,
   Compass,
   DoorOpen,
+  Eraser,
   Hand,
   Layers,
   MousePointer2,
@@ -42,7 +43,19 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
     icon: Square,
     label: 'Wall',
     shortcut: 'W',
-    hint: 'Tap start, tap end',
+    hint: 'Tap start and end, or drag to draw a straight wall',
+  },
+  pen: {
+    icon: PenLine,
+    label: 'Pencil',
+    shortcut: 'P',
+    hint: 'Draw connected walls freely with a finger, mouse, or stylus',
+  },
+  eraser: {
+    icon: Eraser,
+    label: 'Eraser',
+    shortcut: 'E',
+    hint: 'Rub over walls and openings to remove them; use Undo to restore',
   },
   door: {
     icon: DoorOpen,
@@ -122,7 +135,9 @@ export const TOOL_META: Record<ToolType, ToolMetaEntry> = {
 export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
   select: 'Select — click to inspect, Shift+click multi-select, drag empty to marquee',
   pan: 'Pan — drag to move the canvas view',
-  wall: 'Wall — tap start, tap end. Snap joins corners.',
+  wall: 'Wall — tap start then end, or drag a straight wall. Snap joins corners.',
+  pen: 'Pencil — drag freehand to build connected 2D/3D wall segments. Undo restores a whole stroke.',
+  eraser: 'Eraser — drag over walls or doors/windows to remove them. Undo restores changes.',
   door: 'Door — tap a wall to place a door.',
   window: 'Window — tap a wall to place a window.',
   measure: 'Measure — hover or tap walls to inspect dimensions.',
@@ -141,7 +156,9 @@ export const STATUS_TOOL_HINTS: Record<ToolType, string> = {
 export const TOUCH_STATUS_HINTS: Record<ToolType, string> = {
   select: 'Select — tap to inspect · pinch to zoom and pan',
   pan: 'Pan — drag with one finger to move the canvas',
-  wall: 'Wall — tap start, tap end · pinch to zoom',
+  wall: 'Wall — tap start then end, or drag · pinch to zoom',
+  pen: 'Pencil — draw with a finger or stylus · two fingers to zoom or pan',
+  eraser: 'Eraser — rub with a finger or stylus · two fingers to zoom or pan',
   door: 'Door — tap a wall to place · pinch to navigate',
   window: 'Window — tap a wall to place · pinch to navigate',
   measure: 'Measure — tap walls to inspect dimensions',
@@ -159,12 +176,14 @@ export const TOUCH_STATUS_HINTS: Record<ToolType, string> = {
 
 /** Shown on coarse-pointer devices below the active tool hint in the status bar. */
 export const TOUCH_POINTER_MODALITY_HINT =
-  'Pencil draws · finger pans/pinches · flip Pencil to erase';
+  'Finger or Pencil draws with the active tool · two fingers pan/zoom · use Eraser for any stylus';
 
 export const BASE_TOOL_IDS: ToolType[] = [
   'select',
   'pan',
   'wall',
+  'pen',
+  'eraser',
   'door',
   'window',
   'measure',
@@ -175,6 +194,8 @@ export const BASE_TOOL_IDS: ToolType[] = [
 export const RADIAL_TOOL_IDS: ToolType[] = [
   'pan',
   'wall',
+  'pen',
+  'eraser',
   'door',
   'window',
   'measure',

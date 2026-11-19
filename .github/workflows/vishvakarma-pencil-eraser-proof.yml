@@ -1,0 +1,85 @@
+name: Vishvakarma 2D Pencil and Eraser Proof
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/vishvakarma-pencil-eraser-proof.yml'
+      - 'src/components/editor/**'
+      - 'src/core/floorPlanEngine.ts'
+      - 'src/editor/toolMeta.ts'
+      - 'src/pages/EditorPage.tsx'
+      - 'src/styles/vish-editor-chrome.css'
+      - 'src/types/types.ts'
+      - 'src/test/**'
+      - 'e2e/ipad-editor-current-contract.spec.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vish-2d-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  touch-input-proof:
+    name: Typecheck, unit, build and browser draw-erase
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript app and API checks
+        run: pnpm run lint:types
+      - name: Pencil, eraser and editor regression tests
+        run: pnpm exec vitest run src/test/freehandWalls.test.ts src/test/ToolRail.test.tsx src/test/editorWorkflow.test.ts src/test/inputHandlers.test.ts
+      - name: Build production app
+        run: pnpm run build
+      - name: Install supported Chromium runtime
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Start real local editor and verify synthetic finger / Pencil gestures
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run preview:e2e:local > "${RUNNER_TEMP}/vish-e2e-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..180}; do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:4173/editor; then
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "${RUNNER_TEMP}/vish-e2e-server.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          if ! curl --fail --silent --output /dev/null http://127.0.0.1:4173/editor; then
+            cat "${RUNNER_TEMP}/vish-e2e-server.log"
+            exit 1
+          fi
+          pnpm exec playwright test e2e/ipad-editor-current-contract.spec.ts --project=app-smoke-chromium --reporter=line
+      - name: Preserve genuine browser errors and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vish-2d-proof-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

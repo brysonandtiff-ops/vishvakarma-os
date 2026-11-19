@@ -43,12 +43,21 @@ First visit: choose **New project** or **Load sample** on the welcome screen to 
 
 | Region | Purpose |
 |--------|---------|
-| **Tool rail** (left) | Wall, door, window, measure, label, dimension, room, MEP, furniture, landscape, terrain, Vastu tools |
+| **Tool rail** (left) | Wall, Pencil, Eraser, door, window, measure, label, dimension, room, MEP, furniture, landscape, terrain, Vastu tools |
 | **2D canvas** (center) | Floor plan drafting with snap-to-grid |
 | **3D viewport** (right or toggle) | Live extrusion of walls, materials, solar lighting |
 | **Properties panel** | Selected entity dimensions, materials, mode-specific controls, and project proof |
 | **Top bar** | Project name, save status, export, view modes |
 | **Command palette** | Route jump, tutorial launch, and workspace search (`Ctrl+K` / `Cmd+K`) |
+
+### Draw and erase directly on the 2D plan
+
+1. Select **Pencil** to draw connected walls by dragging your finger, Apple Pencil tip, USB stylus or mouse. The freehand line becomes editable wall segments and appears in 3D.
+2. Select **Wall** when you need one precise straight segment: tap start/end or drag, with grid snapping.
+3. Select **Eraser** and rub over unwanted walls, doors or windows using any finger or pen tip. Compatible stylus eraser buttons also work without changing tools. An Apple Pencil does **not** require a physical eraser end.
+4. Use **two fingers** to pan/zoom. Use **Undo** to restore a pencil stroke or one continuous erase gesture. Save or reopen using the project's normal controls.
+
+The Pencil tool creates architectural walls, not a separate ink/paint layer. Real iPadOS Safari and Apple Pencil hardware acceptance must be recorded separately from simulated browser input tests.
 
 Toggle 3D with the viewport control. Adjust solar time with the lighting scrubber.
 

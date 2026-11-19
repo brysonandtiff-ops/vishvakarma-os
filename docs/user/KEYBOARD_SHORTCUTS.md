@@ -6,6 +6,8 @@
 |----------|--------|
 | V | Select |
 | W | Wall |
+| P | Pencil (freehand architectural walls) |
+| E | Eraser (finger, pen tip, or mouse) |
 | D | Door |
 | N | Window |
 | M | Measure |

@@ -582,10 +582,19 @@ export class FloorPlanEngine {
   }
 
   addWall(wall: Wall): void {
+    this.addWalls([wall]);
+  }
+
+  /** Save an entire pencil gesture as one 2D/3D geometry edit and undo step. */
+  addWalls(walls: Wall[]): void {
+    if (walls.length === 0) return;
     const floorIndex = getActiveFloorIndex(this.manifest);
     this.touchManifest({
-      walls: [...this.manifest.walls, { ...wall, floorIndex: wall.floorIndex ?? floorIndex }],
-    });
+      walls: [
+        ...this.manifest.walls,
+        ...walls.map((wall) => ({ ...wall, floorIndex: wall.floorIndex ?? floorIndex })),
+      ],
+    }, walls.length > 1 ? 'Draw pencil walls' : 'Add wall');
     this.refreshStoredRooms();
   }
 
