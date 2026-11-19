@@ -1,3 +1,5 @@
+> **SOURCE WORKFLOW REFERENCE — DEVICE TESTING STILL REQUIRED (19 Nov 2026).** Steps below describe intended controls, not independently verified iPad, private cloud or export behaviour. [Current release status](../release/CURRENT_RELEASE_STATUS.md).
+
 # Common Workflows
 
 **Product version:** v1.5.0  

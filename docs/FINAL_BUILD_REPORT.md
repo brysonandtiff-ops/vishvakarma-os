@@ -1,3 +1,5 @@
+> **HISTORICAL v1.0 BUILD REPORT (February 2026).** Earlier PRODUCTION READY and test counts are preserved only as evidence of their date, NOT as certification of the November software. [Current decision](./release/CURRENT_RELEASE_STATUS.md).
+
 # Vishvakarma.OS v1.0.0 — Final Build Report
 
 **Build Date**: 2026-02-15  

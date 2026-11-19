@@ -1,3 +1,5 @@
+> **TOOL INVENTORY — CODE PRESENCE IS NOT RUNTIME CERTIFICATION (19 Nov 2026).** Compare listed tools with the real source and physical device before claiming completed actions. [Current source truth](../repository/SOURCE_OF_TRUTH_20261119.md).
+
 # Tool Reference
 
 **Product version:** v1.5.0  

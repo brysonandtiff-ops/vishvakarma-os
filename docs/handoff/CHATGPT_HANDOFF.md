@@ -1,3 +1,5 @@
+> **HISTORICAL HANDOFF SNAPSHOT.** This text may contain retired provider/domain or finished-feature claims. Check [current source truth](../repository/SOURCE_OF_TRUTH_20261119.md) and [release status](../release/CURRENT_RELEASE_STATUS.md) before relying on them.
+
 # Vishvakarma.OS — Complete Product & Codebase Handoff (v1.5.0)
 
 **Document type:** Paste-ready context for ChatGPT and other AI assistants  

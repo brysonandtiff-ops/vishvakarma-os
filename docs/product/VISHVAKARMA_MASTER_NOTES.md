@@ -1,3 +1,5 @@
+> **HISTORICAL OWNER PLAN (July 2026).** The Google-only-auth notes below describe an older direction; current source includes approved-account email links alongside Google SSO. No live invitation/admin role was proven. Read [current source truth](../repository/SOURCE_OF_TRUTH_20261119.md) and [release HOLD](../release/CURRENT_RELEASE_STATUS.md).
+
 # Vishvakarma.OS — Master Notes
 
 This file consolidates Bryson's current notes, constraints, design direction, VIP ZIP takeaways, release rules, and next-build order for Vishvakarma.OS.

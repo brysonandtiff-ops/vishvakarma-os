@@ -1,3 +1,5 @@
+> **HISTORICAL READINESS RECORD — NOT CURRENT LAUNCH PERMISSION.** Earlier lines saying public launch Allowed were scoped to an older build. Current November release is BLOCKED by security #153, retained backup #188 and real account/iPad evidence. [Current decision](./release/CURRENT_RELEASE_STATUS.md).
+
 # Vishvakarma.OS Launch Readiness Evidence Contract
 
 ## Purpose
