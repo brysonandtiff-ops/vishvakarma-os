@@ -2,6 +2,7 @@
 
 **Audit snapshot:** 19 November 2026 · Australia/Perth  
 **Package:** 1.5.0  
+**Active public domain:** https://vishvakarmaos.app — serves an older source; not the latest development review  
 **Inspected review code SHA:** 614256d64c502c8158c6867f69beacaf0ea8c0cb  
 **Release status:** BLOCKED (draft PR #210)
 

@@ -31,3 +31,8 @@
 **Meaning of “clean”:** safer source-of-truth docs, explicit unresolved debt and a repeatable drift check, not an invented declaration that 1,967 entries are flawless.
 
 Read the [current source map](./SOURCE_OF_TRUTH_20261119.md) and [release decision](../release/CURRENT_RELEASE_STATUS.md).
+
+
+## Automated scan result at previous review SHA 75f81b552e046d35fd6dadc11eb32cce44ce6c53
+
+The new scanner read **233 Markdown files** after adding the source/release documents and reported **88 files with possible legacy phrases**. These are review candidates, not 88 proven defects. The current README and source map were cleaned. The existing history remains intact. This file count differs from the earlier 231-document inventory because two new Markdown files were added.
