@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.IPAD10_PROOF_BASE_URL ?? 'https://vishvakarma-os.app';
+const baseURL = process.env.IPAD10_PROOF_BASE_URL ?? 'https://vishvakarmaos.app';
 const htmlReportFolder = process.env.PLAYWRIGHT_HTML_REPORT ?? 'playwright-report-ipad10';
 
 const ipad10SafariLike = {

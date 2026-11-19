@@ -10,9 +10,9 @@ Short onboarding for Cursor, ChatGPT, Codex, and other coding agents working in 
 
 ## Workspace boundary
 
-- **Work only in `vishvakarma-os-live/`** — this directory is the git root and contains all application code
-- The parent `Vishvakarma-os/` folder is a thin workspace wrapper; do not create parallel app trees there
-- Open Cursor at `vishvakarma-os-live` when possible so hooks resolve the correct git root
+- **The checkout repository root is authoritative.** It directly contains package.json, src/, docs/, scripts/ and supabase/. Use git rev-parse --show-toplevel to confirm the current checkout.
+- The old vishvakarma-os-live/ wrapper is retired. Never create a second parallel application tree or assume a parent workspace.
+- For current status and exact inspected source IDs, read docs/release/CURRENT_RELEASE_STATUS.md before relying on earlier release assertions.
 
 ## Instruction precedence
 
@@ -26,7 +26,7 @@ When agent instructions conflict, use this order:
 | 4 | **[`.cursor/rules/repairbot.mdc`](./.cursor/rules/repairbot.mdc)** | RepairBot tiers after substantive code edits |
 | 5 | Global Cursor user rules | Generic commit/PR habits — **superseded here** for routine build tasks |
 
-**Ship default:** For implementation tasks, hooks + auto-finish commit and push after `lint:types` passes. Do not ask permission to ship at the end. Skip ship only when the user explicitly says not to commit/push **in the same message**.
+**Safe ship default:** Authorised changes may be committed to an isolated review branch after relevant checks, but auto-commit or green local tests do **not** authorise production release, merging, DNS edits, billable actions, or bypassing security/backup holds. Source-bound evidence and owner approval are mandatory for a release claim.
 
 **Manual git:** Do not run `git commit` / `git push` during normal agent work — [auto-ship hooks](./docs/operations/AUTO_SHIP_HOOKS.md) handle it. Use git manually only when fixing auto-ship failures or when `VISH_AUTO_SHIP=0`.
 
@@ -94,7 +94,7 @@ Production auth is **Supabase-only**. Common agent mistakes:
 | Gotcha | Fix |
 |--------|-----|
 | Placeholder anon key | Replace `your-supabase-anon-key` in `.env.local` — copy from Supabase Dashboard → API |
-| Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarma-os.app` prod; `http://127.0.0.1:5173` local) |
+| Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarmaos.app` active Cloudflare domain; `http://127.0.0.1:5173` local) |
 | Google OAuth redirect | Google Cloud client needs `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback` |
 | Supabase redirect URLs | Dashboard → Auth → URL config must list `/auth` and `/editor` for each origin |
 | `VITE_*` not updating after env change | Vite inlines at **build time** — rebuild through the authorised Cloudflare Pages flow after env changes |
@@ -114,11 +114,12 @@ pnpm run verify:production-auth-flow   # when env allows
 
 When documents conflict:
 
-1. Handoff pack + [docs/CURRENT_PRODUCTION_ARCHITECTURE.md](./docs/CURRENT_PRODUCTION_ARCHITECTURE.md)
-2. [docs/SOFTWARE_INVENTORY.md](./docs/SOFTWARE_INVENTORY.md), [docs/PRODUCT_CAPABILITIES.md](./docs/PRODUCT_CAPABILITIES.md)
-3. Auto-generated [docs/handoff/appendices/](./docs/handoff/appendices/) (from `pnpm run handoff:generate`)
-4. [README.md](./README.md), [docs/README.md](./docs/README.md)
-5. Historical step/build docs — lowest precedence
+1. Exact current checked-out Git source tree and real deployed-runtime/source-SHA evidence; then [docs/release/CURRENT_RELEASE_STATUS.md](./docs/release/CURRENT_RELEASE_STATUS.md) for dated release holds, plus the approved [brand lock](./docs/BRAND_LOCK.md)
+2. Handoff pack + [docs/CURRENT_PRODUCTION_ARCHITECTURE.md](./docs/CURRENT_PRODUCTION_ARCHITECTURE.md)
+3. [docs/SOFTWARE_INVENTORY.md](./docs/SOFTWARE_INVENTORY.md), [docs/PRODUCT_CAPABILITIES.md](./docs/PRODUCT_CAPABILITIES.md) (historical unless freshly checked)
+4. Auto-generated [docs/handoff/appendices/](./docs/handoff/appendices/) (from `pnpm run handoff:generate`)
+5. [README.md](./README.md), [docs/README.md](./docs/README.md)
+6. Historical step/build docs — lowest precedence
 
 Production backend is **Supabase-only** (Auth, Postgres/RLS, Storage). Firebase artifacts are legacy migration tooling only.
 
@@ -165,7 +166,7 @@ These items are **PARTIAL** in launch evidence. Treat as blocked for production 
 
 Durable, non-obvious notes for cloud agents (the update script already installs dependencies).
 
-- **Repo root:** In the cloud VM, the app lives directly at the workspace root (`/workspace`) — there is no nested `vishvakarma-os-live/` directory here, despite the "Workspace boundary" note above. Run all commands from the repo root.
+- **Repo root:** The app lives at the Git checkout root (often /workspace in a cloud VM); this matches the Workspace boundary above. Run all commands from the repo root.
 - **Node:** `engines` pins Node `20.x`, but the VM default is Node 22 and there is no `engine-strict`, so install/lint/test/build/dev all work on Node 22 (pnpm only prints an "Unsupported engine" warning). No `nvm` juggling is required.
 - **Run the app (dev):** `pnpm run dev` serves the SPA at `http://127.0.0.1:5173`. The app boots **without any backend** — `RouteGuard` allows local access when Supabase is unconfigured. To force-bypass the auth gate, set `VITE_ALLOW_LOCAL_DEMO=true` in a gitignored `.env.local`. The editor is at `/editor` (the "START FREE" button routes to `/auth`).
 - **Editor canvas layout:** The editor shell (`.vish-editor-shell`) must be a flex column. It was previously `display: grid` (in `src/styles/vish-editor-polish.css`), whose `1fr` canvas column collapsed to `0px` and hid the blueprint — fixed. If the blueprint canvas ever renders blank again, first check that the shell's canvas column/stage has non-zero width (the failure mode is a grid/flex layout regression, not a 2D-drawing bug).

@@ -1,14 +1,18 @@
 # Vishvakarma.OS Documentation
 
 **Product version:** v1.5.0  
-**Last reviewed:** 2026-07-16  
-**Production URL:** https://vishvakarma-os.app  
+**Index refreshed:** 2026-11-19 (older linked documents have separate review dates; not a global re-certification)  
+**Active Cloudflare custom domain:** https://vishvakarmaos.app (www also active; retired hyphenated lookalike returns 404)  
 
 Central documentation hub for Vishvakarma.OS — an iPad-first, browser-native architectural workstation with governance, billing, and AI-assisted design tools.
 
 **Current production backend:** Supabase (Auth, Postgres/RLS, Storage). See [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
 
 All application code, migrations, documentation, and development commands live at the repository root.
+
+## Current source/release authority
+
+**BLOCKED at 19 November 2026:** consult [CURRENT_RELEASE_STATUS.md](./release/CURRENT_RELEASE_STATUS.md), the [read-only UI audit](./release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md), and the [owner vision acceptance](./design/OWNER_VISION_ACCEPTANCE.md). Exact Git and real immutable runtime evidence take precedence over historical documentation. The official visual logo and style remain locked by [BRAND_LOCK.md](./BRAND_LOCK.md).
 
 ## Choose your path
 
@@ -89,7 +93,9 @@ Start with [AGENTS.md](../AGENTS.md), then use the handoff documents and reposit
 | [release/DEPLOYMENT.md](./release/DEPLOYMENT.md) | Production deployment |
 | [release/VERIFY_COMMANDS.md](./release/VERIFY_COMMANDS.md) | Verification command reference |
 | [release/evidence/](./release/evidence/) | SHA-bound launch proof artifacts |
-| [release/evidence/production-closeout-2026-07-16.md](./release/evidence/production-closeout-2026-07-16.md) | Current security closeout evidence |
+| [release/evidence/production-closeout-2026-07-16.md](./release/evidence/production-closeout-2026-07-16.md) | Historical July closeout; not current November release certification |
+| [release/CURRENT_RELEASE_STATUS.md](./release/CURRENT_RELEASE_STATUS.md) | Current dated BLOCKED status and exact source identities |
+| [release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md](./release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md) | S.I.R.E. public browser and repository audit |
 
 ## Maintenance
 

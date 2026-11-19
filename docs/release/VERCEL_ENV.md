@@ -1,10 +1,12 @@
+> **Legacy Vercel guide:** active Cloudflare Pages custom domain is https://vishvakarmaos.app. Provider configuration must be separately checked; this text is not proof of live production auth or billing settings.
+
 # Vercel Production Environment Variables
 
 Configure these in the Vercel project **Settings → Environment Variables** for **Production** (and Preview if you want auth on preview URLs) before deploying Vishvakarma.OS.
 
 **Current production backend:** Supabase Auth + Postgres + Storage. The SPA hardcodes `provider: 'supabase'` in `src/backend/backendConfig.ts` — there is no runtime backend switch in current builds.
 
-**Canonical production origin:** `https://vishvakarma-os.app`  
+**Canonical production origin:** `https://vishvakarmaos.app`  
 **Vercel fallback/debug alias:** `https://vishvakarma-os.vercel.app`
 
 See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) for Supabase dashboard steps and [CURRENT_PRODUCTION_ARCHITECTURE.md](../CURRENT_PRODUCTION_ARCHITECTURE.md) for the architecture addendum.
@@ -17,7 +19,7 @@ See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) for Supabase dashboard st
 | `VITE_SUPABASE_ANON_KEY` | Same → anon public key |
 | `SUPABASE_URL` | Same → Project URL (server mirror) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Same → service_role key (server only — Stripe webhooks, JWT verify) |
-| `VITE_AUTH_REDIRECT_ORIGIN` | Set to canonical production origin: `https://vishvakarma-os.app` |
+| `VITE_AUTH_REDIRECT_ORIGIN` | Set to canonical production origin: `https://vishvakarmaos.app` |
 
 ## Server-only (AI Building Designer — never prefix with `VITE_`)
 
@@ -38,7 +40,7 @@ Required when `VITE_STRIPE_BILLING_ENABLED=true`:
 | `STRIPE_WEBHOOK_SECRET` | Signing secret from Stripe webhook endpoint |
 | `STRIPE_PRICE_STUDIO_MONTHLY` | Price ID for Studio **$499/mo** — run `pnpm run setup:stripe` |
 | `STRIPE_PRICE_ENTERPRISE_MONTHLY` | Price ID for Enterprise **$1,000/mo** — run `pnpm run setup:stripe` |
-| `APP_URL` | Set to canonical production origin: `https://vishvakarma-os.app` |
+| `APP_URL` | Set to canonical production origin: `https://vishvakarmaos.app` |
 
 See [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and local testing.
 
@@ -100,7 +102,7 @@ pnpm run push:supabase-env-vercel
 
 ## Post-deploy smoke test
 
-1. Open `https://vishvakarma-os.app` in incognito.
+1. Open `https://vishvakarmaos.app` in incognito.
 2. `/auth` — Google OAuth or email link sign-in.
 3. `/editor` — create project, save, reload, confirm cloud save badge shows **Supabase Cloud Save**.
 4. `/registry`, `/releases`, `/audit` — governance pages load.
