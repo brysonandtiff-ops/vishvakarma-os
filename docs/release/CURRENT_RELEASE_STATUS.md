@@ -28,6 +28,9 @@ Read-only browser run https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b4
 - The Pages production branch is `agent/cloudflare-pages-workers-migration`, not current Git main or this PR; the newest listed production attempt (August 5, 2026) FAILED while older production deployments succeeded. Exact source commit serving the active custom domain has **not** been attested.
 - Current repaired code already sets the correct non-hyphen origin in `src/config/canonicalOrigin.ts`, `scripts/lib/canonical-origin.mjs` and `.env.example`. This review repairs public metadata and iPad proof default URL. Live Supabase/Google/Stripe redirects, any support email deliverability, and CSS preload reliability need independent checks.
 
+## Real active-domain browser inspection
+Read-only browser QA at https://vishvakarmaos.app/ confirmed the active-domain homepage and Features and Pricing views render with brand logo, dark/gold Obsidian theme and navigation; no visible CSS preload error was reproduced. Source run: https://agent.tinyfish.ai/runs/de09b1e5-2d8e-422f-8ca2-738016632a9b. This checked **public marketing UI only**: not actual editor rendering, logged-in controls, build source SHA or device hardware.
+
 ## Source-of-truth precedence
 1. Exact Git source tree, package.json, migrations/configuration, and source-bound real runtime in the specific environment inspected.
 2. Reproducible test logs, signed-in validation, immutable deployment/source receipts, screenshots/videos where appropriate, independently checked at the same candidate SHA.

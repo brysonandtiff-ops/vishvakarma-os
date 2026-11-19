@@ -31,6 +31,9 @@ Connected Cloudflare read-only query on 19 November 2026: zone vishvakarmaos.app
 
 The repair candidate already has correct non-hyphen origins in runtime canonical origin and .env.example. Stale index.html social metadata and iPad test target are fixed in this docs/source cleanup. A content extractor exposed a CSS preload warning on the public site that browser navigation did not reproduce; must verify before concluding it is a release defect or fixed.
 
+## Genuine public UI on active Cloudflare custom domain
+Real read-only browser task at https://vishvakarmaos.app/: https://agent.tinyfish.ai/runs/de09b1e5-2d8e-422f-8ca2-738016632a9b. The homepage, Features and Pricing pages visually rendered with the original-branded site, intact images, dark/gold theme and navigation. A cookie/optional analytics banner appeared with Decline and Allow choices. No CSS-preload error was observed by that browser. Static 2D/3D hero images remain marketing previews, **not live editor runtime screenshots**. No signed-in app use, production build identity, physical hardware screen recording or interaction video was collected in this pass.
+
 ## Not tested, so not PASS
 | Requirement | State | Missing proof |
 | --- | --- | --- |
