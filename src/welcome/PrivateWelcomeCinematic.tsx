@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Film, Pause, Play, RotateCcw, Volume2, VolumeX, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNarrationVoices } from '@/voice-tour/useNarrationVoices';
+import { createNarrationUtterance, NARRATION_VOICE_SAMPLE } from '@/voice-tour/voiceQuality';
 import { isCoOwnerEmail } from '@/config/coOwners';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { WORLD_RECORD_HONESTY_DISCLAIMER } from '@/governance/records/worldRecordRegistry';
@@ -100,6 +102,7 @@ export function PrivateWelcomeCinematic() {
   const [sceneIndex, setSceneIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [voice, setVoice] = useState(false);
+  const { voices, settings, updateSettings } = useNarrationVoices();
   const lastShown = useRef<string | null>(null);
   const eligible = !loading && isDesignatedWelcomeUser(user);
 
@@ -146,9 +149,7 @@ export function PrivateWelcomeCinematic() {
   useEffect(() => {
     if (!open || !playing) return undefined;
     if (voice && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
-      const utterance = new SpeechSynthesisUtterance(PRIVATE_WELCOME_SCENES[sceneIndex].narration);
-      utterance.rate = 0.92;
-      utterance.volume = 0.85;
+      const utterance = createNarrationUtterance(PRIVATE_WELCOME_SCENES[sceneIndex].narration, voices, settings);
       utterance.onend = () => {
         if (sceneIndex === PRIVATE_WELCOME_SCENES.length - 1) setPlaying(false);
         else setSceneIndex((index) => Math.min(index + 1, PRIVATE_WELCOME_SCENES.length - 1));
@@ -161,7 +162,7 @@ export function PrivateWelcomeCinematic() {
       else setSceneIndex((index) => Math.min(index + 1, PRIVATE_WELCOME_SCENES.length - 1));
     }, 9500);
     return () => window.clearTimeout(timer);
-  }, [open, playing, sceneIndex, voice]);
+  }, [open, playing, sceneIndex, voice, voices, settings]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -171,6 +172,14 @@ export function PrivateWelcomeCinematic() {
     window.addEventListener('keydown', onEscape);
     return () => window.removeEventListener('keydown', onEscape);
   }, [close, open]);
+
+  const previewVoice = () => {
+    stopVoice();
+    setPlaying(false);
+    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+    const utterance = createNarrationUtterance(NARRATION_VOICE_SAMPLE, voices, settings);
+    window.speechSynthesis.speak(utterance);
+  };
 
   if (!eligible || !user || !open) return null;
   const scene = PRIVATE_WELCOME_SCENES[sceneIndex];
@@ -216,6 +225,24 @@ export function PrivateWelcomeCinematic() {
               <span />
             </button>
           ))}
+        </div>
+        <div className="vish-private-film__voice-controls" aria-label="Narrator voice settings">
+          <label htmlFor="vish-welcome-voice">Narrator voice
+            <select id="vish-welcome-voice" value={settings.voiceURI}
+              onChange={(event) => { stopVoice(); setPlaying(false); updateSettings({ voiceURI: event.target.value }); }}>
+              <option value="">Automatic — prefer Australian English</option>
+              {voices.map((item) => <option key={item.voiceURI} value={item.voiceURI}>{item.name} · {item.lang}</option>)}
+            </select>
+          </label>
+          <label htmlFor="vish-welcome-pace">Speaking pace
+            <select id="vish-welcome-pace" value={settings.rate}
+              onChange={(event) => { stopVoice(); setPlaying(false); updateSettings({ rate: Number(event.target.value) }); }}>
+              <option value="0.9">Relaxed</option><option value="0.98">Natural</option><option value="1.08">Brisk</option>
+            </select>
+          </label>
+          <button type="button" onClick={previewVoice} disabled={!('speechSynthesis' in window)}
+            aria-label="Hear a sample of the selected narrator">Hear voice sample</button>
+          <p>Voice quality depends on voices installed on this iPad. No artificial pitch effect or paid AI voice is used.</p>
         </div>
         <div className="vish-private-film__actions">
           <button type="button" className="vish-private-film__control" onClick={previous} disabled={sceneIndex === 0}>

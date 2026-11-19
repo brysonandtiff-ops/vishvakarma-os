@@ -29,3 +29,11 @@
 @keyframes vish-film-enter{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:none}}
 @media(max-width:600px){.vish-private-film{border-radius:15px;max-height:96dvh}.vish-private-film__stage{padding:18px 14px 6px}.vish-private-film__brand img{width:76px;height:76px}.vish-private-film__actions>*{flex:1 1 40%}.vish-private-film__top>span{font-size:10px;letter-spacing:.1em}.vish-private-film__visual img{max-height:150px}.vish-private-film__footer{justify-content:center;text-align:center}}
 @media(prefers-reduced-motion:reduce){.vish-private-film__stage{animation:none}.vish-private-film__progress span{transition:none}}
+
+/* Voice Quality: native device voice test and owner choice, with iPad-safe controls. */
+.vish-private-film__voice-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:center;padding:8px 18px 15px}
+.vish-private-film__voice-controls label{display:grid;gap:5px;color:#edd3a0;font-size:12px;flex:1 1 200px;max-width:330px}
+.vish-private-film__voice-controls select,.vish-private-film__voice-controls button{min-height:44px;color:#fff2d9;background:#142838;border:1px solid #d4b87999;border-radius:10px;padding:9px;font-size:14px}
+.vish-private-film__voice-controls option{background:#142838;color:#fff2d9}
+.vish-private-film__voice-controls p{flex-basis:100%;text-align:center;color:#c5bcb0;font-size:11px;margin:2px auto 0;line-height:1.4}
+@media(max-width:600px){.vish-private-film__voice-controls{padding-inline:12px}.vish-private-film__voice-controls label{max-width:none}}

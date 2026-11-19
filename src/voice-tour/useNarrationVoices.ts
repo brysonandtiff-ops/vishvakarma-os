@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   availableEnglishVoices,
+  NARRATION_PREFS_EVENT,
   readNarrationPreferences,
   saveNarrationPreferences,
   type NarrationPreferences,
@@ -23,6 +24,12 @@ export function useNarrationVoices() {
       window.clearTimeout(first);
       window.clearTimeout(second);
     };
+  }, []);
+
+  useEffect(() => {
+    const sync = () => setSettings(readNarrationPreferences());
+    window.addEventListener(NARRATION_PREFS_EVENT, sync);
+    return () => window.removeEventListener(NARRATION_PREFS_EVENT, sync);
   }, []);
 
   const updateSettings = (patch: Partial<NarrationPreferences>) => {

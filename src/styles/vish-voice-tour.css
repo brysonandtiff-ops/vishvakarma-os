@@ -241,3 +241,10 @@ body:has(.vish-voice-tour-panel) .vish-theme-controller {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+.vish-voice-tour-panel__voice-options{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;padding:.6rem 1rem .9rem}
+.vish-voice-tour-panel__voice-options label{display:grid;gap:5px;min-width:0;color:rgba(255,236,179,.94);font-size:.76rem}
+.vish-voice-tour-panel__voice-options select{min-height:44px;max-width:100%;border:1px solid rgba(246,198,101,.44);border-radius:9px;background:#13253c;color:#fff4dc;padding:7px;font-size:13px}
+.vish-voice-tour-panel__voice-options option{background:#13253c}
+.vish-voice-tour-panel__voice-options button{min-height:44px;grid-column:1/-1}
+.vish-voice-tour-panel__voice-options p{grid-column:1/-1;color:rgba(226,236,255,.72);font-size:11px;margin:0;line-height:1.4}

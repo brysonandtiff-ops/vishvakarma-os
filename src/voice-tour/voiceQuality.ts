@@ -9,6 +9,7 @@ export type NarrationPreferences = {
 };
 
 export const NARRATION_PREFS_KEY = 'vishvakarma.os.voice-prefs.v2';
+export const NARRATION_PREFS_EVENT = 'vish:voice-prefs-updated';
 export const DEFAULT_NARRATION_PREFERENCES: NarrationPreferences = {
   voiceURI: '',
   rate: 0.98,
@@ -67,6 +68,7 @@ export function saveNarrationPreferences(settings: NarrationPreferences): void {
       voiceURI: settings.voiceURI,
       rate: clampNarrationRate(settings.rate),
     }));
+    window.dispatchEvent(new Event(NARRATION_PREFS_EVENT));
   } catch {
     // Safari private browsing may deny persistent storage. Voice still works.
   }

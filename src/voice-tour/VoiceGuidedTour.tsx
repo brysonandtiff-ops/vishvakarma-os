@@ -12,6 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { openTutorialHub, startTutorial } from '@/tutorial/TutorialProvider';
+import { useNarrationVoices } from '@/voice-tour/useNarrationVoices';
+import { createNarrationUtterance, NARRATION_VOICE_SAMPLE } from '@/voice-tour/voiceQuality';
 import {
   OPEN_VOICE_TOUR_EVENT,
   VOICE_TOUR_CHAPTERS,
@@ -48,6 +50,7 @@ export default function VoiceGuidedTour() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const speechSupported = useMemo(() => hasBrowserSpeech(), []);
+  const { voices, settings, updateSettings } = useNarrationVoices();
 
   const chapter = VOICE_TOUR_CHAPTERS[chapterIndex] ?? VOICE_TOUR_CHAPTERS[0];
 
@@ -82,10 +85,7 @@ export default function VoiceGuidedTour() {
       }
 
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(`${nextChapter.title}. ${nextChapter.narration}`);
-      utterance.rate = 0.94;
-      utterance.pitch = 0.92;
-      utterance.volume = 0.95;
+      const utterance = createNarrationUtterance(`${nextChapter.title}. ${nextChapter.narration}`, voices, settings);
       utterance.onend = () => {
         setPlayback('idle');
         setStatus('Chapter complete. Choose Next or replay this chapter.');
@@ -99,7 +99,7 @@ export default function VoiceGuidedTour() {
       setStatus('Speaking with browser voice.');
       window.speechSynthesis.speak(utterance);
     },
-    [speechSupported],
+    [speechSupported, voices, settings],
   );
 
   const playChapter = useCallback(
@@ -186,6 +186,19 @@ export default function VoiceGuidedTour() {
 
   useEffect(() => stopPlayback, [stopPlayback]);
 
+  const hearVoiceSample = () => {
+    stopPlayback();
+    if (!speechSupported) {
+      setStatus('This browser does not support spoken narration. Captions are available.');
+      return;
+    }
+    const utterance = createNarrationUtterance(NARRATION_VOICE_SAMPLE, voices, settings);
+    utterance.onend = () => setStatus('Voice sample completed.');
+    utterance.onerror = () => setStatus('Voice sample unavailable. Try another installed voice.');
+    window.speechSynthesis.speak(utterance);
+    setStatus('Playing selected narrator sample.');
+  };
+
   const nextDisabled = chapterIndex >= VOICE_TOUR_CHAPTERS.length - 1;
   const prevDisabled = chapterIndex <= 0;
 
@@ -266,6 +279,23 @@ export default function VoiceGuidedTour() {
         </button>
       </div>
 
+      <div className="vish-voice-tour-panel__voice-options">
+        <label htmlFor="vish-tour-narrator">Narrator
+          <select id="vish-tour-narrator" value={settings.voiceURI}
+            onChange={(event) => { stopPlayback(); updateSettings({ voiceURI: event.target.value }); }}>
+            <option value="">Automatic — Australian English preferred</option>
+            {voices.map((item) => <option key={item.voiceURI} value={item.voiceURI}>{item.name} · {item.lang}</option>)}
+          </select>
+        </label>
+        <label htmlFor="vish-tour-pace">Pace
+          <select id="vish-tour-pace" value={settings.rate}
+            onChange={(event) => { stopPlayback(); updateSettings({ rate: Number(event.target.value) }); }}>
+            <option value="0.9">Relaxed</option><option value="0.98">Natural</option><option value="1.08">Brisk</option>
+          </select>
+        </label>
+        <button type="button" onClick={hearVoiceSample} className="vish-voice-tour-panel__secondary touch-target">Hear voice sample</button>
+        <p>Voices are from this device. Preview to find one you enjoy.</p>
+      </div>
       <div className="vish-voice-tour-panel__chapters" aria-label="Voice tour chapters">
         {VOICE_TOUR_CHAPTERS.map((item, index) => (
           <button
