@@ -13,9 +13,13 @@ const distance = (a: Point2D, b: Point2D) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export function appendPencilPoint(points: Point2D[], point: Point2D): Point2D[] {
   if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) return points;
-  if (points.length >= MAX_PENCIL_POINTS) return points;
   const last = points[points.length - 1];
   if (last && distance(last, point) < 3) return points;
+  // Keep the pencil responsive during arbitrarily long strokes instead of
+  // silently truncating the stroke when the sample budget is reached.
+  if (points.length >= MAX_PENCIL_POINTS) {
+    return [...points.filter((_, index) => index % 2 === 0), point];
+  }
   return [...points, point];
 }
 
