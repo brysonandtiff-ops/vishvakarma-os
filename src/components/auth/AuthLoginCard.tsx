@@ -156,7 +156,7 @@ export default function AuthLoginCard({
           </form>
 
           <p className="vish-login-page__field-help vish-login-page__magic-help">
-            Email links are one-time use, expire automatically, and do not create unapproved accounts.
+            Returning users can request a one-time sign-in link. New accounts require a private invitation; this form cannot register new users.
           </p>
 
           <p
@@ -171,7 +171,7 @@ export default function AuthLoginCard({
         <div className="vish-login-page__request">
           Need access?{' '}
           <button type="button" className="vish-login-page__link touch-target" onClick={onRequestAccess}>
-            Request access
+            Share an invitation request
           </button>
         </div>
       </div>

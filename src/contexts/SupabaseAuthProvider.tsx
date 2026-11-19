@@ -23,6 +23,7 @@ import {
   isOAuthRedirectPending,
   POST_AUTH_DESTINATION,
   readAndClearAuthReturnPath,
+  resolvePostAuthDestination,
   resolveSupabaseOAuthRedirectSession,
   signInWithAppleSupabase,
   signInWithGoogleSupabase,
@@ -121,8 +122,8 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user || location.pathname !== '/auth') return;
-    readAndClearAuthReturnPath();
-    navigate(POST_AUTH_DESTINATION, { replace: true });
+    const destination = resolvePostAuthDestination(readAndClearAuthReturnPath(POST_AUTH_DESTINATION));
+    navigate(destination, { replace: true });
   }, [user, location.pathname, navigate]);
 
   const completeEmailLinkSignIn = useCallback(async (email: string) => {

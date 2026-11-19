@@ -154,10 +154,16 @@ describe('post-auth redirect helpers', () => {
     sessionStorage.clear();
   });
 
-  it('always resolves post-auth destination to /editor', () => {
+  it('keeps the standard editor default, but allows the approved iPad journey', () => {
     expect(POST_AUTH_DESTINATION).toBe('/editor');
-    expect(resolvePostAuthDestination('/projects')).toBe('/editor');
+    expect(resolvePostAuthDestination('/projects')).toBe('/projects');
+    expect(resolvePostAuthDestination('/editor-lite')).toBe('/editor-lite');
+    expect(resolvePostAuthDestination('/3d-room')).toBe('/3d-room');
     expect(resolvePostAuthDestination(null)).toBe('/editor');
+    expect(resolvePostAuthDestination('https://evil.invalid')).toBe('/editor');
+    expect(resolvePostAuthDestination('//evil.invalid')).toBe('/editor');
+    expect(resolvePostAuthDestination('/%2f%2fevil.invalid')).toBe('/editor');
+    expect(resolvePostAuthDestination('/settings')).toBe('/editor');
   });
 
   it('hard-redirects from /auth to /editor when invoked directly', () => {
