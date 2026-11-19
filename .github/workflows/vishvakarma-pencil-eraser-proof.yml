@@ -1,0 +1,55 @@
+name: Vishvakarma 2D Pencil and Eraser Proof
+
+on:
+  push:
+    branches:
+      - feat/2d-touch-pencil-erase-20261119
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vish-2d-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  touch-input-proof:
+    name: Typecheck, unit, build and browser draw-erase
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript app and API checks
+        run: pnpm run lint:types
+      - name: Pencil, eraser and editor regression tests
+        run: pnpm exec vitest run src/test/freehandWalls.test.ts src/test/ToolRail.test.tsx src/test/editorWorkflow.test.ts src/test/inputHandlers.test.ts
+      - name: Build production app
+        run: pnpm run build
+      - name: Install supported Chromium runtime
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Synthetic finger and Pencil editor interactions
+        run: pnpm exec playwright test e2e/ipad-editor-current-contract.spec.ts --project=app-smoke-chromium --reporter=line
+      - name: Preserve genuine browser errors and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vish-2d-proof-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
