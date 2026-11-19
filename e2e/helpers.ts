@@ -8,12 +8,10 @@ import {
 
 /** 3D pane may render WebGL or a graceful fallback in headless WebKit/Firefox. */
 export async function expect3DPreviewPane(page: Page) {
-  await expect(page.locator('.ws-pane-label', { hasText: '3D Preview' })).toBeVisible({ timeout: 30_000 });
   const pane = page.locator('.vish-3d-viewport-pane');
   await expect(pane).toBeVisible({ timeout: 15_000 });
-  const fallback = page.getByText('3D Preview Unavailable');
-  if (await fallback.isVisible().catch(() => false)) return;
-  await expect(pane.locator('canvas').first()).toBeAttached({ timeout: 30_000 });
+  const preview = pane.locator('canvas').or(pane.getByText('3D Preview Unavailable', { exact: true }));
+  await expect(preview.first()).toBeVisible({ timeout: 30_000 });
 }
 
 export async function hasWebGL3DPreview(page: Page) {
@@ -108,43 +106,18 @@ async function findProjectActionsButton(page: Page): Promise<Locator> {
   throw new Error(`Project actions button not found after editor top bar loaded. Button clues: ${buttonClues.join(' | ')}`);
 }
 
-async function pressMenuButton(button: Locator) {
-  await button.waitFor({ state: 'visible', timeout: 15_000 });
-  await button.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => {});
-  const clicked = await button.click({ force: true, timeout: 5_000 }).then(() => true).catch(() => false);
-  if (clicked) return;
-
-  await button.evaluate((el) => {
-    const scroller = el.closest<HTMLElement>('.vish-editor-action-row');
-    const rect = el.getBoundingClientRect();
-    if (scroller && (rect.left < 0 || rect.right > window.innerWidth)) {
-      scroller.scrollLeft = Math.max(0, (el as HTMLElement).offsetLeft - scroller.clientWidth / 2);
-    }
-    el.scrollIntoView({ block: 'nearest', inline: 'center' });
-    const pointerInit = { bubbles: true, cancelable: true, button: 0 };
-    el.dispatchEvent(new PointerEvent('pointerdown', { ...pointerInit, buttons: 1, pointerType: 'touch' }));
-    el.dispatchEvent(new PointerEvent('pointerup', { ...pointerInit, buttons: 0, pointerType: 'touch' }));
-    el.dispatchEvent(new MouseEvent('click', pointerInit));
-  });
-}
-
 export async function openProjectActionsMenu(page: Page) {
+  const menu = page.getByRole('menu', { name: 'Project actions' });
+  if (await menu.isVisible()) return;
   await dismissTutorialIfPresent(page).catch(() => {});
   const button = await findProjectActionsButton(page);
-  await pressMenuButton(button);
-  const firstMenuItem = page.getByRole('menuitem').first();
-  if (!(await firstMenuItem.waitFor({ state: 'visible', timeout: 1_500 }).then(() => true).catch(() => false))) {
-    await button.click({ force: true, timeout: 5_000 }).catch(async () => pressMenuButton(button));
-    await firstMenuItem.waitFor({ state: 'visible', timeout: 5_000 });
-  }
+  await button.click({ timeout: 15_000 });
+  await expect(menu.getByRole('menuitem').first()).toBeVisible({ timeout: 15_000 });
 }
 
 async function activateProjectMenuItem(page: Page, name: RegExp) {
-  const item = page.getByRole('menuitem', { name }).first();
-  await item.waitFor({ state: 'visible', timeout: 5_000 });
-  await item.evaluate((el) => {
-    (el as HTMLElement).click();
-  });
+  const menu = page.getByRole('menu', { name: 'Project actions' });
+  await menu.getByRole('menuitem', { name }).first().click({ timeout: 15_000 });
 }
 
 async function openSampleDialogFromDirectAction(page: Page) {
@@ -196,7 +169,7 @@ export async function loadSampleProject(page: Page, sampleName = 'Sample House 0
     const text = bar?.textContent ?? '';
     const match = text.match(/Walls:\s*(\d+)/i);
     return Boolean(match && Number(match[1]) > 0);
-  }, { timeout: 30_000 }).catch(() => {});
+  }, undefined, { timeout: 30_000 });
 }
 
 export async function saveProject(page: Page) {
