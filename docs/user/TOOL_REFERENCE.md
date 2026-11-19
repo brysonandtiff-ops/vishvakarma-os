@@ -13,7 +13,9 @@ Editor tools available from the tool rail in `/editor`. Use the command palette 
 | Tool | Shortcut | Action | Best next step |
 |------|----------|--------|----------------|
 | Select | V | Select walls, openings, labels, dimensions, and placed items | Edit details in Properties |
-| Wall | W | Tap start and end points to draw wall segments | Close a room shell, then add openings |
+| Wall | W | Tap two endpoints or drag to place one precise wall | Close a room shell, then add openings |
+| Pencil | P | Freehand draw connected wall segments by dragging with finger, Apple Pencil, USB pen or mouse | Revisit dimensions and inspect in 3D |
+| Eraser | E | Rub over walls or openings with finger, pen tip, or mouse; hardware pen eraser also supported where exposed | Undo to restore an erase gesture |
 | Door | D | Tap a wall to place a door | Drag handles or inspect in 3D |
 | Window | N | Tap a wall to place a window | Toggle 3D to verify placement |
 | Measure | M | Inspect wall and opening dimensions | Use Dimension for persistent annotations |
