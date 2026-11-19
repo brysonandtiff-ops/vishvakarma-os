@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, MoreHorizontal, PenTool, Plus, Sparkles, FolderDown, Bot } from 'lucide-react';
+import { FolderOpen, MoreHorizontal, PenTool, Plus, FolderDown, Bot } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import {
@@ -37,6 +37,7 @@ import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
 import { VishCard, VishCardContent, VishCardHeader, VishCardTitle, VishMetric, VishStatusBadge } from '@/components/common/vish-primitives';
 import { useAuth } from '@/contexts/AuthContext';
+import { DreamHomeJourney } from '@/components/projects/DreamHomeJourney';
 
 function isProjectArchived(project: Project): boolean {
   if (project.manifest.metadata.archived) return true;
@@ -62,6 +63,7 @@ export default function ProjectsPage() {
   const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   const accountName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Architect';
 
@@ -202,15 +204,17 @@ export default function ProjectsPage() {
     toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
-  // Mock system stats for the redesign
-  const systemStats = {
-    activeProjects: projects.length,
-    totalArea: 14500, // sqm
-    rooms: 112,
-    outstandingChanges: 3,
-    complianceWarnings: 1,
-    estCost: '48.7M'
-  };
+  // Source-grounded counters from the projects actually loaded in this session.
+  const projectStats = useMemo(() => {
+    const active = projects.filter((entry) => !isProjectArchived(entry));
+    return {
+      count: active.length,
+      walls: active.reduce((sum, entry) => sum + entry.manifest.walls.length, 0),
+      openings: active.reduce((sum, entry) => sum + entry.manifest.openings.length, 0),
+      rooms: active.reduce((sum, entry) => sum + (entry.manifest.rooms?.length ?? 0), 0),
+    };
+  }, [projects]);
+  const visibleStat = (value: number): number | string => loading ? '—' : value;
 
   return (
     <div className="p-6 tablet:p-10 max-w-7xl mx-auto flex flex-col gap-8 pb-32">
@@ -226,23 +230,25 @@ export default function ProjectsPage() {
           zone="document"
         />
 
+        <DreamHomeJourney />
+
         {/* Primary Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors" asChild>
+          <Button variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors" asChild>
             <Link to="/editor">
-              <Plus className="w-5 h-5 text-vish-blue-400" />
+              <Plus className="w-5 h-5 text-primary" />
               <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
             </Link>
           </Button>
-          <Button data-testid="dashboard-open-project" onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })} variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
-             <FolderOpen className="w-5 h-5 text-vish-blue-400" />
+          <Button data-testid="dashboard-open-project" onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })} variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors">
+             <FolderOpen className="w-5 h-5 text-primary" />
              <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
           </Button>
-          <Button data-testid="dashboard-import-files" onClick={() => navigate('/editor', { state: { openIntent: 'import' } })} variant="outline" className="h-16 flex items-center justify-center gap-2 bg-vish-navy-800 border-vish-navy-600 hover:bg-vish-navy-700 hover:text-white transition-colors">
-             <FolderDown className="w-5 h-5 text-vish-blue-400" />
+          <Button data-testid="dashboard-import-files" onClick={() => navigate('/editor', { state: { openIntent: 'import' } })} variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors">
+             <FolderDown className="w-5 h-5 text-primary" />
              <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
           </Button>
-          <Button data-testid="dashboard-ai-copilot" onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })} className="h-16 flex items-center justify-center gap-2 bg-vish-blue-600 hover:bg-vish-blue-500 text-white transition-colors border-t border-vish-blue-400/50 shadow-[0_0_15px_rgba(42,167,255,0.3)]">
+          <Button data-testid="dashboard-ai-copilot" onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })} className="min-h-[58px] flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground transition-colors border border-primary/60 shadow-md">
              <Bot className="w-5 h-5" />
              <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
           </Button>
@@ -255,14 +261,14 @@ export default function ProjectsPage() {
             <p className="text-[10px] uppercase tracking-widest text-vish-gold-400">Reviewer walkthroughs</p>
             <h2 id="demo-fixtures-heading" className="text-xl font-semibold text-white">Demo blueprints</h2>
           </div>
-          <span className="text-xs text-vish-text-400">{demoSamples.length} verified fixtures</span>
+          <span className="text-xs text-vish-text-400">{demoSamples.length} versioned sample designs</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
             <VishCard key={sample.id} className="group overflow-hidden" data-testid={`projects-demo-${sample.id}`}>
               <div className="p-5 flex flex-col gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-vish-blue-400">{eyebrow}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-primary">{eyebrow}</p>
                   <h3 className="mt-1 text-base font-semibold text-white">{sample.name}</h3>
                   <p className="mt-2 text-xs leading-5 text-vish-text-300">{sample.description}</p>
                 </div>
@@ -271,7 +277,7 @@ export default function ProjectsPage() {
                   <span>{stats.openings} openings</span>
                   {badges.map((badge) => <span key={badge} className="text-vish-gold-400">{badge}</span>)}
                 </div>
-                <Button type="button" className="w-full bg-vish-blue-600 hover:bg-vish-blue-500 text-white" onClick={() => openDemoSample(sample.id)}>
+                <Button type="button" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => openDemoSample(sample.id)}>
                   Open in editor
                 </Button>
               </div>
@@ -279,46 +285,36 @@ export default function ProjectsPage() {
           ))}
         </div>
       </section>
-      {/* System Overview */}
-      <section>
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-          <VishCard className="p-4">
-             <VishMetric label="Active Projects" value={systemStats.activeProjects} />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Total Area" value={systemStats.totalArea.toLocaleString()} subValue="m²" />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Total Rooms" value={systemStats.rooms} />
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Change Requests" value={systemStats.outstandingChanges} trend="down" trendValue="-2 this week" />
-          </VishCard>
-          <VishCard className="p-4">
-             <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold tracking-[0.08em] uppercase text-vish-text-400">Compliance</span>
-                <div className="mt-1">
-                  {systemStats.complianceWarnings > 0 ? (
-                    <VishStatusBadge status="warning">{systemStats.complianceWarnings} Warnings</VishStatusBadge>
-                  ) : (
-                    <VishStatusBadge status="success">All Clear</VishStatusBadge>
-                  )}
-                </div>
-             </div>
-          </VishCard>
-          <VishCard className="p-4">
-             <VishMetric label="Est. Portfolio Cost" value={`₹${systemStats.estCost}`} />
-          </VishCard>
+      {/* Real metrics from loaded project manifests, not simulated portfolio numbers. */}
+      <section aria-label="Loaded project measurements">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <VishCard className="p-4"><VishMetric label="Loaded projects" value={visibleStat(projectStats.count)} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Walls drawn" value={visibleStat(projectStats.walls)} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Openings placed" value={visibleStat(projectStats.openings)} /></VishCard>
+          <VishCard className="p-4"><VishMetric label="Rooms in plans" value={visibleStat(projectStats.rooms)} /></VishCard>
         </div>
+        {error && <p className="mt-3 text-sm text-amber-200" role="status">Some projects could not load: {error}. Counts describe available records only.</p>}
       </section>
 
       {/* Recent Projects */}
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+      <section id="recent-projects" className="flex flex-col gap-4 scroll-mt-24">
+        <div className="flex flex-wrap items-center justify-between gap-3">
            <h2 className="text-sm font-semibold tracking-widest text-vish-text-400 uppercase">Recent Projects</h2>
-           <Link to="/projects/all" className="text-xs text-vish-blue-400 hover:text-vish-blue-300 uppercase tracking-widest font-semibold transition-colors">View All</Link>
+           {filteredProjects.length > 8 && (
+              <button type="button" className="min-h-11 px-3 text-xs text-primary hover:underline uppercase tracking-widest font-semibold" onClick={() => setShowAllProjects((value) => !value)}>
+                {showAllProjects ? 'Show fewer' : 'Show all projects'}
+              </button>
+            )}
         </div>
 
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="vish-project-search" className="sr-only">Search projects</label>
+          <input id="vish-project-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Find a saved home…" className="min-h-11 min-w-0 flex-1 rounded-xl border border-primary/30 bg-card px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" />
+          <label className="inline-flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+            <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} className="h-4 w-4 accent-[#d8a644]" /> Include archived
+          </label>
+        </div>
         {loading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="projects-loading-skeleton" aria-busy="true">
             {[0, 1, 2, 3].map((i) => (
@@ -327,7 +323,7 @@ export default function ProjectsPage() {
           </div>
         ) : filteredProjects.length > 0 ? (
            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProjects.slice(0, 8).map((project) => {
+              {filteredProjects.slice(0, showAllProjects ? filteredProjects.length : 8).map((project) => {
                 const isDraft = project.id.startsWith('local-draft-');
                 const thumb = projectThumbnailDataUrl(project.manifest);
                 return (
@@ -376,7 +372,7 @@ export default function ProjectsPage() {
                       </div>
                       <div className="mt-auto pt-4 flex items-center justify-between">
                          <span className="text-[10px] text-vish-text-400 uppercase tracking-widest">{formatRelativeTime(project.updated_at)}</span>
-                         <span className="text-xs font-semibold text-vish-blue-400 uppercase tracking-widest group-hover:text-vish-blue-300">Open Project &rarr;</span>
+                         <span className="text-xs font-semibold text-primary uppercase tracking-widest group-hover:underline">Open Project &rarr;</span>
                       </div>
                     </div>
                   </VishCard>
@@ -390,7 +386,7 @@ export default function ProjectsPage() {
              </div>
              <h3 className="text-lg font-semibold text-white mb-2">No projects found</h3>
              <p className="text-vish-text-300 max-w-sm mb-6">Create a new project to start designing, or import an existing floor plan.</p>
-             <Button className="bg-vish-blue-600 hover:bg-vish-blue-500 text-white" asChild>
+             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
                 <Link to="/editor">Create New Project</Link>
              </Button>
           </VishCard>
