@@ -61,4 +61,23 @@ describe('voice tour cancellation and audio safety', () => {
     expect(speech.speak).toHaveBeenCalledTimes(1);
     expect(speech.cancel).toHaveBeenCalled();
   });
+  it('always displays the exact source narration and updates it as chapters change', () => {
+    render(<MemoryRouter><VoiceGuidedTour /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Open voice guided software tour' }));
+    expect(screen.getByText(/This is your browser-native architecture workstation/i)).toBeInTheDocument();
+    expect(screen.getByText(/complete chapter narration/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText(/The sign-in screen is the secure gate into the workspace/i)).toBeInTheDocument();
+    expect(screen.queryByText(/This is your browser-native architecture workstation/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps full chapter text readable when the speech engine throws', () => {
+    speech.speak.mockImplementationOnce(() => { throw new Error('audio not available'); });
+    render(<MemoryRouter><VoiceGuidedTour /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Open voice guided software tour' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }));
+    expect(screen.getByText(/This device could not start speech/i)).toBeInTheDocument();
+    expect(screen.getByText(/This is your browser-native architecture workstation/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+  });
 });

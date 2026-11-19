@@ -46,7 +46,7 @@ export default function VoiceGuidedTour() {
   const [chapterIndex, setChapterIndex] = useState(0);
   const [playback, setPlayback] = useState<PlaybackState>('idle');
   const [preferMp3, setPreferMp3] = useState(false);
-  const [status, setStatus] = useState('Browser voice ready.');
+  const [status, setStatus] = useState('Tap Play to try the device narrator, or read the complete chapter below.');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const autoPlayTimerRef = useRef<number | null>(null);
@@ -90,7 +90,7 @@ export default function VoiceGuidedTour() {
   const speakWithBrowser = useCallback(
     (nextChapter: VoiceTourChapter) => {
       if (!speechSupported) {
-        setStatus('Browser speech is not available on this device. Use the MP3 mode after audio files are added.');
+        setStatus('Spoken narration is unavailable here. Read the complete chapter below; you can still navigate every lesson.');
         setPlayback('idle');
         return;
       }
@@ -107,7 +107,7 @@ export default function VoiceGuidedTour() {
         if (speechRef.current !== utterance) return;
         speechRef.current = null;
         setPlayback('idle');
-        setStatus('Device narration was interrupted. The chapter text remains available; try another voice.');
+        setStatus('Device narration was interrupted. The complete chapter is readable below; try another voice if you wish.');
       };
       speechRef.current = utterance;
       setPlayback('speaking');
@@ -117,7 +117,7 @@ export default function VoiceGuidedTour() {
       } catch {
         speechRef.current = null;
         setPlayback('idle');
-        setStatus('The device could not start speech. Read the chapter text or try another voice.');
+        setStatus('This device could not start speech. Read the complete chapter below or try another voice.');
       }
     },
     [speechSupported, voices, settings],
@@ -221,7 +221,7 @@ export default function VoiceGuidedTour() {
   const hearVoiceSample = () => {
     stopPlayback();
     if (!speechSupported) {
-      setStatus('This browser does not support spoken narration. Captions are available.');
+      setStatus('This browser does not support speech. All chapter text is available below.');
       return;
     }
     const utterance = createNarrationUtterance(NARRATION_VOICE_SAMPLE, voices, settings);
@@ -279,6 +279,12 @@ export default function VoiceGuidedTour() {
         <strong>{chapter.title}</strong>
         <p>{chapter.summary}</p>
       </div>
+
+      <details className="vish-voice-tour-panel__transcript" open>
+        <summary>Complete chapter narration — read without sound</summary>
+        <p>{chapter.narration}</p>
+        <small>These are the chapter's spoken words. Reading them does not require an account upgrade, audio playback or any external service.</small>
+      </details>
 
       <div className="vish-voice-tour-panel__controls">
         <button type="button" onClick={() => playChapter()} className="vish-voice-tour-panel__primary touch-target">

@@ -231,6 +231,10 @@ export function PrivateWelcomeCinematic() {
               </p>
             )}
           </div>
+          <details className="vish-private-film__narration" open>
+            <summary>Full scene narration — read along without sound</summary>
+            <p>{scene.narration}</p>
+          </details>
           {scene.visual && (
             <figure className="vish-private-film__visual">
               <img src={scene.visual} alt="" aria-hidden="true" />
