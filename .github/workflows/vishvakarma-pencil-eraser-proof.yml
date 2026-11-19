@@ -51,8 +51,28 @@ jobs:
         run: pnpm run build
       - name: Install supported Chromium runtime
         run: pnpm exec playwright install --with-deps chromium
-      - name: Synthetic finger and Pencil editor interactions
-        run: pnpm exec playwright test e2e/ipad-editor-current-contract.spec.ts --project=app-smoke-chromium --reporter=line
+      - name: Start real local editor and verify synthetic finger / Pencil gestures
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run preview:e2e:local > "${RUNNER_TEMP}/vish-e2e-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..180}; do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:4173/editor; then
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "${RUNNER_TEMP}/vish-e2e-server.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          if ! curl --fail --silent --output /dev/null http://127.0.0.1:4173/editor; then
+            cat "${RUNNER_TEMP}/vish-e2e-server.log"
+            exit 1
+          fi
+          pnpm exec playwright test e2e/ipad-editor-current-contract.spec.ts --project=app-smoke-chromium --reporter=line
       - name: Preserve genuine browser errors and traces
         if: always()
         uses: actions/upload-artifact@v4
