@@ -89,7 +89,7 @@ export default function ThreeDRoomPage() {
           </div>
           <div className="flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0">
             <span className="max-w-[70vw] shrink-0 truncate rounded-full border border-vish-blue-500/30 bg-vish-blue-900/30 px-3 py-2 text-xs text-vish-blue-400 sm:max-w-[min(52vw,28rem)]">{sourceLabel}</span>
-            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" onClick={() => setWalkMode((value) => !value)}>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" aria-pressed={walkMode} onClick={() => setWalkMode((value) => !value)}>
               <Footprints className="mr-2 h-4 w-4" />
               {walkMode ? 'Orbit mode' : 'Walk mode'}
             </Button>
