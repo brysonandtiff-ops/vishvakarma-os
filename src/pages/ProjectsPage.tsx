@@ -214,7 +214,7 @@ export default function ProjectsPage() {
       rooms: active.reduce((sum, entry) => sum + (entry.manifest.rooms?.length ?? 0), 0),
     };
   }, [projects]);
-  const visibleStat = (value: number): number | string => loading ? '—' : value;
+  const visibleStat = (value: number): number | string => (loading || error) ? '—' : value;
 
   return (
     <div className="p-6 tablet:p-10 max-w-7xl mx-auto flex flex-col gap-8 pb-32">
