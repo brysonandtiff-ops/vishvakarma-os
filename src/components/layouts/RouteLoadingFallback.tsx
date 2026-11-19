@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { VishArchitecturalSequence } from '@/components/brand/VishArchitecturalSequence';
 
 type LoadingVariant = 'marketing' | 'auth' | 'workspace' | 'governance' | 'editor';
 
@@ -13,11 +14,11 @@ function SkeletonBar({ className }: { className?: string }) {
 export function RouteLoadingFallback({ variant = 'workspace' }: RouteLoadingFallbackProps) {
   if (variant === 'marketing' || variant === 'auth') {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 py-16">
-        <SkeletonBar className="h-10 w-10 rounded-2xl" />
-        <SkeletonBar className="h-4 w-48" />
-        <SkeletonBar className="h-3 w-64 max-w-full" />
-        <p className="sr-only">Loading page…</p>
+      <div className={`vish-cinema-route vish-cinema-route--${variant}`}>
+        <VishArchitecturalSequence
+          variant="loading"
+          message={variant === 'auth' ? 'Opening secure sign-in…' : 'Preparing your welcome…'}
+        />
       </div>
     );
   }
