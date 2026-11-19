@@ -23,6 +23,7 @@ const focusedTests = [
   'src/test/walkMovement.test.ts',
   'src/test/dreamHomeJourney.test.tsx',
   'src/test/privateWelcomeCinematic.test.ts',
+  'src/test/voiceQuality.test.ts',
   'src/test/verifiedFamilyAdminBoundary.test.ts',
   'src/test/worldRecordRegistry.test.ts',
   'src/test/analyticsConsent.test.tsx',
