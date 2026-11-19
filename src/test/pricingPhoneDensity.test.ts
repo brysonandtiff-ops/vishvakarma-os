@@ -13,6 +13,9 @@ describe('phone pricing density', () => {
     expect(css).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
     expect(css).toContain('.vish-pricing-trust-row .vish-stat-pill');
     expect(css).toContain('padding: 0.8rem 0.35rem');
-    expect(css).toContain('font-size: 0.54rem');
+    const labelRule = css.match(/\.vish-marketing-page \.vish-pricing-trust-row \.vish-stat-pill p:last-child\s*\{([^}]+)\}/)?.[1];
+    // This accessible 13px rule replaced the previously expected unreadable 8.6px labels.
+    expect(labelRule).toContain('font-size: 0.8125rem');
+    expect(css).toContain('@media (max-width: 390px)');
   });
 });
