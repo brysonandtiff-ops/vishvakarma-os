@@ -12,6 +12,9 @@
 - A live browser opened the Cloudflare preview at https://2a32718a.vishvakarma-os.pages.dev/ and navigated public Home, Features, Pricing and Terms pages. Run: https://agent.tinyfish.ai/runs/d6a9d0e5-c64d-4799-9c16-8ccbbe7b545c.
 - Canonical production target https://vishvakarma-os.app/ returned HTTP 404 on this inspection. A preview is not proof of the production DNS, build SHA, backend or release gate.
 
+## Signed-out UI gate check
+Read-only browser run https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b47b647cd0c confirmed `/editor` and `/editor-lite` redirect visitors to `/auth`. This shows an apparent signed-out access gate, **not** verified signed-in editor function, real 3D rendering or signed-in Supabase RLS. Homepage previews are images, not interactive runtime proof.
+
 ## Stop-ship issues, not waived
 1. Security incident #153 remains open: credential rotation, retained backup before history work, full history secret scan and gated repair are outstanding. No history rewrite without independent backup proof and owner approvals.
 2. Repository backup #188 remains open: private R2 bucket preparation is not an independently recoverable, encrypted, retained Git backup. Its use may incur future charges; no storage writes are authorised by this document.

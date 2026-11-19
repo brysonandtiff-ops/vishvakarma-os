@@ -19,6 +19,13 @@
 - Source artwork protected: docs/BRAND_LOCK.md identifies the official user-provided swan/V logo; **no original artwork changed**.
 - Canonical target https://vishvakarma-os.app/ returned HTTP 404 via independent URL fetch on 19 November 2026.
 
+## Signed-out 2D/3D route inspection (second genuine browser run)
+- Date: 19 November 2026. Real browser run: https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b47b647cd0c
+- Visiting `/editor` and `/editor-lite` redirects to `/auth` as a signed-out visitor. Login shows Google SSO, email magic-link request, a request-access option, a theme selector, audio widget and voice tour.
+- **No interactive editor canvas or 3D walkthrough can be seen without sign-in.** The homepage's 2D/3D images are marketing previews, not genuine runtime test recordings. The browser did not authenticate or operate drawing tools.
+- The access-gate redirect visibly worked; whether authenticated editor functionality, tenant permissions or payment entitlements work correctly remains **UNVERIFIED**.
+- This run produced a browser task record but no shareable genuine UI screenshots or interaction video attachments. Such evidence is still required.
+
 ## Not tested, so not PASS
 | Requirement | State | Missing proof |
 | --- | --- | --- |
