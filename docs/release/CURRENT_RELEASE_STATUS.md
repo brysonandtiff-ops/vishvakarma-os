@@ -10,7 +10,7 @@
 - GitHub repository access and branch/PR metadata are reachable.
 - Original swan/V logo and cream/ink/gold design are locked by docs/BRAND_LOCK.md; preserve original owner artwork.
 - A live browser opened the Cloudflare preview at https://2a32718a.vishvakarma-os.pages.dev/ and navigated public Home, Features, Pricing and Terms pages. Run: https://agent.tinyfish.ai/runs/d6a9d0e5-c64d-4799-9c16-8ccbbe7b545c.
-- Canonical production target https://vishvakarma-os.app/ returned HTTP 404 on this inspection. A preview is not proof of the production DNS, build SHA, backend or release gate.
+- Cloudflare DNS and Pages API confirm **https://vishvakarmaos.app** and **https://www.vishvakarmaos.app** are ACTIVE custom domains. Both respond with Vishvakarma.OS page content in fresh fetches. The deprecated hyphenated https://vishvakarma-os.app/ domain is DEACTIVATED and returned HTTP 404. Live page content is not proof of exact deployed SHA, auth or release certification.
 
 ## Signed-out UI gate check
 Read-only browser run https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b47b647cd0c confirmed `/editor` and `/editor-lite` redirect visitors to `/auth`. This shows an apparent signed-out access gate, **not** verified signed-in editor function, real 3D rendering or signed-in Supabase RLS. Homepage previews are images, not interactive runtime proof.
@@ -19,8 +19,14 @@ Read-only browser run https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b4
 1. Security incident #153 remains open: credential rotation, retained backup before history work, full history secret scan and gated repair are outstanding. No history rewrite without independent backup proof and owner approvals.
 2. Repository backup #188 remains open: private R2 bucket preparation is not an independently recoverable, encrypted, retained Git backup. Its use may incur future charges; no storage writes are authorised by this document.
 3. PR #208 remains a draft; signed-in tenant isolation, Supabase save/reopen, production casting and source-bound live deployment proof are not established by public-page navigation.
-4. Canonical origin is HTTP 404. No DNS changes, production deployment, key rotation, billing activation or release promotion were performed.
+4. Stale hyphenated origin returns 404 and old references remain; the correct active non-hyphen custom domain responds, but exact deployment source/build, signed-in auth, CSS reliability and release certification are **unverified**. No DNS, deployment, key, billing or live-environment changes were performed.
 5. Genuine physical iPad, Samsung Fold, iPhone and desktop acceptance, real interaction videos, screenshots with build identity and independent sign-off are outstanding.
+
+## Verified Cloudflare domain configuration
+- Cloudflare zone `vishvakarmaos.app` ACTIVE; apex and www proxied CNAMEs both point to `vishvakarma-os.pages.dev`.
+- Pages project `vishvakarma-os` lists both non-hyphen custom domains ACTIVE. The hyphenated versions are DEACTIVATED. The domain links in older docs were stale.
+- The Pages production branch is `agent/cloudflare-pages-workers-migration`, not current Git main or this PR; the newest listed production attempt (August 5, 2026) FAILED while older production deployments succeeded. Exact source commit serving the active custom domain has **not** been attested.
+- Current repaired code already sets the correct non-hyphen origin in `src/config/canonicalOrigin.ts`, `scripts/lib/canonical-origin.mjs` and `.env.example`. This review repairs public metadata and iPad proof default URL. Live Supabase/Google/Stripe redirects, any support email deliverability, and CSS preload reliability need independent checks.
 
 ## Source-of-truth precedence
 1. Exact Git source tree, package.json, migrations/configuration, and source-bound real runtime in the specific environment inspected.

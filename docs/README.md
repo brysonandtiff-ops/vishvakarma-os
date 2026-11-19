@@ -2,7 +2,7 @@
 
 **Product version:** v1.5.0  
 **Index refreshed:** 2026-11-19 (older linked documents have separate review dates; not a global re-certification)  
-**Production target (404 at inspection):** https://vishvakarma-os.app  
+**Active Cloudflare custom domain:** https://vishvakarmaos.app (www also active; retired hyphenated lookalike returns 404)  
 
 Central documentation hub for Vishvakarma.OS — an iPad-first, browser-native architectural workstation with governance, billing, and AI-assisted design tools.
 

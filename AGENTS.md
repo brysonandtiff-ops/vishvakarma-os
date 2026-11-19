@@ -94,7 +94,7 @@ Production auth is **Supabase-only**. Common agent mistakes:
 | Gotcha | Fix |
 |--------|-----|
 | Placeholder anon key | Replace `your-supabase-anon-key` in `.env.local` — copy from Supabase Dashboard → API |
-| Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarma-os.app` prod; `http://127.0.0.1:5173` local) |
+| Wrong redirect origin | `VITE_AUTH_REDIRECT_ORIGIN` must match the browser origin (`https://vishvakarmaos.app` active Cloudflare domain; `http://127.0.0.1:5173` local) |
 | Google OAuth redirect | Google Cloud client needs `https://jyocvwipthswfcmvqgqe.supabase.co/auth/v1/callback` |
 | Supabase redirect URLs | Dashboard → Auth → URL config must list `/auth` and `/editor` for each origin |
 | `VITE_*` not updating after env change | Vite inlines at **build time** — rebuild through the authorised Cloudflare Pages flow after env changes |

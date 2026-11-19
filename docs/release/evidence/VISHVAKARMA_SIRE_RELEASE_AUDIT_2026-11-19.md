@@ -17,7 +17,7 @@
 - Observed: homepage draws correctly in the browser; top/footer navigation visible; public pages loaded without a reported blocking popup. Black/gold public design appears on preview.
 - Public site exposes paid Studio/Enterprise pricing and Stripe terms; these are public UI observations, not proof of a live charge or approval to enable billing.
 - Source artwork protected: docs/BRAND_LOCK.md identifies the official user-provided swan/V logo; **no original artwork changed**.
-- Canonical target https://vishvakarma-os.app/ returned HTTP 404 via independent URL fetch on 19 November 2026.
+- The **correct active custom domain** https://vishvakarmaos.app and www version respond with page content, verified via Cloudflare zone/DNS/Pages API and external fetch. The obsolete hyphenated domain https://vishvakarma-os.app/ is DEACTIVATED and returned HTTP 404. Production exact-source attestation is not established.
 
 ## Signed-out 2D/3D route inspection (second genuine browser run)
 - Date: 19 November 2026. Real browser run: https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b47b647cd0c
@@ -25,6 +25,11 @@
 - **No interactive editor canvas or 3D walkthrough can be seen without sign-in.** The homepage's 2D/3D images are marketing previews, not genuine runtime test recordings. The browser did not authenticate or operate drawing tools.
 - The access-gate redirect visibly worked; whether authenticated editor functionality, tenant permissions or payment entitlements work correctly remains **UNVERIFIED**.
 - This run produced a browser task record but no shareable genuine UI screenshots or interaction video attachments. Such evidence is still required.
+
+## Cloudflare evidence, current domain source of truth
+Connected Cloudflare read-only query on 19 November 2026: zone vishvakarmaos.app ACTIVE; apex/www CNAME vishvakarma-os.pages.dev; Cloudflare Pages project vishvakarma-os identifies those real domains as ACTIVE and the hyphenated lookalike as DEACTIVATED. Exact deployed production source SHA cannot be matched to current Git main or #208/#209. Production branch is agent/cloudflare-pages-workers-migration; newest listed production attempt from August 5, 2026 failed, though earlier deployments succeeded. No DNS writes, billing, auth changes or production deployment were performed.
+
+The repair candidate already has correct non-hyphen origins in runtime canonical origin and .env.example. Stale index.html social metadata and iPad test target are fixed in this docs/source cleanup. A content extractor exposed a CSS preload warning on the public site that browser navigation did not reproduce; must verify before concluding it is a release defect or fixed.
 
 ## Not tested, so not PASS
 | Requirement | State | Missing proof |
@@ -34,7 +39,7 @@
 | First-person walkthrough on supported devices | UNVERIFIED | Input, controls, frame performance, mobile fallbacks |
 | Save, reopen, share | UNVERIFIED | Real signed-in isolated cloud or local recovery round-trip |
 | Production auth/Supabase RLS and tenancy | BLOCKED | Live signed-in/tenant isolation and permission proof |
-| Main domain | FAIL | HTTP 404, no source attestation |
+| Active non-hyphen custom domain | PARTIAL | Homepage responds; exact deployed source SHA/auth not attested. Old hyphen domain 404 |
 | Security closeout | BLOCKED | Open issue #153 |
 | Retained independently restorable encrypted backup | BLOCKED | Open issue #188 |
 | Real iPad, Fold, iPhone screen/video proof | UNVERIFIED | Physical devices and complete reproducible media |
