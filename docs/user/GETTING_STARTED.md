@@ -1,115 +1,49 @@
-# Getting Started
+# Getting Started — Your Vishvakarma.OS Home
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-20  
-**Audience:** user  
+**Version:** 1.5.0 · **Updated:** 19 November 2026 · **Audience:** first-time user, especially iPad users  
+**Release status:** Latest design is still a **development preview**, not certified for a real iPad or live saved projects.
 
-Welcome to Vishvakarma.OS — an iPad-first architectural workstation for 2D blueprints, live 3D visualization, and governed project delivery.
+Vishvakarma.OS is being built to let you **draw a house in 2D, look at it in 3D, walk around, save and share**. The professional tools are there if you need them, but you can begin with one simple wall.
 
-**Production URL:** https://vishvakarma-os.app
+## Find the real website
 
----
+Use **https://vishvakarmaos.app**. Public [Features](https://vishvakarmaos.app/features) and the guided tour can be explored without an account. Do not use an old, similarly spelled hyphenated .app link.
 
-## Create an account
+## Account access
 
-1. Open https://vishvakarma-os.app/auth
-2. Sign in with **email magic link** or **Google OAuth**
-3. After sign-in you are redirected to the **Blueprint Editor** (`/editor`) or your last workspace
+1. Open the [official sign-in page](https://vishvakarmaos.app/auth) in Safari or another supported browser.
+2. If you already have an **approved account**, select **Continue with Google SSO**, or enter the approved email to request a secure, one-time sign-in link.
+3. If you do not have an approved account yet, choose **Share an invitation request** and send the request to the person who invited you.
+4. If a built-in app browser blocks Google, choose **Open in browser** or **Copy**.
 
-Password reset is available at `/reset-password` when configured.
+**The email-link form does not automatically create a new account.** Neither the latest user-signup delivery nor live administrator role is currently verified. Do not share passwords or sign-in codes in chat.
 
----
+## Begin with the five-stage design journey
 
-## Your first project
+The latest *draft review* contains a simpler Projects introduction:
 
-1. Go to **Projects** (`/projects`) from the navigation menu
-2. Click **New Project** and enter a name
-3. Open the project — the editor loads with an empty canvas and 3D viewport
-4. Changes save to the cloud when Supabase is configured (Studio tier and above for unlimited projects)
+| Step | Intended action | Current proof |
+| --- | --- | --- |
+| 1 Projects | Start or reopen a house | Source feature; private account flow unverified |
+| 2 Draw in 2D | Wall, door, window, grid and undo | Code and selected tests; iPad touch unverified |
+| 3 See in 3D | Open local draft/sample in 3D Room | Renderer source; real-house accuracy unverified |
+| 4 Walk | Select Walk inside 3D Room | Movement-source tests; actual iPad input unverified |
+| 5 Save & Export | Save, reopen or export from full editor | Source path; cloud restore and file readback unverified |
 
-**Starter tier:** 1 active project. **Studio / Enterprise:** unlimited cloud projects.
+The real signed-in project walkthrough has **not** been independently passed on an iPad. The approved gift art must remain the owner-original, not a replacement mock.
 
----
+## Learn without sound
 
-## Editor tour
+On the public website, select **Voice Guided Tour**. Read Without Sound shows the full chapter text if narration is uncomfortable or not available. The separate private welcome film is a review feature; the exact iPad speech quality and first-login trigger have not been verified.
 
-Open **Tutorials** from the editor help button (?), workspace sidebar, or command palette (`Ctrl+K` / `Cmd+K` → Learn). The in-app tutorial system includes:
+## Protect your designs
 
-- **Essentials** — hands-on walkthrough: draw walls, place openings, toggle 3D, read Project Proof
-- **Topic tours** — export, interior materials, Vastu, NBC compliance, MEP, projects library, optimization, governance
-- **Video-ready walkthroughs** — matching scripts for short recorded guides in [VIDEO_TUTORIAL_SCRIPTS.md](./VIDEO_TUTORIAL_SCRIPTS.md)
+Start with a sample/test plan, not an irreplaceable original. Before trusting your work to the cloud, check that walls/doors appear in the 3D view, save the test project, close the app, reopen the identical design, and independently reopen the exported file. Keep your own copy until full backup and restore are certified.
 
-First visit: choose **New project** or **Load sample** on the welcome screen to auto-start Essentials (once per browser).
+## iPad, PWA and plans
 
-| Region | Purpose |
-|--------|---------|
-| **Tool rail** (left) | Wall, door, window, measure, label, dimension, room, MEP, furniture, landscape, terrain, Vastu tools |
-| **2D canvas** (center) | Floor plan drafting with snap-to-grid |
-| **3D viewport** (right or toggle) | Live extrusion of walls, materials, solar lighting |
-| **Properties panel** | Selected entity dimensions, materials, mode-specific controls, and project proof |
-| **Top bar** | Project name, save status, export, view modes |
-| **Command palette** | Route jump, tutorial launch, and workspace search (`Ctrl+K` / `Cmd+K`) |
+The public site contains a PWA manifest and icons. Actual iPad Home Screen installation, Safari voice, stylus, offline recovery and device performance are still **not verified**. Use the browser until those checks pass.
 
-Toggle 3D with the viewport control. Adjust solar time with the lighting scrubber.
+The site displays Starter (free), Studio ($499/month) and Enterprise ($1,000/month). Advertised pricing does **not** prove checkout works or require purchasing. Paid steps need explicit approval.
 
-Marketing guides on [/features](https://vishvakarma-os.app/features) deep-link into the matching in-app tour.
-
----
-
-## Navigate the workspace
-
-Use [NAVIGATION_MAP.md](./NAVIGATION_MAP.md) as the route map.
-
-| Need | Go to |
-|------|-------|
-| Draft or inspect a plan | `/editor` — Blueprint Editor |
-| Reopen, duplicate, or archive work | `/projects` — Projects Library |
-| Run AI candidate scoring | `/optimization` — Design Optimization |
-| Manage account and plan | `/profile` — Profile |
-| Review governed specifications | `/spec-center` — Spec Center |
-| Trace changes and releases | `/change-requests`, `/releases`, `/audit` |
-
----
-
-## Save and load
-
-- **Auto-save:** Manifest changes persist to Supabase when signed in and backend is configured
-- **Local draft:** If offline or unconfigured, drafts recover from browser `localStorage`
-- **Open project:** Projects → select from your library
-
-See [WORKFLOWS.md](./WORKFLOWS.md) for export, optimization, and compliance tasks.
-
----
-
-## Plans and billing
-
-| Plan | Highlights |
-|------|------------|
-| **Starter** | Free — 1 project, 2D tools, PNG export |
-| **Studio** | $499/mo — unlimited projects, full export package, cloud save, Vastu, NBC pre-check |
-| **Enterprise** | $1,000/mo — SSO, API access, dedicated onboarding (collaboration planned) |
-
-Details: [BILLING_AND_PLANS.md](./BILLING_AND_PLANS.md). Manage billing at `/profile`.
-
----
-
-## iPad and PWA
-
-Install from Safari **Add to Home Screen** for a full-screen workstation experience. Minimum touch targets are 44×44 px. See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for WebGL and touch issues.
-
----
-
-## Next steps
-
-- [VIDEO_TUTORIAL_SCRIPTS.md](./VIDEO_TUTORIAL_SCRIPTS.md) — watch/record the guided tutorial flow
-- [WORKFLOWS.md](./WORKFLOWS.md) — common tasks
-- [TOOL_REFERENCE.md](./TOOL_REFERENCE.md) — every editor tool
-- [NAVIGATION_MAP.md](./NAVIGATION_MAP.md) — workspace routes
-- [KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md) — shortcuts
-- [FAQ.md](./FAQ.md) — frequently asked questions
-
----
-
-## Developer setup
-
-If you are setting up the codebase locally (not using the hosted app), see [developer/ONBOARDING.md](../developer/ONBOARDING.md).
+Further help: [tools](./TOOL_REFERENCE.md), [navigation](./NAVIGATION_MAP.md), [workflows](./WORKFLOWS.md), [troubleshooting](./TROUBLESHOOTING.md) and [release status](../release/CURRENT_RELEASE_STATUS.md).

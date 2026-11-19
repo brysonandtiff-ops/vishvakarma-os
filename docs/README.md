@@ -1,18 +1,29 @@
 # Vishvakarma.OS Documentation
 
 **Product version:** v1.5.0  
-**Index refreshed:** 2026-11-19 (older linked documents have separate review dates; not a global re-certification)  
+**Index refreshed:** 2026-11-19 (authoritative entry points updated; historical files retain their own dates)  
 **Active Cloudflare custom domain:** https://vishvakarmaos.app (www also active; retired hyphenated lookalike returns 404)  
 
-Central documentation hub for Vishvakarma.OS — an iPad-first, browser-native architectural workstation with governance, billing, and AI-assisted design tools.
+Documentation hub for the original Vishvakarma.OS architectural design studio. Source features, real browser operation and production release have different evidence levels.
 
-**Current production backend:** Supabase (Auth, Postgres/RLS, Storage). See [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
+**Backend source:** Supabase Auth, Postgres/RLS and Storage; real sign-in, tenant isolation and save/reopen on the newest review are NOT independently verified. See [current architecture](./CURRENT_PRODUCTION_ARCHITECTURE.md).
 
 All application code, migrations, documentation, and development commands live at the repository root.
 
 ## Current source/release authority
 
 **BLOCKED at 19 November 2026:** consult [CURRENT_RELEASE_STATUS.md](./release/CURRENT_RELEASE_STATUS.md), the [read-only UI audit](./release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md), and the [owner vision acceptance](./design/OWNER_VISION_ACCEPTANCE.md). Exact Git and real immutable runtime evidence take precedence over historical documentation. The official visual logo and style remain locked by [BRAND_LOCK.md](./BRAND_LOCK.md).
+
+## Start with current proof, not historical assumptions
+
+- [Professional project overview](../README.md)
+- [Audited source-of-truth matrix](./repository/SOURCE_OF_TRUTH_20261119.md)
+- [Current release BLOCKED decision](./release/CURRENT_RELEASE_STATUS.md)
+- [November source and browser evidence](./release/evidence/REVIEW_VERIFICATION_LEDGER_20261119.md)
+- [Remaining documentation debt](./repository/DOCUMENTATION_DEBT_20261119.md)
+- [Evidence-writing standards](./DOCUMENTATION_STANDARDS.md)
+
+**Caution:** The deeper handoff documents, generated appendices and older release reports may describe earlier source commits. Validate their dates and SHA before repeating them as current capabilities.
 
 ## Choose your path
 
@@ -50,7 +61,7 @@ Deep dive: [handoff/03-architecture-and-data-flow.md](./handoff/03-architecture-
 3. [SOFTWARE_INVENTORY.md](./SOFTWARE_INVENTORY.md) — technical inventory
 4. [PRODUCT_CAPABILITIES.md](./PRODUCT_CAPABILITIES.md) — audited feature brief
 
-Regenerate inventories with `pnpm run handoff:generate`.
+Regenerate inventories with pnpm run handoff:generate only after actual source changes; inspect and verify the generated diff before relying on it.
 
 ### AI assistants
 
