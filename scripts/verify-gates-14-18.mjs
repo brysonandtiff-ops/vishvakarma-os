@@ -13,7 +13,7 @@ const gateArg = process.argv.find((a) => a.startsWith('--gate='));
 const singleGate = gateArg ? Number(gateArg.split('=')[1]) : null;
 
 function runVitest(testPath) {
-  execSync(`pnpm exec vitest run ${testPath}`, { stdio: 'pipe', encoding: 'utf-8', cwd: root });
+  execSync(`pnpm exec vitest run ${testPath}`, { stdio: 'inherit', cwd: root });
 }
 
 function readText(relPath) {

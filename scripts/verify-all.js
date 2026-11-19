@@ -5,12 +5,14 @@
 import { readFile, access, writeFile } from 'fs/promises';
 import { constants } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import { execFile, execSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { isVerifiedBrowserSaveLoadProof } from './lib/save-load-proof-verdict.mjs';
 import { attestCloudflareDeployment } from './lib/cloudflare-deployment-proof.mjs';
 
 const strict = process.argv.includes('--strict');
 const gates = [];
+const git = promisify(execFile);
 
 const GATE_IDS = [
   'gate-1',
@@ -270,7 +272,8 @@ async function checkBrowserSaveLoadEvidenceGate() {
   try {
     const document = await readText(documentPath);
     const receipt = JSON.parse(await readText(receiptPath));
-    const headSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+    const { stdout } = await git('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' });
+    const headSha = stdout.trim();
     const deploymentProof = await attestCloudflareDeployment({
       requestedUrl: process.env.PRODUCTION_URL,
       expectedCommitSha: headSha,
