@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { resolveSampleManifestSync } from '@/core/sampleCatalog';
+import { openManifestInEditor, type EditorManifestView } from '@/editor/openManifestInEditor';
 
 const repoRoot = resolve(process.cwd());
 
@@ -36,5 +38,22 @@ describe('Projects demo samples', () => {
       expect(projectsPageSource).toContain(`openIntent: '${intent}'`);
       expect(editorSource).toContain(`state.openIntent === '${intent}'`);
     }
+    expect(projectsPageSource).toContain("openIntent: 'newProject'");
+    expect(editorSource).toContain("state.openIntent === 'newProject'");
+  });
+
+  it.each<[EditorManifestView | undefined, string]>([
+    [undefined, '/editor'],
+    ['orbit', '/editor?view=orbit'],
+    ['walk', '/editor?view=walk'],
+  ])('hands the same sample to Studio for view %s', (view, path) => {
+    const manifest = resolveSampleManifestSync('six-three-atrium-wing');
+    const navigate = vi.fn();
+
+    openManifestInEditor(navigate, manifest, { source: 'sample', view });
+
+    expect(navigate).toHaveBeenCalledWith(path, {
+      state: { loadManifest: manifest, projectName: manifest.name, manifestSource: 'sample' },
+    });
   });
 });

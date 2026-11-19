@@ -4,471 +4,225 @@ import {
   ChevronDown,
   FileDown,
   FolderOpen,
-  Grid3x3,
-  Leaf,
+  Footprints,
   Loader2,
-  Lock,
-  Maximize2,
-  Menu,
-  MoreHorizontal,
   PenLine,
-  Plus,
   Redo2,
-  Route,
   Save,
-  Sofa,
-  Sparkles,
+  SlidersHorizontal,
   Undo2,
-  Upload,
-  Wind,
-  Eye,
-  CloudRain,
-  Activity,
 } from 'lucide-react';
+import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { getProjectActionLabel } from '@/editor/editorActionRegistry';
 import { useReliablePress } from '@/hooks/useReliablePress';
-import type { WorkspaceMode } from '@/types';
-import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
+import type { WorkspaceMode } from '@/types';
+
+export type StudioView = 'blueprint' | 'orbit' | 'walk';
+export type DesignTools = Exclude<WorkspaceMode, 'walk'>;
 
 interface EditorTopBarProps {
   projectName: string;
-  show3DView: boolean;
-  expand3DPanel?: boolean;
-  onToggleExpand3D?: () => void;
+  view: StudioView;
+  onViewChange: (view: StudioView) => void;
   workspaceMode: WorkspaceMode;
-  zenMode?: boolean;
-  presentationLock?: boolean;
-  savingProject?: boolean;
-  onWorkspaceModeChange: (mode: WorkspaceMode) => void;
-  onToggleZen?: () => void;
-  onTogglePresentationLock?: () => void;
-  onToggle3D: () => void;
+  onWorkspaceModeChange: (mode: DesignTools) => void;
+  splitView: boolean;
+  onToggleSplitView: () => void;
+  onResetView: () => void;
+  presentationLock: boolean;
+  onTogglePresentationLock: () => void;
+  zenMode: boolean;
+  onToggleZen: () => void;
   gridVisible: boolean;
   onToggleGrid: () => void;
-  onStartDemoSession?: () => void;
   onNewProject: () => void;
+  onOpenProject: () => void;
+  onSaveProject: () => void;
+  savingProject: boolean;
   onExport: () => void;
   onImport: () => void;
-  onOpenProject?: () => void;
-  onSaveProject?: () => void;
-  onLoadSample?: () => void;
-  onOpenAIDesigner?: () => void;
-  onOpenArchitectureBot?: () => void;
-  onOpenEditorMenu?: () => void;
-  onOpenGovernance?: () => void;
-  onUndo?: () => void;
-  onRedo?: () => void;
-  canUndo?: boolean;
-  canRedo?: boolean;
+  onLoadSample: () => void;
+  onOpenAIDesigner: () => void;
+  onOpenArchitectureBot: () => void;
+  onOpenProperties: () => void;
+  propertiesOpen: boolean;
+  onOpenGovernance: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
   fileStrip?: ReactNode;
-  monsoonActive?: boolean;
-  onToggleMonsoon?: () => void;
-  pranaActive?: boolean;
-  onTogglePrana?: () => void;
+  monsoonActive: boolean;
+  onToggleMonsoon: () => void;
+  pranaActive: boolean;
+  onTogglePrana: () => void;
 }
 
-const MODES: Array<{ id: WorkspaceMode; label: string; icon: typeof PenLine }> = [
-  { id: 'draft', label: 'Draft', icon: PenLine },
-  { id: 'mep', label: 'MEP', icon: Route },
-  { id: 'interior', label: 'Interior', icon: Sofa },
-  { id: 'landscape', label: 'Landscape', icon: Leaf },
-  { id: 'walk', label: 'Walk', icon: Wind },
+const VIEWS = [
+  { id: 'blueprint', label: 'Blueprint', Icon: PenLine, tutorial: 'mode-draft' },
+  { id: 'orbit', label: '3D', Icon: Box, tutorial: 'toggle-3d' },
+  { id: 'walk', label: 'Walk', Icon: Footprints, tutorial: 'mode-walk' },
+] as const;
+
+const TOOL_SETS: Array<{ id: DesignTools; label: string }> = [
+  { id: 'draft', label: 'Draft' },
+  { id: 'mep', label: 'MEP' },
+  { id: 'interior', label: 'Interior' },
+  { id: 'landscape', label: 'Landscape' },
 ];
 
-function IconButton({
-  label,
-  onClick,
-  active,
-  children,
-  disabled,
-  dataTutorial,
+function StudioButton({
+  label, children, onClick, active, primary, disabled, tutorial, testId,
 }: {
   label: string;
-  onClick?: () => void;
+  children: ReactNode;
+  onClick: () => void;
   active?: boolean;
-  children: React.ReactNode;
+  primary?: boolean;
   disabled?: boolean;
-  dataTutorial?: string;
+  tutorial?: string;
+  testId?: string;
 }) {
-  const handleClick = () => {
-    if (disabled) return;
-    if (navigator.vibrate) navigator.vibrate(20);
-    playStudioSound('buttonPress');
-    onClick?.();
-  };
-
-  const pressHandlers = useReliablePress(disabled ? undefined : handleClick);
-
+  const press = useReliablePress(disabled ? undefined : onClick);
   return (
     <button
       type="button"
       aria-label={label}
       aria-pressed={active}
       disabled={disabled}
-      {...pressHandlers}
-      title={label}
-      data-tutorial={dataTutorial}
-      data-state={active ? 'active' : 'inactive'}
-      className={`touch-target touch-manipulation flex h-9 w-9 items-center justify-center rounded-[8px] transition-all duration-200 ${
-        active
-          ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
-          : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
-      } ${disabled ? 'cursor-not-allowed opacity-40' : ''}`}
+      data-tutorial={tutorial}
+      data-testid={testId}
+      className={`vish-studio-button touch-manipulation${primary ? ' vish-studio-button--primary' : ''}`}
+      {...press}
     >
       {children}
     </button>
-  );
-}
-
-function QuickActionButton({
-  label,
-  shortLabel,
-  onClick,
-  active,
-  children,
-  dataTestId,
-  dataTutorial,
-}: {
-  label: string;
-  shortLabel: string;
-  onClick: () => void;
-  active?: boolean;
-  children: React.ReactNode;
-  dataTestId: string;
-  dataTutorial?: string;
-}) {
-  const pressHandlers = useReliablePress(onClick);
-
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      aria-pressed={active}
-      title={label}
-      data-testid={dataTestId}
-      data-tutorial={dataTutorial}
-      className={`touch-target touch-manipulation flex items-center gap-1.5 h-9 px-3 rounded-[8px] transition-all duration-200 text-xs font-semibold uppercase tracking-wider ${
-        active
-          ? 'text-white bg-vish-blue-500 shadow-[0_0_12px_rgba(42,167,255,0.4)] before:absolute before:inset-0 before:rounded-[8px] before:border before:border-vish-gold-500/50 before:pointer-events-none relative'
-          : 'text-vish-text-300 hover:text-white hover:bg-vish-navy-700/50'
-      }`}
-    >
-      {children}
-      <span>{shortLabel}</span>
-    </button>
-  );
-}
-
-function ModeTabs({
-  workspaceMode,
-  onWorkspaceModeChange,
-}: {
-  workspaceMode: WorkspaceMode;
-  onWorkspaceModeChange: (mode: WorkspaceMode) => void;
-}) {
-  return (
-    <div className="flex bg-vish-navy-900/50 p-1 rounded-[10px] border border-vish-navy-700/50" role="tablist" aria-label="Editor modes">
-      {MODES.map((mode) => (
-        <button
-          key={mode.id}
-          type="button"
-          role="tab"
-          aria-selected={workspaceMode === mode.id}
-          className={`flex items-center gap-1.5 px-3 h-8 rounded-[6px] text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
-            workspaceMode === mode.id
-              ? 'bg-vish-navy-700 text-white shadow-sm'
-              : 'text-vish-text-400 hover:text-vish-text-200 hover:bg-vish-navy-800'
-          }`}
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(30);
-            playStudioSound('buttonPress');
-            onWorkspaceModeChange(mode.id);
-          }}
-          data-tutorial={`mode-${mode.id}`}
-        >
-          <mode.icon className="h-3 w-3" />
-          {mode.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
 export default function EditorTopBar({
-  projectName,
-  show3DView,
-  expand3DPanel = false,
-  onToggleExpand3D,
-  workspaceMode,
-  zenMode = false,
-  presentationLock = false,
-  savingProject = false,
-  onWorkspaceModeChange,
-  onToggleZen,
-  onTogglePresentationLock,
-  onToggle3D,
-  gridVisible,
-  onToggleGrid,
-  onStartDemoSession,
-  onNewProject,
-  onExport,
-  onImport,
-  onOpenProject,
-  onSaveProject,
-  onLoadSample,
-  onOpenAIDesigner,
-  onOpenArchitectureBot,
-  onOpenEditorMenu,
-  onOpenGovernance,
-  onUndo,
-  onRedo,
-  canUndo = false,
-  canRedo = false,
-  fileStrip,
-  monsoonActive = false,
-  onToggleMonsoon,
-  pranaActive = false,
-  onTogglePrana,
+  projectName, view, onViewChange, workspaceMode, onWorkspaceModeChange,
+  splitView, onToggleSplitView, onResetView, presentationLock, onTogglePresentationLock,
+  zenMode, onToggleZen, gridVisible, onToggleGrid,
+  onNewProject, onOpenProject, onSaveProject, savingProject, onExport, onImport,
+  onLoadSample, onOpenAIDesigner, onOpenArchitectureBot, onOpenProperties, propertiesOpen, onOpenGovernance,
+  onUndo, onRedo, canUndo, canRedo, fileStrip,
+  monsoonActive, onToggleMonsoon, pranaActive, onTogglePrana,
 }: EditorTopBarProps) {
-  const activeMode = MODES.find((m) => m.id === workspaceMode) ?? MODES[0];
-
   return (
-    <header className="vish-editor-topbar-chrome flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
-      <div className="flex w-full items-center justify-between">
-        <div className="flex min-w-0 items-center gap-2 justify-self-start">
-          {onOpenEditorMenu && (
-            <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>
-              <Menu className="h-4 w-4" />
-            </IconButton>
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="vish-editor-mode-badge touch-target"
-                aria-label={`Workspace mode: ${activeMode.label}`}
-                data-testid="editor-mode-badge"
-              >
-                <activeMode.icon className="h-3.5 w-3.5" />
-                {activeMode.label}
-                <ChevronDown className="h-3 w-3 opacity-70" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="vish-fade-rise w-44 glass-panel-obsidian laser-etched-border">
-              {MODES.map((mode) => (
-                <DropdownMenuItem
-                  key={mode.id}
-                  onClick={() => onWorkspaceModeChange(mode.id)}
-                  className={workspaceMode === mode.id ? 'bg-primary/10 text-primary' : ''}
-                >
-                  <mode.icon className="mr-2 h-4 w-4" />
-                  {mode.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="vish-logo-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1">
-            <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
-          </div>
-          <span className="max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
-          {savingProject && (
-            <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-              Saving
-            </span>
-          )}
+    <header className="vish-editor-topbar-chrome vish-studio-bar" data-testid="editor-top-bar">
+      <div className="vish-studio-bar__row">
+        <div className="vish-studio-bar__project">
+          <h1 title={projectName}>{projectName || 'Studio'}</h1>
         </div>
 
-        <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
-          <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
+        <div className="vish-studio-views" role="group" aria-label="Studio views">
+          {VIEWS.map(({ id, label, Icon, tutorial }) => (
+            <StudioButton
+              key={id}
+              label={label}
+              active={view === id}
+              disabled={presentationLock && id === 'blueprint'}
+              tutorial={tutorial}
+              onClick={() => onViewChange(id)}
+            >
+              <Icon size={16} aria-hidden="true" />
+              <span>{label}</span>
+            </StudioButton>
+          ))}
         </div>
 
-        <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
-          {onStartDemoSession && (
-            <QuickActionButton
-              label="Start guided demo session"
-              shortLabel="Start demo"
-              onClick={onStartDemoSession}
-              dataTestId="editor-start-demo-session"
-              dataTutorial="start-demo-session"
-            >
-              <Sparkles className="h-4 w-4" />
-            </QuickActionButton>
-          )}
-          {onLoadSample && (
-            <QuickActionButton
-              label="Load demo blueprint"
-              shortLabel="Demo"
-              onClick={onLoadSample}
-              dataTestId="editor-demo-quick-action"
-              dataTutorial="load-demo"
-            >
-              <FolderOpen className="h-4 w-4" />
-            </QuickActionButton>
-          )}
-          <QuickActionButton
-            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
-            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
-            active={gridVisible}
-            onClick={onToggleGrid}
-            dataTestId="editor-grid-quick-action"
-            dataTutorial="toggle-grid"
-          >
-            <Grid3x3 className="h-4 w-4" />
-          </QuickActionButton>
-          <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
-            <Undo2 className="h-4 w-4" />
-          </IconButton>
-          <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
-            <Redo2 className="h-4 w-4" />
-          </IconButton>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="Project actions"
-                data-tutorial="project-actions"
-                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
-              >
-                <FolderOpen className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="vish-fade-rise w-48 glass-panel-obsidian laser-etched-border">
-              <DropdownMenuItem onClick={onNewProject}>
-                <Plus className="mr-2 h-4 w-4" />
-                New project
-              </DropdownMenuItem>
-              {onStartDemoSession && (
-                <DropdownMenuItem onClick={onStartDemoSession}>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Start demo session
-                </DropdownMenuItem>
-              )}
-              {onOpenProject && (
-                <DropdownMenuItem onClick={onOpenProject}>
-                  <FolderOpen className="mr-2 h-4 w-4" />
-                  Open…
-                </DropdownMenuItem>
-              )}
-              {onSaveProject && (
-                <DropdownMenuItem onClick={onSaveProject} disabled={savingProject}>
-                  {savingProject ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="mr-2 h-4 w-4" />
-                  )}
-                  Save
-                </DropdownMenuItem>
-              )}
-              {onLoadSample && (
-                <DropdownMenuItem onClick={onLoadSample}>
-                  {getProjectActionLabel('loadSample', 'topbar')}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onImport}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onExport}>
-                <FileDown className="mr-2 h-4 w-4" />
-                Export
-              </DropdownMenuItem>
-              {onOpenAIDesigner && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onOpenAIDesigner} data-testid="editor-ai-designer">
-                    <CopilotSwanMark motion="idle" size="xs" className="mr-2" />
-                    Architecture Copilot
-                  </DropdownMenuItem>
-                </>
-              )}
-              {onOpenArchitectureBot && (
-                <DropdownMenuItem onClick={onOpenArchitectureBot} data-testid="editor-architecture-bot">
-                  <CopilotSwanMark motion="idle" size="xs" className="mr-2" />
-                  Architecture Bot
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
-            <Box className="h-4 w-4" />
-          </IconButton>
-          {show3DView && onToggleExpand3D && (
-            <IconButton
-              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
-              active={expand3DPanel}
-              onClick={onToggleExpand3D}
-              dataTutorial="expand-3d"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </IconButton>
-          )}
-          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid} dataTutorial="toggle-grid-icon">
-            <Grid3x3 className="h-4 w-4" />
-          </IconButton>
-          <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
-            <Eye className="h-4 w-4" />
-          </IconButton>
-          {onToggleMonsoon && (
-            <IconButton
-              label={monsoonActive ? 'Mute Monsoon Rain' : 'Monsoon Rain on Jali'}
-              active={monsoonActive}
-              onClick={onToggleMonsoon}
-              data-testid="monsoon-rain-toggle"
-            >
-              <CloudRain className="h-4 w-4" />
-            </IconButton>
-          )}
-          {onTogglePrana && (
-            <IconButton
-              label={pranaActive ? 'Deactivate Prana' : 'Activate Prana Glow'}
-              active={pranaActive}
-              onClick={onTogglePrana}
-              data-testid="prana-glow-toggle"
-            >
-              <Activity className="h-4 w-4" />
-            </IconButton>
-          )}
-
-          <TutorialHelpButton />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="More editor actions"
-                className="vish-editor-icon-btn touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-transparent text-ws-text-dim hover:border-ws-border hover:bg-ws-hover hover:text-ws-text"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="vish-fade-rise w-52 glass-panel-obsidian laser-etched-border">
-              <DropdownMenuItem onClick={() => onTogglePresentationLock?.()}>
-                <Lock className="mr-2 h-4 w-4" />
-                {presentationLock ? 'Unlock presentation' : 'Presentation lock'}
-              </DropdownMenuItem>
-              {onOpenGovernance && (
-                <DropdownMenuItem onClick={onOpenGovernance}>
-                  Governance & workspace…
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="vish-studio-bar__actions">
+          <StudioButton label="Save project" primary disabled={savingProject} onClick={onSaveProject}>
+            {savingProject ? <Loader2 size={16} aria-hidden="true" className="motion-safe:animate-spin" /> : <Save size={16} aria-hidden="true" />}
+            <span>{savingProject ? 'Saving…' : 'Save'}</span>
+          </StudioButton>
+          <StudioButton label="Export project" onClick={onExport}>
+            <FileDown size={16} aria-hidden="true" />
+            <span className="vish-studio-export-label">Export</span>
+          </StudioButton>
         </div>
       </div>
-      {fileStrip && <div className="vish-editor-file-strip">{fileStrip}</div>}
+
+      <div className="vish-studio-bar__utilities">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" aria-label="Project actions" data-tutorial="project-actions" className="vish-studio-button">
+              <FolderOpen size={16} aria-hidden="true" />
+              <span>File</span>
+              <ChevronDown size={12} aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem onSelect={onNewProject}>New project</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onOpenProject}>Open…</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onImport}>Import</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onSaveProject} disabled={savingProject}>Save</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onExport}>Export</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={onLoadSample} data-tutorial="load-demo">
+              {getProjectActionLabel('loadSample', 'topbar')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={onOpenAIDesigner} data-testid="editor-ai-designer">
+              <CopilotSwanMark motion="idle" size="xs" className="mr-2" /> Architecture Copilot
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={onOpenArchitectureBot} data-testid="editor-architecture-bot">
+              <CopilotSwanMark motion="idle" size="xs" className="mr-2" /> Architecture Bot
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" data-testid="editor-mode-badge" className="vish-studio-button vish-editor-mode-badge" aria-label="Studio tools">
+              <span>Tools</span><ChevronDown size={12} aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56 max-h-[min(65dvh,32rem)] overflow-y-auto">
+            <DropdownMenuLabel>Drawing tools</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {TOOL_SETS.map(({ id, label }) => (
+                <DropdownMenuItem key={id} onSelect={() => onWorkspaceModeChange(id)} disabled={presentationLock}>
+                  {label}{workspaceMode === id && view === 'blueprint' && <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">Selected</span>}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={onToggleGrid} data-tutorial="toggle-grid">{gridVisible ? 'Hide grid' : 'Show grid'}</DropdownMenuItem>
+            {view === 'orbit' && <DropdownMenuItem onSelect={onToggleSplitView} data-tutorial="expand-3d">{splitView ? 'Fill workspace with 3D' : 'Blueprint and 3D side by side'}</DropdownMenuItem>}
+            {view !== 'blueprint' && <DropdownMenuItem onSelect={onResetView}>Reset 3D camera</DropdownMenuItem>}
+            <DropdownMenuItem onSelect={onToggleZen}>{zenMode ? 'Exit zen mode' : 'Zen mode'}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onTogglePresentationLock}>{presentationLock ? 'Unlock presentation' : 'Presentation lock'}</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={onToggleMonsoon} data-testid="monsoon-rain-toggle">{monsoonActive ? 'Mute Monsoon Rain' : 'Monsoon Rain on Jali'}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onTogglePrana} data-testid="prana-glow-toggle">{pranaActive ? 'Deactivate Prana' : 'Activate Prana Glow'}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onOpenGovernance}>Governance &amp; workspace…</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="vish-studio-history" role="group" aria-label="Edit history">
+          <StudioButton label="Undo" disabled={!canUndo} onClick={onUndo}><Undo2 size={16} aria-hidden="true" /></StudioButton>
+          <StudioButton label="Redo" disabled={!canRedo} onClick={onRedo}><Redo2 size={16} aria-hidden="true" /></StudioButton>
+        </div>
+        {!presentationLock && (
+          <StudioButton label="Open properties panel" active={propertiesOpen} onClick={onOpenProperties} testId="studio-inspector">
+            <SlidersHorizontal size={16} aria-hidden="true" /><span className="vish-studio-inspector-label">Details</span>
+          </StudioButton>
+        )}
+        <TutorialHelpButton className="vish-studio-help" />
+      </div>
+
+      {fileStrip && <div className="vish-editor-file-strip vish-studio-status">{fileStrip}</div>}
     </header>
   );
 }

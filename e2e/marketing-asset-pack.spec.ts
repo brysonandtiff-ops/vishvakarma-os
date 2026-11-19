@@ -30,7 +30,7 @@ test.describe('marketing asset pack', () => {
 
     await page.getByTestId('blueprint-canvas').screenshot({ path: join(OUT_DIR, 'product-2d.png') });
 
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await page.getByRole('button', { name: /^3d$/i }).click();
     await page.waitForTimeout(1500);
 
     await page.locator('.bg-ws-canvas').first().screenshot({ path: join(OUT_DIR, 'product-3d.png') });

@@ -97,7 +97,7 @@ test.describe('editor core features (e2e local access)', () => {
 
   test('3D toggle shows preview pane', async ({ page }) => {
     await loadSampleProject(page);
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await page.getByRole('button', { name: /^3d$/i }).click();
     await expect3DPreviewPane(page);
   });
 

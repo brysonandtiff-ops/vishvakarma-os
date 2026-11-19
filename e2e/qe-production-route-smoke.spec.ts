@@ -25,7 +25,7 @@ const authDeviceMatrix = [
 ] as const;
 
 const protectedRouteSmoke = [
-  { path: '/projects', label: 'Projects', heading: /your projects/i },
+  { path: '/projects', label: 'Projects', heading: /^projects$/i },
   { path: '/releases', label: 'Releases', heading: /^Release Center$/i },
   { path: '/audit', label: 'Audit', heading: /^Audit Log$/i },
   { path: '/optimization', label: 'Optimization', heading: /^Design Battle$/i },
@@ -90,13 +90,13 @@ async function expectGoogleOnlyAuth(page: Page) {
 }
 
 async function close3DPreviewAfterProof(page: Page) {
-  const toggle3D = page.getByRole('button', { name: /toggle 3d view/i });
+  const toggle3D = page.getByRole('button', { name: /^3d$/i });
   if (!(await toggle3D.isVisible().catch(() => false))) return;
 
   const isPressed = await toggle3D.getAttribute('aria-pressed').catch(() => null);
   if (isPressed !== 'true') return;
 
-  await toggle3D.click({ force: true, timeout: 5_000 }).catch(() => {});
+  await page.getByRole('button', { name: 'Blueprint', exact: true }).click({ force: true, timeout: 5_000 });
   await page.locator('.vish-3d-viewport-pane canvas').first().waitFor({ state: 'detached', timeout: 5_000 }).catch(() => {});
   await page.waitForTimeout(250);
 }
@@ -171,7 +171,7 @@ test.describe('QE engineering pass — auth and route smoke', () => {
     await loadSampleProject(page);
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 
-    await page.getByRole('button', { name: /toggle 3d view/i }).click({ force: true });
+    await page.getByRole('button', { name: /^3d$/i }).click({ force: true });
     await expect3DPreviewPane(page);
     await close3DPreviewAfterProof(page);
 

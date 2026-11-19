@@ -220,18 +220,11 @@ export async function openAIDesigner(page: Page) {
 }
 
 export async function selectWorkspaceMode(page: Page, mode: RegExp) {
-  const tab = page.getByRole('tab', { name: mode });
-  const slug = String(mode.source).replace(/^\^|\$$/g, '').replace(/\b/g, '').toLowerCase();
-  if (await tab.isVisible().catch(() => false)) {
-    const tutorialTarget = page.locator(`[data-tutorial="mode-${slug}"]`);
-    const target = (await tutorialTarget.count()) > 0 ? tutorialTarget : tab;
-    await target.scrollIntoViewIfNeeded();
-    await target.click({ force: true });
-    if ((await tab.getAttribute('aria-selected')) === 'true') return;
-    await tab.evaluate((el) => {
-      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    });
-    await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 });
+  const view = mode.test('Blueprint') ? 'Blueprint' : mode.test('Walk') ? 'Walk' : undefined;
+  if (view) {
+    const control = page.getByRole('group', { name: 'Studio views' }).getByRole('button', { name: view, exact: true });
+    await tapReachable(control);
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
     return;
   }
   const badge = page.getByTestId('editor-mode-badge');

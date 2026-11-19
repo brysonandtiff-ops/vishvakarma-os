@@ -21,7 +21,7 @@ test.describe('Desktop fine-pointer editor chrome', () => {
     test.setTimeout(120_000);
     await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30_000 });
 
-    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    const toggle3d = page.getByRole('button', { name: /^3d$/i });
     await expect(toggle3d).toBeVisible({ timeout: 15_000 });
     await toggle3d.click();
     await expect3DPreviewPane(page);
@@ -32,7 +32,7 @@ test.describe('Desktop fine-pointer editor chrome', () => {
 
     await selectWorkspaceMode(page, /^walk$/i);
 
-    await expect(page.locator('#vish-3d-walk-hint')).toContainText(/click canvas to enter walk/i, {
+    await expect(page.getByRole('button', { name: 'Start walking', exact: true })).toBeVisible({
       timeout: 30_000,
     });
   });

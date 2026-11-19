@@ -26,7 +26,7 @@ import { TUTORIAL_TRACKS } from '@/tutorial/tutorialCatalog';
 import { openTutorialHub } from '@/tutorial/TutorialProvider';
 import { OPEN_VOICE_TOUR_EVENT } from '@/voice-tour/voiceTourContent';
 import routes from '@/routes';
-import { ROUTE_ICONS } from '@/config/RouteNavConfig';
+import { ROUTE_ICONS, WORKSPACE_NAV } from '@/config/RouteNavConfig';
 
 export const OPEN_COMMAND_PALETTE_EVENT = 'vish:open-command-palette';
 
@@ -38,7 +38,8 @@ export function getNavigableRoutes() {
   return routes
     .filter((route) => route.access === 'private' && route.visible !== false)
     .map((route) => ({
-      name: route.name,
+      name: WORKSPACE_NAV.find((item) => item.path === route.path)?.name ?? route.name,
+      searchName: route.name,
       path: route.path,
       icon: ROUTE_ICONS[route.path] ?? PenTool,
     }));
@@ -110,7 +111,7 @@ export function WorkspaceCommandPalette() {
             return (
               <CommandItem
                 key={route.path}
-                value={`${route.name} ${route.path} workspace navigate sidebar`}
+                value={`${route.name} ${route.searchName} ${route.path} workspace navigate sidebar`}
                 onSelect={() => runNavigate(route.path)}
               >
                 <Icon />

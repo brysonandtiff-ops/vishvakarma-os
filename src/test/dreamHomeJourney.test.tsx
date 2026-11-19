@@ -1,25 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { DreamHomeJourney } from '@/components/projects/DreamHomeJourney';
 
-// Route is authenticated in the real app; component unit test supplies a non-co-owner session.
 vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ user: null }) }));
 
-describe('original owner design journey', () => {
-  it('keeps the locked original Vishvakarma swan/V mark', () => {
-    render(<MemoryRouter><DreamHomeJourney /></MemoryRouter>);
-    expect(document.querySelector('.vish-dream__brand img')).toHaveAttribute('src', '/brand/vishvakarma-official-logo.svg');
-    expect(screen.getByRole('heading', {name: /a home begins/i})).toBeInTheDocument();
-  });
-  it('links to real app routes and labels the illustration truthfully', () => {
-    render(<MemoryRouter><DreamHomeJourney /></MemoryRouter>);
-    expect(screen.getByRole('list').children).toHaveLength(5);
-    expect(screen.getByRole('link', {name:'See projects'})).toHaveAttribute('href', '#recent-projects');
-    expect(screen.getByRole('link', {name:'Open 2D editor'})).toHaveAttribute('href', '/editor-lite');
-    expect(screen.getByRole('link', {name:'Open 3D room'})).toHaveAttribute('href', '/3d-room');
-    expect(screen.getByRole('link', {name:'Try Walk mode'})).toHaveAttribute('href', '/3d-room?mode=walk');
-    expect(screen.getByRole('link', {name:'Open save tools'})).toHaveAttribute('href', '/editor');
-    expect(screen.getByText(/concept illustration/i)).toBeInTheDocument();
+describe('Studio sample preview', () => {
+  it('opens the sample in each Studio view and labels the sample renderings', () => {
+    const openSample = vi.fn();
+    render(<DreamHomeJourney onOpenSample={openSample} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Blueprint' }));
+    fireEvent.click(screen.getByRole('button', { name: '3D' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Walk' }));
+
+    expect(openSample.mock.calls).toEqual([[], ['orbit'], ['walk']]);
+    expect(screen.getByRole('img', { name: /architectural studies/i })).toHaveAttribute('src', '/room-studies/concepts.webp');
   });
 });

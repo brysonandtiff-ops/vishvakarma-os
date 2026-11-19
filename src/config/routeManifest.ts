@@ -2,7 +2,7 @@ import { PRICING_PAGE_ENABLED } from '@/config/marketingFeatures';
 
 export type RouteAccess = 'public' | 'private';
 
-export type NavGroup = 'EDITOR' | 'GOVERNANCE' | 'SYSTEM';
+export type NavGroup = 'EDITOR' | 'TOOLS' | 'GOVERNANCE' | 'SYSTEM';
 
 export type PageWidth = 'narrow' | 'standard' | 'wide';
 
@@ -42,6 +42,7 @@ export interface RouteManifestEntry {
   navGroup?: NavGroup;
   showInNav?: boolean;
   navIcon?: RouteNavIconKey;
+  navLabel?: string;
   primaryNavOrder?: number;
 }
 
@@ -63,7 +64,8 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     navGroup: 'EDITOR',
     showInNav: true,
     navIcon: 'PenTool',
-    primaryNavOrder: 4,
+    navLabel: 'Studio',
+    primaryNavOrder: 2,
   },
   {
     path: '/editor-lite',
@@ -71,10 +73,9 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     access: 'private',
     visible: true,
     layout: 'workspace-immersive',
-    navGroup: 'EDITOR',
+    navGroup: 'TOOLS',
     showInNav: true,
     navIcon: 'PenLine',
-    primaryNavOrder: 2,
   },
   {
     path: '/3d-room',
@@ -82,10 +83,9 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     access: 'private',
     visible: true,
     layout: 'workspace-immersive',
-    navGroup: 'EDITOR',
+    navGroup: 'TOOLS',
     showInNav: true,
     navIcon: 'Box',
-    primaryNavOrder: 3,
   },
   {
     path: '/projects',
@@ -106,7 +106,7 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     visible: true,
     layout: 'workspace-governance',
     pageWidth: 'wide',
-    navGroup: 'EDITOR',
+    navGroup: 'TOOLS',
     showInNav: true,
     navIcon: 'Sparkles',
   },

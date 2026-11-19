@@ -3,10 +3,10 @@
 // VISHVAKARMA.OS is the canonical product wordmark.
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import { Menu, Search } from 'lucide-react';
+import { LogOut, Menu, Search, UserRound } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCallback, useEffect, useState, createContext, useContext } from 'react';
 import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/components/workspace/WorkspaceCommandPalette';
@@ -68,15 +68,15 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
   };
 
   return (
-    <VishToolbar variant="workstation" className="vish-editor-topbar-chrome h-14 w-full rounded-none border-x-0 border-t-0 px-3 sm:px-4 shrink-0 flex items-center justify-between z-50">
-      <div className="flex items-center gap-3 xl:gap-6 h-full min-w-0">
+    <VishToolbar variant="workstation" className="vish-workspace-topbar vish-editor-topbar-chrome h-14 w-full rounded-none border-x-0 border-t-0 px-3 sm:px-4 shrink-0 flex items-center justify-between z-50">
+      <div className="flex items-center gap-1 sm:gap-3 xl:gap-6 h-full min-w-0">
         <Link to="/projects" aria-label="Vishvakarma.OS projects" onClick={onNavigate} className="vish-shell-brand vish-workspace-brand">
           {/* Keep the official user-supplied logo on the workspace home link. */}
           <img src={OFFICIAL_LOGO_SRC} alt="" className="w-8 h-8 shrink-0 object-contain" />
           <span className="hidden sm:inline">Vishvakarma.OS</span>
         </Link>
 
-        <nav aria-label="Design tools" className="hidden lg:flex items-center gap-1 h-full">
+        <nav aria-label="Design tools" className="vish-workspace-primary-nav flex items-center gap-1 h-full">
           {topNav.map((item) => (
             <WorkspaceNavLink key={item.path} item={item} isActive={location.pathname === item.path} onClick={onNavigate} />
           ))}
@@ -89,24 +89,28 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
           <Search className="w-4 h-4" />
         </button>
 
-        {/* Account Menu */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={handleSignOut}
-                aria-label={`Sign out ${accountLabel}`}
-                data-testid="workspace-account-control"
-                className="touch-target flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-md bg-vish-navy-800 border border-vish-navy-600 text-xs font-bold text-vish-text-100 hover:border-vish-blue-500 hover:shadow-[0_0_10px_rgba(42,167,255,0.2)] transition-all"
-              >
-                {accountInitials(accountLabel)}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent className="text-xs">
-              {accountLabel} • {plan} • Click to sign out
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Account menu for ${accountLabel}`}
+              data-testid="workspace-account-control"
+              className="touch-target flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-md border border-vish-navy-600 bg-vish-navy-800 text-xs font-bold text-vish-text-100 transition-colors hover:border-primary"
+            >
+              {accountInitials(accountLabel)}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="max-w-[min(80vw,18rem)] min-w-[11rem] motion-reduce:animate-none">
+            <DropdownMenuLabel className="truncate font-normal">{accountLabel} · {plan}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="min-h-[44px]" asChild>
+              <Link to="/profile"><UserRound aria-hidden="true" /> Profile</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="min-h-[44px]" onSelect={() => void handleSignOut()}>
+              <LogOut aria-hidden="true" /> Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
           <SheetTrigger asChild>

@@ -26,7 +26,7 @@ test.describe('editor performance smoke', () => {
   test('3D preview becomes visible within budget after sample load', async ({ page }) => {
     await loadSampleProject(page);
     const started = Date.now();
-    const toggle = page.getByRole('button', { name: /toggle 3d view/i }).first();
+    const toggle = page.getByRole('button', { name: /^3d$/i }).first();
     await expect(toggle).toBeVisible({ timeout: 15_000 });
     await tapReachable(toggle);
 

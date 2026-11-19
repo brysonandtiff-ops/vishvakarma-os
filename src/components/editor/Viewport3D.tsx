@@ -1352,22 +1352,24 @@ export default function Viewport3D({
         )}
 
         {walkMode && roomControls && !isCoarsePointer && (
-          <button id="vish-room-walk-start" type="button" className="vish-room__button vish-room__walk-start">
-            Start walking
-          </button>
+          <div className="absolute bottom-3 left-3 z-10">
+            <Button id="vish-room-walk-start" type="button" variant="gold" className="min-h-11 touch-manipulation">
+              Start walking
+            </Button>
+          </div>
         )}
-        {walkMode && !roomControls && (
+        {walkMode && (!roomControls || isCoarsePointer) && (
           <p
             id="vish-3d-walk-hint"
             className="absolute bottom-3 left-3 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 text-[10px] uppercase tracking-wider text-vish-blue-400 backdrop-blur-xl shadow-lg"
           >
             {isCoarsePointer ? 'Drag to look · hold arrows to walk' : 'Click to look · WASD or arrow keys to walk · Esc to exit'}
-            <span className="font-devanagari ml-2 text-vish-gold/70">· {WALK_MODE_MANTRA}</span>
+            {!roomControls && <span className="font-devanagari ml-2 text-vish-gold/70">· {WALK_MODE_MANTRA}</span>}
           </p>
         )}
         {walkMode && isCoarsePointer && (
           <div
-            className="absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 p-1.5 touch-none backdrop-blur-xl shadow-lg"
+            className="vish-3d-walk-pad absolute bottom-16 left-3 grid grid-cols-3 gap-1 rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 p-1.5 touch-none backdrop-blur-xl shadow-lg"
             data-testid="vish-3d-walk-pad"
           >
             <span />

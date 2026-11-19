@@ -124,6 +124,13 @@
   white-space: normal;
 }
 
+@media (max-width: 639px) {
+  .vish-workspace-shell > .vish-workspace-topbar { padding-inline: .375rem; }
+  .vish-workspace-topbar .vish-workspace-controls { gap: 0; }
+  .vish-workspace-primary-nav .vish-workspace-nav-link { padding-inline: .375rem; }
+  .vish-workspace-primary-nav .vish-workspace-nav-link svg { display: none; }
+}
+
 .vish-shell-account {
   background:
     radial-gradient(circle at 0% 0%, hsl(var(--ws-active) / 0.09), transparent 8rem),

@@ -66,7 +66,7 @@ test.describe('full real-customer device audit', () => {
         await expect(button).toHaveAttribute('aria-pressed', 'true');
       }
 
-      await page.getByRole('button', { name: /toggle 3d view/i }).click({ force: true });
+      await page.getByRole('button', { name: /^3d$/i }).click({ force: true });
       await expect3DPreviewPane(page);
 
       await openExportDialog(page);

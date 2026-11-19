@@ -115,7 +115,7 @@ test.describe('iPad editor layout', () => {
 
   test('editor portrait with 3D panel open avoids horizontal overflow', async ({ page }) => {
     await page.setViewportSize(iPadPortrait);
-    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    const toggle3d = page.getByRole('button', { name: /^3d$/i });
     if (await toggle3d.isVisible()) {
       await tapReachable(toggle3d);
       await page.waitForTimeout(400);
@@ -128,7 +128,7 @@ test.describe('iPad editor layout', () => {
     await page.setViewportSize(iPadLandscape);
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 
-    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    const toggle3d = page.getByRole('button', { name: /^3d$/i });
     if (await toggle3d.isVisible()) {
       await tapReachable(toggle3d);
       await page.waitForTimeout(400);
@@ -138,6 +138,8 @@ test.describe('iPad editor layout', () => {
     await page.evaluate(() => window.dispatchEvent(new Event('orientationchange')));
     await page.waitForTimeout(350);
     await expect(page.getByTestId('editor-top-bar')).toBeVisible();
+    await expect(page.locator('.vish-3d-viewport-pane')).toBeVisible();
+    await tapReachable(page.getByRole('button', { name: 'Blueprint', exact: true }));
     await expect(page.getByTestId('tool-rail')).toBeVisible();
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
     await assertNoHorizontalOverflow(page);
@@ -462,7 +464,7 @@ test.describe('iPad editor layout', () => {
   test('3D context-loss overlay shows reload control', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await loadSampleProject(page);
-    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
+    await tapReachable(page.getByRole('button', { name: /^3d$/i }));
     await page.waitForTimeout(800);
 
     const dispatched = await page.evaluate(() => {
@@ -483,7 +485,7 @@ test.describe('iPad editor layout', () => {
   test('walk mode shows touch D-pad on coarse pointer', async ({ page }) => {
     await page.setViewportSize(iPadLandscape);
     await loadSampleProject(page);
-    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
+    await tapReachable(page.getByRole('button', { name: /^3d$/i }));
     await page.waitForTimeout(400);
 
     const walkMode = page.getByRole('button', { name: /^walk$/i });
@@ -518,7 +520,7 @@ test.describe('iPad editor layout', () => {
       fullPage: false,
     });
 
-    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    const toggle3d = page.getByRole('button', { name: /^3d$/i });
     if (await toggle3d.isVisible()) {
       await tapReachable(toggle3d);
       await page.waitForTimeout(500);

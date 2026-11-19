@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 const GOVERNANCE_ROUTES = [
-  { path: '/projects', heading: /welcome back, architect/i },
+  { path: '/projects', heading: /^projects$/i },
   { path: '/change-requests', heading: 'Change Requests' },
   { path: '/optimization', heading: 'Design Battle' },
   { path: '/profile', heading: 'Profile' },
@@ -73,7 +73,7 @@ test.describe('Device governance layout', () => {
     await page.setViewportSize(androidTabletLandscape);
     await emulateCoarsePointer(page);
     await page.goto('/projects');
-    await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: /^projects$/i })).toBeVisible({ timeout: 30_000 });
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, GOVERNANCE_TOUCH_SELECTORS);
   });
@@ -82,7 +82,7 @@ test.describe('Device governance layout', () => {
     await page.setViewportSize(iPhonePortrait);
     await emulateCoarsePointer(page);
     await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: /^projects$/i })).toBeVisible({ timeout: 30_000 });
 
     await assertNoHorizontalOverflow(page);
     await assertTouchTargets(page, ['.vish-editor-topbar-chrome button']);

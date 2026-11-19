@@ -1,16 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
-import {
-  expandSidebarIfCollapsed,
-  iPadLandscape,
-  resetWorkspacePrefs,
-} from './helpers';
+import { iPadLandscape, resetWorkspacePrefs } from './helpers';
 
 const sidebarLinks = [
-  { name: 'Blueprint Editor', path: '/editor', testId: 'editor-top-bar' },
-  { name: 'Projects', path: '/projects', heading: /your projects/i },
+  { name: 'Studio', path: '/editor', testId: 'editor-top-bar' },
+  { name: 'Projects', path: '/projects', heading: /^projects$/i },
   { name: 'Profile', path: '/profile', heading: /^profile$/i },
   { name: 'Spec Center', path: '/spec-center', heading: /spec center/i },
-  { name: 'Registry', path: '/registry', heading: /registry center/i },
+  { name: 'Registry Center', path: '/registry', heading: /registry center/i },
   { name: 'Change Requests', path: '/change-requests', heading: /change request/i },
   { name: 'Release Center', path: '/releases', heading: /release center/i },
   { name: 'World Records', path: '/world-records', heading: /world record registry/i },
@@ -19,12 +15,12 @@ const sidebarLinks = [
 
 async function openWorkspaceShell(page: Page) {
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
-  await expandSidebarIfCollapsed(page);
+  await expect(page.getByRole('heading', { name: /^projects$/i })).toBeVisible({ timeout: 30_000 });
 }
 
-function visibleLink(page: Page, name: string) {
-  return page.getByRole('link', { name, exact: true }).filter({ visible: true }).first();
+async function openWorkspaceMenu(page: Page) {
+  await page.getByRole('button', { name: 'Open workspace navigation' }).click();
+  return page.getByRole('dialog', { name: 'Workspace' });
 }
 
 test.describe('workspace navigation (e2e local access)', () => {
@@ -36,9 +32,10 @@ test.describe('workspace navigation (e2e local access)', () => {
   });
 
   for (const link of sidebarLinks) {
-    test(`sidebar link "${link.name}" reaches ${link.path}`, async ({ page }) => {
+    test(`workspace menu link "${link.name}" reaches ${link.path}`, async ({ page }) => {
       await openWorkspaceShell(page);
-      const target = visibleLink(page, link.name);
+      const menu = await openWorkspaceMenu(page);
+      const target = menu.getByRole('link', { name: link.name, exact: true });
       await expect(target).toBeVisible({ timeout: 15_000 });
       await target.click({ force: true });
       await expect(page).toHaveURL(new RegExp(`${link.path.replace('/', '\\/')}$`), { timeout: 30_000 });
@@ -58,7 +55,7 @@ test.describe('workspace navigation (e2e local access)', () => {
       const trigger = page.getByRole('button', { name: /open command palette/i }).filter({ visible: true }).first();
       await expect(trigger).toBeVisible({ timeout: 15_000 });
       await trigger.click({ force: true });
-      const input = page.getByPlaceholder(/jump to a workspace/i);
+      const input = page.getByPlaceholder('Search routes, tools, tutorials…');
       await expect(input).toBeVisible({ timeout: 15_000 });
       return input;
     };
@@ -78,18 +75,9 @@ test.describe('workspace navigation (e2e local access)', () => {
 
   test('mobile sheet drawer navigates to spec center', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible({ timeout: 30_000 });
-
-    const declineAnalytics = page.getByRole('button', { name: /decline/i });
-    if (await declineAnalytics.isVisible().catch(() => false)) {
-      await declineAnalytics.click({ force: true });
-    }
-
-    const openNavigation = page.getByRole('button', { name: /open navigation/i }).filter({ visible: true }).first();
-    await expect(openNavigation).toBeVisible({ timeout: 15_000 });
-    await openNavigation.click({ force: true });
-    const specCenter = visibleLink(page, 'Spec Center');
+    await openWorkspaceShell(page);
+    const menu = await openWorkspaceMenu(page);
+    const specCenter = menu.getByRole('link', { name: 'Spec Center', exact: true });
     await expect(specCenter).toBeVisible({ timeout: 15_000 });
     await specCenter.click({ force: true });
     await expect(page).toHaveURL(/\/spec-center$/);

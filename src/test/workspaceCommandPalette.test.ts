@@ -40,6 +40,10 @@ describe('workspace command palette', () => {
   it('includes a searchable 3D Room destination', () => {
     expect(getNavigableRoutes()).toContainEqual(expect.objectContaining({ name: '3D Room', path: '/3d-room' }));
   });
+
+  it('shows Studio while preserving Blueprint Editor search', () => {
+    expect(getNavigableRoutes()).toContainEqual(expect.objectContaining({ name: 'Studio', searchName: 'Blueprint Editor', path: '/editor' }));
+  });
 });
 
 describe('workspace memory persistence', () => {

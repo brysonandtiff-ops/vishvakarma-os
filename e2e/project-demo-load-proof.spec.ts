@@ -36,7 +36,7 @@ test.describe("project load proof", () => {
     await expect(page.locator("body")).not.toContainText(BLOCKED_COPY);
 
     const demoButton = page
-      .getByRole('region', { name: 'Demo blueprints' })
+      .getByRole('region', { name: 'Sample projects' })
       .getByRole('button', { name: 'Open in editor' })
       .first();
     await expect(demoButton).toBeVisible();

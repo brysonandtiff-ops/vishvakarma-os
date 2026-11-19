@@ -601,3 +601,163 @@
     transition: none !important;
   }
 }
+
+/* Studio view switcher, project actions, and focus layout. */
+.vish-workspace-shell .vish-editor-shell[data-studio] {
+  height: 100%;
+  min-height: 0;
+}
+
+.vish-editor-shell > .vish-studio-bar.vish-editor-topbar-chrome {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: auto;
+  gap: 0;
+  padding: 0;
+  color: #f6f0e4;
+  background: #202722;
+  border: 0;
+  border-bottom: 1px solid #49524a;
+  box-shadow: none;
+  z-index: 10;
+}
+
+.vish-editor-shell > .vish-studio-bar.vish-editor-topbar-chrome > .vish-studio-bar__row:first-child {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: 'project views actions';
+  align-items: center;
+  column-gap: clamp(.5rem, 2vw, 1.5rem);
+  padding: .45rem .75rem;
+}
+
+.vish-studio-bar__project {
+  grid-area: project;
+  min-width: 0;
+}
+
+.vish-studio-bar__project h1 {
+  overflow: hidden;
+  margin: 0;
+  color: #f6f0e4;
+  font-size: clamp(.9rem, 1.6vw, 1.16rem);
+  font-weight: 650;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vish-studio-views,
+.vish-studio-bar__actions,
+.vish-studio-bar__utilities,
+.vish-studio-history {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.vish-studio-views {
+  grid-area: views;
+  padding: .125rem;
+  border: 1px solid #566453;
+  border-radius: .7rem;
+  background: #161d18;
+}
+
+.vish-studio-bar__actions { grid-area: actions; justify-content: flex-end; }
+
+.vish-studio-bar__utilities {
+  flex-wrap: wrap;
+  padding: .25rem .75rem;
+  border-block: 1px solid #465147;
+}
+
+.vish-studio-history {
+  padding-inline: .125rem;
+  border-inline: 1px solid #465147;
+}
+
+.vish-studio-bar .vish-studio-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: .375rem .625rem;
+  border: 1px solid transparent;
+  border-radius: .5rem;
+  color: #f0eadb;
+  font-size: .84rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: normal;
+  white-space: nowrap;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.vish-studio-bar .vish-studio-button:hover:not(:disabled) { background: #37453a; }
+.vish-studio-bar .vish-studio-button:disabled { opacity: .48; }
+.vish-studio-bar .vish-studio-button:focus-visible { outline: 2px solid #f4ce8d; outline-offset: 2px; }
+.vish-studio-bar .vish-studio-button svg { flex-shrink: 0; }
+.vish-studio-bar .vish-studio-help { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+
+.vish-studio-bar .vish-studio-button[aria-pressed='true'],
+.vish-studio-bar .vish-studio-button--primary {
+  color: #261d11;
+  background: #ebca8a;
+  border-color: #f6d99d;
+}
+
+.vish-studio-bar .vish-studio-button[aria-pressed='true']:hover:not(:disabled),
+.vish-studio-bar .vish-studio-button--primary:hover:not(:disabled) { background: #f4d9a2; }
+
+.vish-editor-shell .vish-studio-bar .vish-studio-status {
+  width: 100%;
+  min-width: 0;
+  padding-inline: .75rem;
+  background: #1b231d;
+}
+
+.vish-editor-shell[data-studio-full-preview='true'] .vish-studio-blueprint-stage {
+  display: none;
+}
+
+.vish-editor-shell[data-studio-full-preview='true'] .vish-3d-viewport-pane {
+  flex: 1 1 0%;
+  width: 100% !important;
+  height: 100%;
+  max-width: none;
+  min-height: 0;
+  max-height: none !important;
+  border-left: 0;
+  resize: none;
+}
+
+@media (max-width: 740px) {
+  .vish-editor-shell > .vish-studio-bar.vish-editor-topbar-chrome > .vish-studio-bar__row:first-child {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'project actions' 'views views';
+    row-gap: .35rem;
+    padding: .35rem .5rem;
+  }
+
+  .vish-studio-views .vish-studio-button { flex: 1 1 0; }
+
+  .vish-studio-bar__utilities { padding-inline: .5rem; }
+  .vish-studio-bar .vish-studio-inspector-label { display: none; }
+}
+
+@media (max-width: 365px) {
+  .vish-studio-export-label { display: none; }
+  .vish-studio-bar__utilities { gap: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-studio-bar .vish-studio-button { transition: none; }
+}

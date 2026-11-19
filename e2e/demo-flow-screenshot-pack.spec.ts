@@ -78,7 +78,7 @@ test.describe('2-minute demo flow screenshot pack', () => {
     await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
     await shot(page, '03-editor-2d-demo-blueprint.png');
 
-    const toggle3d = page.getByRole('button', { name: /toggle 3d view/i });
+    const toggle3d = page.getByRole('button', { name: /^3d$/i });
     if (await toggle3d.isVisible().catch(() => false)) {
       await toggle3d.click();
     }

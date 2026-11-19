@@ -10,7 +10,7 @@ import {
 
 async function settleProjects(page: Page) {
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: /welcome back, architect/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: /^projects$/i })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('projects-loading-skeleton')).toBeHidden({ timeout: 30_000 });
 }
 
@@ -37,17 +37,17 @@ test.describe('projects and profile (e2e local access)', () => {
     await settleProjects(page);
     await expect(page.getByRole('heading', { name: 'No projects found', exact: true })).toBeVisible();
     await expect(page.getByText('Create a new project to start designing, or import an existing floor plan.', { exact: true })).toBeVisible();
-    const newProject = page.getByRole('link', { name: 'New Project', exact: true });
+    const newProject = page.getByRole('link', { name: /^new project$/i });
     await expect(newProject).toBeVisible();
     await expect(newProject).toHaveAttribute('href', '/editor');
-    await expect(page.getByRole('link', { name: 'Create New Project', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: /^create new project$/i })).toBeVisible();
   });
 
   test('New Project CTA navigates to editor', async ({ page }) => {
     await settleProjects(page);
-    await page.getByRole('link', { name: 'New Project', exact: true }).click();
+    await page.getByRole('link', { name: /^new project$/i }).click();
     await expect(page).toHaveURL(/\/editor$/);
-    await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole('dialog', { name: 'Create New Project' })).toBeVisible({ timeout: 60_000 });
   });
 
   test('/profile shows backend mode and sign out redirects to auth', async ({ page }) => {

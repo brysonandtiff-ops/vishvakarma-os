@@ -172,7 +172,7 @@ test.describe('current iPad editor interaction contract', () => {
       await room.scrollIntoViewIfNeeded({ timeout: 10_000 });
       await expect(room).toBeVisible();
 
-      await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
+      await tapReachable(page.getByRole('button', { name: /^3d$/i }));
       await expect3DPane(page);
       await openExportDialog(page);
       await assertActiveDialogFitsIpad(page);

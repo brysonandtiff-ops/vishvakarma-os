@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { Loader2 } from 'lucide-react';
 import CopilotSwanMark from '@/components/brand/CopilotSwanMark';
 import { Button } from '@/components/ui/button';
@@ -29,78 +29,94 @@ export default function NewProjectDialog({
   onOpenChange,
   onProjectCreated,
   onOpenAIDesigner,
+  sourceManifest,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   onProjectCreated: (project: Project) => void;
   onOpenAIDesigner?: () => void;
+  sourceManifest?: ProjectManifest;
 }) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const savingPlan = sourceManifest !== undefined;
+  const [name, setName] = useState(sourceManifest?.name === 'Untitled Project' ? '' : sourceManifest?.name ?? '');
+  const [description, setDescription] = useState(sourceManifest?.description ?? '');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const pending = useRef(false);
   const [templateId, setTemplateId] = useState<string>('blank');
-  const projectTemplates = useMemo(() => getNewProjectTemplates(), []);
 
   const groupedTemplates = useMemo(() => {
+    if (savingPlan) return [];
+    const projectTemplates = getNewProjectTemplates();
     return NEW_PROJECT_CATEGORY_ORDER.map((category) => ({
       category,
       label: SAMPLE_CATEGORY_LABELS[category],
       templates: projectTemplates.filter((entry) => entry.category === category),
     })).filter((group) => group.templates.length > 0);
-  }, [projectTemplates]);
+  }, [savingPlan]);
 
-  const handleCreate = async () => {
-    if (!name.trim()) {
-      toast.error('Project name is required');
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (pending.current) return;
+    const projectName = name.trim();
+    const projectDescription = description.trim() || undefined;
+    if (!projectName) {
+      setSaveError('Enter a project name.');
       return;
     }
 
-    const initialManifest: ProjectManifest =
-      templateId === 'blank'
-        ? createProjectManifest({ name: name.trim(), description: description.trim() || undefined })
-        : { ...getFloorTemplate(templateId), name: name.trim(), description: description.trim() || undefined };
-
+    pending.current = true;
     setSubmitting(true);
+    setSaveError(null);
 
+    let project: Project;
     try {
-      const project = backendStatus.isConfigured
-        ? await createProject(name.trim(), description.trim() || undefined, initialManifest)
-        : createLocalProject(name.trim(), description.trim() || undefined, initialManifest);
+      const details = { name: projectName, description: projectDescription };
+      const template = sourceManifest ?? (templateId !== 'blank' ? getFloorTemplate(templateId) : null);
+      const initialManifest = template ? { ...template, ...details } : createProjectManifest(details);
+      project = backendStatus.isConfigured
+        ? await createProject(projectName, projectDescription, initialManifest)
+        : createLocalProject(projectName, projectDescription, initialManifest);
 
-      if (!backendStatus.isConfigured) {
-        upsertLocalProject(project);
+      if (!backendStatus.isConfigured && !upsertLocalProject(project)) {
+        throw new Error('Browser storage is unavailable.');
       }
-
-      trackEvent('project_created', {
-        backend: backendStatus.isConfigured ? 'supabase' : 'local',
-        template: templateId,
-      });
-
-      toast.success(backendStatus.isConfigured ? 'Project created' : 'Local project ready — draw and save to your browser');
-      onOpenChange(false);
-      setName('');
-      setDescription('');
-      setTemplateId('blank');
-      onProjectCreated(project);
     } catch (error) {
       console.error('Failed to create project:', error);
-      toast.error('Failed to create project');
+      setSaveError(error instanceof Error ? error.message : 'Could not save the project.');
+      return;
     } finally {
+      pending.current = false;
       setSubmitting(false);
     }
+
+    trackEvent('project_created', {
+      backend: backendStatus.isConfigured ? 'supabase' : 'local',
+      template: savingPlan ? 'existing-plan' : templateId,
+    });
+
+    if (savingPlan) toast.success(backendStatus.isConfigured ? 'Project saved' : 'Project saved locally');
+    else toast.success(backendStatus.isConfigured ? 'Project created' : 'Local project ready — draw and save to your browser');
+    setName('');
+    setDescription('');
+    setTemplateId('blank');
+    onOpenChange(false);
+    onProjectCreated(project);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!pending.current) onOpenChange(nextOpen); }}>
       <DialogContent className={editorDialogClassNameLg}>
         <DialogHeader>
-          <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
-            नूतन · New Project
-          </div>
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>Start a new blueprint workspace with a clean canvas or floor plan template.</DialogDescription>
+          {!savingPlan && (
+            <div className="vish-card-mantra mx-auto mb-2 w-fit rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em]">
+              नूतन · New Project
+            </div>
+          )}
+          <DialogTitle>{savingPlan ? 'Save Plan as Project' : 'Create New Project'}</DialogTitle>
+          <DialogDescription>{savingPlan ? 'Name this plan so you can reopen it from Projects.' : 'Start a new blueprint workspace with a clean canvas or floor plan template.'}</DialogDescription>
         </DialogHeader>
-        <div className="max-h-[min(52vh,420px)] space-y-4 overflow-y-auto pr-1">
+        <form id="project-details-form" onSubmit={handleCreate} className="min-w-0 max-h-[min(52vh,420px)] space-y-4 overflow-y-auto pr-1">
           <div className="space-y-2">
             <Label htmlFor="project-name">Project Name</Label>
             <Input
@@ -111,7 +127,7 @@ export default function NewProjectDialog({
               disabled={submitting}
             />
           </div>
-          {onOpenAIDesigner && (
+          {!savingPlan && onOpenAIDesigner && (
             <Button
               type="button"
               variant="secondary"
@@ -125,40 +141,42 @@ export default function NewProjectDialog({
               Start with Architecture Copilot
             </Button>
           )}
-          <div className="space-y-3">
-            <Label>Template</Label>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={templateId === 'blank' ? 'default' : 'outline'}
-                className="min-h-[44px] touch-target"
-                onClick={() => setTemplateId('blank')}
-              >
-                Blank
-              </Button>
-            </div>
-            {groupedTemplates.map((group) => (
-              <div key={group.category} className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{group.label}</p>
-                <div className="flex flex-wrap gap-2">
-                  {group.templates.map((template) => (
-                    <Button
-                      key={template.id}
-                      type="button"
-                      size="sm"
-                      variant={templateId === template.id ? 'default' : 'outline'}
-                      className="min-h-[44px] touch-target"
-                      onClick={() => setTemplateId(template.id)}
-                      title={template.description}
-                    >
-                      {template.name}
-                    </Button>
-                  ))}
-                </div>
+          {!savingPlan && (
+            <div className="space-y-3">
+              <Label>Template</Label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={templateId === 'blank' ? 'default' : 'outline'}
+                  className="min-h-[44px] touch-target"
+                  onClick={() => setTemplateId('blank')}
+                >
+                  Blank
+                </Button>
               </div>
-            ))}
-          </div>
+              {groupedTemplates.map((group) => (
+                <div key={group.category} className="space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{group.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.templates.map((template) => (
+                      <Button
+                        key={template.id}
+                        type="button"
+                        size="sm"
+                        variant={templateId === template.id ? 'default' : 'outline'}
+                        className="min-h-[44px] touch-target"
+                        onClick={() => setTemplateId(template.id)}
+                        title={template.description}
+                      >
+                        {template.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="project-description">Description</Label>
             <Textarea
@@ -170,19 +188,20 @@ export default function NewProjectDialog({
               disabled={submitting}
             />
           </div>
-        </div>
+        </form>
+        {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting} className="min-h-[44px]">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting} className="min-h-[44px]">
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={submitting} className="min-h-[44px]">
+          <Button type="submit" form="project-details-form" disabled={submitting} className="min-h-[44px]">
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating…
+                {savingPlan ? 'Saving…' : 'Creating…'}
               </>
             ) : (
-              'Create Project'
+              savingPlan ? 'Save Project' : 'Create Project'
             )}
           </Button>
         </DialogFooter>

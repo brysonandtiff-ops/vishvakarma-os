@@ -191,12 +191,6 @@
 .vish-room__spinner { animation: vish-room-spin 1.4s linear infinite; }
 @keyframes vish-room-spin { to { transform: rotate(1turn); } }
 
-.vish-room__walk-start {
-  position: absolute;
-  inset: auto auto 0.75rem 0.75rem;
-  background: #e8c982;
-}
-
 .vish-room__mode-help {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;

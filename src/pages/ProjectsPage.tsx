@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FolderOpen, MoreHorizontal, PenTool, Plus, FolderDown, Bot } from 'lucide-react';
+import { Box, FolderOpen, MoreHorizontal, PenTool, Plus, FolderDown, Bot } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import WorkspacePageHeader from '@/components/common/WorkspacePageHeader';
 import {
@@ -32,11 +32,10 @@ import {
   getSampleStats,
   resolveSampleManifestSync,
 } from '@/core/sampleCatalog';
-import { openManifestInEditor } from '@/editor/openManifestInEditor';
+import { openManifestInEditor, type EditorManifestView } from '@/editor/openManifestInEditor';
 import { projectThumbnailDataUrl } from '@/utils/projectThumbnail';
 import { toast } from 'sonner';
-import { VishCard, VishCardContent, VishCardHeader, VishCardTitle, VishMetric, VishStatusBadge } from '@/components/common/vish-primitives';
-import { useAuth } from '@/contexts/AuthContext';
+import { VishCard, VishStatusBadge } from '@/components/common/vish-primitives';
 import { DreamHomeJourney } from '@/components/projects/DreamHomeJourney';
 
 function isProjectArchived(project: Project): boolean {
@@ -55,7 +54,6 @@ function formatRelativeTime(iso: string): string {
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
-  const { profile, user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,13 +63,10 @@ export default function ProjectsPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [showAllProjects, setShowAllProjects] = useState(false);
 
-  const accountName = profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Architect';
-
   const demoSamples = useMemo(
     () =>
       getSamplesForSurface('projects-demo').map((sample) => ({
         sample,
-        eyebrow: sample.demoEyebrow ?? sample.name,
         stats: getSampleStats(sample),
         badges: getSampleFeatureBadges(sample),
       })),
@@ -102,10 +97,10 @@ export default function ProjectsPage() {
     navigate('/editor', { state: { loadProject: project } });
   };
 
-  const openDemoSample = (sampleId: string) => {
+  const openDemoSample = (sampleId: string, view?: EditorManifestView) => {
     try {
       const manifest = resolveSampleManifestSync(sampleId);
-      openManifestInEditor(navigate, manifest, { source: 'sample', name: manifest.name });
+      openManifestInEditor(navigate, manifest, { source: 'sample', view });
     } catch (err) {
       console.error('Failed to open demo sample:', err);
       toast.error('Failed to open demo sample');
@@ -204,59 +199,37 @@ export default function ProjectsPage() {
     toast.info('Archive updated locally — cloud sync requires save in editor.');
   };
 
-  // Source-grounded counters from the projects actually loaded in this session.
-  const projectStats = useMemo(() => {
-    const active = projects.filter((entry) => !isProjectArchived(entry));
-    return {
-      count: active.length,
-      walls: active.reduce((sum, entry) => sum + entry.manifest.walls.length, 0),
-      openings: active.reduce((sum, entry) => sum + entry.manifest.openings.length, 0),
-      rooms: active.reduce((sum, entry) => sum + (entry.manifest.rooms?.length ?? 0), 0),
-    };
-  }, [projects]);
-  const visibleStat = (value: number): number | string => (loading || error) ? '—' : value;
+  const hasProjectFilters = Boolean(searchQuery.trim()) || showArchived;
 
   return (
-    <div className="p-6 tablet:p-10 max-w-7xl mx-auto flex flex-col gap-8 pb-32">
-      <PageMeta title="Home Dashboard" description="Vishvakarma.OS Command Centre" />
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 pb-24 tablet:gap-8" data-testid="projects-page">
+      <PageMeta title="Projects — Vishvakarma.OS" description="Open, create, or import architectural projects in Studio." />
 
-      {/* Hero Area */}
-      <section className="flex flex-col gap-6">
-        <WorkspacePageHeader
-          title={`Welcome back, ${accountName}`}
-          variant="fullBleed"
-          zone="document"
-          animate={false}
-        />
-
-        <DreamHomeJourney />
-
-        {/* Primary Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors" asChild>
-            <Link to="/editor">
-              <Plus className="w-5 h-5 text-primary" />
-              <span className="font-semibold uppercase tracking-wider text-xs">New Project</span>
+      <WorkspacePageHeader
+        title="Projects"
+        variant="fullBleed"
+        animate={false}
+        actions={<div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap" role="group" aria-label="Project actions">
+          <Button className="min-h-[44px] px-3" asChild>
+            <Link to="/editor" state={{ openIntent: 'newProject' }}>
+              <Plus aria-hidden="true" /> New project
             </Link>
           </Button>
-          <Button data-testid="dashboard-open-project" onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })} variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors">
-             <FolderOpen className="w-5 h-5 text-primary" />
-             <span className="font-semibold uppercase tracking-wider text-xs">Open Project</span>
+          <Button type="button" variant="outline" className="min-h-[44px] px-3" data-testid="dashboard-open-project" onClick={() => navigate('/editor', { state: { openIntent: 'openProject' } })}>
+            <FolderOpen aria-hidden="true" /> Open project
           </Button>
-          <Button data-testid="dashboard-import-files" onClick={() => navigate('/editor', { state: { openIntent: 'import' } })} variant="outline" className="min-h-[58px] flex items-center justify-center gap-2 bg-[#151e23] border-primary/40 hover:bg-[#253137] text-[#f5dfaa] hover:text-[#fff3d7] transition-colors">
-             <FolderDown className="w-5 h-5 text-primary" />
-             <span className="font-semibold uppercase tracking-wider text-xs">Import Files</span>
+          <Button type="button" variant="outline" className="min-h-[44px] px-3" data-testid="dashboard-import-files" onClick={() => navigate('/editor', { state: { openIntent: 'import' } })}>
+            <FolderDown aria-hidden="true" /> Import files
           </Button>
-          <Button data-testid="dashboard-ai-copilot" onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })} className="min-h-[58px] flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground transition-colors border border-primary/60 shadow-md">
-             <Bot className="w-5 h-5" />
-             <span className="font-semibold uppercase tracking-wider text-xs">AI Copilot</span>
+          <Button type="button" variant="outline" className="min-h-[44px] px-3" data-testid="dashboard-ai-copilot" onClick={() => navigate('/editor', { state: { openIntent: 'aiDesigner' } })}>
+            <Bot aria-hidden="true" /> AI Copilot
           </Button>
-        </div>
-      </section>
-      {/* Recent Projects */}
+        </div>}
+      />
+
       <section id="recent-projects" aria-labelledby="recent-projects-title" tabIndex={-1} className="flex flex-col gap-4 scroll-mt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-           <h2 id="recent-projects-title" className="text-xl font-semibold text-white">Recent Projects</h2>
+           <h2 id="recent-projects-title" className="text-xl font-semibold text-foreground">Saved projects</h2>
            {filteredProjects.length > 8 && (
               <button type="button" className="min-h-11 px-3 text-xs text-primary hover:underline uppercase tracking-widest font-semibold" onClick={() => setShowAllProjects((value) => !value)}>
                 {showAllProjects ? 'Show fewer' : 'Show all projects'}
@@ -267,11 +240,17 @@ export default function ProjectsPage() {
         <div className="flex flex-wrap items-center gap-3">
           <label htmlFor="vish-project-search" className="sr-only">Search projects</label>
           <input id="vish-project-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Find a saved home…" className="min-h-11 min-w-0 flex-1 rounded-xl border border-primary/30 bg-card px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" />
+            placeholder="Search projects" className="min-h-11 min-w-0 flex-1 rounded-xl border border-primary/30 bg-card px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" />
           <label className="inline-flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
             <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} className="h-4 w-4 accent-[#d8a644]" /> Include archived
           </label>
         </div>
+        {error && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-700/50 px-3 py-2 text-sm text-amber-200">
+            <p role="status">Projects could not load. {error}</p>
+            <Button type="button" className="min-h-[44px]" variant="outline" onClick={() => void loadProjects()}>Retry</Button>
+          </div>
+        )}
         {loading ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="projects-loading-skeleton" aria-busy="true">
             {[0, 1, 2, 3].map((i) => (
@@ -338,36 +317,41 @@ export default function ProjectsPage() {
                 );
               })}
            </div>
-        ) : (
-          <VishCard className="p-10 flex flex-col items-center justify-center text-center">
-             <div className="w-16 h-16 rounded-full bg-vish-navy-800 border border-vish-navy-600 flex items-center justify-center mb-4">
-                <FolderOpen className="w-8 h-8 text-vish-text-400" />
-             </div>
-             <h3 className="text-lg font-semibold text-white mb-2">No projects found</h3>
-             <p className="text-vish-text-300 max-w-sm mb-6">Create a new project to start designing, or import an existing floor plan.</p>
-             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
-                <Link to="/editor">Create New Project</Link>
-             </Button>
-          </VishCard>
+        ) : !error && (
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-border bg-card/40 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+            <FolderOpen aria-hidden="true" className="size-7 shrink-0 text-primary" />
+            <div className="min-w-0">
+              <h3 className="font-semibold text-foreground">No projects found</h3>
+              <p className="text-sm text-muted-foreground">
+                {hasProjectFilters ? 'Try a different search or clear the filters.' : 'Create a new project to start designing, or import an existing floor plan.'}
+              </p>
+            </div>
+            {hasProjectFilters ? (
+              <Button type="button" className="col-start-2 min-h-[44px] justify-self-start sm:col-start-3" variant="outline" onClick={() => { setSearchQuery(''); setShowArchived(false); }}>Clear filters</Button>
+            ) : (
+              <Button className="col-start-2 min-h-[44px] justify-self-start sm:col-start-3" variant="outline" asChild>
+                <Link to="/editor" state={{ openIntent: 'newProject' }}>Create new project</Link>
+              </Button>
+            )}
+          </div>
         )}
       </section>
+
+      <DreamHomeJourney onOpenSample={(view) => openDemoSample('six-three-atrium-wing', view)} />
 
       {/* Verified local demo fixtures. Demo fixtures are generated in-browser from the versioned sample catalog. */}
       <section aria-labelledby="demo-fixtures-heading">
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-vish-gold-400">Reviewer walkthroughs</p>
-            <h2 id="demo-fixtures-heading" className="text-xl font-semibold text-white">Demo blueprints</h2>
+            <h2 id="demo-fixtures-heading" className="text-xl font-semibold text-foreground">Sample projects</h2>
           </div>
-          <span className="text-xs text-vish-text-400">{demoSamples.length} versioned sample designs</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {demoSamples.map(({ sample, eyebrow, stats, badges }) => (
+          {demoSamples.map(({ sample, stats, badges }) => (
             <VishCard key={sample.id} className="group overflow-hidden" data-testid={`projects-demo-${sample.id}`}>
               <div className="p-5 flex flex-col gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-primary">{eyebrow}</p>
-                  <h3 className="mt-1 text-base font-semibold text-white">{sample.name}</h3>
+                  <h3 className="text-base font-semibold text-white">{sample.name}</h3>
                   <p className="mt-2 text-xs leading-5 text-vish-text-300">{sample.description}</p>
                 </div>
                 <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-widest text-vish-text-400">
@@ -375,25 +359,17 @@ export default function ProjectsPage() {
                   <span>{stats.openings} openings</span>
                   {badges.map((badge) => <span key={badge} className="text-vish-gold-400">{badge}</span>)}
                 </div>
-                <Button type="button" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => openDemoSample(sample.id)}>
-                  Open in editor
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" className="min-h-[44px] grow" onClick={() => openDemoSample(sample.id)}>Open in editor</Button>
+                  <Button type="button" variant="outline" className="min-h-[44px]" aria-label={`View ${sample.name} in 3D`} onClick={() => openDemoSample(sample.id, 'orbit')}>
+                    <Box aria-hidden="true" /> 3D
+                  </Button>
+                </div>
               </div>
             </VishCard>
           ))}
         </div>
       </section>
-      {/* Real metrics from loaded project manifests, not simulated portfolio numbers. */}
-      <section aria-label="Loaded project measurements">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <VishCard className="p-4"><VishMetric label="Loaded projects" value={visibleStat(projectStats.count)} /></VishCard>
-          <VishCard className="p-4"><VishMetric label="Walls drawn" value={visibleStat(projectStats.walls)} /></VishCard>
-          <VishCard className="p-4"><VishMetric label="Openings placed" value={visibleStat(projectStats.openings)} /></VishCard>
-          <VishCard className="p-4"><VishMetric label="Rooms in plans" value={visibleStat(projectStats.rooms)} /></VishCard>
-        </div>
-        {error && <p className="mt-3 text-sm text-amber-200" role="status">Some projects could not load: {error}. Counts describe available records only.</p>}
-      </section>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent className="bg-vish-navy-900 border border-vish-navy-700 text-white">

@@ -57,7 +57,7 @@ test.describe('release screenshot pack', () => {
     await expectNoHorizontalOverflow(page);
     await shot(page, '03-editor-2d-sample.png');
 
-    await page.getByRole('button', { name: /toggle 3d view/i }).click();
+    await page.getByRole('button', { name: /^3d$/i }).click();
     await expect(page.locator('.vish-3d-viewport-pane')).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(1500);
     await shot(page, '04-editor-3d-premium.png');
@@ -78,7 +78,7 @@ test.describe('release screenshot pack', () => {
 
     await page.goto('/projects');
     await dismissConsentIfPresent(page);
-    await expect(page.getByRole('heading', { name: /your projects/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^projects$/i })).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await shot(page, '07-projects-empty.png');
 

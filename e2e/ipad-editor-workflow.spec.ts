@@ -174,7 +174,7 @@ test.describe('iPad editor workflow', () => {
     const walls2d = await readEditorMetricCount(page, 'Walls');
     const openings2d = await readEditorMetricCount(page, 'Openings');
 
-    await tapReachable(page.getByRole('button', { name: /toggle 3d view/i }));
+    await tapReachable(page.getByRole('button', { name: /^3d$/i }));
     await expect3DPreviewPane(page);
 
     const statusText = await page.locator('.ws-status-bar').textContent();

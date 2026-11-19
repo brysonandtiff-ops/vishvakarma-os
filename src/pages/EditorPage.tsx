@@ -2,19 +2,16 @@
 // Vishvakarma.OS — iPad-first blueprint editor workspace
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import PageMeta from '@/components/common/PageMeta';
 import { roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
-import { Box, Save, SlidersHorizontal } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
-import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
 import CanvasMinimap from '@/components/editor/CanvasMinimap';
 import EditorLayerPanel from '@/components/editor/EditorLayerPanel';
-import EditorTopBar from '@/components/editor/EditorTopBar';
+import EditorTopBar, { type DesignTools, type StudioView } from '@/components/editor/EditorTopBar';
 import RadialToolMenuTracker from '@/components/editor/RadialToolMenuTracker';
 import MaterialPicker from '@/components/editor/MaterialPicker';
 import CustomMaterialDialog from '@/components/editor/CustomMaterialDialog';
@@ -65,6 +62,7 @@ import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCloudSaveStatus } from '@/hooks/useCloudSaveStatus';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getLiteEditorManifest } from '@/editor/liteEditorHandoff';
 import {
   buildDraftPayloadFromManifest,
@@ -82,6 +80,7 @@ import { getLocalProjects, upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
+import type { FloorPlanEngine } from '@/core/floorPlanEngine';
 import type { Point2D, Project, ProjectManifest, SaveState } from '@/types';
 import type { UnitSystem } from '@/utils/measurements';
 import { shouldIgnoreKeyboardShortcuts } from '@/utils/keyboardShortcuts';
@@ -95,6 +94,9 @@ import { playStudioSound } from '@/modules/studio-audio/audioEngine';
 import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosphericMask';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
+type DraftSource = 'workspace' | 'lite' | 'sample';
+// The editor engine retains its plan between route mounts. Keep the same recovery policy.
+const draftSources = new WeakMap<FloorPlanEngine, DraftSource>();
 
 interface EditorRouteState {
   loadProject?: Project;
@@ -102,7 +104,7 @@ interface EditorRouteState {
   loadManifest?: ProjectManifest;
   projectName?: string;
   manifestSource?: 'sample' | 'ai';
-  openIntent?: 'openProject' | 'import' | 'aiDesigner';
+  openIntent?: 'newProject' | 'openProject' | 'import' | 'aiDesigner';
 }
 
 async function createNamedProject(manifest: ProjectManifest, name: string) {
@@ -122,6 +124,7 @@ function EditorWorkspace() {
   const navigate = useNavigate();
   const routeState = location.state as EditorRouteState | null;
   const planTier = usePlanTier();
+  const isMobile = useIsMobile();
   const { openNav } = useGovernanceNav();
   const {
     walls,
@@ -191,7 +194,13 @@ function EditorWorkspace() {
   const lastMouseUiUpdateRef = useRef(0);
   const [saveState, setSaveState] = useState<SaveState>('clean');
   const [lastDraftSavedAt, setLastDraftSavedAt] = useState<string | null>(null);
-  const [liteHandoffActive, setLiteHandoffActive] = useState(false);
+  const [draftSource, setDraftSourceState] = useState<DraftSource>(() => draftSources.get(engine) ?? 'workspace');
+  const liteHandoffActive = draftSource === 'lite';
+  const isolatedDraft = draftSource !== 'workspace';
+  const setDraftSource = useCallback((source: DraftSource) => {
+    draftSources.set(engine, source);
+    setDraftSourceState(source);
+  }, [engine]);
   const [lastSavedPlanRevision, setLastSavedPlanRevision] = useState<number | null>(null);
   const handledRouteLocation = useRef<string | null>(null);
   const [recoveryDraft, setRecoveryDraft] = useState<LocalDraftPayload | null>(null);
@@ -202,6 +211,7 @@ function EditorWorkspace() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [planToSave, setPlanToSave] = useState<ProjectManifest>();
   const [aiDesignerOpen, setAiDesignerOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -214,11 +224,37 @@ function EditorWorkspace() {
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
   const [expand3DPanel, setExpand3DPanel] = useState(false);
+  const [cameraReset, setCameraReset] = useState(0);
+  const drawingTools = useRef<DesignTools>('draft');
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
   const [monsoonActive, setMonsoonActive] = useState(false);
   const [pranaActive, setPranaActive] = useState(false);
+  const studioView: StudioView = !show3DView ? 'blueprint' : workspaceMode === 'walk' ? 'walk' : 'orbit';
+  const fullPreview = show3DView && (expand3DPanel || studioView === 'walk' || presentationLock);
+
+  const setStudioView = useCallback((view: StudioView) => {
+    const active = engine.getSession();
+    if (active.presentationLock && view === 'blueprint') return;
+    if (view === 'walk' && active.workspaceMode !== 'walk') {
+      drawingTools.current = active.workspaceMode;
+      setWorkspaceMode('walk');
+    } else if (view !== 'walk' && active.workspaceMode === 'walk') {
+      setWorkspaceMode(drawingTools.current);
+    }
+    if (active.show3DView !== (view !== 'blueprint')) engine.setShow3D(view !== 'blueprint');
+    setExpand3DPanel(view !== 'blueprint');
+    if (view !== 'blueprint') setPropertiesSheetOpen(false);
+  }, [engine, setWorkspaceMode]);
+
+  useEffect(() => {
+    const view = new URLSearchParams(location.search).get('view');
+    if (view === 'orbit' || view === 'walk' || view === 'blueprint') {
+      setStudioView(view);
+      setWelcomeOpen(false);
+    }
+  }, [location.search, setStudioView]);
 
   useEffect(() => {
     if (pranaActive) {
@@ -345,8 +381,8 @@ function EditorWorkspace() {
 
   const clearDraftForCurrentPlan = useCallback((projectId?: string) => {
     // The shared recovery slot can belong to another full-editor project.
-    if (!liteHandoffActive && !hasUnrelatedLocalDraft(projectId)) clearLocalDraft();
-  }, [liteHandoffActive]);
+    if (!isolatedDraft && !hasUnrelatedLocalDraft(projectId)) clearLocalDraft();
+  }, [isolatedDraft]);
 
   const rememberSavedProject = useCallback((project: Project) => {
     void navigate(`${location.pathname}${location.search}${location.hash}`, {
@@ -418,7 +454,8 @@ function EditorWorkspace() {
   }, [engine]);
 
   useEffect(() => {
-    if (routeState?.loadProject || routeState?.savedProject || getLiteEditorManifest(location.state)) return;
+    if (routeState?.loadProject || routeState?.savedProject || routeState?.loadManifest
+      || routeState?.openIntent === 'newProject' || getLiteEditorManifest(location.state)) return;
     const draft = readLocalDraft();
     if (draft && hasMeaningfulDraftContent(draft)) {
       setRecoveryDraft(draft);
@@ -429,7 +466,7 @@ function EditorWorkspace() {
   }, []);
 
   useEffect(() => {
-    if (liteHandoffActive || recoveryDialogOpen || lastSavedPlanRevision === draftGeometryRevision) return;
+    if (isolatedDraft || newProjectOpen || recoveryDialogOpen || lastSavedPlanRevision === draftGeometryRevision) return;
     const hasContent = walls.length > 0 || openings.length > 0;
     if (!hasContent) return;
 
@@ -457,14 +494,14 @@ function EditorWorkspace() {
       window.clearTimeout(timer);
       window.clearInterval(interval);
     };
-  }, [currentProject?.description, currentProject?.id, draftGeometryRevision, lastSavedPlanRevision, lighting, liteHandoffActive, openings, projectName, recoveryDialogOpen, snapEnabled, walls]);
+  }, [currentProject?.description, currentProject?.id, draftGeometryRevision, lastSavedPlanRevision, lighting, isolatedDraft, newProjectOpen, openings, projectName, recoveryDialogOpen, snapEnabled, walls]);
 
   useEffect(() => {
-    if (!liteHandoffActive) return;
+    if (!isolatedDraft) return;
     const unsaved = lastSavedPlanRevision !== draftGeometryRevision;
     setHasUnsavedChanges(unsaved);
     if (unsaved) setSaveState('unsaved');
-  }, [draftGeometryRevision, lastSavedPlanRevision, liteHandoffActive]);
+  }, [draftGeometryRevision, lastSavedPlanRevision, isolatedDraft]);
 
   useEffect(() => {
     if (!hasUnsavedChanges) return;
@@ -492,6 +529,7 @@ function EditorWorkspace() {
       }
 
       const mod = event.metaKey || event.ctrlKey;
+      if (!mod && show3DView && workspaceMode === 'walk' && /^[wasd]$/i.test(event.key)) return;
       if (mod && event.key.toLowerCase() === 'z' && !event.shiftKey) {
         event.preventDefault();
         handleUndo();
@@ -545,7 +583,7 @@ function EditorWorkspace() {
         engine.setGridVisible(!gridVisible);
       } else if (event.key === '3') {
         event.preventDefault();
-        engine.setShow3D(!show3DView);
+        setStudioView(show3DView ? 'blueprint' : 'orbit');
       } else if (event.key === 'E' && event.shiftKey) {
         event.preventDefault();
         setExportDialogOpen(true);
@@ -583,8 +621,10 @@ function EditorWorkspace() {
     selectedWallId,
     selectedWallIds,
     setTool,
+    setStudioView,
     show3DView,
     snapEnabled,
+    workspaceMode,
   ]);
 
   const applySampleManifest = useCallback(
@@ -592,14 +632,16 @@ function EditorWorkspace() {
       sampleManifest: ProjectManifest,
       options: { mode: 'fresh' | 'overlay'; closeSamplePicker?: boolean },
     ) => {
-      clearDraftForCurrentPlan(currentProject?.id);
       const displayName = sampleManifest.name || 'Demo Blueprint';
 
       if (options.mode === 'fresh') {
+        setDraftSource('sample');
+        setLastSavedPlanRevision(null);
         setCurrentProject(null);
         setDemoProjectName(displayName);
-      } else if (!currentProject) {
-        setDemoProjectName(displayName);
+      } else {
+        clearDraftForCurrentPlan(currentProject?.id);
+        if (!currentProject) setDemoProjectName(displayName);
       }
 
       applyManifest({
@@ -624,7 +666,7 @@ function EditorWorkspace() {
       }
       toast.success(`${displayName} loaded with Project Proof active`);
     },
-    [applyManifest, clearDraftForCurrentPlan, currentProject, engine],
+    [applyManifest, clearDraftForCurrentPlan, currentProject, engine, setDraftSource],
   );
 
   const loadSampleBySampleId = async (sampleId: string) => {
@@ -647,6 +689,7 @@ function EditorWorkspace() {
   const restoreLocalDraft = () => {
     if (!recoveryDraft) return;
 
+    setDraftSource('workspace');
     const belongsToCurrentProject = currentProject?.id === getLocalDraftProjectId(recoveryDraft);
     if (!belongsToCurrentProject) setCurrentProject(null);
     setDemoProjectName(belongsToCurrentProject ? null : recoveryDraft.projectName);
@@ -674,7 +717,7 @@ function EditorWorkspace() {
   const handleSaveProject = async () => {
     if (savingProject) return;
     if (!currentProject && !liteHandoffActive) {
-      toast.info('Create a project first, then save.');
+      setPlanToSave(buildManifest());
       setNewProjectOpen(true);
       return;
     }
@@ -709,9 +752,7 @@ function EditorWorkspace() {
       setSaveState(editedWhileSaving ? 'unsaved' : local ? 'local-draft' : 'cloud-saved');
       setLastDraftSavedAt(null);
       setHasUnsavedChanges(editedWhileSaving);
-      if (liteHandoffActive || routeState?.savedProject || routeState?.loadProject) {
-        rememberSavedProject(updated);
-      }
+      rememberSavedProject(updated);
       toast.success(local ? 'Project saved locally' : 'Project saved');
     } catch (error) {
       console.error('Failed to save project:', error);
@@ -733,6 +774,7 @@ function EditorWorkspace() {
     const draft = recoverSameProject ? readLocalDraft() : null;
     const matchingDraft = draft && hasMeaningfulDraftContent(draft) && getLocalDraftProjectId(draft) === project.id ? draft : null;
     if (!matchingDraft) clearDraftForCurrentPlan(project.id);
+    setDraftSource('workspace');
     setCurrentProject(project);
     setDemoProjectName(null);
     applyManifest(project.manifest);
@@ -745,11 +787,19 @@ function EditorWorkspace() {
     setHasUnsavedChanges(false);
     setLoadingProject(false);
     toast.success(`Loaded: ${project.name}`);
-  }, [applyManifest, clearDraftForCurrentPlan, engine]);
+  }, [applyManifest, clearDraftForCurrentPlan, engine, setDraftSource]);
 
   const handleProjectCreated = (project: Project) => {
+    if (planToSave) {
+      const draft = readLocalDraft();
+      if (draft && !draft.projectId && !isolatedDraft) {
+        const savedSnapshot = { ...planToSave, metadata: { ...planToSave.metadata, modified: draft.manifest.metadata.modified } };
+        if (JSON.stringify(savedSnapshot) === JSON.stringify(draft.manifest)) clearLocalDraft();
+      }
+    }
     void loadProjects();
     handleLoadProject(project);
+    rememberSavedProject(project);
   };
 
   const handleOpenSavedProject = (project: Project) => {
@@ -797,7 +847,7 @@ function EditorWorkspace() {
     handledRouteLocation.current = location.key;
     const liteManifest = getLiteEditorManifest(location.state);
     if (liteManifest) {
-      setLiteHandoffActive(true);
+      setDraftSource('lite');
       setLastSavedPlanRevision(null);
       setCurrentProject(null);
       setDemoProjectName(liteManifest.name);
@@ -815,7 +865,10 @@ function EditorWorkspace() {
       return;
     }
     if (state?.openIntent) {
-      if (state.openIntent === 'openProject') setLoadDialogOpen(true);
+      if (state.openIntent === 'newProject') {
+        setPlanToSave(undefined);
+        setNewProjectOpen(true);
+      } else if (state.openIntent === 'openProject') setLoadDialogOpen(true);
       else if (state.openIntent === 'import') setImportDialogOpen(true);
       else if (state.openIntent === 'aiDesigner') setAiDesignerOpen(true);
       window.history.replaceState({}, document.title);
@@ -833,7 +886,7 @@ function EditorWorkspace() {
       }
       window.history.replaceState({}, document.title);
     }
-  }, [applyManifest, currentProject?.id, location.key, location.state, routeState, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen, rememberSavedProject]);
+  }, [applyManifest, currentProject?.id, location.key, location.state, routeState, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen, rememberSavedProject, setDraftSource]);
 
   const handleAIDesignerSaveProject = useCallback(
     async (manifest: ProjectManifest, name: string) => {
@@ -875,10 +928,10 @@ function EditorWorkspace() {
   );
 
   useEffect(() => {
-    if (hasPropertiesSelection && window.matchMedia('(max-width: 767px)').matches) {
+    if (hasPropertiesSelection && !fullPreview && !zenMode) {
       setPropertiesSheetOpen(true);
     }
-  }, [hasPropertiesSelection, selectedWallId, selectedOpeningId, selectedLabelId, selectedFixtureId]);
+  }, [fullPreview, hasPropertiesSelection, selectedWallId, selectedOpeningId, selectedLabelId, selectedFixtureId, zenMode]);
 
   useEffect(() => {
     if (selectedWall?.material) {
@@ -983,32 +1036,6 @@ function EditorWorkspace() {
     callbacks: architectureBotCallbacks,
   });
 
-  const editorSidebarConfig = useMemo(
-    () => ({
-      onNewProject: () => setNewProjectOpen(true),
-      onOpenProject: () => setLoadDialogOpen(true),
-      onSave: () => void handleSaveProject(),
-      onImport: () => setImportDialogOpen(true),
-      onExport: () => setExportDialogOpen(true),
-      onLoadSample: openSamplePicker,
-      onAIDesigner: () => setAiDesignerOpen(true),
-      onToggle3D: () => engine.setShow3D(!show3DView),
-      onToggleGrid: () => engine.setGridVisible(!gridVisible),
-      show3DView,
-      gridVisible,
-      savingProject,
-    }),
-    [
-      engine,
-      gridVisible,
-      handleSaveProject,
-      openSamplePicker,
-      savingProject,
-      show3DView,
-    ],
-  );
-  useRegisterEditorSidebar(editorSidebarConfig);
-
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
   const deferredWalls = useDeferredValue(walls);
@@ -1023,11 +1050,6 @@ function EditorWorkspace() {
 
   const fileStrip = (
     <>
-      {liteHandoffActive && (
-        <Button type="button" variant="gold" size="sm" className="min-h-11 shrink-0 motion-reduce:transition-none motion-reduce:transform-none" disabled={savingProject} onClick={() => void handleSaveProject()}>
-          <Save aria-hidden="true" /> {savingProject ? 'Saving…' : 'Save plan'}
-        </Button>
-      )}
       <SaveModeBadge connected={cloudSave.connected} label={cloudSave.label} />
       <FloorSwitcher
         floors={floors}
@@ -1181,31 +1203,40 @@ function EditorWorkspace() {
   return (
     <>
       <PageMeta
-        title={`${projectName || 'Blueprint Editor'} — Vishvakarma.OS`}
-        description="Draw floor plans, inspect the Sacred 3D View, and export client-ready packages in the Vishvakarma.OS blueprint editor."
+        title={`${projectName || 'Studio'} — Vishvakarma.OS`}
+        description="Draw, inspect in 3D, walk through, and export a floor plan in Vishvakarma.OS Studio."
       />
       <div
         className="vish-editor-shell flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
-        data-3d-expanded={expand3DPanel ? 'true' : undefined}
+        data-studio
+        data-studio-full-preview={fullPreview ? 'true' : undefined}
+        data-3d-expanded={fullPreview ? 'true' : undefined}
       >
         <EditorTopBar
           projectName={projectName}
-          show3DView={show3DView}
-          expand3DPanel={expand3DPanel}
-          onToggleExpand3D={() => setExpand3DPanel((value) => !value)}
+          view={studioView}
+          onViewChange={setStudioView}
+          splitView={show3DView && !fullPreview}
+          onToggleSplitView={() => setExpand3DPanel((value) => !value)}
+          onResetView={() => setCameraReset((value) => value + 1)}
           workspaceMode={workspaceMode}
           zenMode={zenMode}
           presentationLock={presentationLock}
-          onWorkspaceModeChange={setWorkspaceMode}
-          onToggleZen={() => engine.setZenMode(!zenMode)}
-          onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
-          onToggle3D={() => {
-            engine.setShow3D(!show3DView);
-            if (show3DView) setExpand3DPanel(false);
+          onWorkspaceModeChange={(mode) => {
+            setStudioView('blueprint');
+            setWorkspaceMode(mode);
           }}
+          onToggleZen={() => {
+            engine.setZenMode(!zenMode);
+            if (!zenMode) setPropertiesSheetOpen(false);
+          }}
+          onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
           gridVisible={gridVisible}
           onToggleGrid={() => engine.setGridVisible(!gridVisible)}
-          onNewProject={() => setNewProjectOpen(true)}
+          onNewProject={() => {
+            setPlanToSave(undefined);
+            setNewProjectOpen(true);
+          }}
           onExport={() => setExportDialogOpen(true)}
           onImport={() => setImportDialogOpen(true)}
           onOpenProject={() => setLoadDialogOpen(true)}
@@ -1216,7 +1247,11 @@ function EditorWorkspace() {
             architectureBot.openPanel();
           }}
           savingProject={savingProject}
-          onOpenEditorMenu={openNav}
+          onOpenProperties={() => {
+            if (zenMode) engine.setZenMode(false);
+            setPropertiesSheetOpen((open) => !open);
+          }}
+          propertiesOpen={propertiesSheetOpen}
           onOpenGovernance={openNav}
           onUndo={handleUndo}
           onRedo={handleRedo}
@@ -1233,8 +1268,8 @@ function EditorWorkspace() {
         )}
         <ComplianceBanner report={complianceReport} />
 
-        <div className="flex flex-1 overflow-hidden">
-          {!presentationLock && (
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          {!presentationLock && !fullPreview && (
           <ToolRail
             currentTool={currentTool}
             workspaceMode={workspaceMode}
@@ -1242,8 +1277,8 @@ function EditorWorkspace() {
           />
           )}
 
-          <div className="flex flex-1 min-w-0 overflow-hidden">
-            <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
+          <div className={`flex min-w-0 overflow-hidden ${fullPreview ? 'grow basis-0' : 'flex-1'}`}>
+            <section className="vish-studio-blueprint-stage flex flex-1 min-w-0 flex-col overflow-hidden" aria-label="Blueprint canvas">
               <div
                 ref={canvasStageRef}
                 className="vish-canvas-stage relative flex-1 overflow-auto p-4"
@@ -1268,7 +1303,7 @@ function EditorWorkspace() {
                     <div className="vish-canvas-empty-hint__card">
                       <p className="vish-canvas-empty-hint__title">Drafting board ready</p>
                       <p className="vish-canvas-empty-hint__body">
-                        Press W for Wall, C for Column, or load a sample blueprint to begin drafting.
+                        Select Wall to start drawing, or open a sample from File.
                       </p>
                       <button
                         type="button"
@@ -1415,16 +1450,12 @@ function EditorWorkspace() {
             {show3DView && (
               <section
                 className={`vish-3d-viewport-pane vish-realism-viewport-frame flex shrink-0 flex-col border-l border-ws-border transition-all duration-300 ease-in-out ${
-                  presentationLock ? 'w-full md:w-[32rem] lg:w-[40rem]' : 'w-80 md:w-96'
-                } ${expand3DPanel ? 'flex-1 !w-auto' : ''}`}
-                style={{ contentVisibility: 'auto', containIntrinsicSize: '400px 100%' } as React.CSSProperties}
+                  fullPreview ? 'flex-1' : 'w-80 md:w-96'
+                }`}
+                aria-label={studioView === 'walk' ? 'Walk viewport' : '3D viewport'}
                 data-tutorial="viewport-3d"
               >
-                <div className="ws-pane-header">
-                  <span className="ws-pane-label">3D Preview</span>
-                  <span className="ws-pane-stat"><Box className="mr-1 inline h-3 w-3" /> Live sync</span>
-                </div>
-                <div className="flex-1 overflow-hidden">
+                <div className="min-h-0 flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
                     <Viewport3D
                       walls={deferredWalls}
@@ -1453,6 +1484,7 @@ function EditorWorkspace() {
                       manifestFixtures={engine.getManifest().fixtures ?? []}
                       manifestStaircases={engine.getManifest().staircases ?? []}
                       geometryRevision={geometryRevision}
+                      roomControls={{ resetRevision: cameraReset }}
                     />
                   </Suspense>
                 </div>
@@ -1460,37 +1492,29 @@ function EditorWorkspace() {
             )}
           </div>
 
-          {!presentationLock && !zenMode && !expand3DPanel && (
-          <aside className="hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
-            {propertiesPanel}
-          </aside>
+          {!isMobile && !presentationLock && !zenMode && propertiesSheetOpen && (
+            <aside className="vish-studio-details-dock flex w-[min(30vw,24rem)] shrink-0 flex-col overflow-hidden border-l border-ws-border bg-ws-toolbar" aria-label="Project details">
+              {propertiesPanel}
+            </aside>
           )}
         </div>
 
-        {!presentationLock && !zenMode && (
-          <>
-            <button
-              type="button"
-              className="vish-properties-fab touch-target fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-ws-border bg-ws-toolbar text-ws-text shadow-lg md:hidden mb-[env(safe-area-inset-bottom)]"
-              aria-label="Open properties panel"
-              onClick={() => setPropertiesSheetOpen(true)}
+        {isMobile && !presentationLock && (
+          <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
+            <SheetContent
+              side="bottom"
+              className="vish-studio-inspector flex max-h-[85dvh] flex-col gap-0 overflow-y-auto border-ws-border bg-ws-toolbar p-0 pb-[env(safe-area-inset-bottom)]"
             >
-              <SlidersHorizontal className="h-5 w-5" />
-            </button>
-            <Sheet open={propertiesSheetOpen} onOpenChange={setPropertiesSheetOpen}>
-              <SheetContent side="bottom" className="bg-vish-navy-900 border-t border-vish-navy-600/50 max-h-[85dvh] overflow-y-auto p-0 pb-[env(safe-area-inset-bottom)] md:hidden">
-                <SheetHeader className="border-b border-vish-navy-700/50 px-4 py-3 text-left bg-vish-navy-950">
-                  <SheetTitle className="text-sm font-semibold text-white tracking-wide">Properties</SheetTitle>
-                </SheetHeader>
-                <div className="h-[calc(100%-48px)]">
-                  {propertiesPanel}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </>
+              <SheetHeader className="border-b border-vish-navy-700/50 px-4 py-3 text-left bg-vish-navy-950">
+                <SheetTitle className="text-sm font-semibold text-white tracking-wide">Project details</SheetTitle>
+                <SheetDescription className="sr-only">Inspect the selected element and adjust project settings.</SheetDescription>
+              </SheetHeader>
+              <div className="min-h-0 flex-1">{propertiesPanel}</div>
+            </SheetContent>
+          </Sheet>
         )}
 
-        <StatusBar
+        {!fullPreview && <StatusBar
           currentTool={currentTool}
           workspaceMode={workspaceMode}
           wallCount={walls.length}
@@ -1503,7 +1527,7 @@ function EditorWorkspace() {
           onResetViewport={() => engine.resetCanvasViewport()}
           onZoomIn={() => handleStepZoom('in')}
           onZoomOut={() => handleStepZoom('out')}
-        />
+        />}
       </div>
 
       <DraftRecoveryDialog
@@ -1519,12 +1543,16 @@ function EditorWorkspace() {
         loading={loadingSample}
         onSelect={loadSampleBySampleId}
       />
-      <NewProjectDialog
+      {newProjectOpen && <NewProjectDialog
         open={newProjectOpen}
-        onOpenChange={setNewProjectOpen}
+        onOpenChange={(open) => {
+          setNewProjectOpen(open);
+          if (!open) setPlanToSave(undefined);
+        }}
         onProjectCreated={handleProjectCreated}
         onOpenAIDesigner={() => setAiDesignerOpen(true)}
-      />
+        sourceManifest={planToSave}
+      />}
       <AIDesignerDialog
         open={aiDesignerOpen}
         onOpenChange={setAiDesignerOpen}

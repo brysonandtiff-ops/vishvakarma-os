@@ -155,10 +155,10 @@ describe('AppLayout editor sidebar integration', () => {
   it('renders workspace navigation on non-editor routes without project actions', () => {
     renderAppLayoutAt('/projects');
 
-    expect(screen.getByRole('link', { name: 'Blueprint Editor', hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Studio', hidden: true })).toHaveAttribute('href', '/editor');
     expect(screen.getByRole('link', { name: 'Projects', hidden: true })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Projects', hidden: true })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: '3D Room', hidden: true })).toHaveAttribute('href', '/3d-room');
+    expect(screen.queryByRole('link', { name: '3D Room', hidden: true })).not.toBeInTheDocument();
     expect(screen.queryByTestId('editor-sidebar-project-actions')).not.toBeInTheDocument();
   });
 
@@ -174,10 +174,21 @@ describe('AppLayout editor sidebar integration', () => {
     expect(menu.getByRole('link', { name: 'Release Center' })).toHaveAttribute('href', '/releases');
   });
 
+  it('offers Profile and Sign out through the account menu', async () => {
+    const user = userEvent.setup();
+    renderAppLayoutAt('/projects');
+
+    await user.click(screen.getByRole('button', { name: 'Account menu for Test User' }));
+
+    const menu = within(screen.getByRole('menu'));
+    expect(menu.getByRole('menuitem', { name: 'Profile' })).toHaveAttribute('href', '/profile');
+    expect(menu.getByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument();
+  });
+
   it('does not show project actions on editor route before config registration', () => {
     renderAppLayoutAt('/editor');
 
-    expect(screen.getByRole('link', { name: 'Blueprint Editor', hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Studio', hidden: true })).toHaveAttribute('aria-current', 'page');
     expect(screen.queryByTestId('editor-sidebar-project-actions')).not.toBeInTheDocument();
   });
 
@@ -230,22 +241,22 @@ describe('AppLayout editor sidebar integration', () => {
   });
 });
 
-describe('Editor sidebar wiring', () => {
-  it('removes EditorMenuSheet from EditorPage and registers sidebar config', () => {
+describe('Studio navigation wiring', () => {
+  it('opens the shared workspace menu from the Studio page', () => {
     const editor = read('src/pages/EditorPage.tsx');
     const appLayout = read('src/components/layouts/AppLayout.tsx');
 
     expect(editor).not.toContain('<EditorMenuSheet');
     expect(editor).not.toContain('editorMenuOpen');
-    expect(editor).toContain('useRegisterEditorSidebar');
-    expect(editor).toContain('onOpenEditorMenu={openNav}');
-    expect(appLayout).toContain('EditorSidebarSections');
-    expect(appLayout).toContain('showDesktopSidebar');
+    expect(editor).toContain('useGovernanceNav()');
+    expect(editor).toContain('onOpenGovernance={openNav}');
+    expect(appLayout).toContain('All workspace destinations');
   });
 
-  it('updates editor hamburger label to open workspace navigation', () => {
+  it('offers workspace navigation in the shared bar and Studio tools', () => {
     const topBar = read('src/components/editor/EditorTopBar.tsx');
-    expect(topBar).toContain('Open workspace navigation');
-    expect(topBar).not.toContain('Open editor menu');
+    const appLayout = read('src/components/layouts/AppLayout.tsx');
+    expect(topBar).toContain('onSelect={onOpenGovernance}');
+    expect(appLayout).toContain('Open workspace navigation');
   });
 });

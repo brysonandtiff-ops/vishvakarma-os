@@ -38,11 +38,12 @@ export interface RouteNavItem {
 
 export const NAV_GROUP_LABELS: Record<NavGroup, string> = {
   EDITOR: 'Design workspace',
+  TOOLS: 'More design tools',
   GOVERNANCE: 'Governance',
   SYSTEM: 'System',
 };
 
-export const NAV_GROUPS: NavGroup[] = ['EDITOR', 'GOVERNANCE', 'SYSTEM'];
+export const NAV_GROUPS: NavGroup[] = ['EDITOR', 'TOOLS', 'GOVERNANCE', 'SYSTEM'];
 
 const NAV_ICON_MAP: Record<RouteNavIconKey, LucideIcon> = {
   Box,
@@ -61,7 +62,7 @@ const NAV_ICON_MAP: Record<RouteNavIconKey, LucideIcon> = {
 
 /** Sidebar nav derived from the canonical route manifest. */
 export const WORKSPACE_NAV: RouteNavItem[] = getNavRouteManifestEntries().map((entry) => ({
-  name: entry.name,
+  name: entry.navLabel ?? entry.name,
   path: entry.path,
   icon: NAV_ICON_MAP[entry.navIcon!],
   group: entry.navGroup!,

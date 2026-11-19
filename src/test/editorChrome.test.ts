@@ -63,7 +63,8 @@ describe('Editor chrome consolidation', () => {
     expect(helper).toContain("event.pointerType !== 'pen'");
     expect(helper).toContain('suppressNextClickRef');
     expect(topBar).toContain('useReliablePress');
-    expect(topBar).toContain("label={gridVisible ? 'Hide grid' : 'Show grid'}");
+    expect(topBar).toContain('onSelect={onToggleGrid}');
+    expect(topBar).toContain("gridVisible ? 'Hide grid' : 'Show grid'");
     expect(topBar).toContain('touch-manipulation');
     expect(statusBar).toContain('StatusActionButton');
     expect(statusBar).toContain('touch-manipulation');

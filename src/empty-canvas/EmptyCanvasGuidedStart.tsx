@@ -1,5 +1,5 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Mic2, PenLine, Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { getFloorPlanEngine } from '@/core/floorPlanEngine';
@@ -21,7 +21,6 @@ function hasMeaningfulEditorContent(snapshot: ReturnType<ReturnType<typeof getFl
 
 export default function EmptyCanvasGuidedStart() {
   const location = useLocation();
-  const navigate = useNavigate();
   const engine = useMemo(() => getFloorPlanEngine(), []);
   const snapshot = useSyncExternalStore(engine.subscribe, engine.getSnapshot, engine.getSnapshot);
   const [dismissed, setDismissed] = useState(false);
@@ -29,14 +28,14 @@ export default function EmptyCanvasGuidedStart() {
   const isEditor = location.pathname === '/editor';
   const hasContent = hasMeaningfulEditorContent(snapshot);
 
-  if (!isEditor || hasContent || dismissed) return null;
+  if (!isEditor || hasContent || dismissed || snapshot.session.show3DView || snapshot.session.currentTool !== 'select') return null;
 
   const startDemo = () => {
     startGuidedDemoSession({ autoPlayVoice: true });
   };
 
   const drawWall = () => {
-    navigate('/editor');
+    setDismissed(true);
     engine.setWorkspaceMode('draft');
     engine.setGridVisible(true);
     engine.setSnapEnabled(true);
@@ -61,11 +60,7 @@ export default function EmptyCanvasGuidedStart() {
       >
         <X className="h-4 w-4" />
       </button>
-      <p className="vish-empty-guided-start__eyebrow">Blank canvas</p>
-      <h2>Start with a real first move</h2>
-      <p>
-        Load a polished demo, draw your first wall with grid/snap on, or let the voice tour walk you through the whole studio.
-      </p>
+      <h2>Start your plan</h2>
       <div className="vish-empty-guided-start__actions">
         <button type="button" onClick={startDemo} className="primary">
           <Sparkles className="h-4 w-4" />
