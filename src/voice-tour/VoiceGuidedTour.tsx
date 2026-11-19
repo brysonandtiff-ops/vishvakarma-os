@@ -49,21 +49,32 @@ export default function VoiceGuidedTour() {
   const [status, setStatus] = useState('Browser voice ready.');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const autoPlayTimerRef = useRef<number | null>(null);
   const speechSupported = useMemo(() => hasBrowserSpeech(), []);
   const { voices, settings, updateSettings } = useNarrationVoices();
 
   const chapter = VOICE_TOUR_CHAPTERS[chapterIndex] ?? VOICE_TOUR_CHAPTERS[0];
 
   const stopPlayback = useCallback(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (autoPlayTimerRef.current !== null) {
+      window.clearTimeout(autoPlayTimerRef.current);
+      autoPlayTimerRef.current = null;
+    }
+    if (speechRef.current) {
+      speechRef.current.onend = null;
+      speechRef.current.onerror = null;
+      speechRef.current = null;
     }
     if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
-    speechRef.current = null;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     setPlayback('idle');
   }, []);
 
@@ -87,17 +98,27 @@ export default function VoiceGuidedTour() {
       window.speechSynthesis.cancel();
       const utterance = createNarrationUtterance(`${nextChapter.title}. ${nextChapter.narration}`, voices, settings);
       utterance.onend = () => {
+        if (speechRef.current !== utterance) return;
+        speechRef.current = null;
         setPlayback('idle');
         setStatus('Chapter complete. Choose Next or replay this chapter.');
       };
       utterance.onerror = () => {
+        if (speechRef.current !== utterance) return;
+        speechRef.current = null;
         setPlayback('idle');
-        setStatus('Speech playback stopped. You can replay or switch to MP3 mode after files are added.');
+        setStatus('Device narration was interrupted. The chapter text remains available; try another voice.');
       };
       speechRef.current = utterance;
       setPlayback('speaking');
-      setStatus('Speaking with browser voice.');
-      window.speechSynthesis.speak(utterance);
+      setStatus('Speaking with your selected device voice.');
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        speechRef.current = null;
+        setPlayback('idle');
+        setStatus('The device could not start speech. Read the chapter text or try another voice.');
+      }
     },
     [speechSupported, voices, settings],
   );
@@ -112,19 +133,23 @@ export default function VoiceGuidedTour() {
         const audio = new Audio(nextChapter.mp3Src);
         audioRef.current = audio;
         audio.onended = () => {
+          if (audioRef.current !== audio) return;
+          audioRef.current = null;
           setPlayback('idle');
           setStatus('MP3 chapter complete.');
         };
         audio.onerror = () => {
+          if (audioRef.current !== audio) return;
           audioRef.current = null;
-          setStatus('MP3 file is not present yet. Falling back to browser voice.');
+          setStatus('MP3 not available. Switching to selected device voice.');
           speakWithBrowser(nextChapter);
         };
         setPlayback('speaking');
         setStatus('Trying MP3 voice file.');
         void audio.play().catch(() => {
+          if (audioRef.current !== audio) return;
           audioRef.current = null;
-          setStatus('MP3 playback was blocked or missing. Falling back to browser voice.');
+          setStatus('MP3 was blocked or missing. Switching to selected device voice.');
           speakWithBrowser(nextChapter);
         });
         return;
@@ -166,7 +191,10 @@ export default function VoiceGuidedTour() {
       navigateForChapter(nextChapter);
       setStatus(`Ready: ${nextChapter.title}`);
       if (autoPlay) {
-        window.setTimeout(() => playChapter(nextChapter), 250);
+        autoPlayTimerRef.current = window.setTimeout(() => {
+          autoPlayTimerRef.current = null;
+          playChapter(nextChapter);
+        }, 250);
       }
     },
     [navigateForChapter, playChapter, stopPlayback],
@@ -177,12 +205,16 @@ export default function VoiceGuidedTour() {
       const detail = (event as CustomEvent<{ autoPlay?: boolean }>).detail;
       setOpen(true);
       if (detail?.autoPlay) {
-        window.setTimeout(() => playChapter(VOICE_TOUR_CHAPTERS[chapterIndex]), 150);
+        stopPlayback();
+        autoPlayTimerRef.current = window.setTimeout(() => {
+          autoPlayTimerRef.current = null;
+          playChapter(VOICE_TOUR_CHAPTERS[chapterIndex]);
+        }, 150);
       }
     };
     window.addEventListener(OPEN_VOICE_TOUR_EVENT, onOpenVoiceTour);
     return () => window.removeEventListener(OPEN_VOICE_TOUR_EVENT, onOpenVoiceTour);
-  }, [chapterIndex, playChapter]);
+  }, [chapterIndex, playChapter, stopPlayback]);
 
   useEffect(() => stopPlayback, [stopPlayback]);
 
@@ -193,9 +225,23 @@ export default function VoiceGuidedTour() {
       return;
     }
     const utterance = createNarrationUtterance(NARRATION_VOICE_SAMPLE, voices, settings);
-    utterance.onend = () => setStatus('Voice sample completed.');
-    utterance.onerror = () => setStatus('Voice sample unavailable. Try another installed voice.');
-    window.speechSynthesis.speak(utterance);
+    utterance.onend = () => {
+      if (speechRef.current !== utterance) return;
+      speechRef.current = null;
+      setStatus('Voice sample completed.');
+    };
+    utterance.onerror = () => {
+      if (speechRef.current !== utterance) return;
+      speechRef.current = null;
+      setStatus('Voice sample unavailable. Try another installed voice.');
+    };
+    speechRef.current = utterance;
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      speechRef.current = null;
+      setStatus('Voice sample could not start. Try another installed voice.');
+    }
     setStatus('Playing selected narrator sample.');
   };
 
@@ -293,7 +339,8 @@ export default function VoiceGuidedTour() {
             <option value="0.9">Relaxed</option><option value="0.98">Natural</option><option value="1.08">Brisk</option>
           </select>
         </label>
-        <button type="button" onClick={hearVoiceSample} className="vish-voice-tour-panel__secondary touch-target">Hear voice sample</button>
+        <button type="button" onClick={hearVoiceSample} disabled={!speechSupported}
+          className="vish-voice-tour-panel__secondary touch-target">Hear voice sample</button>
         <p>Voices are from this device. Preview to find one you enjoy.</p>
       </div>
       <div className="vish-voice-tour-panel__chapters" aria-label="Voice tour chapters">

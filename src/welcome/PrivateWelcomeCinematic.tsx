@@ -105,6 +105,10 @@ export function PrivateWelcomeCinematic() {
   const [voice, setVoice] = useState(() => typeof window !== 'undefined' &&
     'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
   const { voices, settings, updateSettings } = useNarrationVoices();
+  // Late-loaded iPad voice lists must not restart an already-speaking chapter.
+  const narrationRef = useRef({ voices, settings });
+  narrationRef.current = { voices, settings };
+  const [voiceWarning, setVoiceWarning] = useState<string | null>(null);
   const lastShown = useRef<string | null>(null);
   const eligible = !loading && isDesignatedWelcomeUser(user);
 
@@ -151,20 +155,36 @@ export function PrivateWelcomeCinematic() {
   useEffect(() => {
     if (!open || !playing) return undefined;
     if (voice && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
-      const utterance = createNarrationUtterance(PRIVATE_WELCOME_SCENES[sceneIndex].narration, voices, settings);
+      const selected = narrationRef.current;
+      const utterance = createNarrationUtterance(
+        PRIVATE_WELCOME_SCENES[sceneIndex].narration, selected.voices, selected.settings,
+      );
       utterance.onend = () => {
         if (sceneIndex === PRIVATE_WELCOME_SCENES.length - 1) setPlaying(false);
         else setSceneIndex((index) => Math.min(index + 1, PRIVATE_WELCOME_SCENES.length - 1));
       };
-      window.speechSynthesis.speak(utterance);
-      return () => { utterance.onend = null; window.speechSynthesis.cancel(); };
+      utterance.onerror = () => {
+        setVoiceWarning('Speech stopped unexpectedly. Captions will continue; you can choose another voice.');
+        setVoice(false);
+      };
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        setVoiceWarning('Speech could not start on this iPad. Captions will continue.');
+        setVoice(false);
+      }
+      return () => {
+        utterance.onend = null;
+        utterance.onerror = null;
+        window.speechSynthesis.cancel();
+      };
     }
     const timer = window.setTimeout(() => {
       if (sceneIndex === PRIVATE_WELCOME_SCENES.length - 1) setPlaying(false);
       else setSceneIndex((index) => Math.min(index + 1, PRIVATE_WELCOME_SCENES.length - 1));
     }, 9500);
     return () => window.clearTimeout(timer);
-  }, [open, playing, sceneIndex, voice, voices, settings]);
+  }, [open, playing, sceneIndex, voice]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -242,16 +262,19 @@ export function PrivateWelcomeCinematic() {
               <option value="0.9">Relaxed</option><option value="0.98">Natural</option><option value="1.08">Brisk</option>
             </select>
           </label>
-          <button type="button" onClick={previewVoice} disabled={!('speechSynthesis' in window)}
+          <button type="button" onClick={previewVoice}
+            disabled={playing || !('speechSynthesis' in window)}
+            title={playing ? 'Pause the cinematic before previewing a new narrator' : undefined}
             aria-label="Hear a sample of the selected narrator">Hear voice sample</button>
           <p>Voice quality depends on voices installed on this iPad. No artificial pitch effect or paid AI voice is used.</p>
+          {voiceWarning && <p role="status" className="vish-private-film__voice-warning">{voiceWarning}</p>}
         </div>
         <div className="vish-private-film__actions">
           <button type="button" className="vish-private-film__control" onClick={previous} disabled={sceneIndex === 0}>
             <ArrowLeft size={16} /> Back
           </button>
           <button type="button" className="vish-private-film__control" aria-pressed={playing}
-            onClick={() => { if(playing) stopVoice(); setPlaying(!playing); }}>
+            onClick={() => { if (playing) stopVoice(); else setVoiceWarning(null); setPlaying(!playing); }}>
             {playing ? <Pause size={16} /> : <Play size={16} />} {playing ? 'Pause film' : voice ? 'Play narrated film' : 'Play with captions'}
           </button>
           <button type="button" className="vish-private-film__control" aria-pressed={voice}
