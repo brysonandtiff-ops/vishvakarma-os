@@ -6,7 +6,9 @@ import {
   buildDraftPayloadFromManifest,
   buildDraftPayload,
   clearLocalDraft,
+  getLocalDraftProjectId,
   hasMeaningfulDraftContent,
+  hasUnrelatedLocalDraft,
   readLocalDraft,
   saveLocalDraft,
 } from './localDraft';
@@ -130,6 +132,25 @@ describe('localDraft', () => {
     clearLocalDraft();
     expect(window.localStorage.getItem(LOCAL_DRAFT_KEY)).toBeNull();
     expect(readLocalDraft()).toBeNull();
+  });
+
+  it('distinguishes working drafts by named and dashboard project identity', () => {
+    const draft = buildDraftPayload({
+      projectId: 'project-a',
+      projectName: 'Other working draft',
+      walls: [wall],
+      openings: [],
+      lighting,
+      snapEnabled: true,
+    });
+    saveLocalDraft(draft);
+    expect(hasUnrelatedLocalDraft(draft.projectId ?? undefined)).toBe(false);
+    expect(hasUnrelatedLocalDraft('project-b')).toBe(true);
+
+    const anonymousDraft = { ...draft, projectId: null };
+    saveLocalDraft(anonymousDraft);
+    expect(hasUnrelatedLocalDraft(getLocalDraftProjectId(anonymousDraft))).toBe(false);
+    expect(hasUnrelatedLocalDraft('project-a')).toBe(true);
   });
 
   it('rejects stale draft schema versions and invalid project spec versions', () => {

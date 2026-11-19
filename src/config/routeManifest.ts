@@ -19,6 +19,8 @@ export type RouteLayoutKind =
 /** Icon keys resolved in RouteNavConfig — keeps manifest free of lucide imports. */
 export type RouteNavIconKey =
   | 'PenTool'
+  | 'PenLine'
+  | 'Box'
   | 'FolderOpen'
   | 'Sparkles'
   | 'User'
@@ -40,6 +42,7 @@ export interface RouteManifestEntry {
   navGroup?: NavGroup;
   showInNav?: boolean;
   navIcon?: RouteNavIconKey;
+  primaryNavOrder?: number;
 }
 
 const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
@@ -60,6 +63,7 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     navGroup: 'EDITOR',
     showInNav: true,
     navIcon: 'PenTool',
+    primaryNavOrder: 4,
   },
   {
     path: '/editor-lite',
@@ -69,14 +73,19 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     layout: 'workspace-immersive',
     navGroup: 'EDITOR',
     showInNav: true,
-    navIcon: 'PenTool',
+    navIcon: 'PenLine',
+    primaryNavOrder: 2,
   },
   {
     path: '/3d-room',
     name: '3D Room',
     access: 'private',
-    visible: false,
+    visible: true,
     layout: 'workspace-immersive',
+    navGroup: 'EDITOR',
+    showInNav: true,
+    navIcon: 'Box',
+    primaryNavOrder: 3,
   },
   {
     path: '/projects',
@@ -88,6 +97,7 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     navGroup: 'EDITOR',
     showInNav: true,
     navIcon: 'FolderOpen',
+    primaryNavOrder: 1,
   },
   {
     path: '/optimization',
@@ -107,7 +117,7 @@ const CORE_ROUTE_MANIFEST: RouteManifestEntry[] = [
     visible: true,
     layout: 'workspace-document-narrow',
     pageWidth: 'narrow',
-    navGroup: 'EDITOR',
+    navGroup: 'SYSTEM',
     showInNav: true,
     navIcon: 'User',
   },
@@ -213,7 +223,9 @@ export function getPublicRoutePaths(): string[] {
 }
 
 export function getNavRouteManifestEntries(): RouteManifestEntry[] {
-  return getAppRouteManifest().filter((entry) => entry.showInNav && entry.navGroup && entry.navIcon);
+  return getAppRouteManifest()
+    .filter((entry) => entry.showInNav && entry.navGroup && entry.navIcon)
+    .sort((a, b) => (a.primaryNavOrder ?? Number.MAX_SAFE_INTEGER) - (b.primaryNavOrder ?? Number.MAX_SAFE_INTEGER));
 }
 
 export function getRouteLayoutMeta(): Array<Pick<RouteManifestEntry, 'path' | 'layout' | 'pageWidth'>> {

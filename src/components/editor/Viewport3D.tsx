@@ -1,11 +1,12 @@
 // 3D Viewport using React Three Fiber — with WebGL error boundary
 /// <reference path="../../three.d.ts" />
-import React, { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Component, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls, ContactShadows, Environment } from '@react-three/drei';
 import { ScenePostProcessing, isPostFxPipelineActive } from '@/components/editor/ScenePostProcessing';
 import { planarWalk } from '@/components/editor/walkMovement';
+import { roomOrbitPose, roomWalkPose } from '@/components/editor/roomCamera';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase, BuildingFloor } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
@@ -294,6 +295,7 @@ interface Viewport3DProps {
   manifestFixtures?: FixtureItem[];
   manifestStaircases?: Staircase[];
   geometryRevision?: number;
+  roomControls?: { resetRevision: number };
 }
 
 function MepMarker({ symbol, origin }: { symbol: MepSymbol; origin: SceneOrigin }) {
@@ -647,16 +649,23 @@ function GodRayShafts({ mode, boostCinematic }: { mode: AtmospherePerformanceMod
   );
 }
 
-function SacredAtmosphere({ mode, boostCinematic }: { mode: AtmospherePerformanceMode; boostCinematic?: boolean }) {
+function SacredAtmosphere({ mode, boostCinematic, clearView, reducedMotion }: {
+  mode: AtmospherePerformanceMode;
+  boostCinematic?: boolean;
+  clearView?: boolean;
+  reducedMotion?: boolean;
+}) {
   const config = ATMOSPHERE_MODES[mode];
 
   return (
     <>
-      {config.sacredFloor && <SacredFloorGeometry mode={mode} />}
-      <AtmosphericParticles mode={mode} />
-      {config.godRays && <GodRayShafts mode={mode} boostCinematic={boostCinematic} />}
-      {/* @ts-expect-error - React Three Fiber JSX types */}
-      <fog attach="fog" args={[ATMOSPHERE.fog, config.fogNear, config.fogFar]} />
+      {!reducedMotion && config.sacredFloor && <SacredFloorGeometry mode={mode} />}
+      {!reducedMotion && <AtmosphericParticles mode={mode} />}
+      {!reducedMotion && config.godRays && <GodRayShafts mode={mode} boostCinematic={boostCinematic} />}
+      {!clearView && (
+        // @ts-expect-error - React Three Fiber JSX types
+        <fog attach="fog" args={[ATMOSPHERE.fog, config.fogNear, config.fogFar]} />
+      )}
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <hemisphereLight args={[ATMOSPHERE.fillWarm, ATMOSPHERE.fog, mode === 'standard' ? 0.44 : mode === 'premium' ? 0.54 : 0.6]} />
     </>
@@ -693,7 +702,7 @@ function SceneEnvironment({ mode }: { mode: AtmospherePerformanceMode }) {
   );
 }
 
-function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: AtmospherePerformanceMode }) {
+function Lighting({ lighting, mode, roomFill }: { lighting: LightingConfig; mode: AtmospherePerformanceMode; roomFill?: boolean }) {
   const castShadow = mode !== 'standard';
   const shadowMap = mode === 'cinematic' ? 2048 : 1024;
   const azimuthRad = (lighting.sunAzimuth * Math.PI) / 180;
@@ -709,7 +718,7 @@ function Lighting({ lighting, mode }: { lighting: LightingConfig; mode: Atmosphe
   return (
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
-      <ambientLight intensity={ambientIntensity} />
+      <ambientLight intensity={roomFill ? Math.max(0.9, ambientIntensity) : ambientIntensity} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <directionalLight
         position={[x, y, z]}
@@ -751,8 +760,76 @@ function TouchWalkRig({ moveRef }: { moveRef: MutableRefObject<{ x: number; z: n
   return null;
 }
 
-function DesktopWalkRig() {
-  const { camera } = useThree();
+function RoomCameraRig({ walls, rooms, origin, height, elevation, walkMode, resetRevision }: {
+  walls: Wall[];
+  rooms: Room[];
+  origin: SceneOrigin;
+  height: number;
+  elevation: number;
+  walkMode: boolean;
+  resetRevision: number;
+}) {
+  const { camera, invalidate, size } = useThree();
+  const aspect = size.width / Math.max(size.height, 1);
+
+  useLayoutEffect(() => {
+    const pose = walkMode ? roomWalkPose(walls, rooms, origin, elevation) : roomOrbitPose(walls, origin, height, aspect);
+    camera.position.set(...pose.position);
+    camera.lookAt(...pose.target);
+    invalidate();
+  }, [aspect, camera, elevation, height, invalidate, origin, resetRevision, rooms, walkMode, walls]);
+
+  return null;
+}
+
+function RoomTouchLookRig() {
+  const { camera, gl } = useThree();
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const look = new THREE.Euler(0, 0, 0, 'YXZ');
+    let pointer: { id: number; x: number; y: number } | null = null;
+    const down = (event: globalThis.PointerEvent) => {
+      if (pointer || event.button !== 0) return;
+      pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      canvas.setPointerCapture(event.pointerId);
+    };
+    const move = (event: globalThis.PointerEvent) => {
+      if (pointer?.id !== event.pointerId) return;
+      look.setFromQuaternion(camera.quaternion);
+      look.y -= (event.clientX - pointer.x) * 0.005;
+      look.x = THREE.MathUtils.clamp(look.x - (event.clientY - pointer.y) * 0.005, -Math.PI / 2 + 0.05, Math.PI / 2 - 0.05);
+      camera.quaternion.setFromEuler(look);
+      pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    };
+    const stop = (event: globalThis.PointerEvent) => {
+      if (pointer?.id === event.pointerId) pointer = null;
+    };
+    canvas.addEventListener('pointerdown', down);
+    canvas.addEventListener('pointermove', move);
+    canvas.addEventListener('lostpointercapture', stop);
+    return () => {
+      if (pointer && canvas.hasPointerCapture(pointer.id)) canvas.releasePointerCapture(pointer.id);
+      canvas.removeEventListener('pointerdown', down);
+      canvas.removeEventListener('pointermove', move);
+      canvas.removeEventListener('lostpointercapture', stop);
+    };
+  }, [camera, gl]);
+
+  return null;
+}
+
+function RoomDesktopWalkControls() {
+  const canvas = useThree((state) => state.gl.domElement);
+  useEffect(() => () => {
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
+  }, [canvas]);
+
+  return <><PointerLockControls domElement={canvas} selector="#vish-room-walk-start" /><DesktopWalkRig requirePointerLock /></>;
+}
+
+function DesktopWalkRig({ requirePointerLock = false }: { requirePointerLock?: boolean } = {}) {
+  const { camera, gl } = useThree();
   const held = useRef<Set<string>>(new Set());
   useEffect(() => {
     const keys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright']);
@@ -760,22 +837,28 @@ function DesktopWalkRig() {
       const key = event.key.toLowerCase();
       const target = event.target;
       if (!keys.has(key) || event.ctrlKey || event.metaKey || event.altKey ||
+          (requirePointerLock && document.pointerLockElement !== gl.domElement) ||
           (target instanceof HTMLElement && Boolean(target.closest('input, textarea, select, [contenteditable]')))) return;
       event.preventDefault();
       held.current.add(key);
     };
     const up = (event: KeyboardEvent) => held.current.delete(event.key.toLowerCase());
     const reset = () => held.current.clear();
+    const releaseKeysOnUnlock = () => {
+      if (document.pointerLockElement !== gl.domElement) reset();
+    };
     window.addEventListener('keydown',down);
     window.addEventListener('keyup',up);
     window.addEventListener('blur',reset);
+    if (requirePointerLock) document.addEventListener('pointerlockchange', releaseKeysOnUnlock);
     return () => {
       reset();
       window.removeEventListener('keydown',down);
       window.removeEventListener('keyup',up);
       window.removeEventListener('blur',reset);
+      if (requirePointerLock) document.removeEventListener('pointerlockchange', releaseKeysOnUnlock);
     };
-  },[]);
+  },[gl, requirePointerLock]);
   useFrame((_,delta) => {
     const keys = held.current;
     const x = Number(keys.has('d') || keys.has('arrowright')) - Number(keys.has('a') || keys.has('arrowleft'));
@@ -1018,6 +1101,7 @@ export default function Viewport3D({
   manifestFixtures,
   manifestStaircases,
   geometryRevision = 0,
+  roomControls,
 }: Viewport3DProps) {
   const isCoarsePointer = useCoarsePointer();
   const touchMoveRef = useRef({ x: 0, z: 0 });
@@ -1026,6 +1110,15 @@ export default function Viewport3D({
     () => computeSceneOrigin(allWallsForOrigin.length > 0 ? allWallsForOrigin : walls),
     [allWallsForOrigin, walls],
   );
+  const roomStacked = showAllFloorsIn3D && floors.length > 1;
+  const roomWalls = roomStacked && !walkMode ? allWallsForOrigin : walls;
+  const roomElevation = roomStacked ? floorElevationMeters(floors[activeFloorIndex]?.elevation ?? 0) : 0;
+  const roomHeight = roomControls ? roomWalls.reduce((highest, wall) => Math.max(
+    highest,
+    wall.height / 100 + (roomStacked ? floorElevationMeters(floors[wall.floorIndex ?? 0]?.elevation ?? 0) : 0),
+  ), 0) : 0;
+  const roomReducedMotion = Boolean(roomControls) && typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Header wall count must never lag behind the actual scene. `walls` arrives
   // via useDeferredValue in the parent, so it can briefly read stale/zero
   // right after a project loads or the panel mounts. `manifestWalls` is passed
@@ -1143,7 +1236,7 @@ export default function Viewport3D({
             shadows={effectiveAtmosphereMode !== 'standard'}
             dpr={atmosphereConfig.dpr}
             gl={{ antialias: effectiveAtmosphereMode !== 'standard', alpha: false, powerPreference: effectiveAtmosphereMode === 'cinematic' ? 'high-performance' : 'default' }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', touchAction: roomControls && walkMode ? 'none' : undefined }}
           >
             <WebGLContextGuard onLost={handleContextLost} onRestored={handleContextRestored} />
             <AdaptiveFrameGovernor ceiling={baseAtmosphereMode} onCapChange={setAdaptiveCap} />
@@ -1163,10 +1256,14 @@ export default function Viewport3D({
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={[8, 6, 8]} />
+            {roomControls && (
+              <RoomCameraRig walls={roomWalls} rooms={rooms} height={roomHeight} origin={sceneOrigin}
+                elevation={roomElevation} walkMode={walkMode} resetRevision={roomControls.resetRevision} />
+            )}
             <SceneEnvironment mode={effectiveAtmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>
-                <OrbitControls
+                {roomControls ? <RoomTouchLookRig /> : <OrbitControls
                   enableDamping
                   dampingFactor={0.08}
                   enablePan={false}
@@ -1176,26 +1273,28 @@ export default function Viewport3D({
                   maxDistance={24}
                   target={[sceneOrigin.cx / 100, 1.6, sceneOrigin.cy / 100]}
                   touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY }}
-                />
+                />}
                 <TouchWalkRig moveRef={touchMoveRef} />
               </>
             ) : walkMode && !isCoarsePointer ? (
-              <><PointerLockControls selector="#vish-3d-walk-hint" /><DesktopWalkRig /></>
+              roomControls ? <RoomDesktopWalkControls /> : <><PointerLockControls selector="#vish-3d-walk-hint" /><DesktopWalkRig /></>
             ) : (
               <OrbitControls
+                key={roomControls?.resetRevision}
                 enableDamping
                 dampingFactor={0.06}
                 enablePan
                 enableRotate={!penPointerActive}
                 enableZoom
-                autoRotate={atmosphereConfig.autoRotate}
+                target={roomControls ? [0, Math.max(1, roomHeight / 2), 0] : undefined}
+                autoRotate={atmosphereConfig.autoRotate && !roomReducedMotion}
                 autoRotateSpeed={atmosphereConfig.autoRotateSpeed}
                 touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
               />
             )}
 
-            <Lighting lighting={lighting} mode={effectiveAtmosphereMode} />
-            <SacredAtmosphere mode={effectiveAtmosphereMode} boostCinematic={cinematicBoost} />
+            <Lighting lighting={lighting} mode={effectiveAtmosphereMode} roomFill={Boolean(roomControls)} />
+            <SacredAtmosphere mode={effectiveAtmosphereMode} boostCinematic={cinematicBoost} clearView={Boolean(roomControls) && !walkMode} reducedMotion={roomReducedMotion} />
             <SceneContactShadows mode={effectiveAtmosphereMode} />
 
             <BuildingSceneLayers
@@ -1252,7 +1351,12 @@ export default function Viewport3D({
           </div>
         )}
 
-        {walkMode && (
+        {walkMode && roomControls && !isCoarsePointer && (
+          <button id="vish-room-walk-start" type="button" className="vish-room__button vish-room__walk-start">
+            Start walking
+          </button>
+        )}
+        {walkMode && !roomControls && (
           <p
             id="vish-3d-walk-hint"
             className="absolute bottom-3 left-3 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 text-[10px] uppercase tracking-wider text-vish-blue-400 backdrop-blur-xl shadow-lg"
@@ -1364,7 +1468,7 @@ export default function Viewport3D({
         </div>
         )}
 
-        {!walkMode && (
+        {!walkMode && !roomControls && (
         <div className="vish-3d-orbit-hint pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 backdrop-blur-xl shadow-lg">
           <RotateCcw className="h-3 w-3 text-slate-400" />
           <span className="text-[10px] uppercase tracking-wider text-slate-400">

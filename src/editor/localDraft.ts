@@ -72,6 +72,16 @@ export function hasMeaningfulDraftContent(payload: LocalDraftPayload) {
   return payload.manifest.walls.length > 0 || payload.manifest.openings.length > 0;
 }
 
+export function getLocalDraftProjectId(draft: LocalDraftPayload) {
+  return draft.projectId ?? `local-draft-${draft.savedAt}`;
+}
+
+export function hasUnrelatedLocalDraft(projectId: string | undefined) {
+  if (!projectId) return false;
+  const draft = readLocalDraft();
+  return !!draft && hasMeaningfulDraftContent(draft) && getLocalDraftProjectId(draft) !== projectId;
+}
+
 export function saveLocalDraft(payload: LocalDraftPayload) {
   if (!hasStorage()) return false;
 

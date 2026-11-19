@@ -1,13 +1,14 @@
 /* @refresh reset */
 // Vishvakarma.OS — iPad-first blueprint editor workspace
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useDeferredValue } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { AppErrorBoundary } from '@/components/common/AppErrorBoundary';
 import PageMeta from '@/components/common/PageMeta';
 import { roomTypeLabel, type RoomType } from '@/domain/rooms/roomType';
-import { Box, SlidersHorizontal } from 'lucide-react';
+import { Box, Save, SlidersHorizontal } from 'lucide-react';
 import { useGovernanceNav } from '@/components/layouts/AppLayout';
 import { useRegisterEditorSidebar } from '@/components/editor/EditorSidebarContext';
 import BlueprintCanvas from '@/components/editor/BlueprintCanvas';
@@ -64,17 +65,20 @@ import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
 import { backendStatus } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCloudSaveStatus } from '@/hooks/useCloudSaveStatus';
+import { getLiteEditorManifest } from '@/editor/liteEditorHandoff';
 import {
   buildDraftPayloadFromManifest,
   clearLocalDraft,
+  getLocalDraftProjectId,
   hasMeaningfulDraftContent,
+  hasUnrelatedLocalDraft,
   readLocalDraft,
   scheduleLocalDraftSave,
   type LocalDraftPayload,
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
-import { upsertLocalProject } from '@/editor/localProjects';
+import { getLocalProjects, upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -92,6 +96,22 @@ import { playMonsoonJali, stopMonsoonJali } from '@/modules/studio-audio/atmosph
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
 
+interface EditorRouteState {
+  loadProject?: Project;
+  savedProject?: Project;
+  loadManifest?: ProjectManifest;
+  projectName?: string;
+  manifestSource?: 'sample' | 'ai';
+  openIntent?: 'openProject' | 'import' | 'aiDesigner';
+}
+
+async function createNamedProject(manifest: ProjectManifest, name: string) {
+  if (backendStatus.isConfigured) return createProject(name, manifest.description, manifest);
+  const project = createLocalProject(name, manifest.description, manifest);
+  if (!upsertLocalProject(project)) throw new Error('Browser storage is unavailable');
+  return project;
+}
+
 export default function EditorPage() {
   return <EditorWorkspace />;
 }
@@ -99,6 +119,8 @@ export default function EditorPage() {
 function EditorWorkspace() {
   const { updateEditorSnapshot } = useTutorial();
   const location = useLocation();
+  const navigate = useNavigate();
+  const routeState = location.state as EditorRouteState | null;
   const planTier = usePlanTier();
   const { openNav } = useGovernanceNav();
   const {
@@ -123,6 +145,7 @@ function EditorWorkspace() {
     gridSize,
     session,
     revision,
+    geometryRevision: draftGeometryRevision,
     canUndo,
     canRedo,
     engine,
@@ -168,6 +191,9 @@ function EditorWorkspace() {
   const lastMouseUiUpdateRef = useRef(0);
   const [saveState, setSaveState] = useState<SaveState>('clean');
   const [lastDraftSavedAt, setLastDraftSavedAt] = useState<string | null>(null);
+  const [liteHandoffActive, setLiteHandoffActive] = useState(false);
+  const [lastSavedPlanRevision, setLastSavedPlanRevision] = useState<number | null>(null);
+  const handledRouteLocation = useRef<string | null>(null);
   const [recoveryDraft, setRecoveryDraft] = useState<LocalDraftPayload | null>(null);
   const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -222,7 +248,7 @@ function EditorWorkspace() {
 
   const projectName = currentProject?.name || demoProjectName || session.projectName;
   const showOnboarding =
-    !freshSignIn && walls.length === 0 && openings.length === 0 && !currentProject;
+    !liteHandoffActive && !freshSignIn && walls.length === 0 && openings.length === 0 && !currentProject;
 
   const maybeStartEssentialsTour = useCallback(() => {
     if (shouldAutoStartEssentials()) {
@@ -317,6 +343,18 @@ function EditorWorkspace() {
     [engine],
   );
 
+  const clearDraftForCurrentPlan = useCallback((projectId?: string) => {
+    // The shared recovery slot can belong to another full-editor project.
+    if (!liteHandoffActive && !hasUnrelatedLocalDraft(projectId)) clearLocalDraft();
+  }, [liteHandoffActive]);
+
+  const rememberSavedProject = useCallback((project: Project) => {
+    void navigate(`${location.pathname}${location.search}${location.hash}`, {
+      replace: true,
+      state: { savedProject: project } satisfies EditorRouteState,
+    });
+  }, [location.hash, location.pathname, location.search, navigate]);
+
   const handleUndo = useCallback(() => {
     engine.undo();
   }, [engine]);
@@ -359,7 +397,7 @@ function EditorWorkspace() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const data = await getProjects();
+      const data = backendStatus.isConfigured ? await getProjects() : getLocalProjects();
       setProjects(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
@@ -380,6 +418,7 @@ function EditorWorkspace() {
   }, [engine]);
 
   useEffect(() => {
+    if (routeState?.loadProject || routeState?.savedProject || getLiteEditorManifest(location.state)) return;
     const draft = readLocalDraft();
     if (draft && hasMeaningfulDraftContent(draft)) {
       setRecoveryDraft(draft);
@@ -390,6 +429,7 @@ function EditorWorkspace() {
   }, []);
 
   useEffect(() => {
+    if (liteHandoffActive || recoveryDialogOpen || lastSavedPlanRevision === draftGeometryRevision) return;
     const hasContent = walls.length > 0 || openings.length > 0;
     if (!hasContent) return;
 
@@ -397,6 +437,7 @@ function EditorWorkspace() {
     setSaveState((state) => (state === 'cloud-saved' ? 'unsaved' : state === 'restored-draft' ? 'restored-draft' : 'unsaved'));
 
     const saveDraft = () => {
+      if (hasUnrelatedLocalDraft(currentProject?.id)) return;
       const payload = buildDraftPayloadFromManifest({
         projectId: currentProject?.id ?? null,
         projectName,
@@ -416,7 +457,14 @@ function EditorWorkspace() {
       window.clearTimeout(timer);
       window.clearInterval(interval);
     };
-  }, [currentProject?.description, currentProject?.id, lighting, openings, projectName, snapEnabled, walls]);
+  }, [currentProject?.description, currentProject?.id, draftGeometryRevision, lastSavedPlanRevision, lighting, liteHandoffActive, openings, projectName, recoveryDialogOpen, snapEnabled, walls]);
+
+  useEffect(() => {
+    if (!liteHandoffActive) return;
+    const unsaved = lastSavedPlanRevision !== draftGeometryRevision;
+    setHasUnsavedChanges(unsaved);
+    if (unsaved) setSaveState('unsaved');
+  }, [draftGeometryRevision, lastSavedPlanRevision, liteHandoffActive]);
 
   useEffect(() => {
     if (!hasUnsavedChanges) return;
@@ -544,7 +592,7 @@ function EditorWorkspace() {
       sampleManifest: ProjectManifest,
       options: { mode: 'fresh' | 'overlay'; closeSamplePicker?: boolean },
     ) => {
-      clearLocalDraft();
+      clearDraftForCurrentPlan(currentProject?.id);
       const displayName = sampleManifest.name || 'Demo Blueprint';
 
       if (options.mode === 'fresh') {
@@ -576,7 +624,7 @@ function EditorWorkspace() {
       }
       toast.success(`${displayName} loaded with Project Proof active`);
     },
-    [applyManifest, currentProject, engine],
+    [applyManifest, clearDraftForCurrentPlan, currentProject, engine],
   );
 
   const loadSampleBySampleId = async (sampleId: string) => {
@@ -599,8 +647,9 @@ function EditorWorkspace() {
   const restoreLocalDraft = () => {
     if (!recoveryDraft) return;
 
-    setCurrentProject(null);
-    setDemoProjectName(recoveryDraft.projectName);
+    const belongsToCurrentProject = currentProject?.id === getLocalDraftProjectId(recoveryDraft);
+    if (!belongsToCurrentProject) setCurrentProject(null);
+    setDemoProjectName(belongsToCurrentProject ? null : recoveryDraft.projectName);
     applyManifest(recoveryDraft.manifest);
     engine.setGridVisible(true);
     setHasUnsavedChanges(true);
@@ -623,42 +672,47 @@ function EditorWorkspace() {
   };
 
   const handleSaveProject = async () => {
-    if (!currentProject) {
+    if (savingProject) return;
+    if (!currentProject && !liteHandoffActive) {
       toast.info('Create a project first, then save.');
       setNewProjectOpen(true);
       return;
     }
 
     setSavingProject(true);
-    if (isLocalProjectId(currentProject.id)) {
-      const updatedManifest = buildManifest();
-      const updatedProject: Project = {
-        ...currentProject,
-        name: updatedManifest.name,
-        description: updatedManifest.description,
-        manifest: updatedManifest,
-        updated_at: new Date().toISOString(),
-      };
-      setCurrentProject(updatedProject);
-      upsertLocalProject(updatedProject);
-      clearLocalDraft();
-      setSaveState('local-draft');
-      setLastDraftSavedAt(null);
-      setHasUnsavedChanges(false);
-      toast.success('Project saved locally');
-      setSavingProject(false);
-      return;
-    }
-
     try {
-      const updated = await updateProject(currentProject.id, { manifest: buildManifest() });
+      const manifest = buildManifest();
+      const savedRevision = engine.getSnapshot().geometryRevision;
+      let updated: Project;
+      if (!currentProject) {
+        updated = await createNamedProject(manifest, projectName);
+        void loadProjects();
+      } else if (isLocalProjectId(currentProject.id)) {
+        updated = {
+          ...currentProject,
+          name: manifest.name,
+          description: manifest.description,
+          manifest,
+          updated_at: new Date().toISOString(),
+        };
+        if (!upsertLocalProject(updated)) throw new Error('Browser storage is unavailable');
+      } else {
+        updated = await updateProject(currentProject.id, { manifest });
+      }
+
       setCurrentProject(updated);
       setDemoProjectName(null);
-      clearLocalDraft();
-      setSaveState('cloud-saved');
+      clearDraftForCurrentPlan(updated.id);
+      const local = isLocalProjectId(updated.id);
+      const editedWhileSaving = engine.getSnapshot().geometryRevision !== savedRevision;
+      setLastSavedPlanRevision(savedRevision);
+      setSaveState(editedWhileSaving ? 'unsaved' : local ? 'local-draft' : 'cloud-saved');
       setLastDraftSavedAt(null);
-      setHasUnsavedChanges(false);
-      toast.success('Project saved');
+      setHasUnsavedChanges(editedWhileSaving);
+      if (liteHandoffActive || routeState?.savedProject || routeState?.loadProject) {
+        rememberSavedProject(updated);
+      }
+      toast.success(local ? 'Project saved locally' : 'Project saved');
     } catch (error) {
       console.error('Failed to save project:', error);
       const message = error instanceof Error ? error.message : 'Failed to save project';
@@ -673,28 +727,38 @@ function EditorWorkspace() {
     [labels, selectedLabelId],
   );
 
-  const handleLoadProject = useCallback((project: Project) => {
+  const handleLoadProject = useCallback((project: Project, recoverSameProject = false) => {
     setLoadingProject(true);
     toast.message('Loading project…', { description: project.name });
-    clearLocalDraft();
+    const draft = recoverSameProject ? readLocalDraft() : null;
+    const matchingDraft = draft && hasMeaningfulDraftContent(draft) && getLocalDraftProjectId(draft) === project.id ? draft : null;
+    if (!matchingDraft) clearDraftForCurrentPlan(project.id);
     setCurrentProject(project);
     setDemoProjectName(null);
     applyManifest(project.manifest);
+    setLastSavedPlanRevision(engine.getSnapshot().geometryRevision);
     setLoadDialogOpen(false);
+    setRecoveryDraft(matchingDraft);
+    setRecoveryDialogOpen(!!matchingDraft);
     setSaveState(isLocalProjectId(project.id) ? 'local-draft' : 'cloud-saved');
     setLastDraftSavedAt(null);
     setHasUnsavedChanges(false);
     setLoadingProject(false);
     toast.success(`Loaded: ${project.name}`);
-  }, [applyManifest]);
+  }, [applyManifest, clearDraftForCurrentPlan, engine]);
 
   const handleProjectCreated = (project: Project) => {
     void loadProjects();
     handleLoadProject(project);
   };
 
+  const handleOpenSavedProject = (project: Project) => {
+    handleLoadProject(project);
+    rememberSavedProject(project);
+  };
+
   const handleImportedManifest = (manifest: ProjectManifest) => {
-    clearLocalDraft();
+    clearDraftForCurrentPlan();
     setCurrentProject(null);
     setDemoProjectName(manifest.name);
     applyManifest(manifest);
@@ -705,7 +769,7 @@ function EditorWorkspace() {
 
   const handleAIDesignerOpenInEditor = useCallback(
     (manifest: ProjectManifest, name: string) => {
-      clearLocalDraft();
+      clearDraftForCurrentPlan();
       setCurrentProject(null);
       setDemoProjectName(name);
       applyManifest({ ...manifest, name });
@@ -718,7 +782,7 @@ function EditorWorkspace() {
           : `Loaded AI design: ${name}`,
       );
     },
-    [applyManifest],
+    [applyManifest, clearDraftForCurrentPlan],
   );
 
   const handleSampleManifestOpen = useCallback(
@@ -729,13 +793,27 @@ function EditorWorkspace() {
   );
 
   useEffect(() => {
-    const state = location.state as {
-      loadProject?: Project;
-      loadManifest?: ProjectManifest;
-      projectName?: string;
-      manifestSource?: 'sample' | 'ai';
-      openIntent?: 'openProject' | 'import' | 'aiDesigner';
-    } | null;
+    if (handledRouteLocation.current === location.key) return;
+    handledRouteLocation.current = location.key;
+    const liteManifest = getLiteEditorManifest(location.state);
+    if (liteManifest) {
+      setLiteHandoffActive(true);
+      setLastSavedPlanRevision(null);
+      setCurrentProject(null);
+      setDemoProjectName(liteManifest.name);
+      setRecoveryDialogOpen(false);
+      setLastDraftSavedAt(null);
+      applyManifest(liteManifest);
+      setHasUnsavedChanges(true);
+      setSaveState('unsaved');
+      return;
+    }
+
+    const state = routeState;
+    if (state?.savedProject) {
+      if (currentProject?.id !== state.savedProject.id) handleLoadProject(state.savedProject, true);
+      return;
+    }
     if (state?.openIntent) {
       if (state.openIntent === 'openProject') setLoadDialogOpen(true);
       else if (state.openIntent === 'import') setImportDialogOpen(true);
@@ -745,7 +823,7 @@ function EditorWorkspace() {
     }
     if (state?.loadProject) {
       handleLoadProject(state.loadProject);
-      window.history.replaceState({}, document.title);
+      rememberSavedProject(state.loadProject);
     } else if (state?.loadManifest) {
       const name = state.projectName ?? state.loadManifest.name;
       if (state.manifestSource === 'sample') {
@@ -755,16 +833,11 @@ function EditorWorkspace() {
       }
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen]);
+  }, [applyManifest, currentProject?.id, location.key, location.state, routeState, handleLoadProject, handleAIDesignerOpenInEditor, handleSampleManifestOpen, rememberSavedProject]);
 
   const handleAIDesignerSaveProject = useCallback(
     async (manifest: ProjectManifest, name: string) => {
-      const project = backendStatus.isConfigured
-        ? await createProject(name, manifest.description, manifest)
-        : createLocalProject(name, manifest.description, manifest);
-      if (!backendStatus.isConfigured) {
-        upsertLocalProject(project);
-      }
+      const project = await createNamedProject(manifest, name);
       handleProjectCreated(project);
     },
     [handleProjectCreated],
@@ -950,6 +1023,11 @@ function EditorWorkspace() {
 
   const fileStrip = (
     <>
+      {liteHandoffActive && (
+        <Button type="button" variant="gold" size="sm" className="min-h-11 shrink-0 motion-reduce:transition-none motion-reduce:transform-none" disabled={savingProject} onClick={() => void handleSaveProject()}>
+          <Save aria-hidden="true" /> {savingProject ? 'Saving…' : 'Save plan'}
+        </Button>
+      )}
       <SaveModeBadge connected={cloudSave.connected} label={cloudSave.label} />
       <FloorSwitcher
         floors={floors}
@@ -1458,7 +1536,7 @@ function EditorWorkspace() {
         onOpenChange={setImportDialogOpen}
         onImported={handleImportedManifest}
       />
-      <OpenProjectDialog open={loadDialogOpen} projects={projects} onOpenChange={setLoadDialogOpen} onLoadProject={handleLoadProject} />
+      <OpenProjectDialog open={loadDialogOpen} projects={projects} onOpenChange={setLoadDialogOpen} onLoadProject={handleOpenSavedProject} />
       <ExportFloorPlanDialog
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}

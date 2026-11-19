@@ -224,10 +224,9 @@ export default function ProjectsPage() {
       <section className="flex flex-col gap-6">
         <WorkspacePageHeader
           title={`Welcome back, ${accountName}`}
-          description="What would you like to design today?"
-          eyebrow="Vishvakarma.OS Command Centre"
           variant="fullBleed"
           zone="document"
+          animate={false}
         />
 
         <DreamHomeJourney />
@@ -254,6 +253,105 @@ export default function ProjectsPage() {
           </Button>
         </div>
       </section>
+      {/* Recent Projects */}
+      <section id="recent-projects" aria-labelledby="recent-projects-title" tabIndex={-1} className="flex flex-col gap-4 scroll-mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+           <h2 id="recent-projects-title" className="text-xl font-semibold text-white">Recent Projects</h2>
+           {filteredProjects.length > 8 && (
+              <button type="button" className="min-h-11 px-3 text-xs text-primary hover:underline uppercase tracking-widest font-semibold" onClick={() => setShowAllProjects((value) => !value)}>
+                {showAllProjects ? 'Show fewer' : 'Show all projects'}
+              </button>
+            )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="vish-project-search" className="sr-only">Search projects</label>
+          <input id="vish-project-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Find a saved home…" className="min-h-11 min-w-0 flex-1 rounded-xl border border-primary/30 bg-card px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" />
+          <label className="inline-flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
+            <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} className="h-4 w-4 accent-[#d8a644]" /> Include archived
+          </label>
+        </div>
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="projects-loading-skeleton" aria-busy="true">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-64 rounded-[14px] bg-vish-navy-800/50 animate-pulse border border-vish-navy-700" />
+            ))}
+          </div>
+        ) : filteredProjects.length > 0 ? (
+           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredProjects.slice(0, showAllProjects ? filteredProjects.length : 8).map((project) => {
+                const isDraft = project.id.startsWith('local-draft-');
+                const thumb = projectThumbnailDataUrl(project.manifest);
+                return (
+                  <VishCard key={project.id} className="flex flex-col transition-colors hover:border-primary/40">
+                    <div className="relative aspect-[16/10] bg-vish-navy-900 border-b border-vish-navy-700/50 flex items-center justify-center overflow-hidden">
+                      {thumb ? (
+                        <img src={thumb} alt="" className="w-full h-full object-contain p-4" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-vish-text-400">
+                          <PenTool className="w-8 h-8 opacity-40" />
+                          <span className="text-xs uppercase tracking-widest">Empty Plan</span>
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3">
+                         <VishStatusBadge status={isDraft ? "neutral" : "info"}>
+                           {isDraft ? "Draft" : "Saved"}
+                         </VishStatusBadge>
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex items-start justify-between">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-white truncate">{project.name}</h3>
+                          <p className="text-xs text-vish-text-400 mt-1 uppercase tracking-widest">{project.manifest.walls.length} Walls • {project.manifest.openings.length} Openings</p>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" aria-label={`Actions for ${project.name}`} className="relative z-10 h-11 w-11 shrink-0 text-vish-text-400 hover:text-white">
+                              <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-vish-navy-800 border-vish-navy-600 text-white">
+                            <DropdownMenuItem onClick={() => duplicateProject(project)}>Duplicate</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => void toggleArchive(project)}>
+                              {isProjectArchived(project) ? 'Restore' : 'Archive'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-rose-400 focus:text-rose-300 focus:bg-rose-500/10"
+                              disabled={deletingId === project.id}
+                              onClick={() => setPendingDelete(project)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 pt-2">
+                         <span className="text-xs text-vish-text-400">{formatRelativeTime(project.updated_at)}</span>
+                         <button type="button" aria-label={`Open ${project.name}`} onClick={() => openProject(project)} className="min-h-11 text-sm font-semibold text-primary after:absolute after:inset-0 hover:underline focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-primary">
+                           Open project <span aria-hidden="true">&rarr;</span>
+                         </button>
+                      </div>
+                    </div>
+                  </VishCard>
+                );
+              })}
+           </div>
+        ) : (
+          <VishCard className="p-10 flex flex-col items-center justify-center text-center">
+             <div className="w-16 h-16 rounded-full bg-vish-navy-800 border border-vish-navy-600 flex items-center justify-center mb-4">
+                <FolderOpen className="w-8 h-8 text-vish-text-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-white mb-2">No projects found</h3>
+             <p className="text-vish-text-300 max-w-sm mb-6">Create a new project to start designing, or import an existing floor plan.</p>
+             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
+                <Link to="/editor">Create New Project</Link>
+             </Button>
+          </VishCard>
+        )}
+      </section>
+
       {/* Verified local demo fixtures. Demo fixtures are generated in-browser from the versioned sample catalog. */}
       <section aria-labelledby="demo-fixtures-heading">
         <div className="flex items-end justify-between gap-4 mb-4">
@@ -294,103 +392,6 @@ export default function ProjectsPage() {
           <VishCard className="p-4"><VishMetric label="Rooms in plans" value={visibleStat(projectStats.rooms)} /></VishCard>
         </div>
         {error && <p className="mt-3 text-sm text-amber-200" role="status">Some projects could not load: {error}. Counts describe available records only.</p>}
-      </section>
-
-      {/* Recent Projects */}
-      <section id="recent-projects" className="flex flex-col gap-4 scroll-mt-24">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-           <h2 className="text-sm font-semibold tracking-widest text-vish-text-400 uppercase">Recent Projects</h2>
-           {filteredProjects.length > 8 && (
-              <button type="button" className="min-h-11 px-3 text-xs text-primary hover:underline uppercase tracking-widest font-semibold" onClick={() => setShowAllProjects((value) => !value)}>
-                {showAllProjects ? 'Show fewer' : 'Show all projects'}
-              </button>
-            )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <label htmlFor="vish-project-search" className="sr-only">Search projects</label>
-          <input id="vish-project-search" type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Find a saved home…" className="min-h-11 min-w-0 flex-1 rounded-xl border border-primary/30 bg-card px-3 text-sm text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" />
-          <label className="inline-flex min-h-11 items-center gap-2 text-xs text-muted-foreground">
-            <input type="checkbox" checked={showArchived} onChange={(event) => setShowArchived(event.target.checked)} className="h-4 w-4 accent-[#d8a644]" /> Include archived
-          </label>
-        </div>
-        {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="projects-loading-skeleton" aria-busy="true">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-64 rounded-[14px] bg-vish-navy-800/50 animate-pulse border border-vish-navy-700" />
-            ))}
-          </div>
-        ) : filteredProjects.length > 0 ? (
-           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProjects.slice(0, showAllProjects ? filteredProjects.length : 8).map((project) => {
-                const isDraft = project.id.startsWith('local-draft-');
-                const thumb = projectThumbnailDataUrl(project.manifest);
-                return (
-                  <VishCard key={project.id} interactive className="flex flex-col cursor-pointer" onClick={() => openProject(project)}>
-                    <div className="relative aspect-[16/10] bg-vish-navy-900 border-b border-vish-navy-700/50 flex items-center justify-center overflow-hidden">
-                      {thumb ? (
-                        <img src={thumb} alt="" className="w-full h-full object-contain p-4" />
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 text-vish-text-400">
-                          <PenTool className="w-8 h-8 opacity-40" />
-                          <span className="text-xs uppercase tracking-widest">Empty Plan</span>
-                        </div>
-                      )}
-                      <div className="absolute top-3 left-3">
-                         <VishStatusBadge status={isDraft ? "neutral" : "info"}>
-                           {isDraft ? "Draft" : "Saved"}
-                         </VishStatusBadge>
-                      </div>
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-white truncate max-w-[200px]">{project.name}</h3>
-                          <p className="text-xs text-vish-text-400 mt-1 uppercase tracking-widest">{project.manifest.walls.length} Walls • {project.manifest.openings.length} Openings</p>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-vish-text-400 hover:text-white" onClick={(e) => e.stopPropagation()}>
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-vish-navy-800 border-vish-navy-600 text-white">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); duplicateProject(project); }}>Duplicate</DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); void toggleArchive(project); }}>
-                              {isProjectArchived(project) ? 'Restore' : 'Archive'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-rose-400 focus:text-rose-300 focus:bg-rose-500/10"
-                              disabled={deletingId === project.id}
-                              onClick={(e) => { e.stopPropagation(); setPendingDelete(project); }}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      <div className="mt-auto pt-4 flex items-center justify-between">
-                         <span className="text-[10px] text-vish-text-400 uppercase tracking-widest">{formatRelativeTime(project.updated_at)}</span>
-                         <span className="text-xs font-semibold text-primary uppercase tracking-widest group-hover:underline">Open Project &rarr;</span>
-                      </div>
-                    </div>
-                  </VishCard>
-                );
-              })}
-           </div>
-        ) : (
-          <VishCard className="p-10 flex flex-col items-center justify-center text-center">
-             <div className="w-16 h-16 rounded-full bg-vish-navy-800 border border-vish-navy-600 flex items-center justify-center mb-4">
-                <FolderOpen className="w-8 h-8 text-vish-text-400" />
-             </div>
-             <h3 className="text-lg font-semibold text-white mb-2">No projects found</h3>
-             <p className="text-vish-text-300 max-w-sm mb-6">Create a new project to start designing, or import an existing floor plan.</p>
-             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
-                <Link to="/editor">Create New Project</Link>
-             </Button>
-          </VishCard>
-        )}
       </section>
 
       {/* Delete Confirmation Dialog */}

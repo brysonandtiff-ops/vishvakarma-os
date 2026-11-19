@@ -1,0 +1,125 @@
+.room-concepts {
+  scroll-margin-block-start: 1rem;
+  padding: clamp(1rem, 2.8vw, 2.5rem) 0;
+  color: #252820;
+}
+
+.room-concepts__heading {
+  margin-block-end: 1rem;
+}
+
+.room-concepts__heading h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.85rem);
+  font-weight: 650;
+  letter-spacing: -.035em;
+}
+
+.room-concepts__heading p {
+  max-width: 52ch;
+  margin-block-start: .25rem;
+  color: #535548;
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.room-concepts__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.7rem, 1.7vw, 1.3rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.room-concepts__card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #526159;
+  border-radius: 1rem;
+  background: #212b28;
+  color: #f6efe2;
+  text-align: start;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.room-concepts__card:hover,
+.room-concepts__card:focus-visible,
+.room-concepts__card[aria-pressed='true'] {
+  border-color: #dcb474;
+  background: #2c352c;
+}
+
+.room-concepts__card:focus-visible {
+  outline: 2px solid #f0c98a;
+  outline-offset: 3px;
+}
+
+.room-concepts__image {
+  display: block;
+  aspect-ratio: 1040 / 740;
+  overflow: hidden;
+  background: #515749;
+}
+
+.room-concepts__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  transition: transform 300ms ease-out;
+}
+
+.room-concepts__grid li:nth-child(2) img { object-position: center; }
+.room-concepts__grid li:nth-child(3) img { object-position: right center; }
+
+@media (hover: hover) {
+  .room-concepts__card:hover img {
+    transform: scale(1.04);
+  }
+}
+
+.room-concepts__copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  gap: .3rem .7rem;
+  padding: .85rem 1rem 1rem;
+}
+
+.room-concepts__copy strong {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.room-concepts__copy span {
+  grid-area: 2 / 1;
+  color: #cbc7bd;
+  font-size: .84rem;
+  line-height: 1.5;
+}
+
+.room-concepts__copy svg {
+  grid-area: 1 / 2;
+  color: #efc889;
+}
+
+@media (max-width: 600px) {
+  .room-concepts__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-concepts__card,
+  .room-concepts__image img {
+    transition: none;
+  }
+
+  .room-concepts__card:hover img {
+    transform: none;
+  }
+}

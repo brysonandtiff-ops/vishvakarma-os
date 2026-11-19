@@ -1,10 +1,12 @@
-import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { Box, DoorOpen, Download, Grid3X3, Hand, MousePointer2, Redo2, Slash, Trash2, Undo2, Warehouse, type LucideIcon } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Box, DoorOpen, Download, Grid3X3, Hand, Maximize, MousePointer2, Redo2, Slash, Trash2, Undo2, Warehouse, type LucideIcon } from 'lucide-react';
 import PageMeta from '@/components/common/PageMeta';
 import { Button } from '@/components/ui/button';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
+import { PROJECT_SPEC_VERSION } from '@/core/projectModel';
+import { getLiteEditorManifest, type LiteEditorHandoff } from '@/editor/liteEditorHandoff';
 import type { LightingConfig, Material, Opening, ProjectManifest, Room, Wall } from '@/types';
 
 const Viewport3D = lazy(() => import('@/components/editor/Viewport3D'));
@@ -13,6 +15,7 @@ type Tool = 'select' | 'wall' | 'door' | 'window' | 'pan' | 'delete';
 type Pt = { x: number; y: number };
 type View = { zoom: number; tx: number; ty: number };
 type Snapshot = { walls: Wall[]; openings: Opening[]; rooms: Room[] };
+const DEFAULT_VIEW: View = { zoom: 0.82, tx: 80, ty: 70 };
 
 const LITE_TOOLS: Array<{ value: Tool; Icon: LucideIcon; label: string }> = [
   { value: 'select', Icon: MousePointer2, label: 'Select' },
@@ -69,6 +72,23 @@ function length(wall: Wall) {
   return Math.hypot(wall.end.x - wall.start.x, wall.end.y - wall.start.y);
 }
 
+function fitPlan(walls: Wall[], width: number, height: number): View {
+  if (walls.length === 0 || width <= 0 || height <= 0) return DEFAULT_VIEW;
+  let left = Infinity;
+  let right = -Infinity;
+  let top = Infinity;
+  let bottom = -Infinity;
+  for (const { start, end } of walls) {
+    left = Math.min(left, start.x, end.x);
+    right = Math.max(right, start.x, end.x);
+    top = Math.min(top, start.y, end.y);
+    bottom = Math.max(bottom, start.y, end.y);
+  }
+  const zoom = Math.max(0.05, Math.min(1.4, (width - 48) / Math.max(1, right - left), (height - 80) / Math.max(1, bottom - top)));
+
+  return { zoom, tx: (width - (left + right) * zoom) / 2, ty: (height - (top + bottom) * zoom) / 2 };
+}
+
 function nearestWall(walls: Wall[], point: Pt, zoom: number) {
   const tolerance = Math.max(12, 18 / zoom);
   let best: { wall: Wall; distance: number; t: number } | null = null;
@@ -85,10 +105,10 @@ function nearestWall(walls: Wall[], point: Pt, zoom: number) {
   return best;
 }
 
-function buildManifest(snapshot: Snapshot): ProjectManifest {
+function buildManifest(snapshot: Snapshot, snapEnabled: boolean): ProjectManifest {
   const now = new Date().toISOString();
   return {
-    version: '1.0.0',
+    version: PROJECT_SPEC_VERSION,
     name: 'Vishvakarma Lite Editor Plan',
     description: 'Stable 2D/3D recovery editor manifest generated from the Vishvakarma.OS working editor pattern.',
     walls: snapshot.walls,
@@ -107,26 +127,47 @@ function buildManifest(snapshot: Snapshot): ProjectManifest {
     floorMaterial: 'material-concrete',
     lighting: LIGHTING,
     gridSize: GRID,
-    snapToGrid: true,
+    snapToGrid: snapEnabled,
     northOrientation: 0,
     metadata: { created: now, modified: now, author: 'Vishvakarma.OS Lite Editor', systemVersions: { source: 'vish-working-editor-adapter' } },
   };
 }
 
 export default function LiteEditorPage() {
-  const [history, setHistory] = useState<Snapshot[]>([sample()]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const returnedPlan = getLiteEditorManifest(location.state);
+  const [history, setHistory] = useState<Snapshot[]>(() => [returnedPlan
+    ? { walls: returnedPlan.walls, openings: returnedPlan.openings, rooms: returnedPlan.rooms ?? [] }
+    : sample()]);
   const [cursor, setCursor] = useState(0);
   const [tool, setTool] = useState<Tool>('wall');
-  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [snapEnabled, setSnapEnabled] = useState(returnedPlan?.snapToGrid ?? true);
   const [gridVisible, setGridVisible] = useState(true);
   const [show3D, setShow3D] = useState(true);
   const [selectedWallId, setSelectedWallId] = useState<string | null>(null);
-  const [view, setView] = useState<View>({ zoom: 0.82, tx: 80, ty: 70 });
+  const [view, setView] = useState(DEFAULT_VIEW);
   const [tempWall, setTempWall] = useState<Wall | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const initialWallsRef = useRef(history[0].walls);
+  const manualViewRef = useRef(false);
   const gestureRef = useRef<{ mode: 'none' | 'pan' | 'draw'; start: Pt; startView: View }>({ mode: 'none', start: { x: 0, y: 0 }, startView: view });
   const snapshot = history[cursor] ?? empty();
   const activeWall = selectedWallId ? snapshot.walls.find((wall) => wall.id === selectedWallId) : null;
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const fitInitialPlan = () => {
+      if (manualViewRef.current) return;
+      const { width, height } = svg.getBoundingClientRect();
+      setView(fitPlan(initialWallsRef.current, width, height));
+    };
+    fitInitialPlan();
+    const observer = new ResizeObserver(fitInitialPlan);
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, []);
 
   const commit = useCallback((next: Snapshot) => {
     setHistory((existing) => [...existing.slice(0, cursor + 1), next].slice(-50));
@@ -157,11 +198,13 @@ export default function LiteEditorPage() {
   };
 
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!event.isPrimary || event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    const point = snapPt(pointFromEvent(event), snapEnabled);
+    const point = pointFromEvent(event);
     gestureRef.current = { mode: 'none', start: { x: event.clientX, y: event.clientY }, startView: view };
 
     if (tool === 'pan') {
+      manualViewRef.current = true;
       gestureRef.current.mode = 'pan';
       return;
     }
@@ -173,7 +216,11 @@ export default function LiteEditorPage() {
     if (tool === 'delete') {
       const hit = nearestWall(snapshot.walls, point, view.zoom);
       if (hit) {
-        commit({ walls: snapshot.walls.filter((w) => w.id !== hit.wall.id), openings: snapshot.openings.filter((o) => o.wallId !== hit.wall.id), rooms: snapshot.rooms });
+        commit({
+          walls: snapshot.walls.filter((wall) => wall.id !== hit.wall.id),
+          openings: snapshot.openings.filter((opening) => opening.wallId !== hit.wall.id),
+          rooms: snapshot.rooms.filter((room) => !room.wallIds.includes(hit.wall.id)),
+        });
       }
       return;
     }
@@ -181,12 +228,14 @@ export default function LiteEditorPage() {
       addOpening(tool, point);
       return;
     }
-    const wall: Wall = { id: id('wall'), start: point, end: point, thickness: 16, height: 270, material: 'material-concrete' };
+    const start = snapPt(point, snapEnabled);
+    const wall: Wall = { id: id('wall'), start, end: start, thickness: 16, height: 270, material: 'material-concrete' };
     setTempWall(wall);
     gestureRef.current.mode = 'draw';
   };
 
   const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!event.isPrimary) return;
     const gesture = gestureRef.current;
     if (gesture.mode === 'pan') {
       setView({ ...gesture.startView, tx: gesture.startView.tx + event.clientX - gesture.start.x, ty: gesture.startView.ty + event.clientY - gesture.start.y });
@@ -197,22 +246,52 @@ export default function LiteEditorPage() {
     }
   };
 
-  const handlePointerUp = () => {
-    if (gestureRef.current.mode === 'draw' && tempWall && length(tempWall) > 20) {
-      commit({ ...snapshot, walls: [...snapshot.walls, tempWall] });
-      setSelectedWallId(tempWall.id);
-    }
+  const resetGesture = () => {
     setTempWall(null);
     gestureRef.current.mode = 'none';
   };
 
-  const zoomBy = (factor: number) => setView((current) => ({ ...current, zoom: Math.max(0.35, Math.min(2.4, current.zoom * factor)) }));
+  const handlePointerUp = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!event.isPrimary) return;
+    if (gestureRef.current.mode === 'draw' && tempWall) {
+      const wall = { ...tempWall, end: snapPt(pointFromEvent(event), snapEnabled) };
+      if (length(wall) > 20) {
+        commit({ ...snapshot, walls: [...snapshot.walls, wall] });
+        setSelectedWallId(wall.id);
+      }
+    }
+    resetGesture();
+  };
+
+  const zoomBy = (factor: number) => {
+    const bounds = svgRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    manualViewRef.current = true;
+    setView((current) => {
+      const zoom = Math.max(0.05, Math.min(2.4, current.zoom * factor));
+      const scale = zoom / current.zoom;
+      const centerX = bounds.width / 2;
+      const centerY = bounds.height / 2;
+      return { zoom, tx: centerX + (current.tx - centerX) * scale, ty: centerY + (current.ty - centerY) * scale };
+    });
+  };
+  const fitCurrentPlan = () => {
+    const bounds = svgRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    manualViewRef.current = true;
+    setView(fitPlan(snapshot.walls, bounds.width, bounds.height));
+  };
   const undo = () => setCursor((current) => Math.max(0, current - 1));
   const redo = () => setCursor((current) => Math.min(history.length - 1, current + 1));
   const clear = () => { commit(empty()); setSelectedWallId(null); };
   const loadSample = () => { commit(sample()); setSelectedWallId(null); };
+  const openWorkspace = async (path: '/3d-room' | '/editor') => {
+    const state: LiteEditorHandoff = { liteEditorManifest: buildManifest(snapshot, snapEnabled) };
+    await navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state });
+    void navigate(path, { state });
+  };
   const downloadManifest = () => {
-    const blob = new Blob([JSON.stringify(buildManifest(snapshot), null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(buildManifest(snapshot, snapEnabled), null, 2)], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = 'vishvakarma-lite-editor-manifest.json';
@@ -232,16 +311,21 @@ export default function LiteEditorPage() {
 
   return (
     <>
-      <PageMeta title="Lite 2D/3D Editor — Vishvakarma.OS" description="Stable 2D wall editor and live 3D preview adapted from the Vishvakarma.OS working editor pattern." />
+      <PageMeta title="Draw in 2D — Vishvakarma.OS" description="Draw walls, doors and windows and explore your plan in the 3D Room." />
       <main className="vish-editor-shell bg-ws-canvas text-ws-text" data-testid="lite-editor-page">
-        <div className="vish-editor-topbar flex min-h-[72px] flex-wrap items-center gap-3 border-b px-3 py-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Your dream home · Step 2 of 5</p>
-            <h1 className="truncate text-lg font-semibold vish-text-heading">Draw your home in 2D</h1>
-            <p className="text-xs text-ws-text-dim">Choose Wall, draw on the plan, then add doors and windows. Use 3D Preview, Undo, or Export JSON to keep a copy.</p>
+        <div className="vish-editor-topbar border-b">
+          <div className="flex min-h-[72px] w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2">
+            <div className="min-w-0 flex-1 basis-64">
+              <h1 className="text-lg font-semibold vish-text-heading">Draw your home in 2D</h1>
+              <p className="text-xs text-ws-text-dim">Drag to draw a wall. Choose Door or Window, then select a wall to place it.</p>
+            </div>
+            <nav className="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap" aria-label="Blueprint workflow">
+              <Button asChild variant="workstation" size="sm" className="min-h-11 motion-reduce:transition-none motion-reduce:transform-none"><Link to="/projects"><ArrowLeft aria-hidden="true" /> Projects</Link></Button>
+              <Button type="button" variant="gold" size="sm" className="min-h-11 motion-reduce:transition-none motion-reduce:transform-none" onClick={() => void openWorkspace('/3d-room')}><Box aria-hidden="true" /> Open 3D Room</Button>
+              <Button type="button" variant="workstation" size="sm" className="min-h-11 motion-reduce:transition-none motion-reduce:transform-none" onClick={() => void openWorkspace('/editor')}>Full Studio</Button>
+              <Button type="button" variant="workstation" size="sm" className="min-h-11 motion-reduce:transition-none motion-reduce:transform-none" onClick={downloadManifest}><Download aria-hidden="true" /> Export JSON</Button>
+            </nav>
           </div>
-          <Button asChild variant="outline" className="vish-gold-action"><Link to="/editor">Open Full Studio</Link></Button>
-          <Button variant="gold" className="vish-gold-action" onClick={downloadManifest}><Download className="h-4 w-4" /> Export JSON</Button>
         </div>
 
         <div className="flex h-[calc(100dvh-72px)] min-h-0 flex-col lg:flex-row">
@@ -257,9 +341,9 @@ export default function LiteEditorPage() {
             <div className="vish-editor-file-strip flex flex-wrap items-center gap-2 border-b px-3 py-2 text-xs text-ws-text-dim">
               <Button size="sm" variant="outline" onClick={undo} disabled={cursor === 0}><Undo2 className="h-3.5 w-3.5" /> Undo</Button>
               <Button size="sm" variant="outline" onClick={redo} disabled={cursor >= history.length - 1}><Redo2 className="h-3.5 w-3.5" /> Redo</Button>
-              <Button size="sm" variant="outline" onClick={() => setGridVisible((v) => !v)}><Grid3X3 className="h-3.5 w-3.5" /> Grid {gridVisible ? 'On' : 'Off'}</Button>
-              <Button size="sm" variant="outline" onClick={() => setSnapEnabled((v) => !v)}>Snap {snapEnabled ? 'On' : 'Off'}</Button>
-              <Button size="sm" variant="outline" onClick={() => setShow3D((v) => !v)}><Box className="h-3.5 w-3.5" /> 3D {show3D ? 'On' : 'Off'}</Button>
+              <Button size="sm" variant="outline" aria-pressed={gridVisible} onClick={() => setGridVisible((v) => !v)}><Grid3X3 className="h-3.5 w-3.5" /> Grid {gridVisible ? 'On' : 'Off'}</Button>
+              <Button size="sm" variant="outline" aria-pressed={snapEnabled} onClick={() => setSnapEnabled((v) => !v)}>Snap {snapEnabled ? 'On' : 'Off'}</Button>
+              <Button size="sm" variant="outline" aria-pressed={show3D} onClick={() => setShow3D((v) => !v)}><Box className="h-3.5 w-3.5" /> 3D {show3D ? 'On' : 'Off'}</Button>
               <Button size="sm" variant="outline" onClick={loadSample}>Load Sample</Button>
               <Button size="sm" variant="outline" onClick={clear}>Clear</Button>
               <span className="ml-auto rounded-full border border-primary/25 px-2 py-1 text-[10px] uppercase tracking-wider text-primary">{stats.walls} walls · {stats.openings} openings · {stats.rooms} rooms</span>
@@ -267,7 +351,7 @@ export default function LiteEditorPage() {
 
             <div className={`flex min-h-0 flex-1 ${show3D ? 'flex-col xl:flex-row' : 'flex-col'}`}>
               <div className="vish-canvas-stage relative min-h-[360px] flex-1 overflow-hidden bg-[#f3ead3]">
-                <svg ref={svgRef} data-testid="lite-blueprint-canvas" className="h-full w-full touch-none" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
+                <svg ref={svgRef} aria-label="2D blueprint" data-testid="lite-blueprint-canvas" className="h-full w-full touch-none" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={(event) => { if (event.isPrimary) resetGesture(); }}>
                   <defs>
                     <pattern id="lite-dot" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="rgba(87,65,33,.22)" /></pattern>
                   </defs>
@@ -288,8 +372,16 @@ export default function LiteEditorPage() {
                     })}
                   </g>
                 </svg>
-                <div className="absolute bottom-3 left-3 rounded-xl border border-primary/25 bg-black/60 px-3 py-2 text-xs text-primary backdrop-blur-md">Tool: {tool} · {activeWall ? `Selected ${Math.round(length(activeWall))}px wall` : 'Tap/draw on canvas'}</div>
-                <div className="absolute bottom-3 right-3 flex gap-1"><Button size="sm" variant="outline" className="!h-11 !w-11 !min-h-[44px] !min-w-[44px] !px-0" style={zoomButtonStyle} aria-label="Zoom in" onClick={() => zoomBy(1.16)}>+</Button><Button size="sm" variant="outline" className="!h-11 !w-11 !min-h-[44px] !min-w-[44px] !px-0" style={zoomButtonStyle} aria-label="Zoom out" onClick={() => zoomBy(0.86)}>-</Button></div>
+                <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
+                  <div className="min-w-0 rounded-xl border border-primary/25 bg-black/75 px-3 py-2 text-xs text-[#f8e8c7]">
+                    {activeWall ? `Wall · ${(length(activeWall) / 100).toFixed(2)} m` : LITE_TOOLS.find(({ value }) => value === tool)?.label}
+                  </div>
+                  <div className="pointer-events-auto flex shrink-0 gap-1">
+                    <Button size="sm" variant="outline" className="!h-11 !w-11 !min-h-[44px] !min-w-[44px] !px-0" style={zoomButtonStyle} aria-label="Fit plan" title="Fit plan" onClick={fitCurrentPlan}><Maximize aria-hidden="true" /></Button>
+                    <Button size="sm" variant="outline" className="!h-11 !w-11 !min-h-[44px] !min-w-[44px] !px-0" style={zoomButtonStyle} aria-label="Zoom in" onClick={() => zoomBy(1.16)}>+</Button>
+                    <Button size="sm" variant="outline" className="!h-11 !w-11 !min-h-[44px] !min-w-[44px] !px-0" style={zoomButtonStyle} aria-label="Zoom out" onClick={() => zoomBy(0.86)}>-</Button>
+                  </div>
+                </div>
               </div>
 
               {show3D && (

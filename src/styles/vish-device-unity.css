@@ -610,30 +610,6 @@ iframe {
   }
 }
 
-/* Compact phone landscape: reclaim height for the real 3D canvas while
-   keeping Walk, Reload and Back controls horizontally reachable. */
-@media (orientation: landscape) and (max-height: 560px) {
-  [data-testid='three-d-room-page'] > header {
-    gap: 0.5rem;
-    padding-block: 0.375rem;
-  }
-
-  [data-testid='three-d-room-page'] > header > div:first-child > p:last-child {
-    display: none;
-  }
-
-  [data-testid='three-d-room-page'] > header > div:last-child {
-    min-width: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  [data-testid='three-d-room-page'] > section {
-    padding-block: 0.25rem;
-  }
-}
-
 /* Notched phones and landscape tablets: don't tuck marketing content under
    hardware cutouts. Respect existing gutter, whichever is larger. */
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 560px) {

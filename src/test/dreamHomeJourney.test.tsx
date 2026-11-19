@@ -18,8 +18,8 @@ describe('original owner design journey', () => {
     expect(screen.getByRole('link', {name:'See projects'})).toHaveAttribute('href', '#recent-projects');
     expect(screen.getByRole('link', {name:'Open 2D editor'})).toHaveAttribute('href', '/editor-lite');
     expect(screen.getByRole('link', {name:'Open 3D room'})).toHaveAttribute('href', '/3d-room');
-    expect(screen.getByRole('link', {name:'Try Walk mode'})).toHaveAttribute('href', '/3d-room');
+    expect(screen.getByRole('link', {name:'Try Walk mode'})).toHaveAttribute('href', '/3d-room?mode=walk');
     expect(screen.getByRole('link', {name:'Open save tools'})).toHaveAttribute('href', '/editor');
-    expect(screen.getByText(/not a live editor screenshot/i)).toBeInTheDocument();
+    expect(screen.getByText(/concept illustration/i)).toBeInTheDocument();
   });
 });

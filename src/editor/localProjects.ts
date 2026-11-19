@@ -1,5 +1,5 @@
 import type { Project } from '@/types';
-import { readLocalDraft, hasMeaningfulDraftContent } from '@/editor/localDraft';
+import { getLocalDraftProjectId, readLocalDraft, hasMeaningfulDraftContent } from '@/editor/localDraft';
 import { createLocalProject } from '@/editor/localProject';
 
 export const LOCAL_PROJECTS_KEY = 'vishvakarma.os.localProjects.v1';
@@ -110,7 +110,7 @@ export function getLocalWorkspaceProjects(): Project[] {
     return saved;
   }
 
-  const draftId = draft.projectId ?? `local-draft-${draft.savedAt}`;
+  const draftId = getLocalDraftProjectId(draft);
   const draftProject: Project = {
     id: draftId,
     name: draft.projectName,

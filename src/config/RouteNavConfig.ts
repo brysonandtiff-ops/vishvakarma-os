@@ -1,10 +1,12 @@
 import {
+  Box,
   Database,
   FileText,
   FolderOpen,
   GitPullRequest,
   History,
   Package,
+  PenLine,
   PenTool,
   Sparkles,
   Trophy,
@@ -31,10 +33,11 @@ export interface RouteNavItem {
   path: string;
   icon: LucideIcon;
   group: NavGroup;
+  showInTopNav: boolean;
 }
 
 export const NAV_GROUP_LABELS: Record<NavGroup, string> = {
-  EDITOR: 'Editor',
+  EDITOR: 'Design workspace',
   GOVERNANCE: 'Governance',
   SYSTEM: 'System',
 };
@@ -42,6 +45,8 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string> = {
 export const NAV_GROUPS: NavGroup[] = ['EDITOR', 'GOVERNANCE', 'SYSTEM'];
 
 const NAV_ICON_MAP: Record<RouteNavIconKey, LucideIcon> = {
+  Box,
+  PenLine,
   PenTool,
   FolderOpen,
   Sparkles,
@@ -60,6 +65,7 @@ export const WORKSPACE_NAV: RouteNavItem[] = getNavRouteManifestEntries().map((e
   path: entry.path,
   icon: NAV_ICON_MAP[entry.navIcon!],
   group: entry.navGroup!,
+  showInTopNav: entry.primaryNavOrder !== undefined,
 }));
 
 export const ROUTE_ICONS: Record<string, LucideIcon> = Object.fromEntries(

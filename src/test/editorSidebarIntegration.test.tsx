@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { useMemo, useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import EditorSidebarSections from '@/components/editor/EditorSidebarSections';
@@ -157,7 +157,21 @@ describe('AppLayout editor sidebar integration', () => {
 
     expect(screen.getByRole('link', { name: 'Blueprint Editor', hidden: true })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Projects', hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Projects', hidden: true })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: '3D Room', hidden: true })).toHaveAttribute('href', '/3d-room');
     expect(screen.queryByTestId('editor-sidebar-project-actions')).not.toBeInTheDocument();
+  });
+
+  it('opens a named workspace menu with design and governance destinations', async () => {
+    const user = userEvent.setup();
+    renderAppLayoutAt('/projects');
+
+    await user.click(screen.getByRole('button', { name: 'Open workspace navigation' }));
+
+    const menu = within(screen.getByRole('dialog', { name: 'Workspace' }));
+    expect(menu.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page');
+    expect(menu.getByRole('link', { name: '3D Room' })).toHaveAttribute('href', '/3d-room');
+    expect(menu.getByRole('link', { name: 'Release Center' })).toHaveAttribute('href', '/releases');
   });
 
   it('does not show project actions on editor route before config registration', () => {

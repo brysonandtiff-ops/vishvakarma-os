@@ -62,24 +62,28 @@ describe('cross-route responsive visual audit', () => {
     expect(authLayout).not.toContain('variant="boot"');
   });
 
-  it('keeps detached 3D controls in horizontal rails instead of consuming the viewport', () => {
+  it('keeps the scene picker and view actions reachable beside or below the 3D canvas', () => {
     const room = read('src/pages/ThreeDRoomPage.tsx');
+    const styles = read('src/pages/ThreeDRoomPage.css');
 
     expect(room).toContain('data-testid="three-d-room-page"');
-    expect(room).toContain('flex-nowrap items-center gap-2 overflow-x-auto');
-    expect(room).toContain('shrink-0 touch-target');
-    expect(room).toContain('relative min-h-0 flex-1 overflow-hidden');
+    expect(room).toContain('aria-label="View mode"');
+    expect(room).toContain('htmlFor="room-scene-select"');
+    expect(styles).toContain('grid-template-columns: minmax(0, 1fr) minmax(14rem, 19rem)');
+    expect(styles).toContain('grid-template-columns: minmax(0, 1fr)');
+    expect(styles).toContain('min-height: 44px');
   });
   it('detached room fits inside the workstation viewport on phone, tablet, and desktop', () => {
     const layout = read('src/components/layouts/AppLayout.tsx');
     const room = read('src/pages/ThreeDRoomPage.tsx');
+    const styles = read('src/pages/ThreeDRoomPage.css');
 
     // Parent AppLayout already owns the viewport; a second 100dvh layer clipped
     // the 3D canvas underneath the command bar on short screens.
     expect(layout).toContain('vish-workspace-shell flex flex-col h-[100dvh]');
-    expect(room).toContain('className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background text-ws-text"');
-    expect(room).not.toContain('flex h-[100dvh] min-h-0 flex-col');
-    expect(room).toContain('relative min-h-0 flex-1 overflow-hidden');
+    expect(room).toContain('<AppLayout immersive>');
+    expect(styles).toMatch(/\.vish-room\s*\{[^}]*height: 100%;[^}]*overflow-y: auto/);
+    expect(styles).not.toContain('height: 100dvh');
   });
 
   it('keeps small phone labels readable and desktop keyboard focus reachable', () => {
@@ -98,11 +102,11 @@ describe('cross-route responsive visual audit', () => {
   });
 
   it('does not hide 3D movement actions on short phone landscape', () => {
-    const styles = read('src/styles/vish-device-unity.css');
+    const styles = read('src/pages/ThreeDRoomPage.css');
     const room = read('src/pages/ThreeDRoomPage.tsx');
 
     expect(styles).toContain("@media (orientation: landscape) and (max-height: 560px)");
-    expect(styles).toContain("overflow-x: auto;");
+    expect(styles).toContain('height: clamp(18rem, 68dvh, 24rem)');
     expect(room).toContain('Walk mode');
     expect(room).toContain('Reload snapshot');
     expect(room).toContain('Back to editor');

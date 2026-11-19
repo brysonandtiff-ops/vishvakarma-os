@@ -36,6 +36,10 @@ describe('workspace command palette', () => {
     const palettePaths = getNavigableRoutes().map((route) => route.path);
     expect(palettePaths).not.toContain('/auth');
   });
+
+  it('includes a searchable 3D Room destination', () => {
+    expect(getNavigableRoutes()).toContainEqual(expect.objectContaining({ name: '3D Room', path: '/3d-room' }));
+  });
 });
 
 describe('workspace memory persistence', () => {

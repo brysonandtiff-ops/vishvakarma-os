@@ -73,9 +73,9 @@ describe('Workspace layout polish', () => {
     expect(appLayout).toContain('<main');
   });
 
-  it('aligns workspace sidebar breakpoint to tablet', () => {
+  it('keeps editor actions at the tablet breakpoint and full workspace navigation available', () => {
     const appLayout = read('src/components/layouts/AppLayout.tsx');
     expect(appLayout).toContain('tablet:block');
-    expect(appLayout).toContain('tablet:hidden');
+    expect(appLayout).toContain('aria-label="All workspace destinations"');
   });
 });

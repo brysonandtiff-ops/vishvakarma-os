@@ -1,0 +1,265 @@
+.vish-room {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  background: #f4ede0;
+  color: #262824;
+  scrollbar-color: #a89573 #ede2d1;
+}
+
+.vish-room__content {
+  width: min(100%, 94rem);
+  margin-inline: auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+}
+
+.vish-room__header,
+.vish-room__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+.vish-room__header {
+  align-items: end;
+  margin-bottom: clamp(0.875rem, 2vw, 1.625rem);
+}
+
+.vish-room__breadcrumb,
+.vish-room__links,
+.vish-room__viewport-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vish-room__breadcrumb {
+  color: #655941;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.vish-room__breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #564a32;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.vish-room__header h1 {
+  color: #252623;
+  font-family: Georgia, serif;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.vish-room__header h1::first-letter { color: #79571d; }
+
+.vish-room__header p {
+  margin-top: 0.4rem;
+  color: #625746;
+  font-size: 0.9375rem;
+}
+
+.vish-room__button {
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #b9a783;
+  border-radius: 0.55rem;
+  color: #342b1d;
+  background: #fffaf0;
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.vish-room__button svg { flex-shrink: 0; }
+.vish-room__button:hover:not(:disabled) { background: #f3e4c1; }
+.vish-room__button:disabled { opacity: 0.45; }
+
+.vish-room__button--accent,
+.vish-room__button[aria-pressed='true'] {
+  border-color: #b69550;
+  background: #e8c982;
+  color: #302415;
+}
+
+.vish-room :is(a, button, select, [tabindex='-1']):focus-visible {
+  outline: 2px solid #886223;
+  outline-offset: 3px;
+}
+
+.vish-room__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 19rem);
+  align-items: start;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.vish-room__preview,
+.vish-room__inspector {
+  min-width: 0;
+  border: 1px solid #cfc0a2;
+  border-radius: 1rem;
+  background: #fffbf2;
+  box-shadow: 0 8px 24px #38271712;
+}
+
+.vish-room__preview { scroll-margin-top: 0.75rem; }
+
+.vish-room__toolbar {
+  padding: 0.8rem 1rem;
+  border-radius: 0.9rem 0.9rem 0 0;
+  background: #232522;
+  color: #f9f1e2;
+}
+
+.vish-room__toolbar :focus-visible { outline-color: #f0ce79; }
+.vish-room__scene-title { min-width: 0; }
+
+.vish-room__scene-title h2 {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 675;
+  overflow-wrap: anywhere;
+}
+
+.vish-room__scene-title p {
+  margin-top: 0.15rem;
+  color: #dbc8a1;
+  font-size: 0.8125rem;
+}
+
+.vish-room__modes {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.15rem;
+  border: 1px solid #85775d;
+  border-radius: 0.65rem;
+}
+
+.vish-room__toolbar .vish-room__button:not([aria-pressed='true']) {
+  background: #30332e;
+  border-color: #6f6552;
+  color: #f9f1e2;
+}
+
+.vish-room__toolbar .vish-room__button:not([aria-pressed='true']):hover:not(:disabled) { background: #454539; }
+
+.vish-room__viewport {
+  position: relative;
+  isolation: isolate;
+  height: clamp(25rem, 65dvh, 49rem);
+  min-width: 0;
+  overflow: hidden;
+  color: #f9f1e2;
+  background-color: #171b1b;
+  background-image: linear-gradient(#dec39410 1px, transparent 1px), linear-gradient(90deg, #dec39410 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.vish-room__notice {
+  display: grid;
+  position: absolute;
+  inset: 0;
+  align-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.vish-room__notice h3 { font-size: 1.15rem; font-weight: 675; }
+.vish-room__notice p { color: #e0d3b9; max-width: 34ch; }
+.vish-room__notice .vish-room__links { justify-content: center; }
+.vish-room__spinner { animation: vish-room-spin 1.4s linear infinite; }
+@keyframes vish-room-spin { to { transform: rotate(1turn); } }
+
+.vish-room__walk-start {
+  position: absolute;
+  inset: auto auto 0.75rem 0.75rem;
+  background: #e8c982;
+}
+
+.vish-room__mode-help {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #5e5445;
+}
+
+.vish-room__inspector { padding: 1.125rem; }
+.vish-room__inspector h2 { font-size: 1.125rem; font-weight: 675; margin: 0 0 0.7rem; }
+.vish-room__inspector label { display: block; color: #524935; font-size: 0.875rem; font-weight: 650; }
+.vish-room__inspector select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #b9a783;
+  border-radius: 0.5rem;
+  background: #fdf6e7 !important;
+  color: #292820 !important;
+  border-color: #b9a783 !important;
+  font-size: 1rem;
+  color-scheme: light;
+}
+
+.vish-room__inspector p {
+  margin-top: 0.65rem;
+  color: #605543;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.vish-room__inspector .vish-room__button { margin-top: 0.65rem; }
+.vish-room__details { margin-top: 1rem; border-top: 1px solid #ded0b8; padding-top: 1rem; }
+.vish-room__details h3 { font-size: 0.875rem; font-weight: 675; }
+.vish-room__details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+.vish-room__details dl div { border-radius: 0.55rem; background: #f2e9d8; padding: 0.5rem 0.625rem; }
+.vish-room__details dt { color: #544934; font-size: 0.8125rem; }
+.vish-room__details dd { color: #2e2b24; font-size: 1.1rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.vish-room__concepts { margin-top: clamp(1.125rem, 3vw, 2.5rem); }
+.vish-room__concepts > section { scroll-margin-top: 0.75rem; }
+
+@media (max-width: 820px) {
+  .vish-room__workspace { grid-template-columns: minmax(0, 1fr); }
+  .vish-room__viewport { height: clamp(23rem, 55dvh, 38rem); }
+}
+
+@media (max-width: 460px) {
+  .vish-room__toolbar { padding: 0.65rem; }
+  .vish-room__viewport-actions { width: 100%; justify-content: space-between; }
+  .vish-room__modes { padding: 0; border: 0; }
+}
+
+@media (max-width: 360px) {
+  .vish-room__reset span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .vish-room__content { padding-top: 0.5rem; }
+  .vish-room__header h1 { font-size: 2rem; }
+  .vish-room__viewport { height: clamp(18rem, 68dvh, 24rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vish-room__button { transition: none; }
+  .vish-room__spinner { animation: none; }
+}
