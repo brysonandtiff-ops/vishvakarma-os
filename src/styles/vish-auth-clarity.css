@@ -248,3 +248,131 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Screen-tested second pass — correct clipped line at 1440×900 without shrinking words.
+ * Never abbreviate Construction or substitute the original user-made artwork.
+ */
+.vish-login-page--reference-replica .vish-login-page__disciplines {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap !important;
+  gap: 0.05rem 0.34rem;
+  width: 100%;
+  overflow: visible !important;
+  white-space: normal !important;
+  line-height: 1.4;
+}
+.vish-login-page--reference-replica .vish-login-page__disciplines > span {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap !important;
+}
+.vish-login-page--reference-replica .vish-login-page__motto {
+  display: block;
+  white-space: normal !important;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  line-height: 1.45;
+}
+.vish-login-page--reference-replica .vish-login-page__email-label {
+  display: block !important;
+  position: static !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  clip: auto !important;
+  font-size: 0.82rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__email-input:focus,
+.vish-login-page--reference-replica .vish-login-page__email-input:focus-visible {
+  border-color: #ffe4a5 !important;
+  box-shadow: 0 0 0 4px rgba(255, 226, 166, 0.20) !important;
+  background: rgba(7, 20, 37, 0.95) !important;
+}
+.vish-login-page--reference-replica .vish-login-page__features {
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 201, 103, 0.28);
+  background: linear-gradient(90deg, rgba(2, 9, 25, 0.88), rgba(2, 9, 25, 0.28));
+  backdrop-filter: blur(4px);
+}
+.vish-login-page--reference-replica .vish-login-page__auth-card {
+  padding: clamp(1.15rem, 2.1vw, 1.65rem) clamp(1.2rem, 2.4vw, 2rem) 1rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__logo {
+  width: 4.6rem !important;
+  height: 4.6rem !important;
+  margin-bottom: 0.4rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__logo-img {
+  width: 3.4rem !important;
+  height: 3.4rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-heading {
+  margin-bottom: 0.8rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-heading h1 {
+  font-size: clamp(1.75rem, 2.2vw, 2.3rem);
+  line-height: 1.12;
+}
+.vish-login-page--reference-replica .vish-login-page__form {
+  gap: 0.68rem !important;
+  margin-top: 0.65rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__primary {
+  margin-top: 0 !important;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-divider {
+  margin: 0 !important;
+}
+.vish-login-page--reference-replica .vish-login-page__request {
+  margin-top: 0.48rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__legal {
+  margin-top: 0.52rem !important;
+  padding-top: 0.45rem !important;
+}
+@media (min-width: 981px) {
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 0.48rem;
+    padding-top: max(4rem, env(safe-area-inset-top)) !important;
+    padding-bottom: max(1.2rem, env(safe-area-inset-bottom)) !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 auto 0.12rem !important;
+    width: min(100%, 34rem) !important;
+    max-width: 100% !important;
+    flex: 0 0 auto;
+    font-size: 0.82rem !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    margin-top: 0 !important;
+    flex: 0 0 auto;
+  }
+}
+@media (max-width: 980px) {
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    width: 100% !important;
+  }
+}
+@media (max-width: 620px) {
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    padding: 1.2rem 1rem !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__logo {
+    width: 3.9rem !important;
+    height: 3.9rem !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__logo-img {
+    width: 2.9rem !important;
+    height: 2.9rem !important;
+  }
+}

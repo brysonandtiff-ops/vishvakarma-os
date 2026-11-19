@@ -40,6 +40,7 @@ describe('Vishvakarma.OS signed-out auth UI clarity and brand lock', () => {
     expect(screen.getByRole('link',{ name: 'Privacy' })).toHaveAttribute('href','/privacy');
     expect(screen.getByRole('link',{ name: 'Terms' })).toHaveAttribute('href','/terms');
     expect(screen.getByRole('link',{ name: 'Home' })).toHaveAttribute('href','/');
+    expect(screen.getByRole('textbox',{name:'Approved account email'})).toBeInTheDocument();
   });
 
   it('shows an accessible email error beside the field', () => {
@@ -77,6 +78,9 @@ describe('Vishvakarma.OS signed-out auth UI clarity and brand lock', () => {
     expect(css).toContain('clip: auto !important');
     expect(css).toContain('@media (max-width: 980px)');
     expect(css).toContain('min-height: 44px');
+    expect(css).toContain('flex-wrap: wrap !important');
+    expect(css).toContain('.vish-login-page__email-input:focus');
+    expect(css).toContain('position: relative !important');
   });
 
   it('shows clear configuration warning without permitting disabled sign-in', () => {

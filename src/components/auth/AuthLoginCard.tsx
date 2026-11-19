@@ -55,8 +55,14 @@ export default function AuthLoginCard({
   return (
     <section className="vish-login-page__auth-side" aria-label="Sign in to Vishvakarma.OS">
       <div className="vish-login-page__top-line" aria-label="Architecture, Engineering, Construction. United by Dharma, Driven by Design">
-        <span>Architecture • Engineering • Construction</span>
-        <span>United by Dharma, Driven by Design</span>
+        <span className="vish-login-page__disciplines">
+          <span>Architecture</span>
+          <span aria-hidden="true">•</span>
+          <span>Engineering</span>
+          <span aria-hidden="true">•</span>
+          <span>Construction</span>
+        </span>
+        <span className="vish-login-page__motto">United by Dharma, Driven by Design</span>
       </div>
 
       <div className="vish-auth-card-mockup vish-login-page__auth-card" data-testid="auth-mockup-card">
@@ -149,6 +155,7 @@ export default function AuthLoginCard({
               inputMode="email"
               enterKeyHint="send"
               placeholder="name@example.com"
+              aria-label="Approved account email"
               aria-invalid={emailError || undefined}
               aria-describedby={emailError ? 'vish-auth-email-help vish-auth-email-error' : 'vish-auth-email-help'}
               className="vish-login-page__email-input"
