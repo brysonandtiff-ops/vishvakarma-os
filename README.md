@@ -7,21 +7,20 @@ The design preserves the owner's genuine swan/V emblem, black-and-gold identity 
 
 ## Real status · 19 November 2026
 
-**Development candidate, not a certified production release.** The [active public website](https://vishvakarmaos.app/) loads, but the newest work is in open draft PRs, not the production code.
+**Local Studio candidate frozen. Production release is blocked.** Cloudflare Pages identifies the active [public website](https://vishvakarmaos.app/) as the August build. The unified Studio candidate is recorded by the local Git tag `vishvakarma-studio-freeze-20261119`.
 
 | Proof | Actual finding |
 | --- | --- |
-| [Last tested UI preview](https://c8775cdc.vishvakarma-os.pages.dev/auth?next=%2Fprojects) | Cloudflare build/deploy SUCCESS at SHA **614256d64c502c8158c6867f69beacaf0ea8c0cb**. |
-| Automated checks at that SHA | **312 selected tests passed, 50 files**. Not the whole repo suite. |
-| Browser observations | Public navigation, voice-tour text, signed-out gates, 404 and sign-in visuals examined. Latest sign-in audit **8/9 visual checks**; legal links still require scrolling. |
-| Real iPad | Physical device and voice acceptance **not tested**. |
-| Core house journey | Source modules present, but authenticated draw → 3D → walk → save/reopen → export **not end-to-end verified**. |
+| Studio workflow | Draw a Blueprint, inspect it in 3D and Walk, then save, reopen, or export from Studio. Desktop Chromium verified the browser-local round trip. |
+| Touch controls | Phone Chromium emulation verified drawing, Walk movement and Details. Physical device acceptance remains open. |
+| Cloudflare | Production and preview SHA values are recorded in the [release decision](docs/release/CURRENT_RELEASE_STATUS.md). The Studio candidate still needs its own hosted proof. |
+| Signed-in workflow | Approved account, tenant permissions and cloud save/reopen require fresh evidence. |
 | Production and safety | Release **BLOCKED** by [security #153](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/153), [encrypted backup #188](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/188), provider/account and real-device proof. |
 
 ### What the source contains
 
 - **2D drafting:** walls, openings, rooms, measurements, snap/grid, undo/redo.
-- **Interactive 3D:** React Three Fiber/Three.js rendering, lighting and Walk controls; movement code tests exist, but real building parity and iPad operation remain unverified.
+- **Interactive 3D:** React Three Fiber/Three.js builds the scene from the project manifest. Studio provides 3D orbit and eye-height Walk with desktop and touch controls.
 - **Projects and export:** local draft paths, Supabase gateways, and JSON/PNG/PDF/DXF/SVG export code; real cloud restore and file round-trip not yet certified.
 - **Professional workflows:** optimization, registry, specifications, change requests, releases, audit and an internal **self-verified world-record candidate**. There is no Guinness certification.
 - **Learning and onboarding:** public eight-chapter voice tour with Read Without Sound and a staged private cinematic welcome. The actual spoken experience depends on device voices.
@@ -33,7 +32,7 @@ See the [capability reality matrix](docs/repository/SOURCE_OF_TRUTH_20261119.md)
 
 Public [Features](https://vishvakarmaos.app/features) and [Pricing](https://vishvakarmaos.app/pricing) pages are available. Private project pages require a genuinely approved account. An invitation request does **not** automatically create a new account.
 
-The latest [review sign-in preview](https://c8775cdc.vishvakarma-os.pages.dev/auth?next=%2Fprojects) is a development candidate, not the live released software. Advertised prices do not certify payment handling or authorise costs.
+The [release decision](docs/release/CURRENT_RELEASE_STATUS.md) identifies the current hosted source. Stripe checkout and billing acceptance are still open.
 
 ## Develop at the actual Git repository root
 

@@ -1,22 +1,22 @@
 # Vishvakarma.OS — Current Hosting and System Architecture
 
-**Original Cloudflare verification:** 15 November 2026. **November review preview updated:** 19 November 2026. This is a dated architecture snapshot, not a full provider or release certification. Historical release, incident and provider records remain in Git history and archived documentation.
+**Cloudflare control-plane check:** 19 November 2026 UTC. See the [release decision](release/CURRENT_RELEASE_STATUS.md) for source IDs, public probes and acceptance evidence.
 
 ## Actual hosting — do not confuse reachability with release readiness
 
-- **Active Cloudflare-hosted custom domain:** https://vishvakarmaos.app (and https://www.vishvakarmaos.app). Both returned HTTPS 200; Cloudflare Pages lists the custom domains as active.
+- **Active Cloudflare-hosted custom domain:** https://vishvakarmaos.app (and https://www.vishvakarmaos.app). Cloudflare Pages lists both custom domains as active.
 - **Cloudflare Pages project:** `vishvakarma-os`. Base origin: https://vishvakarma-os.pages.dev.
 - **Current custom-domain production deployment:** successful `3d003e50` deployment from **5 August 2026**, source `5a1305928ca9435e577ea2e021935452f9289a02`. This is *older* than the current development code.
-- **Latest source-bound UI preview inspected on 19 November:** https://c8775cdc.vishvakarma-os.pages.dev — deployed at draft PR #210 source `614256d64c502c8158c6867f69beacaf0ea8c0cb`, with 50 selected test files and 312 selected passing tests. It is NOT promoted to the active custom domain.
+- **Latest Cloudflare preview recorded on 19 November:** https://cc716a47.vishvakarma-os.pages.dev at source `6c307063e5bf6cab84344f7f629c703c1e962e5b`. The unified Studio is a subsequent local candidate.
 - **Pages production branch configured in Cloudflare:** `agent/cloudflare-pages-workers-migration`; build command `node scripts/cloudflare-build.mjs`, output `dist`.
-- **Older similarly spelled domain:** the hyphenated .app address returned HTTP 404, is not a supported current production origin and must not be used for new sign-in, billing, proof or marketing links.
+- **Older similarly spelled domain:** Cloudflare lists the hyphenated domains as deactivated. Use the apex above for sign-in, billing, and marketing links.
 - **Status:** PRODUCTION/RELEASE HOLD. The live website's HTTP 200 does **not** certify signed-in workflows, RLS isolation, backups, real-device 3D or a current-source deployment.
 
 ## System design
 
 | Function | Source of truth / supported service | Evidence limitation |
 |---|---|---|
-| Web application | React/TypeScript/Vite PWA, React Router, 2D/Three.js editor | November design/voice/sign-in changes are committed and deployed to a review preview only; private workflow remains unverified |
+| Web application | React/TypeScript/Vite PWA, React Router, 2D/Three.js editor | The local freeze contains unified Projects and Studio. Signed-in cloud and physical-device acceptance remain open |
 | Hosting and static assets | Cloudflare Pages; custom domain above | Current domain serves older source SHA |
 | Authentication | Supabase Auth source with approved Google SSO and existing-account email links | Live OAuth and canonical host callback, account invitation and tenant roles require fresh verification |
 | Data | Supabase Postgres and RLS | Signed-in tenant isolation is NOT VERIFIED |
@@ -38,7 +38,7 @@ Never admit retired hosting origins into collaboration CORS or OAuth allowlists 
 1. Security incident **#153 remains open**.
 2. Backup/recovery issue **#188 remains open**.
 3. Approved-user sign-in, physical iPad/Fold interaction, real 2D/3D/save/reopen, OAuth callback and live RLS proof remain outstanding. The family-admin SQL migration is still a staged source candidate.
-4. Current production custom domain is on an August source SHA, not the November PR or local uncommitted changes.
+4. Current production serves the August source SHA. The local freeze needs its own immutable preview and independent verification.
 5. Cloudflare production changes, billing changes, DNS cutovers, provider secrets, paid compute and PR merge require independent authority. No production release was performed in this update.
 
 ## Verification without deployment

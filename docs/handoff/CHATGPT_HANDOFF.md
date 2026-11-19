@@ -1,5 +1,7 @@
 > **HISTORICAL HANDOFF SNAPSHOT.** This text may contain retired provider/domain or finished-feature claims. Check [current source truth](../repository/SOURCE_OF_TRUTH_20261119.md) and [release status](../release/CURRENT_RELEASE_STATUS.md) before relying on them.
 
+Current handoff for active work: run commands from the checkout root. Cloudflare Pages serves https://vishvakarmaos.app and Supabase supplies Auth and data services. The local Studio freeze integrates Projects, Blueprint, 3D and Walk in the real web app. [User workflow](../user/WORKFLOWS.md) · [Exact source and open holds](../release/CURRENT_RELEASE_STATUS.md)
+
 # Vishvakarma.OS — Complete Product & Codebase Handoff (v1.5.0)
 
 **Document type:** Paste-ready context for ChatGPT and other AI assistants  

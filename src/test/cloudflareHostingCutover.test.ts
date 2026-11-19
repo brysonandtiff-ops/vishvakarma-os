@@ -34,10 +34,11 @@ describe('Vishvakarma.OS canonical Cloudflare hosting migration', () => {
 
   it('does not mistake live deployment reachability for certified release', () => {
     const docs = read('docs/CURRENT_PRODUCTION_ARCHITECTURE.md');
+    const release = read('docs/release/CURRENT_RELEASE_STATUS.md');
     expect(docs).toContain('PRODUCTION/RELEASE HOLD');
-    expect(docs).toContain('5a1305928ca9435e577ea2e021935452f9289a02');
-    expect(docs).toContain('5c66a6604706282e0668c2b07d7a395e2d8570b7');
-    expect(docs.toLowerCase()).toContain('security incident');
-    expect(docs.toLowerCase()).toContain('backup/recovery');
+    expect(docs).toContain('release/CURRENT_RELEASE_STATUS.md');
+    expect(release).toMatch(/\| Cloudflare production \|[^\n]*`[a-f0-9]{40}`/);
+    expect(release).toContain('/issues/153');
+    expect(release).toContain('/issues/188');
   });
 });

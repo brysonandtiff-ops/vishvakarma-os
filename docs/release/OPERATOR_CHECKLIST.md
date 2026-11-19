@@ -1,126 +1,55 @@
-# Operator Launch Checklist
+# Operator Release Checklist
 
-Manual evidence required before public production launch. Automated CI covers gates 1–8 and 13; this checklist covers operator-only gates 9–12 plus deployment proof.
+**Current decision:** Production release is blocked. The local Studio freeze and observed Cloudflare SHAs are recorded in the [release decision](CURRENT_RELEASE_STATUS.md).
 
----
+## 1. Verify the frozen source
 
-## Pre-Flight (Automated)
-
-Run from repo root:
+- [ ] Confirm the Git tag, full source SHA, clean checkout and intended review branch.
+- [ ] Run locked install, lint, full tests, routes, production build, artifact security, performance budgets and documentation verification.
+- [ ] Run Chromium, Firefox and WebKit smoke coverage, keyboard and accessibility checks, and editor performance checks.
+- [ ] Bind CI receipts to the exact SHA. Rerun checks after any code change.
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm run verify:ci
-pnpm run test:e2e
+pnpm run docs:verify
+pnpm run handoff:verify
 pnpm run test:e2e:cross-browser
 pnpm run test:e2e:a11y
-pnpm run release:gates
+pnpm run test:e2e:perf
 ```
 
-`release:gates` exit `2` means manual evidence is still outstanding — not a broken build.
+## 2. Clear infrastructure and account holds
 
----
-
-## Supabase Production
-
-- [x] `VITE_SUPABASE_*` and `SUPABASE_SERVICE_ROLE_KEY` set in Vercel production environment
-- [x] Supabase migrations applied (`pnpm run setup:supabase-auth:full` or `npx supabase db push`)
-- [x] Google OAuth redirect URLs configured in Supabase dashboard
-- [x] Authorized domain includes production URL
-- [x] Email-link and Google OAuth tested on production URL
-- [ ] Save → reload → geometry intact in a signed-in browser (historic API-only receipt is insufficient)
-
-Commands:
+- [ ] Independently verify provider credential rotation and close [security issue #153](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/153).
+- [ ] Verify a retained encrypted backup and an independent decrypt and restore. Close [backup issue #188](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/188) with the redacted evidence.
+- [ ] Verify Cloudflare Pages bindings and canonical Google and Supabase callback URLs with the responsible operator.
+- [ ] Read hosted Auth policy. Verify invitation-only sign-in, approved Google and email links, administrator access and tenant isolation with approved test accounts.
+- [ ] Verify Stripe return destinations, entitlements and recovery in the appropriate approved environment.
 
 ```bash
-pnpm run production:verify-env --strict
-pnpm run production:evidence
+node scripts/setup-supabase-auth-hardening.mjs --check
 pnpm run verify:supabase-schema:live
-pnpm run test:supabase-auth
 pnpm run verify:production-auth-flow
 ```
 
-See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [MIGRATION.md](../../MIGRATION.md).
+## 3. Accept the exact hosted candidate
 
----
-
-## Gate 9 — Save/Load Determinism
-
-- [ ] Create project on production, add 4 walls + 1 door + 1 window
-- [ ] Save, hard-refresh browser, reload project
-- [ ] Export JSON, import into fresh session — counts match
-- [ ] Attach screenshots + manifest hash to `save-load-proof.md`
-
----
-
-## Gate 10 — 2D/3D Parity
-
-- [x] Load sample project
-- [x] Count walls and openings in status bar vs 3D viewport
-- [x] Screenshot 2D canvas and 3D chamber side by side
-- [x] Update `docs/release/evidence/2d-3d-parity-proof.md`
-
----
-
-## Gate 11 — iPad Touch Audit
-
-- [x] Physical iPad Air 2020 (or equivalent) in landscape — Playwright 1180×820 supplement PASS
-- [x] Verify 44px touch targets on toolbar, ToolRail, Save, Export
-- [x] Draw wall, place door, toggle 3D with touch only — automated E2E
-- [x] Attach photos to `docs/release/evidence/ipad-touch-audit.md`
-- [x] Playwright proxy: `e2e/ipad-production-readiness.spec.ts` (automated supplement)
-
----
-
-## Gate 12 — Performance
-
-- [x] Production load time < 5s on 4G throttled (DevTools)
-- [x] 50-wall stress project: canvas interaction remains responsive
-- [x] 3D toggle < 2s on sample project
-- [x] Record notes in `docs/release/evidence/performance-notes.md`
-
----
-
-## Cross-Browser Smoke
-
-Automated via `pnpm run test:e2e:cross-browser` (full auth-gate + app-smoke on Chromium, Firefox, and WebKit). CI runs the same matrix in parallel.
-
-Manual supplement (optional):
-
-- [ ] Safari macOS — editor save + 3D toggle
-- [ ] Firefox — export PDF downloads correctly
-- [ ] Chrome — baseline reference
-
----
-
-## Security Headers (Gate 5)
-
-- [x] Inspect deployed response headers for CSP and HSTS
-- [x] Save output to `docs/release/evidence/security-headers.txt`
-
----
-
-## Post-Launch (First 48 Hours)
-
-- [ ] Monitor Sentry/error logs if DSN configured
-- [ ] Check Vercel analytics for 5xx rate
-- [ ] Collect one real-user feedback note
-- [ ] Update `CHANGELOG.md` if hotfixes shipped
-
----
-
-## Sign-Off
-
-| Role | Name | Date | Gates cleared |
-|------|------|------|---------------|
-| Operator | Bryson Erdmann | 2026-06-09 | 9–12, Supabase auth, headers |
-| Reviewer | Bryson Erdmann | 2026-06-09 | `release:gates:strict` exit 0 |
-
-When all boxes are checked, run:
+- [ ] Use the existing Cloudflare preview pipeline. Match the immutable deployment ID and URL to the Git SHA before browser testing.
+- [ ] Exercise Projects → Studio → Blueprint → 3D → Walk → Save → Reopen → Export in a signed-in account. Reimport the export and verify the geometry. Confirm another tenant cannot access the project.
+- [ ] Verify physical device controls, Safari and installed PWA behavior, audio, service-worker updates and offline recovery. Attach device, browser, time, screenshots or video, and any failures.
+- [ ] Run the production-target verifier and strict gates against the attested preview.
 
 ```bash
-pnpm run release:gates:strict
-pnpm run launch:evidence:strict
+node scripts/deployment/certify-cloudflare-release.mjs https://<deployment>.vishvakarma-os.pages.dev
 ```
 
-Public launch claim is allowed only after strict exit `0`.
+The certifier checks both GitHub holds, safety and build gates, strict launch evidence and live routing and headers. Use the approved Pages Read credentials and immutable deployment ID for SHA attestation. A strict-gate exit of `2` identifies outstanding manual evidence.
+
+## 4. Promote after sign-off
+
+- [ ] Obtain independent QA and explicit owner approval for the exact SHA and deployment. Record the prior deployment ID for rollback.
+- [ ] Promote through the existing Cloudflare release path. Recheck the deployed SHA, canonical domain, health, cache headers, sign-in and a cloud save/reopen.
+- [ ] Record the actual production deployment and approved release tag. Monitor Cloudflare error rates, frontend telemetry and auth errors after promotion.
+
+Follow the [deployment guide](DEPLOYMENT.md), [production certification](CLOUDFLARE_PRODUCTION_CERTIFICATION.md), and [rollback instructions](../operations/ROLLBACK.md).

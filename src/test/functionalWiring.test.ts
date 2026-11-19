@@ -141,9 +141,9 @@ describe('Vishvakarma.OS functional wiring guard', () => {
     expect(html).toContain('id="boot-splash"');
     expect(html).toContain('pointer-events:none');
     expect(authPage).toContain('handleRequestAccess');
-    expect(authPage).toContain('Approved account required');
+    expect(authLoginCard).toContain('Invite required for new accounts');
     expect(authPage).toContain('handleEmailLinkSignIn');
-    expect(authLoginCard).toContain('Request access');
+    expect(authLoginCard).toContain('Share an invitation request');
     expect(authLoginCard).toContain('email-magic-link-button');
     expect(authPage).toContain('auth-trust-pillars');
     expect(appLayout).toContain('VISHVAKARMA.OS');

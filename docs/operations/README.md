@@ -15,7 +15,7 @@ Runbooks for Vishvakarma.OS. **Cloudflare Pages is the active host, not the hist
 | Document | Purpose |
 |----------|---------|
 | [DEPLOYMENT_RUNBOOK.md](./DEPLOYMENT_RUNBOOK.md) | Production deploy flow |
-| [ROLLBACK.md](./ROLLBACK.md) | Historical Vercel rollback (not live Cloudflare procedure) |
+| [ROLLBACK.md](./ROLLBACK.md) | Cloudflare Pages rollback and data recovery |
 | [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) | Severity levels and escalation |
 | [MONITORING.md](./MONITORING.md) | Dashboards and alerts |
 | [ACCOUNT_TRANSFER.md](./ACCOUNT_TRANSFER.md) | Operator handover and key rotation |
@@ -30,7 +30,7 @@ Runbooks for Vishvakarma.OS. **Cloudflare Pages is the active host, not the hist
 | [release/OPERATOR_CHECKLIST.md](../release/OPERATOR_CHECKLIST.md) | Launch gates 9–12 (authority) |
 | [release/DEPLOYMENT.md](../release/DEPLOYMENT.md) | Full deployment guide |
 | [release/VERIFY_COMMANDS.md](../release/VERIFY_COMMANDS.md) | Verification cheat sheet |
-| [release/VERCEL_ENV.md](../release/VERCEL_ENV.md) | Complete env var matrix |
+| [ENVIRONMENT_MATRIX.md](./ENVIRONMENT_MATRIX.md) | Complete env var matrix |
 | [release/STRIPE_SETUP.md](../release/STRIPE_SETUP.md) | Stripe products and webhooks |
 | [release/SUPABASE_AUTH_SETUP.md](../release/SUPABASE_AUTH_SETUP.md) | Supabase auth providers |
 

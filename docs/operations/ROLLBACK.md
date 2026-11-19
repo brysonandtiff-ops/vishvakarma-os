@@ -1,33 +1,27 @@
 # Rollback Procedures
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** operator  
+**Product version:** v1.5.0
+
+**Procedure updated:** 2026-11-19
+
+**Audience:** operator
+
 
 How to revert a bad production deploy without data loss.
 
 ---
 
-## Vercel instant rollback (preferred)
+## Cloudflare Pages rollback
 
-1. Open Vercel Dashboard → Project → Deployments
-2. Find the last known-good production deployment
-3. Click **⋯** → **Promote to Production**
-
-Rollback is typically **under 60 seconds**. No rebuild required.
-
-Verify post-rollback using [DEPLOYMENT_RUNBOOK.md](./DEPLOYMENT_RUNBOOK.md) smoke checklist.
+1. Open Cloudflare Pages → `vishvakarma-os` → Deployments.
+2. Match the last approved production deployment ID and source to the current release receipt. Check compatibility with any migrations already applied.
+3. Use the Cloudflare Pages rollback control after owner approval. Verify the resulting deployment and smoke-test the public origin, signed-in Studio and API through the [deployment runbook](DEPLOYMENT_RUNBOOK.md).
 
 ---
 
 ## Git revert (when code fix required)
 
-```bash
-git revert <bad-commit-sha>
-git push origin main
-```
-
-Vercel redeploys from the reverted commit. Run full `verify:ci` locally before push when possible.
+Create a reviewed revert on a branch. Run `pnpm run verify:ci` and use the source-bound Cloudflare review and production process.
 
 ---
 
@@ -56,7 +50,7 @@ If billing entitlements desynced during an incident:
 
 ## AI routes
 
-Gemini routes (`/api/ai/*`) are stateless. Rollback Vercel deployment; no data migration needed. Users fall back to local parsers when `GEMINI_API_KEY` is missing.
+Gemini routes (`/api/ai/*`) are stateless. Roll back the Pages deployment if the fault is isolated to application code. Users fall back to local parsers when `GEMINI_API_KEY` is missing.
 
 ---
 

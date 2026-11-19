@@ -1,10 +1,14 @@
 # Vishvakarma.OS — Source of Truth and Real-World Capabilities
 
-**Audit snapshot:** 19 November 2026 · Australia/Perth  
-**Package:** 1.5.0  
-**Active public domain:** https://vishvakarmaos.app — serves an older source; not the latest development review  
-**Inspected review code SHA:** 614256d64c502c8158c6867f69beacaf0ea8c0cb  
-**Release status:** BLOCKED (draft PR #210)
+**Audit snapshot:** 19 November 2026 · Australia/Perth
+
+**Package:** 1.5.0
+
+**Active public domain:** https://vishvakarmaos.app — serves an older source; not the latest development review
+
+**Browser-tested Studio code:** `03e5fff1de7a9e5c78916a396e18e3cf5d7fbcaf`
+
+**Release status:** BLOCKED. See the [local freeze and deployment evidence](../release/CURRENT_RELEASE_STATUS.md).
 
 ## The original idea
 
@@ -18,10 +22,10 @@ Turn an authentic hand-drawn house idea into a 2D architectural plan, inspect it
 | --- | --- | --- | --- |
 | Public pages | React routes for Home, Features, Pricing, legal | TinyFish public browser navigation | Newest source on live production |
 | Sign-in | Approved Google SSO and existing-account magic-link UI | Real desktop layout, focus, error and navigation tests | Live new-account creation, OAuth, Supabase permissions |
-| Projects and five-stage gift journey | Implemented on draft PR #210 | Component tests and review build | Signed-in Projects operation |
-| 2D editor | Walls, doors, windows, dimensions, snap/grid and history components | Compiled, selected unit contracts | Real iPad drawing/accuracy |
-| 3D rendering / Walk | Three.js, React Three Fiber, camera movement | Selected movement tests | Actual geometry parity and first-person iPad video |
-| Save/reopen/export | Local draft, Supabase and multi-format source | Source and selected contract tests | Signed-in persistence, RLS, independent file readback |
+| Projects and Studio | Projects library, real project actions, direct Atrium sample views | Local Chromium create, open, import, and reopen | Signed-in Projects operation |
+| Blueprint | Walls, doors, windows, dimensions, snap/grid and history | Actual wall drawing in desktop and phone Chromium emulation | Physical iPad and stylus accuracy |
+| 3D and Walk | React Three Fiber and Three.js views of the same manifest | Rendered geometry, native desktop pointer lock and touch movement | Physical-device video and complex plan parity |
+| Save/reopen/export | Browser-local draft, Supabase and multi-format source | Saved, reopened and verified an exported JSON manifest in local Chromium | Signed-in cloud persistence, RLS, other formats on real devices |
 | Governance | Spec, registry, change, release, audit, optimization routes | Source and selected build tests | Complete real user workflows and compliance accuracy |
 | Welcome and voice | Public text tour, private cinematic source | Browser tour + focused audio lifecycle tests | Actual first-login cinematic and voice acceptance on iPad |
 | PWA | Manifest, icons, service worker source | Manifest and icon presence / build precache | Real iPad installation and offline recovery |

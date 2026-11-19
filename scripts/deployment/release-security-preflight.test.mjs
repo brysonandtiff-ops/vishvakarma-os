@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import {
   SECURITY_INCIDENT_URL,
+  RECOVERY_BACKUP_URL,
   validateReleaseUrl,
   requireClosedSecurityIncident,
   requireReleaseSecurityPreflight,
@@ -65,11 +66,22 @@ describe('S.I.R.E. Cloudflare release security preflight', () => {
     }));
   });
 
-  it('allows preflight only after issue closure, without implying release certification', async () => {
-    const fetchFn = vi.fn().mockResolvedValue({
-      status: 200,
-      json: async () => closedIssue,
-    });
+  it('blocks an open or unavailable retained-backup issue after security closure', async () => {
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, json: async () => closedIssue })
+      .mockResolvedValueOnce({ status: 200, json: async () => ({ number: 188, state: 'open' }) });
+    await expect(requireReleaseSecurityPreflight(preview, fetchFn)).rejects.toThrow(/#188.*blocked/i);
+    expect(fetchFn).toHaveBeenLastCalledWith(RECOVERY_BACKUP_URL, expect.objectContaining({ method: 'GET' }));
+
+    fetchFn.mockResolvedValueOnce({ status: 200, json: async () => closedIssue })
+      .mockRejectedValueOnce(new Error('offline'));
+    await expect(requireReleaseSecurityPreflight(preview, fetchFn)).rejects.toThrow(/#188.*blocked/i);
+  });
+
+  it('allows the next checks after both issues are verified closed', async () => {
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, json: async () => closedIssue })
+      .mockResolvedValueOnce({ status: 200, json: async () => ({ ...closedIssue, number: 188 }) });
     expect(await requireReleaseSecurityPreflight(preview, fetchFn)).toBe(preview);
   });
 

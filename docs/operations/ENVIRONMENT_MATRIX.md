@@ -1,13 +1,17 @@
 # Environment Matrix
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** operator  
+**Product version:** v1.5.0
+
+**Hosting configuration checked:** 2026-11-19
+
+**Audience:** operator
+
 
 Environment-specific notes for local, preview, and production.
 
-**Authoritative env inventory:** [handoff/appendices/B-environment-variables.md](../handoff/appendices/B-environment-variables.md)  
-**Vercel matrix:** [release/VERCEL_ENV.md](../release/VERCEL_ENV.md)
+**Authoritative env inventory:** [handoff/appendices/B-environment-variables.md](../handoff/appendices/B-environment-variables.md)
+
+**Cloudflare matrix and service bindings:** [deployment guide](../release/DEPLOYMENT.md)
 
 ---
 
@@ -28,14 +32,14 @@ pnpm run dev
 
 ---
 
-## Vercel preview
+## Cloudflare Pages preview
 
 | Setting | Notes |
 |---------|-------|
-| URL | `*.vercel.app` per branch |
-| Auth redirects | Add preview URL to Supabase authorized redirects if testing OAuth |
+| URL | Immutable deployment under `vishvakarma-os.pages.dev` |
+| Auth redirects | Verify the exact approved test origin with the Supabase operator |
 | Stripe | Test mode keys recommended |
-| Protection | Enable Vercel Deployment Protection for sensitive previews |
+| Source provenance | Match the Pages deployment ID and SHA to the candidate under test |
 
 Do **not** use preview URLs in operator or valuation documentation as canonical production.
 
@@ -45,10 +49,10 @@ Do **not** use preview URLs in operator or valuation documentation as canonical 
 
 | Setting | Value |
 |---------|-------|
-| Canonical URL | https://vishvakarma-os.app |
-| Fallback | https://vishvakarma-os.vercel.app |
-| `VITE_AUTH_REDIRECT_ORIGIN` | `https://vishvakarma-os.app` |
-| `APP_URL` | `https://vishvakarma-os.app` |
+| Canonical URL | https://vishvakarmaos.app |
+| Pages origin | https://vishvakarma-os.pages.dev |
+| `VITE_AUTH_REDIRECT_ORIGIN` | `https://vishvakarmaos.app` |
+| `APP_URL` | `https://vishvakarmaos.app` |
 | Stripe | Live keys; live webhook endpoint |
 | Supabase | Production project `jyocvwipthswfcmvqgqe` |
 

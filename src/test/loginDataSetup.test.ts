@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { mapProfileRow } from '@/backend/supabase/mappers';
+import type { Profile } from '@/types';
 
 const repoRoot = resolve(process.cwd());
 
@@ -47,14 +49,16 @@ describe('login data setup', () => {
 
   it('matches Supabase profile gateway fields to Profile type usage', () => {
     const gateway = read('src/backend/supabase/supabaseProfileGateway.ts');
-    const profileType = read('src/types/index.ts');
-
-    expect(profileType).toContain('export interface Profile');
-    expect(gateway).toContain('full_name');
-    expect(gateway).toContain('role');
-    expect(gateway).toContain('email');
-    expect(gateway).toContain('created_at');
-    expect(gateway).toContain('updated_at');
+    const row = {
+      id: 'profile-1',
+      full_name: 'Architect',
+      email: 'architect@example.test',
+      role: 'editor',
+      created_at: '2026-11-18T08:00:00Z',
+      updated_at: '2026-11-19T10:00:00Z',
+    } satisfies Profile;
+    expect(gateway).toContain('return mapProfileRow(data');
+    expect(mapProfileRow(row)).toMatchObject(row);
   });
 
   it('documents verify scripts for login data', () => {

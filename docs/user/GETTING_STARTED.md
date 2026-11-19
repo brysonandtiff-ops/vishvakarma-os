@@ -1,7 +1,7 @@
 # Getting Started — Your Vishvakarma.OS Home
 
 **Version:** 1.5.0 · **Updated:** 19 November 2026 · **Audience:** first-time user, especially iPad users  
-**Release status:** Latest design is still a **development preview**, not certified for a real iPad or live saved projects.
+**Release status:** These steps describe the frozen Studio candidate. The public site serves the earlier release. See the [current release decision](../release/CURRENT_RELEASE_STATUS.md).
 
 Vishvakarma.OS is being built to let you **draw a house in 2D, look at it in 3D, walk around, save and share**. The professional tools are there if you need them, but you can begin with one simple wall.
 
@@ -18,19 +18,16 @@ Use **https://vishvakarmaos.app**. Public [Features](https://vishvakarmaos.app/f
 
 **The email-link form does not automatically create a new account.** Neither the latest user-signup delivery nor live administrator role is currently verified. Do not share passwords or sign-in codes in chat.
 
-## Begin with the five-stage design journey
+## Open Projects and start working in Studio
 
-The latest *draft review* contains a simpler Projects introduction:
+Open **Projects** to create, import, or reopen a plan. To explore a furnished sample, choose **3D** or **Walk** on the Atrium Wing card.
 
-| Step | Intended action | Current proof |
-| --- | --- | --- |
-| 1 Projects | Start or reopen a house | Source feature; private account flow unverified |
-| 2 Draw in 2D | Wall, door, window, grid and undo | Code and selected tests; iPad touch unverified |
-| 3 See in 3D | Open local draft/sample in 3D Room | Renderer source; real-house accuracy unverified |
-| 4 Walk | Select Walk inside 3D Room | Movement-source tests; actual iPad input unverified |
-| 5 Save & Export | Save, reopen or export from full editor | Source path; cloud restore and file readback unverified |
+1. Select **Blueprint** in Studio. Choose **Wall** and mark two points on the canvas.
+2. Select **3D** to orbit around the same plan. Select **Walk** to explore at eye height.
+3. In **Walk**, select **Start walking** on desktop and use WASD or the arrow keys. On touch screens, drag to look and hold the on-screen arrows to move.
+4. Select **Save**, then reopen the plan from Projects. Choose **Export** to download a copy.
 
-The real signed-in project walkthrough has **not** been independently passed on an iPad. The approved gift art must remain the owner-original, not a replacement mock.
+The browser-local round trip passed on desktop, and touch drawing and Walk passed in phone emulation. Signed-in cloud persistence and the physical iPad walkthrough still need testing.
 
 ## Learn without sound
 

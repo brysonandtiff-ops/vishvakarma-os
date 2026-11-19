@@ -1,8 +1,11 @@
 # Navigation Map
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-20  
-**Audience:** user  
+**Product version:** v1.5.0
+
+**Studio candidate verified in local Chromium:** 2026-11-19
+
+**Audience:** user
+
 
 This map explains where to go in Vishvakarma.OS and what to search in the command palette.
 
@@ -14,16 +17,16 @@ This map explains where to go in Vishvakarma.OS and what to search in the comman
 2. Type a route, page name, tool, or tutorial name.
 3. Choose a result from **Navigate** or **Learn**.
 
-The workspace sidebar remains the main visual map. The command palette is fastest for repeat users and keyboard users.
+**Projects** and **Studio** sit in the main navigation. Use the menu to open other design and governance tools. See the [release decision](../release/CURRENT_RELEASE_STATUS.md) for the version currently live.
 
 ---
 
 ## Workspace routes
 
-| Route | Sidebar label | Use it for | Search terms |
+| Route | Navigation label | Use it for | Search terms |
 |-------|---------------|------------|--------------|
-| `/editor` | Blueprint Editor | Draft walls/openings, use tools, preview 3D, save/export | editor, wall, 3D, export, canvas |
-| `/projects` | Projects | Search, duplicate, archive, and reopen saved blueprints | projects, library, duplicate, archive |
+| `/projects` | Projects | Create, import, search, and reopen designs. Open Atrium Wing in 3D or Walk. | projects, library, sample, import |
+| `/editor` | Studio | Switch among Blueprint, 3D, and Walk. Use File, Tools, Save, Export, and Details. | studio, editor, wall, 3D, export |
 | `/optimization` | Design Optimization | Generate and compare scored layout candidates | optimization, AI, candidates, budget |
 | `/profile` | Profile | Account, plan, billing, and session status | profile, billing, account, plan |
 | `/spec-center` | Spec Center | Review locked specifications and hashes | spec, locked, hash, governance |
@@ -56,10 +59,10 @@ The workspace sidebar remains the main visual map. The command palette is fastes
 
 ## iPad navigation tips
 
-- Use the floating menu button to open the sidebar when the editor is immersive.
-- Keep touch targets clear of Safari chrome by using Add to Home Screen for the PWA experience.
+- Use Projects and Studio in the header. Open the workspace menu for secondary tools.
+- In Walk, drag the view to look and hold the on-screen arrows to move.
 - Use the Tutorial hub when a control is unfamiliar; each track highlights the current control where available.
-- If a highlighted control is hidden, expand the sidebar or open the mobile menu.
+- Open **File** or **Tools** in Studio when the tutorial highlights a secondary action.
 
 ---
 
@@ -68,8 +71,8 @@ The workspace sidebar remains the main visual map. The command palette is fastes
 | Symptom | Try this |
 |---------|----------|
 | Cannot find a route | Press `Ctrl+K` / `Cmd+K` and search the route name |
-| Tutorial highlight points off-screen | Expand the sidebar, open mobile navigation, or rotate iPad landscape |
-| 3D route feels blank | Return to `/editor`, draw walls, then toggle 3D from the editor |
+| Tutorial highlight points off-screen | Open the relevant Studio menu or rotate to landscape |
+| 3D view feels blank | Open a project with geometry, draw in Blueprint, or open the Atrium Wing sample in Projects |
 | Billing controls missing | Go to `/profile`; plan controls depend on auth and Stripe configuration |
 
 For device and WebGL issues, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).

@@ -12,7 +12,7 @@ All application code, migrations, documentation, and development commands live a
 
 ## Current source/release authority
 
-**BLOCKED at 19 November 2026:** consult [CURRENT_RELEASE_STATUS.md](./release/CURRENT_RELEASE_STATUS.md), the [read-only UI audit](./release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md), and the [owner vision acceptance](./design/OWNER_VISION_ACCEPTANCE.md). Exact Git and real immutable runtime evidence take precedence over historical documentation. The official visual logo and style remain locked by [BRAND_LOCK.md](./BRAND_LOCK.md).
+**Production release blocked as of 19 November 2026.** The [release decision](./release/CURRENT_RELEASE_STATUS.md) records the Studio freeze tag, live and preview sources, and open evidence. See the [Studio navigation map](./user/NAVIGATION_MAP.md) and [owner vision acceptance](./design/OWNER_VISION_ACCEPTANCE.md). Exact Git and real immutable runtime evidence take precedence over historical documentation. The official visual logo and style remain locked by [BRAND_LOCK.md](./BRAND_LOCK.md).
 
 ## Start with current proof, not historical assumptions
 

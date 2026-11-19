@@ -1,6 +1,6 @@
 # Vishvakarma.OS — Cloudflare Pages Deployment Guide
 
-**Updated:** 15 November 2026. **Release state: HOLD.** This document does not authorize an automatic publish.
+**Updated:** 19 November 2026 UTC. **Release state: HOLD.** See the [freeze and release evidence](CURRENT_RELEASE_STATUS.md).
 
 ## Established Cloudflare deployment
 
@@ -10,7 +10,7 @@
 - **Current Pages production branch:** `agent/cloudflare-pages-workers-migration`.
 - **Verified build configuration:** `node scripts/cloudflare-build.mjs`, output `dist`. `wrangler.jsonc` is the project-local Cloudflare configuration.
 - **Current custom-domain source:** the August 2026 deployment SHA `5a1305928ca9435e577ea2e021935452f9289a02`, not the newer source.
-- **Latest successful preview as reviewed:** https://2a32718a.vishvakarma-os.pages.dev from `5c66a6604706282e0668c2b07d7a395e2d8570b7` (13 November 2026).
+- **Latest successful preview observed:** https://cc716a47.vishvakarma-os.pages.dev from `6c307063e5bf6cab84344f7f629c703c1e962e5b` (19 November 2026 UTC). The Studio freeze requires a separate source-matched preview.
 - Old domain/config references in earlier records are historical; no retired provider is an authorized deploy origin.
 
 ## Preconditions for any future deployment
@@ -40,7 +40,7 @@ pnpm run lint:types
 pnpm run docs:verify
 ```
 
-Existing release-verification scripts are documented in [Cloudflare production certification](CLOUDFLARE_PRODUCTION_CERTIFICATION.md). They remain fail-closed for the open security incident and missing device/cloud evidence.
+Existing release-verification scripts are documented in [Cloudflare production certification](CLOUDFLARE_PRODUCTION_CERTIFICATION.md). The certification preflight blocks release on an open or unverifiable security issue or backup issue. Strict gates and independent device and cloud acceptance follow.
 
 ## Manual acceptance after authorization (not yet performed)
 

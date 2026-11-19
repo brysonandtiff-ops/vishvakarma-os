@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased — 19 November 2026 (DRAFT PRs, NOT PRODUCTION)
+## Unreleased — 19 November 2026 Studio freeze
 
-- Added original-art five-stage home journey and corrected project metrics without replacing the full editor.
+- Made Projects and Studio the primary destinations. Projects opens saved plans and Atrium samples. Studio groups Blueprint, 3D orbit and Walk with Save, Export and Details.
+- Verified the desktop browser-local drawing, 3D, Walk, export and reopen workflow, plus phone emulation for touch controls.
+- Enforced both credential incident and encrypted backup issue closure in the release preflight. Updated the release, operator and user documentation.
 - Enhanced 3D walk movement, narrator/caption controls, private welcome cinematic and sign-in readability; physical iPad acceptance still pending.
 - Last source-bound UI preview before docs sweep: 614256d64c502c8158c6867f69beacaf0ea8c0cb; 50 selected test files, 312 tests passed; not whole-repo certification.
 - Added readable README, source-of-truth matrix, evidence/release ledger, current onboarding and documentation drift gate.

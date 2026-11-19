@@ -1,5 +1,7 @@
 # Vishvakarma.OS Launch Evidence Index
 
+For the current November Studio freeze and outstanding release gates, see the [release decision](../CURRENT_RELEASE_STATUS.md). The accelerated candidate below records an earlier review.
+
 ## Accelerated v1.5.0 Candidate
 
 | Field | State |

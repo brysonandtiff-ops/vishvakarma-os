@@ -26,11 +26,11 @@ Full integration registry: [handoff/07-integrations-and-accounts.md](../handoff/
 | Service | Transfer action |
 |---------|-----------------|
 | **GitHub** | Repo ownership or org transfer |
-| **Vercel** | Project transfer; verify env vars |
+| **Cloudflare** | Verify Pages project and domain ownership, access, and environment bindings |
 | **Supabase** | Organization/project ownership |
 | **Stripe** | Account ownership or Connect migration plan |
 | **Google Cloud / Gemini** | API key rotation to acquirer project |
-| **Domain** | `vishvakarma-os.app` DNS to acquirer registrar |
+| **Domain** | `vishvakarmaos.app` DNS to acquirer registrar |
 
 ---
 
@@ -43,9 +43,9 @@ Rotate immediately after transfer:
 - [ ] `GEMINI_API_KEY`
 - [ ] Supabase anon key (if compromise suspected)
 - [ ] OAuth client secrets (Google, Apple) in Supabase Auth providers
-- [ ] Remove prior operator from Supabase/Vercel/Stripe admin lists
+- [ ] Remove prior operator from Supabase, Cloudflare and Stripe admin lists
 
-Update Vercel Production env after rotation. Redeploy.
+Verify provider rotation and update approved Cloudflare Pages production bindings. Deploy through the [release runbook](DEPLOYMENT_RUNBOOK.md).
 
 ---
 
@@ -54,7 +54,7 @@ Update Vercel Production env after rotation. Redeploy.
 Review and update if transferring to external team:
 
 - Co-owner allowlist: `src/config/coOwners.ts`
-- Stripe price IDs in Vercel env
+- Stripe price IDs in Cloudflare Pages bindings
 - Supabase project ref: `jyocvwipthswfcmvqgqe`
 - Authorized domains in Supabase Auth settings
 

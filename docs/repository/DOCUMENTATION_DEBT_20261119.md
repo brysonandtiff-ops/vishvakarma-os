@@ -32,6 +32,10 @@
 
 Read the [current source map](./SOURCE_OF_TRUTH_20261119.md) and [release decision](../release/CURRENT_RELEASE_STATUS.md).
 
+## Studio freeze follow-up
+
+The November Studio freeze refreshes the current release decision, Cloudflare and CI runbooks, source map, user workflows and handoff entry points. The repository-wide drift scan also covers historical material. Review remaining legacy results in context and preserve dated receipts.
+
 
 ## Automated scan result at previous review SHA 75f81b552e046d35fd6dadc11eb32cce44ce6c53
 

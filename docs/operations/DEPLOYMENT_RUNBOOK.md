@@ -1,8 +1,8 @@
 # Vishvakarma.OS — Cloudflare-Only Operations Runbook
 
-**Checked:** 15 November 2026. **Current action: HOLD production.**
+**Checked:** 19 November 2026 UTC. **Current action: HOLD production.**
 
-The canonical Cloudflare Pages domain is https://vishvakarmaos.app; `www.vishvakarmaos.app` is active. Project `vishvakarma-os` uses the configured Pages production branch `agent/cloudflare-pages-workers-migration`. Do not equate the currently serving August commit with the newer November draft preview.
+The canonical Cloudflare Pages domain is https://vishvakarmaos.app; `www.vishvakarmaos.app` is active. Project `vishvakarma-os` uses the configured Pages production branch `agent/cloudflare-pages-workers-migration`. The [release decision](../release/CURRENT_RELEASE_STATUS.md) records the August production deployment, November preview, and local Studio freeze.
 
 ## Operator checks (read-only first)
 

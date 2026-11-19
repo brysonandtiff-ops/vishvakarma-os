@@ -6,6 +6,7 @@ const projectRef =
   'jyocvwipthswfcmvqgqe';
 const accessToken = process.env.SUPABASE_ACCESS_TOKEN?.trim();
 const dryRun = process.argv.includes('--dry-run');
+const checkOnly = process.argv.includes('--check');
 const endpoint = `https://api.supabase.com/v1/projects/${projectRef}/config/auth`;
 
 const desiredConfig = {
@@ -68,21 +69,21 @@ async function main() {
     );
   }
 
-  const before = await managementRequest('GET');
-  console.log('[supabase-auth-hardening] Before:', safeConfig(before));
-
-  const updated = await managementRequest('PATCH', desiredConfig);
-  console.log('[supabase-auth-hardening] Updated:', safeConfig(updated));
-
-  const after = await managementRequest('GET');
+  let current = await managementRequest('GET');
+  console.log('[supabase-auth-hardening] Current:', safeConfig(current));
+  if (!checkOnly) {
+    const updated = await managementRequest('PATCH', desiredConfig);
+    console.log('[supabase-auth-hardening] Updated:', safeConfig(updated));
+    current = await managementRequest('GET');
+  }
   const mismatches = Object.entries(desiredConfig).filter(
-    ([key, value]) => after?.[key] !== value,
+    ([key, value]) => current?.[key] !== value,
   );
 
   if (mismatches.length > 0) {
     throw new Error(
       `Auth configuration verification failed: ${mismatches
-        .map(([key, value]) => `${key} expected ${String(value)} got ${String(after?.[key])}`)
+        .map(([key, value]) => `${key} expected ${String(value)} got ${String(current?.[key])}`)
         .join(', ')}`,
     );
   }

@@ -15,6 +15,9 @@ describe('production authentication certification', () => {
     expect(verifier).toContain('/signin/oauth/error');
     expect(verifier).toContain('Google OAuth client accepted');
     expect(verifier).toContain('usable Google sign-in surface');
+    expect(verifier).toContain("['/terms', 'Terms of Service']");
+    expect(verifier).toContain("['/privacy', 'Privacy Policy']");
+    expect(verifier).toContain("name: 'Email me a sign-in link'");
     expect(verifier).not.toContain('firefox-no-error');
     expect(verifier).not.toContain("name === 'firefox' && postAlert === null");
   });

@@ -1,10 +1,13 @@
-> **SOURCE WORKFLOW REFERENCE — DEVICE TESTING STILL REQUIRED (19 Nov 2026).** Steps below describe intended controls, not independently verified iPad, private cloud or export behaviour. [Current release status](../release/CURRENT_RELEASE_STATUS.md).
+> **Studio freeze, 19 November 2026.** Desktop Chromium verified the browser-local workflow. Signed-in cloud and physical-device checks are pending. [Current release status](../release/CURRENT_RELEASE_STATUS.md).
 
 # Common Workflows
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
-**Audience:** user  
+**Product version:** v1.5.0
+
+**Browser-local design workflow checked:** 2026-11-19
+
+**Audience:** user
+
 
 Step-by-step guides for frequent tasks in Vishvakarma.OS.
 
@@ -12,12 +15,12 @@ Step-by-step guides for frequent tasks in Vishvakarma.OS.
 
 ## Draw a floor plan
 
-1. Open **Projects** → create or open a project
+1. Create or open a plan in **Projects**, then select **Blueprint** in Studio
 2. Select the **Wall** tool from the tool rail
 3. Click start point, click end point — repeat for each wall
 4. Use **Door** and **Window** tools on existing walls
 5. Enable **snap-to-grid** for aligned geometry
-6. Changes save automatically when signed in with cloud backend
+6. Select **Save**. Check the current storage status and reopen the plan from **Projects** to verify the saved design
 
 Tools: [TOOL_REFERENCE.md](./TOOL_REFERENCE.md)
 
@@ -25,8 +28,8 @@ Tools: [TOOL_REFERENCE.md](./TOOL_REFERENCE.md)
 
 ## Preview in 3D
 
-1. Open the editor with walls drawn
-2. Toggle the **3D viewport** (side panel or view control)
+1. Open a design in Studio
+2. Select **3D** in the Studio view control to orbit. Select **Walk** to explore at eye height
 3. Adjust **materials** from the material picker
 4. Scrub **solar time** to simulate lighting through the day
 5. Switch atmosphere modes (Standard / Sacred 3D View on supported tiers)

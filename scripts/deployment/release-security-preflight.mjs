@@ -1,10 +1,11 @@
 /**
- * Release certification preflight — live, fail-closed security issue status.
- * A closed incident is NECESSARY, not sufficient, for independent approval.
+ * Release certification preflight — live, fail-closed issue status.
+ * Independent release approval also requires verified evidence for both holds.
  * Do not read or log private backup artifacts or credentials.
  */
-export const SECURITY_INCIDENT_URL =
-  'https://api.github.com/repos/brysonandtiff-ops/vishvakarma-os/issues/153';
+const ISSUE_API = 'https://api.github.com/repos/brysonandtiff-ops/vishvakarma-os/issues';
+export const SECURITY_INCIDENT_URL = `${ISSUE_API}/153`;
+export const RECOVERY_BACKUP_URL = `${ISSUE_API}/188`;
 
 export function validateReleaseUrl(rawUrl) {
   if (typeof rawUrl !== 'string' || !rawUrl.trim()) {
@@ -36,24 +37,26 @@ export function validateReleaseUrl(rawUrl) {
   return parsed.origin;
 }
 
-export function requireClosedSecurityIncident(issue) {
+function requireClosedIssue(issue, number, name) {
   if (
-    !issue || issue.number !== 153 || issue.state !== 'closed' ||
+    !issue || issue.number !== number || issue.state !== 'closed' ||
     typeof issue.closed_at !== 'string' ||
     !Number.isFinite(Date.parse(issue.closed_at)) ||
     issue.pull_request
   ) {
-    throw new Error('P0 security issue #153 is open, unverified, or not a closed issue.');
+    throw new Error(`${name} #${number} is open or lacks verified closure. Release blocked.`);
   }
   return true;
 }
 
-export async function requireReleaseSecurityPreflight(liveUrl, fetchFn = fetch) {
-  const origin = validateReleaseUrl(liveUrl);
+export function requireClosedSecurityIncident(issue) {
+  return requireClosedIssue(issue, 153, 'Security issue');
+}
 
+async function fetchReleaseIssue(url, label, fetchFn) {
   let response;
   try {
-    response = await fetchFn(SECURITY_INCIDENT_URL, {
+    response = await fetchFn(url, {
       method: 'GET',
       redirect: 'error',
       headers: {
@@ -64,23 +67,29 @@ export async function requireReleaseSecurityPreflight(liveUrl, fetchFn = fetch) 
       cache: 'no-store',
     });
   } catch {
-    throw new Error('Could not verify incident #153 from GitHub. Release blocked.');
+    throw new Error(`Could not verify ${label} from GitHub. Release blocked.`);
   }
 
   if (!response || response.status !== 200 || typeof response.json !== 'function') {
-    throw new Error('Security incident state unavailable from GitHub. Release blocked.');
+    throw new Error(`${label} state unavailable from GitHub. Release blocked.`);
   }
 
-  let issue;
   try {
-    issue = await response.json();
+    return await response.json();
   } catch {
-    throw new Error('Security incident response invalid. Release blocked.');
+    throw new Error(`${label} response invalid. Release blocked.`);
   }
+}
 
-  requireClosedSecurityIncident(issue);
+export async function requireReleaseSecurityPreflight(liveUrl, fetchFn = fetch) {
+  const origin = validateReleaseUrl(liveUrl);
+  requireClosedSecurityIncident(await fetchReleaseIssue(SECURITY_INCIDENT_URL, 'Security issue #153', fetchFn));
+  requireClosedIssue(
+    await fetchReleaseIssue(RECOVERY_BACKUP_URL, 'Recovery backup #188', fetchFn),
+    188,
+    'Recovery backup',
+  );
 
-  // Closing an issue does not itself certify backups, rotations, hardware,
-  // RLS isolation or independent approval; strict gates follow this preflight.
+  // Strict gates and independent acceptance follow this preflight.
   return origin;
 }

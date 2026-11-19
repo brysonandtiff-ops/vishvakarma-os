@@ -68,8 +68,8 @@ jobs:
             exit 1
           fi
 
-      - name: Enable HIBP and verify TOTP policy
-        run: pnpm run setup:supabase-auth:hardening
+      - name: Verify hosted Auth policy without changing settings
+        run: node scripts/setup-supabase-auth-hardening.mjs --check
 
   browser-certification:
     name: Cross-browser and strict release certification
@@ -79,7 +79,6 @@ jobs:
     timeout-minutes: 120
     env:
       PLAYWRIGHT_BROWSERS: all
-      PRODUCTION_AUTH_URL: https://vishvakarma-os.app/auth
     steps:
       - name: Checkout pull request head
         if: github.event_name == 'pull_request'

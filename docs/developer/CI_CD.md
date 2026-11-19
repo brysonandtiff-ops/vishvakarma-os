@@ -1,23 +1,25 @@
 # Verification and Deployment
 
-**Product version:** v1.5.0  
-**Last reviewed:** 2026-07-16  
+**Product version:** v1.5.0
+
+**Last reviewed:** 2026-11-19
+
 **Audience:** developers and operators
 
 ## Current policy
 
-GitHub Actions is allow-listed rather than globally enabled. `.github/workflows/production-certification.yml` is the sole approved workflow and runs against every push to `main` plus manual dispatches.
+`.github/workflows/production-certification.yml` is the sole approved workflow. It runs on pushes and pull requests targeting `main` and on manual dispatches.
 
 The workflow binds results to the exact commit SHA and performs:
 
-- hosted Supabase Auth hardening verification;
+- read-only verification of hosted Supabase Auth policy;
 - Chromium, Firefox, and WebKit E2E;
 - accessibility and editor-performance browser audits;
 - production auth-route verification;
 - strict release and launch-evidence gates;
 - evidence artifact upload.
 
-Vercel remains the deployment/build provider. A green Vercel build and a green Production Certification run are both required for a fully production-verified claim.
+Cloudflare Pages builds and hosts the app. Certification requires the exact-source immutable Pages preview, the green CI receipt, independent acceptance and the holds listed in the [release decision](../release/CURRENT_RELEASE_STATUS.md).
 
 ## Required release ladder
 
@@ -39,7 +41,7 @@ pnpm run launch:evidence:strict
 For Supabase or authentication changes also run:
 
 ```bash
-pnpm run setup:supabase-auth:hardening
+node scripts/setup-supabase-auth-hardening.mjs --check
 pnpm run verify:supabase-schema:live
 pnpm run test:supabase-auth
 pnpm run verify:supabase-save-reload
@@ -68,7 +70,7 @@ Do not copy a prior PASS verdict onto a newer SHA.
 
 ## Deployment
 
-Production deploys use Vercel. `pnpm run deploy:vercel` runs the local verification path and requires a clean worktree. See [operations/DEPLOYMENT_RUNBOOK.md](../operations/DEPLOYMENT_RUNBOOK.md).
+Cloudflare Pages hosts production. Use the existing protected build path and confirm the exact target and rollback deployment. See the [operations runbook](../operations/DEPLOYMENT_RUNBOOK.md).
 
 ## Key scripts
 

@@ -1,7 +1,6 @@
 /**
- * Headless Playwright check: production /auth must reach a usable Google sign-in
- * surface. Provider error pages (invalid/deleted clients, policy blocks, etc.)
- * are release failures even when Supabase successfully issued a redirect.
+ * Verify the public legal pages, approved-account sign-in, and Google OAuth.
+ * Provider error pages fail certification even after a successful redirect.
  *
  * Post-login redirect to /editor is covered by verify-live-auth-flow.mjs.
  * Run: pnpm run verify:production-auth-flow
@@ -10,6 +9,10 @@ import { chromium, firefox, webkit } from '@playwright/test';
 import { CANONICAL_AUTH_URL } from './lib/canonical-origin.mjs';
 
 const PRODUCTION_AUTH = process.env.PRODUCTION_AUTH_URL ?? CANONICAL_AUTH_URL;
+const PUBLIC_LEGAL_PAGES = [
+  ['/terms', 'Terms of Service'],
+  ['/privacy', 'Privacy Policy'],
+];
 const GOOGLE_HOST = 'accounts.google.com';
 const PROVIDER_ERROR_MARKERS = [
   'invalid_client',
@@ -48,6 +51,21 @@ function hasProviderError(url, bodyText) {
   return PROVIDER_ERROR_MARKERS.find((marker) => normalized.includes(marker)) ?? null;
 }
 
+async function verifyPublicLegalPages(name, page) {
+  for (const [path, heading] of PUBLIC_LEGAL_PAGES) {
+    try {
+      const response = await page.goto(new URL(path, PRODUCTION_AUTH).href, {
+        waitUntil: 'domcontentloaded', timeout: 30_000,
+      });
+      if (!response?.ok()) throw new Error(`HTTP ${response?.status() ?? 'unavailable'}`);
+      await page.getByRole('heading', { name: heading, exact: true }).waitFor({ timeout: 10_000 });
+      record(`${name}: ${path} renders`, true, heading);
+    } catch (error) {
+      record(`${name}: ${path} renders`, false, error.message);
+    }
+  }
+}
+
 async function waitForGoogleTarget(page, popupPromise) {
   await page
     .waitForURL(
@@ -82,6 +100,7 @@ async function testBrowser(name, launcher) {
   });
 
   try {
+    await verifyPublicLegalPages(name, page);
     await page.goto(PRODUCTION_AUTH, { waitUntil: 'networkidle', timeout: 30_000 });
     await page.waitForTimeout(1000);
 
@@ -92,6 +111,11 @@ async function testBrowser(name, launcher) {
     const googleButton = page.getByRole('button', { name: /continue with google/i });
     await googleButton.waitFor({ state: 'visible', timeout: 10_000 });
     record(`${name}: Google button visible`, true, 'Continue with Google');
+    record(
+      `${name}: approved-account email link visible`,
+      await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).isVisible(),
+      'Email me a sign-in link',
+    );
 
     const popupPromise = page.waitForEvent('popup', { timeout: 5_000 }).catch(() => null);
     await googleButton.click({ noWaitAfter: true });

@@ -52,7 +52,10 @@ describe('verification command wiring', () => {
     expect(policy).toContain('only executable workflow allowed');
     expect(policy).toContain('does not deploy production');
     expect(workflow).toContain('PLAYWRIGHT_BROWSERS: all');
-    expect(workflow).toContain('pnpm run setup:supabase-auth:hardening');
+    expect(workflow).toContain('node scripts/setup-supabase-auth-hardening.mjs --check');
+    expect(workflow).not.toContain('pnpm run setup:supabase-auth:hardening');
+    expect(workflow).not.toContain('PRODUCTION_AUTH_URL');
+    expect(read('scripts/verify-production-auth-flow.mjs')).toContain('?? CANONICAL_AUTH_URL');
     expect(workflow).toContain('pnpm run launch:evidence:strict');
   });
 });

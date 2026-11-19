@@ -2,9 +2,9 @@ openapi: 3.1.0
 info:
   title: Vishvakarma.OS Serverless API
   version: 1.5.0
-  description: Vercel serverless routes for AI and Stripe billing.
+  description: Cloudflare Pages API routes for AI and Stripe billing.
 servers:
-  - url: https://vishvakarma-os.app
+  - url: https://vishvakarmaos.app
     description: Production
 paths:
   /api/ai/extract-requirements:

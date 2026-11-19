@@ -33,11 +33,10 @@ When `VITE_STRIPE_BILLING_ENABLED=true`:
 
 ```bash
 pnpm run production:verify-env
-pnpm run setup:stripe    # requires STRIPE_SECRET_KEY — creates $499 Studio + $1,000 Enterprise prices
 pnpm run verify:stripe-billing --strict
 ```
 
-**Live production rollout:** run `setup:stripe` with `sk_live_...`, copy new `STRIPE_PRICE_*` IDs to Vercel, archive old prices in Stripe Dashboard, redeploy, then smoke-test both checkout tiers.
+Creating prices, changing active subscriptions and updating Cloudflare production bindings require the approved billing rollout.
 
 Follow [STRIPE_SETUP.md](./STRIPE_SETUP.md) for webhook registration and checkout smoke test.
 
@@ -47,6 +46,7 @@ Production auth and persistence use Supabase. See [CURRENT_PRODUCTION_ARCHITECTU
 
 ```bash
 pnpm run verify:supabase-schema
+node scripts/setup-supabase-auth-hardening.mjs --check
 pnpm run verify:supabase-schema:live
 pnpm run test:supabase-auth
 pnpm run verify:supabase-login-data
@@ -62,7 +62,7 @@ node scripts/migration/validate-migration.mjs migration/export-*.json
 pnpm run migration:import-supabase -- --in=migration/your-export.json
 ```
 
-Promote admin after first Supabase sign-in: set `role = admin` on the user's row in the `profiles` table (Supabase Dashboard). See [MIGRATION.md](../../MIGRATION.md).
+Verify administrator permissions using an approved test account and the [Supabase Auth runbook](./SUPABASE_AUTH_SETUP.md).
 
 See [SUPABASE_AUTH_SETUP.md](./SUPABASE_AUTH_SETUP.md) and [supabase/README.md](../../supabase/README.md) for auth and schema setup.
 
