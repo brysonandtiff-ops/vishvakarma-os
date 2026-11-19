@@ -15,6 +15,8 @@ describe('verified family admin safeguards',()=>{
     expect(migration).toContain('grant update (full_name, avatar_url, updated_at)');
     expect(migration).toContain("and role = 'user'");
     expect(migration).toContain('billing_plan is null');
+    expect(migration).toContain("if tg_op = 'UPDATE' then");
+    expect(migration).toContain('to supabase_auth_admin');
   });
   it('browser profile gateway cannot upsert privileged role',()=>{
     expect(gateway).not.toContain('.upsert({');

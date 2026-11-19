@@ -23,16 +23,21 @@ begin
      and new.email_confirmed_at is not null then
     update public.profiles set role = 'admin', updated_at = now()
     where id = new.id and role is distinct from 'admin';
-  elsif tg_op = 'UPDATE'
-    and lower(coalesce(old.email, '')) = 'ajkdentureventure@gmail.com'
-    and lower(coalesce(new.email, '')) <> 'ajkdentureventure@gmail.com' then
-    update public.profiles set role = 'user', updated_at = now()
-    where id = new.id and role = 'admin';
+  end if;
+  -- OLD is not available on INSERT. Keep this in a separate guarded branch.
+  if tg_op = 'UPDATE' then
+    if lower(coalesce(old.email, '')) = 'ajkdentureventure@gmail.com'
+       and lower(coalesce(new.email, '')) <> 'ajkdentureventure@gmail.com' then
+      update public.profiles set role = 'user', updated_at = now()
+      where id = new.id and role = 'admin';
+    end if;
   end if;
   return new;
 end;
 $$;
 revoke execute on function app_private.promote_verified_family_admin() from public, anon, authenticated;
+grant usage on schema app_private to supabase_auth_admin;
+grant execute on function app_private.promote_verified_family_admin() to supabase_auth_admin;
 drop trigger if exists on_auth_user_verified_family_admin on auth.users;
 -- on_auth_user_verified_family_admin alphabetically runs after on_auth_user_created.
 create trigger on_auth_user_verified_family_admin

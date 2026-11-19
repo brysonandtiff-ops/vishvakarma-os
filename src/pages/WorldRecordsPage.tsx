@@ -69,7 +69,8 @@ export default function WorldRecordsPage() {
     toast.success('Evidence hash copied');
   }
 
-  const verifiedCount = records.filter((record) => record.status === 'self_verified' || record.status === 'guinness_verified').length;
+  const internallyMeasuredCount = records.filter((record) => record.status === 'self_verified').length;
+  const guinnessCertifiedCount = records.filter((record) => isGuinnessVerified(record.status, hasCertificate)).length;
   const proposedCount = records.filter((record) => record.status === 'proposed').length;
 
   return (
@@ -90,7 +91,8 @@ export default function WorldRecordsPage() {
           stats={
             <>
               <GovernanceStatPill label="Records" value={records.length} />
-              <GovernanceStatPill label="Verified" value={verifiedCount} valueClassName="text-success" className="border-success/30 bg-success/10" />
+              <GovernanceStatPill label="Internally measured" value={internallyMeasuredCount} valueClassName="text-primary" className="border-primary/30 bg-primary/10" />
+              <GovernanceStatPill label="Guinness certified" value={guinnessCertifiedCount} />
               <GovernanceStatPill label="Proposed" value={proposedCount} />
             </>
           }
@@ -120,17 +122,20 @@ export default function WorldRecordsPage() {
                 </CardTitle>
                 <CardDescription>{WORLD_RECORD_HONESTY_DISCLAIMER}</CardDescription>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground">
-                Guinness World Records branding appears only when status is Guinness Verified and a certificate asset is
-                present at <code className="rounded bg-muted px-1">/records/gwr-certificate.pdf</code>.
+              <CardContent className="space-y-3 text-xs text-muted-foreground">
+                <p>Official certification requires an application, accepted guidelines, independent evidence review and a genuine certificate. The existing internal June 2026 measurement is not that certification.</p>
+                <p>Guinness branding appears only when status is Guinness Verified and a certificate asset is present.</p>
+                <a className="inline-flex min-h-11 items-center gap-2 text-primary underline" href="https://www.guinnessworldrecords.com/contact/application-enquiry" target="_blank" rel="noopener noreferrer">
+                  Read the official application requirements <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
               </CardContent>
             </Card>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <Card>
                 <CardContent className="pt-4">
-                  <p className="text-xs text-muted-foreground">Verified / candidate</p>
-                  <p className="text-2xl font-bold">{verifiedCount}</p>
+                  <p className="text-xs text-muted-foreground">Self-verified internally</p>
+                  <p className="text-2xl font-bold">{internallyMeasuredCount}</p>
                 </CardContent>
               </Card>
               <Card>
