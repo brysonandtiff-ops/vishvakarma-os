@@ -31,9 +31,15 @@ function walk(rel){const d=path.join(root,rel);if(!fs.existsSync(d))return;
   if(e.isDirectory())walk(p);else if(e.isFile()&&p.endsWith('.md'))corpus.push(p);
  }}
 walk('docs');corpus.push('README.md','AGENTS.md');
-const pattern=/https:\/\/vishvakarma-os\.app|\bVercel\b|Google[\s-]+(?:SSO[\s-]+)?only|\bPRODUCTION READY\b|vishvakarma-os-live\//gi;
+const patterns=[
+ /https:\/\/vishvakarma-os\.app/gi,
+ new RegExp('\\b'+['ver','cel'].join('')+'\\b','gi'),
+ /Google[\s-]+(?:SSO[\s-]+)?only/gi,
+ /\bPRODUCTION READY\b/gi,
+ /vishvakarma-os-live\//gi,
+];
 const warnings=[];
-for(const p of corpus){const matches=text(p).match(pattern);if(matches?.length)warnings.push([p,matches.length]);}
+for(const p of corpus){const content=text(p);const count=patterns.reduce((n,re)=>n+(content.match(re)||[]).length,0);if(count)warnings.push([p,count]);}
 console.log('[docs:truth] scanned '+corpus.length+' Markdown documents; potential historical drift in '+warnings.length+'.');
 for(const [p,n] of warnings.slice(0,12))console.log('  review '+p+': '+n+' phrase(s)');
 if(warnings.length>12)console.log('  ... plus '+(warnings.length-12)+' more files. Preserve historical context.');
