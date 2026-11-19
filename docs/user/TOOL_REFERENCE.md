@@ -1,4 +1,4 @@
-> **TOOL INVENTORY — CODE PRESENCE IS NOT RUNTIME CERTIFICATION (19 Nov 2026).** Compare listed tools with the real source and physical device before claiming completed actions. [Current source truth](../repository/SOURCE_OF_TRUTH_20261119.md).
+> **Studio candidate, 19 November 2026.** See the [current source truth](../repository/SOURCE_OF_TRUTH_20261119.md) for browser and device evidence.
 
 # Tool Reference
 
@@ -6,7 +6,7 @@
 **Last verified:** 2026-06-21  
 **Audience:** user  
 
-Editor tools available from the tool rail in `/editor`. Use the command palette (`Ctrl+K` / `Cmd+K`) to search routes, tutorials, and guided tool walkthroughs.
+In Studio at `/editor`, select **Blueprint** to use the tool rail. Open **Tools** for drafting modes, grid and view settings. Use **Details** to inspect a selected element.
 
 ---
 
@@ -22,7 +22,7 @@ Editor tools available from the tool rail in `/editor`. Use the command palette 
 | Label | T | Tap canvas to place a room label | Rename labels for export clarity |
 | Dimension | Shift+M | Tap two points to create a dimension line | Press Shift+D to show/hide dimensions |
 
-View toggles: 3D preview, grid, snap-to-grid, layer controls, and presentation mode where available.
+Studio's view control switches among Blueprint, 3D orbit and Walk. Save and Export apply to the same project in each view.
 
 ---
 
@@ -38,7 +38,7 @@ Room, Vastu, MEP, Furniture, Landscape, and Terrain are on-canvas tools. Some ad
 | Furniture | Interior mode / F | Place furniture on the plan and inspect in 3D |
 | Landscape | Tool rail | Add exterior landscape elements where supported |
 | Terrain | Tool rail | Draw terrain patches and inspect 3D extrusion |
-| Walk mode | 3D controls | Navigate the model from a first-person view |
+| Walk mode | Studio view control | Explore at eye height with desktop keys or the touch movement controls |
 
 ---
 

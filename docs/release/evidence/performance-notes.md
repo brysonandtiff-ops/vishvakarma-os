@@ -1,5 +1,9 @@
 # Performance Notes
 
+## Studio candidate checks — 19 November 2026
+
+The local production build measured 3.94 MB of JavaScript and CSS. The 159-entry PWA precache measured 11.26 MB. Both repository budgets passed. Desktop Chromium rendered the Blueprint and 3D views and exercised Walk. Phone emulation verified touch drawing and movement. Hosted interaction timing and physical-device performance evidence are still required for gate 12. [Current release decision](../CURRENT_RELEASE_STATUS.md)
+
 ## Editor performance overhaul (2026-06)
 
 Hot-path fixes shipped across the blueprint editor:

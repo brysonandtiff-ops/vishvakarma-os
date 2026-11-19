@@ -22,7 +22,7 @@
 ## Still open and not marked PASS
 
 1. Read and classify the remaining historic and deep documentation across the 231-document corpus: current, generated, historical or planned. The automated scanner flags likely old URLs/provider/Google-only/PRODUCTION READY phrases but does not automatically decide which are incorrect historical facts.
-2. Run docs:verify and handoff:verify on an approved full checkout; repair any real broken links. A selected Cloudflare build is not an exhaustive full docs check unless those tasks ran.
+2. Repeat repository link and handoff checks on the next source change. The Studio freeze passed `docs:verify` and `handoff:verify` after regenerating the inventories.
 3. Inspect old Vercel/Firebase, inaccurate email signup, paid plan, world-record and source-path assertions in deeper annexes without destroying provenance.
 4. Confirm publicly listed support mailbox delivery before changing old email contact addresses in legal documents.
 5. Close [security #153](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/153) and [encrypted backup #188](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/188); no history purge before retained recoverable backup.

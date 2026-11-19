@@ -2,7 +2,7 @@
 
 # Appendix C — npm Scripts
 
-Generated: 2026-11-13T14:03:47.658Z
+Generated: 2026-11-19T20:06:52.002Z
 
 Total: 125 scripts
 

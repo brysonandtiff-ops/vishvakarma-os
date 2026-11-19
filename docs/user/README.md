@@ -8,7 +8,7 @@ Product documentation for architects and designers using Vishvakarma.OS at https
 
 ---
 
-**Release HOLD:** No latest-source signed-in iPad 2D/3D/save/reopen evidence yet. Use sample data and read the [current release decision](../release/CURRENT_RELEASE_STATUS.md).
+**Release hold.** The Studio guides cover the frozen candidate. The public site serves the earlier build. See the [current release decision](../release/CURRENT_RELEASE_STATUS.md).
 
 ## Start here
 
@@ -22,7 +22,7 @@ Product documentation for architects and designers using Vishvakarma.OS at https
 
 ## Guided learning
 
-Use the in-app **Tutorial hub** from the editor help button, workspace sidebar, or command palette (`Ctrl+K` / `Cmd+K` → Learn). Start with:
+In Studio, open the **Help** button for the Tutorial hub or search Learn in the command palette (`Ctrl+K` / `Cmd+K`).
 
 | Tutorial | Best for | Route |
 |----------|----------|-------|

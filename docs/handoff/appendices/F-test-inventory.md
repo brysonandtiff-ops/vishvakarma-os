@@ -2,9 +2,9 @@
 
 # Appendix F — Test Inventory
 
-Generated: 2026-11-13T14:03:47.658Z
+Generated: 2026-11-19T20:06:52.002Z
 
-## Vitest unit/integration (198 files)
+## Vitest unit/integration (211 files)
 
 - `src/ai/building-designer/buildingDesigner.test.ts`
 - `src/backend/authCapabilities.test.ts`
@@ -94,6 +94,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/akashaCastRecovery.test.tsx`
 - `src/test/analyticsConsent.test.tsx`
 - `src/test/atmosphereMode.test.ts`
+- `src/test/authPageClarity.test.tsx`
 - `src/test/authPhoneFloatingControls.test.ts`
 - `src/test/automatedTestSuite.test.ts`
 - `src/test/billingBanner.test.ts`
@@ -108,6 +109,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/castCollaborationLifecycle.test.ts`
 - `src/test/cloudflareApiRuntimeModule.test.ts`
 - `src/test/cloudflareBuildGate.test.ts`
+- `src/test/cloudflareHostingCutover.test.ts`
 - `src/test/coOwners.test.ts`
 - `src/test/collaborationEngine.test.ts`
 - `src/test/collaborationPresence.test.ts`
@@ -118,6 +120,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/demoFlowDocs.test.ts`
 - `src/test/demoMediaKitHandoff.test.ts`
 - `src/test/divineArchitectTheme.test.ts`
+- `src/test/dreamHomeJourney.test.tsx`
 - `src/test/editorChrome.test.ts`
 - `src/test/editorPerformanceOverhaul.test.ts`
 - `src/test/editorSidebarIntegration.test.tsx`
@@ -138,6 +141,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/investorScreenshotPack.test.ts`
 - `src/test/keyboardShortcuts.test.ts`
 - `src/test/lightingPresets.test.ts`
+- `src/test/liteEditorHandoff.test.tsx`
 - `src/test/localDraft.test.ts`
 - `src/test/localProjectsRecovery.test.ts`
 - `src/test/loginDataSetup.test.ts`
@@ -150,12 +154,14 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/motionSystem.test.ts`
 - `src/test/multiUserGovernance.test.ts`
 - `src/test/multiUserRolesCiGate.test.ts`
+- `src/test/newProjectSavePlan.test.tsx`
 - `src/test/noBlockingStartupScreen.test.ts`
 - `src/test/noImpatienceInterruptionGuard.test.ts`
 - `src/test/officialLogoBrand.test.ts`
 - `src/test/parity2d3d.test.ts`
 - `src/test/pilotDocs.test.ts`
 - `src/test/pricingPhoneDensity.test.ts`
+- `src/test/privateWelcomeCinematic.test.ts`
 - `src/test/productionAuthVerifier.test.ts`
 - `src/test/projectRoles.test.ts`
 - `src/test/projectsDemoSamples.test.ts`
@@ -169,6 +175,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/repositorySecretGuard.test.ts`
 - `src/test/responsiveRouteAudit.test.ts`
 - `src/test/roomCalculations.test.ts`
+- `src/test/roomCamera.test.ts`
 - `src/test/roomLabelSvgRecovery.test.ts`
 - `src/test/routeCssBoundary.test.ts`
 - `src/test/sacredMarketing.test.ts`
@@ -190,10 +197,16 @@ Generated: 2026-11-13T14:03:47.658Z
 - `src/test/supabaseAuthRestore.test.ts`
 - `src/test/texturePatterns.test.ts`
 - `src/test/themeManager.test.ts`
+- `src/test/threeDRoomWorkflow.test.tsx`
 - `src/test/verificationWiring.test.ts`
+- `src/test/verifiedFamilyAdminBoundary.test.ts`
 - `src/test/versionControlHooks.test.ts`
 - `src/test/viewport3dFpsWiring.test.ts`
 - `src/test/visualThemeController.test.ts`
+- `src/test/voiceGuidedTourLifecycle.test.tsx`
+- `src/test/voiceQuality.test.ts`
+- `src/test/walkMovement.test.ts`
+- `src/test/workboxAndroidBuildMode.test.ts`
 - `src/test/workspaceCommandPalette.test.ts`
 - `src/test/workspaceLayoutPolish.test.ts`
 - `src/test/worldRecordMeasure.test.ts`

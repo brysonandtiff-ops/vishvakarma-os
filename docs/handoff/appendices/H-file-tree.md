@@ -2,7 +2,7 @@
 
 # Appendix H — Production File Tree (curated)
 
-Generated: 2026-11-13T14:03:47.658Z
+Generated: 2026-11-19T20:06:52.002Z
 
 ```
 src/
@@ -220,6 +220,9 @@ components/
     PropertiesPanel.tsx
     RadialToolMenu.tsx
     RadialToolMenuTracker.tsx
+    roomCamera.ts
+    RoomConceptGallery.css
+    RoomConceptGallery.tsx
     SamplePickerDialog.tsx
     SaveModeBadge.tsx
     SaveStateBadge.tsx
@@ -237,6 +240,7 @@ components/
     ToolRail.tsx
     Viewport3D.tsx
     Viewport3DLoading.tsx
+    walkMovement.ts
     WelcomeOverlay.tsx
   governance/
     GovernanceBackendBanner.tsx
@@ -279,6 +283,9 @@ components/
     WinnerHeroPanel.tsx
   profile/
     StudioAudioSettings.tsx
+  projects/
+    DreamHomeJourney.css
+    DreamHomeJourney.tsx
   qa/
     DeviceValidationPanel.tsx
     QaTools.tsx
@@ -479,6 +486,7 @@ editor/
   draftSave.worker.ts
   editorActionRegistry.ts
   editorMantras.ts
+  liteEditorHandoff.ts
   localDraft.test.ts
   localDraft.ts
   localProject.ts
@@ -609,6 +617,7 @@ pages/
   ResetPasswordPage.tsx
   SpecCenterPage.tsx
   TermsPage.tsx
+  ThreeDRoomPage.css
   ThreeDRoomPage.tsx
   WorkInProgressPage.tsx
   WorldRecordsPage.tsx
@@ -760,6 +769,7 @@ styles/
     themes.ts
     workspace-base.ts
     workspace.ts
+  vish-auth-clarity.css
   vish-auth-email-fallback.css
   vish-auth-exact-reference.css
   vish-auth-gate.css
@@ -824,6 +834,7 @@ test/
   analyticsConsent.test.tsx
   AppErrorBoundary.test.tsx
   atmosphereMode.test.ts
+  authPageClarity.test.tsx
   authPhoneFloatingControls.test.ts
   automatedTestSuite.test.ts
   billingBanner.test.ts
@@ -838,6 +849,7 @@ test/
   castCollaborationLifecycle.test.ts
   cloudflareApiRuntimeModule.test.ts
   cloudflareBuildGate.test.ts
+  cloudflareHostingCutover.test.ts
   collaborationEngine.test.ts
   collaborationPresence.test.ts
   commandPaletteShortcut.test.ts
@@ -848,6 +860,7 @@ test/
   demoFlowDocs.test.ts
   demoMediaKitHandoff.test.ts
   divineArchitectTheme.test.ts
+  dreamHomeJourney.test.tsx
   editorChrome.test.ts
   editorPerformanceOverhaul.test.ts
   editorPerformanceOverhaulProof.ts
@@ -874,6 +887,7 @@ test/
   keyboardShortcuts.test.ts
   KeyboardShortcuts.test.tsx
   lightingPresets.test.ts
+  liteEditorHandoff.test.tsx
   localDraft.test.ts
   localProjectsRecovery.test.ts
   loginDataSetup.test.ts
@@ -892,12 +906,14 @@ test/
   motionSystem.test.ts
   multiUserGovernance.test.ts
   multiUserRolesCiGate.test.ts
+  newProjectSavePlan.test.tsx
   noBlockingStartupScreen.test.ts
   noImpatienceInterruptionGuard.test.ts
   officialLogoBrand.test.ts
   parity2d3d.test.ts
   pilotDocs.test.ts
   pricingPhoneDensity.test.ts
+  privateWelcomeCinematic.test.ts
   productionAuthVerifier.test.ts
   projectRoles.test.ts
   projectsDemoSamples.test.ts
@@ -913,6 +929,7 @@ test/
   repositorySecretGuard.test.ts
   responsiveRouteAudit.test.ts
   roomCalculations.test.ts
+  roomCamera.test.ts
   roomLabelSvgRecovery.test.ts
   routeCssBoundary.test.ts
   sacredMarketing.test.ts
@@ -935,12 +952,18 @@ test/
   supabaseAuthRestore.test.ts
   texturePatterns.test.ts
   themeManager.test.ts
+  threeDRoomWorkflow.test.tsx
   ToolRail.test.tsx
   verificationWiring.test.ts
+  verifiedFamilyAdminBoundary.test.ts
   versionControlHooks.test.ts
   viewport3dFpsWiring.test.ts
   VisualThemeController.runtime.test.tsx
   visualThemeController.test.ts
+  voiceGuidedTourLifecycle.test.tsx
+  voiceQuality.test.ts
+  walkMovement.test.ts
+  workboxAndroidBuildMode.test.ts
   workspaceCommandPalette.test.ts
   workspaceLayoutPolish.test.ts
   worldRecordMeasure.test.ts
@@ -994,8 +1017,13 @@ utils/
 vish-theme.css
 vite-env.d.ts
 voice-tour/
+  useNarrationVoices.ts
   VoiceGuidedTour.tsx
+  voiceQuality.ts
   voiceTourContent.ts
+welcome/
+  PrivateWelcomeCinematic.css
+  PrivateWelcomeCinematic.tsx
 
 api/
 _lib/
@@ -1057,6 +1085,7 @@ migrations/
   20260712095528_enforce_opt_in_totp_mfa.sql
   20260718124701_temporary_auth_email_smoke_http.sql
   20260810142840_restrict_audit_log_visibility.sql
+  20261119090000_verified_family_admin_and_profile_guard.sql
 README.md
 
 scripts/
@@ -1080,6 +1109,7 @@ device-truth/
   report.mjs
   run.mjs
 docs/
+  check-source-truth.mjs
   verify-documentation.mjs
 dx/
   doctor.mjs
@@ -1313,6 +1343,8 @@ demo/
   VISHVAKARMA_OS_2_MIN_DEMO_FLOW.md
   VISHVAKARMA_OS_INVESTOR_SCREENSHOT_PACK.md
 design/
+  ORIGINAL_GIFT_DESIGN_MASTER_2026-11-19.md
+  OWNER_VISION_ACCEPTANCE.md
   PAGE_ROOM_GUIDE.md
   page-references/
     editor/
@@ -1427,6 +1459,7 @@ operations/
   ROLLBACK.md
   SOLAR_MANDALA_PR_BRANCH_NOTE.md
   VERCEL_DEPLOY_FIX_20260618.md
+  VERIFIED_FAMILY_ADMIN_HOLD.md
 pilots/
   ANONYMISED_PILOT_EVIDENCE_SUMMARY.md
   PILOT_FEEDBACK_TEMPLATE.md
@@ -1441,6 +1474,7 @@ project-manifest-schema.md
 PROPRIETARY_NOTICE.md
 qa/
   AUTH_IPAD10_SMOKE_CHECKLIST.md
+  AUTH_SIGNIN_CLARITY_REPAIR_20261119.md
   DEVICE_VALIDATION_PROOF_MODE_QA.md
   EMPTY_CANVAS_GUIDED_START_QA.md
   GUIDED_DEMO_SESSION_QA.md
@@ -1453,12 +1487,15 @@ qa/
   RELEASE_POLISH_SIGNOFF.md
   UI_FEATURE_HARDENING_CHECKLIST.md
   VOICE_GUIDED_TOUR_QA.md
+  VOICE_POLISH_IPAD_ACCEPTANCE_20261119.md
+  VOICE_TRANSCRIPT_ACCESSIBILITY_20261119.md
 quality/
   MULTI_DEVICE_HUMAN_TRUTH_VALIDATION.md
 README.md
 REGISTRY.md
 release/
   CLOUDFLARE_PRODUCTION_CERTIFICATION.md
+  CURRENT_RELEASE_STATUS.md
   DEPLOYMENT.md
   DEVICE_HARDENING_RUNBOOK.md
   evidence/
@@ -1467,6 +1504,7 @@ release/
     auth-sign-in-proof.md
     build-output.txt
     bundle-budget-report.json
+    CLOUDFLARE_CANONICAL_CUTOVER_20261115.md
     collaboration-preview-hardening.md
     device-hardening-audit.md
     editor-performance-overhaul-proof.json
@@ -1490,7 +1528,9 @@ release/
     POST_READY_NEXT_3_PROOF_PACK.md
     PRODUCTION_LAUNCH_REVIEW_20261113.md
     production-closeout-2026-07-16.md
+    PWA_ANDROID_WORKBOX_BUILD_FIX_20261115.md
     README.md
+    REVIEW_VERIFICATION_LEDGER_20261119.md
     route-smoke-output.txt
     save-load-proof-run.json
     save-load-proof.md
@@ -1519,6 +1559,8 @@ release/
     SIRE_VISH_RECOVERY_EVIDENCE_20261030.md
     UI_AUDIT_REPORT_2026-06-08.md
     UI_FUNCTIONALITY_PASS_2026-05-22.md
+    VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md
+  IPAD_PRIVATE_TRIAL_ACCEPTANCE_20261119.md
   IPAD_PRODUCTION_READINESS.md
   IPAD_TEST_CHECK_SHEET.md
   MOBILE_GIT_REVIEW.md
@@ -1533,6 +1575,9 @@ release/
   VERIFY_COMMANDS.md
 RELEASE_v1.0.0.md
 RELEASE.md
+repository/
+  DOCUMENTATION_DEBT_20261119.md
+  SOURCE_OF_TRUTH_20261119.md
 rfc/
   001-curved-walls.md
   002-dxf-import.md
@@ -1590,6 +1635,7 @@ world-record/
   COMPETITOR_BASELINE.md
   EVIDENCE_BUNDLE.md
   GUINNESS_APPLICATION.md
+  GUINNESS_PRE_APPLICATION_CHECKLIST_20261119.md
   latest-measurement.json
   WITNESS_ATTESTATION.md
   WORLD_RECORD_CLAIM.md
@@ -1666,6 +1712,8 @@ models/
   README.md
 og-card.png
 robots.txt
+room-studies/
+  concepts.webp
 samples/
   compliance-setback-fail.json
   full-feature-showcase.json

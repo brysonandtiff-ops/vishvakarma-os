@@ -2,7 +2,7 @@
 
 # Appendix D — Database Schema (from migrations)
 
-Generated: 2026-11-13T14:03:47.658Z
+Generated: 2026-11-19T20:06:52.002Z
 
 ## Migration files
 
@@ -23,6 +23,7 @@ Generated: 2026-11-13T14:03:47.658Z
 - `supabase/migrations/20260712095528_enforce_opt_in_totp_mfa.sql`
 - `supabase/migrations/20260718124701_temporary_auth_email_smoke_http.sql`
 - `supabase/migrations/20260810142840_restrict_audit_log_visibility.sql`
+- `supabase/migrations/20261119090000_verified_family_admin_and_profile_guard.sql`
 
 ## Tables (`public` schema)
 
@@ -104,6 +105,7 @@ Generated: 2026-11-13T14:03:47.658Z
 | cast_invites_select_host | cast_invites | 20260615000001_cast_sessions.sql |
 | cast_events_select_member | cast_events | 20260615000001_cast_sessions.sql |
 | mfa_opt_in_enforcement | public | 20260712095528_enforce_opt_in_totp_mfa.sql |
+| profiles_insert_own | profiles | 20261119090000_verified_family_admin_and_profile_guard.sql |
 
 ## Storage
 

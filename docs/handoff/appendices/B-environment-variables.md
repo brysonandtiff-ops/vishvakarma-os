@@ -2,7 +2,7 @@
 
 # Appendix B — Environment Variables
 
-Generated: 2026-11-13T14:03:47.658Z
+Generated: 2026-11-19T20:06:52.002Z
 
 ## Documented in `.env.example`
 
@@ -18,6 +18,7 @@ Generated: 2026-11-13T14:03:47.658Z
 
 | Variable | Referenced in codebase |
 |----------|------------------------|
+| `VITE_BASE_URL` | yes |
 | `VITE_DEV` | yes |
 | `VITE_MODE` | yes |
 | `VITE_PROD` | yes |
