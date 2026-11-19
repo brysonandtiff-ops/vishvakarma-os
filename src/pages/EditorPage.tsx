@@ -1062,11 +1062,7 @@ function EditorWorkspace() {
       pendingRoomType={pendingRoomType}
       onPendingRoomTypeChange={setPendingRoomType}
       openings={openings}
-      onWallsAdd={(newWalls) => {
-                     engine.addWalls(newWalls);
-                     playStudioSound('wallPlace');
-                   }}
-                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
+      onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
       onOpeningUpdate={(openingId, updates) => engine.updateOpening(openingId, updates)}
       onWallDelete={(wallId) => engine.removeWall(wallId)}
       onOpeningDelete={(openingId) => engine.removeOpening(openingId)}
@@ -1205,6 +1201,10 @@ function EditorWorkspace() {
                   gridSize={gridSize}
                   onWallAdd={(wall) => {
                     engine.addWall(wall);
+                    playStudioSound('wallPlace');
+                  }}
+                  onWallsAdd={(newWalls) => {
+                    engine.addWalls(newWalls);
                     playStudioSound('wallPlace');
                   }}
                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
