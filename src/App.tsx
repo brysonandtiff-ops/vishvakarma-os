@@ -14,6 +14,7 @@ import { initMonitoring } from '@/lib/monitoring';
 import VisualThemeController from '@/components/common/VisualThemeController';
 import { MantraPlayerWidget } from '@/components/common/MantraPlayerWidget';
 import VoiceGuidedTour from '@/voice-tour/VoiceGuidedTour';
+import { PrivateWelcomeCinematic } from '@/welcome/PrivateWelcomeCinematic';
 import GuidedDemoSessionController from '@/demo-session/GuidedDemoSessionController';
 import EmptyCanvasGuidedStart from '@/empty-canvas/EmptyCanvasGuidedStart';
 import { AppRoutes } from '@/AppRoutes';
@@ -89,6 +90,7 @@ const App: React.FC = () => {
                 <VisualThemeController />
                 <MantraPlayerWidget />
                 <VoiceGuidedTour />
+                <PrivateWelcomeCinematic />
                 <PwaUpdateBanner />
                 {QaTools ? (
                   <Suspense fallback={null}>

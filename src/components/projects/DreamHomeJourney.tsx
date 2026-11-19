@@ -1,6 +1,9 @@
 import { ArrowRight, Box, Footprints, FolderOpen, PenLine, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
+import { useAuth } from '@/contexts/AuthContext';
+import { isCoOwnerEmail } from '@/config/coOwners';
+import { PRIVATE_WELCOME_EVENT } from '@/welcome/PrivateWelcomeCinematic';
 import './DreamHomeJourney.css';
 
 const journey = [
@@ -39,6 +42,7 @@ function DreamPlan() {
 }
 
 export function DreamHomeJourney() {
+  const { user } = useAuth();
   return (
     <section className="vish-dream" aria-labelledby="vish-dream-title" data-testid="dream-home-journey">
       <div className="vish-dream__hero">
@@ -55,6 +59,11 @@ export function DreamHomeJourney() {
             <Link className="vish-dream__secondary" to="/3d-room">Explore a 3D room</Link>
           </div>
           <p className="vish-dream__note">Opening a workspace will not delete or overwrite a saved project.</p>
+          {user && isCoOwnerEmail(user.email) && (
+            <button type="button" className="vish-dream__secondary" onClick={() => window.dispatchEvent(new Event(PRIVATE_WELCOME_EVENT))}>
+              Replay my welcome film
+            </button>
+          )}
         </div>
         <DreamPlan />
       </div>
