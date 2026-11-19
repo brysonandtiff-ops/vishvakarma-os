@@ -1,0 +1,227 @@
+/* Vishvakarma.OS cinematic entrance: official swan artwork + illustrated architecture.
+   Decorative animation never blocks auth, routes, input or scrolling. */
+.vish-architecture-cinema {
+  --vish-cinema-gold: #f5c967;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  padding: 1rem 1rem 1.1rem;
+  overflow: hidden;
+  color: #f9ecc7;
+  border: 1px solid rgba(245, 201, 103, .36);
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(ellipse at 50% 5%, rgba(245, 201, 103, .19), transparent 56%),
+    linear-gradient(160deg, rgba(2, 14, 31, .96), rgba(15, 13, 18, .96));
+  box-shadow: 0 16px 48px rgba(0, 0, 0, .24), inset 0 0 32px rgba(245, 201, 103, .06);
+  text-align: center;
+}
+
+.vish-architecture-cinema__identity {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+}
+.vish-architecture-cinema__identity img {
+  position: relative;
+  z-index: 2;
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(245, 201, 103, .43));
+  animation: vish-cinema-breathe 3.8s ease-in-out infinite;
+}
+.vish-architecture-cinema__halo {
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid rgba(245, 201, 103, .25);
+  border-radius: 50%;
+  box-shadow: 0 0 1.8rem rgba(245, 201, 103, .16);
+  animation: vish-cinema-halo 5.5s ease-in-out infinite;
+}
+.vish-architecture-cinema__drawing {
+  width: min(100%, 21rem);
+  height: auto;
+  margin: .15rem auto .1rem;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(206, 229, 244, .77);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vish-architecture-cinema__grid {
+  stroke: rgba(245, 201, 103, .09);
+  stroke-width: .7;
+}
+.vish-architecture-cinema__plan {
+  stroke-dasharray: 650;
+  stroke-dashoffset: 0;
+  animation: vish-cinema-plan 8s ease-in-out infinite;
+}
+.vish-architecture-cinema__gold-stroke {
+  stroke: var(--vish-cinema-gold);
+  stroke-width: 2;
+}
+.vish-architecture-cinema__home {
+  opacity: 0;
+  transform: translateY(7px);
+  transform-origin: center;
+  animation: vish-cinema-build 8s ease-in-out infinite;
+}
+.vish-architecture-cinema__home-roof {
+  fill: rgba(245, 201, 103, .13);
+  stroke: #f9df9a;
+}
+.vish-architecture-cinema__home-wall { fill: rgba(46, 122, 156, .17); }
+.vish-architecture-cinema__copy { position: relative; z-index: 2; }
+.vish-architecture-cinema__eyebrow {
+  display: block;
+  margin-bottom: .3rem;
+  color: #ecd28d;
+  font: 600 .62rem/1.3 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.vish-architecture-cinema__title {
+  margin: 0;
+  color: #fff1cd;
+  font: 700 clamp(.9rem, 2.2vw, 1.25rem)/1.25 'Inter', system-ui, sans-serif;
+}
+.vish-architecture-cinema__caption {
+  margin: .4rem auto 0;
+  color: #d9e2ed;
+  font: 400 .76rem/1.5 'Inter', system-ui, sans-serif;
+  text-wrap: balance;
+}
+.vish-architecture-cinema__activity {
+  width: min(100%, 17rem);
+  height: 3px;
+  margin-top: 1.1rem;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(245, 201, 103, .16);
+}
+.vish-architecture-cinema__activity span,
+.vish-auth-connection__activity span {
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, #f5c967, #fff1cd);
+  animation: vish-cinema-indeterminate 1.6s ease-in-out infinite;
+}
+.vish-architecture-cinema--loading {
+  width: min(100%, 25rem);
+  margin-inline: auto;
+  padding: 1.4rem 1rem 1.6rem;
+  border-radius: 1.4rem;
+}
+.vish-architecture-cinema--loading .vish-architecture-cinema__drawing { width: min(100%, 15rem); }
+.vish-cinema-route {
+  display: grid;
+  min-height: min(66dvh, 34rem);
+  place-items: center;
+  padding: 2.3rem 1rem;
+  background: #17120c;
+}
+.vish-cinema-route--marketing { background: transparent; }
+.vish-login-page__hero > .vish-architecture-cinema--welcome {
+  position: absolute;
+  z-index: 7;
+  right: 3%;
+  bottom: 6.5rem;
+  width: clamp(12rem, 39%, 17rem);
+  padding: .6rem .5rem .8rem;
+  pointer-events: none;
+}
+.vish-login-page__hero > .vish-architecture-cinema--welcome .vish-architecture-cinema__drawing {
+  width: min(100%, 11rem);
+}
+.vish-login-page__hero > .vish-architecture-cinema--welcome .vish-architecture-cinema__identity {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+.vish-login-page__hero > .vish-architecture-cinema--welcome .vish-architecture-cinema__identity img {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+.vish-login-page__hero > .vish-architecture-cinema--welcome .vish-architecture-cinema__halo {
+  width: 3.6rem;
+  height: 3.6rem;
+}
+.vish-login-page__hero > .vish-architecture-cinema--welcome .vish-architecture-cinema__caption {
+  font-size: .64rem;
+}
+.vish-login-page--reference-replica .vish-login-page__logo-img {
+  animation: vish-cinema-breathe 4s ease-in-out infinite;
+}
+.vish-auth-connection {
+  color: #f5db91;
+  font: 600 .75rem/1.5 'Inter', system-ui, sans-serif;
+}
+.vish-auth-connection__activity {
+  height: 3px;
+  margin: .4rem 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(245, 201, 103, .18);
+}
+@keyframes vish-cinema-breathe {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(245, 201, 103, .24)); }
+  50% { filter: drop-shadow(0 0 18px rgba(245, 201, 103, .69)); }
+}
+@keyframes vish-cinema-halo {
+  0%, 100% { opacity: .42; transform: scale(.88); }
+  50% { opacity: 1; transform: scale(1.07); }
+}
+@keyframes vish-cinema-plan {
+  0%, 8% { stroke-dashoffset: 650; opacity: 1; }
+  35%, 50% { stroke-dashoffset: 0; opacity: 1; }
+  64%, 86% { stroke-dashoffset: 0; opacity: .17; }
+  100% { stroke-dashoffset: 650; opacity: 1; }
+}
+@keyframes vish-cinema-build {
+  0%, 37% { opacity: 0; transform: translateY(7px); }
+  56%, 85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(7px); }
+}
+@keyframes vish-cinema-indeterminate {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(310%); }
+}
+@media (max-width: 980px) {
+  .vish-login-page__hero > .vish-architecture-cinema--welcome {
+    position: relative;
+    inset: auto;
+    z-index: 7;
+    width: min(100%, 20rem);
+    margin: 1.5rem 0 1.5rem auto;
+  }
+}
+@media (max-width: 760px) {
+  .vish-login-page__hero > .vish-architecture-cinema--welcome {
+    width: min(100%, 18rem);
+    margin: 1rem auto;
+  }
+  .vish-cinema-route { min-height: 55dvh; }
+}
+@media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+  .vish-architecture-cinema__identity img,
+  .vish-architecture-cinema__halo,
+  .vish-architecture-cinema__plan,
+  .vish-architecture-cinema__home,
+  .vish-architecture-cinema__activity span,
+  .vish-auth-connection__activity span,
+  .vish-login-page--reference-replica .vish-login-page__logo-img {
+    animation: none !important;
+  }
+  .vish-architecture-cinema__plan { stroke-dashoffset: 0; opacity: 1; }
+  .vish-architecture-cinema__home { opacity: .8; transform: none; }
+}

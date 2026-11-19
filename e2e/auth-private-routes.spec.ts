@@ -17,8 +17,11 @@ test.describe('production auth gate', () => {
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('google-sso-button')).toBeVisible();
     await expect(page.getByTestId('google-sso-button')).toHaveText(/continue with google sso/i);
-    await expect(page.getByText(/supabase google oauth as the only production login path/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /send secure access link/i })).toHaveCount(0);
+    // Both real approved sign-in methods are available; no anonymous access.
+    await expect(page.getByTestId('email-magic-link-input')).toBeVisible();
+    await expect(page.getByTestId('email-magic-link-button')).toBeVisible();
+    await expect(page.getByTestId('email-magic-link-button')).toHaveText(/email me a sign-in link/i);
+    await expect(page.getByText(/do not create unapproved accounts/i)).toBeVisible();
   });
 
   for (const route of privateRoutes) {

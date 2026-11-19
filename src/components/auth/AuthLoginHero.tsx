@@ -1,4 +1,5 @@
 import { Compass, Hammer, Sparkles, Leaf } from 'lucide-react';
+import { VishArchitecturalSequence } from '@/components/brand/VishArchitecturalSequence';
 
 const FEATURES = [
   { icon: Compass, title: 'Design', subtitle: 'With Intelligence' },
@@ -49,6 +50,8 @@ export default function AuthLoginHero() {
           </div>
         ))}
       </div>
+
+      <VishArchitecturalSequence variant="welcome" />
 
       <blockquote className="vish-login-page__quote">
         <div className="vish-login-page__quote-sanskrit">यत्र विश्वं भवत्येकनीडम्</div>

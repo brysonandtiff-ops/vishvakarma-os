@@ -84,7 +84,13 @@ export default function AuthLoginCard({
           </p>
         )}
 
-        <div className="vish-login-page__form" data-testid="supabase-auth-options">
+        <div className="vish-login-page__form" data-testid="supabase-auth-options" aria-busy={submitting}>
+          {submitting && (
+            <div className="vish-auth-connection" role="status" aria-live="polite" data-testid="auth-connection-active">
+              <span>Connecting securely to your account…</span>
+              <div className="vish-auth-connection__activity" aria-hidden="true"><span /></div>
+            </div>
+          )}
           {showEmbeddedAuthRecovery && (
             <div className="vish-login-page__embedded-recovery">
               <p>Google OAuth is blocked in {embeddedBrowserLabel}. Use the email link below or open this page in your system browser.</p>
