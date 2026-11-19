@@ -960,7 +960,7 @@ export default function BlueprintCanvas({
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getCanvasPoint(event);
 
-    if (currentTool === 'pen') {
+    if (currentTool === 'pen' && event.button === 0) {
       pencilPointerIdRef.current = event.pointerId;
       const points = appendPencilPoint([], getRawCanvasPoint(event));
       pencilPointsRef.current = points;
