@@ -24,6 +24,7 @@ const focusedTests = [
   'src/test/dreamHomeJourney.test.tsx',
   'src/test/privateWelcomeCinematic.test.ts',
   'src/test/voiceQuality.test.ts',
+  'src/test/voiceGuidedTourLifecycle.test.tsx',
   'src/test/verifiedFamilyAdminBoundary.test.ts',
   'src/test/worldRecordRegistry.test.ts',
   'src/test/analyticsConsent.test.tsx',
