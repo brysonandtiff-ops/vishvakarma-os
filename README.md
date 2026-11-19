@@ -2,6 +2,15 @@
 
 Vishvakarma.OS is an iPad-first, browser-native architectural workstation for 2D planning, live 3D review, governance, exports, and AI-assisted design.
 
+## Release truth — 19 November 2026
+
+**BLOCKED; not production-ready.** The inspected canonical URL returns HTTP 404, PR #208 is still draft, security issue #153 and retained-backup issue #188 are open, and complete signed-in/device/runtime proof is missing. Do not call preview UI or historical tests a certified launch.
+
+- [Current release authority and holds](docs/release/CURRENT_RELEASE_STATUS.md)
+- [Actual source/UI inspection](docs/release/evidence/VISHVAKARMA_SIRE_RELEASE_AUDIT_2026-11-19.md)
+- [Owner's 2D → 3D → walk → save/reopen/share acceptance](docs/design/OWNER_VISION_ACCEPTANCE.md)
+- [Canonical artwork lock](docs/BRAND_LOCK.md)
+
 ## Start here
 
 All application code, documentation, migrations, and development commands live at the repository root.
