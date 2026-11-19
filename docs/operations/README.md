@@ -1,10 +1,10 @@
 # Operations Portal
 
 **Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
+**Portal reviewed:** 2026-11-19 (older runbooks need provider-specific verification)  
 **Audience:** operator  
 
-Runbooks and operational guides for deploying, monitoring, and maintaining Vishvakarma.OS in production.
+Runbooks for Vishvakarma.OS. **Cloudflare Pages is the active host, not the historical Vercel setup.** Check [current architecture](../CURRENT_PRODUCTION_ARCHITECTURE.md) and [release HOLD](../release/CURRENT_RELEASE_STATUS.md) before live actions.
 
 **Due diligence depth:** [handoff/HANDOFF.md](../handoff/HANDOFF.md) (annexes 07–09)
 
@@ -15,7 +15,7 @@ Runbooks and operational guides for deploying, monitoring, and maintaining Vishv
 | Document | Purpose |
 |----------|---------|
 | [DEPLOYMENT_RUNBOOK.md](./DEPLOYMENT_RUNBOOK.md) | Production deploy flow |
-| [ROLLBACK.md](./ROLLBACK.md) | Vercel rollback, migration policy |
+| [ROLLBACK.md](./ROLLBACK.md) | Historical Vercel rollback (not live Cloudflare procedure) |
 | [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) | Severity levels and escalation |
 | [MONITORING.md](./MONITORING.md) | Dashboards and alerts |
 | [ACCOUNT_TRANSFER.md](./ACCOUNT_TRANSFER.md) | Operator handover and key rotation |

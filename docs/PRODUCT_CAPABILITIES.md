@@ -1,10 +1,12 @@
+> **HISTORICAL CAPABILITY MAP (June 2026), NOT CURRENT LIVE CERTIFICATION.** The detailed source inventory below does not prove signed-in 2D/3D, real iPad, cloud saving, billing or regulatory compliance. Current status: [source matrix](./repository/SOURCE_OF_TRUTH_20261119.md) and [release HOLD](./release/CURRENT_RELEASE_STATUS.md).
+
 # Vishvakarma.OS — Product Capabilities
 
 **Version:** v1.3.x  
 **Last audited:** 2026-06-14  
 **Current production backend:** Supabase Auth + Postgres/RLS + Storage + billing entitlement state  
-**Canonical production URL:** https://vishvakarma-os.app  
-**Cloudflare production domain:** https://vishvakarmaos.app (reachable, but older deployed SHA; launch HOLD)
+**Retired original hostname:** historical hyphenated .app origin  
+**Active public Cloudflare domain:** https://vishvakarmaos.app (older deployed source; launch HOLD)
 
 This document is the product capability brief aligned with the current production architecture. For backend status wording, see [`CURRENT_PRODUCTION_ARCHITECTURE.md`](./CURRENT_PRODUCTION_ARCHITECTURE.md).
 

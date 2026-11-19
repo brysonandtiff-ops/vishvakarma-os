@@ -1,3 +1,5 @@
+> **ADVERTISED PLANS, NOT VERIFIED PAYMENT (19 Nov 2026).** Prices and benefits below reflect source/site descriptions. Live checkout, refunds, entitlements and renewals are NOT independently certified; do not purchase without explicit approval. [Current release status](../release/CURRENT_RELEASE_STATUS.md).
+
 # Billing and Plans
 
 **Product version:** v1.5.0  
@@ -32,7 +34,7 @@ Source: `src/config/billingPlans.ts`
 
 ## Upgrading
 
-1. Sign in at https://vishvakarma-os.app/auth
+1. Sign in at https://vishvakarmaos.app/auth
 2. Visit **Profile** (`/profile`) or **Pricing** (`/pricing` when enabled)
 3. Select **Studio** or **Enterprise**
 4. Complete Stripe Checkout

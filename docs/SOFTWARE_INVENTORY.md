@@ -1,10 +1,12 @@
+> **HISTORICAL SOURCE INVENTORY — NOT CURRENT RUNTIME PROOF (19 Nov 2026).** This June inventory records code and older hosting. Entries below saying “production,” “fully shipped,” Vercel, or a retired domain are not proof of the current Cloudflare draft. Consult [source truth](./repository/SOURCE_OF_TRUTH_20261119.md), [current architecture](./CURRENT_PRODUCTION_ARCHITECTURE.md) and [release HOLD](./release/CURRENT_RELEASE_STATUS.md) before repeating claims.
+
 # Vishvakarma.OS — Software Inventory
 
 **Document type:** Technical inventory and valuation scope reference  
 **Product version:** v1.5.0  
 **Codebase audit date:** 2026-06-13  
-**Production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Active public domain, older deployed code:** https://vishvakarmaos.app  
+**Historical Vercel host, NOT an approved current fallback:** https://vishvakarma-os.vercel.app  
 **Current production backend:** Supabase-only runtime path for Auth, Postgres/RLS, Storage, billing entitlements, and collaboration metadata
 
 This document is the authoritative current-state record of what has been built in Vishvakarma.OS. It is intended for investors, acquirers, technical due diligence, valuation discussions, and internal roadmap planning.
@@ -37,16 +39,16 @@ The current production architecture has been consolidated around Supabase for au
 | Metric | Current value / note |
 |--------|----------------------|
 | Product version | v1.5.0 |
-| Production hosting | Vercel SPA + serverless API routes |
+| Active hosting | Cloudflare Pages; older Vercel material below is historic |
 | Current backend | Supabase-only production path |
 | Local fallback | `localStorage` drafts/projects when backend is unconfigured |
 | Application routes | Public marketing/auth + authenticated editor/governance/billing routes |
-| 2D editor | Production |
-| 3D viewport | Production with WebGL fallback |
+| 2D editor | Implemented in source; physical-device runtime NOT VERIFIED |
+| 3D viewport | Source renderer; real-house accuracy/walk NOT VERIFIED |
 | iPad hardening | Shipped in v1.2.x workstream |
 | Terrain/landscape | Phase 4 terrain patches shipped |
 | Stripe billing | Checkout, portal, webhooks, tier gating |
-| Governance OS | Production surface |
+| Governance OS | Source routes and modules; signed-in workflow NOT VERIFIED |
 | Collaboration | Preview scaffold: Yjs/WebSocket + Supabase metadata/auth direction |
 | AI / Gemini | Built, requires server key/env setup |
 | Compliance/council/cost | Built as decision-support/prototype intelligence layers |

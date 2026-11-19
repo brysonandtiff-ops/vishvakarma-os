@@ -1,12 +1,14 @@
 # User Help Portal
 
 **Product version:** v1.5.0  
-**Last verified:** 2026-06-20  
+**Portal refreshed:** 2026-11-19 (linked deeper guides remain historically dated)  
 **Audience:** user  
 
-Product documentation for architects and designers using Vishvakarma.OS at https://vishvakarma-os.app
+Product documentation for architects and designers using Vishvakarma.OS at https://vishvakarmaos.app
 
 ---
+
+**Release HOLD:** No latest-source signed-in iPad 2D/3D/save/reopen evidence yet. Use sample data and read the [current release decision](../release/CURRENT_RELEASE_STATUS.md).
 
 ## Start here
 

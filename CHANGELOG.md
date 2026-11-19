@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — 19 November 2026 (DRAFT PRs, NOT PRODUCTION)
+
+- Added original-art five-stage home journey and corrected project metrics without replacing the full editor.
+- Enhanced 3D walk movement, narrator/caption controls, private welcome cinematic and sign-in readability; physical iPad acceptance still pending.
+- Last source-bound UI preview before docs sweep: 614256d64c502c8158c6867f69beacaf0ea8c0cb; 50 selected test files, 312 tests passed; not whole-repo certification.
+- Added readable README, source-of-truth matrix, evidence/release ledger, current onboarding and documentation drift gate.
+- Existing release holds remain: security #153, recoverable backup #188, signed-in and physical-device proof.
+
+
 All notable changes to Vishvakarma.OS are documented in this file.
 
 ## [1.5.0] - 2026-06-14
