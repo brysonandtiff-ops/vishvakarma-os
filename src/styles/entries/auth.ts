@@ -8,3 +8,4 @@ import '../vish-auth-reference-match.css';
 import '../vish-auth-reference-breakpoint-fix.css';
 import '../vish-auth-exact-reference.css';
 import '../vish-auth-layout-tidy.css';
+import '../vish-auth-clarity.css';

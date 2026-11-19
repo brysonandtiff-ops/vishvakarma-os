@@ -1,3 +1,5 @@
+> **HISTORICAL v1.0 RELEASE SUMMARY — NOT CURRENT SIGN-OFF.** The original release/tests belong to an earlier SHA. Current review remains [BLOCKED](./release/CURRENT_RELEASE_STATUS.md); read [source-bound evidence](./release/evidence/REVIEW_VERIFICATION_LEDGER_20261119.md).
+
 # Vishvakarma.OS v1.0.0 — Release Summary
 
 **Release Date**: 2026-02-15  

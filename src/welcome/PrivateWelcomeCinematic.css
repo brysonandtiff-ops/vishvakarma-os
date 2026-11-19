@@ -1,0 +1,39 @@
+.vish-private-film-backdrop{position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:clamp(8px,2.5vw,30px);background:rgba(1,8,14,.94);backdrop-filter:blur(16px)}
+.vish-private-film{position:relative;width:min(100%,1040px);max-height:min(95dvh,960px);overflow-y:auto;color:#f6e9cc;border:1px solid rgba(237,188,93,.65);border-radius:24px;background:radial-gradient(ellipse at 48% 8%,#19394a 0%,#091725 42%,#050a12 86%);box-shadow:0 35px 120px #000b;overscroll-behavior:contain}
+.vish-private-film__top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px clamp(18px,3vw,32px);border-bottom:1px solid #c99c4a45}
+.vish-private-film__top>span{display:flex;align-items:center;gap:10px;letter-spacing:.17em;color:#f0c979;font-weight:750;font-size:11px;line-height:1.5}
+.vish-private-film button{min-width:44px;min-height:44px;cursor:pointer}
+.vish-private-film__icon{display:grid;place-items:center;background:#ffffff12;border:1px solid #ffffff24;border-radius:12px;color:#f3deae}
+.vish-private-film__stage{display:grid;align-content:start;justify-items:center;text-align:center;gap:12px;padding:clamp(20px,4vw,40px) clamp(18px,4vw,50px) 12px;animation:vish-film-enter .65s ease both}
+.vish-private-film__brand img{display:block;width:clamp(74px,12vw,120px);height:clamp(74px,12vw,120px);object-fit:contain;filter:drop-shadow(0 0 24px #dcae5866)}
+.vish-private-film__kicker{margin:5px 0 8px;font-size:11px;font-weight:750;letter-spacing:.21em;color:#ecc478}
+.vish-private-film__content h2{font-weight:800;line-height:1.14;font-size:clamp(25px,4.8vw,49px);letter-spacing:-.025em;text-wrap:balance;max-width:750px;margin:0 auto;color:#fff0d3}
+.vish-private-film__caption{max-width:650px;margin:14px auto 0;font-size:clamp(14px,1.7vw,18px);line-height:1.65;color:#d7d1c5}
+.vish-private-film__proof{max-width:640px;margin:16px auto 0;padding:12px 15px;border:1px solid #cf9a5273;border-radius:10px;background:#b88e2d15;color:#f0dcb5;font-size:12px;line-height:1.6}
+.vish-private-film__visual{margin:16px auto 0;width:min(100%,620px);border:1px solid #c59e5c66;border-radius:15px;overflow:hidden;background:#e2d7b9;box-shadow:0 20px 60px #0007}
+.vish-private-film__visual img{width:100%;max-height:250px;object-fit:contain;display:block}
+.vish-private-film__visual figcaption{padding:7px 10px;color:#564c37;font-size:11px;background:#e8dcc4}
+.vish-private-film__progress{display:flex;gap:6px;padding:16px 20px;justify-content:center}
+.vish-private-film__progress button{min-width:30px;min-height:30px;display:grid;place-items:center;border:0;background:transparent}
+.vish-private-film__progress span{width:22px;height:4px;border-radius:8px;background:#746a57}
+.vish-private-film__progress .is-active span{width:30px;background:#f1cc77;box-shadow:0 0 13px #e8c06c}
+.vish-private-film__actions{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:0 18px 18px}
+.vish-private-film__control,.vish-private-film__primary{display:flex;align-items:center;justify-content:center;gap:7px;border-radius:11px;padding:10px 15px;text-decoration:none;font-size:13px;font-weight:750}
+.vish-private-film__control{border:1px solid #f1d59c55;background:#132938;color:#f2e3bf}
+.vish-private-film__control:disabled{opacity:.4;cursor:not-allowed}
+.vish-private-film__primary{background:linear-gradient(115deg,#fff0bc,#ddb365);color:#231807;border:1px solid #e6bd6f}
+.vish-private-film button:focus-visible,.vish-private-film a:focus-visible{outline:3px solid #ffe2a4;outline-offset:3px}
+.vish-private-film__footer{border-top:1px solid #c99c4a45;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;color:#bdb9b0;font-size:11px}
+.vish-private-film__footer>div{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.vish-private-film__footer button,.vish-private-film__footer a{color:#e6ca8d;background:none;border:0;text-decoration:underline;display:flex;gap:5px;align-items:center;font-size:12px}
+@keyframes vish-film-enter{from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:600px){.vish-private-film{border-radius:15px;max-height:96dvh}.vish-private-film__stage{padding:18px 14px 6px}.vish-private-film__brand img{width:76px;height:76px}.vish-private-film__actions>*{flex:1 1 40%}.vish-private-film__top>span{font-size:10px;letter-spacing:.1em}.vish-private-film__visual img{max-height:150px}.vish-private-film__footer{justify-content:center;text-align:center}}
+@media(prefers-reduced-motion:reduce){.vish-private-film__stage{animation:none}.vish-private-film__progress span{transition:none}}
+
+/* Voice Quality: native device voice test and owner choice, with iPad-safe controls. */
+.vish-private-film__voice-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:end;justify-content:center;padding:8px 18px 15px}
+.vish-private-film__voice-controls label{display:grid;gap:5px;color:#edd3a0;font-size:12px;flex:1 1 200px;max-width:330px}
+.vish-private-film__voice-controls select,.vish-private-film__voice-controls button{min-height:44px;color:#fff2d9;background:#142838;border:1px solid #d4b87999;border-radius:10px;padding:9px;font-size:14px}
+.vish-private-film__voice-controls option{background:#142838;color:#fff2d9}
+.vish-private-film__voice-controls p{flex-basis:100%;text-align:center;color:#c5bcb0;font-size:11px;margin:2px auto 0;line-height:1.4}
+@media(max-width:600px){.vish-private-film__voice-controls{padding-inline:12px}.vish-private-film__voice-controls label{max-width:none}}

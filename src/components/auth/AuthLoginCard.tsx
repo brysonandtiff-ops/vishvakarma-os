@@ -3,7 +3,9 @@ import {
   Copy,
   ExternalLink,
   Mail,
+  ShieldCheck,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 import { APP_VERSION } from '@/config/appVersion';
 import { isEmbeddedAuthErrorMessage } from '@/backend/authUiHelpers';
@@ -47,13 +49,20 @@ export default function AuthLoginCard({
   const showEmbeddedAuthRecovery =
     embeddedAuthBrowser ||
     Boolean(status?.variant === 'error' && status.message && isEmbeddedAuthErrorMessage(status.message));
+  const emailError = status?.variant === 'error' &&
+    /email|address|approved|magic.link|sign.in link/i.test(status.message);
 
   return (
     <section className="vish-login-page__auth-side" aria-label="Sign in to Vishvakarma.OS">
-      <div className="vish-login-page__top-line">
-        Architecture • Engineering • Construction
-        <br />
-        United by Dharma, Driven by Design
+      <div className="vish-login-page__top-line" aria-label="Architecture, Engineering, Construction. United by Dharma, Driven by Design">
+        <span className="vish-login-page__disciplines">
+          <span>Architecture</span>
+          <span aria-hidden="true">•</span>
+          <span>Engineering</span>
+          <span aria-hidden="true">•</span>
+          <span>Construction</span>
+        </span>
+        <span className="vish-login-page__motto">United by Dharma, Driven by Design</span>
       </div>
 
       <div className="vish-auth-card-mockup vish-login-page__auth-card" data-testid="auth-mockup-card">
@@ -74,7 +83,11 @@ export default function AuthLoginCard({
           </h1>
           <p>Architect • Engineer • Create</p>
           <p className="vish-login-page__auth-note">
-            Sign in with Google SSO or request a secure one-time email link through Supabase.
+            Welcome to your home design studio. Use your approved Google account or a secure email link to continue.
+          </p>
+          <p className="vish-login-page__invite-badge">
+            <ShieldCheck size={16} aria-hidden="true" />
+            Private workspace · Invite required for new accounts
           </p>
         </div>
 
@@ -84,7 +97,7 @@ export default function AuthLoginCard({
           </p>
         )}
 
-        <div className="vish-login-page__form" data-testid="supabase-auth-options">
+        <div className="vish-login-page__form" data-testid="supabase-auth-options" aria-busy={submitting}>
           {showEmbeddedAuthRecovery && (
             <div className="vish-login-page__embedded-recovery">
               <p>Google OAuth is blocked in {embeddedBrowserLabel}. Use the email link below or open this page in your system browser.</p>
@@ -137,13 +150,27 @@ export default function AuthLoginCard({
               value={email}
               onChange={(event) => onEmailChange(event.target.value)}
               autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
               inputMode="email"
+              enterKeyHint="send"
               placeholder="name@example.com"
+              aria-label="Approved account email"
+              aria-invalid={emailError || undefined}
+              aria-describedby={emailError ? 'vish-auth-email-help vish-auth-email-error' : 'vish-auth-email-help'}
               className="vish-login-page__email-input"
               disabled={submitting || disabled}
               data-testid="email-magic-link-input"
               required
             />
+            <p className="vish-login-page__field-help vish-login-page__magic-help" id="vish-auth-email-help">
+              Use the same email address that received your invitation. This form does not create a new account.
+            </p>
+            {emailError && (
+              <p id="vish-auth-email-error" className="vish-login-page__status vish-login-page__status--error vish-login-page__inline-error" role="alert" data-testid="auth-inline-email-error">
+                {status.message}
+              </p>
+            )}
             <button
               type="submit"
               className="vish-auth-open-browser-btn vish-login-page__email-link-button touch-target"
@@ -155,25 +182,32 @@ export default function AuthLoginCard({
             </button>
           </form>
 
-          <p className="vish-login-page__field-help vish-login-page__magic-help">
-            Email links are one-time use, expire automatically, and do not create unapproved accounts.
-          </p>
-
-          <p
-            className={`vish-login-page__status${status?.variant ? ` vish-login-page__status--${status.variant}` : ''}`}
-            role="status"
-            aria-live="polite"
-          >
-            {status?.message ?? ''}
-          </p>
+          {status?.message && !emailError && (
+            <p
+              className={`vish-login-page__status${status.variant ? ` vish-login-page__status--${status.variant}` : ''}`}
+              role={status.variant === 'error' ? 'alert' : 'status'}
+              aria-live={status.variant === 'error' ? 'assertive' : 'polite'}
+              data-testid="auth-feedback"
+            >
+              {status.message}
+            </p>
+          )}
         </div>
 
         <div className="vish-login-page__request">
-          Need access?{' '}
+          <span>New to Vishvakarma.OS?</span>{' '}
           <button type="button" className="vish-login-page__link touch-target" onClick={onRequestAccess}>
-            Request access
+            Share an invitation request
           </button>
+          <p className="vish-login-page__request-help">
+            This creates a message to send to your inviter. Approval is still required before signing in.
+          </p>
         </div>
+        <nav className="vish-login-page__legal" aria-label="Sign-in help and policies">
+          <Link to="/" className="touch-target">Home</Link>
+          <Link to="/privacy" className="touch-target">Privacy</Link>
+          <Link to="/terms" className="touch-target">Terms</Link>
+        </nav>
       </div>
 
       <div className="vish-login-page__version">{APP_VERSION}</div>

@@ -12,7 +12,8 @@ import {
   isEmbeddedAuthBrowser,
 } from '@/backend/authUiHelpers';
 import {
-  POST_AUTH_DESTINATION,
+  peekAuthReturnPath,
+  resolvePostAuthDestination,
   storeAuthReturnPath,
 } from '@/backend/supabase/supabaseOAuthGateway';
 import AuthLoginHero from '@/components/auth/AuthLoginHero';
@@ -49,8 +50,15 @@ export default function AuthPage() {
     [],
   );
   const externalAuthUrl = useMemo(() => getAuthPageUrl(), []);
-  const adminApprovalMessage =
-    'Use an approved account. Google SSO and secure email magic links are handled by Supabase.';
+  const requestedDestination = useMemo(() => {
+    const next = new URLSearchParams(location.search).get('next');
+    const from = (location.state as { from?: string } | null)?.from;
+    return resolvePostAuthDestination(next ?? from ?? peekAuthReturnPath());
+  }, [location.search, location.state]);
+
+  useEffect(() => {
+    if (!user) storeAuthReturnPath(requestedDestination);
+  }, [requestedDestination, user]);
 
   useEffect(() => {
     const state = location.state as { message?: string } | null;
@@ -67,7 +75,7 @@ export default function AuthPage() {
   }, [error, message]);
 
   if (user) {
-    return <Navigate to={POST_AUTH_DESTINATION} replace />;
+    return <Navigate to={requestedDestination} replace />;
   }
 
   const handleCopyAuthUrl = async () => {
@@ -84,7 +92,7 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setMessage(null);
-    storeAuthReturnPath(POST_AUTH_DESTINATION);
+    storeAuthReturnPath(requestedDestination);
     setSubmitting(true);
     const result = await signInWithGoogle();
     setSubmitting(false);
@@ -96,7 +104,7 @@ export default function AuthPage() {
       setMessage('Redirecting to Google…');
       return;
     }
-    navigate(POST_AUTH_DESTINATION, { replace: true });
+    navigate(requestedDestination, { replace: true });
   };
 
   const handleEmailLinkSignIn = async () => {
@@ -109,7 +117,7 @@ export default function AuthPage() {
 
     setError(null);
     setMessage(null);
-    storeAuthReturnPath(POST_AUTH_DESTINATION);
+    storeAuthReturnPath(requestedDestination);
     setSubmitting(true);
     const result = await requestAccessLink(normalizedEmail);
     setSubmitting(false);
@@ -119,13 +127,30 @@ export default function AuthPage() {
       return;
     }
 
-    setMessage(`Secure sign-in link sent to ${normalizedEmail}. Open it in this browser to continue.`);
+    setMessage(`If ${normalizedEmail} is already approved, check its inbox and spam for a one-time link. No new account was created.`);
   };
 
-  const handleRequestAccess = () => {
-    toast.message('Approved account required', {
-      description: adminApprovalMessage,
-    });
+  const handleRequestAccess = async () => {
+    setError(null);
+    const normalized = email.trim().toLowerCase();
+    const emailLine = normalized.includes('@') ? normalized : '[add your email address]';
+    const text = 'Vishvakarma.OS iPad invitation request. Please approve this email for a private trial: ' + emailLine +
+      '. Please send me an invitation when the sign-in setup is ready.';
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: 'Vishvakarma.OS access request', text });
+        setMessage('Request shared with your chosen contact. Account approval is still needed.');
+        return;
+      } catch (reason) {
+        if (reason instanceof DOMException && reason.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage('Access request copied. Send it to the person who invited you; no account was created.');
+    } catch {
+      setMessage('Please contact the person who gave you this link and ask them to invite your email.');
+    }
   };
 
   return (
@@ -146,10 +171,10 @@ export default function AuthPage() {
           embeddedBrowserLabel={embeddedBrowserLabel}
           externalAuthUrl={externalAuthUrl}
           showConfigRequired={showConfigRequired}
-          onEmailChange={setEmail}
+          onEmailChange={(value) => { setEmail(value); setError(null); setMessage(null); }}
           onEmailLink={handleEmailLinkSignIn}
           onSso={handleGoogleSignIn}
-          onRequestAccess={handleRequestAccess}
+          onRequestAccess={() => { void handleRequestAccess(); }}
           onCopyAuthUrl={handleCopyAuthUrl}
         />
       </main>

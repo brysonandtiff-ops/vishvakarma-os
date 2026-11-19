@@ -1,3 +1,5 @@
+> **HISTORICAL FULL-SYSTEM DESCRIPTION, NOT VERIFIED END-TO-END RUNTIME.** Authenticated drawing, real iPad walking, cloud save/reopen and tenant safety have not been independently verified on the latest review. [Current source truth](../repository/SOURCE_OF_TRUTH_20261119.md).
+
 # Vishvakarma.OS — End-to-End System Handoff
 
 **Document type:** Complete technical handoff — product, architecture, runtime, data, operations

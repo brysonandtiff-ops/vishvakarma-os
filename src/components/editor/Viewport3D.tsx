@@ -5,6 +5,7 @@ import type { ErrorInfo, ReactNode, MutableRefObject, PointerEvent } from 'react
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, PointerLockControls, ContactShadows, Environment } from '@react-three/drei';
 import { ScenePostProcessing, isPostFxPipelineActive } from '@/components/editor/ScenePostProcessing';
+import { planarWalk } from '@/components/editor/walkMovement';
 import type { Wall, Opening, LightingConfig, FurnitureItem, MepSymbol, LandscapeElement, FixtureItem, Material, TerrainPatch, Room, Staircase, BuildingFloor } from '@/types';
 import { FurnitureMesh, LandscapeMesh, SceneFloor, StairMeshes } from '@/components/editor/sceneMeshes';
 import { preloadSceneModels } from '@/components/editor/sceneGltfModels';
@@ -742,14 +743,52 @@ function TouchWalkRig({ moveRef }: { moveRef: MutableRefObject<{ x: number; z: n
     camera.getWorldDirection(forward);
     forward.y = 0;
     forward.normalize();
-    const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
-    const motion = forward.multiplyScalar(-z).add(right.multiplyScalar(x));
-    camera.position.add(motion.multiplyScalar(2.8 * delta));
+    const motion = planarWalk(forward, { x, z }, delta);
+    camera.position.x += motion.x;
+    camera.position.z += motion.z;
   });
 
   return null;
 }
 
+function DesktopWalkRig() {
+  const { camera } = useThree();
+  const held = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const keys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright']);
+    const down = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      const target = event.target;
+      if (!keys.has(key) || event.ctrlKey || event.metaKey || event.altKey ||
+          (target instanceof HTMLElement && Boolean(target.closest('input, textarea, select, [contenteditable]')))) return;
+      event.preventDefault();
+      held.current.add(key);
+    };
+    const up = (event: KeyboardEvent) => held.current.delete(event.key.toLowerCase());
+    const reset = () => held.current.clear();
+    window.addEventListener('keydown',down);
+    window.addEventListener('keyup',up);
+    window.addEventListener('blur',reset);
+    return () => {
+      reset();
+      window.removeEventListener('keydown',down);
+      window.removeEventListener('keyup',up);
+      window.removeEventListener('blur',reset);
+    };
+  },[]);
+  useFrame((_,delta) => {
+    const keys = held.current;
+    const x = Number(keys.has('d') || keys.has('arrowright')) - Number(keys.has('a') || keys.has('arrowleft'));
+    const z = Number(keys.has('w') || keys.has('arrowup')) - Number(keys.has('s') || keys.has('arrowdown'));
+    if (x===0 && z===0) return;
+    const look = new THREE.Vector3();
+    camera.getWorldDirection(look);
+    const m = planarWalk(look,{x,z},delta);
+    camera.position.x += m.x;
+    camera.position.z += m.z;
+  });
+  return null;
+}
 function BuildingSceneLayers({
   walls,
   openings,
@@ -1141,7 +1180,7 @@ export default function Viewport3D({
                 <TouchWalkRig moveRef={touchMoveRef} />
               </>
             ) : walkMode && !isCoarsePointer ? (
-              <PointerLockControls selector="#vish-3d-walk-hint" />
+              <><PointerLockControls selector="#vish-3d-walk-hint" /><DesktopWalkRig /></>
             ) : (
               <OrbitControls
                 enableDamping
@@ -1218,7 +1257,7 @@ export default function Viewport3D({
             id="vish-3d-walk-hint"
             className="absolute bottom-3 left-3 rounded-lg border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-1.5 text-[10px] uppercase tracking-wider text-vish-blue-400 backdrop-blur-xl shadow-lg"
           >
-            {isCoarsePointer ? 'Drag to look · use pad to move' : 'Click canvas to enter walk · Esc to exit'}
+            {isCoarsePointer ? 'Drag to look · hold arrows to walk' : 'Click to look · WASD or arrow keys to walk · Esc to exit'}
             <span className="font-devanagari ml-2 text-vish-gold/70">· {WALK_MODE_MANTRA}</span>
           </p>
         )}
@@ -1231,10 +1270,12 @@ export default function Viewport3D({
             <button
               type="button"
               data-testid="vish-3d-walk-up"
+              aria-label="Move forward"
               className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(0, 1)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
+              onPointerCancel={() => setTouchMove(0, 0)}
             >
               ↑
             </button>
@@ -1242,30 +1283,36 @@ export default function Viewport3D({
             <button
               type="button"
               data-testid="vish-3d-walk-left"
+              aria-label="Move left"
               className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(-1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
+              onPointerCancel={() => setTouchMove(0, 0)}
             >
               ←
             </button>
             <button
               type="button"
               data-testid="vish-3d-walk-down"
+              aria-label="Move backward"
               className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(0, -1)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
+              onPointerCancel={() => setTouchMove(0, 0)}
             >
               ↓
             </button>
             <button
               type="button"
               data-testid="vish-3d-walk-right"
+              aria-label="Move right"
               className="touch-target rounded-lg bg-vish-navy-800/50 hover:bg-vish-navy-700 px-3 py-2 text-xs text-vish-blue-400 border border-vish-navy-700/50"
               onPointerDown={() => setTouchMove(1, 0)}
               onPointerUp={() => setTouchMove(0, 0)}
               onPointerLeave={() => setTouchMove(0, 0)}
+              onPointerCancel={() => setTouchMove(0, 0)}
             >
               →
             </button>

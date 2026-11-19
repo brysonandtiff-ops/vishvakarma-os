@@ -1,49 +1,40 @@
-# Vishvakarma.OS — Current release authority
+# Vishvakarma.OS — Current Release Status
 
-**Inspected:** 19 November 2026 (Australia/Perth).
-**Release decision:** **BLOCKED — NOT CERTIFIED**. A public preview loading is not a production release.
-**Canonical repository:** brysonandtiff-ops/vishvakarma-os (repository root contains package.json, src/, docs/ and supabase/).
-**Main source at inspection:** 3bf5153c04f00a19fa12d2bb2551ea420a632363.
-**Existing repair PR:** #208, open draft; inspected head 9823f2c2f6515de4de49a44ba6f6d987f9bfb010. The repair PR base is sire/vish-recovery-evidence-20261030, not main.
+**Reviewed:** 19 November 2026 · Australia/Perth  
+**Package version:** 1.5.0  
+**Decision:** **BLOCKED — NOT RELEASE-CERTIFIED**
 
-## Verified read-only facts
-- GitHub repository access and branch/PR metadata are reachable.
-- Original swan/V logo and cream/ink/gold design are locked by docs/BRAND_LOCK.md; preserve original owner artwork.
-- A live browser opened the Cloudflare preview at https://2a32718a.vishvakarma-os.pages.dev/ and navigated public Home, Features, Pricing and Terms pages. Run: https://agent.tinyfish.ai/runs/d6a9d0e5-c64d-4799-9c16-8ccbbe7b545c.
-- Cloudflare DNS and Pages API confirm **https://vishvakarmaos.app** and **https://www.vishvakarmaos.app** are ACTIVE custom domains. Both respond with Vishvakarma.OS page content in fresh fetches. The deprecated hyphenated https://vishvakarma-os.app/ domain is DEACTIVATED and returned HTTP 404. Live page content is not proof of exact deployed SHA, auth or release certification.
+## Real hosting and review chain
 
-## Signed-out UI gate check
-Read-only browser run https://agent.tinyfish.ai/runs/e6d5fa6b-2ad7-4a1b-9d3b-5b47b647cd0c confirmed `/editor` and `/editor-lite` redirect visitors to `/auth`. This shows an apparent signed-out access gate, **not** verified signed-in editor function, real 3D rendering or signed-in Supabase RLS. Homepage previews are images, not interactive runtime proof.
+The active public custom domain is [vishvakarmaos.app](https://vishvakarmaos.app/) on Cloudflare Pages. The similarly named hyphenated .app domain is retired/deactivated. Public reachability is not proof of newest source in production.
 
-## Stop-ship issues, not waived
-1. Security incident #153 remains open: credential rotation, retained backup before history work, full history secret scan and gated repair are outstanding. No history rewrite without independent backup proof and owner approvals.
-2. Repository backup #188 remains open: private R2 bucket preparation is not an independently recoverable, encrypted, retained Git backup. Its use may incur future charges; no storage writes are authorised by this document.
-3. PR #208 remains a draft; signed-in tenant isolation, Supabase save/reopen, production casting and source-bound live deployment proof are not established by public-page navigation.
-4. Stale hyphenated origin returns 404 and old references remain; the correct active non-hyphen custom domain responds, but exact deployment source/build, signed-in auth, CSS reliability and release certification are **unverified**. No DNS, deployment, key, billing or live-environment changes were performed.
-5. Genuine physical iPad, Samsung Fold, iPhone and desktop acceptance, real interaction videos, screenshots with build identity and independent sign-off are outstanding.
+| Git and build | Verified state |
+| --- | --- |
+| main | SHA 3bf5153c04f00a19fa12d2bb2551ea420a632363: older than November review |
+| [PR #208](https://github.com/brysonandtiff-ops/vishvakarma-os/pull/208) | Open draft, head 9823f2c2f6515de4de49a44ba6f6d987f9bfb010 |
+| [PR #209](https://github.com/brysonandtiff-ops/vishvakarma-os/pull/209) | Open draft, head 2b0c94c9fb1be6f1077537959c2224f7bd083944 |
+| [PR #210](https://github.com/brysonandtiff-ops/vishvakarma-os/pull/210) | Open draft, last visually tested code parent 614256d64c502c8158c6867f69beacaf0ea8c0cb; subsequent documentation commits require their own fresh build receipt |
+| [Cloudflare preview](https://c8775cdc.vishvakarma-os.pages.dev/auth?next=%2Fprojects) | SUCCESS at SHA 614256d..., 50 selected files and **312/312** selected tests passed |
 
-## Verified Cloudflare domain configuration
-- Cloudflare zone `vishvakarmaos.app` ACTIVE; apex and www proxied CNAMEs both point to `vishvakarma-os.pages.dev`.
-- Pages project `vishvakarma-os` lists both non-hyphen custom domains ACTIVE. The hyphenated versions are DEACTIVATED. The domain links in older docs were stale.
-- The Pages production branch is `agent/cloudflare-pages-workers-migration`, not current Git main or this PR; the newest listed production attempt (August 5, 2026) FAILED while older production deployments succeeded. Exact source commit serving the active custom domain has **not** been attested.
-- Current repaired code already sets the correct non-hyphen origin in `src/config/canonicalOrigin.ts`, `scripts/lib/canonical-origin.mjs` and `.env.example`. This review repairs public metadata and iPad proof default URL. Live Supabase/Google/Stripe redirects, any support email deliverability, and CSS preload reliability need independent checks.
+## What the browser really checked
 
-## Real active-domain browser inspection
-Read-only browser QA at https://vishvakarmaos.app/ confirmed the active-domain homepage and Features and Pricing views render with brand logo, dark/gold Obsidian theme and navigation; no visible CSS preload error was reproduced. Source run: https://agent.tinyfish.ai/runs/de09b1e5-2d8e-422f-8ca2-738016632a9b. This checked **public marketing UI only**: not actual editor rendering, logged-in controls, build source SHA or device hardware.
+Signed-out TinyFish inspected public Home, Features, Pricing, Terms, Privacy, theme changes, readable voice-tour captions, session gates, 404 recovery and the sign-in UI. The final sign-in review passed **8 of 9** visual checks; policy links still require scrolling.
 
-## Source-of-truth precedence
-1. Exact Git source tree, package.json, migrations/configuration, and source-bound real runtime in the specific environment inspected.
-2. Reproducible test logs, signed-in validation, immutable deployment/source receipts, screenshots/videos where appropriate, independently checked at the same candidate SHA.
-3. Current signed-off owner design/art canon in docs/BRAND_LOCK.md. No generative replacement or style drift.
-4. This release-status snapshot with its date, SHA and open holds.
-5. Generated handoff inventories and historical product/release documentation; treat older PASS claims as historical unless re-run at the current candidate SHA.
+Evidence: [functional](https://agent.tinyfish.ai/runs/ef6afee9-a86d-44a3-9a2a-5f5dd92f2cd3), [desktop/PWA](https://agent.tinyfish.ai/runs/7c4de896-fa79-48ab-806a-9a1015111b11), [access and 404](https://agent.tinyfish.ai/runs/20c54209-cd91-4da6-9e66-65d3111e7d00), [sign-in review](https://agent.tinyfish.ai/runs/be85892a-f431-4632-9eb8-72fa3a654896).
 
-## Required completion gates
-- Security #153 closed with independent receipts; restore/backup #188 closed before any history rewrite.
-- Agree and implement approved owner experience: draw an accurate 2D house with touch/stylus, turn it into an editable 3D house, explore in first person, save, fully reopen and securely share; see docs/design/OWNER_VISION_ACCEPTANCE.md.
-- Real public + signed-in navigation/form/error recovery QA, 2D/3D interaction checks and accessibility tests on target devices.
-- Supabase Auth/row permissions, storage isolation, export/import, consent, accessibility, offline/restore and performance proof; clarify any billing before enabling paid paths.
-- Exact candidate source SHA equals immutable production deployed source, canonical domain serves the intended app, and independent reviewer approves release.
-- Archive report, original test logs, actual screenshots/videos, device/browser IDs, SHA-256 hashes and no-cost/cost approvals in Evidence Storage.
+Those were **not authenticated** drawing or save/reopen tests, not physical iPad tests, and not independent verification of external service permissions.
 
-No task owner, agent or specialist is claimed to be autonomously running merely because a role or work order is listed.
+## Mandatory release holds
+
+1. **[Security issue #153](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/153): OPEN.** Credential rotation/history scan and security closeout pending; no unsafe history purge.
+2. **[Encrypted retained backup #188](https://github.com/brysonandtiff-ops/vishvakarma-os/issues/188): OPEN.** Independently recoverable tested backup not yet proven.
+3. Approved account registration/sign-in, Google/email redirects, admin/tenant RLS and real cloud persistence remain **unverified**. A draft SQL migration is not an active administrator role.
+4. Real iPad/Fold/iPhone operation, audio, screenshots, video and true 2D → 3D → Walk → Save → Reopen → Export round-trip have not been verified.
+5. Provider configuration, Stripe billing, professional regulatory accuracy and PWA offline recovery need real proof and separate approval for any cost.
+6. Production release requires the exact approved source SHA, independent QA and explicit owner sign-off.
+
+No paid actions, credentials, DNS, live data, production deployments or merges are authorised by this documentation update.
+
+Read [source of truth](../repository/SOURCE_OF_TRUTH_20261119.md), [November evidence](./evidence/REVIEW_VERIFICATION_LEDGER_20261119.md), [visual lock](../BRAND_LOCK.md) and [owner acceptance](../design/OWNER_VISION_ACCEPTANCE.md).
+
+Historic reports of “PRODUCTION READY” or Guinness record status do not override this current HOLD.

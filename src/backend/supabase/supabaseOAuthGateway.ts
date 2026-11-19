@@ -111,11 +111,12 @@ export function ensureAuthReturnPathStored(path = DEFAULT_AUTH_RETURN_PATH) {
   }
 }
 
+const APPROVED_TRIAL_DESTINATIONS = new Set(['/editor', '/editor-lite', '/projects', '/3d-room']);
+
 export function resolvePostAuthDestination(fromState?: string | null): string {
-  // Always land in the editor after sign-in (all devices / all entry paths).
-  void fromState;
-  void peekAuthReturnPath(POST_AUTH_DESTINATION);
-  return POST_AUTH_DESTINATION;
+  // Only known same-origin workspace paths can be the destination. Never follow external redirects.
+  const requested = fromState ?? peekAuthReturnPath(POST_AUTH_DESTINATION);
+  return APPROVED_TRIAL_DESTINATIONS.has(requested) ? requested : POST_AUTH_DESTINATION;
 }
 
 /** @deprecated Prefer SPA navigation via React Router after session is set. */

@@ -12,7 +12,8 @@ Short onboarding for Cursor, ChatGPT, Codex, and other coding agents working in 
 
 - **The checkout repository root is authoritative.** It directly contains package.json, src/, docs/, scripts/ and supabase/. Use git rev-parse --show-toplevel to confirm the current checkout.
 - The old vishvakarma-os-live/ wrapper is retired. Never create a second parallel application tree or assume a parent workspace.
-- For current status and exact inspected source IDs, read docs/release/CURRENT_RELEASE_STATUS.md before relying on earlier release assertions.
+- For current status and exact inspected source IDs, read docs/release/CURRENT_RELEASE_STATUS.md and docs/repository/SOURCE_OF_TRUTH_20261119.md before relying on earlier release assertions.
+- Document drift and outstanding legacy reconciliation: docs/repository/DOCUMENTATION_DEBT_20261119.md. Historical prose is not current release authority.
 
 ## Instruction precedence
 

@@ -82,14 +82,14 @@ export default function ThreeDRoomPage() {
         <header className="flex shrink-0 flex-col items-stretch gap-3 border-b border-vish-navy-700/50 bg-vish-navy-950/80 px-4 py-3 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-vish-gold">
-              <Sparkles className="h-3.5 w-3.5" /> Market-class 3D Room
+              <Sparkles className="h-3.5 w-3.5" /> Your dream home · Step 3 of 5
             </p>
             <h1 className="truncate text-lg font-semibold text-white tracking-wide">{manifest?.name ?? 'Detached 3D chamber'}</h1>
-            <p className="text-xs text-slate-400">Fast WebGL review route with premium sample staging, walk mode, and all-floor 3D preview.</p>
+            <p className="text-xs text-slate-400">View a saved local draft in 3D or explore a sample home. Choose Walk mode to try moving through it on supported devices.</p>
           </div>
           <div className="flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0">
             <span className="max-w-[70vw] shrink-0 truncate rounded-full border border-vish-blue-500/30 bg-vish-blue-900/30 px-3 py-2 text-xs text-vish-blue-400 sm:max-w-[min(52vw,28rem)]">{sourceLabel}</span>
-            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" onClick={() => setWalkMode((value) => !value)}>
+            <Button type="button" variant="outline" size="sm" className="shrink-0 touch-target border-vish-navy-700/50 hover:bg-vish-navy-800 text-slate-300" aria-pressed={walkMode} onClick={() => setWalkMode((value) => !value)}>
               <Footprints className="mr-2 h-4 w-4" />
               {walkMode ? 'Orbit mode' : 'Walk mode'}
             </Button>
@@ -134,7 +134,7 @@ export default function ThreeDRoomPage() {
           {loading && (
             <div className="absolute inset-0 z-20 flex items-center justify-center gap-3 bg-black/50 backdrop-blur-sm">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <span className="text-sm text-ws-text-dim">Preparing premium 3D room…</span>
+              <span className="text-sm text-ws-text-dim">Preparing your 3D home…</span>
             </div>
           )}
 

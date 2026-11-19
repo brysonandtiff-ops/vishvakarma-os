@@ -1,13 +1,15 @@
+> **HISTORICAL DUE-DILIGENCE HANDOFF (June 2026).** Older business, Vercel, sign-in and production statements below are time-bound. The present Cloudflare/original-art state is [source truth](../repository/SOURCE_OF_TRUTH_20261119.md) and [release HOLD](../release/CURRENT_RELEASE_STATUS.md); this pack is not a November launch certificate.
+
 # Vishvakarma.OS — Valuation Handoff Pack
 
 **Document type:** Technical due diligence and operator transition handoff  
 **Product version:** v1.5.0  
 **Audit date:** 2026-06-15  
-**Canonical production URL:** https://vishvakarma-os.app  
-**Vercel fallback URL:** https://vishvakarma-os.vercel.app  
+**Active public URL:** https://vishvakarmaos.app (older source)  
+**Historical Vercel URL (not current fallback):** https://vishvakarma-os.vercel.app  
 **Git remote:** https://github.com/brysonandtiff-ops/vishvakarma-os.git  
 
-**Repository location:** All application code lives in `vishvakarma-os-live/` (git root). The parent workspace folder is a thin wrapper only.
+**Current Git root:** repository checkout directly contains package.json, src/, docs/, scripts/ and supabase/. Historical nested wrapper references are retired.
 
 ---
 
@@ -51,7 +53,7 @@ Vishvakarma.OS is an **iPad-first, browser-native architectural workstation** de
 | Fact | Value |
 |------|-------|
 | Product version | 1.5.0 |
-| Canonical production URL | https://vishvakarma-os.app |
+| Canonical production URL | https://vishvakarmaos.app |
 | Vercel fallback URL | https://vishvakarma-os.vercel.app |
 | Supabase project ref | `jyocvwipthswfcmvqgqe` |
 | Runtime backend | Supabase Auth + Postgres + Storage |
@@ -145,7 +147,7 @@ Verify completeness: `pnpm run handoff:verify`
 | ChatGPT handoff doc | **PASS** | [CHATGPT_HANDOFF.md](./CHATGPT_HANDOFF.md) at v1.5.0 |
 | Git SHA | See [MANIFEST.json](./appendices/MANIFEST.json) | `10f4dfbbd03f6fce420ef12e9ca4920c3b56fdb4` |
 
-**Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarma-os.app`. Confirm Vercel Production env matches, then attach green CI run URL.
+**Domain cutover:** Supabase `site_url` and repo defaults now use `https://vishvakarmaos.app`. Verify actual Cloudflare production source, Supabase provider redirects, service settings and independent approval before updating any live system.
 
 **Sign-off command block:**
 

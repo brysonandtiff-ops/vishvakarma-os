@@ -12,6 +12,9 @@ describe('phone feature metric density', () => {
     expect(css).toContain('.vish-features-metrics .vish-stat-pill');
     expect(css).toContain('min-height: 4.4rem');
     expect(css).toContain('padding: 0.7rem 0.45rem');
-    expect(css).toContain('font-size: 0.58rem');
+    const labelRule = css.match(/\.vish-marketing-page \.vish-features-metrics \.vish-stat-pill p:last-child\s*\{([^}]+)\}/)?.[1];
+    // 13px text stays legible on phones; the old 0.58rem / 9px assertion was obsolete.
+    expect(labelRule).toContain('font-size: 0.8125rem');
+    expect(labelRule).toContain('line-height: 1.4');
   });
 });

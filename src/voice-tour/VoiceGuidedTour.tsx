@@ -12,6 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { openTutorialHub, startTutorial } from '@/tutorial/TutorialProvider';
+import { useNarrationVoices } from '@/voice-tour/useNarrationVoices';
+import { createNarrationUtterance, NARRATION_VOICE_SAMPLE } from '@/voice-tour/voiceQuality';
 import {
   OPEN_VOICE_TOUR_EVENT,
   VOICE_TOUR_CHAPTERS,
@@ -44,23 +46,35 @@ export default function VoiceGuidedTour() {
   const [chapterIndex, setChapterIndex] = useState(0);
   const [playback, setPlayback] = useState<PlaybackState>('idle');
   const [preferMp3, setPreferMp3] = useState(false);
-  const [status, setStatus] = useState('Browser voice ready.');
+  const [status, setStatus] = useState('Tap Play to try the device narrator, or read the complete chapter below.');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const autoPlayTimerRef = useRef<number | null>(null);
   const speechSupported = useMemo(() => hasBrowserSpeech(), []);
+  const { voices, settings, updateSettings } = useNarrationVoices();
 
   const chapter = VOICE_TOUR_CHAPTERS[chapterIndex] ?? VOICE_TOUR_CHAPTERS[0];
 
   const stopPlayback = useCallback(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (autoPlayTimerRef.current !== null) {
+      window.clearTimeout(autoPlayTimerRef.current);
+      autoPlayTimerRef.current = null;
+    }
+    if (speechRef.current) {
+      speechRef.current.onend = null;
+      speechRef.current.onerror = null;
+      speechRef.current = null;
     }
     if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
-    speechRef.current = null;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     setPlayback('idle');
   }, []);
 
@@ -76,30 +90,37 @@ export default function VoiceGuidedTour() {
   const speakWithBrowser = useCallback(
     (nextChapter: VoiceTourChapter) => {
       if (!speechSupported) {
-        setStatus('Browser speech is not available on this device. Use the MP3 mode after audio files are added.');
+        setStatus('Spoken narration is unavailable here. Read the complete chapter below; you can still navigate every lesson.');
         setPlayback('idle');
         return;
       }
 
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(`${nextChapter.title}. ${nextChapter.narration}`);
-      utterance.rate = 0.94;
-      utterance.pitch = 0.92;
-      utterance.volume = 0.95;
+      const utterance = createNarrationUtterance(`${nextChapter.title}. ${nextChapter.narration}`, voices, settings);
       utterance.onend = () => {
+        if (speechRef.current !== utterance) return;
+        speechRef.current = null;
         setPlayback('idle');
         setStatus('Chapter complete. Choose Next or replay this chapter.');
       };
       utterance.onerror = () => {
+        if (speechRef.current !== utterance) return;
+        speechRef.current = null;
         setPlayback('idle');
-        setStatus('Speech playback stopped. You can replay or switch to MP3 mode after files are added.');
+        setStatus('Device narration was interrupted. The complete chapter is readable below; try another voice if you wish.');
       };
       speechRef.current = utterance;
       setPlayback('speaking');
-      setStatus('Speaking with browser voice.');
-      window.speechSynthesis.speak(utterance);
+      setStatus('Speaking with your selected device voice.');
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        speechRef.current = null;
+        setPlayback('idle');
+        setStatus('This device could not start speech. Read the complete chapter below or try another voice.');
+      }
     },
-    [speechSupported],
+    [speechSupported, voices, settings],
   );
 
   const playChapter = useCallback(
@@ -112,19 +133,23 @@ export default function VoiceGuidedTour() {
         const audio = new Audio(nextChapter.mp3Src);
         audioRef.current = audio;
         audio.onended = () => {
+          if (audioRef.current !== audio) return;
+          audioRef.current = null;
           setPlayback('idle');
           setStatus('MP3 chapter complete.');
         };
         audio.onerror = () => {
+          if (audioRef.current !== audio) return;
           audioRef.current = null;
-          setStatus('MP3 file is not present yet. Falling back to browser voice.');
+          setStatus('MP3 not available. Switching to selected device voice.');
           speakWithBrowser(nextChapter);
         };
         setPlayback('speaking');
         setStatus('Trying MP3 voice file.');
         void audio.play().catch(() => {
+          if (audioRef.current !== audio) return;
           audioRef.current = null;
-          setStatus('MP3 playback was blocked or missing. Falling back to browser voice.');
+          setStatus('MP3 was blocked or missing. Switching to selected device voice.');
           speakWithBrowser(nextChapter);
         });
         return;
@@ -166,7 +191,10 @@ export default function VoiceGuidedTour() {
       navigateForChapter(nextChapter);
       setStatus(`Ready: ${nextChapter.title}`);
       if (autoPlay) {
-        window.setTimeout(() => playChapter(nextChapter), 250);
+        autoPlayTimerRef.current = window.setTimeout(() => {
+          autoPlayTimerRef.current = null;
+          playChapter(nextChapter);
+        }, 250);
       }
     },
     [navigateForChapter, playChapter, stopPlayback],
@@ -177,14 +205,45 @@ export default function VoiceGuidedTour() {
       const detail = (event as CustomEvent<{ autoPlay?: boolean }>).detail;
       setOpen(true);
       if (detail?.autoPlay) {
-        window.setTimeout(() => playChapter(VOICE_TOUR_CHAPTERS[chapterIndex]), 150);
+        stopPlayback();
+        autoPlayTimerRef.current = window.setTimeout(() => {
+          autoPlayTimerRef.current = null;
+          playChapter(VOICE_TOUR_CHAPTERS[chapterIndex]);
+        }, 150);
       }
     };
     window.addEventListener(OPEN_VOICE_TOUR_EVENT, onOpenVoiceTour);
     return () => window.removeEventListener(OPEN_VOICE_TOUR_EVENT, onOpenVoiceTour);
-  }, [chapterIndex, playChapter]);
+  }, [chapterIndex, playChapter, stopPlayback]);
 
   useEffect(() => stopPlayback, [stopPlayback]);
+
+  const hearVoiceSample = () => {
+    stopPlayback();
+    if (!speechSupported) {
+      setStatus('This browser does not support speech. All chapter text is available below.');
+      return;
+    }
+    const utterance = createNarrationUtterance(NARRATION_VOICE_SAMPLE, voices, settings);
+    utterance.onend = () => {
+      if (speechRef.current !== utterance) return;
+      speechRef.current = null;
+      setStatus('Voice sample completed.');
+    };
+    utterance.onerror = () => {
+      if (speechRef.current !== utterance) return;
+      speechRef.current = null;
+      setStatus('Voice sample unavailable. Try another installed voice.');
+    };
+    speechRef.current = utterance;
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      speechRef.current = null;
+      setStatus('Voice sample could not start. Try another installed voice.');
+    }
+    setStatus('Playing selected narrator sample.');
+  };
 
   const nextDisabled = chapterIndex >= VOICE_TOUR_CHAPTERS.length - 1;
   const prevDisabled = chapterIndex <= 0;
@@ -220,6 +279,12 @@ export default function VoiceGuidedTour() {
         <strong>{chapter.title}</strong>
         <p>{chapter.summary}</p>
       </div>
+
+      <details className="vish-voice-tour-panel__transcript" open>
+        <summary>Complete chapter narration — read without sound</summary>
+        <p>{chapter.narration}</p>
+        <small>These are the chapter's spoken words. Reading them does not require an account upgrade, audio playback or any external service.</small>
+      </details>
 
       <div className="vish-voice-tour-panel__controls">
         <button type="button" onClick={() => playChapter()} className="vish-voice-tour-panel__primary touch-target">
@@ -266,6 +331,24 @@ export default function VoiceGuidedTour() {
         </button>
       </div>
 
+      <div className="vish-voice-tour-panel__voice-options">
+        <label htmlFor="vish-tour-narrator">Narrator
+          <select id="vish-tour-narrator" value={settings.voiceURI}
+            onChange={(event) => { stopPlayback(); updateSettings({ voiceURI: event.target.value }); }}>
+            <option value="">Automatic — Australian English preferred</option>
+            {voices.map((item) => <option key={item.voiceURI} value={item.voiceURI}>{item.name} · {item.lang}</option>)}
+          </select>
+        </label>
+        <label htmlFor="vish-tour-pace">Pace
+          <select id="vish-tour-pace" value={settings.rate}
+            onChange={(event) => { stopPlayback(); updateSettings({ rate: Number(event.target.value) }); }}>
+            <option value="0.9">Relaxed</option><option value="0.98">Natural</option><option value="1.08">Brisk</option>
+          </select>
+        </label>
+        <button type="button" onClick={hearVoiceSample} disabled={!speechSupported}
+          className="vish-voice-tour-panel__secondary touch-target">Hear voice sample</button>
+        <p>Voices are from this device. Preview to find one you enjoy.</p>
+      </div>
       <div className="vish-voice-tour-panel__chapters" aria-label="Voice tour chapters">
         {VOICE_TOUR_CHAPTERS.map((item, index) => (
           <button

@@ -1,4 +1,5 @@
 import { Compass, Hammer, Sparkles, Leaf } from 'lucide-react';
+import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
 
 const FEATURES = [
   { icon: Compass, title: 'Design', subtitle: 'With Intelligence' },
@@ -11,6 +12,8 @@ export default function AuthLoginHero() {
   return (
     <section className="vish-login-page__hero" aria-label="Vishvakarma.OS brand story">
       <div className="vish-login-page__brand-mark">
+        <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS original swan/V emblem"
+          className="vish-login-page__hero-logo" width={64} height={64} decoding="async" />
         <div className="vish-login-page__om" aria-hidden="true">
           ॐ
         </div>

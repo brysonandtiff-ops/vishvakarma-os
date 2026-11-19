@@ -1,3 +1,5 @@
+> **HISTORICAL v1.0 IMPLEMENTATION SUMMARY.** A source/design history, not proof of today's signed-in 2D→3D, real iPad or cloud recovery. [Current source truth](./repository/SOURCE_OF_TRUTH_20261119.md).
+
 # Vishvakarma.OS v1.0.0 - Implementation Summary
 
 ## Overview

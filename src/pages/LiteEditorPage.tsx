@@ -236,9 +236,9 @@ export default function LiteEditorPage() {
       <main className="vish-editor-shell bg-ws-canvas text-ws-text" data-testid="lite-editor-page">
         <div className="vish-editor-topbar flex min-h-[72px] flex-wrap items-center gap-3 border-b px-3 py-2">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Stable Recovery Editor</p>
-            <h1 className="truncate text-lg font-semibold vish-text-heading">Working 2D + 3D Editor</h1>
-            <p className="text-xs text-ws-text-dim">Vishvakarma.OS working editor pattern: snap/grid, doors/windows, undo/redo, export, current 3D renderer, iPad-safe UI.</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Your dream home · Step 2 of 5</p>
+            <h1 className="truncate text-lg font-semibold vish-text-heading">Draw your home in 2D</h1>
+            <p className="text-xs text-ws-text-dim">Choose Wall, draw on the plan, then add doors and windows. Use 3D Preview, Undo, or Export JSON to keep a copy.</p>
           </div>
           <Button asChild variant="outline" className="vish-gold-action"><Link to="/editor">Open Full Studio</Link></Button>
           <Button variant="gold" className="vish-gold-action" onClick={downloadManifest}><Download className="h-4 w-4" /> Export JSON</Button>

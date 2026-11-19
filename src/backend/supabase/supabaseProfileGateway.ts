@@ -20,32 +20,40 @@ export async function ensureSupabaseProfile(userId: string, email: string): Prom
   if (!client) throw new Error('Supabase client is not available.');
 
   const now = new Date().toISOString();
+  // Never send a role update from a browser profile creation request.
   const { data, error } = await client
     .from('profiles')
-    .upsert({
+    .insert({
       id: userId,
       email,
       full_name: email.split('@')[0] ?? 'Architect',
-      role: 'user',
       updated_at: now,
     })
     .select('*')
     .single();
 
+  if (error?.code === '23505') {
+    const concurrentProfile = await getSupabaseProfile(userId);
+    if (concurrentProfile) return concurrentProfile;
+  }
   if (error) throw error;
   return mapProfileRow(data as Record<string, unknown>);
 }
 
 export async function updateSupabaseProfile(
   userId: string,
-  updates: Partial<Omit<Profile, 'id' | 'created_at'>>
+  updates: Partial<Pick<Profile, 'full_name' | 'avatar_url'>>
 ): Promise<Profile> {
   const client = getSupabaseClient();
   if (!client) throw new Error('Supabase client is not available.');
 
   const { data, error } = await client
     .from('profiles')
-    .update({ ...updates, updated_at: new Date().toISOString() })
+    .update({
+      ...(typeof updates.full_name === 'string' ? { full_name: updates.full_name } : {}),
+      ...(typeof updates.avatar_url === 'string' ? { avatar_url: updates.avatar_url } : {}),
+      updated_at: new Date().toISOString(),
+    })
     .eq('id', userId)
     .select('*')
     .single();

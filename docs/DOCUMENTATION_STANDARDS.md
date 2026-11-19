@@ -1,109 +1,48 @@
-# Documentation Standards — Vishvakarma.OS
+# Vishvakarma.OS — Documentation and Evidence Standards
 
-**Product version:** v1.5.0  
-**Last verified:** 2026-06-15  
+**Reviewed:** 19 November 2026 · **Version:** 1.5.0 · **Audience:** developers, operators and reviewers
 
-This document defines how documentation in this repository is written, maintained, and verified.
+Documentation must be exciting to read and **precisely truthful**. Do not promote a source module, historical test, marketing claim or static image into a verified software feature.
 
----
+## Source-of-truth hierarchy
 
-## Truth hierarchy
+1. Actual checked-out Git source, package.json, src/config/routeManifest.ts, src/AppRoutes.tsx, real backend migrations and build configuration **at the exact claimed SHA**.
+2. Genuine source-matched build/test receipts, browser operations, physical-device video/screenshots/audio, live provider checks and independent reviewer evidence.
+3. [Current release decision](./release/CURRENT_RELEASE_STATUS.md) and [review ledger](./release/evidence/REVIEW_VERIFICATION_LEDGER_20261119.md) for their stated audit date, not automatically for later commits.
+4. [Human-approved visual art lock](./BRAND_LOCK.md), original design reference and its integrity fingerprint.
+5. Current user/developer/operator guides and [source reality matrix](./repository/SOURCE_OF_TRUTH_20261119.md).
+6. Historical release/valuation packs, snapshots, older appendices, prototypes and future plans. Preserve them with banners; they cannot override current evidence.
 
-When documents conflict, use this precedence:
+## Evidence vocabulary
 
-| Priority | Source | Role |
-|----------|--------|------|
-| 1 | [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md) + [handoff/HANDOFF.md](./handoff/HANDOFF.md) | Runtime truth |
-| 2 | Auto-generated [handoff/appendices/](./handoff/appendices/) (A–H) | Live inventory truth |
-| 3 | Audience guides (`developer/`, `operations/`, `user/`) | Curated how-to |
-| 4 | [specs/](./specs/), [CHANGELOG.md](../CHANGELOG.md) | Product contract |
-| 5 | [archive/](./archive/) | Historical only |
+- **VERIFIED:** genuine operation in the stated environment and exact source.
+- **IMPLEMENTED / UNVERIFIED:** code exists or tests are selected, but the real feature is unproven.
+- **BLOCKED:** a necessary security, provider, device or recovery gate is unresolved.
+- **HISTORICAL:** an old report or build; retain its original facts and dates.
+- **PLANNED:** approved intention or specification, not existing behaviour.
+- **UNKNOWN:** missing or contradictory proof.
 
-**Rule:** Do not hand-maintain inventories of routes, env vars, scripts, or schema. Link to appendices instead.
+An old document saying PRODUCTION READY is not enough. An iPad-looking browser mockup is not a physical iPad test. A generated image is not an app screenshot. A self-verified world-record candidate is not Guinness certification.
 
----
+## Freshness and owner controls
 
-## Document front matter
+Every current claim should include: inspected date, exact repository/ref, real environment/device, evidence type, outstanding limits and release approvals. Use source-derived inventories, not manually invented route/framework lists. For routes inspect src/config/routeManifest.ts plus src/AppRoutes.tsx (NOT retired src/routes.tsx).
 
-Every new canonical document should include:
+- Active public Cloudflare custom domain: https://vishvakarmaos.app. Never use the old hyphenated .app as a new sign-in or purchase link.
+- Supabase account requests must not claim verified sign-up or admin grants without a real server-side receipt.
+- Bills, Stripe checkout, SMS, new storage, Guinness submissions and third-party paid quotas require explicit owner approval.
+- Do not change human-provided original art, replace working architecture, rewrite shared Git history or delete proof.
+- Generated handoff appendices are only current when newly generated and checked on the same source SHA.
 
-```markdown
-# Title
+## Commands for an approved checkout
 
-**Product version:** v1.5.0
-**Last verified:** YYYY-MM-DD
-**Audience:** developer | operator | user | due-diligence
-**Supersedes:** (optional — link to replaced doc)
-```
+    pnpm run lint:types
+    pnpm run test
+    pnpm run build
+    pnpm run docs:verify
+    pnpm run handoff:verify
+    node scripts/docs/check-source-truth.mjs
 
----
+Run pnpm run handoff:generate only if code inputs changed and after reviewing the output diff. Release needs additional verified real-device/Playwright, provider, backup and strict gates; see [release commands](./release/VERIFY_COMMANDS.md).
 
-## Stale and historical banners
-
-### Historical (v1.0-era scope)
-
-Use at the top of documents that remain for governance history but do not describe current production:
-
-```markdown
-> **Historical:** This document describes v1.0-era scope. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
-```
-
-### Forward-looking (not production)
-
-Use for v2 scaffolding and RFCs:
-
-```markdown
-> **Forward-looking:** This document describes planned or preview features. For current production, see [CURRENT_PRODUCTION_ARCHITECTURE.md](./CURRENT_PRODUCTION_ARCHITECTURE.md).
-```
-
----
-
-## When to regenerate appendices
-
-Run after changes to:
-
-- Client routes (`src/routes.tsx`)
-- Serverless API handlers (`api/`)
-- Environment variable references
-- `package.json` scripts or dependencies
-- Supabase migrations
-- Test file inventory
-
-```bash
-pnpm run handoff:generate
-pnpm run handoff:verify
-pnpm run docs:verify
-```
-
----
-
-## Verification contract
-
-Before merging documentation-heavy PRs or shipping releases:
-
-```bash
-pnpm run handoff:generate   # after route/api/schema/script changes
-pnpm run handoff:verify
-pnpm run docs:verify
-pnpm run lint:types
-```
-
-See [release/VERIFY_COMMANDS.md](./release/VERIFY_COMMANDS.md) for the full operator command matrix.
-
----
-
-## Writing guidelines
-
-1. **Link, don't duplicate** — appendices and handoff annexes are authoritative for inventories.
-2. **Audience-first** — place docs in `developer/`, `operations/`, `user/`, or `handoff/`; update [docs/README.md](./README.md) portal links.
-3. **Supabase-only runtime** — do not describe Firebase as the production backend in user or developer canonical paths. Firebase references belong only in [MIGRATION.md](../MIGRATION.md) and archive docs.
-4. **Evidence on ship** — user-visible changes update [CHANGELOG.md](../CHANGELOG.md) and release evidence when applicable.
-5. **No secrets** — never commit filled operator annexes, `.env` files, or API keys.
-
----
-
-## Related
-
-- [docs/README.md](./README.md) — documentation hub
-- [handoff/HANDOFF.md](./handoff/HANDOFF.md) — due diligence entry point
-- [PROPRIETARY_NOTICE.md](./PROPRIETARY_NOTICE.md) — IP and licensing posture
+The source-truth script checks authoritative documents and scans legacy Markdown for **potential** drift. Its warnings are not permission to erase historical reports. Document unresolved items in [debt register](./repository/DOCUMENTATION_DEBT_20261119.md).
