@@ -171,7 +171,7 @@ export default function AuthPage() {
           embeddedBrowserLabel={embeddedBrowserLabel}
           externalAuthUrl={externalAuthUrl}
           showConfigRequired={showConfigRequired}
-          onEmailChange={setEmail}
+          onEmailChange={(value) => { setEmail(value); setError(null); setMessage(null); }}
           onEmailLink={handleEmailLinkSignIn}
           onSso={handleGoogleSignIn}
           onRequestAccess={() => { void handleRequestAccess(); }}

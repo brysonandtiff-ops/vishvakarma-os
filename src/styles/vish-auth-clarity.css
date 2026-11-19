@@ -1,0 +1,250 @@
+/* Vishvakarma.OS — sign-in clarity polish, 19 Nov 2026.
+ * Appends after locked reference styles; preserves existing original human art,
+ * swan/V mark and approved sacred gold-on-ink language. No auth bypass.
+ */
+.vish-login-page--reference-replica .vish-login-page__top-line {
+  display: grid !important;
+  gap: 0.18rem !important;
+  width: min(100%, 34rem) !important;
+  max-width: calc(100% - 2rem) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  overflow-wrap: normal !important;
+  text-align: center !important;
+  letter-spacing: 0.095em !important;
+  line-height: 1.5 !important;
+  font-size: clamp(0.73rem, 0.95vw, 0.88rem) !important;
+}
+.vish-login-page--reference-replica .vish-login-page__top-line > span {
+  display: block;
+  text-wrap: balance;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-note,
+.vish-login-page--reference-replica .vish-login-page__field-help {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+  white-space: normal !important;
+  color: #e3d8c3 !important;
+  text-align: center;
+  letter-spacing: 0.01em !important;
+  text-transform: none !important;
+  opacity: 1 !important;
+  line-height: 1.65 !important;
+  font-size: clamp(0.81rem, 1.05vw, 0.91rem) !important;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-heading .vish-login-page__auth-note {
+  max-width: 30rem;
+  margin: 0.55rem auto 0 !important;
+}
+.vish-login-page--reference-replica .vish-login-page__invite-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0.7rem auto 0;
+  color: #f5dfa5 !important;
+  font-size: 0.77rem !important;
+  line-height: 1.5;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  font-weight: 700;
+}
+.vish-login-page--reference-replica .vish-login-page__hero-logo {
+  position: relative;
+  float: right;
+  z-index: 8;
+  width: clamp(3.1rem, 4.3vw, 4rem);
+  height: clamp(3.1rem, 4.3vw, 4rem);
+  object-fit: contain;
+  border: 1px solid rgba(245, 201, 103, 0.40);
+  border-radius: 50%;
+  padding: 0.3rem;
+  background: rgba(2, 9, 25, 0.55);
+  box-shadow: 0 0 24px rgba(245, 201, 103, 0.23);
+}
+.vish-login-page--reference-replica .vish-login-page__auth-card {
+  min-height: 0 !important;
+  height: auto;
+  max-height: none !important;
+  overflow: visible;
+  isolation: isolate;
+}
+.vish-login-page--reference-replica .vish-login-page__auth-side {
+  overflow-x: clip !important;
+  overflow-y: auto !important;
+}
+.vish-login-page--reference-replica {
+  overflow-x: clip !important;
+  overflow-y: auto !important;
+}
+.vish-login-page--reference-replica .vish-login-page__email-link-form {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.vish-login-page--reference-replica .vish-login-page__email-label {
+  font-size: 0.79rem;
+  font-weight: 750;
+  letter-spacing: 0.045em;
+  color: #f4dfad;
+}
+.vish-login-page--reference-replica .vish-login-page__email-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 3.35rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(241, 204, 129, 0.58);
+  background: rgba(1, 8, 21, 0.78);
+  color: #fff5de;
+  font-size: 16px !important;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+.vish-login-page--reference-replica .vish-login-page__email-input:focus-visible,
+.vish-login-page--reference-replica .vish-login-page__primary:focus-visible,
+.vish-login-page--reference-replica .vish-login-page__email-link-button:focus-visible,
+.vish-login-page--reference-replica .vish-login-page__legal a:focus-visible {
+  outline: 3px solid #ffe4a5 !important;
+  outline-offset: 3px;
+}
+.vish-login-page--reference-replica .vish-login-page__email-input[aria-invalid="true"] {
+  border-color: #ffafa6;
+  box-shadow: 0 0 0 3px rgba(255, 175, 166, 0.16);
+}
+.vish-login-page--reference-replica .vish-login-page__magic-help {
+  text-align: left !important;
+  margin: 0 !important;
+  color: #e6d9c4 !important;
+  font-size: 0.78rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__inline-error {
+  min-height: 0;
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(255, 164, 158, 0.60);
+  border-radius: 0.7rem;
+  color: #ffe4e1 !important;
+  background: rgba(121, 31, 35, 0.42);
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+.vish-login-page--reference-replica .vish-login-page__form [data-testid="auth-feedback"] {
+  min-height: 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(242, 197, 107, 0.45);
+  background: rgba(17, 39, 49, 0.66);
+  color: #f7e8d0;
+}
+.vish-login-page--reference-replica .vish-login-page__status--success {
+  color: #bbf8d9 !important;
+}
+.vish-login-page--reference-replica .vish-login-page__status--error {
+  color: #ffe4e1 !important;
+}
+.vish-login-page--reference-replica .vish-login-page__request {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem 0.45rem;
+  margin-top: 0.95rem !important;
+  color: #e6d9c7;
+  line-height: 1.5;
+  font-size: 0.83rem !important;
+}
+.vish-login-page--reference-replica .vish-login-page__request-help {
+  flex-basis: 100%;
+  margin: 0.1rem 0 0;
+  color: #cfc7b9;
+  text-align: center;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+.vish-login-page--reference-replica .vish-login-page__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.8rem;
+  margin: 0.85rem auto 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(241, 204, 129, 0.25);
+}
+.vish-login-page--reference-replica .vish-login-page__legal a {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.48rem;
+  color: #f7d995;
+  font-size: 0.81rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.vish-login-page--reference-replica .vish-login-page__primary,
+.vish-login-page--reference-replica .vish-login-page__email-link-button {
+  min-height: 3.2rem;
+  font-size: clamp(0.78rem, 1vw, 0.91rem);
+  white-space: normal;
+  text-align: center;
+}
+@media (min-width: 981px) {
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    min-height: 100dvh;
+    height: auto;
+    padding-top: max(5.2rem, env(safe-area-inset-top)) !important;
+    padding-bottom: max(3.1rem, env(safe-area-inset-bottom)) !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    margin-top: clamp(1rem, 2vh, 1.7rem);
+  }
+}
+@media (max-width: 980px) {
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    padding-bottom: clamp(1.5rem, 3dvh, 2.5rem) !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    position: static !important;
+    transform: none !important;
+    max-width: 100% !important;
+    margin: 0 auto 0.75rem !important;
+    letter-spacing: 0.055em !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    margin-inline: auto;
+  }
+}
+@media (max-width: 620px) {
+  .vish-login-page--reference-replica .vish-login-page__hero-logo {
+    width: 3rem;
+    height: 3rem;
+  }
+  .vish-login-page--reference-replica .vish-login-page__top-line {
+    font-size: 0.76rem !important;
+    letter-spacing: 0.03em !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-card {
+    padding: clamp(1.2rem, 4vw, 1.6rem) clamp(1.1rem, 4vw, 1.5rem) !important;
+    border-radius: 1.1rem;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-note {
+    font-size: 0.82rem !important;
+  }
+  .vish-login-page--reference-replica .vish-login-page__auth-side {
+    padding-top: max(4.7rem, calc(4.1rem + env(safe-area-inset-top))) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vish-login-page--reference-replica *,
+  .vish-login-page--reference-replica *::before,
+  .vish-login-page--reference-replica *::after {
+    scroll-behavior: auto !important;
+  }
+}

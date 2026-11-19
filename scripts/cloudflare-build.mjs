@@ -20,6 +20,7 @@ const focusedTests = [
   'src/test/pricingPhoneDensity.test.ts',
   'src/test/featuresPhoneDensity.test.ts',
   'src/test/authPhoneFloatingControls.test.ts',
+  'src/test/authPageClarity.test.tsx',
   'src/test/walkMovement.test.ts',
   'src/test/dreamHomeJourney.test.tsx',
   'src/test/privateWelcomeCinematic.test.ts',
