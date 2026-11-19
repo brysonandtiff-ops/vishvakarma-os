@@ -429,10 +429,22 @@ export default function BlueprintCanvas({
   const eraserStrokeRef = useRef<Set<string>>(new Set());
   const isErasingRef = useRef(false);
   const eraserPointerIdRef = useRef<number | null>(null);
+  const eraserLastPointRef = useRef<Point2D | null>(null);
+  const eraserEditActiveRef = useRef(false);
+  const eraserChangedRef = useRef(false);
   const pencilPointerIdRef = useRef<number | null>(null);
   const pencilPointsRef = useRef<Point2D[]>([]);
   const [pencilPreview, setPencilPreview] = useState<Point2D[]>([]);
   const [isPinching, setIsPinching] = useState(false);
+
+  // Group an entire rub gesture into one Undo, including a cancelled gesture.
+  const finishEraserEdit = useCallback(() => {
+    if (!eraserEditActiveRef.current) return;
+    if (eraserChangedRef.current) floorPlanEngine.commitEditTransaction('Erase walls/openings');
+    else floorPlanEngine.abortEditTransaction();
+    eraserEditActiveRef.current = false;
+    eraserChangedRef.current = false;
+  }, [floorPlanEngine]);
 
   const cancelTransientInteractions = useCallback(() => {
     if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
@@ -451,13 +463,15 @@ export default function BlueprintCanvas({
     setDragWallEndpointPosition(null);
     setMarqueeRect(null);
     setPreviewOpening(null);
+    finishEraserEdit();
     isErasingRef.current = false;
     eraserPointerIdRef.current = null;
+    eraserLastPointRef.current = null;
     eraserStrokeRef.current.clear();
     pencilPointerIdRef.current = null;
     pencilPointsRef.current = [];
     setPencilPreview([]);
-  }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, floorPlanEngine]);
+  }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, finishEraserEdit, floorPlanEngine]);
 
   const spatialIndexRef = useRef(new SpatialIndex());
 
@@ -831,6 +845,7 @@ export default function BlueprintCanvas({
         }
         if (!onOpeningDelete) return;
         strokeIds.add(strokeKey);
+        eraserChangedRef.current = true;
         onOpeningDelete(opening.id);
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
@@ -850,6 +865,7 @@ export default function BlueprintCanvas({
         }
         if (!onWallDelete) return;
         strokeIds.add(strokeKey);
+        eraserChangedRef.current = true;
         onWallDelete(wall.id);
         onWallSelect(undefined);
         onWallsSelect?.([]);
@@ -903,8 +919,12 @@ export default function BlueprintCanvas({
       eraserStrokeRef.current = new Set();
       isErasingRef.current = true;
       eraserPointerIdRef.current = event.pointerId;
+      eraserLastPointRef.current = getRawCanvasPoint(event);
+      eraserChangedRef.current = false;
+      eraserEditActiveRef.current = true;
+      floorPlanEngine.beginEditTransaction();
       event.currentTarget.setPointerCapture(event.pointerId);
-      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
+      eraseAtPoint(eraserLastPointRef.current, mode, eraserStrokeRef.current);
       return;
     }
 
@@ -1250,7 +1270,18 @@ export default function BlueprintCanvas({
       eraserPointerIdRef.current === event.pointerId &&
       (isEraserPointerPressed(event) || event.buttons !== 0 || event.pointerType === 'touch')
     ) {
-      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
+      // Rub across the whole travelled path, not just event samples; never snap the eraser to grid.
+      const point = getRawCanvasPoint(event);
+      const previous = eraserLastPointRef.current ?? point;
+      const distance = Math.hypot(point.x - previous.x, point.y - previous.y);
+      const steps = Math.min(64, Math.max(1, Math.ceil(distance / 8)));
+      for (let step = 1; step <= steps; step += 1) {
+        eraseAtPoint({
+          x: previous.x + (point.x - previous.x) * step / steps,
+          y: previous.y + (point.y - previous.y) * step / steps,
+        }, mode, eraserStrokeRef.current);
+      }
+      eraserLastPointRef.current = point;
       return;
     }
 
@@ -1394,8 +1425,10 @@ export default function BlueprintCanvas({
     event.preventDefault();
 
     if (isErasingRef.current && eraserPointerIdRef.current === event.pointerId) {
+      finishEraserEdit();
       isErasingRef.current = false;
       eraserPointerIdRef.current = null;
+      eraserLastPointRef.current = null;
       eraserStrokeRef.current.clear();
       clearActivePointer(event.pointerId);
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -1504,8 +1537,10 @@ export default function BlueprintCanvas({
   const handlePointerCancel = (event: CanvasPointerEvent) => {
     event.preventDefault();
     if (eraserPointerIdRef.current === event.pointerId) {
+      finishEraserEdit();
       isErasingRef.current = false;
       eraserPointerIdRef.current = null;
+      eraserLastPointRef.current = null;
       eraserStrokeRef.current.clear();
     }
     if (pencilPointerIdRef.current === event.pointerId) {
