@@ -798,6 +798,8 @@
 }
 
 .vish-canvas-tool-wall,
+.vish-canvas-tool-pen,
+.vish-canvas-tool-eraser,
 .vish-canvas-tool-dimension {
   cursor: crosshair;
 }
