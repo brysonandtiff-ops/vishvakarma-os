@@ -101,7 +101,9 @@ export function PrivateWelcomeCinematic() {
   const [open, setOpen] = useState(false);
   const [sceneIndex, setSceneIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [voice, setVoice] = useState(false);
+  // Audio starts only after a user taps Play; supported iPads start in spoken mode.
+  const [voice, setVoice] = useState(() => typeof window !== 'undefined' &&
+    'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
   const { voices, settings, updateSettings } = useNarrationVoices();
   const lastShown = useRef<string | null>(null);
   const eligible = !loading && isDesignatedWelcomeUser(user);
@@ -250,7 +252,7 @@ export function PrivateWelcomeCinematic() {
           </button>
           <button type="button" className="vish-private-film__control" aria-pressed={playing}
             onClick={() => { if(playing) stopVoice(); setPlaying(!playing); }}>
-            {playing ? <Pause size={16} /> : <Play size={16} />} {playing ? 'Pause film' : 'Play cinematic'}
+            {playing ? <Pause size={16} /> : <Play size={16} />} {playing ? 'Pause film' : voice ? 'Play narrated film' : 'Play with captions'}
           </button>
           <button type="button" className="vish-private-film__control" aria-pressed={voice}
             onClick={() => { stopVoice(); setVoice(!voice); }}>
