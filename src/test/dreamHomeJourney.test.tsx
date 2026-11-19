@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { DreamHomeJourney } from '@/components/projects/DreamHomeJourney';
+
+// Route is authenticated in the real app; component unit test supplies a non-co-owner session.
+vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ user: null }) }));
 
 describe('original owner design journey', () => {
   it('keeps the locked original Vishvakarma swan/V mark', () => {
