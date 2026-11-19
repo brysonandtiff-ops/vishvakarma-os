@@ -54,7 +54,7 @@ describe('finger and stylus pencil wall strokes', () => {
     expect(points.length).toBeLessThanOrEqual(MAX_PENCIL_POINTS);
     const extended = appendPencilPoint(points, { x: 99999, y: 0 });
     expect(extended.length).toBeLessThanOrEqual(MAX_PENCIL_POINTS);
-    expect(extended.at(-1)).toEqual({ x: 99999, y: 0 });
+    expect(extended[extended.length - 1]).toEqual({ x: 99999, y: 0 });
     expect(simplifyPencilPoints(points).length).toBeLessThanOrEqual(MAX_PENCIL_WALLS + 1);
     expect(pencilStrokeToWalls(points, 'bounded').length).toBeLessThanOrEqual(MAX_PENCIL_WALLS);
   });
