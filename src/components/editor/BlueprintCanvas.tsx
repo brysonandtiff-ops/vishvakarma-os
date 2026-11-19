@@ -1287,9 +1287,10 @@ export default function BlueprintCanvas({
 
     if (pencilPointerIdRef.current === event.pointerId && currentTool === 'pen') {
       const nativeEvent = event.nativeEvent as globalThis.PointerEvent;
-      const samples = typeof nativeEvent.getCoalescedEvents === 'function'
+      const coalesced = typeof nativeEvent.getCoalescedEvents === 'function'
         ? nativeEvent.getCoalescedEvents()
-        : [nativeEvent];
+        : [];
+      const samples = coalesced.length > 0 ? coalesced : [nativeEvent];
       let points = pencilPointsRef.current;
       for (const sample of samples) {
         points = appendPencilPoint(points, getRawCanvasPoint(sample));
