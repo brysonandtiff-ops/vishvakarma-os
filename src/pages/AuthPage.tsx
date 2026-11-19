@@ -12,7 +12,6 @@ import {
   isEmbeddedAuthBrowser,
 } from '@/backend/authUiHelpers';
 import {
-  POST_AUTH_DESTINATION,
   peekAuthReturnPath,
   resolvePostAuthDestination,
   storeAuthReturnPath,
@@ -60,8 +59,6 @@ export default function AuthPage() {
   useEffect(() => {
     if (!user) storeAuthReturnPath(requestedDestination);
   }, [requestedDestination, user]);
-  const adminApprovalMessage =
-    'Use an approved account. Google SSO and secure email magic links are handled by Supabase.';
 
   useEffect(() => {
     const state = location.state as { message?: string } | null;
