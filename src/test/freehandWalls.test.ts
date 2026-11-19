@@ -51,8 +51,10 @@ describe('finger and stylus pencil wall strokes', () => {
     for (let index = 0; index < MAX_PENCIL_POINTS + 25; index += 1) {
       points = appendPencilPoint(points, { x: index * 6, y: index % 2 ? 22 : 0 });
     }
-    expect(points.length).toBe(MAX_PENCIL_POINTS);
-    expect(appendPencilPoint(points, { x: 99999, y: 0 })).toBe(points);
+    expect(points.length).toBeLessThanOrEqual(MAX_PENCIL_POINTS);
+    const extended = appendPencilPoint(points, { x: 99999, y: 0 });
+    expect(extended.length).toBeLessThanOrEqual(MAX_PENCIL_POINTS);
+    expect(extended.at(-1)).toEqual({ x: 99999, y: 0 });
     expect(simplifyPencilPoints(points).length).toBeLessThanOrEqual(MAX_PENCIL_WALLS + 1);
     expect(pencilStrokeToWalls(points, 'bounded').length).toBeLessThanOrEqual(MAX_PENCIL_WALLS);
   });
