@@ -41,6 +41,18 @@ const WALL_DEFAULTS: ToolDefaultsConfig = {
   ],
 };
 
+const PEN_DEFAULTS: ToolDefaultsConfig = {
+  sectionTitle: 'Pencil — freehand walls',
+  footnote: 'Use a finger, Apple Pencil, USB stylus, or mouse. One continuous stroke creates editable walls in 2D and 3D. Undo removes the entire stroke.',
+  fields: [],
+};
+
+const ERASER_DEFAULTS: ToolDefaultsConfig = {
+  sectionTitle: 'Eraser',
+  footnote: 'Rub across walls, doors, or windows with any finger or pen tip. A single Undo restores one erase gesture.',
+  fields: [],
+};
+
 const SELECT_DEFAULTS: ToolDefaultsConfig = {
   sectionTitle: 'Selection',
   footnote: 'Select a wall or opening to edit properties.',
@@ -69,6 +81,10 @@ export function getToolDefaults(tool: ToolType): ToolDefaultsConfig {
       return WINDOW_DEFAULTS;
     case 'wall':
       return WALL_DEFAULTS;
+    case 'pen':
+      return PEN_DEFAULTS;
+    case 'eraser':
+      return ERASER_DEFAULTS;
     case 'terrain':
       return TERRAIN_DEFAULTS;
     case 'measure':
