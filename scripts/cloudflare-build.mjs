@@ -62,6 +62,7 @@ const cloudflareSteps = [
   { label: 'Cloudflare-only authority guard', command: 'node scripts/quality/check-cloudflare-only.mjs' },
   { label: 'Current documentation source-of-truth audit', command: 'node scripts/docs/check-source-truth.mjs' },
   { label: 'Full documentation link and integrity verification', command: 'pnpm run docs:verify' },
+  { label: 'Handoff appendix and source completeness verification', command: 'pnpm run handoff:verify' },
   { label: 'Cloudflare configuration certification', command: 'node scripts/deployment/verify-cloudflare-config.mjs' },
   { label: 'Application and Pages runtime typecheck', command: 'pnpm run lint:types' },
   { label: 'Production-focused regression tests', command: focusedRegressionCommand },
