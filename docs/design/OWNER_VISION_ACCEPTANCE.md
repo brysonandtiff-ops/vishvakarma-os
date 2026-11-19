@@ -1,6 +1,10 @@
 # Vishvakarma.OS — owner vision and real acceptance tests
 Owner's intended gift: a simple, accurate 2D house-to-3D building tool that a nontechnical family member can use on an iPad, phone or computer.
 
+## Owner's original concept art reference
+
+The original private gift infographic (SHA-256 ee6c730ddd7f38e24f135bee2d3ce2c2046f0bd4ff5bfc424de710a80bbf13a6) is preserved without alteration in the owner's Evidence Storage Library. The exact original-work mapping, source implementation and unverified UI evidence boundaries are recorded in [ORIGINAL_GIFT_DESIGN_MASTER_2026-11-19.md](./ORIGINAL_GIFT_DESIGN_MASTER_2026-11-19.md). The approved original swan/V logo remains separate and unchanged.
+
 ## Canonical visual identity — no redesign without approval
 Owner-supplied official swan/V artwork is immutable by default. Respect docs/BRAND_LOCK.md: black/gold auth and branding, cream drawing paper, compact black tool rails, readable gold highlights, 44-pixel or larger touch areas, iPad-first layout. Images/infographics are design references, never runtime evidence. Do not call AI-generated concepts production screenshots.
 
