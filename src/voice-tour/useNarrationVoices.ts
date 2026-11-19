@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   availableEnglishVoices,
   NARRATION_PREFS_EVENT,
@@ -11,34 +11,53 @@ import {
 export function useNarrationVoices() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [settings, setSettings] = useState<NarrationPreferences>(readNarrationPreferences);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return undefined;
     const synth = window.speechSynthesis;
-    const refresh = () => setVoices(availableEnglishVoices(synth.getVoices()));
+    const refresh = () => {
+      const next = availableEnglishVoices(synth.getVoices());
+      setVoices((old) =>
+        old.length === next.length && old.every((voice, index) =>
+          voice.voiceURI === next[index]?.voiceURI && voice.lang === next[index]?.lang
+        ) ? old : next,
+      );
+    };
     refresh();
     const first = window.setTimeout(refresh, 250);
     const second = window.setTimeout(refresh, 1000);
     synth.addEventListener?.('voiceschanged', refresh);
+    window.addEventListener('focus', refresh);
     return () => {
       synth.removeEventListener?.('voiceschanged', refresh);
+      window.removeEventListener('focus', refresh);
       window.clearTimeout(first);
       window.clearTimeout(second);
     };
   }, []);
 
   useEffect(() => {
-    const sync = () => setSettings(readNarrationPreferences());
+    const sync = (event: Event) => {
+      const detail = (event as CustomEvent<NarrationPreferences>).detail;
+      const updated = detail && typeof detail.voiceURI === 'string'
+        ? detail
+        : readNarrationPreferences();
+      settingsRef.current = updated;
+      setSettings(updated);
+    };
     window.addEventListener(NARRATION_PREFS_EVENT, sync);
     return () => window.removeEventListener(NARRATION_PREFS_EVENT, sync);
   }, []);
 
-  const updateSettings = (patch: Partial<NarrationPreferences>) => {
-    setSettings((previous) => {
-      const updated = { ...previous, ...patch };
-      saveNarrationPreferences(updated);
-      return updated;
-    });
-  };
+  const updateSettings = useCallback((patch: Partial<NarrationPreferences>) => {
+    // Persist outside React's state updater: StrictMode may invoke updater twice.
+    const updated = { ...settingsRef.current, ...patch };
+    settingsRef.current = updated;
+    setSettings(updated);
+    saveNarrationPreferences(updated);
+  }, []);
 
   return { voices, settings, updateSettings };
 }

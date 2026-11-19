@@ -2,6 +2,8 @@ import { describe, expect, it, vi, afterEach } from 'vitest';
 import {
   availableEnglishVoices, clampNarrationRate, createNarrationUtterance,
   rankNarrationVoice, selectNarrationVoice, spokenNarrationText,
+  isKnownRoboticVoice, saveNarrationPreferences, readNarrationPreferences,
+  NARRATION_PREFS_EVENT, NARRATION_PREFS_KEY,
 } from '@/voice-tour/voiceQuality';
 
 const voices = [
@@ -16,12 +18,15 @@ describe('S.I.R.E. native voice quality', () => {
   it('prefers an Australian voice rather than known robotic engines', () => {
     expect(selectNarrationVoice(voices)?.voiceURI).toBe('australian');
     expect(rankNarrationVoice(voices[0])).toBeLessThan(0);
+    expect(isKnownRoboticVoice(voices[0])).toBe(true);
+    expect(isKnownRoboticVoice(voices[1])).toBe(false);
   });
   it('honours an explicitly selected English voice and rejects non-English', () => {
     expect(selectNarrationVoice(voices,'enhanced')?.voiceURI).toBe('enhanced');
     expect(selectNarrationVoice(voices,'french')?.voiceURI).toBe('australian');
     expect(availableEnglishVoices(voices)).toHaveLength(3);
     expect(selectNarrationVoice([])).toBeNull();
+    expect(selectNarrationVoice(voices, 'missing')?.voiceURI).toBe('australian');
   });
   it('uses gentle speaking speeds, not exaggerated pitch', () => {
     expect(clampNarrationRate(-2)).toBe(0.86);
@@ -44,5 +49,20 @@ describe('S.I.R.E. native voice quality', () => {
     expect(u.lang).toBe('en-AU');
     expect(u.pitch).toBe(1);
     expect(u.rate).toBe(0.98);
+  });
+  it('keeps voice changes synchronized between mounted panels', () => {
+    const listener = vi.fn();
+    window.addEventListener(NARRATION_PREFS_EVENT, listener);
+    try {
+      saveNarrationPreferences({ voiceURI: 'australian', rate: 1.08 });
+      expect(readNarrationPreferences()).toEqual({ voiceURI: 'australian', rate: 1.08 });
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect((listener.mock.calls[0]?.[0] as CustomEvent).detail).toEqual({
+        voiceURI: 'australian', rate: 1.08,
+      });
+    } finally {
+      window.removeEventListener(NARRATION_PREFS_EVENT, listener);
+      localStorage.removeItem(NARRATION_PREFS_KEY);
+    }
   });
 });

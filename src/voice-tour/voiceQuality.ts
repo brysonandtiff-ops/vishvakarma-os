@@ -19,10 +19,14 @@ export function availableEnglishVoices<T extends VoiceCandidate>(voices: readonl
   return voices.filter((voice) => /^en(?:[-_]|$)/i.test(voice.lang));
 }
 
+export function isKnownRoboticVoice(voice: VoiceCandidate): boolean {
+  return /espeak|festival|robotic|compact|synthetic/i.test(voice.name);
+}
+
 export function rankNarrationVoice(voice: VoiceCandidate): number {
   const lang = voice.lang.toLowerCase().replace('_', '-');
   const label = voice.name.toLowerCase();
-  if (/espeak|festival|robotic|compact|synthetic/.test(label)) return -1000;
+  if (isKnownRoboticVoice(voice)) return -1000;
   const accent = lang === 'en-au' ? 120 : lang === 'en-nz' ? 100
     : lang === 'en-gb' ? 80 : lang === 'en-us' ? 65 : lang.startsWith('en') ? 45 : 0;
   const qualityHint = /enhanced|premium|natural|neural|siri/.test(label) ? 40
@@ -63,15 +67,17 @@ export function readNarrationPreferences(): NarrationPreferences {
 }
 
 export function saveNarrationPreferences(settings: NarrationPreferences): void {
+  if (typeof window === 'undefined') return;
+  const normalized: NarrationPreferences = {
+    voiceURI: settings.voiceURI,
+    rate: clampNarrationRate(settings.rate),
+  };
   try {
-    window.localStorage.setItem(NARRATION_PREFS_KEY, JSON.stringify({
-      voiceURI: settings.voiceURI,
-      rate: clampNarrationRate(settings.rate),
-    }));
-    window.dispatchEvent(new Event(NARRATION_PREFS_EVENT));
+    window.localStorage.setItem(NARRATION_PREFS_KEY, JSON.stringify(normalized));
   } catch {
-    // Safari private browsing may deny persistent storage. Voice still works.
+    // Safari private browsing may deny storage. Keep both mounted tour UIs in sync.
   }
+  window.dispatchEvent(new CustomEvent<NarrationPreferences>(NARRATION_PREFS_EVENT, { detail: normalized }));
 }
 
 export function spokenNarrationText(text: string): string {
