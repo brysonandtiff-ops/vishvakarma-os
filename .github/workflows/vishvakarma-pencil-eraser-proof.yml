@@ -1,9 +1,19 @@
 name: Vishvakarma 2D Pencil and Eraser Proof
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/2d-touch-pencil-erase-20261119
+      - main
+    paths:
+      - '.github/workflows/vishvakarma-pencil-eraser-proof.yml'
+      - 'src/components/editor/**'
+      - 'src/core/floorPlanEngine.ts'
+      - 'src/editor/toolMeta.ts'
+      - 'src/pages/EditorPage.tsx'
+      - 'src/styles/vish-editor-chrome.css'
+      - 'src/types/types.ts'
+      - 'src/test/**'
+      - 'e2e/ipad-editor-current-contract.spec.ts'
   workflow_dispatch:
 
 permissions:
