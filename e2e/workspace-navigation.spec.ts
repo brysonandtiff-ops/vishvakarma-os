@@ -37,7 +37,7 @@ test.describe('workspace navigation (e2e local access)', () => {
       const menu = await openWorkspaceMenu(page);
       const target = menu.getByRole('link', { name: link.name, exact: true });
       await expect(target).toBeVisible({ timeout: 15_000 });
-      await target.click({ force: true });
+      await target.click();
       await expect(page).toHaveURL(new RegExp(`${link.path.replace('/', '\\/')}$`), { timeout: 30_000 });
 
       if ('testId' in link && link.testId) {
@@ -54,7 +54,7 @@ test.describe('workspace navigation (e2e local access)', () => {
     const openPalette = async () => {
       const trigger = page.getByRole('button', { name: /open command palette/i }).filter({ visible: true }).first();
       await expect(trigger).toBeVisible({ timeout: 15_000 });
-      await trigger.click({ force: true });
+      await trigger.click();
       const input = page.getByPlaceholder('Search routes, tools, tutorials…');
       await expect(input).toBeVisible({ timeout: 15_000 });
       return input;
@@ -79,7 +79,7 @@ test.describe('workspace navigation (e2e local access)', () => {
     const menu = await openWorkspaceMenu(page);
     const specCenter = menu.getByRole('link', { name: 'Spec Center', exact: true });
     await expect(specCenter).toBeVisible({ timeout: 15_000 });
-    await specCenter.click({ force: true });
+    await specCenter.click();
     await expect(page).toHaveURL(/\/spec-center$/);
     await expect(page.getByRole('heading', { name: /spec center/i }).first()).toBeVisible({ timeout: 30_000 });
   });
