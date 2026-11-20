@@ -1,9 +1,8 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type CDPSession, type Locator, type Page } from '@playwright/test';
 import {
   assertActiveDialogFitsIpad,
   desktopLandscape,
   dismissEditorOverlays,
-  dispatchCanvasPointer,
   iPadLandscape,
   iPadPortrait,
   loadSampleProject,
@@ -55,6 +54,53 @@ async function canvasBox(page: Page) {
   return { canvas, box };
 }
 
+// These four browser interaction checks need real Chromium input. DOM-dispatched
+// PointerEvents do not register active pointers and setPointerCapture() then throws.
+const chromiumInputSessions = new WeakMap<Page, Promise<CDPSession>>();
+
+async function dispatchCanvasPointer(
+  canvas: Locator,
+  eventType: 'pointerdown' | 'pointermove' | 'pointerup',
+  point: { x: number; y: number },
+  options: { pointerType: 'pen' | 'touch'; pointerId?: number; button?: number; buttons?: number },
+) {
+  if (options.button === 5 || (options.buttons !== undefined && (options.buttons & 32) !== 0)) {
+    throw new Error('Chromium CDP cannot emulate pen hardware eraser button 5; see inputHandlers unit tests.');
+  }
+
+  const page = canvas.page();
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Blueprint canvas is not measurable');
+  const x = box.x + point.x;
+  const y = box.y + point.y;
+  let pendingSession = chromiumInputSessions.get(page);
+  if (!pendingSession) {
+    pendingSession = page.context().newCDPSession(page);
+    chromiumInputSessions.set(page, pendingSession);
+  }
+  const cdp = await pendingSession;
+
+  if (options.pointerType === 'touch') {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: eventType === 'pointerdown' ? 'touchStart' : eventType === 'pointermove' ? 'touchMove' : 'touchEnd',
+      touchPoints: eventType === 'pointerup' ? [] : [{ x, y, id: options.pointerId ?? 1, force: 0.5 }],
+    });
+    return;
+  }
+
+  // Chrome assigns the active pen pointerId; the test's illustrative id is not forced.
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: eventType === 'pointerdown' ? 'mousePressed' : eventType === 'pointermove' ? 'mouseMoved' : 'mouseReleased',
+    x,
+    y,
+    button: eventType === 'pointermove' ? 'none' : 'left',
+    buttons: eventType === 'pointerup' ? 0 : 1,
+    pointerType: 'pen',
+    force: eventType === 'pointerup' ? 0 : 0.5,
+    clickCount: eventType === 'pointermove' ? 0 : 1,
+  });
+}
+
 async function pencilTap(
   canvas: Locator,
   point: { x: number; y: number },
@@ -101,7 +147,7 @@ test.describe('current iPad editor interaction contract', () => {
     await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
   });
 
-  test('Pencil eraser deletes a newly created wall', async ({ page }) => {
+  test('Visible eraser removes a Wall-tool wall with the Pencil tip', async ({ page }) => {
     await setupEditor(page, iPadLandscape);
     const initialWalls = await readEditorMetricCount(page, 'Walls');
     const { canvas, box } = await canvasBox(page);
@@ -114,17 +160,17 @@ test.describe('current iPad editor interaction contract', () => {
     await drawPencilWall(canvas, from, to);
     await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
 
+    // CDP cannot send a real pen hardware-eraser button. That input mapping
+    // is independently covered in src/test/inputHandlers.test.ts.
+    await activatePersistentTool(page, 'Eraser');
     await dispatchCanvasPointer(canvas, 'pointerdown', midpoint, {
       pointerType: 'pen',
       pointerId: 84,
-      button: 5,
-      buttons: 32,
     });
     await page.waitForTimeout(80);
     await dispatchCanvasPointer(canvas, 'pointerup', midpoint, {
       pointerType: 'pen',
       pointerId: 84,
-      button: 5,
       buttons: 0,
     });
 
