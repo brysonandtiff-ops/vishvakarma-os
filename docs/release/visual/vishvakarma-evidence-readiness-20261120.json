@@ -1,0 +1,94 @@
+{
+  "schema": "sire.vishvakarma.evidence-readiness.v1",
+  "project": "Vishvakarma.OS",
+  "repository": "brysonandtiff-ops/vishvakarma-os",
+  "date": "2026-11-20",
+  "timezone": "Australia/Perth",
+  "issue": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/214",
+  "status": "ESTIMATE_ONLY_RELEASE_BLOCKED",
+  "source_baseline": "Historical draft PR #208 and observed 19 Nov domain; not a current certified deployment SHA",
+  "formula": "Each of 10 gates equally weighted: PASS=1, PARTIAL=0.5, UNVERIFIED=0, BLOCKED=0",
+  "score_percent": 40,
+  "counts": {
+    "PASS": 2,
+    "PARTIAL": 4,
+    "UNVERIFIED": 2,
+    "BLOCKED": 2
+  },
+  "meaning": "40% illustrative evidence readiness, NOT percent of code built, test coverage, real app screenshots, or launch authorization",
+  "canonical_art": "docs/BRAND_LOCK.md; owner swan/V logo kept unchanged and not recreated",
+  "browser_limit": "A direct Nov 20 browsing retry was unable to access the domain; this does not prove site outage. Prior observed public pages 19 Nov.",
+  "runtime_evidence": "Graphic SVGs are real static vector assets, not proof of app/device execution.",
+  "gates": [
+    {
+      "n": 1,
+      "s": "PASS",
+      "short": "Public site observed",
+      "detail": "19 Nov preview / public pages",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/pull/209"
+    },
+    {
+      "n": 2,
+      "s": "PASS",
+      "short": "Earlier candidate tests",
+      "detail": "1,180 / 1,180 unit tests in draft #208",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/pull/208"
+    },
+    {
+      "n": 3,
+      "s": "PARTIAL",
+      "short": "2D and Pencil input",
+      "detail": "Browser input proof still incomplete",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/pull/211"
+    },
+    {
+      "n": 4,
+      "s": "PARTIAL",
+      "short": "2D to 3D walkthrough",
+      "detail": "Complete geometry journey unproven",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/129"
+    },
+    {
+      "n": 5,
+      "s": "PARTIAL",
+      "short": "Create, save and reopen",
+      "detail": "Full signed-in cloud path unproven",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/pull/208"
+    },
+    {
+      "n": 6,
+      "s": "PARTIAL",
+      "short": "Export and sharing",
+      "detail": "Full user journey unproven",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/127"
+    },
+    {
+      "n": 7,
+      "s": "UNVERIFIED",
+      "short": "Cloud account isolation",
+      "detail": "Approved-user two-account proof missing",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/190"
+    },
+    {
+      "n": 8,
+      "s": "UNVERIFIED",
+      "short": "Physical-device testing",
+      "detail": "Real iPad / Fold / iPhone proof missing",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/192"
+    },
+    {
+      "n": 9,
+      "s": "BLOCKED",
+      "short": "Credentials and backup",
+      "detail": "P0 #153 and recovery #188 not closed",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/153"
+    },
+    {
+      "n": 10,
+      "s": "BLOCKED",
+      "short": "Certified release",
+      "detail": "Exact-SHA approval missing",
+      "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/191"
+    }
+  ]
+}
