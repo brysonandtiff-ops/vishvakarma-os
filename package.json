@@ -31,6 +31,7 @@
     "qe:routes": "pnpm exec playwright test --config=playwright.qe-smoke.config.ts",
     "test:e2e:qe-routes": "pnpm run qe:routes",
     "test:e2e:app": "pnpm exec playwright test --project=app-smoke",
+    "test:e2e:pencil": "pnpm exec playwright test --project=app-smoke-chromium e2e/ipad-editor-current-contract.spec.ts",
     "test:e2e:deep-proof": "pnpm exec playwright test --config=playwright.deep-proof.config.ts",
     "test:e2e:soak": "pnpm exec playwright test --config=playwright.soak.config.ts",
     "test:e2e:governance": "node scripts/build-e2e-local.mjs && pnpm exec playwright test --config=playwright.governance.config.ts",
