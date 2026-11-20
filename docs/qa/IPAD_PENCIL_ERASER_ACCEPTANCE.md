@@ -10,7 +10,8 @@
 - `pnpm run lint:types` — TS type checks.
 - `pnpm exec vitest run src/test/freehandWalls.test.ts src/test/ToolRail.test.tsx src/test/editorWorkflow.test.ts src/test/inputHandlers.test.ts`.
 - `pnpm exec playwright test --config=playwright.deep-proof.config.ts` — existing wall/opening regression.
-- `pnpm exec playwright test e2e/ipad-editor-current-contract.spec.ts` — simulated touch/Pencil events. Use a config with this spec enabled.
+- `pnpm run test:e2e:pencil` — run the editor contract against a local demo build in Chromium, including simulated touch and Pencil input. Requires the pinned Playwright Chromium browser and its system libraries (install the browser with `pnpm exec playwright install chromium`). No hosted workflow runs.
+- Firefox and WebKit can run the same spec through their app-smoke projects for the four portable editor cases. They skip only the four Chromium-specific pen/finger cases.
 - `pnpm run build` — production bundle.
 - `pnpm run repairbot:medium` before declaring ready.
 
