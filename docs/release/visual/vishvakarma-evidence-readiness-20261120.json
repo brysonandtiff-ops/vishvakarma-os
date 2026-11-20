@@ -6,7 +6,7 @@
   "timezone": "Australia/Perth",
   "issue": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/214",
   "status": "ESTIMATE_ONLY_RELEASE_BLOCKED",
-  "source_baseline": "Historical draft PR #208 and observed 19 Nov domain; not a current certified deployment SHA",
+  "source_baseline": "Readiness score from historical #208 and 19 Nov public-page proof; 20 Nov read-only Supabase and Cloudflare metadata supplements. Not a certified end-to-end release.",
   "formula": "Each of 10 gates equally weighted: PASS=1, PARTIAL=0.5, UNVERIFIED=0, BLOCKED=0",
   "score_percent": 40,
   "counts": {
@@ -90,5 +90,30 @@
       "detail": "Exact-SHA approval missing",
       "url": "https://github.com/brysonandtiff-ops/vishvakarma-os/issues/191"
     }
-  ]
+  ],
+  "live_service_observations": {
+    "observed_date": "2026-11-20",
+    "source_type": "Read-only connected provider API observations; no secrets or user records inspected",
+    "supabase": {
+      "project_status": "ACTIVE_HEALTHY",
+      "public_tables_count": 14,
+      "rls_enabled_public_tables": 14,
+      "limitation": "Health and configuration visibility do not prove signed-in access, cross-user isolation, provider credential rotation, or application save/reopen."
+    },
+    "cloudflare": {
+      "pages_project": "vishvakarma-os",
+      "configured_active_custom_domains": [
+        "vishvakarmaos.app",
+        "www.vishvakarmaos.app"
+      ],
+      "production_branch": "agent/cloudflare-pages-workers-migration",
+      "canonical_deployment_id": "3d003e50-e10c-417b-b25c-9e2b341012b0",
+      "canonical_deployment_source_sha": "5a1305928ca9435e577ea2e021935452f9289a02",
+      "canonical_deployment_created_at_utc": "2026-08-05T11:08:52.435158Z",
+      "canonical_deployment_status": "success",
+      "review_candidate_sha": "b21f3b6ebdce9086eec59e13ff7f7a5f8b65613d",
+      "limitation": "Provider deployment metadata is not proof of the site rendering now, source parity with current feature branches, browser workflows, or security release sign-off."
+    },
+    "security": "NOT_CLEARED; provider advisors show unresolved settings requiring separate authorised review. Historical #153 and retained backup #188 remain open."
+  }
 }
