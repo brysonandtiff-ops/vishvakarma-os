@@ -111,8 +111,9 @@
       "canonical_deployment_source_sha": "5a1305928ca9435e577ea2e021935452f9289a02",
       "canonical_deployment_created_at_utc": "2026-08-05T11:08:52.435158Z",
       "canonical_deployment_status": "success",
-      "review_candidate_sha": "b21f3b6ebdce9086eec59e13ff7f7a5f8b65613d",
-      "limitation": "Provider deployment metadata is not proof of the site rendering now, source parity with current feature branches, browser workflows, or security release sign-off."
+      "limitation": "Provider deployment metadata is not proof of the site rendering now, source parity with current feature branches, browser workflows, or security release sign-off.",
+      "main_base_sha_at_visual_pr_review": "3bf5153c04f00a19fa12d2bb2551ea420a632363",
+      "source_identity_note": "This SHA came from PR #215 base metadata at review; it is not a claim about latest main or the changing draft PR head."
     },
     "security": "NOT_CLEARED; provider advisors show unresolved settings requiring separate authorised review. Historical #153 and retained backup #188 remain open."
   }
