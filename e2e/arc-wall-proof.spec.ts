@@ -19,7 +19,7 @@ async function readWalls(page: import('@playwright/test').Page): Promise<number>
   });
 }
 test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
-  test.setTimeout(180_000);
+  test.setTimeout(210_000);
   await resetWorkspacePrefs(page);
   await page.goto('/editor', { waitUntil: 'domcontentloaded' });
   await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 60_000 });
@@ -84,6 +84,15 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   expect(visibleMeshes.some((mesh) => mesh.inFrustum)).toBe(true);
   await page.screenshot({ path: 'evidence/vish-arc-3d.png' });
   await info.attach('vish-arc-3d', { path: 'evidence/vish-arc-3d.png', contentType: 'image/png' });
+
+  // Prove the real 3D panel can be closed before the save/reopen step.
+  // Headless Chromium software WebGL can lose its context after long captures;
+  // keeping it mounted during a React Router navigation makes the round-trip
+  // vulnerable to GPU context reset, not a project-data failure.
+  const toggle3d = page.getByRole('button', { name: 'Toggle 3D view' });
+  await expect(toggle3d).toBeVisible();
+  await toggle3d.click();
+  await expect(pane).toHaveCount(0, { timeout: 15000 });
 
   // The main toolbar can collapse when the 3D pane opens. Use the visible
   // real Save button in VISH's persistent left sidebar instead.
