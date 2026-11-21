@@ -19,6 +19,8 @@ test('2D Focus makes the real editable canvas larger and restores full tools', a
   await expect(page.getByTestId('editor-sidebar-toggle')).toBeHidden();
   await expect(page.getByTestId('editor-topbar-save')).toBeVisible();
   await expect(page.locator('.vish-empty-guided-start')).toBeHidden();
+  await expect(page.getByTestId('visual-theme-controller')).toBeHidden();
+  await expect(page.locator('.vish-voice-tour-launch')).toBeHidden();
   await expect(page.getByTestId('tool-rail')).toBeVisible();
   await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
   await expect(page.locator('.vish-3d-viewport-pane')).toHaveCount(0);

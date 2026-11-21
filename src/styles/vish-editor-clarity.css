@@ -228,6 +228,18 @@
 html[data-vish-drawing-focus="true"] .vish-empty-guided-start {
   display: none !important;
 }
+/* Other global floating helpers are only hidden in Focus, never deleted.
+ * Keep consent, authentication, save prompts and PWA safety notices visible. */
+html[data-vish-drawing-focus="true"] :is(
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-voice-tour-launch,
+  .vish-voice-tour-panel,
+  .vish-theme-controller,
+  .mantra-widget
+) {
+  display: none !important;
+}
 .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
   min-height: 52px;
   height: 52px;
