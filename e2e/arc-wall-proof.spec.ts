@@ -97,7 +97,13 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   await expect.poll(savedCount, { timeout: 20000 }).toBe(wallCount);
   await page.screenshot({ path: 'evidence/vish-arc-saved.png' });
 
-  await page.goto('/projects', { waitUntil: 'domcontentloaded' });
+  // Navigate like a real user through the React Router workspace link rather
+  // than forcing a full reload during VISH's PWA/chunk refresh lifecycle.
+  const projectsNav = page.getByRole('navigation', { name: 'Primary workspace navigation' })
+    .getByRole('link', { name: /projects/i });
+  await expect(projectsNav).toBeVisible();
+  await projectsNav.click();
+  await expect(page).toHaveURL(/\/projects(?:\?|$)/, { timeout: 30_000 });
   const reopen = page.getByRole('button', { name: `Open ${name}` });
   await expect(reopen).toBeVisible({ timeout: 30000 });
   await reopen.click();
