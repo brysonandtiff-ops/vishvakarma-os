@@ -807,7 +807,7 @@ function EditorWorkspace() {
     }
   }, [selectedWall?.id, selectedWall?.material]);
 
-  const showRadialMenu = ['wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
+  const showRadialMenu = ['wall', 'arc-wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
   const geometryRevision = useGeometryRevision();
   const geometryManifest = useMemo(
     () => engine.getGeometryManifest(),
