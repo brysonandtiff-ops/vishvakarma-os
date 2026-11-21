@@ -67,7 +67,7 @@ export function drawWallsLayer(ctx: CanvasRenderingContext2D, options: DrawWalls
     }
   }
 
-  if (isDrawing && startPoint && currentPoint) {
+  if (currentTool === 'wall' && isDrawing && startPoint && currentPoint) {
     drawWallPreview(ctx, startPoint, currentPoint, walls, unitSystem);
   }
 }

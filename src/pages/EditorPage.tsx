@@ -459,6 +459,9 @@ function EditorWorkspace() {
       } else if (event.key === 'w' || event.key === 'W') {
         event.preventDefault();
         setTool('wall');
+      } else if (event.key === 'a' || event.key === 'A') {
+        event.preventDefault();
+        setTool('arc-wall');
       } else if (event.key === 'd' && event.shiftKey) {
         event.preventDefault();
         engine.setDimensionVisibility(!engine.getDimensionVisibility());
@@ -1195,6 +1198,10 @@ function EditorWorkspace() {
                   gridSize={gridSize}
                   onWallAdd={(wall) => {
                     engine.addWall(wall);
+                    playStudioSound('wallPlace');
+                  }}
+                  onWallsAdd={(newWalls) => {
+                    engine.addWalls(newWalls);
                     playStudioSound('wallPlace');
                   }}
                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}

@@ -106,6 +106,7 @@ import {
   getWallEndpointAtPoint,
   MIN_WALL_LENGTH_PX,
 } from '@/utils/wallDrawConstraints';
+import { createArcWallSegments, sampleArcWall } from '@/utils/arcWallGeometry';
 import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
 import { sonicBridge } from '@/lib/sonic-bridge';
 
@@ -127,6 +128,7 @@ interface BlueprintCanvasProps {
   snapEnabled: boolean;
   gridSize: number;
   onWallAdd: (wall: Wall) => void;
+  onWallsAdd?: (walls: Wall[]) => void;
   onWallUpdate?: (wallId: string, updates: Partial<Wall>) => void;
   onWallDelete?: (wallId: string) => void;
   onOpeningAdd: (opening: Opening) => void;
@@ -285,6 +287,7 @@ export default function BlueprintCanvas({
   snapEnabled,
   gridSize,
   onWallAdd,
+  onWallsAdd,
   onWallUpdate,
   onWallDelete,
   onOpeningAdd,
@@ -380,6 +383,7 @@ export default function BlueprintCanvas({
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point2D | null>(null);
+  const [arcEndPoint, setArcEndPoint] = useState<Point2D | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point2D | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<Point2D | null>(null);
   const [hoveredWall, setHoveredWall] = useState<string | null>(null);
@@ -435,6 +439,7 @@ export default function BlueprintCanvas({
     panOriginRef.current = null;
     setIsDrawing(false);
     setStartPoint(null);
+    setArcEndPoint(null);
     setCurrentPoint(null);
     setDraggingOpeningId(null);
     setDragOpeningPosition(null);
@@ -928,6 +933,49 @@ export default function BlueprintCanvas({
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getCanvasPoint(event);
 
+    if (currentTool === 'arc-wall') {
+      if (!startPoint || !isDrawing) {
+        setStartPoint(point);
+        setArcEndPoint(null);
+        setCurrentPoint(point);
+        setIsDrawing(true);
+        return;
+      }
+      if (!arcEndPoint) {
+        if (Math.hypot(point.x - startPoint.x, point.y - startPoint.y) < MIN_WALL_LENGTH_PX * 3) {
+          toast.warning('Move the end farther from the start to make an arc.');
+          return;
+        }
+        setArcEndPoint(point);
+        setCurrentPoint(point);
+        return;
+      }
+      const curve = createArcWallSegments(
+        startPoint,
+        arcEndPoint,
+        getRawCanvasPoint(event),
+        'arc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9),
+        { thickness: 10, height: 240, material: 'material-paint' },
+      );
+      if (curve.length === 0) {
+        toast.warning('Tap farther from the straight line to set the bend.');
+        return;
+      }
+      if (onWallsAdd) {
+        onWallsAdd(curve);
+      } else {
+        floorPlanEngine.beginEditTransaction();
+        for (const wall of curve) onWallAdd(wall);
+        floorPlanEngine.commitEditTransaction('Add arc wall');
+      }
+      sonicBridge.playSnap();
+      setIsDrawing(false);
+      setStartPoint(null);
+      setArcEndPoint(null);
+      setCurrentPoint(null);
+      return;
+    }
+
     if (currentTool === 'wall') {
       if (isDrawing && startPoint) {
         setCurrentPoint(point);
@@ -1230,6 +1278,9 @@ export default function BlueprintCanvas({
     if (event.pointerType === 'pen' && event.buttons === 0) {
       const hoverPoint = applyPointSnaps(getRawCanvasPoint(event));
       runHoverPreview(hoverPoint, mode);
+      if (currentTool === 'arc-wall' && isDrawing) {
+        setCurrentPoint(arcEndPoint ? getRawCanvasPoint(event) : hoverPoint);
+      }
       return;
     }
 
@@ -1250,6 +1301,11 @@ export default function BlueprintCanvas({
     const point = getCanvasPoint(event);
     setHoveredPoint(point);
     onPointerCanvasMove?.(point);
+
+    if (isDrawing && startPoint && currentTool === 'arc-wall') {
+      setCurrentPoint(arcEndPoint ? getRawCanvasPoint(event) : point);
+      return;
+    }
 
     if (isDrawing && startPoint && currentTool === 'wall') {
       const nativeEvent = event.nativeEvent as globalThis.PointerEvent;
@@ -1458,6 +1514,7 @@ export default function BlueprintCanvas({
     setDimensionStart(null);
     setIsDrawing(false);
     setStartPoint(null);
+    setArcEndPoint(null);
     setCurrentPoint(null);
     setPreviewOpening(null);
     setTerrainVertices([]);
@@ -1470,9 +1527,23 @@ export default function BlueprintCanvas({
     }
   }, [currentTool]);
 
+  // Never reuse a partly drawn arc or wall after a tool change.
+  useEffect(() => {
+    setIsDrawing(false);
+    setStartPoint(null);
+    setArcEndPoint(null);
+    setCurrentPoint(null);
+  }, [currentTool]);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        if (isDrawing) {
+          setIsDrawing(false);
+          setStartPoint(null);
+          setArcEndPoint(null);
+          setCurrentPoint(null);
+        }
         if (terrainVertices.length > 0) {
           setTerrainVertices([]);
         }
@@ -1483,7 +1554,7 @@ export default function BlueprintCanvas({
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [marqueeRect, terrainVertices.length]);
+  }, [isDrawing, marqueeRect, terrainVertices.length]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1794,8 +1865,25 @@ export default function BlueprintCanvas({
       drawPreviewOpening(ctx, previewOpening, walls, unitSystem);
     }
 
-    if (isDrawing && startPoint && currentTool === 'wall') {
-      // preview rendered in drawWallsLayer
+    if (currentTool === 'arc-wall' && isDrawing && startPoint && currentPoint) {
+      const sampled = arcEndPoint ? sampleArcWall(startPoint, arcEndPoint, currentPoint) : [];
+      const points = sampled.length ? sampled : [startPoint, arcEndPoint ?? currentPoint];
+      ctx.save();
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([7, 4]);
+      ctx.beginPath();
+      ctx.moveTo(points[0]!.x, points[0]!.y);
+      for (const vertex of points.slice(1)) ctx.lineTo(vertex.x, vertex.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      for (const anchor of [startPoint, arcEndPoint].filter((p): p is Point2D => p !== null)) {
+        ctx.beginPath();
+        ctx.arc(anchor.x, anchor.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = GOLD;
+        ctx.fill();
+      }
+      ctx.restore();
     }
 
     if (marqueeRect && currentTool === 'select') {
@@ -1867,7 +1955,7 @@ export default function BlueprintCanvas({
     }
     };
     requestCanvasDraw('overlay');
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls, bhumiCanvasMode]);
+  }, [arcEndPoint, canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls, bhumiCanvasMode]);
 
   return (
     <div
