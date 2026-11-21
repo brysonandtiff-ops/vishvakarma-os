@@ -14,6 +14,7 @@ Editor tools available from the tool rail in `/editor`. Use the command palette 
 |------|----------|--------|----------------|
 | Select | V | Select walls, openings, labels, dimensions, and placed items | Edit details in Properties |
 | Wall | W | Tap start and end points to draw wall segments | Close a room shell, then add openings |
+| Arc Wall | A | Tap start, end, then bend to create short joined wall segments | Create curved-looking bays and arch-shaped layouts |
 | Door | D | Tap a wall to place a door | Drag handles or inspect in 3D |
 | Window | N | Tap a wall to place a window | Toggle 3D to verify placement |
 | Measure | M | Inspect wall and opening dimensions | Use Dimension for persistent annotations |
@@ -66,3 +67,5 @@ See [NAVIGATION_MAP.md](./NAVIGATION_MAP.md) for the full workspace route map.
 | DXF | CAD exchange entities where enabled | Downstream CAD workflows | [EXPORT_LIMITATIONS.md](./EXPORT_LIMITATIONS.md) |
 
 JSON is the format to use for backup and re-import.
+
+**Arc Wall limitation (prototype):** this three-tap shape is saved as joined straight wall sections, not a single editable mathematical arc. Existing 2D/3D drawing, save/load, and basic exports can use these sections. Openings must fit individual sections, and the result is not certified architectural or construction documentation.

@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import {
   Box,
   ChevronDown,
+  Focus,
+  Shrink,
   FileDown,
   FolderOpen,
   Grid3x3,
@@ -14,6 +16,7 @@ import {
   PenLine,
   Plus,
   Redo2,
+  SlidersHorizontal,
   Route,
   Save,
   Sofa,
@@ -42,6 +45,9 @@ import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
 interface EditorTopBarProps {
   projectName: string;
+  drawingFocus?: boolean;
+  onToggleDrawingFocus?: () => void;
+  saveStatusLabel?: string;
   show3DView: boolean;
   expand3DPanel?: boolean;
   onToggleExpand3D?: () => void;
@@ -53,6 +59,8 @@ interface EditorTopBarProps {
   onToggleZen?: () => void;
   onTogglePresentationLock?: () => void;
   onToggle3D: () => void;
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
   gridVisible: boolean;
   onToggleGrid: () => void;
   onStartDemoSession?: () => void;
@@ -206,6 +214,9 @@ function ModeTabs({
 
 export default function EditorTopBar({
   projectName,
+  drawingFocus = false,
+  onToggleDrawingFocus,
+  saveStatusLabel,
   show3DView,
   expand3DPanel = false,
   onToggleExpand3D,
@@ -217,6 +228,8 @@ export default function EditorTopBar({
   onToggleZen,
   onTogglePresentationLock,
   onToggle3D,
+  inspectorOpen = true,
+  onToggleInspector,
   gridVisible,
   onToggleGrid,
   onStartDemoSession,
@@ -246,12 +259,12 @@ export default function EditorTopBar({
     <header className="vish-editor-topbar-chrome flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
       <div className="flex w-full items-center justify-between">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
-          {onOpenEditorMenu && (
+          {!drawingFocus && onOpenEditorMenu && (
             <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>
               <Menu className="h-4 w-4" />
             </IconButton>
           )}
-          <DropdownMenu>
+          {!drawingFocus && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -276,11 +289,14 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
           <div className="vish-logo-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
-          <span className="max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          <span className="vish-editor-project-title max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          {drawingFocus && saveStatusLabel && (
+            <span className="vish-focus-save-label hidden shrink-0 text-[10px] text-vish-text-400 lg:inline">{saveStatusLabel}</span>
+          )}
           {savingProject && (
             <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
@@ -289,50 +305,62 @@ export default function EditorTopBar({
           )}
         </div>
 
-        <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
+        {!drawingFocus && <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
           <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
-        </div>
+        </div>}
 
         <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
-          {onStartDemoSession && (
-            <QuickActionButton
-              label="Start guided demo session"
-              shortLabel="Start demo"
-              onClick={onStartDemoSession}
-              dataTestId="editor-start-demo-session"
-              dataTutorial="start-demo-session"
+          {onToggleDrawingFocus && (
+            <button
+              type="button"
+              data-testid="editor-focus-2d-toggle"
+              aria-label={drawingFocus ? 'Exit 2D focus' : 'Enter 2D focus'}
+              aria-pressed={drawingFocus}
+              title={drawingFocus ? 'Return to full workspace (Shift+F)' : 'Maximise 2D drawing area (Shift+F)'}
+              onClick={onToggleDrawingFocus}
+              className="vish-focus-button touch-target inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-vish-gold-500/40 bg-vish-gold-500/10 px-3 text-xs font-semibold text-vish-gold-400 hover:bg-vish-gold-500/20 focus-visible:outline-2 focus-visible:outline-vish-blue-400"
             >
-              <Sparkles className="h-4 w-4" />
-            </QuickActionButton>
+              {drawingFocus ? <Shrink className="h-4 w-4" aria-hidden /> : <Focus className="h-4 w-4" aria-hidden />}
+              <span className="hidden sm:inline">{drawingFocus ? 'Full workspace' : 'Focus 2D'}</span>
+            </button>
           )}
-          {onLoadSample && (
-            <QuickActionButton
-              label="Load demo blueprint"
-              shortLabel="Demo"
-              onClick={onLoadSample}
-              dataTestId="editor-demo-quick-action"
-              dataTutorial="load-demo"
+          {onSaveProject && (
+            <button
+              type="button"
+              data-testid="editor-topbar-save"
+              aria-label="Save project"
+              title="Save project"
+              disabled={savingProject}
+              onClick={onSaveProject}
+              className="vish-editor-save-action touch-target inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-vish-blue-500/40 bg-vish-blue-600/20 px-3 text-xs font-semibold text-white hover:bg-vish-blue-600/35 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-vish-blue-400"
             >
-              <FolderOpen className="h-4 w-4" />
-            </QuickActionButton>
+              {savingProject ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Save className="h-4 w-4" aria-hidden />}
+              <span>Save</span>
+            </button>
           )}
-          <QuickActionButton
-            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
-            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
-            active={gridVisible}
-            onClick={onToggleGrid}
-            dataTestId="editor-grid-quick-action"
-            dataTutorial="toggle-grid"
-          >
-            <Grid3x3 className="h-4 w-4" />
-          </QuickActionButton>
-          <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
-            <Undo2 className="h-4 w-4" />
+          {onToggleInspector && (
+            <IconButton
+              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
+              active={inspectorOpen}
+              onClick={onToggleInspector}
+              dataTutorial="toggle-inspector"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </IconButton>
+          )}
+          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
+            <Box className="h-4 w-4" />
           </IconButton>
-          <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
-            <Redo2 className="h-4 w-4" />
-          </IconButton>
-
+          {show3DView && onToggleExpand3D && (
+            <IconButton
+              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
+              active={expand3DPanel}
+              onClick={onToggleExpand3D}
+              dataTutorial="expand-3d"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </IconButton>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -402,27 +430,50 @@ export default function EditorTopBar({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
-            <Box className="h-4 w-4" />
-          </IconButton>
-          {show3DView && onToggleExpand3D && (
-            <IconButton
-              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
-              active={expand3DPanel}
-              onClick={onToggleExpand3D}
-              dataTutorial="expand-3d"
+          {onStartDemoSession && (
+            <QuickActionButton
+              label="Start guided demo session"
+              shortLabel="Start demo"
+              onClick={onStartDemoSession}
+              dataTestId="editor-start-demo-session"
+              dataTutorial="start-demo-session"
             >
-              <Maximize2 className="h-4 w-4" />
-            </IconButton>
+              <Sparkles className="h-4 w-4" />
+            </QuickActionButton>
           )}
-          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid} dataTutorial="toggle-grid-icon">
+          {!drawingFocus && onLoadSample && (
+            <QuickActionButton
+              label="Load demo blueprint"
+              shortLabel="Demo"
+              onClick={onLoadSample}
+              dataTestId="editor-demo-quick-action"
+              dataTutorial="load-demo"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </QuickActionButton>
+          )}
+          <QuickActionButton
+            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
+            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
+            active={gridVisible}
+            onClick={onToggleGrid}
+            dataTestId="editor-grid-quick-action"
+            dataTutorial="toggle-grid"
+          >
             <Grid3x3 className="h-4 w-4" />
+          </QuickActionButton>
+          <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
+            <Undo2 className="h-4 w-4" />
           </IconButton>
-          <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
+          <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
+            <Redo2 className="h-4 w-4" />
+          </IconButton>
+
+
+          {!drawingFocus && <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
-          </IconButton>
-          {onToggleMonsoon && (
+          </IconButton>}
+          {!drawingFocus && onToggleMonsoon && (
             <IconButton
               label={monsoonActive ? 'Mute Monsoon Rain' : 'Monsoon Rain on Jali'}
               active={monsoonActive}
@@ -432,7 +483,7 @@ export default function EditorTopBar({
               <CloudRain className="h-4 w-4" />
             </IconButton>
           )}
-          {onTogglePrana && (
+          {!drawingFocus && onTogglePrana && (
             <IconButton
               label={pranaActive ? 'Deactivate Prana' : 'Activate Prana Glow'}
               active={pranaActive}
@@ -443,8 +494,8 @@ export default function EditorTopBar({
             </IconButton>
           )}
 
-          <TutorialHelpButton />
-          <DropdownMenu>
+          {!drawingFocus && <TutorialHelpButton />}
+          {!drawingFocus && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -465,7 +516,7 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
         </div>
       </div>
       {fileStrip && <div className="vish-editor-file-strip">{fileStrip}</div>}

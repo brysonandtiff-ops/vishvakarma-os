@@ -30,6 +30,7 @@ import { minTier } from '@/utils/adaptiveFrameGovernor';
 import { AdaptiveFrameGovernor } from '@/components/editor/AdaptiveFrameGovernor';
 import { RoomVolumeMeshes } from '@/components/editor/sceneRoomMeshes';
 import { canvasToWorld, computeSceneOrigin, type SceneOrigin } from '@/core/sceneVisualCatalog';
+import { calculateSceneCameraFrame, type SceneCameraFrame } from '@/utils/sceneCameraFraming';
 import { ATMOSPHERE, DOOR, GOLD_MUTED, MEP_COLORS, WINDOW } from '@/core/sceneDrawingTokens';
 import { HDRI_STUDIO_ARCH } from '@/core/scenePbrCatalog';
 import { resolveAmbientIntensity, resolveSunColor } from '@/core/lightingPresets';
@@ -63,6 +64,67 @@ function detectWebGL(): { supported: boolean; reason?: string } {
 
 function resolveInitialAtmosphereMode(): AtmospherePerformanceMode {
   return resolveDefaultAtmosphereMode({ storedMode: readStoredAtmosphereMode() });
+}
+
+/** Re-centre the real R3F camera on the 2D building, not on the ground grid. */
+/** E2E-only probe of real Three.js wall geometry; never simulated media. */
+function SceneRuntimeProbe({ sourceWallCount, renderedWallCount, geometryRevision }: { sourceWallCount: number; renderedWallCount: number; geometryRevision: number }) {
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
+  useEffect(() => {
+    if (import.meta.env.MODE !== 'e2e-local' || import.meta.env.VITE_ENABLE_QA_TOOLS !== 'true') return;
+    const token = window.setTimeout(() => {
+      scene.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      const meshes: Array<{ name: string; vertices: number; centerNdc: [number, number, number]; inFrustum: boolean }> = [];
+      const sceneObjects: string[] = [];
+      scene.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        sceneObjects.push(object.name || '(unnamed mesh)');
+        if (!object.name.startsWith('vish-wall')) return;
+        const bounds = new THREE.Box3().setFromObject(mesh);
+        const center = bounds.getCenter(new THREE.Vector3()).project(camera);
+        const positions = mesh.geometry?.getAttribute('position');
+        meshes.push({
+          name: object.name,
+          vertices: positions?.count ?? 0,
+          centerNdc: [center.x, center.y, center.z],
+          inFrustum: [center.x, center.y, center.z].every((v) => Number.isFinite(v) && v >= -1 && v <= 1),
+        });
+      });
+      (window as Window & { __vish3dSceneProof?: unknown }).__vish3dSceneProof = {
+        mode: 'real-threejs-scene',
+        sourceWallCount, renderedWallCount, geometryRevision,
+        wallMeshCount: meshes.length,
+        sceneObjects: sceneObjects.slice(0, 40),
+        meshes,
+        cameraPosition: camera.position.toArray(),
+        cameraQuaternion: camera.quaternion.toArray(),
+      };
+    }, 350);
+    return () => window.clearTimeout(token);
+  }, [camera, scene, sourceWallCount, renderedWallCount, geometryRevision]);
+  return null;
+}
+
+function SceneCameraFrameController({
+  frame,
+  resetKey,
+}: {
+  frame: SceneCameraFrame;
+  resetKey: number;
+}) {
+  const camera = useThree((state) => state.camera);
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+    camera.position.set(...frame.position);
+    camera.lookAt(...frame.target);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [camera, frame, invalidate, resetKey]);
+  return null;
 }
 
 function DemandRenderInvalidator({
@@ -433,6 +495,7 @@ function WallMesh({
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <mesh
+        name="vish-wall-segment"
         position={[posX, posY, posZ]}
         rotation={[0, -angle, 0]}
         castShadow
@@ -987,6 +1050,7 @@ export default function Viewport3D({
     () => computeSceneOrigin(allWallsForOrigin.length > 0 ? allWallsForOrigin : walls),
     [allWallsForOrigin, walls],
   );
+  const cameraFrame = useMemo(() => calculateSceneCameraFrame(allWallsForOrigin), [allWallsForOrigin]);
   // Header wall count must never lag behind the actual scene. `walls` arrives
   // via useDeferredValue in the parent, so it can briefly read stale/zero
   // right after a project loads or the panel mounts. `manifestWalls` is passed
@@ -1003,6 +1067,7 @@ export default function Viewport3D({
   // WebGL context-loss recovery state (iPad Safari / backgrounded PWA / GPU reset).
   const [contextLost, setContextLost] = useState(false);
   const [canvasGeneration, setCanvasGeneration] = useState(0);
+  const [cameraResetKey, setCameraResetKey] = useState(0);
 
   const handleContextLost = useCallback(() => setContextLost(true), []);
   const handleContextRestored = useCallback(() => setContextLost(false), []);
@@ -1123,7 +1188,9 @@ export default function Viewport3D({
             />
             {/* @ts-expect-error - React Three Fiber JSX types */}
             <color attach="background" args={[ATMOSPHERE.background]} />
-            <PerspectiveCamera makeDefault position={[8, 6, 8]} />
+            <PerspectiveCamera makeDefault position={cameraFrame.position} fov={50} />
+            <SceneCameraFrameController frame={cameraFrame} resetKey={cameraResetKey} />
+            <SceneRuntimeProbe sourceWallCount={headerWallCount} renderedWallCount={walls.length} geometryRevision={geometryRevision} />
             <SceneEnvironment mode={effectiveAtmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>
@@ -1135,7 +1202,7 @@ export default function Viewport3D({
                   enableZoom
                   minDistance={2}
                   maxDistance={24}
-                  target={[sceneOrigin.cx / 100, 1.6, sceneOrigin.cy / 100]}
+                  target={cameraFrame.target}
                   touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY }}
                 />
                 <TouchWalkRig moveRef={touchMoveRef} />
@@ -1144,6 +1211,7 @@ export default function Viewport3D({
               <PointerLockControls selector="#vish-3d-walk-hint" />
             ) : (
               <OrbitControls
+                target={cameraFrame.target}
                 enableDamping
                 dampingFactor={0.06}
                 enablePan
@@ -1287,16 +1355,18 @@ export default function Viewport3D({
           </div>
         )}
         {!presentationLock && (
-        <div className="absolute right-3 top-3 space-y-2 text-right">
-          <div className="rounded-xl border border-vish-navy-600/50 bg-vish-navy-950/60 px-3 py-2 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-vish-gold/90">
-              <Sparkles className="h-3 w-3" /> Architect Energy
-            </div>
-            <p className="mt-1 text-[9px] uppercase tracking-[0.18em] text-slate-400">
-              {atmosphereConfig.label} · {atmosphereMode === 'standard' ? 'low power' : atmosphereMode === 'premium' ? 'balanced' : 'max visuals'}
-            </p>
-          </div>
-          <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-vish-navy-700/50 bg-vish-navy-900/50 p-1 shadow-2xl backdrop-blur-xl">
+        <div className="absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] flex-col items-end gap-2 text-right">
+          <button
+            type="button"
+            data-testid="viewport-fit-building"
+            aria-label="Fit building in 3D"
+            disabled={headerWallCount === 0}
+            onClick={() => setCameraResetKey((value) => value + 1)}
+            className="touch-target flex min-h-[44px] items-center gap-2 rounded-lg border border-vish-gold/35 bg-vish-navy-950/90 px-3 text-xs font-semibold text-vish-text-100 shadow-lg hover:border-vish-gold/70 hover:bg-vish-navy-800 disabled:opacity-50"
+          >
+            <RotateCcw className="h-4 w-4 text-vish-gold" aria-hidden /> Fit building
+          </button>
+          <div className="pointer-events-auto flex justify-end gap-1 rounded-xl border border-vish-navy-700/50 bg-vish-navy-900/80 p-1 shadow-lg">
             {(Object.keys(ATMOSPHERE_MODES) as AtmospherePerformanceMode[])
               .filter((mode) => !isCoarsePointer || mode !== 'cinematic')
               .map((mode) => (

@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { deleteProject, getProjects } from '@/db/api';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, isIsolatedLocalE2eWorkspace } from '@/backend/backendConfig';
 import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localProjects';
 import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
@@ -80,13 +80,14 @@ export default function ProjectsPage() {
     setLoading(true);
     setError(null);
     try {
-      const cloudProjects = backendStatus.isConfigured ? await getProjects() : [];
-      const localProjects = backendStatus.isConfigured ? [] : getLocalWorkspaceProjects();
+      const localMode = isIsolatedLocalE2eWorkspace || !backendStatus.isConfigured;
+      const cloudProjects = localMode ? [] : await getProjects();
+      const localProjects = localMode ? getLocalWorkspaceProjects() : [];
       setProjects([...cloudProjects, ...localProjects]);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load projects';
       setError(message);
-      setProjects(backendStatus.isConfigured ? [] : getLocalWorkspaceProjects());
+      setProjects(isIsolatedLocalE2eWorkspace || !backendStatus.isConfigured ? getLocalWorkspaceProjects() : []);
     } finally {
       setLoading(false);
     }
@@ -376,7 +377,17 @@ export default function ProjectsPage() {
                       </div>
                       <div className="mt-auto pt-4 flex items-center justify-between">
                          <span className="text-[10px] text-vish-text-400 uppercase tracking-widest">{formatRelativeTime(project.updated_at)}</span>
-                         <span className="text-xs font-semibold text-vish-blue-400 uppercase tracking-widest group-hover:text-vish-blue-300">Open Project &rarr;</span>
+                         <button
+                           type="button"
+                           aria-label={`Open ${project.name}`}
+                           className="touch-target min-h-[44px] rounded-lg px-2 text-xs font-semibold text-vish-blue-400 uppercase tracking-widest hover:bg-vish-blue-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-vish-blue-400"
+                           onClick={(event) => {
+                             event.stopPropagation();
+                             openProject(project);
+                           }}
+                         >
+                           Open Project &rarr;
+                         </button>
                       </div>
                     </div>
                   </VishCard>
