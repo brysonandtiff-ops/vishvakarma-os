@@ -187,6 +187,7 @@ function EditorWorkspace() {
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
   const [expand3DPanel, setExpand3DPanel] = useState(false);
+  const [inspectorOpen, setInspectorOpen] = useState(true);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
@@ -499,7 +500,9 @@ function EditorWorkspace() {
         engine.setGridVisible(!gridVisible);
       } else if (event.key === '3') {
         event.preventDefault();
-        engine.setShow3D(!show3DView);
+        const next3D = !show3DView;
+        engine.setShow3D(next3D);
+        setInspectorOpen(!next3D);
       } else if (event.key === 'E' && event.shiftKey) {
         event.preventDefault();
         setExportDialogOpen(true);
@@ -1100,9 +1103,13 @@ function EditorWorkspace() {
           onToggleZen={() => engine.setZenMode(!zenMode)}
           onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
           onToggle3D={() => {
-            engine.setShow3D(!show3DView);
+            const next3D = !show3DView;
+            engine.setShow3D(next3D);
+            setInspectorOpen(!next3D);
             if (show3DView) setExpand3DPanel(false);
           }}
+          inspectorOpen={inspectorOpen}
+          onToggleInspector={() => setInspectorOpen((value) => !value)}
           gridVisible={gridVisible}
           onToggleGrid={() => engine.setGridVisible(!gridVisible)}
           onNewProject={() => setNewProjectOpen(true)}
@@ -1361,8 +1368,8 @@ function EditorWorkspace() {
             )}
           </div>
 
-          {!presentationLock && !zenMode && !expand3DPanel && (
-          <aside className="hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
+          {!presentationLock && !zenMode && !expand3DPanel && inspectorOpen && (
+          <aside aria-label="Properties inspector" className="vish-editor-inspector hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
             {propertiesPanel}
           </aside>
           )}

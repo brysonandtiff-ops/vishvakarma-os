@@ -14,6 +14,7 @@ import {
   PenLine,
   Plus,
   Redo2,
+  SlidersHorizontal,
   Route,
   Save,
   Sofa,
@@ -53,6 +54,8 @@ interface EditorTopBarProps {
   onToggleZen?: () => void;
   onTogglePresentationLock?: () => void;
   onToggle3D: () => void;
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
   gridVisible: boolean;
   onToggleGrid: () => void;
   onStartDemoSession?: () => void;
@@ -217,6 +220,8 @@ export default function EditorTopBar({
   onToggleZen,
   onTogglePresentationLock,
   onToggle3D,
+  inspectorOpen = true,
+  onToggleInspector,
   gridVisible,
   onToggleGrid,
   onStartDemoSession,
@@ -333,6 +338,20 @@ export default function EditorTopBar({
             <Redo2 className="h-4 w-4" />
           </IconButton>
 
+          {onSaveProject && (
+            <button
+              type="button"
+              data-testid="editor-topbar-save"
+              aria-label="Save project"
+              title="Save project"
+              disabled={savingProject}
+              onClick={onSaveProject}
+              className="vish-editor-save-action touch-target inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-vish-blue-500/40 bg-vish-blue-600/20 px-3 text-xs font-semibold text-white hover:bg-vish-blue-600/35 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-vish-blue-400"
+            >
+              {savingProject ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Save className="h-4 w-4" aria-hidden />}
+              <span>Save</span>
+            </button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -416,9 +435,16 @@ export default function EditorTopBar({
               <Maximize2 className="h-4 w-4" />
             </IconButton>
           )}
-          <IconButton label={gridVisible ? 'Hide grid' : 'Show grid'} active={gridVisible} onClick={onToggleGrid} dataTutorial="toggle-grid-icon">
-            <Grid3x3 className="h-4 w-4" />
-          </IconButton>
+          {onToggleInspector && (
+            <IconButton
+              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
+              active={inspectorOpen}
+              onClick={onToggleInspector}
+              dataTutorial="toggle-inspector"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </IconButton>
+          )}
           <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
           </IconButton>

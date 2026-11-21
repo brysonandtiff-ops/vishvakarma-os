@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { OFFICIAL_LOGO_SRC } from '@/brand/officialLogo';
-import { LogOut, Menu, Search, Cloud, CloudOff } from 'lucide-react';
+import { Menu, Search, Cloud, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useCallback, useEffect, useState, createContext, useContext } from 'react';
 import { WorkspaceCommandPalette, OPEN_COMMAND_PALETTE_EVENT } from '@/components/workspace/WorkspaceCommandPalette';
 import { WorkspaceNotifications } from '@/components/workspace/WorkspaceNotifications';
@@ -26,6 +27,11 @@ import { VishToolbar } from '@/components/common/vish-primitives';
 function openCommandPalette() {
   window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
 }
+
+// Keep daily design routes visible; secondary workspace rooms remain one click away.
+const PRIMARY_WORKSPACE_PATHS = new Set(['/editor', '/projects', '/optimization']);
+const PRIMARY_WORKSPACE_NAV = WORKSPACE_NAV.filter((item) => PRIMARY_WORKSPACE_PATHS.has(item.path));
+const SECONDARY_WORKSPACE_NAV = WORKSPACE_NAV.filter((item) => !PRIMARY_WORKSPACE_PATHS.has(item.path));
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -87,12 +93,29 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
           </div>
         </div>
 
-        {/* Primary Navigation */}
-        <div className="vish-workspace-sidebar hidden tablet:flex lg:flex items-center h-full">
-          {WORKSPACE_NAV.map((item) => (
+        {/* A focused primary navigation replaces ten competing top-level items. */}
+        <nav aria-label="Primary workspace navigation" className="vish-workspace-main-nav hidden lg:flex items-center h-full">
+          {PRIMARY_WORKSPACE_NAV.map((item) => (
             <TopNavItem key={item.path} item={item} isActive={location.pathname === item.path} onClick={onNavigate} />
           ))}
-        </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" aria-label="More workspaces" className="vish-workspace-more touch-target inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-vish-text-200 hover:bg-vish-navy-700 hover:text-white focus-visible:outline-2 focus-visible:outline-vish-blue-400">
+                Workspaces <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="z-[70] max-h-[70dvh] w-60 overflow-y-auto border-vish-navy-600 bg-vish-navy-900">
+              {SECONDARY_WORKSPACE_NAV.map((item) => (
+                <DropdownMenuItem key={item.path} asChild>
+                  <Link to={item.path} onClick={onNavigate} aria-current={location.pathname === item.path ? 'page' : undefined} className="flex min-h-[44px] items-center gap-2 text-xs">
+                    <item.icon className="h-4 w-4" aria-hidden />
+                    <span>{item.name}</span>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
       </div>
 
       <div className="flex items-center gap-4">
@@ -100,17 +123,17 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 text-vish-text-300">
-                <Cloud className="w-4 h-4 text-emerald-400" />
-                <span className="text-[10px] uppercase tracking-wider hidden sm:inline-block">Sync</span>
+              <div className="flex items-center gap-1.5 text-vish-text-300" aria-label="Project sync information">
+                <Cloud className="w-4 h-4 text-vish-text-400" />
+                <span className="text-[10px] uppercase tracking-wider hidden sm:inline-block">Project status</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">All changes saved to cloud</TooltipContent>
+            <TooltipContent className="text-xs">Check the editor save badge for local or cloud save status</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
         {/* Search */}
-        <button onClick={openCommandPalette} className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-vish-navy-700/50 text-vish-text-300 transition-colors">
+        <button type="button" aria-label="Search workspaces" onClick={openCommandPalette} className="touch-target flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md hover:bg-vish-navy-700/50 text-vish-text-300 transition-colors">
           <Search className="w-4 h-4" />
         </button>
 
@@ -156,12 +179,30 @@ function TopCommandBar({ onNavigate, mobileOpen, onMobileOpenChange }: { onNavig
 
 function WorkspaceSidebar({ onAfterAction }: { onAfterAction: () => void }) {
   const config = useEditorSidebarConfig();
-  const showDesktopSidebar = Boolean(config);
-  if (!showDesktopSidebar || !config) return null;
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 1600,
+  );
+  if (!config) return null;
+
   return (
-    <aside className="vish-workspace-sidebar tablet:block hidden w-64 shrink-0 overflow-y-auto border-r border-ws-border bg-ws-toolbar px-3 py-3" aria-label="Editor actions">
-      <EditorSidebarSections config={config} onAfterAction={onAfterAction} />
-      <FoundersAcknowledgment variant="sidebar" className="mt-4" />
+    <aside
+      className={`vish-workspace-sidebar vish-project-sidebar tablet:flex hidden ${collapsed ? 'w-[76px]' : 'w-64'} shrink-0 flex-col overflow-y-auto border-r border-ws-border bg-ws-toolbar px-2 py-3`}
+      aria-label="Editor actions"
+      data-collapsed={collapsed ? 'true' : 'false'}
+    >
+      <button
+        type="button"
+        data-testid="editor-sidebar-toggle"
+        aria-expanded={!collapsed}
+        aria-label={collapsed ? 'Expand project tools' : 'Collapse project tools'}
+        onClick={() => setCollapsed((value) => !value)}
+        className="vish-project-sidebar-toggle touch-target mb-3 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-ws-border bg-ws-toolbar text-xs font-semibold text-ws-text hover:bg-ws-hover focus-visible:outline-2 focus-visible:outline-vish-blue-400"
+      >
+        {collapsed ? <PanelLeftOpen className="h-4 w-4" aria-hidden /> : <PanelLeftClose className="h-4 w-4" aria-hidden />}
+        {!collapsed && <span>Project tools</span>}
+      </button>
+      <EditorSidebarSections config={config} collapsed={collapsed} onAfterAction={onAfterAction} />
+      {!collapsed && <FoundersAcknowledgment variant="sidebar" className="mt-4" />}
     </aside>
   );
 }
