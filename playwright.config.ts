@@ -31,6 +31,7 @@ const AUTH_GATE_MATCH = [
 
 const APP_SMOKE_MATCH = [
   '**/arc-wall-proof.spec.ts',
+  '**/vish-editor-ui-proof.spec.ts',
   '**/ipad-editor-layout.spec.ts',
   '**/ipad-editor-workflow.spec.ts',
   '**/ipad-editor-current-contract.spec.ts',

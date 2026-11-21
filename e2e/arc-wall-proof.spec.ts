@@ -66,6 +66,19 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   await expect(pane.locator('canvas').first()).toBeVisible({ timeout: 30000 });
   await expect(page.getByText('3D Preview Unavailable')).toHaveCount(0);
   await page.waitForTimeout(1100);
+  const fit = page.getByTestId('viewport-fit-building');
+  await expect(fit).toBeVisible();
+  await fit.click();
+  await page.waitForTimeout(700);
+  const sceneProof = await page.evaluate(() => (
+    window as Window & { __vish3dSceneProof?: unknown }
+  ).__vish3dSceneProof);
+  await info.attach('vish-3d-scene-diagnostics.json', {
+    body: Buffer.from(JSON.stringify(sceneProof ?? { error: 'Scene probe unavailable' }, null, 2)),
+    contentType: 'application/json',
+  });
+  expect((sceneProof as { wallMeshCount?: number } | undefined)?.wallMeshCount ?? 0)
+    .toBeGreaterThan(0);
   await page.screenshot({ path: 'evidence/vish-arc-3d.png' });
   await info.attach('vish-arc-3d', { path: 'evidence/vish-arc-3d.png', contentType: 'image/png' });
 

@@ -67,6 +67,42 @@ function resolveInitialAtmosphereMode(): AtmospherePerformanceMode {
 }
 
 /** Re-centre the real R3F camera on the 2D building, not on the ground grid. */
+/** E2E-only probe of real Three.js wall geometry; never simulated media. */
+function SceneRuntimeProbe({ sourceWallCount, geometryRevision }: { sourceWallCount: number; geometryRevision: number }) {
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
+  useEffect(() => {
+    if (import.meta.env.MODE !== 'e2e-local' || import.meta.env.VITE_ENABLE_QA_TOOLS !== 'true') return;
+    const token = window.setTimeout(() => {
+      scene.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      const meshes: Array<{ name: string; vertices: number; centerNdc: [number, number, number]; inFrustum: boolean }> = [];
+      scene.traverse((object) => {
+        if (!(object instanceof THREE.Mesh) || !object.name.startsWith('vish-wall')) return;
+        const bounds = new THREE.Box3().setFromObject(object);
+        const center = bounds.getCenter(new THREE.Vector3()).project(camera);
+        const positions = object.geometry?.getAttribute('position');
+        meshes.push({
+          name: object.name,
+          vertices: positions?.count ?? 0,
+          centerNdc: [center.x, center.y, center.z],
+          inFrustum: [center.x, center.y, center.z].every((v) => Number.isFinite(v) && v >= -1 && v <= 1),
+        });
+      });
+      (window as Window & { __vish3dSceneProof?: unknown }).__vish3dSceneProof = {
+        mode: 'real-threejs-scene',
+        sourceWallCount, geometryRevision,
+        wallMeshCount: meshes.length,
+        meshes,
+        cameraPosition: camera.position.toArray(),
+        cameraQuaternion: camera.quaternion.toArray(),
+      };
+    }, 350);
+    return () => window.clearTimeout(token);
+  }, [camera, scene, sourceWallCount, geometryRevision]);
+  return null;
+}
+
 function SceneCameraFrameController({
   frame,
   resetKey,
@@ -454,6 +490,7 @@ function WallMesh({
     <>
       {/* @ts-expect-error - React Three Fiber JSX types */}
       <mesh
+        name="vish-wall-segment"
         position={[posX, posY, posZ]}
         rotation={[0, -angle, 0]}
         castShadow
@@ -1148,6 +1185,7 @@ export default function Viewport3D({
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={cameraFrame.position} fov={50} />
             <SceneCameraFrameController frame={cameraFrame} resetKey={cameraResetKey} />
+            <SceneRuntimeProbe sourceWallCount={headerWallCount} geometryRevision={geometryRevision} />
             <SceneEnvironment mode={effectiveAtmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>

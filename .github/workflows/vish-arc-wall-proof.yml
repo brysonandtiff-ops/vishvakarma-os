@@ -7,6 +7,9 @@ on:
       - 'src/components/editor/**'
       - 'src/pages/EditorPage.tsx'
       - 'e2e/arc-wall-proof.spec.ts'
+      - 'e2e/vish-editor-ui-proof.spec.ts'
+      - 'src/components/layouts/AppLayout.tsx'
+      - 'src/styles/vish-editor-clarity.css'
       - '.github/workflows/vish-arc-wall-proof.yml'
   workflow_dispatch:
 permissions:
@@ -59,10 +62,13 @@ jobs:
             echo "VISH preview failed health check"
             exit 1
           fi
-          PLAYWRIGHT_REUSE_SERVER=1 pnpm exec playwright test e2e/arc-wall-proof.spec.ts --project=app-smoke-chromium --retries=0
+          PLAYWRIGHT_REUSE_SERVER=1 pnpm exec playwright test e2e/arc-wall-proof.spec.ts e2e/vish-editor-ui-proof.spec.ts --project=app-smoke-chromium --retries=0
       - name: Geometry and undo regression tests
         if: always()
-        run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/core/floorPlanEngine.test.ts
+        run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/utils/sceneCameraFraming.test.ts src/core/floorPlanEngine.test.ts
+      - name: Validate TypeScript
+        if: always()
+        run: pnpm run lint:types
       - name: Preserve original browser recording and screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -299,45 +299,6 @@ export default function EditorTopBar({
         </div>
 
         <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
-          {onStartDemoSession && (
-            <QuickActionButton
-              label="Start guided demo session"
-              shortLabel="Start demo"
-              onClick={onStartDemoSession}
-              dataTestId="editor-start-demo-session"
-              dataTutorial="start-demo-session"
-            >
-              <Sparkles className="h-4 w-4" />
-            </QuickActionButton>
-          )}
-          {onLoadSample && (
-            <QuickActionButton
-              label="Load demo blueprint"
-              shortLabel="Demo"
-              onClick={onLoadSample}
-              dataTestId="editor-demo-quick-action"
-              dataTutorial="load-demo"
-            >
-              <FolderOpen className="h-4 w-4" />
-            </QuickActionButton>
-          )}
-          <QuickActionButton
-            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
-            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
-            active={gridVisible}
-            onClick={onToggleGrid}
-            dataTestId="editor-grid-quick-action"
-            dataTutorial="toggle-grid"
-          >
-            <Grid3x3 className="h-4 w-4" />
-          </QuickActionButton>
-          <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
-            <Undo2 className="h-4 w-4" />
-          </IconButton>
-          <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
-            <Redo2 className="h-4 w-4" />
-          </IconButton>
-
           {onSaveProject && (
             <button
               type="button"
@@ -351,6 +312,29 @@ export default function EditorTopBar({
               {savingProject ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Save className="h-4 w-4" aria-hidden />}
               <span>Save</span>
             </button>
+          )}
+          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
+            <Box className="h-4 w-4" />
+          </IconButton>
+          {show3DView && onToggleExpand3D && (
+            <IconButton
+              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
+              active={expand3DPanel}
+              onClick={onToggleExpand3D}
+              dataTutorial="expand-3d"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </IconButton>
+          )}
+          {onToggleInspector && (
+            <IconButton
+              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
+              active={inspectorOpen}
+              onClick={onToggleInspector}
+              dataTutorial="toggle-inspector"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </IconButton>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -421,30 +405,46 @@ export default function EditorTopBar({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
-            <Box className="h-4 w-4" />
+          {onStartDemoSession && (
+            <QuickActionButton
+              label="Start guided demo session"
+              shortLabel="Start demo"
+              onClick={onStartDemoSession}
+              dataTestId="editor-start-demo-session"
+              dataTutorial="start-demo-session"
+            >
+              <Sparkles className="h-4 w-4" />
+            </QuickActionButton>
+          )}
+          {onLoadSample && (
+            <QuickActionButton
+              label="Load demo blueprint"
+              shortLabel="Demo"
+              onClick={onLoadSample}
+              dataTestId="editor-demo-quick-action"
+              dataTutorial="load-demo"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </QuickActionButton>
+          )}
+          <QuickActionButton
+            label={gridVisible ? 'Grid is visible. Tap to hide grid.' : 'Grid is hidden. Tap to show grid.'}
+            shortLabel={gridVisible ? 'Grid on' : 'Grid off'}
+            active={gridVisible}
+            onClick={onToggleGrid}
+            dataTestId="editor-grid-quick-action"
+            dataTutorial="toggle-grid"
+          >
+            <Grid3x3 className="h-4 w-4" />
+          </QuickActionButton>
+          <IconButton label="Undo" disabled={!canUndo} onClick={onUndo}>
+            <Undo2 className="h-4 w-4" />
           </IconButton>
-          {show3DView && onToggleExpand3D && (
-            <IconButton
-              label={expand3DPanel ? 'Collapse 3D panel' : 'Expand 3D panel'}
-              active={expand3DPanel}
-              onClick={onToggleExpand3D}
-              dataTutorial="expand-3d"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </IconButton>
-          )}
-          {onToggleInspector && (
-            <IconButton
-              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
-              active={inspectorOpen}
-              onClick={onToggleInspector}
-              dataTutorial="toggle-inspector"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-            </IconButton>
-          )}
+          <IconButton label="Redo" disabled={!canRedo} onClick={onRedo}>
+            <Redo2 className="h-4 w-4" />
+          </IconButton>
+
+
           <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
           </IconButton>

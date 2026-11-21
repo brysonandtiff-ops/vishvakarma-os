@@ -103,8 +103,14 @@
     padding-inline: .65rem;
   }
 }
+@media (max-width: 900px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-logo-tile { display: none; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .truncate.text-sm.font-semibold { max-width: 8rem; }
+}
 @media (max-width: 520px) {
   .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-save-action span { display: none; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-save-action { min-width: 44px; justify-content: center; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row { max-width: 64%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .vish-workspace-shell .vish-project-sidebar,
