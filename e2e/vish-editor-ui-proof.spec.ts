@@ -47,7 +47,9 @@ test('2D Focus makes the real editable canvas larger and restores full tools', a
   const save = page.getByTestId('editor-topbar-save');
   await expect(save).toBeVisible();
   expect((await save.boundingBox())?.height).toBeGreaterThanOrEqual(44);
-  await page.getByRole('button', { name: 'Show properties inspector' }).click();
+  const inspectorButton = page.getByRole('button', { name: 'Show properties inspector' });
+  await expect(inspectorButton).toBeInViewport();
+  await inspectorButton.click();
   await expect(page.getByRole('complementary', { name: 'Properties inspector' })).toBeVisible();
   const normal = await stage.boundingBox();
   if (!normal) throw new Error('Full workspace canvas is not displayed');

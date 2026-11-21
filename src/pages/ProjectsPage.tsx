@@ -377,7 +377,17 @@ export default function ProjectsPage() {
                       </div>
                       <div className="mt-auto pt-4 flex items-center justify-between">
                          <span className="text-[10px] text-vish-text-400 uppercase tracking-widest">{formatRelativeTime(project.updated_at)}</span>
-                         <span className="text-xs font-semibold text-vish-blue-400 uppercase tracking-widest group-hover:text-vish-blue-300">Open Project &rarr;</span>
+                         <button
+                           type="button"
+                           aria-label={`Open ${project.name}`}
+                           className="touch-target min-h-[44px] rounded-lg px-2 text-xs font-semibold text-vish-blue-400 uppercase tracking-widest hover:bg-vish-blue-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-vish-blue-400"
+                           onClick={(event) => {
+                             event.stopPropagation();
+                             openProject(project);
+                           }}
+                         >
+                           Open Project &rarr;
+                         </button>
                       </div>
                     </div>
                   </VishCard>

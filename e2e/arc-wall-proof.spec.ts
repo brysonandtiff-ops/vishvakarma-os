@@ -98,9 +98,10 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   await page.screenshot({ path: 'evidence/vish-arc-saved.png' });
 
   await page.goto('/projects', { waitUntil: 'domcontentloaded' });
-  const heading = page.getByRole('heading', { name });
-  await expect(heading).toBeVisible({ timeout: 30000 });
-  await heading.click();
+  const reopen = page.getByRole('button', { name: `Open ${name}` });
+  await expect(reopen).toBeVisible({ timeout: 30000 });
+  await reopen.click();
+  await expect(page).toHaveURL(/\/editor(?:\?|$)/, { timeout: 30000 });
   await expect(page.getByTestId('editor-top-bar')).toBeVisible({ timeout: 30000 });
   await expect.poll(() => readWalls(page), { timeout: 20000 }).toBe(wallCount);
   await page.waitForTimeout(450);

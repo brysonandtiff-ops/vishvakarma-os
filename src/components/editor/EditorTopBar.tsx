@@ -338,6 +338,16 @@ export default function EditorTopBar({
               <span>Save</span>
             </button>
           )}
+          {onToggleInspector && (
+            <IconButton
+              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
+              active={inspectorOpen}
+              onClick={onToggleInspector}
+              dataTutorial="toggle-inspector"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </IconButton>
+          )}
           <IconButton label="Toggle 3D view" active={show3DView} onClick={onToggle3D} dataTutorial="toggle-3d">
             <Box className="h-4 w-4" />
           </IconButton>
@@ -349,16 +359,6 @@ export default function EditorTopBar({
               dataTutorial="expand-3d"
             >
               <Maximize2 className="h-4 w-4" />
-            </IconButton>
-          )}
-          {onToggleInspector && (
-            <IconButton
-              label={inspectorOpen ? 'Hide properties inspector' : 'Show properties inspector'}
-              active={inspectorOpen}
-              onClick={onToggleInspector}
-              dataTutorial="toggle-inspector"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
             </IconButton>
           )}
           <DropdownMenu>
