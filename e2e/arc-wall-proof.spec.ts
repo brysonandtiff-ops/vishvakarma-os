@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   activateEditorTool, dismissConsentIfPresent, dismissTutorialIfPresent,
-  openProjectActionsMenu, resetWorkspacePrefs, saveProject,
+  openProjectActionsMenu, resetWorkspacePrefs,
 } from './helpers';
 
 /** Exact SHA VISH editor test. Browser input is automated; physical iPad is not claimed. */
@@ -69,7 +69,11 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   await page.screenshot({ path: 'evidence/vish-arc-3d.png' });
   await info.attach('vish-arc-3d', { path: 'evidence/vish-arc-3d.png', contentType: 'image/png' });
 
-  await saveProject(page);
+  // The main toolbar can collapse when the 3D pane opens. Use the visible
+  // real Save button in VISH's persistent left sidebar instead.
+  const saveButton = page.getByTestId('editor-sidebar-save');
+  await expect(saveButton).toBeVisible({ timeout: 15_000 });
+  await saveButton.click({ force: true });
   const savedCount = () => page.evaluate((n) => {
     const saved = JSON.parse(localStorage.getItem('vishvakarma.os.localProjects.v1') || '[]');
     return saved.find((item: { name: string }) => item.name === n)?.manifest.walls.length ?? -1;
