@@ -322,3 +322,46 @@ html[data-vish-drawing-focus="true"] :is(
   border-radius: 0;
   box-shadow: none;
 }
+
+
+/* Layout fix: the editor header has TWO children (commands and file/status
+ * strip). Stack them vertically rather than crushing drawing commands into a
+ * half-width row next to status metadata. In 2D Focus only the first row shows.
+ */
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center;
+  height: auto !important;
+  overflow: visible;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] > div:first-child {
+  width: 100%;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-file-strip {
+  width: 100%;
+  flex: 0 0 auto;
+  min-height: 34px;
+  margin: 0;
+  border-top: 1px solid hsl(var(--ws-border) / 0.5);
+  border-radius: 0 0 10px 10px;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-action-row {
+  flex: 0 1 auto;
+  max-width: min(70%, 950px);
+}
+.vish-workspace-shell .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+  height: 52px !important;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-action-row {
+    max-width: min(68%, 280px);
+  }
+  .vish-workspace-shell .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+    height: 50px !important;
+  }
+}
