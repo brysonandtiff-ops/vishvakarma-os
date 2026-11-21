@@ -315,3 +315,10 @@ html[data-vish-drawing-focus="true"] :is(
     max-width: min(90%, 22rem);
   }
 }
+
+
+/* Focus makes the CANVAS—not merely the surrounding flex box—full size. */
+.vish-editor-shell[data-drawing-focus="true"] .architect-canvas {
+  border-radius: 0;
+  box-shadow: none;
+}

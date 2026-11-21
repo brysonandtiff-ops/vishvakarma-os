@@ -65,7 +65,7 @@ jobs:
           PLAYWRIGHT_REUSE_SERVER=1 pnpm exec playwright test e2e/arc-wall-proof.spec.ts e2e/vish-editor-ui-proof.spec.ts --project=app-smoke-chromium --retries=0
       - name: Geometry and undo regression tests
         if: always()
-        run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/utils/sceneCameraFraming.test.ts src/core/floorPlanEngine.test.ts
+        run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/utils/sceneCameraFraming.test.ts src/core/floorPlanEngine.test.ts src/hooks/useCanvasResize.test.ts
       - name: Validate TypeScript
         if: always()
         run: pnpm run lint:types

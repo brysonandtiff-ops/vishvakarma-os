@@ -1212,7 +1212,7 @@ function EditorWorkspace() {
                   </p>
                 )}
                 {drawingFocus && walls.length === 0 && (
-                  <p className="vish-focus-draw-hint pointer-events-none absolute left-3 top-3 z-10 rounded-lg border border-vish-gold-500/25 bg-vish-navy-950/85 px-3 py-2 text-xs text-vish-text-200">
+                  <p className="vish-focus-draw-hint pointer-events-none absolute right-3 top-3 z-10 rounded-lg border border-vish-gold-500/25 bg-vish-navy-950/85 px-3 py-2 text-xs text-vish-text-200">
                     Choose Wall or Arc Wall in the tool strip, then tap points on the plan.
                   </p>
                 )}
@@ -1235,6 +1235,7 @@ function EditorWorkspace() {
                 )}
                 <AppErrorBoundary title="Blueprint canvas error">
                 <BlueprintCanvas
+                  fitCanvasToWorkspace={drawingFocus}
                   walls={walls}
                   openings={openings}
                   labels={labels}

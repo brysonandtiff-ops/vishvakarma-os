@@ -111,6 +111,8 @@ import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simula
 import { sonicBridge } from '@/lib/sonic-bridge';
 
 interface BlueprintCanvasProps {
+  /** Stretch the real 2D sheet to the focused editor stage, not just its wrapper. */
+  fitCanvasToWorkspace?: boolean;
   walls: Wall[];
   openings: Opening[];
   labels?: Label[];
@@ -322,6 +324,7 @@ export default function BlueprintCanvas({
   manifestWalls,
   layerVisibility = DEFAULT_LAYER_VISIBILITY,
   interactionLocked = false,
+  fitCanvasToWorkspace = false,
 }: BlueprintCanvasProps) {
   const floorPlanEngine = getFloorPlanEngine();
   const {
@@ -348,6 +351,7 @@ export default function BlueprintCanvas({
   const canvasMetrics = useCanvasResize(containerRef, undefined, {
     wallCount: walls.length,
     coarsePointer: isCoarsePointer,
+    fitContainer: fitCanvasToWorkspace,
   });
   const { bottomInset: keyboardBottomInset } = useVisualViewportInset();
 

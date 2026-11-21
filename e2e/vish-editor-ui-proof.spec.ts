@@ -14,6 +14,7 @@ test('2D Focus makes the real editable canvas larger and restores full tools', a
 
   const toggle = page.getByTestId('editor-focus-2d-toggle');
   const stage = page.locator('.vish-canvas-stage');
+  const canvas = page.getByTestId('blueprint-canvas');
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('navigation', { name: 'Primary workspace navigation' })).toBeHidden();
   await expect(page.getByTestId('editor-sidebar-toggle')).toBeHidden();
@@ -24,7 +25,12 @@ test('2D Focus makes the real editable canvas larger and restores full tools', a
   await expect(page.getByTestId('tool-rail')).toBeVisible();
   await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
   await expect(page.locator('.vish-3d-viewport-pane')).toHaveCount(0);
-  const focused = await stage.boundingBox();
+  // Verify the actual editable canvas fills its container, not just a blank wrapper.
+  await expect.poll(async () => {
+    const [sheet, area] = await Promise.all([canvas.boundingBox(), stage.boundingBox()]);
+    return sheet && area ? Math.abs(sheet.width - area.width) + Math.abs(sheet.height - area.height) : 1000;
+  }, { timeout: 15000 }).toBeLessThan(4);
+  const focused = await canvas.boundingBox();
   if (!focused) throw new Error('2D drawing canvas is not displayed');
   await page.screenshot({ path: 'evidence/vish-focus-2d-desktop.png', fullPage: true });
   await info.attach('vish-focus-2d-desktop', { path: 'evidence/vish-focus-2d-desktop.png', contentType: 'image/png' });
@@ -51,7 +57,7 @@ test('2D Focus makes the real editable canvas larger and restores full tools', a
   await expect(inspectorButton).toBeInViewport();
   await inspectorButton.click();
   await expect(page.getByRole('complementary', { name: 'Properties inspector' })).toBeVisible();
-  const normal = await stage.boundingBox();
+  const normal = await canvas.boundingBox();
   if (!normal) throw new Error('Full workspace canvas is not displayed');
   expect(focused.width).toBeGreaterThan(normal.width + 190);
   expect(focused.height).toBeGreaterThan(normal.height + 45);
@@ -87,8 +93,11 @@ test('phone layout keeps primary actions available without page overflow', async
   expect(railBounds?.height).toBeLessThanOrEqual(90);
   await expect(page.getByTestId('blueprint-canvas')).toBeVisible();
   const stage = await page.locator('.vish-canvas-stage').boundingBox();
+  const sheet = await page.getByTestId('blueprint-canvas').boundingBox();
   expect(stage?.height ?? 0).toBeGreaterThan(340);
   expect(stage?.width ?? 0).toBeGreaterThan(250);
+  expect(Math.abs((stage?.width ?? 0) - (sheet?.width ?? 0))).toBeLessThan(3);
+  expect(Math.abs((stage?.height ?? 0) - (sheet?.height ?? 0))).toBeLessThan(3);
   const overflow = await page.evaluate(() => ({
     viewport: window.innerWidth,
     document: document.documentElement.scrollWidth,
