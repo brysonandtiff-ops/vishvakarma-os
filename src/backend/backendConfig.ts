@@ -77,6 +77,11 @@ export function getBackendStatus(env: EnvSource = import.meta.env) {
   };
 }
 
+/** Browser-only isolated test mode, never available in production builds. */
+export const isIsolatedLocalE2eWorkspace =
+  import.meta.env.MODE === 'e2e-local' &&
+  import.meta.env.VITE_E2E_ALLOW_LOCAL_ACCESS === 'true';
+
 export const backendStatus = getBackendStatus();
 export const activeBackendProvider = backendStatus.provider;
 

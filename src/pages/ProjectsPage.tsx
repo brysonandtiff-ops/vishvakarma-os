@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { deleteProject, getProjects } from '@/db/api';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, isIsolatedLocalE2eWorkspace } from '@/backend/backendConfig';
 import { deleteLocalProject, getLocalWorkspaceProjects } from '@/editor/localProjects';
 import { clearLocalDraft } from '@/editor/localDraft';
 import { isLocalProjectId } from '@/editor/localProject';
@@ -80,13 +80,14 @@ export default function ProjectsPage() {
     setLoading(true);
     setError(null);
     try {
-      const cloudProjects = backendStatus.isConfigured ? await getProjects() : [];
-      const localProjects = backendStatus.isConfigured ? [] : getLocalWorkspaceProjects();
+      const localMode = isIsolatedLocalE2eWorkspace || !backendStatus.isConfigured;
+      const cloudProjects = localMode ? [] : await getProjects();
+      const localProjects = localMode ? getLocalWorkspaceProjects() : [];
       setProjects([...cloudProjects, ...localProjects]);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load projects';
       setError(message);
-      setProjects(backendStatus.isConfigured ? [] : getLocalWorkspaceProjects());
+      setProjects(isIsolatedLocalE2eWorkspace || !backendStatus.isConfigured ? getLocalWorkspaceProjects() : []);
     } finally {
       setLoading(false);
     }

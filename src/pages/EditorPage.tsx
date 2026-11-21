@@ -60,7 +60,7 @@ import { computeStepZoomFactor, computeZoomedViewport } from '@/utils/canvasView
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
 import type { Presence } from '@/collaboration/types';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, isIsolatedLocalE2eWorkspace } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCloudSaveStatus } from '@/hooks/useCloudSaveStatus';
 import {
@@ -73,7 +73,7 @@ import {
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
-import { upsertLocalProject } from '@/editor/localProjects';
+import { getLocalWorkspaceProjects, upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -358,7 +358,7 @@ function EditorWorkspace() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const data = await getProjects();
+      const data = isIsolatedLocalE2eWorkspace ? getLocalWorkspaceProjects() : await getProjects();
       setProjects(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
