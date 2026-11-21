@@ -68,7 +68,7 @@ function resolveInitialAtmosphereMode(): AtmospherePerformanceMode {
 
 /** Re-centre the real R3F camera on the 2D building, not on the ground grid. */
 /** E2E-only probe of real Three.js wall geometry; never simulated media. */
-function SceneRuntimeProbe({ sourceWallCount, geometryRevision }: { sourceWallCount: number; geometryRevision: number }) {
+function SceneRuntimeProbe({ sourceWallCount, renderedWallCount, geometryRevision }: { sourceWallCount: number; renderedWallCount: number; geometryRevision: number }) {
   const scene = useThree((state) => state.scene);
   const camera = useThree((state) => state.camera);
   useEffect(() => {
@@ -77,11 +77,15 @@ function SceneRuntimeProbe({ sourceWallCount, geometryRevision }: { sourceWallCo
       scene.updateMatrixWorld(true);
       camera.updateMatrixWorld(true);
       const meshes: Array<{ name: string; vertices: number; centerNdc: [number, number, number]; inFrustum: boolean }> = [];
+      const sceneObjects: string[] = [];
       scene.traverse((object) => {
-        if (!(object instanceof THREE.Mesh) || !object.name.startsWith('vish-wall')) return;
-        const bounds = new THREE.Box3().setFromObject(object);
+        const mesh = object as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        sceneObjects.push(object.name || '(unnamed mesh)');
+        if (!object.name.startsWith('vish-wall')) return;
+        const bounds = new THREE.Box3().setFromObject(mesh);
         const center = bounds.getCenter(new THREE.Vector3()).project(camera);
-        const positions = object.geometry?.getAttribute('position');
+        const positions = mesh.geometry?.getAttribute('position');
         meshes.push({
           name: object.name,
           vertices: positions?.count ?? 0,
@@ -91,15 +95,16 @@ function SceneRuntimeProbe({ sourceWallCount, geometryRevision }: { sourceWallCo
       });
       (window as Window & { __vish3dSceneProof?: unknown }).__vish3dSceneProof = {
         mode: 'real-threejs-scene',
-        sourceWallCount, geometryRevision,
+        sourceWallCount, renderedWallCount, geometryRevision,
         wallMeshCount: meshes.length,
+        sceneObjects: sceneObjects.slice(0, 40),
         meshes,
         cameraPosition: camera.position.toArray(),
         cameraQuaternion: camera.quaternion.toArray(),
       };
     }, 350);
     return () => window.clearTimeout(token);
-  }, [camera, scene, sourceWallCount, geometryRevision]);
+  }, [camera, scene, sourceWallCount, renderedWallCount, geometryRevision]);
   return null;
 }
 
@@ -1185,7 +1190,7 @@ export default function Viewport3D({
             <color attach="background" args={[ATMOSPHERE.background]} />
             <PerspectiveCamera makeDefault position={cameraFrame.position} fov={50} />
             <SceneCameraFrameController frame={cameraFrame} resetKey={cameraResetKey} />
-            <SceneRuntimeProbe sourceWallCount={headerWallCount} geometryRevision={geometryRevision} />
+            <SceneRuntimeProbe sourceWallCount={headerWallCount} renderedWallCount={walls.length} geometryRevision={geometryRevision} />
             <SceneEnvironment mode={effectiveAtmosphereMode} />
             {walkMode && isCoarsePointer ? (
               <>

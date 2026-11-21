@@ -73,6 +73,7 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   const sceneProof = await page.evaluate(() => (
     window as Window & { __vish3dSceneProof?: unknown }
   ).__vish3dSceneProof);
+  console.log('VISH_3D_SCENE_PROOF', JSON.stringify(sceneProof ?? { error: 'Scene probe not populated' }));
   await info.attach('vish-3d-scene-diagnostics.json', {
     body: Buffer.from(JSON.stringify(sceneProof ?? { error: 'Scene probe unavailable' }, null, 2)),
     contentType: 'application/json',

@@ -935,8 +935,6 @@ function EditorWorkspace() {
 
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
-  const deferredWalls = useDeferredValue(walls);
-  const deferredOpenings = useDeferredValue(openings);
   const deferredFurniture = useDeferredValue(furniture);
   const deferredRooms = useDeferredValue(rooms);
   const deferredFixtures = useDeferredValue(fixtures);
@@ -1335,8 +1333,8 @@ function EditorWorkspace() {
                 <div className="flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
                     <Viewport3D
-                      walls={deferredWalls}
-                      openings={deferredOpenings}
+                      walls={walls}
+                      openings={openings}
                       lighting={lighting}
                       furniture={deferredFurniture}
                       materials={materials}

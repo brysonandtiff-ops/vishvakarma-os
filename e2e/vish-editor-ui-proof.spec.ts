@@ -50,7 +50,12 @@ test('phone layout keeps primary actions available without page overflow', async
   await dismissTutorialIfPresent(page);
   await dismissConsentIfPresent(page);
   await expect(page.getByTestId('editor-topbar-save')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Toggle 3D view' })).toBeAttached();
+  await expect(page.getByTestId('editor-topbar-save')).toBeInViewport();
+  await expect(page.getByRole('button', { name: 'Toggle 3D view' })).toBeInViewport();
+  const toolRail = page.getByTestId('tool-rail');
+  await expect(toolRail).toBeVisible();
+  const railBounds = await toolRail.boundingBox();
+  expect(railBounds?.height).toBeLessThanOrEqual(90);
   await expect(page.getByRole('button', { name: 'Open workspace navigation' })).toBeVisible();
   const overflow = await page.evaluate(() => ({
     viewport: window.innerWidth,

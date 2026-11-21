@@ -119,3 +119,102 @@
     scroll-behavior: auto;
   }
 }
+
+/* Phone-first: keep essential project controls and drawing tools within view. */
+@media (max-width: 640px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] {
+    overflow: hidden;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row {
+    justify-content: flex-start !important;
+    max-width: min(62%, 240px);
+    overflow-x: auto !important;
+    flex-shrink: 0;
+    padding-inline: 1px;
+    scroll-padding-inline: 2px;
+    scrollbar-width: none;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row > * {
+    flex-shrink: 0;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row::-webkit-scrollbar {
+    display: none;
+  }
+  .vish-editor-shell > div.flex.flex-1.overflow-hidden {
+    flex-direction: column;
+    min-height: 0;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail {
+    width: calc(100% - 12px) !important;
+    max-width: calc(100% - 12px);
+    height: 74px !important;
+    min-height: 74px;
+    max-height: 74px;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 4px 6px 0;
+    padding: 4px 8px;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail > p,
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail > .w-8 {
+    display: none;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail button {
+    min-width: 56px;
+    min-height: 54px;
+    flex-shrink: 0;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-canvas-stage {
+    padding: 8px;
+  }
+  .vish-empty-guided-start {
+    padding: 12px;
+    bottom: max(.5rem, var(--vish-safe-bottom, 0px));
+    max-height: min(230px, 38vh);
+    overflow-y: auto;
+    border-radius: 14px;
+  }
+  .vish-empty-guided-start__eyebrow {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .vish-empty-guided-start h2 {
+    font-size: 18px;
+    line-height: 1.15;
+    padding-right: 32px;
+  }
+  .vish-empty-guided-start p:not(.vish-empty-guided-start__eyebrow) {
+    font-size: 12px;
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+  .vish-empty-guided-start__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    margin-top: 7px;
+  }
+  .vish-empty-guided-start__actions button {
+    min-width: 0;
+    min-height: 44px;
+    padding-inline: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  .vish-empty-guided-start__actions button svg {
+    display: none;
+  }
+  .vish-empty-guided-start__close {
+    width: 44px;
+    height: 44px;
+  }
+}
