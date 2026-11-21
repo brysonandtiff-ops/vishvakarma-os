@@ -88,7 +88,7 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
   await info.attach('vish-arc-reopened', { path: 'evidence/vish-arc-reopened.png', contentType: 'image/png' });
   await info.attach('exact-source-proof.json', {
     body: Buffer.from(JSON.stringify({
-      project: 'VISH', sha: process.env.GITHUB_SHA,
+      project: 'VISH', sha: process.env.SOURCE_SHA ?? process.env.GITHUB_SHA,
       environment: 'Playwright automated Chromium local e2e', wallCount,
       recorded2D: true, observed3DCanvas: true, savedAndReopened: true,
       physicalDeviceVerified: false, nativeEditableArc: false,

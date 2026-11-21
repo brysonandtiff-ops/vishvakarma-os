@@ -20,7 +20,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Check exact SHA
-        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
@@ -32,9 +35,33 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - name: VISH real editor video test
-        run: pnpm exec playwright test e2e/arc-wall-proof.spec.ts --project=app-smoke-chromium --retries=0
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run preview:e2e:local > "$RUNNER_TEMP/vish-preview.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 90); do
+            if curl --silent --fail http://127.0.0.1:4173/editor -o /dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/vish-preview.log"
+              echo "VISH preview process exited before becoming ready"
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat "$RUNNER_TEMP/vish-preview.log"
+            echo "VISH preview failed health check"
+            exit 1
+          fi
+          PLAYWRIGHT_REUSE_SERVER=1 pnpm exec playwright test e2e/arc-wall-proof.spec.ts --project=app-smoke-chromium --retries=0
       - name: Geometry and undo regression tests
-        if: success()
+        if: always()
         run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/core/floorPlanEngine.test.ts
       - name: Preserve original browser recording and screenshots
         if: always()
