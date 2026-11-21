@@ -218,3 +218,88 @@
     height: 44px;
   }
 }
+
+
+/* 2D FOCUS — a reversible drafting workspace, preserving all underlying tools. */
+.vish-workspace-shell[data-editor-focus="true"] > .vish-editor-topbar-chrome,
+.vish-workspace-shell[data-editor-focus="true"] .vish-project-sidebar {
+  display: none !important;
+}
+.vish-workspace-shell[data-editor-focus="true"] .vish-empty-guided-start {
+  display: none !important;
+}
+.vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+  min-height: 52px;
+  height: 52px;
+  width: calc(100% - 8px);
+  margin: 4px auto 2px;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-editor-action-row {
+  max-width: min(70%, 720px);
+  justify-content: flex-start !important;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-editor-project-title {
+  max-width: min(18rem, 20vw);
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-canvas-stage {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-focus-draw-hint {
+  max-width: min(25rem, 75%);
+  background: rgba(7, 16, 32, 0.80);
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail {
+  width: 58px !important;
+  padding-inline: 3px !important;
+  margin-inline: 3px !important;
+  border-radius: 9px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail button {
+  width: 50px;
+  min-width: 50px;
+  min-height: 50px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .ws-status-bar {
+  min-height: 28px;
+  height: 28px;
+  font-size: 10px;
+}
+@media (max-width: 640px) {
+  .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+    width: calc(100% - 4px);
+    height: 50px;
+    margin-top: 2px;
+    min-height: 50px;
+    padding: 2px 4px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-editor-project-title {
+    max-width: 7rem;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-editor-action-row {
+    max-width: min(66%, 260px);
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-focus-button {
+    min-width: 44px;
+    justify-content: center;
+    padding-inline: 8px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail {
+    height: 66px !important;
+    min-height: 66px;
+    max-height: 66px;
+    width: calc(100% - 6px) !important;
+    max-width: calc(100% - 6px);
+    margin: 3px 3px 0;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail button {
+    min-height: 50px;
+    min-width: 54px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-focus-draw-hint {
+    font-size: 11px;
+    max-width: min(90%, 22rem);
+  }
+}

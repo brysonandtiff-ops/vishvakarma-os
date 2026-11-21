@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import {
   Box,
   ChevronDown,
+  Focus,
+  Shrink,
   FileDown,
   FolderOpen,
   Grid3x3,
@@ -43,6 +45,9 @@ import TutorialHelpButton from '@/tutorial/TutorialHelpButton';
 
 interface EditorTopBarProps {
   projectName: string;
+  drawingFocus?: boolean;
+  onToggleDrawingFocus?: () => void;
+  saveStatusLabel?: string;
   show3DView: boolean;
   expand3DPanel?: boolean;
   onToggleExpand3D?: () => void;
@@ -209,6 +214,9 @@ function ModeTabs({
 
 export default function EditorTopBar({
   projectName,
+  drawingFocus = false,
+  onToggleDrawingFocus,
+  saveStatusLabel,
   show3DView,
   expand3DPanel = false,
   onToggleExpand3D,
@@ -251,12 +259,12 @@ export default function EditorTopBar({
     <header className="vish-editor-topbar-chrome flex items-center gap-1.5 p-1.5 rounded-[10px] bg-[rgba(6,18,33,0.8)] backdrop-blur-xl border border-vish-navy-600/50 shadow-md shrink-0 z-10 w-[calc(100%-12px)] mx-auto mt-1.5" data-testid="editor-top-bar">
       <div className="flex w-full items-center justify-between">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
-          {onOpenEditorMenu && (
+          {!drawingFocus && onOpenEditorMenu && (
             <IconButton label="Open workspace navigation" onClick={onOpenEditorMenu}>
               <Menu className="h-4 w-4" />
             </IconButton>
           )}
-          <DropdownMenu>
+          {!drawingFocus && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -281,11 +289,14 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
           <div className="vish-logo-tile flex h-8 w-8 shrink-0 items-center justify-center rounded-xl p-1">
             <img src={OFFICIAL_LOGO_SRC} alt="Vishvakarma.OS logo" className="h-full w-full rounded-lg object-cover" />
           </div>
-          <span className="max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          <span className="vish-editor-project-title max-w-[min(20rem,35vw)] truncate text-sm font-semibold text-ws-text">{projectName}</span>
+          {drawingFocus && saveStatusLabel && (
+            <span className="vish-focus-save-label hidden shrink-0 text-[10px] text-vish-text-400 lg:inline">{saveStatusLabel}</span>
+          )}
           {savingProject && (
             <span className="vish-editor-save-chip flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
@@ -294,11 +305,25 @@ export default function EditorTopBar({
           )}
         </div>
 
-        <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
+        {!drawingFocus && <div className="vish-editor-topbar-center min-w-0 justify-self-center px-1">
           <ModeTabs workspaceMode={workspaceMode} onWorkspaceModeChange={onWorkspaceModeChange} />
-        </div>
+        </div>}
 
         <div className="vish-editor-action-row flex min-w-0 items-center justify-end gap-1 justify-self-end">
+          {onToggleDrawingFocus && (
+            <button
+              type="button"
+              data-testid="editor-focus-2d-toggle"
+              aria-label={drawingFocus ? 'Exit 2D focus' : 'Enter 2D focus'}
+              aria-pressed={drawingFocus}
+              title={drawingFocus ? 'Return to full workspace (Shift+F)' : 'Maximise 2D drawing area (Shift+F)'}
+              onClick={onToggleDrawingFocus}
+              className="vish-focus-button touch-target inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-vish-gold-500/40 bg-vish-gold-500/10 px-3 text-xs font-semibold text-vish-gold-400 hover:bg-vish-gold-500/20 focus-visible:outline-2 focus-visible:outline-vish-blue-400"
+            >
+              {drawingFocus ? <Shrink className="h-4 w-4" aria-hidden /> : <Focus className="h-4 w-4" aria-hidden />}
+              <span className="hidden sm:inline">{drawingFocus ? 'Full workspace' : 'Focus 2D'}</span>
+            </button>
+          )}
           {onSaveProject && (
             <button
               type="button"
@@ -416,7 +441,7 @@ export default function EditorTopBar({
               <Sparkles className="h-4 w-4" />
             </QuickActionButton>
           )}
-          {onLoadSample && (
+          {!drawingFocus && onLoadSample && (
             <QuickActionButton
               label="Load demo blueprint"
               shortLabel="Demo"
@@ -445,10 +470,10 @@ export default function EditorTopBar({
           </IconButton>
 
 
-          <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
+          {!drawingFocus && <IconButton label={zenMode ? 'Exit zen mode' : 'Zen mode'} active={zenMode} onClick={() => onToggleZen?.()}>
             <Eye className="h-4 w-4" />
-          </IconButton>
-          {onToggleMonsoon && (
+          </IconButton>}
+          {!drawingFocus && onToggleMonsoon && (
             <IconButton
               label={monsoonActive ? 'Mute Monsoon Rain' : 'Monsoon Rain on Jali'}
               active={monsoonActive}
@@ -458,7 +483,7 @@ export default function EditorTopBar({
               <CloudRain className="h-4 w-4" />
             </IconButton>
           )}
-          {onTogglePrana && (
+          {!drawingFocus && onTogglePrana && (
             <IconButton
               label={pranaActive ? 'Deactivate Prana' : 'Activate Prana Glow'}
               active={pranaActive}
@@ -469,8 +494,8 @@ export default function EditorTopBar({
             </IconButton>
           )}
 
-          <TutorialHelpButton />
-          <DropdownMenu>
+          {!drawingFocus && <TutorialHelpButton />}
+          {!drawingFocus && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
@@ -491,7 +516,7 @@ export default function EditorTopBar({
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
         </div>
       </div>
       {fileStrip && <div className="vish-editor-file-strip">{fileStrip}</div>}
