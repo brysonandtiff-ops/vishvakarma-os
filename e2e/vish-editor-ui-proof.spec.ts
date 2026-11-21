@@ -51,6 +51,7 @@ test('phone layout keeps primary actions available without page overflow', async
   await dismissConsentIfPresent(page);
   await expect(page.getByTestId('editor-topbar-save')).toBeVisible();
   await expect(page.getByTestId('editor-topbar-save')).toBeInViewport();
+  await expect(page.getByText('Local Draft').first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Toggle 3D view' })).toBeInViewport();
   const toolRail = page.getByTestId('tool-rail');
   await expect(toolRail).toBeVisible();

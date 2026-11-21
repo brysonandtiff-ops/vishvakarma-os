@@ -152,6 +152,11 @@ export function drawWallWithGaps(
     drawWallSegmentStrokes(ctx, wall, inkSegments, state.selected ? GOLD : INK, wall.thickness);
   }
 
+  // Arc Wall MVP stores joined straight segments. Hide the repeated junction
+  // circles until an individual segment is selected or hovered, so the
+  // finished building reads like one continuous architectural wall.
+  const showEndpoints = !wall.id.startsWith('arc-') || state.selected || state.hovered;
+  if (!showEndpoints) return;
   ctx.fillStyle = state.selected ? GOLD : INK;
   for (const point of [wall.start, wall.end]) {
     ctx.beginPath();

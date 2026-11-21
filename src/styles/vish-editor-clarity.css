@@ -176,8 +176,8 @@
   }
   .vish-empty-guided-start {
     padding: 12px;
-    bottom: max(.5rem, var(--vish-safe-bottom, 0px));
-    max-height: min(230px, 38vh);
+    bottom: max(8.5rem, calc(8.5rem + var(--vish-safe-bottom, 0px)));
+    max-height: min(210px, 30vh);
     overflow-y: auto;
     border-radius: 14px;
   }

@@ -943,9 +943,13 @@ function EditorWorkspace() {
   const deferredLandscape = useDeferredValue(landscapeElements);
   const deferredMepSymbols = useDeferredValue(mepSymbols);
 
+  // Isolated local browser proof never implies a real Supabase cloud save.
+  const shownCloudConnected = isIsolatedLocalE2eWorkspace ? false : cloudSave.connected;
+  const shownCloudLabel = isIsolatedLocalE2eWorkspace ? 'Local Draft' : cloudSave.label;
+
   const fileStrip = (
     <>
-      <SaveModeBadge connected={cloudSave.connected} label={cloudSave.label} />
+      <SaveModeBadge connected={shownCloudConnected} label={shownCloudLabel} />
       <FloorSwitcher
         floors={floors}
         activeFloorIndex={activeFloorIndex}
@@ -990,8 +994,8 @@ function EditorWorkspace() {
         openingCount={openings.length}
         saveState={saveState}
         lastDraftAt={lastDraftSavedAt}
-        cloudConnected={cloudSave.connected}
-        cloudSaveLabel={cloudSave.label}
+        cloudConnected={shownCloudConnected}
+        cloudSaveLabel={shownCloudLabel}
         snapEnabled={snapEnabled}
         complianceStatus={complianceReport.overall}
         complianceSummary={

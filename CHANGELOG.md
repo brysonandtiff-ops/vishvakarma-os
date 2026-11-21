@@ -6,6 +6,7 @@ All notable changes to Vishvakarma.OS are documented in this file.
 
 - VISH editor UX: collapseable project-actions sidebar, focused workspace navigation, explicit Save/3D/Inspector toolbar actions and iPad-friendly spacing. Canonical colours, logo and layout architecture remain unchanged.
 - Building-aware 3D camera framing with a manual Fit building action; isolated QA-only scene geometry diagnostics.
+- Phone-first horizontal drawing ribbon and compact guided-start panel; simplified segmented arc wall strokes, with temporary test-mode storage clearly labelled local.
 - Real desktop and phone viewport visual proof and 2D/3D save/reopen tests are required before release; no physical-device proof claimed.
 
 ## [1.5.0] - 2026-06-14

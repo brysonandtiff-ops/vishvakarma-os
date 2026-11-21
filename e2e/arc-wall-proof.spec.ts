@@ -78,8 +78,10 @@ test('draw arc, open real 3D, save and reopen', async ({ page }, info) => {
     body: Buffer.from(JSON.stringify(sceneProof ?? { error: 'Scene probe unavailable' }, null, 2)),
     contentType: 'application/json',
   });
+  const visibleMeshes = (sceneProof as { meshes?: Array<{ inFrustum: boolean }> } | undefined)?.meshes ?? [];
   expect((sceneProof as { wallMeshCount?: number } | undefined)?.wallMeshCount ?? 0)
     .toBeGreaterThan(0);
+  expect(visibleMeshes.some((mesh) => mesh.inFrustum)).toBe(true);
   await page.screenshot({ path: 'evidence/vish-arc-3d.png' });
   await info.attach('vish-arc-3d', { path: 'evidence/vish-arc-3d.png', contentType: 'image/png' });
 
