@@ -196,9 +196,15 @@ function EditorWorkspace() {
   useEffect(() => {
     const shell = document.querySelector<HTMLElement>('.vish-workspace-shell');
     if (shell) shell.dataset.editorFocus = drawingFocus ? 'true' : 'false';
+    // The lightweight guided-start card lives outside AppLayout, so expose
+    // focus to the document too; do not hide it on non-editor routes.
+    document.documentElement.dataset.vishDrawingFocus = drawingFocus ? 'true' : 'false';
     try { window.sessionStorage.setItem('vish.editor.2d-focus.v1', String(drawingFocus)); }
     catch { /* Browsers may disable session storage. */ }
-    return () => { if (shell) delete shell.dataset.editorFocus; };
+    return () => {
+      if (shell) delete shell.dataset.editorFocus;
+      delete document.documentElement.dataset.vishDrawingFocus;
+    };
   }, [drawingFocus]);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);

@@ -225,7 +225,7 @@
 .vish-workspace-shell[data-editor-focus="true"] .vish-project-sidebar {
   display: none !important;
 }
-.vish-workspace-shell[data-editor-focus="true"] .vish-empty-guided-start {
+html[data-vish-drawing-focus="true"] .vish-empty-guided-start {
   display: none !important;
 }
 .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
