@@ -589,6 +589,19 @@ export class FloorPlanEngine {
     this.refreshStoredRooms();
   }
 
+  /** Commit a segmented curve atomically so one Undo removes the entire shape. */
+  addWalls(walls: Wall[]): void {
+    if (walls.length === 0) return;
+    const floorIndex = getActiveFloorIndex(this.manifest);
+    this.touchManifest({
+      walls: [...this.manifest.walls, ...walls.map((wall) => ({
+        ...wall,
+        floorIndex: wall.floorIndex ?? floorIndex,
+      }))],
+    }, 'Add arc wall');
+    this.refreshStoredRooms();
+  }
+
   setActiveFloorIndex(index: number): void {
     const floors = this.manifest.floors ?? [];
     if (index < 0 || index >= floors.length) return;

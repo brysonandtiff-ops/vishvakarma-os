@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, isIsolatedLocalE2eWorkspace } from '@/backend/backendConfig';
 import { trackEvent } from '@/lib/analytics';
 import { createProject } from '@/db/api';
 import { createLocalProject } from '@/editor/localProject';
@@ -23,6 +23,7 @@ import {
 import type { Project, ProjectManifest } from '@/types';
 
 const NEW_PROJECT_CATEGORY_ORDER: SampleCategory[] = ['residential', 'indian', 'shapes'];
+const useLocalStorage = () => isIsolatedLocalE2eWorkspace || !backendStatus.isConfigured;
 
 export default function NewProjectDialog({
   open,
@@ -63,20 +64,20 @@ export default function NewProjectDialog({
     setSubmitting(true);
 
     try {
-      const project = backendStatus.isConfigured
-        ? await createProject(name.trim(), description.trim() || undefined, initialManifest)
-        : createLocalProject(name.trim(), description.trim() || undefined, initialManifest);
+      const project = useLocalStorage()
+        ? createLocalProject(name.trim(), description.trim() || undefined, initialManifest)
+        : await createProject(name.trim(), description.trim() || undefined, initialManifest);
 
-      if (!backendStatus.isConfigured) {
+      if (useLocalStorage()) {
         upsertLocalProject(project);
       }
 
       trackEvent('project_created', {
-        backend: backendStatus.isConfigured ? 'supabase' : 'local',
+        backend: useLocalStorage() ? 'local' : 'supabase',
         template: templateId,
       });
 
-      toast.success(backendStatus.isConfigured ? 'Project created' : 'Local project ready — draw and save to your browser');
+      toast.success(useLocalStorage() ? 'Local project ready — draw and save to your browser' : 'Project created');
       onOpenChange(false);
       setName('');
       setDescription('');

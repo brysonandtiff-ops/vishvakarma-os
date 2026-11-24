@@ -1,0 +1,367 @@
+/* Professional VISH workstation clarity pass.
+ * Preserve canonical obsidian/gold/cyan brand. Scope to the editor shell only.
+ */
+.vish-workspace-shell .vish-workspace-main-nav {
+  gap: .15rem;
+  min-width: 0;
+}
+.vish-workspace-shell .vish-workspace-main-nav > a,
+.vish-workspace-shell .vish-workspace-more {
+  border-radius: 8px;
+  padding-inline: .8rem;
+  white-space: nowrap;
+}
+.vish-workspace-shell .vish-workspace-main-nav > a:hover,
+.vish-workspace-shell .vish-workspace-more:hover {
+  background: hsl(var(--ws-active) / .1);
+}
+.vish-workspace-shell .vish-project-sidebar {
+  transition: width .18s ease-out;
+  min-width: 0;
+  gap: .25rem;
+  border-right-color: hsl(var(--ws-border) / .7);
+}
+.vish-workspace-shell .vish-project-sidebar[data-collapsed="true"] {
+  width: 76px;
+  padding-inline: 7px;
+}
+.vish-workspace-shell .vish-project-sidebar[data-collapsed="true"] .vish-editor-sidebar-section {
+  padding-top: .4rem;
+  margin-top: .25rem;
+}
+.vish-workspace-shell .vish-project-sidebar[data-collapsed="true"] .vish-editor-sidebar-section :is(h2,h3,p) {
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+.vish-workspace-shell [data-testid="editor-top-bar"] {
+  height: auto;
+  min-height: 60px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: linear-gradient(125deg, hsl(var(--ws-toolbar) / .96), hsl(var(--ws-menubar) / .96));
+  border: 1px solid hsl(var(--ws-border));
+  box-shadow: 0 6px 22px hsl(0 0% 0% / .18);
+}
+.vish-workspace-shell [data-testid="editor-top-bar"] > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  min-width: 0;
+}
+.vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-topbar-center {
+  min-width: 0;
+  flex-shrink: 0;
+}
+.vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row {
+  min-width: 0;
+  max-width: 62%;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--ws-border)) transparent;
+  padding-block: 2px;
+}
+.vish-workspace-shell .vish-editor-save-action {
+  letter-spacing: .04em;
+  box-shadow: inset 0 1px hsl(0 0% 100% / .07);
+}
+.vish-workspace-shell .vish-editor-inspector {
+  border: 1px solid hsl(var(--ws-border));
+  border-radius: 12px;
+  background: hsl(var(--ws-toolbar) / .97);
+}
+.vish-workspace-shell .vish-3d-viewport-pane {
+  border-radius: 12px;
+  border: 1px solid hsl(var(--ws-border));
+  margin: .35rem;
+  background: var(--vish-3d-bg);
+}
+.vish-workspace-shell .vish-3d-viewport-pane .ws-pane-header {
+  background: hsl(var(--ws-toolbar) / .96);
+  padding-inline: .7rem;
+}
+.vish-workspace-shell .vish-tool-rail button[aria-pressed="true"] {
+  outline: 1px solid hsl(var(--ws-active) / .5);
+  outline-offset: -1px;
+}
+@media (max-width: 1700px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-topbar-center { display: none; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row { max-width: 68%; }
+}
+@media (max-width: 900px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] {
+    min-height: 56px;
+    padding: .3rem .45rem;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row {
+    max-width: min(58%, 26rem);
+  }
+  .vish-workspace-shell .vish-editor-save-action {
+    padding-inline: .65rem;
+  }
+}
+@media (max-width: 900px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-logo-tile { display: none; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .truncate.text-sm.font-semibold { max-width: 8rem; }
+}
+@media (max-width: 520px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-save-action span { display: none; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-save-action { min-width: 44px; justify-content: center; }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row { max-width: 64%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vish-workspace-shell .vish-project-sidebar,
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row {
+    transition: none;
+    scroll-behavior: auto;
+  }
+}
+
+/* Phone-first: keep essential project controls and drawing tools within view. */
+@media (max-width: 640px) {
+  .vish-workspace-shell [data-testid="editor-top-bar"] {
+    overflow: hidden;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row {
+    justify-content: flex-start !important;
+    max-width: min(62%, 240px);
+    overflow-x: auto !important;
+    flex-shrink: 0;
+    padding-inline: 1px;
+    scroll-padding-inline: 2px;
+    scrollbar-width: none;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row > * {
+    flex-shrink: 0;
+  }
+  .vish-workspace-shell [data-testid="editor-top-bar"] .vish-editor-action-row::-webkit-scrollbar {
+    display: none;
+  }
+  .vish-editor-shell > div.flex.flex-1.overflow-hidden {
+    flex-direction: column;
+    min-height: 0;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail {
+    width: calc(100% - 12px) !important;
+    max-width: calc(100% - 12px);
+    height: 74px !important;
+    min-height: 74px;
+    max-height: 74px;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 4px 6px 0;
+    padding: 4px 8px;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail > p,
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail > .w-8 {
+    display: none;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-tool-rail button {
+    min-width: 56px;
+    min-height: 54px;
+    flex-shrink: 0;
+  }
+  .vish-workspace-shell .vish-editor-shell .vish-canvas-stage {
+    padding: 8px;
+  }
+  .vish-empty-guided-start {
+    padding: 12px;
+    bottom: max(8.5rem, calc(8.5rem + var(--vish-safe-bottom, 0px)));
+    max-height: min(210px, 30vh);
+    overflow-y: auto;
+    border-radius: 14px;
+  }
+  .vish-empty-guided-start__eyebrow {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .vish-empty-guided-start h2 {
+    font-size: 18px;
+    line-height: 1.15;
+    padding-right: 32px;
+  }
+  .vish-empty-guided-start p:not(.vish-empty-guided-start__eyebrow) {
+    font-size: 12px;
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+  .vish-empty-guided-start__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    margin-top: 7px;
+  }
+  .vish-empty-guided-start__actions button {
+    min-width: 0;
+    min-height: 44px;
+    padding-inline: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  .vish-empty-guided-start__actions button svg {
+    display: none;
+  }
+  .vish-empty-guided-start__close {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+
+/* 2D FOCUS — a reversible drafting workspace, preserving all underlying tools. */
+.vish-workspace-shell[data-editor-focus="true"] > .vish-editor-topbar-chrome,
+.vish-workspace-shell[data-editor-focus="true"] .vish-project-sidebar {
+  display: none !important;
+}
+html[data-vish-drawing-focus="true"] .vish-empty-guided-start {
+  display: none !important;
+}
+/* Other global floating helpers are only hidden in Focus, never deleted.
+ * Keep consent, authentication, save prompts and PWA safety notices visible. */
+html[data-vish-drawing-focus="true"] :is(
+  .vish-qa-evidence-launch,
+  .vish-qa-evidence-panel,
+  .vish-voice-tour-launch,
+  .vish-voice-tour-panel,
+  .vish-theme-controller,
+  .mantra-widget
+) {
+  display: none !important;
+}
+.vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+  min-height: 52px;
+  height: 52px;
+  width: calc(100% - 8px);
+  margin: 4px auto 2px;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-editor-action-row {
+  max-width: min(70%, 720px);
+  justify-content: flex-start !important;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-editor-project-title {
+  max-width: min(18rem, 20vw);
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-canvas-stage {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-focus-draw-hint {
+  max-width: min(25rem, 75%);
+  background: rgba(7, 16, 32, 0.80);
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail {
+  width: 58px !important;
+  padding-inline: 3px !important;
+  margin-inline: 3px !important;
+  border-radius: 9px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail button {
+  width: 50px;
+  min-width: 50px;
+  min-height: 50px;
+}
+.vish-editor-shell[data-drawing-focus="true"] .ws-status-bar {
+  min-height: 28px;
+  height: 28px;
+  font-size: 10px;
+}
+@media (max-width: 640px) {
+  .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+    width: calc(100% - 4px);
+    height: 50px;
+    margin-top: 2px;
+    min-height: 50px;
+    padding: 2px 4px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-editor-project-title {
+    max-width: 7rem;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-editor-action-row {
+    max-width: min(66%, 260px);
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-focus-button {
+    min-width: 44px;
+    justify-content: center;
+    padding-inline: 8px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail {
+    height: 66px !important;
+    min-height: 66px;
+    max-height: 66px;
+    width: calc(100% - 6px) !important;
+    max-width: calc(100% - 6px);
+    margin: 3px 3px 0;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-tool-rail button {
+    min-height: 50px;
+    min-width: 54px;
+  }
+  .vish-editor-shell[data-drawing-focus="true"] .vish-focus-draw-hint {
+    font-size: 11px;
+    max-width: min(90%, 22rem);
+  }
+}
+
+
+/* Focus makes the CANVAS—not merely the surrounding flex box—full size. */
+.vish-editor-shell[data-drawing-focus="true"] .architect-canvas {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+
+/* Layout fix: the editor header has TWO children (commands and file/status
+ * strip). Stack them vertically rather than crushing drawing commands into a
+ * half-width row next to status metadata. In 2D Focus only the first row shows.
+ */
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center;
+  height: auto !important;
+  overflow: visible;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] > div:first-child {
+  width: 100%;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-file-strip {
+  width: 100%;
+  flex: 0 0 auto;
+  min-height: 34px;
+  margin: 0;
+  border-top: 1px solid hsl(var(--ws-border) / 0.5);
+  border-radius: 0 0 10px 10px;
+}
+.vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-action-row {
+  flex: 0 1 auto;
+  max-width: min(70%, 950px);
+}
+.vish-workspace-shell .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+  height: 52px !important;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .vish-workspace-shell .vish-editor-shell > [data-testid="editor-top-bar"] .vish-editor-action-row {
+    max-width: min(68%, 280px);
+  }
+  .vish-workspace-shell .vish-editor-shell[data-drawing-focus="true"] > [data-testid="editor-top-bar"] {
+    height: 50px !important;
+  }
+}

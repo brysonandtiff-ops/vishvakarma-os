@@ -364,6 +364,7 @@ export type ToolType =
   | 'select'
   | 'pan'
   | 'wall'
+  | 'arc-wall'
   | 'door'
   | 'window'
   | 'measure'

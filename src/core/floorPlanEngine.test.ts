@@ -22,6 +22,20 @@ describe('FloorPlanEngine', () => {
     expect(engine.getWalls()).toHaveLength(0);
   });
 
+  it('adds an entire arc in one undoable operation', () => {
+    const engine = FloorPlanEngine.getInstance();
+    const base = { thickness: 10, height: 240, material: 'material-paint' };
+    engine.addWalls([
+      { id: 'arc-0', start: { x: 0, y: 0 }, end: { x: 40, y: 20 }, ...base },
+      { id: 'arc-1', start: { x: 40, y: 20 }, end: { x: 80, y: 0 }, ...base },
+    ]);
+    expect(engine.getWalls()).toHaveLength(2);
+    engine.undo();
+    expect(engine.getWalls()).toHaveLength(0);
+    engine.redo();
+    expect(engine.getWalls()).toHaveLength(2);
+  });
+
   it('buildManifest uses session project name', () => {
     const engine = FloorPlanEngine.getInstance();
     engine.setProjectMeta('Test House');

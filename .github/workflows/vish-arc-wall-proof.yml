@@ -1,0 +1,82 @@
+name: VISH Arc Wall Real Video Evidence
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/utils/arcWallGeometry.ts'
+      - 'src/components/editor/**'
+      - 'src/pages/EditorPage.tsx'
+      - 'e2e/arc-wall-proof.spec.ts'
+      - 'e2e/vish-editor-ui-proof.spec.ts'
+      - 'src/components/layouts/AppLayout.tsx'
+      - 'src/styles/vish-editor-clarity.css'
+      - '.github/workflows/vish-arc-wall-proof.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-arc-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Check exact SHA
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: VISH real editor video test
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm run preview:e2e:local > "$RUNNER_TEMP/vish-preview.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 90); do
+            if curl --silent --fail http://127.0.0.1:4173/editor -o /dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/vish-preview.log"
+              echo "VISH preview process exited before becoming ready"
+              exit 1
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat "$RUNNER_TEMP/vish-preview.log"
+            echo "VISH preview failed health check"
+            exit 1
+          fi
+          PLAYWRIGHT_REUSE_SERVER=1 pnpm exec playwright test e2e/arc-wall-proof.spec.ts e2e/vish-editor-ui-proof.spec.ts --project=app-smoke-chromium --retries=0
+      - name: Geometry and undo regression tests
+        if: always()
+        run: pnpm exec vitest run src/utils/arcWallGeometry.test.ts src/utils/sceneCameraFraming.test.ts src/core/floorPlanEngine.test.ts src/hooks/useCanvasResize.test.ts
+      - name: Validate TypeScript
+        if: always()
+        run: pnpm run lint:types
+      - name: Preserve original browser recording and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vish-arc-wall-real-video
+          path: |
+            test-results/
+            playwright-report/
+            evidence/
+          retention-days: 14
+          if-no-files-found: warn

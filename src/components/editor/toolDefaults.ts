@@ -69,6 +69,12 @@ export function getToolDefaults(tool: ToolType): ToolDefaultsConfig {
       return WINDOW_DEFAULTS;
     case 'wall':
       return WALL_DEFAULTS;
+    case 'arc-wall':
+      return {
+        ...WALL_DEFAULTS,
+        sectionTitle: 'Arc Wall',
+        footnote: 'Tap start, end, then bend. The curve is made from short straight wall sections.',
+      };
     case 'terrain':
       return TERRAIN_DEFAULTS;
     case 'measure':

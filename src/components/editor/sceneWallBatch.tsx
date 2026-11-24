@@ -68,7 +68,7 @@ export function BatchedWallMeshes({
 
   return (
     // @ts-expect-error - React Three Fiber JSX types
-    <mesh geometry={geometry} castShadow={castShadow} receiveShadow>
+    <mesh name="vish-wall-batch" geometry={geometry} castShadow={castShadow} receiveShadow>
       <WallSurfaceMaterial materialId={walls[0]?.material ?? 'material-paint'} customMaterials={customMaterials} />
       {/* @ts-expect-error - React Three Fiber JSX types */}
     </mesh>

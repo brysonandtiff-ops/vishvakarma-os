@@ -60,7 +60,7 @@ import { computeStepZoomFactor, computeZoomedViewport } from '@/utils/canvasView
 import RemoteCursorsOverlay from '@/components/editor/collaboration/RemoteCursorsOverlay';
 import type { Presence } from '@/collaboration/types';
 import Viewport3DLoading from '@/components/editor/Viewport3DLoading';
-import { backendStatus } from '@/backend/backendConfig';
+import { backendStatus, isIsolatedLocalE2eWorkspace } from '@/backend/backendConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCloudSaveStatus } from '@/hooks/useCloudSaveStatus';
 import {
@@ -73,7 +73,7 @@ import {
 } from '@/editor/localDraft';
 import { buildProjectExportFilename, serializeProjectManifest } from '@/core/projectExport';
 import { createLocalProject, isLocalProjectId } from '@/editor/localProject';
-import { upsertLocalProject } from '@/editor/localProjects';
+import { getLocalWorkspaceProjects, upsertLocalProject } from '@/editor/localProjects';
 import { dismissOnboarding, consumeFreshSignIn, isOnboardingDismissed } from '@/editor/onboardingMemory';
 import { loadSampleById } from '@/core/sampleCatalog';
 import { useFloorPlanEngine } from '@/hooks/useFloorPlanEngine';
@@ -187,6 +187,25 @@ function EditorWorkspace() {
   const [savingProject, setSavingProject] = useState(false);
   const [customMaterialOpen, setCustomMaterialOpen] = useState(false);
   const [expand3DPanel, setExpand3DPanel] = useState(false);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+  // Reversible 2D canvas focus: affects presentation, never project geometry.
+  const [drawingFocus, setDrawingFocus] = useState(() => {
+    try { return window.sessionStorage.getItem('vish.editor.2d-focus.v1') !== 'false'; }
+    catch { return true; }
+  });
+  useEffect(() => {
+    const shell = document.querySelector<HTMLElement>('.vish-workspace-shell');
+    if (shell) shell.dataset.editorFocus = drawingFocus ? 'true' : 'false';
+    // The lightweight guided-start card lives outside AppLayout, so expose
+    // focus to the document too; do not hide it on non-editor routes.
+    document.documentElement.dataset.vishDrawingFocus = drawingFocus ? 'true' : 'false';
+    try { window.sessionStorage.setItem('vish.editor.2d-focus.v1', String(drawingFocus)); }
+    catch { /* Browsers may disable session storage. */ }
+    return () => {
+      if (shell) delete shell.dataset.editorFocus;
+      delete document.documentElement.dataset.vishDrawingFocus;
+    };
+  }, [drawingFocus]);
   const [samplePickerOpen, setSamplePickerOpen] = useState(false);
   const [loadingSample, setLoadingSample] = useState(false);
   const [pendingRoomType, setPendingRoomType] = useState<string>('Bedroom');
@@ -358,7 +377,7 @@ function EditorWorkspace() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const data = await getProjects();
+      const data = isIsolatedLocalE2eWorkspace ? getLocalWorkspaceProjects() : await getProjects();
       setProjects(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
@@ -453,12 +472,20 @@ function EditorWorkspace() {
         handleRedo();
         return;
       }
+      if (event.shiftKey && event.key.toLowerCase() === 'f') {
+        event.preventDefault();
+        setDrawingFocus((value) => !value);
+        return;
+      }
       if (event.key === 'v' || event.key === 'V') {
         event.preventDefault();
         setTool('select');
       } else if (event.key === 'w' || event.key === 'W') {
         event.preventDefault();
         setTool('wall');
+      } else if (event.key === 'a' || event.key === 'A') {
+        event.preventDefault();
+        setTool('arc-wall');
       } else if (event.key === 'd' && event.shiftKey) {
         event.preventDefault();
         engine.setDimensionVisibility(!engine.getDimensionVisibility());
@@ -496,7 +523,10 @@ function EditorWorkspace() {
         engine.setGridVisible(!gridVisible);
       } else if (event.key === '3') {
         event.preventDefault();
-        engine.setShow3D(!show3DView);
+        const next3D = drawingFocus ? true : !show3DView;
+        setDrawingFocus(false);
+        engine.setShow3D(next3D);
+        setInspectorOpen(false);
       } else if (event.key === 'E' && event.shiftKey) {
         event.preventDefault();
         setExportDialogOpen(true);
@@ -522,6 +552,7 @@ function EditorWorkspace() {
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [
+    drawingFocus,
     engine,
     exportDialogOpen,
     gridVisible,
@@ -804,7 +835,7 @@ function EditorWorkspace() {
     }
   }, [selectedWall?.id, selectedWall?.material]);
 
-  const showRadialMenu = ['wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
+  const showRadialMenu = ['wall', 'arc-wall', 'door', 'window', 'measure', 'text', 'dimension', 'column', 'stair'].includes(currentTool);
   const geometryRevision = useGeometryRevision();
   const geometryManifest = useMemo(
     () => engine.getGeometryManifest(),
@@ -929,8 +960,6 @@ function EditorWorkspace() {
 
   const collabManifest = useMemo(() => engine.buildManifest(), [engine, geometryRevision, revision]);
   const exportManifest = useMemo(() => buildManifest(), [buildManifest, geometryRevision, revision]);
-  const deferredWalls = useDeferredValue(walls);
-  const deferredOpenings = useDeferredValue(openings);
   const deferredFurniture = useDeferredValue(furniture);
   const deferredRooms = useDeferredValue(rooms);
   const deferredFixtures = useDeferredValue(fixtures);
@@ -939,9 +968,13 @@ function EditorWorkspace() {
   const deferredLandscape = useDeferredValue(landscapeElements);
   const deferredMepSymbols = useDeferredValue(mepSymbols);
 
+  // Isolated local browser proof never implies a real Supabase cloud save.
+  const shownCloudConnected = isIsolatedLocalE2eWorkspace ? false : cloudSave.connected;
+  const shownCloudLabel = isIsolatedLocalE2eWorkspace ? 'Local Draft' : cloudSave.label;
+
   const fileStrip = (
     <>
-      <SaveModeBadge connected={cloudSave.connected} label={cloudSave.label} />
+      <SaveModeBadge connected={shownCloudConnected} label={shownCloudLabel} />
       <FloorSwitcher
         floors={floors}
         activeFloorIndex={activeFloorIndex}
@@ -986,8 +1019,8 @@ function EditorWorkspace() {
         openingCount={openings.length}
         saveState={saveState}
         lastDraftAt={lastDraftSavedAt}
-        cloudConnected={cloudSave.connected}
-        cloudSaveLabel={cloudSave.label}
+        cloudConnected={shownCloudConnected}
+        cloudSaveLabel={shownCloudLabel}
         snapEnabled={snapEnabled}
         complianceStatus={complianceReport.overall}
         complianceSummary={
@@ -1083,11 +1116,18 @@ function EditorWorkspace() {
       />
       <div
         className="vish-editor-shell flex h-full min-h-0 flex-col overflow-hidden bg-ws-canvas"
+        data-drawing-focus={drawingFocus ? 'true' : 'false'}
         data-3d-expanded={expand3DPanel ? 'true' : undefined}
       >
         <EditorTopBar
           projectName={projectName}
-          show3DView={show3DView}
+          drawingFocus={drawingFocus}
+          onToggleDrawingFocus={() => {
+            setDrawingFocus((value) => !value);
+            setPropertiesSheetOpen(false);
+          }}
+          saveStatusLabel={shownCloudLabel}
+          show3DView={drawingFocus ? false : show3DView}
           expand3DPanel={expand3DPanel}
           onToggleExpand3D={() => setExpand3DPanel((value) => !value)}
           workspaceMode={workspaceMode}
@@ -1097,8 +1137,20 @@ function EditorWorkspace() {
           onToggleZen={() => engine.setZenMode(!zenMode)}
           onTogglePresentationLock={() => engine.setPresentationLock(!presentationLock)}
           onToggle3D={() => {
-            engine.setShow3D(!show3DView);
-            if (show3DView) setExpand3DPanel(false);
+            const next3D = drawingFocus ? true : !show3DView;
+            setDrawingFocus(false);
+            engine.setShow3D(next3D);
+            setInspectorOpen(false);
+            if (!next3D) setExpand3DPanel(false);
+          }}
+          inspectorOpen={inspectorOpen && !drawingFocus}
+          onToggleInspector={() => {
+            if (drawingFocus) {
+              setDrawingFocus(false);
+              setInspectorOpen(true);
+            } else {
+              setInspectorOpen((value) => !value);
+            }
           }}
           gridVisible={gridVisible}
           onToggleGrid={() => engine.setGridVisible(!gridVisible)}
@@ -1119,13 +1171,13 @@ function EditorWorkspace() {
           onRedo={handleRedo}
           canUndo={canUndo}
           canRedo={canRedo}
-          fileStrip={fileStrip}
+          fileStrip={drawingFocus ? undefined : fileStrip}
           monsoonActive={monsoonActive}
           onToggleMonsoon={handleToggleMonsoon}
           pranaActive={pranaActive}
           onTogglePrana={handleTogglePrana}
         />
-        <ComplianceBanner report={complianceReport} />
+        {!drawingFocus && <ComplianceBanner report={complianceReport} />}
 
         <div className="flex flex-1 overflow-hidden">
           {!presentationLock && (
@@ -1154,10 +1206,17 @@ function EditorWorkspace() {
                     </p>
                   </div>
                 )}
-                <p className="vish-editor-mantra-watermark" aria-hidden="true">
-                  ॐ वास्तु · शिल्प · प्रमाण
-                </p>
-                {walls.length === 0 && !showOnboarding && (
+                {!drawingFocus && (
+                  <p className="vish-editor-mantra-watermark" aria-hidden="true">
+                    ॐ वास्तु · शिल्प · प्रमाण
+                  </p>
+                )}
+                {drawingFocus && walls.length === 0 && (
+                  <p className="vish-focus-draw-hint pointer-events-none absolute right-3 top-3 z-10 rounded-lg border border-vish-gold-500/25 bg-vish-navy-950/85 px-3 py-2 text-xs text-vish-text-200">
+                    Choose Wall or Arc Wall in the tool strip, then tap points on the plan.
+                  </p>
+                )}
+                {walls.length === 0 && !drawingFocus && !showOnboarding && (
                   <div className="vish-canvas-empty-hint" aria-hidden="true">
                     <div className="vish-canvas-empty-hint__card">
                       <p className="vish-canvas-empty-hint__title">Drafting board ready</p>
@@ -1176,6 +1235,7 @@ function EditorWorkspace() {
                 )}
                 <AppErrorBoundary title="Blueprint canvas error">
                 <BlueprintCanvas
+                  fitCanvasToWorkspace={drawingFocus}
                   walls={walls}
                   openings={openings}
                   labels={labels}
@@ -1195,6 +1255,10 @@ function EditorWorkspace() {
                   gridSize={gridSize}
                   onWallAdd={(wall) => {
                     engine.addWall(wall);
+                    playStudioSound('wallPlace');
+                  }}
+                  onWallsAdd={(newWalls) => {
+                    engine.addWalls(newWalls);
                     playStudioSound('wallPlace');
                   }}
                   onWallUpdate={(wallId, updates) => engine.updateWall(wallId, updates)}
@@ -1233,7 +1297,7 @@ function EditorWorkspace() {
                   interactionLocked={presentationLock}
                 />
                 </AppErrorBoundary>
-                {!presentationLock && walls.length > 0 && (
+                {!drawingFocus && !presentationLock && walls.length > 0 && (
                   <CanvasMinimap
                     walls={walls}
                     rooms={rooms}
@@ -1246,7 +1310,7 @@ function EditorWorkspace() {
                     onPanToWorld={handleMinimapPan}
                   />
                 )}
-                <EditorCompassCost
+                {!drawingFocus && <EditorCompassCost
                   northOrientation={northOrientation}
                   jurisdiction={resolveJurisdiction(engine.getManifest())}
                   regionId={resolveRegionId(engine.getManifest())}
@@ -1255,21 +1319,21 @@ function EditorWorkspace() {
                   onNorthChange={(degrees) => engine.setNorthOrientation(degrees)}
                   onJurisdictionChange={(j: ProjectJurisdiction) => engine.setJurisdiction(j)}
                   onRegionChange={(regionId) => engine.setRegionId(regionId)}
-                />
-                <RemoteCursorsOverlay
+                />}
+                {!drawingFocus && <RemoteCursorsOverlay
                   presences={collabPresences}
                   currentUserId={user?.id}
-                />
-                <EditorPerfHud />
-                <EditorPhasePills />
+                />}
+                {!drawingFocus && <EditorPerfHud />}
+                {!drawingFocus && <EditorPhasePills />}
                 <RadialToolMenuTracker
-                  visible={showRadialMenu}
+                  visible={showRadialMenu && !drawingFocus}
                   containerRef={canvasStageRef}
                   currentTool={currentTool}
                   onSelectTool={setTool}
                 />
                 <WelcomeOverlay
-                  open={welcomeOpen && showOnboarding}
+                  open={!drawingFocus && welcomeOpen && showOnboarding}
                   returningUser={freshSignIn}
                   hasCloudProjects={Boolean(user && projects.length > 0)}
                   onOpenProjects={() => setLoadDialogOpen(true)}
@@ -1291,7 +1355,7 @@ function EditorWorkspace() {
                   }}
                 />
                 <ArchitectureBotWidget
-                  visible={!presentationLock && !(welcomeOpen && showOnboarding)}
+                  visible={!drawingFocus && !presentationLock && !(welcomeOpen && showOnboarding)}
                   panelOpen={architectureBot.panelOpen}
                   issues={architectureBot.issues}
                   issueCount={architectureBot.issueCount}
@@ -1306,7 +1370,7 @@ function EditorWorkspace() {
               </div>
             </section>
 
-            {show3DView && (
+            {show3DView && !drawingFocus && (
               <section
                 className={`vish-3d-viewport-pane vish-realism-viewport-frame flex shrink-0 flex-col border-l border-ws-border transition-all duration-300 ease-in-out ${
                   presentationLock ? 'w-full md:w-[32rem] lg:w-[40rem]' : 'w-80 md:w-96'
@@ -1321,8 +1385,8 @@ function EditorWorkspace() {
                 <div className="flex-1 overflow-hidden">
                   <Suspense fallback={<Viewport3DLoading />}>
                     <Viewport3D
-                      walls={deferredWalls}
-                      openings={deferredOpenings}
+                      walls={walls}
+                      openings={openings}
                       lighting={lighting}
                       furniture={deferredFurniture}
                       materials={materials}
@@ -1354,14 +1418,14 @@ function EditorWorkspace() {
             )}
           </div>
 
-          {!presentationLock && !zenMode && !expand3DPanel && (
-          <aside className="hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
+          {!drawingFocus && !presentationLock && !zenMode && !expand3DPanel && inspectorOpen && (
+          <aside aria-label="Properties inspector" className="vish-editor-inspector hidden w-72 shrink-0 flex-col overflow-hidden md:flex ml-1.5 mr-1.5 my-1.5">
             {propertiesPanel}
           </aside>
           )}
         </div>
 
-        {!presentationLock && !zenMode && (
+        {!drawingFocus && !presentationLock && !zenMode && (
           <>
             <button
               type="button"

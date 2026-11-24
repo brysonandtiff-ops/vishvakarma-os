@@ -23,6 +23,8 @@ export interface CanvasResizeMetrics {
 export interface CanvasResizeOptions {
   wallCount?: number;
   coarsePointer?: boolean;
+  /** Fill the actual editor stage in 2D Focus, retaining normal aspect elsewhere. */
+  fitContainer?: boolean;
 }
 
 function resolveDevicePixelRatio(options?: CanvasResizeOptions): number {
@@ -37,7 +39,7 @@ function resolveDevicePixelRatio(options?: CanvasResizeOptions): number {
   return base;
 }
 
-function computeMetrics(
+export function computeMetrics(
   containerWidth: number,
   containerHeight: number,
   maxWidth = DEFAULT_MAX_WIDTH,
@@ -46,10 +48,10 @@ function computeMetrics(
   const safeWidth = Math.max(1, containerWidth);
   const safeHeight = Math.max(1, containerHeight);
 
-  let displayWidth = Math.min(safeWidth, maxWidth);
-  let displayHeight = displayWidth / DEFAULT_ASPECT;
+  let displayWidth = options?.fitContainer ? safeWidth : Math.min(safeWidth, maxWidth);
+  let displayHeight = options?.fitContainer ? safeHeight : displayWidth / DEFAULT_ASPECT;
 
-  if (displayHeight > safeHeight) {
+  if (!options?.fitContainer && displayHeight > safeHeight) {
     displayHeight = safeHeight;
     displayWidth = displayHeight * DEFAULT_ASPECT;
   }
@@ -57,7 +59,12 @@ function computeMetrics(
   displayWidth = Math.max(1, Math.round(displayWidth));
   displayHeight = Math.max(1, Math.round(displayHeight));
 
-  const dpr = resolveDevicePixelRatio(options);
+  // Keep a large desktop focus sheet responsive without allocating an
+  // unbounded high-DPI bitmap (8 million backing pixels maximum).
+  const dpr = Math.min(
+    resolveDevicePixelRatio(options),
+    Math.sqrt(8_000_000 / (displayWidth * displayHeight)),
+  );
 
   const bufferWidth = Math.max(1, Math.round(displayWidth * dpr));
   const bufferHeight = Math.max(1, Math.round(displayHeight * dpr));
@@ -80,11 +87,13 @@ export function useCanvasResize(
   const isCoarsePointer = useCoarsePointer();
   const coarsePointer = options?.coarsePointer ?? isCoarsePointer;
   const wallCount = options?.wallCount ?? 0;
+  const fitContainer = options?.fitContainer ?? false;
 
   const [metrics, setMetrics] = useState<CanvasResizeMetrics>(() =>
     computeMetrics(maxWidth, maxWidth / DEFAULT_ASPECT, maxWidth, {
       coarsePointer,
       wallCount,
+      fitContainer,
     }),
   );
 
@@ -109,6 +118,7 @@ export function useCanvasResize(
           computeMetrics(rect.width, rect.height, maxWidth, {
             coarsePointer,
             wallCount,
+            fitContainer,
           }),
         );
       });
@@ -128,6 +138,7 @@ export function useCanvasResize(
         computeMetrics(rect.width, rect.height, maxWidth, {
           coarsePointer,
           wallCount,
+          fitContainer,
         }),
       );
     };
@@ -152,7 +163,7 @@ export function useCanvasResize(
       window.removeEventListener('orientationchange', updateAfterOrientationChange);
       window.visualViewport?.removeEventListener('resize', update);
     };
-  }, [containerRef, maxWidth, coarsePointer, wallCount]);
+  }, [containerRef, maxWidth, coarsePointer, wallCount, fitContainer]);
 
   return metrics;
 }
