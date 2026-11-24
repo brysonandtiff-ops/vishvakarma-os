@@ -17,7 +17,11 @@ test.describe('production auth gate', () => {
     await expect(page.getByTestId('auth-mockup-card')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('google-sso-button')).toBeVisible();
     await expect(page.getByTestId('google-sso-button')).toHaveText(/continue with google sso/i);
-    await expect(page.getByText(/supabase google oauth as the only production login path/i)).toBeVisible();
+    // Current AuthLoginCard copy: Google SSO primary + optional Supabase email link.
+    await expect(
+      page.getByText(/sign in with google sso or request a secure one-time email link through supabase/i),
+    ).toBeVisible();
+    await expect(page.getByTestId('email-magic-link-button')).toBeVisible();
     await expect(page.getByRole('button', { name: /send secure access link/i })).toHaveCount(0);
   });
 
