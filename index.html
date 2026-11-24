@@ -41,22 +41,67 @@
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/vishvakarma-apple-touch-icon.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px)" href="/splash/apple-splash-1125-2436.png" />
+    <style>
+      .vish-boot-cinema{position:relative;display:grid;justify-items:center;gap:1rem;width:min(90vw,24rem);padding:2.1rem;color:#f9ebc3;text-align:center;isolation:isolate}
+      .vish-boot-cinema img{position:relative;z-index:1;width:5.4rem;height:5.4rem;object-fit:contain;filter:drop-shadow(0 0 17px rgba(245,201,103,.48));animation:vish-boot-glow 3s ease-in-out infinite}
+      .vish-boot-cinema__orbit{position:absolute;top:.4rem;width:9rem;height:9rem;border:1px solid rgba(245,201,103,.26);border-radius:50%;box-shadow:0 0 50px rgba(245,201,103,.16);animation:vish-boot-orbit 4s ease-in-out infinite}
+      .vish-boot-cinema strong{margin-top:1rem;font:700 1.2rem/1.25 system-ui,sans-serif;letter-spacing:.16em}
+      .vish-boot-cinema>span:not(.vish-boot-cinema__orbit):not(.vish-boot-cinema__line){font:400 .78rem/1.4 system-ui,sans-serif;color:#e4d8b7}
+      .vish-boot-cinema__line{width:14rem;max-width:90%;height:2px;margin-top:.35rem;overflow:hidden;background:linear-gradient(90deg,transparent,#f5c967,transparent);transform-origin:left;animation:vish-boot-line 1.6s ease-in-out infinite}
+      @keyframes vish-boot-glow{50%{filter:drop-shadow(0 0 29px rgba(245,201,103,.78))}}
+      @keyframes vish-boot-orbit{50%{transform:scale(1.07);opacity:.7}}
+      @keyframes vish-boot-line{0%,100%{transform:scaleX(.38);opacity:.5}50%{transform:scaleX(1);opacity:1}}
+      @media(prefers-reduced-motion:reduce){.vish-boot-cinema img,.vish-boot-cinema__orbit,.vish-boot-cinema__line{animation:none!important}}
+    </style>
     <!-- Fonts are self-hosted via @fontsource packages in src/main.tsx. -->
   
 </head>
   <body>
-    <div id="boot-splash" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#17120c;color:#f6e7c1;transition:opacity .2s ease;pointer-events:none">
-      <span style="font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase">Vishvakarma.OS</span>
+    <div id="boot-splash" role="status" aria-label="Opening Vishvakarma.OS" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#17120c;color:#f6e7c1;transition:opacity .18s ease;pointer-events:none">
+      <div class="vish-boot-cinema">
+        <span class="vish-boot-cinema__orbit" aria-hidden="true"></span>
+        <img src="/brand/vishvakarma-official-logo.svg" alt="" width="86" height="86" decoding="async" />
+        <strong>Vishvakarma.OS</strong>
+        <span>Opening your architecture studio</span>
+        <span class="vish-boot-cinema__line" aria-hidden="true"></span>
+      </div>
     </div>
     <div id="root"></div>
     <script>
-      window.addEventListener('load', () => {
-        const splash = document.getElementById('boot-splash');
-        if (splash) {
+      // First React paint (including its lazy-route fallback) removes the splash.
+      // Never wait for slow images, window.load, or an arbitrary cinematic duration.
+      (() => {
+        let observer;
+        let dismissed = false;
+        const dismiss = () => {
+          if (dismissed) return;
+          dismissed = true;
+          observer?.disconnect();
+          const splash = document.getElementById('boot-splash');
+          if (!splash) return;
           splash.style.opacity = '0';
-          window.setTimeout(() => splash.remove(), 220);
+          window.setTimeout(() => splash.remove(), 190);
+        };
+        const checkRoot = () => {
+          if (document.getElementById('root')?.hasChildNodes()) {
+            requestAnimationFrame(dismiss);
+          }
+        };
+        const watch = () => {
+          const root = document.getElementById('root');
+          if (!root) return;
+          observer = new MutationObserver(checkRoot);
+          observer.observe(root, { childList: true });
+          checkRoot();
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', watch, { once: true });
+        } else {
+          watch();
         }
-      }, { once: true });
+        // Safety release: show the real app/error state if startup is broken.
+        window.setTimeout(dismiss, 5000);
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

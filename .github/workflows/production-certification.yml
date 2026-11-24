@@ -73,7 +73,8 @@ jobs:
 
   browser-certification:
     name: Cross-browser and strict release certification
-    runs-on: ubuntu-latest
+    # Playwright 1.60 does not support the ubuntu-26.04 image behind ubuntu-latest.
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       PLAYWRIGHT_BROWSERS: all
@@ -113,6 +114,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Verify cinematic welcome and canonical swan brand
+        run: pnpm exec vitest run src/test/vishCinematicEntry.test.tsx src/test/officialLogoBrand.test.ts
+
+      - name: Type-check app source
+        run: pnpm run lint:types
 
       - name: Install browser runtimes
         run: pnpm exec playwright install --with-deps chromium firefox webkit

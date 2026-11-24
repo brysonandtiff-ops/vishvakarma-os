@@ -38,6 +38,7 @@ import "./vish-theme.css";
 import "./styles/vish-sacred-tokens.css";
 import "./styles/vish-realism.css";
 import "./styles/vish-motion-system.css";
+import "./styles/vish-architecture-cinematics.css";
 import "./styles/vish-copilot-swan.css";
 import "./styles/vish-sacred-layers.css";
 import "./styles/vish-indian-sacred.css";
