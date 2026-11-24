@@ -31,8 +31,9 @@ Use this checklist on a **physical iPad** after automated Playwright gates pass 
 3. Use **Pan** tool — one-finger canvas pan.
 4. Pinch zoom on blueprint canvas.
 5. Toggle 3D panel — no horizontal overflow in portrait.
-6. Optional: draw walls with Apple Pencil; verify palm rejection.
-7. Flip Apple Pencil (eraser end) on a wall and opening — confirm geometry is removed.
+6. Select **Pencil** and draw connected walls with a finger and Apple Pencil tip; verify palm rejection and 3D reflection.
+7. Select **Eraser** and rub over a wall and opening with a finger and Apple Pencil tip. **Do not assume Apple Pencil has a physical eraser end.** Test a hardware eraser separately only when a compatible stylus exposes it.
+8. Undo an eraser stroke and confirm recovery. Save/reopen the project and verify geometry survives.
 
 ## Autosave / sync badge
 

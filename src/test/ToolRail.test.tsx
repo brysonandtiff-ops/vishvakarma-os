@@ -16,6 +16,8 @@ describe('ToolRail', () => {
 
       expect(screen.getByLabelText('Select')).toBeInTheDocument();
       expect(screen.getByLabelText('Wall')).toBeInTheDocument();
+      expect(screen.getByLabelText('Pencil')).toBeInTheDocument();
+      expect(screen.getByLabelText('Eraser')).toBeInTheDocument();
       expect(screen.getByLabelText('Door')).toBeInTheDocument();
       expect(screen.getByLabelText('Window')).toBeInTheDocument();
       expect(screen.getByLabelText('Measure')).toBeInTheDocument();
@@ -44,6 +46,17 @@ describe('ToolRail', () => {
       await user.click(screen.getByLabelText('Wall'));
 
       expect(onToolChange).toHaveBeenCalledWith('wall');
+    });
+
+    it('lets finger users select the visible Pencil and Eraser tools', async () => {
+      const user = userEvent.setup();
+      const onToolChange = vi.fn();
+      render(<ToolRail {...defaultProps} onToolChange={onToolChange} />);
+
+      await user.click(screen.getByLabelText('Pencil'));
+      await user.click(screen.getByLabelText('Eraser'));
+      expect(onToolChange).toHaveBeenNthCalledWith(1, 'pen');
+      expect(onToolChange).toHaveBeenNthCalledWith(2, 'eraser');
     });
 
     it('should call onToolChange when Vastu tool is clicked in draft mode', async () => {

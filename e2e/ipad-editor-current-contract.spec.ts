@@ -25,7 +25,7 @@ async function setupEditor(page: Page, viewport: { width: number; height: number
   await expect(page.getByTestId('blueprint-canvas')).toBeVisible({ timeout: 30_000 });
 }
 
-async function activatePersistentTool(page: Page, name: 'Wall' | 'Door' | 'Window') {
+async function activatePersistentTool(page: Page, name: 'Wall' | 'Door' | 'Window' | 'Pencil' | 'Eraser') {
   const button = page.getByTestId('tool-rail').getByRole('button', { name, exact: true });
   await button.scrollIntoViewIfNeeded({ timeout: 10_000 });
   await expect(button).toBeVisible({ timeout: 10_000 });
@@ -128,6 +128,66 @@ test.describe('current iPad editor interaction contract', () => {
       buttons: 0,
     });
 
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls);
+  });
+
+  test('finger pencil drawing, rubbing eraser, and one-step Undo restore walls', async ({ page }) => {
+    await setupEditor(page, iPadLandscape);
+    const initialWalls = await readEditorMetricCount(page, 'Walls');
+    const { canvas, box } = await canvasBox(page);
+    const from = { x: box.width * 0.3, y: box.height * 0.63 };
+    const to = { x: box.width * 0.72, y: from.y };
+
+    await activatePersistentTool(page, 'Pencil');
+    await dispatchCanvasPointer(canvas, 'pointerdown', from, { pointerId: 91, pointerType: 'touch' });
+    for (let step = 1; step <= 6; step += 1) {
+      await dispatchCanvasPointer(canvas, 'pointermove', {
+        x: from.x + (to.x - from.x) * step / 6,
+        y: from.y,
+      }, { pointerId: 91, pointerType: 'touch' });
+    }
+    await dispatchCanvasPointer(canvas, 'pointerup', to, {
+      pointerId: 91, pointerType: 'touch', buttons: 0,
+    });
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
+
+    await activatePersistentTool(page, 'Eraser');
+    const midpoint = { x: (from.x + to.x) / 2, y: from.y };
+    await dispatchCanvasPointer(canvas, 'pointerdown', midpoint, {
+      pointerId: 92, pointerType: 'touch',
+    });
+    await dispatchCanvasPointer(canvas, 'pointermove', { x: midpoint.x + 32, y: midpoint.y }, {
+      pointerId: 92, pointerType: 'touch',
+    });
+    await dispatchCanvasPointer(canvas, 'pointerup', { x: midpoint.x + 32, y: midpoint.y }, {
+      pointerId: 92, pointerType: 'touch', buttons: 0,
+    });
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls);
+
+    await page.keyboard.press('Control+z');
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
+  });
+
+  test('Apple Pencil tip can erase using the visible tool without a hardware eraser button', async ({ page }) => {
+    await setupEditor(page, iPadLandscape);
+    const initialWalls = await readEditorMetricCount(page, 'Walls');
+    const { canvas, box } = await canvasBox(page);
+    const from = { x: box.width * 0.33, y: box.height * 0.67 };
+    const to = { x: box.width * 0.7, y: from.y };
+    await activatePersistentTool(page, 'Pencil');
+    await dispatchCanvasPointer(canvas, 'pointerdown', from, { pointerId: 93, pointerType: 'pen' });
+    await dispatchCanvasPointer(canvas, 'pointermove', to, { pointerId: 93, pointerType: 'pen' });
+    await dispatchCanvasPointer(canvas, 'pointerup', to, { pointerId: 93, pointerType: 'pen', buttons: 0 });
+    await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls + 1);
+
+    await activatePersistentTool(page, 'Eraser');
+    const midpoint = { x: (from.x + to.x) / 2, y: from.y };
+    await dispatchCanvasPointer(canvas, 'pointerdown', midpoint, {
+      pointerId: 94, pointerType: 'pen', button: 0, buttons: 1,
+    });
+    await dispatchCanvasPointer(canvas, 'pointerup', midpoint, {
+      pointerId: 94, pointerType: 'pen', button: 0, buttons: 0,
+    });
     await expect.poll(() => readEditorMetricCount(page, 'Walls'), { timeout: 20_000 }).toBe(initialWalls);
   });
 

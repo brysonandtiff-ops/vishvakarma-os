@@ -108,6 +108,7 @@ import {
 } from '@/utils/wallDrawConstraints';
 import { computeVastuOverlayRadius, drawVastuSectorOverlay } from '@/core/simulations/vastuOverlay';
 import { sonicBridge } from '@/lib/sonic-bridge';
+import { appendPencilPoint, pencilStrokeToWalls } from '@/components/editor/blueprint/freehandWalls';
 
 interface BlueprintCanvasProps {
   walls: Wall[];
@@ -127,6 +128,7 @@ interface BlueprintCanvasProps {
   snapEnabled: boolean;
   gridSize: number;
   onWallAdd: (wall: Wall) => void;
+  onWallsAdd?: (walls: Wall[]) => void;
   onWallUpdate?: (wallId: string, updates: Partial<Wall>) => void;
   onWallDelete?: (wallId: string) => void;
   onOpeningAdd: (opening: Opening) => void;
@@ -285,6 +287,7 @@ export default function BlueprintCanvas({
   snapEnabled,
   gridSize,
   onWallAdd,
+  onWallsAdd,
   onWallUpdate,
   onWallDelete,
   onOpeningAdd,
@@ -425,7 +428,23 @@ export default function BlueprintCanvas({
   } | null>(null);
   const eraserStrokeRef = useRef<Set<string>>(new Set());
   const isErasingRef = useRef(false);
+  const eraserPointerIdRef = useRef<number | null>(null);
+  const eraserLastPointRef = useRef<Point2D | null>(null);
+  const eraserEditActiveRef = useRef(false);
+  const eraserChangedRef = useRef(false);
+  const pencilPointerIdRef = useRef<number | null>(null);
+  const pencilPointsRef = useRef<Point2D[]>([]);
+  const [pencilPreview, setPencilPreview] = useState<Point2D[]>([]);
   const [isPinching, setIsPinching] = useState(false);
+
+  // Group an entire rub gesture into one Undo, including a cancelled gesture.
+  const finishEraserEdit = useCallback(() => {
+    if (!eraserEditActiveRef.current) return;
+    if (eraserChangedRef.current) floorPlanEngine.commitEditTransaction('Erase walls/openings');
+    else floorPlanEngine.abortEditTransaction();
+    eraserEditActiveRef.current = false;
+    eraserChangedRef.current = false;
+  }, [floorPlanEngine]);
 
   const cancelTransientInteractions = useCallback(() => {
     if (draggingOpeningId || draggingFurnitureId || draggingWallEndpoint) {
@@ -444,9 +463,15 @@ export default function BlueprintCanvas({
     setDragWallEndpointPosition(null);
     setMarqueeRect(null);
     setPreviewOpening(null);
+    finishEraserEdit();
     isErasingRef.current = false;
+    eraserPointerIdRef.current = null;
+    eraserLastPointRef.current = null;
     eraserStrokeRef.current.clear();
-  }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, floorPlanEngine]);
+    pencilPointerIdRef.current = null;
+    pencilPointsRef.current = [];
+    setPencilPreview([]);
+  }, [draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, finishEraserEdit, floorPlanEngine]);
 
   const spatialIndexRef = useRef(new SpatialIndex());
 
@@ -820,6 +845,7 @@ export default function BlueprintCanvas({
         }
         if (!onOpeningDelete) return;
         strokeIds.add(strokeKey);
+        eraserChangedRef.current = true;
         onOpeningDelete(opening.id);
         onOpeningSelect?.(undefined);
         onWallSelect(undefined);
@@ -839,6 +865,7 @@ export default function BlueprintCanvas({
         }
         if (!onWallDelete) return;
         strokeIds.add(strokeKey);
+        eraserChangedRef.current = true;
         onWallDelete(wall.id);
         onWallSelect(undefined);
         onWallsSelect?.([]);
@@ -885,14 +912,19 @@ export default function BlueprintCanvas({
       return;
     }
 
-    if (isEraserPointerActive(event)) {
+    if ((currentTool === 'eraser' && event.button === 0) || isEraserPointerActive(event)) {
       event.preventDefault();
       const mode = getInputMode(event);
       setInputMode(mode);
       eraserStrokeRef.current = new Set();
       isErasingRef.current = true;
+      eraserPointerIdRef.current = event.pointerId;
+      eraserLastPointRef.current = getRawCanvasPoint(event);
+      eraserChangedRef.current = false;
+      eraserEditActiveRef.current = true;
+      floorPlanEngine.beginEditTransaction();
       event.currentTarget.setPointerCapture(event.pointerId);
-      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
+      eraseAtPoint(eraserLastPointRef.current, mode, eraserStrokeRef.current);
       return;
     }
 
@@ -927,6 +959,14 @@ export default function BlueprintCanvas({
     setInputMode(mode);
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getCanvasPoint(event);
+
+    if (currentTool === 'pen' && event.button === 0) {
+      pencilPointerIdRef.current = event.pointerId;
+      const points = appendPencilPoint([], getRawCanvasPoint(event));
+      pencilPointsRef.current = points;
+      setPencilPreview(points);
+      return;
+    }
 
     if (currentTool === 'wall') {
       if (isDrawing && startPoint) {
@@ -1212,7 +1252,10 @@ export default function BlueprintCanvas({
 
   const handlePointerMove = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    syncActivePointer(event);
+    // Hovering pen must not count as a pressed pointer: it would reject real finger taps.
+    if (pointerTrackerRef.current.values().some((pointer) => pointer.pointerId === event.pointerId)) {
+      syncActivePointer(event);
+    }
 
     if (isPinching && pointerTrackerRef.current.touchPointers().length >= 2) {
       applyPinchGesture();
@@ -1222,8 +1265,40 @@ export default function BlueprintCanvas({
     const mode = getInputMode(event);
     setInputMode(mode);
 
-    if (isErasingRef.current && isEraserPointerPressed(event)) {
-      eraseAtPoint(getCanvasPoint(event), mode, eraserStrokeRef.current);
+    if (
+      isErasingRef.current &&
+      eraserPointerIdRef.current === event.pointerId &&
+      (isEraserPointerPressed(event) || event.buttons !== 0 || event.pointerType === 'touch')
+    ) {
+      // Rub across the whole travelled path, not just event samples; never snap the eraser to grid.
+      const point = getRawCanvasPoint(event);
+      const previous = eraserLastPointRef.current ?? point;
+      const distance = Math.hypot(point.x - previous.x, point.y - previous.y);
+      const steps = Math.min(64, Math.max(1, Math.ceil(distance / 8)));
+      for (let step = 1; step <= steps; step += 1) {
+        eraseAtPoint({
+          x: previous.x + (point.x - previous.x) * step / steps,
+          y: previous.y + (point.y - previous.y) * step / steps,
+        }, mode, eraserStrokeRef.current);
+      }
+      eraserLastPointRef.current = point;
+      return;
+    }
+
+    if (pencilPointerIdRef.current === event.pointerId && currentTool === 'pen') {
+      const nativeEvent = event.nativeEvent as globalThis.PointerEvent;
+      const coalesced = typeof nativeEvent.getCoalescedEvents === 'function'
+        ? nativeEvent.getCoalescedEvents()
+        : [];
+      const samples = coalesced.length > 0 ? coalesced : [nativeEvent];
+      let points = pencilPointsRef.current;
+      for (const sample of samples) {
+        points = appendPencilPoint(points, getRawCanvasPoint(sample));
+      }
+      if (points !== pencilPointsRef.current) {
+        pencilPointsRef.current = points;
+        setPencilPreview(points);
+      }
       return;
     }
 
@@ -1349,10 +1424,40 @@ export default function BlueprintCanvas({
 
   const handlePointerUp = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    if (isErasingRef.current) {
+
+    if (isErasingRef.current && eraserPointerIdRef.current === event.pointerId) {
+      finishEraserEdit();
       isErasingRef.current = false;
+      eraserPointerIdRef.current = null;
+      eraserLastPointRef.current = null;
       eraserStrokeRef.current.clear();
+      clearActivePointer(event.pointerId);
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      return;
     }
+
+    if (pencilPointerIdRef.current === event.pointerId) {
+      const points = appendPencilPoint(pencilPointsRef.current, getRawCanvasPoint(event));
+      pencilPointerIdRef.current = null;
+      pencilPointsRef.current = [];
+      setPencilPreview([]);
+      clearActivePointer(event.pointerId);
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      if (!isPinching && !interactionLocked) {
+        const walls = pencilStrokeToWalls(points, `${Date.now()}-${event.pointerId}`);
+        if (walls.length > 0) {
+          if (onWallsAdd) onWallsAdd(walls);
+          else walls.forEach(onWallAdd);
+          sonicBridge.playSnap();
+        }
+      }
+      return;
+    }
+
     const wasMultiTouch = isPinching || pointerTrackerRef.current.shouldEnterTouchGesture();
     clearActivePointer(event.pointerId);
 
@@ -1432,9 +1537,17 @@ export default function BlueprintCanvas({
 
   const handlePointerCancel = (event: CanvasPointerEvent) => {
     event.preventDefault();
-    if (isErasingRef.current) {
+    if (eraserPointerIdRef.current === event.pointerId) {
+      finishEraserEdit();
       isErasingRef.current = false;
+      eraserPointerIdRef.current = null;
+      eraserLastPointRef.current = null;
       eraserStrokeRef.current.clear();
+    }
+    if (pencilPointerIdRef.current === event.pointerId) {
+      pencilPointerIdRef.current = null;
+      pencilPointsRef.current = [];
+      setPencilPreview([]);
     }
     clearActivePointer(event.pointerId);
     if (isPinching) {
@@ -1467,6 +1580,11 @@ export default function BlueprintCanvas({
   useEffect(() => {
     if (currentTool !== 'terrain') {
       setTerrainVertices([]);
+    }
+    if (currentTool !== 'pen') {
+      pencilPointerIdRef.current = null;
+      pencilPointsRef.current = [];
+      setPencilPreview([]);
     }
   }, [currentTool]);
 
@@ -1798,6 +1916,19 @@ export default function BlueprintCanvas({
       // preview rendered in drawWallsLayer
     }
 
+    if (pencilPreview.length > 1 && currentTool === 'pen') {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(pencilPreview[0]!.x, pencilPreview[0]!.y);
+      for (const point of pencilPreview.slice(1)) ctx.lineTo(point.x, point.y);
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 7;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+      ctx.restore();
+    }
+
     if (marqueeRect && currentTool === 'select') {
       const { left, top, width, height } = normalizeSelectionRect(marqueeRect);
       ctx.save();
@@ -1867,7 +1998,7 @@ export default function BlueprintCanvas({
     }
     };
     requestCanvasDraw('overlay');
-  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, unitSystem, walls, bhumiCanvasMode]);
+  }, [canvasViewport, currentPoint, currentTool, dimensionStart, dimensionVisibility, dimensions, dragFurniturePosition, dragOpeningPosition, dragWallEndpointPosition, draggingFurnitureId, draggingOpeningId, draggingWallEndpoint, fixtures, furniture, gridSize, gridVisible, hoveredOpening, hoveredPoint, hoveredWall, isDrawing, labels, landscapeElements, layerVisibility, marqueeRect, mepSymbols, northOrientation, openings, previewOpening, requestCanvasDraw, roomWallSource, rooms, selectedFixtureId, selectedLabelId, selectedOpeningId, selectedWallId, selectedWallIds, snapEnabled, staircases, startPoint, terrain, terrainElevationIndex, terrainVertices, pencilPreview, unitSystem, walls, bhumiCanvasMode]);
 
   return (
     <div
@@ -1981,7 +2112,7 @@ export default function BlueprintCanvas({
       onDoubleClick={handleDoubleClick}
       onPointerCancel={handlePointerCancel}
       onPointerLeave={() => {
-        if (isDrawing) return;
+        if (isDrawing || pencilPointerIdRef.current !== null) return;
         setHoveredWall(null);
         setHoveredOpening(null);
         setPreviewOpening(null);
