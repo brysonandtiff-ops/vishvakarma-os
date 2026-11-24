@@ -53,6 +53,10 @@
   outline-offset: 3px;
 }
 
+.vish-theme-controller__compact-icon {
+  display: none;
+}
+
 .vish-theme-controller__toggle-text {
   display: flex;
   flex-direction: column;

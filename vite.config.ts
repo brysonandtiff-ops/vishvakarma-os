@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 const buildSourceMaps =
-  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.VERCEL !== '1';
+  process.env.VISH_BUILD_SOURCEMAPS === 'true' && process.env.CF_PAGES !== '1';
 
 const optionalEntryPreloadFragments = [
   'EditorPage-',
@@ -195,7 +195,7 @@ export default defineConfig(({ command, mode }) => ({
           if (id.includes('yjs') || id.includes('y-websocket') || id.includes('y-protocols')) return 'vendor-collab';
           if (id.includes('@stripe') || id.includes('stripe')) return 'vendor-stripe';
           if (id.includes('zod') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance')) return 'vendor-utils';
-          if (id.includes('@vercel/analytics') || id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
+          if (id.includes('posthog') || id.includes('@sentry')) return 'vendor-analytics';
           if (id.includes('recharts') || id.includes('d3-scale') || id.includes('d3-shape') || id.includes('d3-color') || id.includes('d3-interpolate') || id.includes('d3-format') || id.includes('d3-time') || id.includes('victory-vendor')) return 'vendor-charts';
           return 'vendor-misc';
         },

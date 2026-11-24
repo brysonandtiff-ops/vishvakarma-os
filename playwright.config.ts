@@ -43,6 +43,7 @@ const APP_SMOKE_MATCH = [
   '**/editor-features.spec.ts',
   '**/marketing-pages.spec.ts',
   '**/workspace-navigation.spec.ts',
+  '**/dashboard-shortcuts.spec.ts',
   '**/projects-profile.spec.ts',
   '**/optimization.spec.ts',
   '**/ai-designer.spec.ts',

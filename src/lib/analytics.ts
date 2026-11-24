@@ -2,9 +2,9 @@ const CONSENT_KEY = 'vishvakarma-analytics-consent';
 export const ANALYTICS_CONSENT_EVENT = 'vish:analytics-consent-change';
 
 /**
- * Product-activation funnel milestones. Keep this list small and meaningful so the
- * funnel stays legible in the Vercel Analytics dashboard. Add a member here before
- * emitting a new event so call sites stay type-checked.
+ * Product-activation funnel milestones. Keep this list small and type-checked.
+ * External telemetry is intentionally disabled; S.I.R.E. proof must not depend
+ * on a third-party analytics runtime.
  */
 export type AnalyticsEvent = 'sign_in_succeeded' | 'project_created' | 'project_exported';
 
@@ -40,8 +40,9 @@ export function setAnalyticsConsent(granted: boolean) {
 }
 
 /**
- * Records a funnel event. No-op without analytics consent. The analytics module is
- * imported only after consent so it cannot inject telemetry code before opt-in.
+ * Keeps existing funnel call sites safe while external analytics is disabled.
+ * Development logs remain available after explicit consent; production emits
+ * no third-party telemetry.
  */
 export function trackEvent(
   name: AnalyticsEvent | (string & {}),
@@ -50,12 +51,5 @@ export function trackEvent(
   if (!hasAnalyticsConsent()) return;
   if (import.meta.env.DEV) {
     console.info('[analytics]', name, properties);
-    return;
   }
-
-  void import('@vercel/analytics')
-    .then(({ track }) => track(name, properties))
-    .catch(() => {
-      // Analytics is best-effort and must never break the product.
-    });
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, Palette } from 'lucide-react';
 import {
   DEFAULT_VISUAL_THEME,
   VISUAL_THEME_STORAGE_KEY,
@@ -146,6 +146,7 @@ export default function VisualThemeController() {
         onClick={() => setOpen((value) => !value)}
         style={{ '--theme-accent': activeTheme.accentHsl } as React.CSSProperties}
       >
+        <Palette className="vish-theme-controller__compact-icon" size={18} aria-hidden="true" />
         <span className="vish-theme-controller__swatch" aria-hidden="true" />
         <span className="vish-theme-controller__toggle-text">
           <span className="vish-theme-controller__eyebrow">Visual identity</span>

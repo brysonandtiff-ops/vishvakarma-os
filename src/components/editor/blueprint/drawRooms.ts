@@ -9,6 +9,7 @@ import {
   ROOM_STROKE_SOFT,
 } from '@/core/sceneDrawingTokens';
 import { getVerticesForRoom } from '@/utils/roomCalculations';
+import { escapeXmlText } from '@/core/exporters/escapeXmlText';
 
 export function drawRoomFills(
   ctx: CanvasRenderingContext2D,
@@ -85,5 +86,5 @@ export function buildRoomLabelSvg(room: Room): string {
   const chipW = Math.max(nameLine.length * 7, areaLine.length * 6) + 20;
   const cx = room.center.x;
   const cy = room.center.y;
-  return `<g class="room-label"><rect x="${cx - chipW / 2}" y="${cy - chipH / 2}" width="${chipW}" height="${chipH}" fill="rgba(249,246,240,0.95)" stroke="#B8941F" stroke-width="1" rx="2" /><text x="${cx}" y="${areaLine ? cy - 8 : cy}" text-anchor="middle" font-size="12" fill="#6b4f2a" font-family="system-ui,sans-serif">${nameLine}</text>${areaLine ? `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-size="9" fill="#6b4f2a" font-family="monospace">${areaLine}</text>` : ''}</g>`;
+  return `<g class="room-label"><rect x="${cx - chipW / 2}" y="${cy - chipH / 2}" width="${chipW}" height="${chipH}" fill="rgba(249,246,240,0.95)" stroke="#B8941F" stroke-width="1" rx="2" /><text x="${cx}" y="${areaLine ? cy - 8 : cy}" text-anchor="middle" font-size="12" fill="#6b4f2a" font-family="system-ui,sans-serif">${escapeXmlText(nameLine)}</text>${areaLine ? `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-size="9" fill="#6b4f2a" font-family="monospace">${areaLine}</text>` : ''}</g>`;
 }

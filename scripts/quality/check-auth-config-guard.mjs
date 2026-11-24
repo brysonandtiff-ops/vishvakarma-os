@@ -14,6 +14,7 @@ const supabaseConfigPath = join(root, 'supabase/config.toml');
 const canonicalOriginPath = join(root, 'src/config/canonicalOrigin.ts');
 
 const failures = [];
+const legacyProvider = ['ver', 'cel'].join('');
 
 function readRequiredFile(path, label) {
   if (!existsSync(path)) {
@@ -36,10 +37,22 @@ function checkSupabaseConfig() {
     );
   }
 
-  for (const required of [CANONICAL_AUTH_URL, CANONICAL_EDITOR_URL]) {
+  const requiredRedirects = [
+    CANONICAL_AUTH_URL,
+    CANONICAL_EDITOR_URL,
+    'https://vishvakarma-os.pages.dev/auth',
+    'https://vishvakarma-os.pages.dev/**',
+    'https://*.vishvakarma-os.pages.dev/**',
+  ];
+
+  for (const required of requiredRedirects) {
     if (!config.includes(required)) {
       failures.push(`supabase/config.toml missing redirect URL: ${required}`);
     }
+  }
+
+  if (config.toLowerCase().includes(legacyProvider)) {
+    failures.push('supabase/config.toml must not allow redirects to the retired hosting provider');
   }
 }
 
@@ -50,11 +63,8 @@ function checkGatewayCanonicalFallbacks() {
   const supabaseClientPath = join(root, 'src/backend/supabase/supabaseClient.ts');
   const supabaseClient = readRequiredFile(supabaseClientPath, 'src/backend/supabase/supabaseClient.ts');
 
-  if (oauth.includes("'https://vishvakarma-os.vercel.app'")) {
-    failures.push('supabaseOAuthGateway.ts must not hardcode Vercel as primary auth origin');
-  }
-  if (auth.includes("'https://vishvakarma-os.vercel.app/auth'")) {
-    failures.push('supabaseAuthGateway.ts must not hardcode Vercel as primary auth URL');
+  if (oauth.toLowerCase().includes(legacyProvider) || auth.toLowerCase().includes(legacyProvider)) {
+    failures.push('Supabase auth gateways must not reference the retired hosting provider');
   }
   if (!oauth.includes('CANONICAL_ORIGIN') || !auth.includes('CANONICAL_AUTH_URL')) {
     failures.push('Supabase auth gateways must import canonical origin constants');
@@ -65,8 +75,8 @@ function checkGatewayCanonicalFallbacks() {
   if (!oauth.includes('completePostAuthRedirect')) {
     failures.push('supabaseOAuthGateway.ts must export completePostAuthRedirect for OAuth callback landing');
   }
-  if (!oauth.includes('ALLOWED_AUTH_ORIGINS')) {
-    failures.push('supabaseOAuthGateway.ts must pin OAuth redirectTo to the active allowed production origin');
+  if (!oauth.includes('isAllowedAuthOrigin')) {
+    failures.push('supabaseOAuthGateway.ts must validate OAuth redirectTo against canonical/Cloudflare origins');
   }
   if (!oauth.includes("POST_AUTH_DESTINATION = '/editor'")) {
     failures.push("supabaseOAuthGateway.ts POST_AUTH_DESTINATION must be '/editor'");

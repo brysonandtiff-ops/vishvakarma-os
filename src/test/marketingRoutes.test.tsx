@@ -26,6 +26,19 @@ describe('marketing routes', () => {
     expect(projects?.access).toBe('private');
   });
 
+  it('keeps AppRoutes aligned with every public marketing document route', () => {
+    const appRoutes = readFileSync(resolve(process.cwd(), 'src/AppRoutes.tsx'), 'utf8');
+
+    expect(appRoutes).toContain('path="/features"');
+    if (PRICING_PAGE_ENABLED) {
+      expect(appRoutes).toContain('path="/pricing"');
+    }
+    expect(appRoutes).toContain('path="/terms"');
+    expect(appRoutes).toContain('path="/privacy"');
+    expect(appRoutes).toContain('<TermsPage />');
+    expect(appRoutes).toContain('<PrivacyPage />');
+  });
+
   it('mounts Sanskrit rain on marketing layout pages', () => {
     const sacredBackground = readFileSync(
       resolve(process.cwd(), 'src/components/marketing/SacredBackground.tsx'),

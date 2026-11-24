@@ -7,9 +7,15 @@ function readRepoFile(...parts: string[]) {
 }
 
 describe('Supabase Auth hardening configuration', () => {
-  it('keeps local Auth Google-only with TOTP enabled', () => {
+  it('keeps local Auth Google-first with Cloudflare redirects and TOTP enabled', () => {
     const config = readRepoFile('supabase', 'config.toml');
+    const legacyProvider = ['ver', 'cel'].join('');
 
+    expect(config).toContain('site_url = "https://vishvakarma-os.app"');
+    expect(config).toContain('"https://vishvakarma-os.pages.dev/auth"');
+    expect(config).toContain('"https://vishvakarma-os.pages.dev/**"');
+    expect(config).toContain('"https://*.vishvakarma-os.pages.dev/**"');
+    expect(config.toLowerCase()).not.toContain(legacyProvider);
     expect(config).toContain('[auth.email]\nenable_signup = false');
     expect(config).toContain('[auth.sms]\nenable_signup = false');
     expect(config).toContain('[auth.mfa.totp]\nenroll_enabled = true\nverify_enabled = true');

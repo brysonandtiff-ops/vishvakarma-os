@@ -225,3 +225,19 @@
     transition: none !important;
   }
 }
+
+
+/* S.I.R.E. V6.1 recovery: keep the tour usable on short/folded touch viewports. */
+.vish-voice-tour-panel {
+  max-height: calc(
+    100dvh - 1.5rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+body:has(.vish-voice-tour-panel) .mantra-widget,
+body:has(.vish-voice-tour-panel) .vish-theme-controller {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
