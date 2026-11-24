@@ -24,4 +24,17 @@ describe('Projects demo samples', () => {
       expect(sampleCatalogSource).toContain("'projects-demo'");
     }
   });
+
+  it('wires dashboard shortcuts to their corresponding editor dialogs', () => {
+    const editorSource = read('src/pages/EditorPage.tsx');
+    for (const [testId, intent] of [
+      ['dashboard-open-project', 'openProject'],
+      ['dashboard-import-files', 'import'],
+      ['dashboard-ai-copilot', 'aiDesigner'],
+    ] as const) {
+      expect(projectsPageSource).toContain(`data-testid="${testId}"`);
+      expect(projectsPageSource).toContain(`openIntent: '${intent}'`);
+      expect(editorSource).toContain(`state.openIntent === '${intent}'`);
+    }
+  });
 });
